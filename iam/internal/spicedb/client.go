@@ -9,6 +9,7 @@ import (
 )
 
 var ErrNotConfigured = errors.New("spicedb endpoint is not configured")
+var ErrNotImplemented = errors.New("spicedb runtime integration is pending")
 
 type Client struct {
 	cfg config.SpiceDBConfig
@@ -22,15 +23,12 @@ func (c *Client) Check(_ context.Context, req *authzv1.CheckAccessRequest) (*aut
 	if c.cfg.Endpoint == "" {
 		return nil, ErrNotConfigured
 	}
-	return &authzv1.AccessCheckResult{
-		Decision:   authzv1.PermissionDecision_PERMISSION_DECISION_DENY,
-		Permission: req.GetPermission(),
-	}, nil
+	return nil, ErrNotImplemented
 }
 
 func (c *Client) WriteBindings(_ context.Context, _ []*authzv1.AccessBinding) error {
 	if c.cfg.Endpoint == "" {
 		return ErrNotConfigured
 	}
-	return nil
+	return ErrNotImplemented
 }

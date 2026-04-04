@@ -56,8 +56,7 @@ services:
       - "9090:9090"
 
   temporal:
-    image: temporalio/server:latest
-    entrypoint: ["temporal"]
+    image: temporalio/temporal:latest
     command:
       - server
       - start-dev

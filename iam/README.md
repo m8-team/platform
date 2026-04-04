@@ -38,9 +38,11 @@ make env-ps
 make run-local
 make worker-local
 make migrate-local
+make seed-local
 make run
 make worker
 make migrate
+make seed
 make schema-sync
 ```
 
@@ -59,6 +61,11 @@ This starts:
 - `Keycloak` on `http://127.0.0.1:8081` with imported realm `m8`
 - `SpiceDB` on `127.0.0.1:50051`
 - `Temporal` on `127.0.0.1:7233` with UI on `http://127.0.0.1:8233`
+
+The `env-up` target also:
+
+- applies `migrations/*.sql`
+- loads local demo data from `testdata/seed/*.json`
 
 2. Generate stubs and verify contracts:
 
@@ -85,6 +92,7 @@ make worker-local
 
 ```bash
 make migrate-local
+make seed-local
 go run ./cmd/schema-sync
 ```
 
@@ -104,7 +112,16 @@ make env-down
   - test realm user: `test-admin / admin`
 - `run-local` and `worker-local` load environment from `deploy/local/iamd.env`.
 - `migrate-local` applies `migrations/*.sql`, creates `schema_migrations` if needed, backfills bootstrap migrations when tables already exist, and applies new unapplied schema updates.
+- `seed-local` idempotently upserts demo tenants, users, memberships, groups, group members, service accounts, OAuth clients, and access bindings from `testdata/seed/*.json`.
 - `YDB` runs with `platform: linux/amd64` and in-memory PDisks. On Apple Silicon, make sure Docker Desktop has Rosetta support enabled as recommended by YDB's Docker documentation.
+
+## Local Seed Data
+
+The default local dataset includes:
+
+- tenant `tenant-demo` with admin, analyst, support, operations group, bot service account, and admin UI client
+- tenant `tenant-sandbox` with owner, developer, developers group, CI service account, and sandbox UI client
+- access bindings for tenant management, project viewer/editor roles, and support case access
 
 ## Current Notes
 
@@ -119,3 +136,4 @@ make env-down
 - `migrations/002_init_authorization.sql`
 - `migrations/003_init_async.sql`
 - `testdata/seed/demo.json`
+- `testdata/seed/sandbox.json`
