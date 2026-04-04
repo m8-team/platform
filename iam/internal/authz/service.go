@@ -3,14 +3,17 @@ package authz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
+	"sync"
 	"time"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	"github.com/m8platform/platform/iam/internal/config"
 	"github.com/m8platform/platform/iam/internal/core"
+	"github.com/m8platform/platform/iam/internal/spicedb"
 	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	"go.uber.org/zap"
@@ -19,14 +22,16 @@ import (
 type Service struct {
 	authzv1.UnimplementedAuthorizationFacadeServiceServer
 
-	store         core.DocumentStore
-	cache         core.Cache
-	publisher     core.EventPublisher
-	runtime       core.AuthorizationRuntime
-	logger        *zap.Logger
-	now           func() time.Time
-	policyVersion string
-	topics        config.TopicsConfig
+	store                core.DocumentStore
+	cache                core.Cache
+	publisher            core.EventPublisher
+	runtime              core.AuthorizationRuntime
+	logger               *zap.Logger
+	now                  func() time.Time
+	policyVersion        string
+	topics               config.TopicsConfig
+	checkFallbackLogOnce sync.Once
+	writeFallbackLogOnce sync.Once
 }
 
 func NewService(store core.DocumentStore, cache core.Cache, publisher core.EventPublisher, runtime core.AuthorizationRuntime, logger *zap.Logger, cfg config.Config) *Service {
@@ -63,7 +68,7 @@ func (s *Service) SetAccessBindings(ctx context.Context, req *authzv1.SetAccessB
 	}
 	if s.runtime != nil {
 		if err := s.runtime.WriteBindings(ctx, req.GetDesiredBindings()); err != nil {
-			s.logger.Warn("spicedb write skipped", zap.Error(err))
+			s.logRuntimeWriteFallback(err)
 		}
 	}
 	operation := core.NewOperation(now, req.GetResource().GetTenantId(), "set_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
@@ -148,7 +153,7 @@ func (s *Service) UpdateAccessBindings(ctx context.Context, req *authzv1.UpdateA
 	}
 	if s.runtime != nil {
 		if err := s.runtime.WriteBindings(ctx, bindings); err != nil {
-			s.logger.Warn("spicedb update skipped", zap.Error(err))
+			s.logRuntimeWriteFallback(err)
 		}
 	}
 	return &authzv1.UpdateAccessBindingsResponse{Bindings: bindings, OperationId: operation.GetOperationId()}, nil
@@ -225,7 +230,7 @@ func (s *Service) checkWithRuntimeOrFallback(ctx context.Context, req *authzv1.C
 		if err == nil && result != nil {
 			return result, nil
 		}
-		s.logger.Warn("spicedb check failed, using fallback evaluator", zap.Error(err))
+		s.logRuntimeCheckFallback(err)
 	}
 	bindings, err := s.listBindingsForResource(ctx, req.GetResource())
 	if err != nil {
@@ -304,4 +309,42 @@ func sameSubject(left *authzv1.SubjectRef, right *authzv1.SubjectRef) bool {
 
 func sameResource(left *authzv1.ResourceRef, right *authzv1.ResourceRef) bool {
 	return left.GetType() == right.GetType() && left.GetId() == right.GetId()
+}
+
+func (s *Service) logRuntimeCheckFallback(err error) {
+	if s == nil || err == nil {
+		return
+	}
+	if isExpectedRuntimeFallback(err) {
+		s.checkFallbackLogOnce.Do(func() {
+			if s.logger != nil {
+				s.logger.Info("spicedb runtime unavailable; using fallback evaluator", zap.Error(err))
+			}
+		})
+		return
+	}
+	if s.logger != nil {
+		s.logger.Warn("spicedb check failed, using fallback evaluator", zap.Error(err))
+	}
+}
+
+func (s *Service) logRuntimeWriteFallback(err error) {
+	if s == nil || err == nil {
+		return
+	}
+	if isExpectedRuntimeFallback(err) {
+		s.writeFallbackLogOnce.Do(func() {
+			if s.logger != nil {
+				s.logger.Info("spicedb runtime unavailable; write sync skipped", zap.Error(err))
+			}
+		})
+		return
+	}
+	if s.logger != nil {
+		s.logger.Warn("spicedb write skipped", zap.Error(err))
+	}
+}
+
+func isExpectedRuntimeFallback(err error) bool {
+	return errors.Is(err, spicedb.ErrNotConfigured) || errors.Is(err, spicedb.ErrNotImplemented)
 }

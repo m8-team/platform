@@ -137,6 +137,20 @@ The default local dataset includes:
 - tenant `tenant-sandbox` with owner, developer, developers group, CI service account, and sandbox UI client
 - access bindings for tenant management, project viewer/editor roles, and support case access
 
+## Postman
+
+Postman assets for the local stack live under `postman/`:
+
+- `postman/m8-platform-iam-local.postman_environment.json`
+- `postman/m8-platform-iam-rest.postman_collection.json`
+- `postman/grpc/README.md`
+- `postman/grpc/examples/*.json`
+
+The REST collection is a curated smoke and workflow set for local IAM scenarios.
+For the full REST surface, import `gen/openapi/iam.swagger.json` into Postman.
+
+For gRPC requests in Postman, import protobuf definitions from `api/proto` and use the ready JSON payloads from `postman/grpc/examples/`.
+
 ## Current Notes
 
 - `buf lint`, `buf generate`, and `go test ./...` pass in the repository.
