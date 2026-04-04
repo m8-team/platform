@@ -1652,6 +1652,75 @@ func (x *UpdateTenantRequest) GetPerformedBy() string {
 	return ""
 }
 
+// DeleteTenantRequest removes a tenant by identifier.
+type DeleteTenantRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	RequestId     string                 `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	PerformedBy   string                 `protobuf:"bytes,4,opt,name=performed_by,json=performedBy,proto3" json:"performed_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteTenantRequest) Reset() {
+	*x = DeleteTenantRequest{}
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteTenantRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTenantRequest) ProtoMessage() {}
+
+func (x *DeleteTenantRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTenantRequest.ProtoReflect.Descriptor instead.
+func (*DeleteTenantRequest) Descriptor() ([]byte, []int) {
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *DeleteTenantRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *DeleteTenantRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *DeleteTenantRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *DeleteTenantRequest) GetPerformedBy() string {
+	if x != nil {
+		return x.PerformedBy
+	}
+	return ""
+}
+
 // ListMembershipsRequest lists user memberships for a tenant.
 type ListMembershipsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1665,7 +1734,7 @@ type ListMembershipsRequest struct {
 
 func (x *ListMembershipsRequest) Reset() {
 	*x = ListMembershipsRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[19]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1677,7 +1746,7 @@ func (x *ListMembershipsRequest) String() string {
 func (*ListMembershipsRequest) ProtoMessage() {}
 
 func (x *ListMembershipsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[19]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1690,7 +1759,7 @@ func (x *ListMembershipsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMembershipsRequest.ProtoReflect.Descriptor instead.
 func (*ListMembershipsRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{19}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListMembershipsRequest) GetTenantId() string {
@@ -1732,7 +1801,7 @@ type ListMembershipsResponse struct {
 
 func (x *ListMembershipsResponse) Reset() {
 	*x = ListMembershipsResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[20]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1744,7 +1813,7 @@ func (x *ListMembershipsResponse) String() string {
 func (*ListMembershipsResponse) ProtoMessage() {}
 
 func (x *ListMembershipsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[20]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1757,7 +1826,7 @@ func (x *ListMembershipsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMembershipsResponse.ProtoReflect.Descriptor instead.
 func (*ListMembershipsResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{20}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListMembershipsResponse) GetMemberships() []*Membership {
@@ -1789,7 +1858,7 @@ type CreateMembershipRequest struct {
 
 func (x *CreateMembershipRequest) Reset() {
 	*x = CreateMembershipRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[21]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1801,7 +1870,7 @@ func (x *CreateMembershipRequest) String() string {
 func (*CreateMembershipRequest) ProtoMessage() {}
 
 func (x *CreateMembershipRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[21]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1814,7 +1883,7 @@ func (x *CreateMembershipRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateMembershipRequest.ProtoReflect.Descriptor instead.
 func (*CreateMembershipRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{21}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CreateMembershipRequest) GetRequestId() string {
@@ -1872,7 +1941,7 @@ type DeleteMembershipRequest struct {
 
 func (x *DeleteMembershipRequest) Reset() {
 	*x = DeleteMembershipRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[22]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1884,7 +1953,7 @@ func (x *DeleteMembershipRequest) String() string {
 func (*DeleteMembershipRequest) ProtoMessage() {}
 
 func (x *DeleteMembershipRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[22]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1897,7 +1966,7 @@ func (x *DeleteMembershipRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteMembershipRequest.ProtoReflect.Descriptor instead.
 func (*DeleteMembershipRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{22}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *DeleteMembershipRequest) GetMembershipId() string {
@@ -1938,7 +2007,7 @@ type GetGroupRequest struct {
 
 func (x *GetGroupRequest) Reset() {
 	*x = GetGroupRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[23]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1950,7 +2019,7 @@ func (x *GetGroupRequest) String() string {
 func (*GetGroupRequest) ProtoMessage() {}
 
 func (x *GetGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[23]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1963,7 +2032,7 @@ func (x *GetGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetGroupRequest.ProtoReflect.Descriptor instead.
 func (*GetGroupRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{23}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetGroupRequest) GetGroupId() string {
@@ -1986,7 +2055,7 @@ type ListGroupsRequest struct {
 
 func (x *ListGroupsRequest) Reset() {
 	*x = ListGroupsRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[24]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1998,7 +2067,7 @@ func (x *ListGroupsRequest) String() string {
 func (*ListGroupsRequest) ProtoMessage() {}
 
 func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[24]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2011,7 +2080,7 @@ func (x *ListGroupsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsRequest.ProtoReflect.Descriptor instead.
 func (*ListGroupsRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{24}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListGroupsRequest) GetTenantId() string {
@@ -2053,7 +2122,7 @@ type ListGroupsResponse struct {
 
 func (x *ListGroupsResponse) Reset() {
 	*x = ListGroupsResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[25]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2065,7 +2134,7 @@ func (x *ListGroupsResponse) String() string {
 func (*ListGroupsResponse) ProtoMessage() {}
 
 func (x *ListGroupsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[25]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2078,7 +2147,7 @@ func (x *ListGroupsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListGroupsResponse.ProtoReflect.Descriptor instead.
 func (*ListGroupsResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{25}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListGroupsResponse) GetGroups() []*Group {
@@ -2111,7 +2180,7 @@ type CreateGroupRequest struct {
 
 func (x *CreateGroupRequest) Reset() {
 	*x = CreateGroupRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[26]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2123,7 +2192,7 @@ func (x *CreateGroupRequest) String() string {
 func (*CreateGroupRequest) ProtoMessage() {}
 
 func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[26]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2136,7 +2205,7 @@ func (x *CreateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateGroupRequest.ProtoReflect.Descriptor instead.
 func (*CreateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{26}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *CreateGroupRequest) GetRequestId() string {
@@ -2201,7 +2270,7 @@ type UpdateGroupRequest struct {
 
 func (x *UpdateGroupRequest) Reset() {
 	*x = UpdateGroupRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[27]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2213,7 +2282,7 @@ func (x *UpdateGroupRequest) String() string {
 func (*UpdateGroupRequest) ProtoMessage() {}
 
 func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[27]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2226,7 +2295,7 @@ func (x *UpdateGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateGroupRequest.ProtoReflect.Descriptor instead.
 func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{27}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *UpdateGroupRequest) GetGroup() *Group {
@@ -2270,7 +2339,7 @@ type DeleteGroupRequest struct {
 
 func (x *DeleteGroupRequest) Reset() {
 	*x = DeleteGroupRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[28]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2282,7 +2351,7 @@ func (x *DeleteGroupRequest) String() string {
 func (*DeleteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[28]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2295,7 +2364,7 @@ func (x *DeleteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{28}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *DeleteGroupRequest) GetGroupId() string {
@@ -2340,7 +2409,7 @@ type AddGroupMemberRequest struct {
 
 func (x *AddGroupMemberRequest) Reset() {
 	*x = AddGroupMemberRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[29]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2352,7 +2421,7 @@ func (x *AddGroupMemberRequest) String() string {
 func (*AddGroupMemberRequest) ProtoMessage() {}
 
 func (x *AddGroupMemberRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[29]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2365,7 +2434,7 @@ func (x *AddGroupMemberRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGroupMemberRequest.ProtoReflect.Descriptor instead.
 func (*AddGroupMemberRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{29}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *AddGroupMemberRequest) GetRequestId() string {
@@ -2418,7 +2487,7 @@ type RemoveGroupMemberRequest struct {
 
 func (x *RemoveGroupMemberRequest) Reset() {
 	*x = RemoveGroupMemberRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[30]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2430,7 +2499,7 @@ func (x *RemoveGroupMemberRequest) String() string {
 func (*RemoveGroupMemberRequest) ProtoMessage() {}
 
 func (x *RemoveGroupMemberRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[30]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2443,7 +2512,7 @@ func (x *RemoveGroupMemberRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveGroupMemberRequest.ProtoReflect.Descriptor instead.
 func (*RemoveGroupMemberRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{30}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *RemoveGroupMemberRequest) GetRequestId() string {
@@ -2498,7 +2567,7 @@ type GetServiceAccountRequest struct {
 
 func (x *GetServiceAccountRequest) Reset() {
 	*x = GetServiceAccountRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[31]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2510,7 +2579,7 @@ func (x *GetServiceAccountRequest) String() string {
 func (*GetServiceAccountRequest) ProtoMessage() {}
 
 func (x *GetServiceAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[31]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2523,7 +2592,7 @@ func (x *GetServiceAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetServiceAccountRequest.ProtoReflect.Descriptor instead.
 func (*GetServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{31}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetServiceAccountRequest) GetServiceAccountId() string {
@@ -2545,7 +2614,7 @@ type ListServiceAccountsRequest struct {
 
 func (x *ListServiceAccountsRequest) Reset() {
 	*x = ListServiceAccountsRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[32]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2557,7 +2626,7 @@ func (x *ListServiceAccountsRequest) String() string {
 func (*ListServiceAccountsRequest) ProtoMessage() {}
 
 func (x *ListServiceAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[32]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2570,7 +2639,7 @@ func (x *ListServiceAccountsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceAccountsRequest.ProtoReflect.Descriptor instead.
 func (*ListServiceAccountsRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{32}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ListServiceAccountsRequest) GetTenantId() string {
@@ -2605,7 +2674,7 @@ type ListServiceAccountsResponse struct {
 
 func (x *ListServiceAccountsResponse) Reset() {
 	*x = ListServiceAccountsResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[33]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2617,7 +2686,7 @@ func (x *ListServiceAccountsResponse) String() string {
 func (*ListServiceAccountsResponse) ProtoMessage() {}
 
 func (x *ListServiceAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[33]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2630,7 +2699,7 @@ func (x *ListServiceAccountsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceAccountsResponse.ProtoReflect.Descriptor instead.
 func (*ListServiceAccountsResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{33}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListServiceAccountsResponse) GetServiceAccounts() []*ServiceAccount {
@@ -2662,7 +2731,7 @@ type CreateServiceAccountRequest struct {
 
 func (x *CreateServiceAccountRequest) Reset() {
 	*x = CreateServiceAccountRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[34]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2674,7 +2743,7 @@ func (x *CreateServiceAccountRequest) String() string {
 func (*CreateServiceAccountRequest) ProtoMessage() {}
 
 func (x *CreateServiceAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[34]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2687,7 +2756,7 @@ func (x *CreateServiceAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateServiceAccountRequest.ProtoReflect.Descriptor instead.
 func (*CreateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{34}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *CreateServiceAccountRequest) GetRequestId() string {
@@ -2745,7 +2814,7 @@ type UpdateServiceAccountRequest struct {
 
 func (x *UpdateServiceAccountRequest) Reset() {
 	*x = UpdateServiceAccountRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[35]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2757,7 +2826,7 @@ func (x *UpdateServiceAccountRequest) String() string {
 func (*UpdateServiceAccountRequest) ProtoMessage() {}
 
 func (x *UpdateServiceAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[35]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2770,7 +2839,7 @@ func (x *UpdateServiceAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateServiceAccountRequest.ProtoReflect.Descriptor instead.
 func (*UpdateServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{35}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *UpdateServiceAccountRequest) GetServiceAccount() *ServiceAccount {
@@ -2814,7 +2883,7 @@ type DeleteServiceAccountRequest struct {
 
 func (x *DeleteServiceAccountRequest) Reset() {
 	*x = DeleteServiceAccountRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[36]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2826,7 +2895,7 @@ func (x *DeleteServiceAccountRequest) String() string {
 func (*DeleteServiceAccountRequest) ProtoMessage() {}
 
 func (x *DeleteServiceAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[36]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2839,7 +2908,7 @@ func (x *DeleteServiceAccountRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteServiceAccountRequest.ProtoReflect.Descriptor instead.
 func (*DeleteServiceAccountRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{36}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *DeleteServiceAccountRequest) GetServiceAccountId() string {
@@ -2880,7 +2949,7 @@ type GetOAuthClientRequest struct {
 
 func (x *GetOAuthClientRequest) Reset() {
 	*x = GetOAuthClientRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[37]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2892,7 +2961,7 @@ func (x *GetOAuthClientRequest) String() string {
 func (*GetOAuthClientRequest) ProtoMessage() {}
 
 func (x *GetOAuthClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[37]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2905,7 +2974,7 @@ func (x *GetOAuthClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOAuthClientRequest.ProtoReflect.Descriptor instead.
 func (*GetOAuthClientRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{37}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetOAuthClientRequest) GetOauthClientId() string {
@@ -2927,7 +2996,7 @@ type ListOAuthClientsRequest struct {
 
 func (x *ListOAuthClientsRequest) Reset() {
 	*x = ListOAuthClientsRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[38]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2939,7 +3008,7 @@ func (x *ListOAuthClientsRequest) String() string {
 func (*ListOAuthClientsRequest) ProtoMessage() {}
 
 func (x *ListOAuthClientsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[38]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2952,7 +3021,7 @@ func (x *ListOAuthClientsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOAuthClientsRequest.ProtoReflect.Descriptor instead.
 func (*ListOAuthClientsRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{38}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListOAuthClientsRequest) GetTenantId() string {
@@ -2987,7 +3056,7 @@ type ListOAuthClientsResponse struct {
 
 func (x *ListOAuthClientsResponse) Reset() {
 	*x = ListOAuthClientsResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[39]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2999,7 +3068,7 @@ func (x *ListOAuthClientsResponse) String() string {
 func (*ListOAuthClientsResponse) ProtoMessage() {}
 
 func (x *ListOAuthClientsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[39]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3012,7 +3081,7 @@ func (x *ListOAuthClientsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOAuthClientsResponse.ProtoReflect.Descriptor instead.
 func (*ListOAuthClientsResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{39}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListOAuthClientsResponse) GetOauthClients() []*OAuthClient {
@@ -3047,7 +3116,7 @@ type CreateOAuthClientRequest struct {
 
 func (x *CreateOAuthClientRequest) Reset() {
 	*x = CreateOAuthClientRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[40]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3059,7 +3128,7 @@ func (x *CreateOAuthClientRequest) String() string {
 func (*CreateOAuthClientRequest) ProtoMessage() {}
 
 func (x *CreateOAuthClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[40]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3072,7 +3141,7 @@ func (x *CreateOAuthClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOAuthClientRequest.ProtoReflect.Descriptor instead.
 func (*CreateOAuthClientRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{40}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *CreateOAuthClientRequest) GetRequestId() string {
@@ -3151,7 +3220,7 @@ type UpdateOAuthClientRequest struct {
 
 func (x *UpdateOAuthClientRequest) Reset() {
 	*x = UpdateOAuthClientRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[41]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3163,7 +3232,7 @@ func (x *UpdateOAuthClientRequest) String() string {
 func (*UpdateOAuthClientRequest) ProtoMessage() {}
 
 func (x *UpdateOAuthClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[41]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3176,7 +3245,7 @@ func (x *UpdateOAuthClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOAuthClientRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOAuthClientRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{41}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *UpdateOAuthClientRequest) GetOauthClient() *OAuthClient {
@@ -3220,7 +3289,7 @@ type DeleteOAuthClientRequest struct {
 
 func (x *DeleteOAuthClientRequest) Reset() {
 	*x = DeleteOAuthClientRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[42]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3232,7 +3301,7 @@ func (x *DeleteOAuthClientRequest) String() string {
 func (*DeleteOAuthClientRequest) ProtoMessage() {}
 
 func (x *DeleteOAuthClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[42]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3245,7 +3314,7 @@ func (x *DeleteOAuthClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOAuthClientRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOAuthClientRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{42}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *DeleteOAuthClientRequest) GetOauthClientId() string {
@@ -3289,7 +3358,7 @@ type RotateClientSecretRequest struct {
 
 func (x *RotateClientSecretRequest) Reset() {
 	*x = RotateClientSecretRequest{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[43]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3301,7 +3370,7 @@ func (x *RotateClientSecretRequest) String() string {
 func (*RotateClientSecretRequest) ProtoMessage() {}
 
 func (x *RotateClientSecretRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[43]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3314,7 +3383,7 @@ func (x *RotateClientSecretRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateClientSecretRequest.ProtoReflect.Descriptor instead.
 func (*RotateClientSecretRequest) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{43}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *RotateClientSecretRequest) GetOauthClientId() string {
@@ -3355,7 +3424,7 @@ type MutateIdentityResponse struct {
 
 func (x *MutateIdentityResponse) Reset() {
 	*x = MutateIdentityResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[44]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3367,7 +3436,7 @@ func (x *MutateIdentityResponse) String() string {
 func (*MutateIdentityResponse) ProtoMessage() {}
 
 func (x *MutateIdentityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[44]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3380,7 +3449,7 @@ func (x *MutateIdentityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MutateIdentityResponse.ProtoReflect.Descriptor instead.
 func (*MutateIdentityResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{44}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *MutateIdentityResponse) GetOperationId() string {
@@ -3401,7 +3470,7 @@ type RotateClientSecretResponse struct {
 
 func (x *RotateClientSecretResponse) Reset() {
 	*x = RotateClientSecretResponse{}
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[45]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3413,7 +3482,7 @@ func (x *RotateClientSecretResponse) String() string {
 func (*RotateClientSecretResponse) ProtoMessage() {}
 
 func (x *RotateClientSecretResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[45]
+	mi := &file_saas_iam_identity_v1_identity_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3426,7 +3495,7 @@ func (x *RotateClientSecretResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RotateClientSecretResponse.ProtoReflect.Descriptor instead.
 func (*RotateClientSecretResponse) Descriptor() ([]byte, []int) {
-	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{45}
+	return file_saas_iam_identity_v1_identity_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *RotateClientSecretResponse) GetOperationId() string {
@@ -3617,6 +3686,15 @@ const file_saas_iam_identity_v1_identity_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x03 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\b\x18\x80\x01R\trequestId\x12-\n" +
+	"\fperformed_by\x18\x04 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x03\x18\x80\x01R\vperformedBy\"\xd5\x01\n" +
+	"\x13DeleteTenantRequest\x12@\n" +
+	"\ttenant_id\x18\x01 \x01(\tB#\xbaH r\x1e\x10\x03\x18\x80\x012\x17^[a-z][a-z0-9-]{2,127}$R\btenantId\x12)\n" +
+	"\n" +
+	"request_id\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\b\x18\x80\x01R\trequestId\x12\"\n" +
+	"\x06reason\x18\x03 \x01(\tB\n" +
+	"\xbaH\ar\x05\x10\x01\x18\x80\bR\x06reason\x12-\n" +
 	"\fperformed_by\x18\x04 \x01(\tB\n" +
 	"\xbaH\ar\x05\x10\x03\x18\x80\x01R\vperformedBy\"\xaf\x01\n" +
 	"\x16ListMembershipsRequest\x12@\n" +
@@ -3823,7 +3901,7 @@ const file_saas_iam_identity_v1_identity_proto_rawDesc = "" +
 	"\x0fOAuthClientType\x12!\n" +
 	"\x1dOAUTH_CLIENT_TYPE_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eOAUTH_CLIENT_TYPE_CONFIDENTIAL\x10\x01\x12\x1c\n" +
-	"\x18OAUTH_CLIENT_TYPE_PUBLIC\x10\x022\xa3\x1b\n" +
+	"\x18OAUTH_CLIENT_TYPE_PUBLIC\x10\x022\xb2\x1c\n" +
 	"\x0fIdentityService\x12l\n" +
 	"\aGetUser\x12$.saas.iam.identity.v1.GetUserRequest\x1a\x1a.saas.iam.identity.v1.User\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/users/{user_id}\x12\x87\x01\n" +
 	"\tListUsers\x12&.saas.iam.identity.v1.ListUsersRequest\x1a'.saas.iam.identity.v1.ListUsersResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/tenants/{tenant_id}/users\x12\x7f\n" +
@@ -3835,7 +3913,8 @@ const file_saas_iam_identity_v1_identity_proto_rawDesc = "" +
 	"\tGetTenant\x12&.saas.iam.identity.v1.GetTenantRequest\x1a\x1c.saas.iam.identity.v1.Tenant\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/tenants/{tenant_id}\x12{\n" +
 	"\vListTenants\x12(.saas.iam.identity.v1.ListTenantsRequest\x1a).saas.iam.identity.v1.ListTenantsResponse\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/api/v1/tenants\x12s\n" +
 	"\fCreateTenant\x12).saas.iam.identity.v1.CreateTenantRequest\x1a\x1c.saas.iam.identity.v1.Tenant\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/api/v1/tenants\x12\x86\x01\n" +
-	"\fUpdateTenant\x12).saas.iam.identity.v1.UpdateTenantRequest\x1a\x1c.saas.iam.identity.v1.Tenant\"-\x82\xd3\xe4\x93\x02':\x01*2\"/api/v1/tenants/{tenant.tenant_id}\x12\x9f\x01\n" +
+	"\fUpdateTenant\x12).saas.iam.identity.v1.UpdateTenantRequest\x1a\x1c.saas.iam.identity.v1.Tenant\"-\x82\xd3\xe4\x93\x02':\x01*2\"/api/v1/tenants/{tenant.tenant_id}\x12\x8c\x01\n" +
+	"\fDeleteTenant\x12).saas.iam.identity.v1.DeleteTenantRequest\x1a,.saas.iam.identity.v1.MutateIdentityResponse\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/tenants/{tenant_id}\x12\x9f\x01\n" +
 	"\x0fListMemberships\x12,.saas.iam.identity.v1.ListMembershipsRequest\x1a-.saas.iam.identity.v1.ListMembershipsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/tenants/{tenant_id}/memberships\x12\x97\x01\n" +
 	"\x10CreateMembership\x12-.saas.iam.identity.v1.CreateMembershipRequest\x1a .saas.iam.identity.v1.Membership\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/v1/tenants/{tenant_id}/memberships\x12\x9c\x01\n" +
 	"\x10DeleteMembership\x12-.saas.iam.identity.v1.DeleteMembershipRequest\x1a,.saas.iam.identity.v1.MutateIdentityResponse\"+\x82\xd3\xe4\x93\x02%*#/api/v1/memberships/{membership_id}\x12q\n" +
@@ -3874,7 +3953,7 @@ func file_saas_iam_identity_v1_identity_proto_rawDescGZIP() []byte {
 }
 
 var file_saas_iam_identity_v1_identity_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_saas_iam_identity_v1_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+var file_saas_iam_identity_v1_identity_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 var file_saas_iam_identity_v1_identity_proto_goTypes = []any{
 	(UserState)(0),                      // 0: saas.iam.identity.v1.UserState
 	(MembershipState)(0),                // 1: saas.iam.identity.v1.MembershipState
@@ -3898,83 +3977,84 @@ var file_saas_iam_identity_v1_identity_proto_goTypes = []any{
 	(*ListTenantsResponse)(nil),         // 19: saas.iam.identity.v1.ListTenantsResponse
 	(*CreateTenantRequest)(nil),         // 20: saas.iam.identity.v1.CreateTenantRequest
 	(*UpdateTenantRequest)(nil),         // 21: saas.iam.identity.v1.UpdateTenantRequest
-	(*ListMembershipsRequest)(nil),      // 22: saas.iam.identity.v1.ListMembershipsRequest
-	(*ListMembershipsResponse)(nil),     // 23: saas.iam.identity.v1.ListMembershipsResponse
-	(*CreateMembershipRequest)(nil),     // 24: saas.iam.identity.v1.CreateMembershipRequest
-	(*DeleteMembershipRequest)(nil),     // 25: saas.iam.identity.v1.DeleteMembershipRequest
-	(*GetGroupRequest)(nil),             // 26: saas.iam.identity.v1.GetGroupRequest
-	(*ListGroupsRequest)(nil),           // 27: saas.iam.identity.v1.ListGroupsRequest
-	(*ListGroupsResponse)(nil),          // 28: saas.iam.identity.v1.ListGroupsResponse
-	(*CreateGroupRequest)(nil),          // 29: saas.iam.identity.v1.CreateGroupRequest
-	(*UpdateGroupRequest)(nil),          // 30: saas.iam.identity.v1.UpdateGroupRequest
-	(*DeleteGroupRequest)(nil),          // 31: saas.iam.identity.v1.DeleteGroupRequest
-	(*AddGroupMemberRequest)(nil),       // 32: saas.iam.identity.v1.AddGroupMemberRequest
-	(*RemoveGroupMemberRequest)(nil),    // 33: saas.iam.identity.v1.RemoveGroupMemberRequest
-	(*GetServiceAccountRequest)(nil),    // 34: saas.iam.identity.v1.GetServiceAccountRequest
-	(*ListServiceAccountsRequest)(nil),  // 35: saas.iam.identity.v1.ListServiceAccountsRequest
-	(*ListServiceAccountsResponse)(nil), // 36: saas.iam.identity.v1.ListServiceAccountsResponse
-	(*CreateServiceAccountRequest)(nil), // 37: saas.iam.identity.v1.CreateServiceAccountRequest
-	(*UpdateServiceAccountRequest)(nil), // 38: saas.iam.identity.v1.UpdateServiceAccountRequest
-	(*DeleteServiceAccountRequest)(nil), // 39: saas.iam.identity.v1.DeleteServiceAccountRequest
-	(*GetOAuthClientRequest)(nil),       // 40: saas.iam.identity.v1.GetOAuthClientRequest
-	(*ListOAuthClientsRequest)(nil),     // 41: saas.iam.identity.v1.ListOAuthClientsRequest
-	(*ListOAuthClientsResponse)(nil),    // 42: saas.iam.identity.v1.ListOAuthClientsResponse
-	(*CreateOAuthClientRequest)(nil),    // 43: saas.iam.identity.v1.CreateOAuthClientRequest
-	(*UpdateOAuthClientRequest)(nil),    // 44: saas.iam.identity.v1.UpdateOAuthClientRequest
-	(*DeleteOAuthClientRequest)(nil),    // 45: saas.iam.identity.v1.DeleteOAuthClientRequest
-	(*RotateClientSecretRequest)(nil),   // 46: saas.iam.identity.v1.RotateClientSecretRequest
-	(*MutateIdentityResponse)(nil),      // 47: saas.iam.identity.v1.MutateIdentityResponse
-	(*RotateClientSecretResponse)(nil),  // 48: saas.iam.identity.v1.RotateClientSecretResponse
-	nil,                                 // 49: saas.iam.identity.v1.User.LabelsEntry
-	nil,                                 // 50: saas.iam.identity.v1.Tenant.LabelsEntry
-	nil,                                 // 51: saas.iam.identity.v1.Group.LabelsEntry
-	nil,                                 // 52: saas.iam.identity.v1.CreateUserRequest.LabelsEntry
-	nil,                                 // 53: saas.iam.identity.v1.CreateTenantRequest.LabelsEntry
-	nil,                                 // 54: saas.iam.identity.v1.CreateGroupRequest.LabelsEntry
-	(*timestamppb.Timestamp)(nil),       // 55: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),       // 56: google.protobuf.FieldMask
+	(*DeleteTenantRequest)(nil),         // 22: saas.iam.identity.v1.DeleteTenantRequest
+	(*ListMembershipsRequest)(nil),      // 23: saas.iam.identity.v1.ListMembershipsRequest
+	(*ListMembershipsResponse)(nil),     // 24: saas.iam.identity.v1.ListMembershipsResponse
+	(*CreateMembershipRequest)(nil),     // 25: saas.iam.identity.v1.CreateMembershipRequest
+	(*DeleteMembershipRequest)(nil),     // 26: saas.iam.identity.v1.DeleteMembershipRequest
+	(*GetGroupRequest)(nil),             // 27: saas.iam.identity.v1.GetGroupRequest
+	(*ListGroupsRequest)(nil),           // 28: saas.iam.identity.v1.ListGroupsRequest
+	(*ListGroupsResponse)(nil),          // 29: saas.iam.identity.v1.ListGroupsResponse
+	(*CreateGroupRequest)(nil),          // 30: saas.iam.identity.v1.CreateGroupRequest
+	(*UpdateGroupRequest)(nil),          // 31: saas.iam.identity.v1.UpdateGroupRequest
+	(*DeleteGroupRequest)(nil),          // 32: saas.iam.identity.v1.DeleteGroupRequest
+	(*AddGroupMemberRequest)(nil),       // 33: saas.iam.identity.v1.AddGroupMemberRequest
+	(*RemoveGroupMemberRequest)(nil),    // 34: saas.iam.identity.v1.RemoveGroupMemberRequest
+	(*GetServiceAccountRequest)(nil),    // 35: saas.iam.identity.v1.GetServiceAccountRequest
+	(*ListServiceAccountsRequest)(nil),  // 36: saas.iam.identity.v1.ListServiceAccountsRequest
+	(*ListServiceAccountsResponse)(nil), // 37: saas.iam.identity.v1.ListServiceAccountsResponse
+	(*CreateServiceAccountRequest)(nil), // 38: saas.iam.identity.v1.CreateServiceAccountRequest
+	(*UpdateServiceAccountRequest)(nil), // 39: saas.iam.identity.v1.UpdateServiceAccountRequest
+	(*DeleteServiceAccountRequest)(nil), // 40: saas.iam.identity.v1.DeleteServiceAccountRequest
+	(*GetOAuthClientRequest)(nil),       // 41: saas.iam.identity.v1.GetOAuthClientRequest
+	(*ListOAuthClientsRequest)(nil),     // 42: saas.iam.identity.v1.ListOAuthClientsRequest
+	(*ListOAuthClientsResponse)(nil),    // 43: saas.iam.identity.v1.ListOAuthClientsResponse
+	(*CreateOAuthClientRequest)(nil),    // 44: saas.iam.identity.v1.CreateOAuthClientRequest
+	(*UpdateOAuthClientRequest)(nil),    // 45: saas.iam.identity.v1.UpdateOAuthClientRequest
+	(*DeleteOAuthClientRequest)(nil),    // 46: saas.iam.identity.v1.DeleteOAuthClientRequest
+	(*RotateClientSecretRequest)(nil),   // 47: saas.iam.identity.v1.RotateClientSecretRequest
+	(*MutateIdentityResponse)(nil),      // 48: saas.iam.identity.v1.MutateIdentityResponse
+	(*RotateClientSecretResponse)(nil),  // 49: saas.iam.identity.v1.RotateClientSecretResponse
+	nil,                                 // 50: saas.iam.identity.v1.User.LabelsEntry
+	nil,                                 // 51: saas.iam.identity.v1.Tenant.LabelsEntry
+	nil,                                 // 52: saas.iam.identity.v1.Group.LabelsEntry
+	nil,                                 // 53: saas.iam.identity.v1.CreateUserRequest.LabelsEntry
+	nil,                                 // 54: saas.iam.identity.v1.CreateTenantRequest.LabelsEntry
+	nil,                                 // 55: saas.iam.identity.v1.CreateGroupRequest.LabelsEntry
+	(*timestamppb.Timestamp)(nil),       // 56: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),       // 57: google.protobuf.FieldMask
 }
 var file_saas_iam_identity_v1_identity_proto_depIdxs = []int32{
 	0,  // 0: saas.iam.identity.v1.User.state:type_name -> saas.iam.identity.v1.UserState
-	49, // 1: saas.iam.identity.v1.User.labels:type_name -> saas.iam.identity.v1.User.LabelsEntry
-	55, // 2: saas.iam.identity.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	55, // 3: saas.iam.identity.v1.User.updated_at:type_name -> google.protobuf.Timestamp
-	50, // 4: saas.iam.identity.v1.Tenant.labels:type_name -> saas.iam.identity.v1.Tenant.LabelsEntry
-	55, // 5: saas.iam.identity.v1.Tenant.created_at:type_name -> google.protobuf.Timestamp
-	55, // 6: saas.iam.identity.v1.Tenant.updated_at:type_name -> google.protobuf.Timestamp
+	50, // 1: saas.iam.identity.v1.User.labels:type_name -> saas.iam.identity.v1.User.LabelsEntry
+	56, // 2: saas.iam.identity.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	56, // 3: saas.iam.identity.v1.User.updated_at:type_name -> google.protobuf.Timestamp
+	51, // 4: saas.iam.identity.v1.Tenant.labels:type_name -> saas.iam.identity.v1.Tenant.LabelsEntry
+	56, // 5: saas.iam.identity.v1.Tenant.created_at:type_name -> google.protobuf.Timestamp
+	56, // 6: saas.iam.identity.v1.Tenant.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 7: saas.iam.identity.v1.Membership.state:type_name -> saas.iam.identity.v1.MembershipState
-	55, // 8: saas.iam.identity.v1.Membership.created_at:type_name -> google.protobuf.Timestamp
-	55, // 9: saas.iam.identity.v1.Membership.updated_at:type_name -> google.protobuf.Timestamp
-	51, // 10: saas.iam.identity.v1.Group.labels:type_name -> saas.iam.identity.v1.Group.LabelsEntry
-	55, // 11: saas.iam.identity.v1.Group.created_at:type_name -> google.protobuf.Timestamp
-	55, // 12: saas.iam.identity.v1.Group.updated_at:type_name -> google.protobuf.Timestamp
-	55, // 13: saas.iam.identity.v1.GroupMember.created_at:type_name -> google.protobuf.Timestamp
-	55, // 14: saas.iam.identity.v1.FederatedIdentityLink.created_at:type_name -> google.protobuf.Timestamp
-	55, // 15: saas.iam.identity.v1.ServiceAccount.created_at:type_name -> google.protobuf.Timestamp
-	55, // 16: saas.iam.identity.v1.ServiceAccount.updated_at:type_name -> google.protobuf.Timestamp
+	56, // 8: saas.iam.identity.v1.Membership.created_at:type_name -> google.protobuf.Timestamp
+	56, // 9: saas.iam.identity.v1.Membership.updated_at:type_name -> google.protobuf.Timestamp
+	52, // 10: saas.iam.identity.v1.Group.labels:type_name -> saas.iam.identity.v1.Group.LabelsEntry
+	56, // 11: saas.iam.identity.v1.Group.created_at:type_name -> google.protobuf.Timestamp
+	56, // 12: saas.iam.identity.v1.Group.updated_at:type_name -> google.protobuf.Timestamp
+	56, // 13: saas.iam.identity.v1.GroupMember.created_at:type_name -> google.protobuf.Timestamp
+	56, // 14: saas.iam.identity.v1.FederatedIdentityLink.created_at:type_name -> google.protobuf.Timestamp
+	56, // 15: saas.iam.identity.v1.ServiceAccount.created_at:type_name -> google.protobuf.Timestamp
+	56, // 16: saas.iam.identity.v1.ServiceAccount.updated_at:type_name -> google.protobuf.Timestamp
 	2,  // 17: saas.iam.identity.v1.OAuthClient.client_type:type_name -> saas.iam.identity.v1.OAuthClientType
-	55, // 18: saas.iam.identity.v1.OAuthClient.created_at:type_name -> google.protobuf.Timestamp
-	55, // 19: saas.iam.identity.v1.OAuthClient.updated_at:type_name -> google.protobuf.Timestamp
+	56, // 18: saas.iam.identity.v1.OAuthClient.created_at:type_name -> google.protobuf.Timestamp
+	56, // 19: saas.iam.identity.v1.OAuthClient.updated_at:type_name -> google.protobuf.Timestamp
 	3,  // 20: saas.iam.identity.v1.ListUsersResponse.users:type_name -> saas.iam.identity.v1.User
-	52, // 21: saas.iam.identity.v1.CreateUserRequest.labels:type_name -> saas.iam.identity.v1.CreateUserRequest.LabelsEntry
+	53, // 21: saas.iam.identity.v1.CreateUserRequest.labels:type_name -> saas.iam.identity.v1.CreateUserRequest.LabelsEntry
 	3,  // 22: saas.iam.identity.v1.UpdateUserRequest.user:type_name -> saas.iam.identity.v1.User
-	56, // 23: saas.iam.identity.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
+	57, // 23: saas.iam.identity.v1.UpdateUserRequest.update_mask:type_name -> google.protobuf.FieldMask
 	4,  // 24: saas.iam.identity.v1.ListTenantsResponse.tenants:type_name -> saas.iam.identity.v1.Tenant
-	53, // 25: saas.iam.identity.v1.CreateTenantRequest.labels:type_name -> saas.iam.identity.v1.CreateTenantRequest.LabelsEntry
+	54, // 25: saas.iam.identity.v1.CreateTenantRequest.labels:type_name -> saas.iam.identity.v1.CreateTenantRequest.LabelsEntry
 	4,  // 26: saas.iam.identity.v1.UpdateTenantRequest.tenant:type_name -> saas.iam.identity.v1.Tenant
-	56, // 27: saas.iam.identity.v1.UpdateTenantRequest.update_mask:type_name -> google.protobuf.FieldMask
+	57, // 27: saas.iam.identity.v1.UpdateTenantRequest.update_mask:type_name -> google.protobuf.FieldMask
 	5,  // 28: saas.iam.identity.v1.ListMembershipsResponse.memberships:type_name -> saas.iam.identity.v1.Membership
 	6,  // 29: saas.iam.identity.v1.ListGroupsResponse.groups:type_name -> saas.iam.identity.v1.Group
-	54, // 30: saas.iam.identity.v1.CreateGroupRequest.labels:type_name -> saas.iam.identity.v1.CreateGroupRequest.LabelsEntry
+	55, // 30: saas.iam.identity.v1.CreateGroupRequest.labels:type_name -> saas.iam.identity.v1.CreateGroupRequest.LabelsEntry
 	6,  // 31: saas.iam.identity.v1.UpdateGroupRequest.group:type_name -> saas.iam.identity.v1.Group
-	56, // 32: saas.iam.identity.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
+	57, // 32: saas.iam.identity.v1.UpdateGroupRequest.update_mask:type_name -> google.protobuf.FieldMask
 	9,  // 33: saas.iam.identity.v1.ListServiceAccountsResponse.service_accounts:type_name -> saas.iam.identity.v1.ServiceAccount
 	9,  // 34: saas.iam.identity.v1.UpdateServiceAccountRequest.service_account:type_name -> saas.iam.identity.v1.ServiceAccount
-	56, // 35: saas.iam.identity.v1.UpdateServiceAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
+	57, // 35: saas.iam.identity.v1.UpdateServiceAccountRequest.update_mask:type_name -> google.protobuf.FieldMask
 	10, // 36: saas.iam.identity.v1.ListOAuthClientsResponse.oauth_clients:type_name -> saas.iam.identity.v1.OAuthClient
 	2,  // 37: saas.iam.identity.v1.CreateOAuthClientRequest.client_type:type_name -> saas.iam.identity.v1.OAuthClientType
 	10, // 38: saas.iam.identity.v1.UpdateOAuthClientRequest.oauth_client:type_name -> saas.iam.identity.v1.OAuthClient
-	56, // 39: saas.iam.identity.v1.UpdateOAuthClientRequest.update_mask:type_name -> google.protobuf.FieldMask
+	57, // 39: saas.iam.identity.v1.UpdateOAuthClientRequest.update_mask:type_name -> google.protobuf.FieldMask
 	11, // 40: saas.iam.identity.v1.IdentityService.GetUser:input_type -> saas.iam.identity.v1.GetUserRequest
 	12, // 41: saas.iam.identity.v1.IdentityService.ListUsers:input_type -> saas.iam.identity.v1.ListUsersRequest
 	14, // 42: saas.iam.identity.v1.IdentityService.CreateUser:input_type -> saas.iam.identity.v1.CreateUserRequest
@@ -3984,59 +4064,61 @@ var file_saas_iam_identity_v1_identity_proto_depIdxs = []int32{
 	18, // 46: saas.iam.identity.v1.IdentityService.ListTenants:input_type -> saas.iam.identity.v1.ListTenantsRequest
 	20, // 47: saas.iam.identity.v1.IdentityService.CreateTenant:input_type -> saas.iam.identity.v1.CreateTenantRequest
 	21, // 48: saas.iam.identity.v1.IdentityService.UpdateTenant:input_type -> saas.iam.identity.v1.UpdateTenantRequest
-	22, // 49: saas.iam.identity.v1.IdentityService.ListMemberships:input_type -> saas.iam.identity.v1.ListMembershipsRequest
-	24, // 50: saas.iam.identity.v1.IdentityService.CreateMembership:input_type -> saas.iam.identity.v1.CreateMembershipRequest
-	25, // 51: saas.iam.identity.v1.IdentityService.DeleteMembership:input_type -> saas.iam.identity.v1.DeleteMembershipRequest
-	26, // 52: saas.iam.identity.v1.IdentityService.GetGroup:input_type -> saas.iam.identity.v1.GetGroupRequest
-	27, // 53: saas.iam.identity.v1.IdentityService.ListGroups:input_type -> saas.iam.identity.v1.ListGroupsRequest
-	29, // 54: saas.iam.identity.v1.IdentityService.CreateGroup:input_type -> saas.iam.identity.v1.CreateGroupRequest
-	30, // 55: saas.iam.identity.v1.IdentityService.UpdateGroup:input_type -> saas.iam.identity.v1.UpdateGroupRequest
-	31, // 56: saas.iam.identity.v1.IdentityService.DeleteGroup:input_type -> saas.iam.identity.v1.DeleteGroupRequest
-	32, // 57: saas.iam.identity.v1.IdentityService.AddGroupMember:input_type -> saas.iam.identity.v1.AddGroupMemberRequest
-	33, // 58: saas.iam.identity.v1.IdentityService.RemoveGroupMember:input_type -> saas.iam.identity.v1.RemoveGroupMemberRequest
-	34, // 59: saas.iam.identity.v1.IdentityService.GetServiceAccount:input_type -> saas.iam.identity.v1.GetServiceAccountRequest
-	35, // 60: saas.iam.identity.v1.IdentityService.ListServiceAccounts:input_type -> saas.iam.identity.v1.ListServiceAccountsRequest
-	37, // 61: saas.iam.identity.v1.IdentityService.CreateServiceAccount:input_type -> saas.iam.identity.v1.CreateServiceAccountRequest
-	38, // 62: saas.iam.identity.v1.IdentityService.UpdateServiceAccount:input_type -> saas.iam.identity.v1.UpdateServiceAccountRequest
-	39, // 63: saas.iam.identity.v1.IdentityService.DeleteServiceAccount:input_type -> saas.iam.identity.v1.DeleteServiceAccountRequest
-	40, // 64: saas.iam.identity.v1.OAuthFacadeService.GetOAuthClient:input_type -> saas.iam.identity.v1.GetOAuthClientRequest
-	41, // 65: saas.iam.identity.v1.OAuthFacadeService.ListOAuthClients:input_type -> saas.iam.identity.v1.ListOAuthClientsRequest
-	43, // 66: saas.iam.identity.v1.OAuthFacadeService.CreateOAuthClient:input_type -> saas.iam.identity.v1.CreateOAuthClientRequest
-	44, // 67: saas.iam.identity.v1.OAuthFacadeService.UpdateOAuthClient:input_type -> saas.iam.identity.v1.UpdateOAuthClientRequest
-	45, // 68: saas.iam.identity.v1.OAuthFacadeService.DeleteOAuthClient:input_type -> saas.iam.identity.v1.DeleteOAuthClientRequest
-	46, // 69: saas.iam.identity.v1.OAuthFacadeService.RotateClientSecret:input_type -> saas.iam.identity.v1.RotateClientSecretRequest
-	3,  // 70: saas.iam.identity.v1.IdentityService.GetUser:output_type -> saas.iam.identity.v1.User
-	13, // 71: saas.iam.identity.v1.IdentityService.ListUsers:output_type -> saas.iam.identity.v1.ListUsersResponse
-	3,  // 72: saas.iam.identity.v1.IdentityService.CreateUser:output_type -> saas.iam.identity.v1.User
-	3,  // 73: saas.iam.identity.v1.IdentityService.UpdateUser:output_type -> saas.iam.identity.v1.User
-	47, // 74: saas.iam.identity.v1.IdentityService.DisableUser:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	4,  // 75: saas.iam.identity.v1.IdentityService.GetTenant:output_type -> saas.iam.identity.v1.Tenant
-	19, // 76: saas.iam.identity.v1.IdentityService.ListTenants:output_type -> saas.iam.identity.v1.ListTenantsResponse
-	4,  // 77: saas.iam.identity.v1.IdentityService.CreateTenant:output_type -> saas.iam.identity.v1.Tenant
-	4,  // 78: saas.iam.identity.v1.IdentityService.UpdateTenant:output_type -> saas.iam.identity.v1.Tenant
-	23, // 79: saas.iam.identity.v1.IdentityService.ListMemberships:output_type -> saas.iam.identity.v1.ListMembershipsResponse
-	5,  // 80: saas.iam.identity.v1.IdentityService.CreateMembership:output_type -> saas.iam.identity.v1.Membership
-	47, // 81: saas.iam.identity.v1.IdentityService.DeleteMembership:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	6,  // 82: saas.iam.identity.v1.IdentityService.GetGroup:output_type -> saas.iam.identity.v1.Group
-	28, // 83: saas.iam.identity.v1.IdentityService.ListGroups:output_type -> saas.iam.identity.v1.ListGroupsResponse
-	6,  // 84: saas.iam.identity.v1.IdentityService.CreateGroup:output_type -> saas.iam.identity.v1.Group
-	6,  // 85: saas.iam.identity.v1.IdentityService.UpdateGroup:output_type -> saas.iam.identity.v1.Group
-	47, // 86: saas.iam.identity.v1.IdentityService.DeleteGroup:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	7,  // 87: saas.iam.identity.v1.IdentityService.AddGroupMember:output_type -> saas.iam.identity.v1.GroupMember
-	47, // 88: saas.iam.identity.v1.IdentityService.RemoveGroupMember:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	9,  // 89: saas.iam.identity.v1.IdentityService.GetServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
-	36, // 90: saas.iam.identity.v1.IdentityService.ListServiceAccounts:output_type -> saas.iam.identity.v1.ListServiceAccountsResponse
-	9,  // 91: saas.iam.identity.v1.IdentityService.CreateServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
-	9,  // 92: saas.iam.identity.v1.IdentityService.UpdateServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
-	47, // 93: saas.iam.identity.v1.IdentityService.DeleteServiceAccount:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	10, // 94: saas.iam.identity.v1.OAuthFacadeService.GetOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
-	42, // 95: saas.iam.identity.v1.OAuthFacadeService.ListOAuthClients:output_type -> saas.iam.identity.v1.ListOAuthClientsResponse
-	10, // 96: saas.iam.identity.v1.OAuthFacadeService.CreateOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
-	10, // 97: saas.iam.identity.v1.OAuthFacadeService.UpdateOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
-	47, // 98: saas.iam.identity.v1.OAuthFacadeService.DeleteOAuthClient:output_type -> saas.iam.identity.v1.MutateIdentityResponse
-	48, // 99: saas.iam.identity.v1.OAuthFacadeService.RotateClientSecret:output_type -> saas.iam.identity.v1.RotateClientSecretResponse
-	70, // [70:100] is the sub-list for method output_type
-	40, // [40:70] is the sub-list for method input_type
+	22, // 49: saas.iam.identity.v1.IdentityService.DeleteTenant:input_type -> saas.iam.identity.v1.DeleteTenantRequest
+	23, // 50: saas.iam.identity.v1.IdentityService.ListMemberships:input_type -> saas.iam.identity.v1.ListMembershipsRequest
+	25, // 51: saas.iam.identity.v1.IdentityService.CreateMembership:input_type -> saas.iam.identity.v1.CreateMembershipRequest
+	26, // 52: saas.iam.identity.v1.IdentityService.DeleteMembership:input_type -> saas.iam.identity.v1.DeleteMembershipRequest
+	27, // 53: saas.iam.identity.v1.IdentityService.GetGroup:input_type -> saas.iam.identity.v1.GetGroupRequest
+	28, // 54: saas.iam.identity.v1.IdentityService.ListGroups:input_type -> saas.iam.identity.v1.ListGroupsRequest
+	30, // 55: saas.iam.identity.v1.IdentityService.CreateGroup:input_type -> saas.iam.identity.v1.CreateGroupRequest
+	31, // 56: saas.iam.identity.v1.IdentityService.UpdateGroup:input_type -> saas.iam.identity.v1.UpdateGroupRequest
+	32, // 57: saas.iam.identity.v1.IdentityService.DeleteGroup:input_type -> saas.iam.identity.v1.DeleteGroupRequest
+	33, // 58: saas.iam.identity.v1.IdentityService.AddGroupMember:input_type -> saas.iam.identity.v1.AddGroupMemberRequest
+	34, // 59: saas.iam.identity.v1.IdentityService.RemoveGroupMember:input_type -> saas.iam.identity.v1.RemoveGroupMemberRequest
+	35, // 60: saas.iam.identity.v1.IdentityService.GetServiceAccount:input_type -> saas.iam.identity.v1.GetServiceAccountRequest
+	36, // 61: saas.iam.identity.v1.IdentityService.ListServiceAccounts:input_type -> saas.iam.identity.v1.ListServiceAccountsRequest
+	38, // 62: saas.iam.identity.v1.IdentityService.CreateServiceAccount:input_type -> saas.iam.identity.v1.CreateServiceAccountRequest
+	39, // 63: saas.iam.identity.v1.IdentityService.UpdateServiceAccount:input_type -> saas.iam.identity.v1.UpdateServiceAccountRequest
+	40, // 64: saas.iam.identity.v1.IdentityService.DeleteServiceAccount:input_type -> saas.iam.identity.v1.DeleteServiceAccountRequest
+	41, // 65: saas.iam.identity.v1.OAuthFacadeService.GetOAuthClient:input_type -> saas.iam.identity.v1.GetOAuthClientRequest
+	42, // 66: saas.iam.identity.v1.OAuthFacadeService.ListOAuthClients:input_type -> saas.iam.identity.v1.ListOAuthClientsRequest
+	44, // 67: saas.iam.identity.v1.OAuthFacadeService.CreateOAuthClient:input_type -> saas.iam.identity.v1.CreateOAuthClientRequest
+	45, // 68: saas.iam.identity.v1.OAuthFacadeService.UpdateOAuthClient:input_type -> saas.iam.identity.v1.UpdateOAuthClientRequest
+	46, // 69: saas.iam.identity.v1.OAuthFacadeService.DeleteOAuthClient:input_type -> saas.iam.identity.v1.DeleteOAuthClientRequest
+	47, // 70: saas.iam.identity.v1.OAuthFacadeService.RotateClientSecret:input_type -> saas.iam.identity.v1.RotateClientSecretRequest
+	3,  // 71: saas.iam.identity.v1.IdentityService.GetUser:output_type -> saas.iam.identity.v1.User
+	13, // 72: saas.iam.identity.v1.IdentityService.ListUsers:output_type -> saas.iam.identity.v1.ListUsersResponse
+	3,  // 73: saas.iam.identity.v1.IdentityService.CreateUser:output_type -> saas.iam.identity.v1.User
+	3,  // 74: saas.iam.identity.v1.IdentityService.UpdateUser:output_type -> saas.iam.identity.v1.User
+	48, // 75: saas.iam.identity.v1.IdentityService.DisableUser:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	4,  // 76: saas.iam.identity.v1.IdentityService.GetTenant:output_type -> saas.iam.identity.v1.Tenant
+	19, // 77: saas.iam.identity.v1.IdentityService.ListTenants:output_type -> saas.iam.identity.v1.ListTenantsResponse
+	4,  // 78: saas.iam.identity.v1.IdentityService.CreateTenant:output_type -> saas.iam.identity.v1.Tenant
+	4,  // 79: saas.iam.identity.v1.IdentityService.UpdateTenant:output_type -> saas.iam.identity.v1.Tenant
+	48, // 80: saas.iam.identity.v1.IdentityService.DeleteTenant:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	24, // 81: saas.iam.identity.v1.IdentityService.ListMemberships:output_type -> saas.iam.identity.v1.ListMembershipsResponse
+	5,  // 82: saas.iam.identity.v1.IdentityService.CreateMembership:output_type -> saas.iam.identity.v1.Membership
+	48, // 83: saas.iam.identity.v1.IdentityService.DeleteMembership:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	6,  // 84: saas.iam.identity.v1.IdentityService.GetGroup:output_type -> saas.iam.identity.v1.Group
+	29, // 85: saas.iam.identity.v1.IdentityService.ListGroups:output_type -> saas.iam.identity.v1.ListGroupsResponse
+	6,  // 86: saas.iam.identity.v1.IdentityService.CreateGroup:output_type -> saas.iam.identity.v1.Group
+	6,  // 87: saas.iam.identity.v1.IdentityService.UpdateGroup:output_type -> saas.iam.identity.v1.Group
+	48, // 88: saas.iam.identity.v1.IdentityService.DeleteGroup:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	7,  // 89: saas.iam.identity.v1.IdentityService.AddGroupMember:output_type -> saas.iam.identity.v1.GroupMember
+	48, // 90: saas.iam.identity.v1.IdentityService.RemoveGroupMember:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	9,  // 91: saas.iam.identity.v1.IdentityService.GetServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
+	37, // 92: saas.iam.identity.v1.IdentityService.ListServiceAccounts:output_type -> saas.iam.identity.v1.ListServiceAccountsResponse
+	9,  // 93: saas.iam.identity.v1.IdentityService.CreateServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
+	9,  // 94: saas.iam.identity.v1.IdentityService.UpdateServiceAccount:output_type -> saas.iam.identity.v1.ServiceAccount
+	48, // 95: saas.iam.identity.v1.IdentityService.DeleteServiceAccount:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	10, // 96: saas.iam.identity.v1.OAuthFacadeService.GetOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
+	43, // 97: saas.iam.identity.v1.OAuthFacadeService.ListOAuthClients:output_type -> saas.iam.identity.v1.ListOAuthClientsResponse
+	10, // 98: saas.iam.identity.v1.OAuthFacadeService.CreateOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
+	10, // 99: saas.iam.identity.v1.OAuthFacadeService.UpdateOAuthClient:output_type -> saas.iam.identity.v1.OAuthClient
+	48, // 100: saas.iam.identity.v1.OAuthFacadeService.DeleteOAuthClient:output_type -> saas.iam.identity.v1.MutateIdentityResponse
+	49, // 101: saas.iam.identity.v1.OAuthFacadeService.RotateClientSecret:output_type -> saas.iam.identity.v1.RotateClientSecretResponse
+	71, // [71:102] is the sub-list for method output_type
+	40, // [40:71] is the sub-list for method input_type
 	40, // [40:40] is the sub-list for extension type_name
 	40, // [40:40] is the sub-list for extension extendee
 	0,  // [0:40] is the sub-list for field type_name
@@ -4053,7 +4135,7 @@ func file_saas_iam_identity_v1_identity_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_saas_iam_identity_v1_identity_proto_rawDesc), len(file_saas_iam_identity_v1_identity_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   52,
+			NumMessages:   53,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

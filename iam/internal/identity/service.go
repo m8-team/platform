@@ -221,6 +221,25 @@ func (s *Service) UpdateTenant(ctx context.Context, req *identityv1.UpdateTenant
 	return current, nil
 }
 
+func (s *Service) DeleteTenant(ctx context.Context, req *identityv1.DeleteTenantRequest) (*identityv1.MutateIdentityResponse, error) {
+	tenant := &identityv1.Tenant{}
+	if err := core.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenantId(), tenant); err != nil {
+		return nil, err
+	}
+	if err := s.store.DeleteDocument(ctx, ydb.TableTenants, req.GetTenantId()); err != nil {
+		return nil, err
+	}
+	now := s.now()
+	operation := core.NewOperation(now, tenant.GetTenantId(), "delete_tenant", "tenant", tenant.GetTenantId())
+	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+		return nil, err
+	}
+	if err := core.PersistAuditEvent(ctx, s.store, core.NewAuditEvent(now, tenant.GetTenantId(), "tenant.deleted", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason()), now); err != nil {
+		return nil, err
+	}
+	return &identityv1.MutateIdentityResponse{OperationId: operation.GetOperationId()}, nil
+}
+
 func (s *Service) ListMemberships(ctx context.Context, req *identityv1.ListMembershipsRequest) (*identityv1.ListMembershipsResponse, error) {
 	memberships, next, err := core.ListProto(ctx, s.store, ydb.TableMemberships, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Membership {
 		return &identityv1.Membership{}

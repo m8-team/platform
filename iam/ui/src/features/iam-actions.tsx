@@ -7,13 +7,16 @@ import {Button, Dialog, Drawer, Select, Text, TextArea, TextInput} from '@gravit
 
 import {appToaster} from '@/app/providers/app-toaster';
 import {
+  useCreateTenantMutation,
   useCreateServiceAccountMutation,
   useCreateSupportGrantMutation,
+  useDeleteTenantMutation,
   useGrantAccessMutation,
   useGroupsQuery,
   useRolesQuery,
   useServiceAccountsQuery,
   useTenantsQuery,
+  useUpdateTenantMutation,
   useUsersQuery,
   useRotateSecretMutation,
 } from '@/entities/queries';
@@ -23,6 +26,12 @@ import type {ResourceType} from '@/shared/types/iam';
 
 function closeDialog(onClose: () => void) {
   return () => onClose();
+}
+
+function syncOverlayOpen(nextOpen: boolean, onClose: () => void) {
+  if (!nextOpen) {
+    onClose();
+  }
 }
 
 function createDefaultSupportGrantExpiry() {
@@ -78,6 +87,258 @@ const supportGrantReviewSpec = {
   viewSpec: {type: 'base', layout: 'section', layoutTitle: 'Support grant review'},
 } as const;
 
+const tenantIdPattern = /^[a-z][a-z0-9-]{2,127}$/;
+const tenantTierOptions = [
+  {value: 'active', content: 'Active / Enterprise'},
+  {value: 'trial', content: 'Trial'},
+];
+const tenantRegionOptions = [
+  {value: 'eu-central', content: 'eu-central'},
+  {value: 'us-east', content: 'us-east'},
+  {value: 'eu-west', content: 'eu-west'},
+  {value: 'ap-south', content: 'ap-south'},
+];
+
+function TenantEditorDialog({
+  open,
+  mode,
+  tenant,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  mode: 'create' | 'edit';
+  tenant?: {
+    tenantId: string;
+    name: string;
+    externalRef?: string;
+    region: string;
+    status: 'active' | 'trial' | string;
+  };
+  onClose: () => void;
+  onSuccess?: (tenantId: string) => void;
+}) {
+  const createMutation = useCreateTenantMutation();
+  const updateMutation = useUpdateTenantMutation();
+  const mutation = mode === 'create' ? createMutation : updateMutation;
+  const [tenantId, setTenantId] = React.useState(tenant?.tenantId ?? '');
+  const [displayName, setDisplayName] = React.useState(tenant?.name ?? '');
+  const [externalRef, setExternalRef] = React.useState(tenant?.externalRef ?? '');
+  const [region, setRegion] = React.useState(tenant?.region ?? 'eu-central');
+  const [tier, setTier] = React.useState<'active' | 'trial'>(tenant?.status === 'trial' ? 'trial' : 'active');
+
+  React.useEffect(() => {
+    if (open) {
+      setTenantId(tenant?.tenantId ?? '');
+      setDisplayName(tenant?.name ?? '');
+      setExternalRef(tenant?.externalRef ?? '');
+      setRegion(tenant?.region ?? 'eu-central');
+      setTier(tenant?.status === 'trial' ? 'trial' : 'active');
+    }
+  }, [open, tenant]);
+
+  const canSubmit = tenantIdPattern.test(tenantId.trim()) && displayName.trim().length > 1;
+
+  return (
+    <Dialog
+      open={open}
+      onClose={closeDialog(onClose)}
+      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      size="m"
+    >
+      <Dialog.Header caption={mode === 'create' ? 'Create Tenant' : 'Edit Tenant'} />
+      <Dialog.Body>
+        <div className="form-grid">
+          <TextInput
+            label="Tenant ID"
+            placeholder="tenant-acme-prod"
+            value={tenantId}
+            disabled={mode === 'edit'}
+            onUpdate={setTenantId}
+          />
+          <TextInput
+            label="Display name"
+            placeholder="Acme Production"
+            value={displayName}
+            onUpdate={setDisplayName}
+          />
+          <TextInput
+            label="External ref"
+            placeholder="crm-acme-001"
+            value={externalRef}
+            onUpdate={setExternalRef}
+          />
+          <Select
+            label="Region"
+            value={[region]}
+            options={tenantRegionOptions}
+            onUpdate={(value) => setRegion(value[0] ?? 'eu-central')}
+          />
+          <Select
+            label="Tier"
+            value={[tier]}
+            options={tenantTierOptions}
+            onUpdate={(value) => setTier((value[0] ?? 'active') as 'active' | 'trial')}
+          />
+          <div className="form-grid__full">
+            <FieldHint>
+              {mode === 'create'
+                ? 'Tenant metadata is created through the IAM identity facade.'
+                : 'Display name, external reference and labels are updated via the tenant API.'}
+            </FieldHint>
+          </div>
+        </div>
+      </Dialog.Body>
+      <Dialog.Footer
+        textButtonCancel="Cancel"
+        textButtonApply={mode === 'create' ? 'Create' : 'Save'}
+        onClickButtonCancel={onClose}
+        onClickButtonApply={() => {
+          mutation.mutate(
+            {
+              tenantId: tenantId.trim(),
+              displayName: displayName.trim(),
+              externalRef: externalRef.trim(),
+              region,
+              tier,
+            },
+            {
+              onSuccess: (savedTenant) => {
+                appToaster.add({
+                  name: `${mode}-tenant-${savedTenant.tenantId}`,
+                  title: mode === 'create' ? 'Tenant created' : 'Tenant updated',
+                  content: `${savedTenant.name} (${savedTenant.tenantId})`,
+                  theme: 'success',
+                });
+                onSuccess?.(savedTenant.tenantId);
+                onClose();
+              },
+            },
+          );
+        }}
+        propsButtonApply={{view: 'action', disabled: !canSubmit}}
+        loading={mutation.isPending}
+      />
+    </Dialog>
+  );
+}
+
+export function CreateTenantDialog({
+  open,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: (tenantId: string) => void;
+}) {
+  return <TenantEditorDialog open={open} mode="create" onClose={onClose} onSuccess={onSuccess} />;
+}
+
+export function EditTenantDialog({
+  open,
+  tenant,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  tenant: {
+    tenantId: string;
+    name: string;
+    externalRef?: string;
+    region: string;
+    status: 'active' | 'trial' | string;
+  };
+  onClose: () => void;
+  onSuccess?: (tenantId: string) => void;
+}) {
+  return (
+    <TenantEditorDialog
+      open={open}
+      mode="edit"
+      tenant={tenant}
+      onClose={onClose}
+      onSuccess={onSuccess}
+    />
+  );
+}
+
+export function DeleteTenantDialog({
+  open,
+  tenantId,
+  tenantName,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  tenantId: string;
+  tenantName: string;
+  onClose: () => void;
+  onSuccess?: (tenantId: string) => void;
+}) {
+  const mutation = useDeleteTenantMutation();
+  const [reason, setReason] = React.useState('');
+
+  React.useEffect(() => {
+    if (open) {
+      setReason('');
+    }
+  }, [open]);
+
+  return (
+    <Dialog
+      open={open}
+      onClose={closeDialog(onClose)}
+      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      size="s"
+    >
+      <Dialog.Header caption="Delete Tenant" />
+      <Dialog.Body>
+        <HighlightAlert
+          title={`${tenantName} (${tenantId})`}
+          message="Tenant metadata will be removed from IAM. Use a clear reason so the audit trail stays useful."
+          theme="danger"
+        />
+        <div className="form-grid">
+          <div className="form-grid__full">
+            <Text variant="body-2">Reason</Text>
+            <TextArea
+              rows={4}
+              value={reason}
+              onUpdate={setReason}
+              placeholder="Tenant decommissioned after migration to the new organization."
+            />
+          </div>
+        </div>
+      </Dialog.Body>
+      <Dialog.Footer
+        textButtonCancel="Cancel"
+        textButtonApply="Delete"
+        onClickButtonCancel={onClose}
+        onClickButtonApply={() => {
+          mutation.mutate(
+            {tenantId, reason: reason.trim()},
+            {
+              onSuccess: () => {
+                appToaster.add({
+                  name: `delete-tenant-${tenantId}`,
+                  title: 'Tenant deleted',
+                  content: `${tenantName} removed from IAM`,
+                  theme: 'success',
+                });
+                onSuccess?.(tenantId);
+                onClose();
+              },
+            },
+          );
+        }}
+        propsButtonApply={{view: 'outlined-danger', disabled: reason.trim().length < 3}}
+        loading={mutation.isPending}
+      />
+    </Dialog>
+  );
+}
+
 export function CreateServiceAccountWizard({
   open,
   defaultTenantId,
@@ -111,7 +372,12 @@ export function CreateServiceAccountWizard({
   const canContinue = tenantId.trim().length > 0 && displayName.trim().length > 1;
 
   return (
-    <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="m">
+    <Dialog
+      open={open}
+      onClose={closeDialog(onClose)}
+      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      size="m"
+    >
       <Dialog.Header caption="Create Service Account" />
       <Dialog.Body>
         <div className="wizard-stepper">
@@ -210,7 +476,12 @@ export function RotateSecretDialog({
   }, [open]);
 
   return (
-    <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="s">
+    <Dialog
+      open={open}
+      onClose={closeDialog(onClose)}
+      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      size="s"
+    >
       <Dialog.Header caption="Rotate OAuth Secret" />
       <Dialog.Body>
         <HighlightAlert
@@ -312,7 +583,7 @@ export function GrantAccessDrawer({
     subjectOptions.find((option) => option.value === subjectId)?.content ?? subjectId;
 
   return (
-    <Drawer open={open} onOpenChange={onClose} size={520}>
+    <Drawer open={open} onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)} size={520}>
       <div className="drawer-panel">
         <div className="drawer-panel__header">
           <Text variant="subheader-3">Grant Access</Text>
@@ -461,7 +732,12 @@ export function SupportGrantWizard({
   }));
 
   return (
-    <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="l">
+    <Dialog
+      open={open}
+      onClose={closeDialog(onClose)}
+      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      size="l"
+    >
       <Dialog.Header caption="Grant Temporary Support Access" />
       <Dialog.Body>
         <div className="wizard-stepper">

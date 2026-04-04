@@ -74,6 +74,10 @@ export class ApiClient {
       body: body ? JSON.stringify(body) : undefined,
     });
   }
+
+  delete<T>(path: string, query?: Record<string, QueryValue>) {
+    return this.request<T>(path, {method: 'DELETE'}, query);
+  }
 }
 
 async function safeJson(response: Response): Promise<unknown> {

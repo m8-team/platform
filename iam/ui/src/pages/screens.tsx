@@ -51,7 +51,10 @@ import {
   useAddGroupMemberMutation,
 } from '@/entities/queries';
 import {
+  CreateTenantDialog,
   CreateServiceAccountWizard,
+  DeleteTenantDialog,
+  EditTenantDialog,
   GrantAccessDrawer,
   RotateSecretDialog,
   SupportGrantWizard,
@@ -291,6 +294,7 @@ export function TenantsPage() {
   const navigate = useNavigate();
   const [query, setQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('all');
+  const [createOpen, setCreateOpen] = React.useState(false);
   const deferredQuery = React.useDeferredValue(query);
 
   if (tenantsQuery.isPending) {
@@ -382,7 +386,7 @@ export function TenantsPage() {
         actions={
           <Button
             view="action"
-            onClick={() => showBulkToast('Create tenant flow is not in MVP scope', 1)}
+            onClick={() => setCreateOpen(true)}
           >
             Create Tenant
           </Button>
@@ -422,6 +426,16 @@ export function TenantsPage() {
           {label: 'Activate', onClick: (rows) => showBulkToast('Activate requested', rows.length)},
         ]}
       />
+      <CreateTenantDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSuccess={(tenantId) =>
+          navigate({
+            to: '/tenants/$tenantId',
+            params: {tenantId},
+          })
+        }
+      />
     </div>
   );
 }
@@ -440,6 +454,8 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
   const [createOpen, setCreateOpen] = React.useState(false);
   const [supportOpen, setSupportOpen] = React.useState(false);
   const [grantOpen, setGrantOpen] = React.useState(false);
+  const [editOpen, setEditOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   if (tenantQuery.isPending) {
     return <LoadingState title="Loading tenant" />;
@@ -618,6 +634,9 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
         description={tenant.description}
         actions={
           <Flex gap="2" wrap>
+            <Button view="outlined" onClick={() => setEditOpen(true)}>
+              Edit Tenant
+            </Button>
             <Button view="outlined" onClick={() => setCreateOpen(true)}>
               Create SA
             </Button>
@@ -626,6 +645,9 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
             </Button>
             <Button view="action" onClick={() => setGrantOpen(true)}>
               Grant Access
+            </Button>
+            <Button view="outlined" onClick={() => setDeleteOpen(true)}>
+              Delete Tenant
             </Button>
           </Flex>
         }
@@ -721,6 +743,24 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
         open={createOpen}
         defaultTenantId={tenantId}
         onClose={() => setCreateOpen(false)}
+      />
+      <EditTenantDialog
+        open={editOpen}
+        tenant={{
+          tenantId: tenant.tenantId,
+          name: tenant.name,
+          externalRef: tenant.externalRef,
+          region: tenant.region,
+          status: tenant.status,
+        }}
+        onClose={() => setEditOpen(false)}
+      />
+      <DeleteTenantDialog
+        open={deleteOpen}
+        tenantId={tenant.tenantId}
+        tenantName={tenant.name}
+        onClose={() => setDeleteOpen(false)}
+        onSuccess={() => navigate({to: '/tenants'})}
       />
       <SupportGrantWizard
         open={supportOpen}

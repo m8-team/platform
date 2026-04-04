@@ -29,6 +29,14 @@ import type {
 
 type LiveModeMapper<T> = () => Promise<T>;
 type MockMapper<T> = () => Promise<T>;
+type TenantTier = 'active' | 'trial';
+type TenantMutationPayload = {
+  tenantId: string;
+  displayName: string;
+  externalRef: string;
+  region: string;
+  tier: TenantTier;
+};
 
 const db = getMockDatabase();
 
@@ -74,6 +82,89 @@ function mapTenantFromLive(raw: Record<string, unknown>): TenantDetail {
     integrations: existing?.integrations ?? ['Keycloak', 'SpiceDB'],
     resourceMap: existing?.resourceMap ?? [tenantId],
   };
+}
+
+function buildTenantLabels(payload: Pick<TenantMutationPayload, 'region' | 'tier'>): Record<string, string> {
+  return {
+    region: payload.region,
+    tier: payload.tier,
+  };
+}
+
+function buildTenantPlan(tier: TenantTier): string {
+  return tier === 'trial' ? 'Trial' : 'Enterprise';
+}
+
+function upsertTenantReferences(tenantId: string, tenantName: string) {
+  db.users.forEach((user) => {
+    user.memberships = user.memberships.map((membership) =>
+      membership.tenantId === tenantId ? {...membership, tenantName} : membership,
+    );
+  });
+  db.groups.forEach((group) => {
+    if (group.tenantId === tenantId) {
+      group.tenantName = tenantName;
+    }
+  });
+  db.serviceAccounts.forEach((account) => {
+    if (account.tenantId === tenantId) {
+      account.tenantName = tenantName;
+    }
+  });
+  db.oauthClients.forEach((client) => {
+    if (client.tenantId === tenantId) {
+      client.tenantName = tenantName;
+    }
+  });
+  db.supportGrants.forEach((grant) => {
+    if (grant.tenantId === tenantId) {
+      grant.tenantName = tenantName;
+    }
+  });
+}
+
+function buildTenantDetail(existing: TenantDetail | undefined, payload: TenantMutationPayload, updatedAt: string): TenantDetail {
+  return {
+    id: payload.tenantId,
+    tenantId: payload.tenantId,
+    name: payload.displayName,
+    organizationId: existing?.organizationId ?? 'org-local',
+    plan: buildTenantPlan(payload.tier),
+    region: payload.region,
+    status: payload.tier,
+    tags: existing?.tags ?? [payload.region, payload.tier],
+    memberCount: existing?.memberCount ?? 0,
+    groupCount: existing?.groupCount ?? 0,
+    serviceAccountCount: existing?.serviceAccountCount ?? 0,
+    oauthClientCount: existing?.oauthClientCount ?? 0,
+    updatedAt,
+    ownersCount: existing?.ownersCount ?? 1,
+    createdAt: existing?.createdAt ?? updatedAt,
+    externalRef: payload.externalRef,
+    description: existing?.description ?? 'Tenant managed from the IAM Admin UI.',
+    summary: existing?.summary ?? [`Primary region: ${payload.region}`, `Plan: ${buildTenantPlan(payload.tier)}`],
+    integrations: existing?.integrations ?? ['Keycloak', 'SpiceDB'],
+    resourceMap: existing?.resourceMap ?? [payload.tenantId],
+  };
+}
+
+function deleteTenantReferences(tenantId: string) {
+  db.tenants = db.tenants.filter((tenant) => tenant.tenantId !== tenantId);
+  db.users = db.users
+    .map((user) => ({
+      ...user,
+      tenantIds: user.tenantIds.filter((id) => id !== tenantId),
+      memberships: user.memberships.filter((membership) => membership.tenantId !== tenantId),
+      groups: user.groups.filter((group) => group.tenantId !== tenantId),
+    }))
+    .filter((user) => user.tenantIds.length > 0);
+  db.groups = db.groups.filter((group) => group.tenantId !== tenantId);
+  db.serviceAccounts = db.serviceAccounts.filter((account) => account.tenantId !== tenantId);
+  db.oauthClients = db.oauthClients.filter((client) => client.tenantId !== tenantId);
+  db.supportGrants = db.supportGrants.filter((grant) => grant.tenantId !== tenantId);
+  db.auditEvents = db.auditEvents.filter((event) => event.tenantId !== tenantId);
+  db.operations = db.operations.filter((operation) => operation.tenantId !== tenantId);
+  db.resourceBindings = db.resourceBindings.filter((binding) => binding.tenantId !== tenantId);
 }
 
 function mapUserFromLive(raw: Record<string, unknown>, tenantName?: string): UserDetail {
@@ -511,6 +602,82 @@ export const repositories = {
           throw new Error(`Tenant ${tenantId} not found`);
         }
         return cloneValue(tenant);
+      },
+    );
+  },
+
+  async createTenant(payload: TenantMutationPayload): Promise<TenantDetail> {
+    return withFallback(
+      async () => {
+        const tenant = await apiClient.post<Record<string, unknown>>('/api/v1/tenants', {
+          request_id: createId('req'),
+          tenant_id: payload.tenantId,
+          display_name: payload.displayName,
+          external_ref: payload.externalRef,
+          labels: buildTenantLabels(payload),
+          performed_by: 'ui-admin',
+        });
+        return mapTenantFromLive(tenant);
+      },
+      async () => {
+        await delay();
+        if (db.tenants.some((item) => item.tenantId === payload.tenantId)) {
+          throw new Error(`Tenant ${payload.tenantId} already exists`);
+        }
+        const tenant = buildTenantDetail(undefined, payload, new Date().toISOString());
+        db.tenants.unshift(tenant);
+        return cloneValue(tenant);
+      },
+    );
+  },
+
+  async updateTenant(payload: TenantMutationPayload): Promise<TenantDetail> {
+    return withFallback(
+      async () => {
+        const tenant = await apiClient.patch<Record<string, unknown>>(`/api/v1/tenants/${payload.tenantId}`, {
+          tenant: {
+            tenant_id: payload.tenantId,
+            display_name: payload.displayName,
+            external_ref: payload.externalRef,
+            labels: buildTenantLabels(payload),
+          },
+          update_mask: 'displayName,externalRef,labels',
+          request_id: createId('req'),
+          performed_by: 'ui-admin',
+        });
+        return mapTenantFromLive(tenant);
+      },
+      async () => {
+        await delay();
+        const existing = db.tenants.find((item) => item.tenantId === payload.tenantId);
+        if (!existing) {
+          throw new Error(`Tenant ${payload.tenantId} not found`);
+        }
+        const tenant = buildTenantDetail(existing, payload, new Date().toISOString());
+        Object.assign(existing, tenant);
+        upsertTenantReferences(payload.tenantId, payload.displayName);
+        return cloneValue(existing);
+      },
+    );
+  },
+
+  async deleteTenant(tenantId: string, reason: string): Promise<{tenantId: string}> {
+    return withFallback(
+      async () => {
+        await apiClient.delete(`/api/v1/tenants/${tenantId}`, {
+          request_id: createId('req'),
+          reason,
+          performed_by: 'ui-admin',
+        });
+        return {tenantId};
+      },
+      async () => {
+        await delay();
+        if (!db.tenants.some((item) => item.tenantId === tenantId)) {
+          throw new Error(`Tenant ${tenantId} not found`);
+        }
+        deleteTenantReferences(tenantId);
+        return {tenantId};
       },
     );
   },

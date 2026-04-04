@@ -51,6 +51,56 @@ export function useTenantQuery(tenantId: string) {
   });
 }
 
+export function useCreateTenantMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: repositories.createTenant,
+    onSuccess: (tenant) => {
+      void queryClient.invalidateQueries({queryKey: queryKeys.tenants});
+      void queryClient.invalidateQueries({queryKey: queryKeys.tenant(tenant.tenantId)});
+    },
+  });
+}
+
+export function useUpdateTenantMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: repositories.updateTenant,
+    onSuccess: (tenant) => {
+      void queryClient.invalidateQueries({queryKey: queryKeys.tenants});
+      void queryClient.invalidateQueries({queryKey: queryKeys.tenant(tenant.tenantId)});
+      void queryClient.invalidateQueries({queryKey: queryKeys.users});
+      void queryClient.invalidateQueries({queryKey: queryKeys.groups});
+      void queryClient.invalidateQueries({queryKey: queryKeys.serviceAccounts});
+      void queryClient.invalidateQueries({queryKey: queryKeys.oauthClients});
+      void queryClient.invalidateQueries({queryKey: queryKeys.supportGrants});
+    },
+  });
+}
+
+export function useDeleteTenantMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({tenantId, reason}: {tenantId: string; reason: string}) =>
+      repositories.deleteTenant(tenantId, reason),
+    onSuccess: ({tenantId}) => {
+      void queryClient.invalidateQueries({queryKey: queryKeys.tenants});
+      void queryClient.invalidateQueries({queryKey: queryKeys.users});
+      void queryClient.invalidateQueries({queryKey: queryKeys.groups});
+      void queryClient.invalidateQueries({queryKey: queryKeys.serviceAccounts});
+      void queryClient.invalidateQueries({queryKey: queryKeys.oauthClients});
+      void queryClient.invalidateQueries({queryKey: queryKeys.supportGrants});
+      void queryClient.invalidateQueries({queryKey: queryKeys.auditEvents});
+      void queryClient.invalidateQueries({queryKey: queryKeys.operations});
+      void queryClient.invalidateQueries({queryKey: queryKeys.effectiveAccess});
+      void queryClient.removeQueries({queryKey: queryKeys.tenant(tenantId)});
+    },
+  });
+}
+
 export function useUsersQuery() {
   return useQuery({queryKey: queryKeys.users, queryFn: repositories.listUsers});
 }

@@ -30,6 +30,7 @@ const (
 	IdentityService_ListTenants_FullMethodName          = "/saas.iam.identity.v1.IdentityService/ListTenants"
 	IdentityService_CreateTenant_FullMethodName         = "/saas.iam.identity.v1.IdentityService/CreateTenant"
 	IdentityService_UpdateTenant_FullMethodName         = "/saas.iam.identity.v1.IdentityService/UpdateTenant"
+	IdentityService_DeleteTenant_FullMethodName         = "/saas.iam.identity.v1.IdentityService/DeleteTenant"
 	IdentityService_ListMemberships_FullMethodName      = "/saas.iam.identity.v1.IdentityService/ListMemberships"
 	IdentityService_CreateMembership_FullMethodName     = "/saas.iam.identity.v1.IdentityService/CreateMembership"
 	IdentityService_DeleteMembership_FullMethodName     = "/saas.iam.identity.v1.IdentityService/DeleteMembership"
@@ -71,6 +72,8 @@ type IdentityServiceClient interface {
 	CreateTenant(ctx context.Context, in *CreateTenantRequest, opts ...grpc.CallOption) (*Tenant, error)
 	// UpdateTenant updates mutable tenant fields.
 	UpdateTenant(ctx context.Context, in *UpdateTenantRequest, opts ...grpc.CallOption) (*Tenant, error)
+	// DeleteTenant removes a tenant.
+	DeleteTenant(ctx context.Context, in *DeleteTenantRequest, opts ...grpc.CallOption) (*MutateIdentityResponse, error)
 	// ListMemberships returns memberships for a tenant.
 	ListMemberships(ctx context.Context, in *ListMembershipsRequest, opts ...grpc.CallOption) (*ListMembershipsResponse, error)
 	// CreateMembership creates a tenant membership.
@@ -195,6 +198,16 @@ func (c *identityServiceClient) UpdateTenant(ctx context.Context, in *UpdateTena
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Tenant)
 	err := c.cc.Invoke(ctx, IdentityService_UpdateTenant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *identityServiceClient) DeleteTenant(ctx context.Context, in *DeleteTenantRequest, opts ...grpc.CallOption) (*MutateIdentityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MutateIdentityResponse)
+	err := c.cc.Invoke(ctx, IdentityService_DeleteTenant_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -375,6 +388,8 @@ type IdentityServiceServer interface {
 	CreateTenant(context.Context, *CreateTenantRequest) (*Tenant, error)
 	// UpdateTenant updates mutable tenant fields.
 	UpdateTenant(context.Context, *UpdateTenantRequest) (*Tenant, error)
+	// DeleteTenant removes a tenant.
+	DeleteTenant(context.Context, *DeleteTenantRequest) (*MutateIdentityResponse, error)
 	// ListMemberships returns memberships for a tenant.
 	ListMemberships(context.Context, *ListMembershipsRequest) (*ListMembershipsResponse, error)
 	// CreateMembership creates a tenant membership.
@@ -441,6 +456,9 @@ func (UnimplementedIdentityServiceServer) CreateTenant(context.Context, *CreateT
 }
 func (UnimplementedIdentityServiceServer) UpdateTenant(context.Context, *UpdateTenantRequest) (*Tenant, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTenant not implemented")
+}
+func (UnimplementedIdentityServiceServer) DeleteTenant(context.Context, *DeleteTenantRequest) (*MutateIdentityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteTenant not implemented")
 }
 func (UnimplementedIdentityServiceServer) ListMemberships(context.Context, *ListMembershipsRequest) (*ListMembershipsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMemberships not implemented")
@@ -666,6 +684,24 @@ func _IdentityService_UpdateTenant_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(IdentityServiceServer).UpdateTenant(ctx, req.(*UpdateTenantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _IdentityService_DeleteTenant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTenantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(IdentityServiceServer).DeleteTenant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: IdentityService_DeleteTenant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(IdentityServiceServer).DeleteTenant(ctx, req.(*DeleteTenantRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -982,6 +1018,10 @@ var IdentityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateTenant",
 			Handler:    _IdentityService_UpdateTenant_Handler,
+		},
+		{
+			MethodName: "DeleteTenant",
+			Handler:    _IdentityService_DeleteTenant_Handler,
 		},
 		{
 			MethodName: "ListMemberships",
