@@ -6,6 +6,7 @@ import (
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
+	"go.temporal.io/sdk/workflow"
 )
 
 func main() {
@@ -37,12 +38,24 @@ func main() {
 
 	w := worker.New(temporalClient, cfg.Temporal.TaskQueue, worker.Options{})
 	activities := &temporalx.Activities{Logger: logger}
-	w.RegisterWorkflow(temporalx.CreateServiceAccountWorkflow)
-	w.RegisterWorkflow(temporalx.RotateClientSecretWorkflow)
-	w.RegisterWorkflow(temporalx.GrantTemporarySupportAccessWorkflow)
-	w.RegisterWorkflow(temporalx.SyncRelationshipsToSpiceDBWorkflow)
-	w.RegisterWorkflow(temporalx.RebuildAccessReadModelsWorkflow)
-	w.RegisterWorkflow(temporalx.ImportFederatedUserWorkflow)
+	w.RegisterWorkflowWithOptions(temporalx.CreateServiceAccountWorkflow, workflow.RegisterOptions{
+		Name: temporalx.CreateServiceAccountWorkflowName,
+	})
+	w.RegisterWorkflowWithOptions(temporalx.RotateClientSecretWorkflow, workflow.RegisterOptions{
+		Name: temporalx.RotateClientSecretWorkflowName,
+	})
+	w.RegisterWorkflowWithOptions(temporalx.GrantTemporarySupportAccessWorkflow, workflow.RegisterOptions{
+		Name: temporalx.GrantSupportAccessWorkflowName,
+	})
+	w.RegisterWorkflowWithOptions(temporalx.SyncRelationshipsToSpiceDBWorkflow, workflow.RegisterOptions{
+		Name: temporalx.SyncRelationshipsWorkflowName,
+	})
+	w.RegisterWorkflowWithOptions(temporalx.RebuildAccessReadModelsWorkflow, workflow.RegisterOptions{
+		Name: temporalx.RebuildAccessReadModelsWorkflowName,
+	})
+	w.RegisterWorkflowWithOptions(temporalx.ImportFederatedUserWorkflow, workflow.RegisterOptions{
+		Name: temporalx.ImportFederatedUserWorkflowName,
+	})
 	w.RegisterActivity(activities)
 
 	if err := w.Run(worker.InterruptCh()); err != nil {
