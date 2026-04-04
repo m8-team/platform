@@ -4,25 +4,16 @@ import (
 	"context"
 	"errors"
 
-	"buf.build/go/protovalidate"
-	"github.com/m8platform/platform/iam/internal/audit"
-	"github.com/m8platform/platform/iam/internal/authz"
 	"github.com/m8platform/platform/iam/internal/config"
 	"github.com/m8platform/platform/iam/internal/core"
-	"github.com/m8platform/platform/iam/internal/graph"
-	"github.com/m8platform/platform/iam/internal/identity"
-	"github.com/m8platform/platform/iam/internal/keycloak"
+	"github.com/m8platform/platform/iam/internal/infrastructure/di"
 	"github.com/m8platform/platform/iam/internal/observability"
-	"github.com/m8platform/platform/iam/internal/ops"
 	"github.com/m8platform/platform/iam/internal/spicedb"
 	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
 	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
-	"github.com/m8platform/platform/iam/internal/support"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"github.com/m8platform/platform/iam/internal/topics"
 	grpcserver "github.com/m8platform/platform/iam/internal/transport/grpc"
-	"github.com/prometheus/client_golang/prometheus"
-	"google.golang.org/protobuf/proto"
 )
 
 type Application struct {
@@ -42,70 +33,23 @@ type Logger interface {
 	Sync() error
 }
 
-type validatorAdapter struct {
-	inner protovalidate.Validator
-}
-
-func (v validatorAdapter) Validate(message proto.Message) error {
-	return v.inner.Validate(message)
-}
-
 func New(ctx context.Context, cfg config.Config) (*Application, error) {
-	logger, err := observability.NewLogger(cfg.Development)
-	if err != nil {
-		return nil, err
-	}
-
-	validator, err := protovalidate.New()
-	if err != nil {
-		return nil, err
-	}
-	validation := validatorAdapter{inner: validator}
-
-	store, err := ydbstore.Open(ctx, cfg.YDB)
-	if err != nil {
-		return nil, err
-	}
-	cache := redisstore.NewCache(cfg.Redis)
-	publisher := topics.NewPublisher(logger)
-	keycloakClient := keycloak.NewClient(cfg.Keycloak)
-	spicedbClient := spicedb.NewClient(cfg.SpiceDB)
-	workflowStarter, err := temporalx.NewWorkflowStarter(cfg.Temporal)
-	if err != nil {
-		return nil, err
-	}
-
-	identityService := identity.NewService(store, publisher, workflowStarter, spicedbClient, keycloakClient, logger, cfg)
-	authzService := authz.NewService(store, cache, publisher, spicedbClient, logger, cfg)
-	graphService := graph.NewService(store)
-	supportService := support.NewService(store, publisher, workflowStarter, logger, cfg)
-	auditService := audit.NewService(store)
-	opsService := ops.NewService(store)
-
-	grpcSrv, err := grpcserver.New(cfg.GRPC, cfg.HTTP, logger, validation, grpcserver.Services{
-		Identity: identityService,
-		OAuth:    identityService,
-		Authz:    authzService,
-		Graph:    graphService,
-		Support:  supportService,
-		Audit:    auditService,
-		Ops:      opsService,
-	})
+	deps, err := di.Build(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Application{
 		Config:    cfg,
-		Logger:    logger,
-		Validator: validation,
-		Metrics:   observability.NewMetrics(prometheus.DefaultRegisterer),
-		Store:     store,
-		Cache:     cache,
-		Publisher: publisher,
-		Workflows: workflowStarter,
-		SpiceDB:   spicedbClient,
-		GRPC:      grpcSrv,
+		Logger:    deps.Logger,
+		Validator: deps.Validator,
+		Metrics:   deps.Metrics,
+		Store:     deps.Store,
+		Cache:     deps.Cache,
+		Publisher: deps.Publisher,
+		Workflows: deps.Workflows,
+		SpiceDB:   deps.SpiceDB,
+		GRPC:      deps.GRPC,
 	}, nil
 }
 
