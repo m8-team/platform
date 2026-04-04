@@ -2,16 +2,9 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/local-common.sh"
 
-set -a
-. "${ROOT_DIR}/deploy/local/iamd.env"
-set +a
-
-extract_port() {
-  local addr="$1"
-  printf '%s\n' "${addr##*:}"
-}
+load_local_env
 
 check_port() {
   local port="$1"
@@ -33,3 +26,4 @@ check_port() {
 
 check_port "$(extract_port "${IAM_GRPC_ADDRESS:-}")"
 check_port "$(extract_port "${IAM_HTTP_ADDRESS:-}")"
+check_port "${IAM_UI_PORT:-}"

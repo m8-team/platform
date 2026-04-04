@@ -2,38 +2,55 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/local-common.sh"
 
-set -a
-. "${ROOT_DIR}/deploy/local/iamd.env"
-set +a
+load_local_env
+ensure_local_state_dirs
 
-extract_port() {
-  local addr="$1"
-  printf '%s\n' "${addr##*:}"
-}
+stop_managed_service() {
+  local name="$1"
+  local pid_file
+  local pid
 
-collect_pids() {
-  local port="$1"
+  pid_file="$(pid_file_for "${name}")"
+  pid="$(read_pid_file "${pid_file}")"
 
-  if [[ -z "${port}" ]]; then
-    return 0
+  if [[ -n "${pid}" ]]; then
+    if is_pid_running "${pid}"; then
+      echo "stopping ${name}: ${pid}"
+      stop_pid "${pid}" "${name}"
+    fi
+    rm -f "${pid_file}"
   fi
-
-  lsof -tiTCP:"${port}" -sTCP:LISTEN 2>/dev/null || true
 }
 
-pids="$(
-  {
-    collect_pids "$(extract_port "${IAM_GRPC_ADDRESS:-}")"
-    collect_pids "$(extract_port "${IAM_HTTP_ADDRESS:-}")"
-  } | sort -u
-)"
+stop_listener_group() {
+  local label="$1"
+  shift
+  local pids
 
-if [[ -z "${pids}" ]]; then
-  echo "no local iamd processes found"
-  exit 0
-fi
+  pids="$(
+    {
+      for port in "$@"; do
+        listener_pids "${port}"
+      done
+    } | sort -u
+  )"
 
-echo "stopping local iamd: ${pids}"
-kill ${pids}
+  if [[ -n "${pids}" ]]; then
+    echo "stopping ${label}: ${pids}"
+    kill ${pids} 2>/dev/null || true
+  fi
+}
+
+stop_managed_service "ui"
+stop_managed_service "worker"
+stop_managed_service "iamd"
+
+stop_listener_group \
+  "local listeners" \
+  "$(extract_port "${IAM_GRPC_ADDRESS:-}")" \
+  "$(extract_port "${IAM_HTTP_ADDRESS:-}")" \
+  "${IAM_UI_PORT:-}"
+
+echo "local processes stopped"
