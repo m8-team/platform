@@ -31,6 +31,7 @@ import (
 	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
 	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
 	usecaseport "github.com/m8platform/platform/iam/internal/usecase/port"
+	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -115,7 +116,12 @@ func Build(ctx context.Context, cfg config.Config) (*Dependencies, error) {
 	authzServer := grpcadapter.NewAuthorizationServer(legacyAuthzService, checkAccess, accessBindings, roleResolver)
 
 	graphService := graph.NewService(store)
-	supportService := support.NewService(store, publisher, workflowStarter, logger, cfg)
+	legacySupportService := support.NewService(store, publisher, workflowStarter, logger, cfg)
+	supportGrantRepository := ydbadapter.NewSupportGrantRepository(store)
+	supportGrantEvents := topicsadapter.NewSupportGrantEventPublisher(publisher, cfg.Topics.SupportGrants)
+	supportGrantWorkflows := temporaladapter.NewSupportGrantWorkflowStarter(workflowStarter)
+	supportAccess := tenantuc.NewSupportAccessUseCase(clock, supportGrantRepository, supportGrantEvents, supportGrantWorkflows)
+	supportServer := grpcadapter.NewSupportServer(legacySupportService, logger, supportAccess)
 	auditService := audit.NewService(store)
 	opsService := ops.NewService(store)
 
@@ -124,7 +130,7 @@ func Build(ctx context.Context, cfg config.Config) (*Dependencies, error) {
 		OAuth:    identityServer,
 		Authz:    authzServer,
 		Graph:    graphService,
-		Support:  supportService,
+		Support:  supportServer,
 		Audit:    auditService,
 		Ops:      opsService,
 	})
