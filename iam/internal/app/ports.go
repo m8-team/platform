@@ -9,6 +9,7 @@ import (
 	"time"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
+	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -51,7 +52,9 @@ type WorkflowStarter interface {
 
 type AuthorizationRuntime interface {
 	Check(ctx context.Context, req *authzv1.CheckAccessRequest) (*authzv1.AccessCheckResult, error)
-	WriteBindings(ctx context.Context, bindings []*authzv1.AccessBinding) error
+	SyncResource(ctx context.Context, resource *authzv1.ResourceRef, bindings []*authzv1.AccessBinding) error
+	WriteGroupMembership(ctx context.Context, tenantID string, member *identityv1.GroupMember) error
+	DeleteGroupMembership(ctx context.Context, tenantID string, groupID string, subjectType string, subjectID string) error
 }
 
 type KeycloakClient interface {

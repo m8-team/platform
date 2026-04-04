@@ -57,6 +57,7 @@ type SpiceDBConfig struct {
 	SchemaPath   string
 	PreSharedKey string
 	Consistency  string
+	Insecure     bool
 }
 
 type TemporalConfig struct {
@@ -114,6 +115,7 @@ func Load() Config {
 			SchemaPath:   envString("IAM_SPICEDB_SCHEMA_PATH", "docs/spicedb/schema.zed"),
 			PreSharedKey: envString("IAM_SPICEDB_PRESHARED_KEY", ""),
 			Consistency:  envString("IAM_SPICEDB_CONSISTENCY", "at_least_as_fresh"),
+			Insecure:     envBool("IAM_SPICEDB_INSECURE", false),
 		},
 		Temporal: TemporalConfig{
 			Address:   envString("IAM_TEMPORAL_ADDRESS", "127.0.0.1:7233"),

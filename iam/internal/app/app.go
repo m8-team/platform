@@ -34,6 +34,7 @@ type Application struct {
 	Cache     *redisstore.Cache
 	Publisher *topics.Publisher
 	Workflows *temporalx.WorkflowStarter
+	SpiceDB   *spicedb.Client
 	GRPC      *grpcserver.Server
 }
 
@@ -74,7 +75,7 @@ func New(ctx context.Context, cfg config.Config) (*Application, error) {
 		return nil, err
 	}
 
-	identityService := identity.NewService(store, publisher, workflowStarter, keycloakClient, logger, cfg)
+	identityService := identity.NewService(store, publisher, workflowStarter, spicedbClient, keycloakClient, logger, cfg)
 	authzService := authz.NewService(store, cache, publisher, spicedbClient, logger, cfg)
 	graphService := graph.NewService(store)
 	supportService := support.NewService(store, publisher, workflowStarter, logger, cfg)
@@ -103,6 +104,7 @@ func New(ctx context.Context, cfg config.Config) (*Application, error) {
 		Cache:     cache,
 		Publisher: publisher,
 		Workflows: workflowStarter,
+		SpiceDB:   spicedbClient,
 		GRPC:      grpcSrv,
 	}, nil
 }
@@ -128,6 +130,9 @@ func (a *Application) Close(ctx context.Context) error {
 	}
 	if a.Workflows != nil {
 		_ = a.Workflows.Close()
+	}
+	if a.SpiceDB != nil {
+		_ = a.SpiceDB.Close()
 	}
 	if a.Store != nil {
 		_ = a.Store.Close(ctx)

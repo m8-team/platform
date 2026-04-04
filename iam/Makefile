@@ -2,7 +2,7 @@ BUF ?= buf
 GO ?= go
 DOCKER_COMPOSE ?= docker compose -f deploy/local/docker-compose.yaml
 
-.PHONY: buf-lint buf-generate test run worker migrate seed schema-sync env-up env-down env-logs env-ps run-local worker-local migrate-local seed-local check-local-ports stop-local
+.PHONY: buf-lint buf-generate test run worker migrate seed schema-sync env-up env-down env-logs env-ps run-local worker-local migrate-local seed-local schema-sync-local check-local-ports stop-local
 
 buf-lint:
 	$(BUF) lint
@@ -36,6 +36,7 @@ env-up:
 	./scripts/wait-local-env.sh
 	$(MAKE) migrate-local
 	$(MAKE) seed-local
+	$(MAKE) schema-sync-local
 
 env-down:
 	$(DOCKER_COMPOSE) down --remove-orphans
@@ -60,3 +61,6 @@ seed-local:
 
 schema-sync:
 	$(GO) run ./cmd/schema-sync
+
+schema-sync-local:
+	set -a; . ./deploy/local/iamd.env; set +a; $(GO) run ./cmd/schema-sync

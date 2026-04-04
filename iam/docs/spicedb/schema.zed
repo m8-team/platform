@@ -1,22 +1,24 @@
 definition user {}
 
+definition federated_user {}
+
 definition service_account {}
 
 definition group {
-  relation member: user | service_account
+  relation member: user | federated_user | service_account
 }
 
 definition tenant {
-  relation owner: user | group
-  relation admin: user | group
+  relation owner: user | federated_user | service_account | group | group#member
+  relation admin: user | federated_user | service_account | group | group#member
   permission manage = owner + admin
 }
 
 definition project {
   relation tenant: tenant
-  relation viewer: user | group | service_account
-  relation editor: user | group | service_account
-  relation support: user | group | service_account
+  relation viewer: user | federated_user | service_account | group | group#member
+  relation editor: user | federated_user | service_account | group | group#member
+  relation support: user | federated_user | service_account | group | group#member
 
   permission read = viewer + editor + support + tenant->manage
   permission write = editor + tenant->manage
@@ -24,6 +26,6 @@ definition project {
 
 definition support_case {
   relation tenant: tenant
-  relation viewer: user | group | service_account
+  relation viewer: user | federated_user | service_account | group | group#member
   permission read = viewer + tenant->manage
 }

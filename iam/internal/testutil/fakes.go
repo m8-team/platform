@@ -7,6 +7,7 @@ import (
 	"time"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
+	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	"github.com/m8platform/platform/iam/internal/core"
 	"google.golang.org/protobuf/proto"
 )
@@ -119,16 +120,40 @@ func (w *FakeWorkflowStarter) StartWorkflow(_ context.Context, workflowName stri
 }
 
 type FakeAuthorizationRuntime struct {
-	Result *authzv1.AccessCheckResult
-	Err    error
+	Result                   *authzv1.AccessCheckResult
+	Err                      error
+	CheckErr                 error
+	SyncErr                  error
+	WriteGroupMembershipErr  error
+	DeleteGroupMembershipErr error
 }
 
 func (r *FakeAuthorizationRuntime) Check(_ context.Context, _ *authzv1.CheckAccessRequest) (*authzv1.AccessCheckResult, error) {
+	if r.CheckErr != nil {
+		return r.Result, r.CheckErr
+	}
 	return r.Result, r.Err
 }
 
-func (r *FakeAuthorizationRuntime) WriteBindings(_ context.Context, _ []*authzv1.AccessBinding) error {
-	return nil
+func (r *FakeAuthorizationRuntime) SyncResource(_ context.Context, _ *authzv1.ResourceRef, _ []*authzv1.AccessBinding) error {
+	if r.SyncErr != nil {
+		return r.SyncErr
+	}
+	return r.Err
+}
+
+func (r *FakeAuthorizationRuntime) WriteGroupMembership(_ context.Context, _ string, _ *identityv1.GroupMember) error {
+	if r.WriteGroupMembershipErr != nil {
+		return r.WriteGroupMembershipErr
+	}
+	return r.Err
+}
+
+func (r *FakeAuthorizationRuntime) DeleteGroupMembership(_ context.Context, _ string, _ string, _ string, _ string) error {
+	if r.DeleteGroupMembershipErr != nil {
+		return r.DeleteGroupMembershipErr
+	}
+	return r.Err
 }
 
 type FakeCache struct {

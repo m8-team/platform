@@ -2,6 +2,7 @@ package authz
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
@@ -131,5 +132,201 @@ func TestCheckAccessLogsExpectedSpiceDBFallbackOnceAsInfo(t *testing.T) {
 	}
 	if warnings := observed.FilterLevelExact(zapcore.WarnLevel).All(); len(warnings) != 0 {
 		t.Fatalf("expected no warn logs, got %d", len(warnings))
+	}
+}
+
+func TestCheckAccessSkipsCacheWhenRuntimeIsConfigured(t *testing.T) {
+	store := testutil.NewFakeStore()
+	publisher := &testutil.FakePublisher{}
+	cache := testutil.NewFakeCache()
+	runtime := &testutil.FakeAuthorizationRuntime{
+		Result: &authzv1.AccessCheckResult{
+			Decision:   authzv1.PermissionDecision_PERMISSION_DECISION_ALLOW,
+			Permission: "project.write",
+			ZedToken:   "zed-1",
+		},
+	}
+	service := NewService(store, cache, publisher, runtime, zap.NewNop(), config.Load())
+
+	req := &authzv1.CheckAccessRequest{
+		Subject: &authzv1.SubjectRef{
+			Type:     authzv1.SubjectType_SUBJECT_TYPE_USER_ACCOUNT,
+			Id:       "user-1",
+			TenantId: "tenant-1",
+		},
+		Resource: &authzv1.ResourceRef{
+			Type:     authzv1.ResourceType_RESOURCE_TYPE_PROJECT,
+			Id:       "project-1",
+			TenantId: "tenant-1",
+		},
+		Permission: "project.write",
+	}
+
+	first, err := service.CheckAccess(context.Background(), req)
+	if err != nil {
+		t.Fatalf("CheckAccess returned error: %v", err)
+	}
+	if first.GetDecision() != authzv1.PermissionDecision_PERMISSION_DECISION_ALLOW {
+		t.Fatalf("expected first decision ALLOW, got %s", first.GetDecision().String())
+	}
+	if first.GetCacheHit() {
+		t.Fatal("expected runtime-backed result to skip cache")
+	}
+
+	runtime.Result = &authzv1.AccessCheckResult{
+		Decision:   authzv1.PermissionDecision_PERMISSION_DECISION_DENY,
+		Permission: "project.write",
+		ZedToken:   "zed-2",
+	}
+	second, err := service.CheckAccess(context.Background(), req)
+	if err != nil {
+		t.Fatalf("CheckAccess returned error: %v", err)
+	}
+	if second.GetDecision() != authzv1.PermissionDecision_PERMISSION_DECISION_DENY {
+		t.Fatalf("expected second decision DENY, got %s", second.GetDecision().String())
+	}
+	if second.GetCacheHit() {
+		t.Fatal("expected second runtime-backed result to skip cache")
+	}
+}
+
+func TestSetAccessBindingsReplacesExistingSnapshotInStore(t *testing.T) {
+	store := testutil.NewFakeStore()
+	publisher := &testutil.FakePublisher{}
+	service := NewService(store, nil, publisher, nil, zap.NewNop(), config.Load())
+
+	resource := &authzv1.ResourceRef{
+		Type:     authzv1.ResourceType_RESOURCE_TYPE_PROJECT,
+		Id:       "project-1",
+		TenantId: "tenant-1",
+	}
+	initial := &authzv1.AccessBinding{
+		BindingId: "bind-old",
+		Subject: &authzv1.SubjectRef{
+			Type:     authzv1.SubjectType_SUBJECT_TYPE_USER_ACCOUNT,
+			Id:       "user-old",
+			TenantId: "tenant-1",
+		},
+		Resource: resource,
+		RoleId:   "project-viewer",
+		Reason:   "old",
+	}
+	replacement := &authzv1.AccessBinding{
+		BindingId: "bind-new",
+		Subject: &authzv1.SubjectRef{
+			Type:     authzv1.SubjectType_SUBJECT_TYPE_USER_ACCOUNT,
+			Id:       "user-new",
+			TenantId: "tenant-1",
+		},
+		Resource: resource,
+		RoleId:   "project-editor",
+		Reason:   "new",
+	}
+
+	if _, err := service.SetAccessBindings(context.Background(), &authzv1.SetAccessBindingsRequest{
+		RequestId:       "request-old",
+		Resource:        resource,
+		DesiredBindings: []*authzv1.AccessBinding{initial},
+		Reason:          "seed",
+		PerformedBy:     "admin-1",
+	}); err != nil {
+		t.Fatalf("initial SetAccessBindings returned error: %v", err)
+	}
+	if _, err := service.SetAccessBindings(context.Background(), &authzv1.SetAccessBindingsRequest{
+		RequestId:       "request-new",
+		Resource:        resource,
+		DesiredBindings: []*authzv1.AccessBinding{replacement},
+		Reason:          "replace",
+		PerformedBy:     "admin-1",
+	}); err != nil {
+		t.Fatalf("replacement SetAccessBindings returned error: %v", err)
+	}
+
+	bindings, err := ListBindingsForResource(context.Background(), store, resource)
+	if err != nil {
+		t.Fatalf("ListBindingsForResource returned error: %v", err)
+	}
+	if len(bindings) != 1 {
+		t.Fatalf("expected one binding after replace, got %d", len(bindings))
+	}
+	if bindings[0].GetBindingId() != replacement.GetBindingId() {
+		t.Fatalf("expected replacement binding %s, got %s", replacement.GetBindingId(), bindings[0].GetBindingId())
+	}
+}
+
+func TestSetAccessBindingsRollsBackOnSpiceDBSyncFailure(t *testing.T) {
+	store := testutil.NewFakeStore()
+	publisher := &testutil.FakePublisher{}
+	runtime := &testutil.FakeAuthorizationRuntime{SyncErr: errors.New("spicedb unavailable")}
+	service := NewService(store, nil, publisher, runtime, zap.NewNop(), config.Load())
+
+	resource := &authzv1.ResourceRef{
+		Type:     authzv1.ResourceType_RESOURCE_TYPE_PROJECT,
+		Id:       "project-1",
+		TenantId: "tenant-1",
+	}
+	previous := &authzv1.AccessBinding{
+		BindingId: "bind-old",
+		Subject: &authzv1.SubjectRef{
+			Type:     authzv1.SubjectType_SUBJECT_TYPE_USER_ACCOUNT,
+			Id:       "user-old",
+			TenantId: "tenant-1",
+		},
+		Resource: resource,
+		RoleId:   "project-viewer",
+		Reason:   "old",
+	}
+	if _, err := service.SetAccessBindings(context.Background(), &authzv1.SetAccessBindingsRequest{
+		RequestId:       "request-old",
+		Resource:        resource,
+		DesiredBindings: []*authzv1.AccessBinding{previous},
+		Reason:          "seed",
+		PerformedBy:     "admin-1",
+	}); err == nil {
+		t.Fatal("expected initial SetAccessBindings to fail because runtime sync is failing")
+	}
+
+	runtime.SyncErr = nil
+	if _, err := service.SetAccessBindings(context.Background(), &authzv1.SetAccessBindingsRequest{
+		RequestId:       "request-old-2",
+		Resource:        resource,
+		DesiredBindings: []*authzv1.AccessBinding{previous},
+		Reason:          "seed",
+		PerformedBy:     "admin-1",
+	}); err != nil {
+		t.Fatalf("stable SetAccessBindings returned error: %v", err)
+	}
+
+	runtime.SyncErr = errors.New("spicedb unavailable")
+	replacement := &authzv1.AccessBinding{
+		BindingId: "bind-new",
+		Subject: &authzv1.SubjectRef{
+			Type:     authzv1.SubjectType_SUBJECT_TYPE_USER_ACCOUNT,
+			Id:       "user-new",
+			TenantId: "tenant-1",
+		},
+		Resource: resource,
+		RoleId:   "project-editor",
+		Reason:   "new",
+	}
+	if _, err := service.SetAccessBindings(context.Background(), &authzv1.SetAccessBindingsRequest{
+		RequestId:       "request-new",
+		Resource:        resource,
+		DesiredBindings: []*authzv1.AccessBinding{replacement},
+		Reason:          "replace",
+		PerformedBy:     "admin-1",
+	}); err == nil {
+		t.Fatal("expected SetAccessBindings to fail on unexpected SpiceDB sync error")
+	}
+
+	bindings, err := ListBindingsForResource(context.Background(), store, resource)
+	if err != nil {
+		t.Fatalf("ListBindingsForResource returned error: %v", err)
+	}
+	if len(bindings) != 1 {
+		t.Fatalf("expected rollback to preserve one binding, got %d", len(bindings))
+	}
+	if bindings[0].GetBindingId() != previous.GetBindingId() {
+		t.Fatalf("expected rollback to preserve %s, got %s", previous.GetBindingId(), bindings[0].GetBindingId())
 	}
 }

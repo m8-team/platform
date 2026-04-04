@@ -61,15 +61,15 @@ func (s *Service) ListRoles(context.Context, *authzv1.ListRolesRequest) (*authzv
 
 func (s *Service) SetAccessBindings(ctx context.Context, req *authzv1.SetAccessBindingsRequest) (*authzv1.SetAccessBindingsResponse, error) {
 	now := s.now()
-	for _, binding := range req.GetDesiredBindings() {
-		if err := core.SaveProto(ctx, s.store, ydb.TableBindingOperations, binding.GetBindingId(), binding.GetResource().GetTenantId(), binding, now); err != nil {
-			return nil, err
-		}
+	current, err := s.listBindingsForResource(ctx, req.GetResource())
+	if err != nil {
+		return nil, err
 	}
-	if s.runtime != nil {
-		if err := s.runtime.WriteBindings(ctx, req.GetDesiredBindings()); err != nil {
-			s.logRuntimeWriteFallback(err)
-		}
+	if err := s.applyBindingsSnapshot(ctx, current, req.GetDesiredBindings(), now); err != nil {
+		return nil, err
+	}
+	if err := s.syncResourceWrite(ctx, req.GetResource(), req.GetDesiredBindings(), current, now); err != nil {
+		return nil, err
 	}
 	operation := core.NewOperation(now, req.GetResource().GetTenantId(), "set_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
 	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
@@ -114,19 +114,16 @@ func (s *Service) UpdateAccessBindings(ctx context.Context, req *authzv1.UpdateA
 		switch mutation.GetKind() {
 		case authzv1.BindingMutationKind_BINDING_MUTATION_KIND_ADD:
 			index[mutation.GetBinding().GetBindingId()] = mutation.GetBinding()
-			if err := core.SaveProto(ctx, s.store, ydb.TableBindingOperations, mutation.GetBinding().GetBindingId(), mutation.GetBinding().GetResource().GetTenantId(), mutation.GetBinding(), now); err != nil {
-				return nil, err
-			}
 		case authzv1.BindingMutationKind_BINDING_MUTATION_KIND_REMOVE:
 			delete(index, mutation.GetBinding().GetBindingId())
-			if err := s.store.DeleteDocument(ctx, ydb.TableBindingOperations, mutation.GetBinding().GetBindingId()); err != nil && err != core.ErrNotFound {
-				return nil, err
-			}
 		}
 	}
 	bindings := make([]*authzv1.AccessBinding, 0, len(index))
 	for _, binding := range index {
 		bindings = append(bindings, binding)
+	}
+	if err := s.applyBindingsSnapshot(ctx, current, bindings, now); err != nil {
+		return nil, err
 	}
 	operation := core.NewOperation(now, req.GetResource().GetTenantId(), "update_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
 	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
@@ -151,17 +148,16 @@ func (s *Service) UpdateAccessBindings(ctx context.Context, req *authzv1.UpdateA
 	if err := s.publisher.PublishProto(ctx, s.topics.Relationships, event); err != nil {
 		return nil, err
 	}
-	if s.runtime != nil {
-		if err := s.runtime.WriteBindings(ctx, bindings); err != nil {
-			s.logRuntimeWriteFallback(err)
-		}
+	if err := s.syncResourceWrite(ctx, req.GetResource(), bindings, current, now); err != nil {
+		return nil, err
 	}
 	return &authzv1.UpdateAccessBindingsResponse{Bindings: bindings, OperationId: operation.GetOperationId()}, nil
 }
 
 func (s *Service) CheckAccess(ctx context.Context, req *authzv1.CheckAccessRequest) (*authzv1.AccessCheckResult, error) {
 	cacheKey := redisstore.BuildCheckAccessCacheKey(req.GetSubject(), req.GetResource(), req.GetPermission(), s.policyVersion)
-	if s.cache != nil {
+	useCache := s.cache != nil && s.runtime == nil
+	if useCache {
 		if payload, ok, err := s.cache.Get(ctx, cacheKey); err == nil && ok {
 			var result authzv1.AccessCheckResult
 			if unmarshalErr := json.Unmarshal([]byte(payload), &result); unmarshalErr == nil {
@@ -175,7 +171,7 @@ func (s *Service) CheckAccess(ctx context.Context, req *authzv1.CheckAccessReque
 	if err != nil {
 		return nil, err
 	}
-	if s.cache != nil {
+	if useCache {
 		if payload, marshalErr := json.Marshal(result); marshalErr == nil {
 			_ = s.cache.Set(ctx, cacheKey, string(payload), 30*time.Second)
 		}
@@ -290,6 +286,53 @@ func ListBindingsForSubject(ctx context.Context, store core.DocumentStore, subje
 func ListBindingsForResource(ctx context.Context, store core.DocumentStore, resource *authzv1.ResourceRef) ([]*authzv1.AccessBinding, error) {
 	service := &Service{store: store}
 	return service.listBindingsForResource(ctx, resource)
+}
+
+func (s *Service) applyBindingsSnapshot(ctx context.Context, current []*authzv1.AccessBinding, desired []*authzv1.AccessBinding, now time.Time) error {
+	desiredIDs := make(map[string]struct{}, len(desired))
+	for _, binding := range desired {
+		if binding == nil {
+			continue
+		}
+		desiredIDs[binding.GetBindingId()] = struct{}{}
+		if err := core.SaveProto(ctx, s.store, ydb.TableBindingOperations, binding.GetBindingId(), binding.GetResource().GetTenantId(), binding, now); err != nil {
+			return err
+		}
+	}
+	for _, binding := range current {
+		if binding == nil {
+			continue
+		}
+		if _, ok := desiredIDs[binding.GetBindingId()]; ok {
+			continue
+		}
+		if err := s.store.DeleteDocument(ctx, ydb.TableBindingOperations, binding.GetBindingId()); err != nil && err != core.ErrNotFound {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Service) syncResourceWrite(ctx context.Context, resource *authzv1.ResourceRef, desired []*authzv1.AccessBinding, previous []*authzv1.AccessBinding, now time.Time) error {
+	if s.runtime == nil {
+		return nil
+	}
+
+	if err := s.runtime.SyncResource(ctx, resource, desired); err != nil {
+		if isExpectedRuntimeFallback(err) {
+			s.logRuntimeWriteFallback(err)
+			return nil
+		}
+		if rollbackErr := s.applyBindingsSnapshot(ctx, desired, previous, now); rollbackErr != nil {
+			if s.logger != nil {
+				s.logger.Warn("spicedb write rollback failed", zap.Error(rollbackErr))
+			}
+			return fmt.Errorf("spicedb sync failed: %w (rollback failed: %v)", err, rollbackErr)
+		}
+		s.logRuntimeWriteFallback(err)
+		return err
+	}
+	return nil
 }
 
 func toAddMutations(bindings []*authzv1.AccessBinding) []*authzv1.AccessBindingMutation {

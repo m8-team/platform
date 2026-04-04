@@ -25,17 +25,19 @@ type Service struct {
 	store     core.DocumentStore
 	publisher core.EventPublisher
 	workflows core.WorkflowStarter
+	runtime   core.AuthorizationRuntime
 	keycloak  core.KeycloakClient
 	logger    *zap.Logger
 	now       func() time.Time
 	topics    config.TopicsConfig
 }
 
-func NewService(store core.DocumentStore, publisher core.EventPublisher, workflows core.WorkflowStarter, keycloak core.KeycloakClient, logger *zap.Logger, cfg config.Config) *Service {
+func NewService(store core.DocumentStore, publisher core.EventPublisher, workflows core.WorkflowStarter, runtime core.AuthorizationRuntime, keycloak core.KeycloakClient, logger *zap.Logger, cfg config.Config) *Service {
 	return &Service{
 		store:     store,
 		publisher: publisher,
 		workflows: workflows,
+		runtime:   runtime,
 		keycloak:  keycloak,
 		logger:    logger,
 		now:       time.Now,
@@ -386,6 +388,11 @@ func (s *Service) AddGroupMember(ctx context.Context, req *identityv1.AddGroupMe
 	if err := core.SaveProto(ctx, s.store, ydb.TableGroupMembers, memberID, group.GetTenantId(), member, now); err != nil {
 		return nil, err
 	}
+	if s.runtime != nil {
+		if err := s.runtime.WriteGroupMembership(ctx, group.GetTenantId(), member); err != nil {
+			return nil, err
+		}
+	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupMemberAdded{
 		Meta: &eventsv1.EventMeta{
 			EventId:       req.GetRequestId(),
@@ -407,6 +414,11 @@ func (s *Service) RemoveGroupMember(ctx context.Context, req *identityv1.RemoveG
 	}
 	if err := s.store.DeleteDocument(ctx, ydb.TableGroupMembers, groupMemberID(req.GetGroupId(), req.GetSubjectType(), req.GetSubjectId())); err != nil {
 		return nil, err
+	}
+	if s.runtime != nil {
+		if err := s.runtime.DeleteGroupMembership(ctx, group.GetTenantId(), req.GetGroupId(), req.GetSubjectType(), req.GetSubjectId()); err != nil {
+			return nil, err
+		}
 	}
 	now := s.now()
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupMemberRemoved{
