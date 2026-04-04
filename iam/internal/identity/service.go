@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	"github.com/m8platform/platform/iam/internal/config"
@@ -15,6 +14,7 @@ import (
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
@@ -99,17 +99,20 @@ func (s *Service) CreateUser(ctx context.Context, req *identityv1.CreateUserRequ
 }
 
 func (s *Service) UpdateUser(ctx context.Context, req *identityv1.UpdateUserRequest) (*identityv1.User, error) {
-	current := &identityv1.User{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableUsers, req.GetUser().GetUserId(), current); err != nil {
-		return nil, err
-	}
-	applyUserMask(current, req.GetUser(), req.GetUpdateMask())
-	now := s.now()
-	current.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableUsers, current.GetUserId(), current.GetTenantId(), current, now); err != nil {
-		return nil, err
-	}
-	return current, nil
+	return updateStoredProto(
+		ctx,
+		s.store,
+		s.now,
+		ydb.TableUsers,
+		req.GetUser().GetUserId(),
+		&identityv1.User{},
+		func(current *identityv1.User, now time.Time) {
+			applyUserMask(current, req.GetUser(), req.GetUpdateMask())
+			current.UpdatedAt = core.Timestamp(now)
+		},
+		func(current *identityv1.User) string { return current.GetUserId() },
+		func(current *identityv1.User) string { return current.GetTenantId() },
+	)
 }
 
 func (s *Service) DisableUser(ctx context.Context, req *identityv1.DisableUserRequest) (*identityv1.MutateIdentityResponse, error) {
@@ -132,12 +135,7 @@ func (s *Service) DisableUser(ctx context.Context, req *identityv1.DisableUserRe
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityUsers, &eventsv1.UserDisabled{
-		Meta: &eventsv1.EventMeta{
-			EventId:       operation.GetOperationId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: operation.GetOperationId(),
-			TenantId:      user.GetTenantId(),
-		},
+		Meta:   newEventMeta(now, operation.GetOperationId(), user.GetTenantId()),
 		UserId: user.GetUserId(),
 		Reason: req.GetReason(),
 	}); err != nil {
@@ -194,12 +192,7 @@ func (s *Service) CreateTenant(ctx context.Context, req *identityv1.CreateTenant
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityMemberships, &eventsv1.TenantCreated{
-		Meta: &eventsv1.EventMeta{
-			EventId:       operation.GetOperationId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: operation.GetOperationId(),
-			TenantId:      tenant.GetTenantId(),
-		},
+		Meta:   newEventMeta(now, operation.GetOperationId(), tenant.GetTenantId()),
 		Tenant: tenant,
 	}); err != nil {
 		return nil, err
@@ -208,17 +201,20 @@ func (s *Service) CreateTenant(ctx context.Context, req *identityv1.CreateTenant
 }
 
 func (s *Service) UpdateTenant(ctx context.Context, req *identityv1.UpdateTenantRequest) (*identityv1.Tenant, error) {
-	current := &identityv1.Tenant{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenant().GetTenantId(), current); err != nil {
-		return nil, err
-	}
-	applyTenantMask(current, req.GetTenant(), req.GetUpdateMask())
-	now := s.now()
-	current.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableTenants, current.GetTenantId(), current.GetTenantId(), current, now); err != nil {
-		return nil, err
-	}
-	return current, nil
+	return updateStoredProto(
+		ctx,
+		s.store,
+		s.now,
+		ydb.TableTenants,
+		req.GetTenant().GetTenantId(),
+		&identityv1.Tenant{},
+		func(current *identityv1.Tenant, now time.Time) {
+			applyTenantMask(current, req.GetTenant(), req.GetUpdateMask())
+			current.UpdatedAt = core.Timestamp(now)
+		},
+		func(current *identityv1.Tenant) string { return current.GetTenantId() },
+		func(current *identityv1.Tenant) string { return current.GetTenantId() },
+	)
 }
 
 func (s *Service) DeleteTenant(ctx context.Context, req *identityv1.DeleteTenantRequest) (*identityv1.MutateIdentityResponse, error) {
@@ -274,12 +270,7 @@ func (s *Service) CreateMembership(ctx context.Context, req *identityv1.CreateMe
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityMemberships, &eventsv1.MembershipCreated{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      membership.GetTenantId(),
-		},
+		Meta:       newEventMeta(now, req.GetRequestId(), membership.GetTenantId()),
 		Membership: membership,
 	}); err != nil {
 		return nil, err
@@ -297,12 +288,7 @@ func (s *Service) DeleteMembership(ctx context.Context, req *identityv1.DeleteMe
 	}
 	now := s.now()
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityMemberships, &eventsv1.MembershipDeleted{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      membership.GetTenantId(),
-		},
+		Meta:         newEventMeta(now, req.GetRequestId(), membership.GetTenantId()),
 		MembershipId: membership.GetMembershipId(),
 		UserId:       membership.GetUserId(),
 	}); err != nil {
@@ -353,12 +339,7 @@ func (s *Service) CreateGroup(ctx context.Context, req *identityv1.CreateGroupRe
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupCreated{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      group.GetTenantId(),
-		},
+		Meta:  newEventMeta(now, req.GetRequestId(), group.GetTenantId()),
 		Group: group,
 	}); err != nil {
 		return nil, err
@@ -367,17 +348,20 @@ func (s *Service) CreateGroup(ctx context.Context, req *identityv1.CreateGroupRe
 }
 
 func (s *Service) UpdateGroup(ctx context.Context, req *identityv1.UpdateGroupRequest) (*identityv1.Group, error) {
-	current := &identityv1.Group{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroup().GetGroupId(), current); err != nil {
-		return nil, err
-	}
-	applyGroupMask(current, req.GetGroup(), req.GetUpdateMask())
-	now := s.now()
-	current.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableGroups, current.GetGroupId(), current.GetTenantId(), current, now); err != nil {
-		return nil, err
-	}
-	return current, nil
+	return updateStoredProto(
+		ctx,
+		s.store,
+		s.now,
+		ydb.TableGroups,
+		req.GetGroup().GetGroupId(),
+		&identityv1.Group{},
+		func(current *identityv1.Group, now time.Time) {
+			applyGroupMask(current, req.GetGroup(), req.GetUpdateMask())
+			current.UpdatedAt = core.Timestamp(now)
+		},
+		func(current *identityv1.Group) string { return current.GetGroupId() },
+		func(current *identityv1.Group) string { return current.GetTenantId() },
+	)
 }
 
 func (s *Service) DeleteGroup(ctx context.Context, req *identityv1.DeleteGroupRequest) (*identityv1.MutateIdentityResponse, error) {
@@ -413,12 +397,7 @@ func (s *Service) AddGroupMember(ctx context.Context, req *identityv1.AddGroupMe
 		}
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupMemberAdded{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      group.GetTenantId(),
-		},
+		Meta:   newEventMeta(now, req.GetRequestId(), group.GetTenantId()),
 		Member: member,
 	}); err != nil {
 		return nil, err
@@ -441,12 +420,7 @@ func (s *Service) RemoveGroupMember(ctx context.Context, req *identityv1.RemoveG
 	}
 	now := s.now()
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupMemberRemoved{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      group.GetTenantId(),
-		},
+		Meta:        newEventMeta(now, req.GetRequestId(), group.GetTenantId()),
 		GroupId:     req.GetGroupId(),
 		SubjectId:   req.GetSubjectId(),
 		SubjectType: req.GetSubjectType(),
@@ -509,12 +483,7 @@ func (s *Service) CreateServiceAccount(ctx context.Context, req *identityv1.Crea
 		}
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.ServiceAccounts, &eventsv1.ServiceAccountCreated{
-		Meta: &eventsv1.EventMeta{
-			EventId:       operationID,
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: operationID,
-			TenantId:      account.GetTenantId(),
-		},
+		Meta:           newEventMeta(now, operationID, account.GetTenantId()),
 		ServiceAccount: account,
 	}); err != nil {
 		return nil, err
@@ -523,17 +492,20 @@ func (s *Service) CreateServiceAccount(ctx context.Context, req *identityv1.Crea
 }
 
 func (s *Service) UpdateServiceAccount(ctx context.Context, req *identityv1.UpdateServiceAccountRequest) (*identityv1.ServiceAccount, error) {
-	current := &identityv1.ServiceAccount{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableServiceAccounts, req.GetServiceAccount().GetServiceAccountId(), current); err != nil {
-		return nil, err
-	}
-	applyServiceAccountMask(current, req.GetServiceAccount(), req.GetUpdateMask())
-	now := s.now()
-	current.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableServiceAccounts, current.GetServiceAccountId(), current.GetTenantId(), current, now); err != nil {
-		return nil, err
-	}
-	return current, nil
+	return updateStoredProto(
+		ctx,
+		s.store,
+		s.now,
+		ydb.TableServiceAccounts,
+		req.GetServiceAccount().GetServiceAccountId(),
+		&identityv1.ServiceAccount{},
+		func(current *identityv1.ServiceAccount, now time.Time) {
+			applyServiceAccountMask(current, req.GetServiceAccount(), req.GetUpdateMask())
+			current.UpdatedAt = core.Timestamp(now)
+		},
+		func(current *identityv1.ServiceAccount) string { return current.GetServiceAccountId() },
+		func(current *identityv1.ServiceAccount) string { return current.GetTenantId() },
+	)
 }
 
 func (s *Service) DeleteServiceAccount(ctx context.Context, req *identityv1.DeleteServiceAccountRequest) (*identityv1.MutateIdentityResponse, error) {
@@ -585,12 +557,7 @@ func (s *Service) CreateOAuthClient(ctx context.Context, req *identityv1.CreateO
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.OAuthClients, &eventsv1.OAuthClientCreated{
-		Meta: &eventsv1.EventMeta{
-			EventId:       req.GetRequestId(),
-			OccurredAt:    core.Timestamp(now),
-			CorrelationId: req.GetRequestId(),
-			TenantId:      client.GetTenantId(),
-		},
+		Meta:        newEventMeta(now, req.GetRequestId(), client.GetTenantId()),
 		OauthClient: client,
 	}); err != nil {
 		return nil, err
@@ -599,17 +566,20 @@ func (s *Service) CreateOAuthClient(ctx context.Context, req *identityv1.CreateO
 }
 
 func (s *Service) UpdateOAuthClient(ctx context.Context, req *identityv1.UpdateOAuthClientRequest) (*identityv1.OAuthClient, error) {
-	current := &identityv1.OAuthClient{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableOAuthClients, req.GetOauthClient().GetOauthClientId(), current); err != nil {
-		return nil, err
-	}
-	applyOAuthClientMask(current, req.GetOauthClient(), req.GetUpdateMask())
-	now := s.now()
-	current.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableOAuthClients, current.GetOauthClientId(), current.GetTenantId(), current, now); err != nil {
-		return nil, err
-	}
-	return current, nil
+	return updateStoredProto(
+		ctx,
+		s.store,
+		s.now,
+		ydb.TableOAuthClients,
+		req.GetOauthClient().GetOauthClientId(),
+		&identityv1.OAuthClient{},
+		func(current *identityv1.OAuthClient, now time.Time) {
+			applyOAuthClientMask(current, req.GetOauthClient(), req.GetUpdateMask())
+			current.UpdatedAt = core.Timestamp(now)
+		},
+		func(current *identityv1.OAuthClient) string { return current.GetOauthClientId() },
+		func(current *identityv1.OAuthClient) string { return current.GetTenantId() },
+	)
 }
 
 func (s *Service) DeleteOAuthClient(ctx context.Context, req *identityv1.DeleteOAuthClientRequest) (*identityv1.MutateIdentityResponse, error) {
@@ -647,11 +617,9 @@ func groupMemberID(groupID string, subjectType string, subjectID string) string 
 }
 
 func applyUserMask(target *identityv1.User, patch *identityv1.User, mask *fieldmaskpb.FieldMask) {
-	if len(mask.GetPaths()) == 0 {
-		*target = *patch
-		return
-	}
-	for _, path := range mask.GetPaths() {
+	applyFieldMask(mask, func() {
+		replaceProtoMessage(target, patch)
+	}, func(path string) {
 		switch path {
 		case "primary_email":
 			target.PrimaryEmail = patch.GetPrimaryEmail()
@@ -664,15 +632,13 @@ func applyUserMask(target *identityv1.User, patch *identityv1.User, mask *fieldm
 		case "state":
 			target.State = patch.GetState()
 		}
-	}
+	})
 }
 
 func applyTenantMask(target *identityv1.Tenant, patch *identityv1.Tenant, mask *fieldmaskpb.FieldMask) {
-	if len(mask.GetPaths()) == 0 {
-		*target = *patch
-		return
-	}
-	for _, path := range mask.GetPaths() {
+	applyFieldMask(mask, func() {
+		replaceProtoMessage(target, patch)
+	}, func(path string) {
 		switch path {
 		case "display_name":
 			target.DisplayName = patch.GetDisplayName()
@@ -681,15 +647,13 @@ func applyTenantMask(target *identityv1.Tenant, patch *identityv1.Tenant, mask *
 		case "labels":
 			target.Labels = core.LabelsFromMap(patch.GetLabels())
 		}
-	}
+	})
 }
 
 func applyGroupMask(target *identityv1.Group, patch *identityv1.Group, mask *fieldmaskpb.FieldMask) {
-	if len(mask.GetPaths()) == 0 {
-		*target = *patch
-		return
-	}
-	for _, path := range mask.GetPaths() {
+	applyFieldMask(mask, func() {
+		replaceProtoMessage(target, patch)
+	}, func(path string) {
 		switch path {
 		case "display_name":
 			target.DisplayName = patch.GetDisplayName()
@@ -698,15 +662,13 @@ func applyGroupMask(target *identityv1.Group, patch *identityv1.Group, mask *fie
 		case "labels":
 			target.Labels = core.LabelsFromMap(patch.GetLabels())
 		}
-	}
+	})
 }
 
 func applyServiceAccountMask(target *identityv1.ServiceAccount, patch *identityv1.ServiceAccount, mask *fieldmaskpb.FieldMask) {
-	if len(mask.GetPaths()) == 0 {
-		*target = *patch
-		return
-	}
-	for _, path := range mask.GetPaths() {
+	applyFieldMask(mask, func() {
+		replaceProtoMessage(target, patch)
+	}, func(path string) {
 		switch path {
 		case "display_name":
 			target.DisplayName = patch.GetDisplayName()
@@ -715,15 +677,13 @@ func applyServiceAccountMask(target *identityv1.ServiceAccount, patch *identityv
 		case "disabled":
 			target.Disabled = patch.GetDisabled()
 		}
-	}
+	})
 }
 
 func applyOAuthClientMask(target *identityv1.OAuthClient, patch *identityv1.OAuthClient, mask *fieldmaskpb.FieldMask) {
-	if len(mask.GetPaths()) == 0 {
-		*target = *patch
-		return
-	}
-	for _, path := range mask.GetPaths() {
+	applyFieldMask(mask, func() {
+		replaceProtoMessage(target, patch)
+	}, func(path string) {
 		switch path {
 		case "display_name":
 			target.DisplayName = patch.GetDisplayName()
@@ -736,12 +696,56 @@ func applyOAuthClientMask(target *identityv1.OAuthClient, patch *identityv1.OAut
 		case "service_accounts_enabled":
 			target.ServiceAccountsEnabled = patch.GetServiceAccountsEnabled()
 		}
+	})
+}
+
+func newEventMeta(now time.Time, eventID string, tenantID string) *eventsv1.EventMeta {
+	return &eventsv1.EventMeta{
+		EventId:       eventID,
+		OccurredAt:    core.Timestamp(now),
+		CorrelationId: eventID,
+		TenantId:      tenantID,
 	}
 }
 
-func ensureID(value string) string {
-	if value != "" {
-		return value
+func applyFieldMask(mask *fieldmaskpb.FieldMask, replace func(), apply func(path string)) {
+	if mask == nil || len(mask.GetPaths()) == 0 {
+		replace()
+		return
 	}
-	return uuid.NewString()
+	for _, path := range mask.GetPaths() {
+		apply(path)
+	}
+}
+
+func replaceProtoMessage(target proto.Message, patch proto.Message) {
+	proto.Reset(target)
+	if patch != nil {
+		proto.Merge(target, patch)
+	}
+}
+
+func updateStoredProto[T proto.Message](
+	ctx context.Context,
+	store core.DocumentStore,
+	nowFn func() time.Time,
+	table string,
+	id string,
+	target T,
+	mutate func(T, time.Time),
+	documentID func(T) string,
+	tenantID func(T) string,
+) (T, error) {
+	var zero T
+	if err := core.LoadProto(ctx, store, table, id, target); err != nil {
+		return zero, err
+	}
+
+	now := nowFn()
+	mutate(target, now)
+
+	if err := core.SaveProto(ctx, store, table, documentID(target), tenantID(target), target, now); err != nil {
+		return zero, err
+	}
+	return target, nil
 }
