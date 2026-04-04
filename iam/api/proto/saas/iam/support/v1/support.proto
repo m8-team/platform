@@ -1,3 +1,4 @@
+// Support access API contracts for temporary elevated support workflows.
 syntax = "proto3";
 
 package saas.iam.support.v1;
@@ -5,10 +6,12 @@ package saas.iam.support.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1;supportv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "saas/iam/authz/v1/authz.proto";
 
+// SupportGrantStatus describes the lifecycle of a temporary support grant.
 enum SupportGrantStatus {
   SUPPORT_GRANT_STATUS_UNSPECIFIED = 0;
   SUPPORT_GRANT_STATUS_PENDING_APPROVAL = 1;
@@ -18,6 +21,7 @@ enum SupportGrantStatus {
   SUPPORT_GRANT_STATUS_DENIED = 5;
 }
 
+// SupportGrant records a temporary elevated-access request and its outcome.
 message SupportGrant {
   string support_grant_id = 1;
   string tenant_id = 2;
@@ -34,6 +38,7 @@ message SupportGrant {
   google.protobuf.Timestamp updated_at = 13;
 }
 
+// GrantTemporaryAccessRequest requests a temporary support grant.
 message GrantTemporaryAccessRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -62,6 +67,7 @@ message GrantTemporaryAccessRequest {
   }];
 }
 
+// ApproveTemporaryAccessRequest approves a pending support grant.
 message ApproveTemporaryAccessRequest {
   string support_grant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -82,6 +88,7 @@ message ApproveTemporaryAccessRequest {
   }];
 }
 
+// RevokeTemporaryAccessRequest revokes an active or pending support grant.
 message RevokeTemporaryAccessRequest {
   string support_grant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -98,6 +105,7 @@ message RevokeTemporaryAccessRequest {
   }];
 }
 
+// ListSupportGrantsRequest lists support grants for a tenant.
 message ListSupportGrantsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -108,14 +116,40 @@ message ListSupportGrantsRequest {
   string page_token = 3;
 }
 
+// ListSupportGrantsResponse returns a page of support grants.
 message ListSupportGrantsResponse {
   repeated SupportGrant grants = 1;
   string next_page_token = 2;
 }
 
+// SupportAccessService manages temporary elevated support access.
 service SupportAccessService {
-  rpc GrantTemporaryAccess(GrantTemporaryAccessRequest) returns (SupportGrant);
-  rpc ApproveTemporaryAccess(ApproveTemporaryAccessRequest) returns (SupportGrant);
-  rpc RevokeTemporaryAccess(RevokeTemporaryAccessRequest) returns (SupportGrant);
-  rpc ListSupportGrants(ListSupportGrantsRequest) returns (ListSupportGrantsResponse);
+  // GrantTemporaryAccess creates a new support grant request.
+  rpc GrantTemporaryAccess(GrantTemporaryAccessRequest) returns (SupportGrant) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/support-grants"
+      body: "*"
+    };
+  }
+
+  // ApproveTemporaryAccess approves a pending support grant.
+  rpc ApproveTemporaryAccess(ApproveTemporaryAccessRequest) returns (SupportGrant) {
+    option (google.api.http) = {
+      post: "/api/v1/support-grants/{support_grant_id}:approve"
+      body: "*"
+    };
+  }
+
+  // RevokeTemporaryAccess revokes an existing support grant.
+  rpc RevokeTemporaryAccess(RevokeTemporaryAccessRequest) returns (SupportGrant) {
+    option (google.api.http) = {
+      post: "/api/v1/support-grants/{support_grant_id}:revoke"
+      body: "*"
+    };
+  }
+
+  // ListSupportGrants returns grants for a tenant.
+  rpc ListSupportGrants(ListSupportGrantsRequest) returns (ListSupportGrantsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/support-grants"};
+  }
 }

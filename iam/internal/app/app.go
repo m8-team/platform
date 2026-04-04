@@ -81,7 +81,7 @@ func New(ctx context.Context, cfg config.Config) (*Application, error) {
 	auditService := audit.NewService(store)
 	opsService := ops.NewService(store)
 
-	grpcSrv, err := grpcserver.New(cfg.GRPC, logger, validation, grpcserver.Services{
+	grpcSrv, err := grpcserver.New(cfg.GRPC, cfg.HTTP, logger, validation, grpcserver.Services{
 		Identity: identityService,
 		OAuth:    identityService,
 		Authz:    authzService,

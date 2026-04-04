@@ -1,3 +1,4 @@
+// Identity API contracts for tenants, users, groups, service accounts, and OAuth clients.
 syntax = "proto3";
 
 package saas.iam.identity.v1;
@@ -5,15 +6,32 @@ package saas.iam.identity.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1;identityv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "M8 Platform IAM API";
+    version: "v1";
+    description: "Identity and OAuth facade for the M8 Platform IAM control plane."
+  };
+  consumes: "application/json";
+  produces: "application/json";
+  schemes: HTTP;
+  schemes: HTTPS;
+  base_path: "/";
+};
+
+// UserState describes the lifecycle state of a user account.
 enum UserState {
   USER_STATE_UNSPECIFIED = 0;
   USER_STATE_ACTIVE = 1;
   USER_STATE_DISABLED = 2;
 }
 
+// MembershipState describes the lifecycle state of a tenant membership.
 enum MembershipState {
   MEMBERSHIP_STATE_UNSPECIFIED = 0;
   MEMBERSHIP_STATE_ACTIVE = 1;
@@ -21,12 +39,14 @@ enum MembershipState {
   MEMBERSHIP_STATE_DISABLED = 3;
 }
 
+// OAuthClientType describes the client profile provisioned in Keycloak.
 enum OAuthClientType {
   OAUTH_CLIENT_TYPE_UNSPECIFIED = 0;
   OAUTH_CLIENT_TYPE_CONFIDENTIAL = 1;
   OAUTH_CLIENT_TYPE_PUBLIC = 2;
 }
 
+// User stores IAM user metadata replicated into the control plane.
 message User {
   string user_id = 1;
   string tenant_id = 2;
@@ -40,6 +60,7 @@ message User {
   string keycloak_user_id = 10;
 }
 
+// Tenant stores tenant metadata known to the IAM domain.
 message Tenant {
   string tenant_id = 1;
   string display_name = 2;
@@ -49,6 +70,7 @@ message Tenant {
   google.protobuf.Timestamp updated_at = 6;
 }
 
+// Membership stores the tenant-scoped roles assigned to a user.
 message Membership {
   string membership_id = 1;
   string tenant_id = 2;
@@ -59,6 +81,7 @@ message Membership {
   google.protobuf.Timestamp updated_at = 7;
 }
 
+// Group stores a reusable tenant-scoped subject collection.
 message Group {
   string group_id = 1;
   string tenant_id = 2;
@@ -69,6 +92,7 @@ message Group {
   google.protobuf.Timestamp updated_at = 7;
 }
 
+// GroupMember stores a single subject membership inside a group.
 message GroupMember {
   string group_id = 1;
   string subject_id = 2;
@@ -76,6 +100,7 @@ message GroupMember {
   google.protobuf.Timestamp created_at = 4;
 }
 
+// FederatedIdentityLink stores the mapping between an external IdP subject and a local user.
 message FederatedIdentityLink {
   string link_id = 1;
   string tenant_id = 2;
@@ -85,6 +110,7 @@ message FederatedIdentityLink {
   google.protobuf.Timestamp created_at = 6;
 }
 
+// ServiceAccount stores metadata for a machine principal managed by IAM.
 message ServiceAccount {
   string service_account_id = 1;
   string tenant_id = 2;
@@ -97,6 +123,7 @@ message ServiceAccount {
   google.protobuf.Timestamp updated_at = 9;
 }
 
+// OAuthClient stores metadata for an OAuth/OIDC client provisioned through IAM.
 message OAuthClient {
   string oauth_client_id = 1;
   string tenant_id = 2;
@@ -110,6 +137,7 @@ message OAuthClient {
   google.protobuf.Timestamp updated_at = 10;
 }
 
+// GetUserRequest reads a single user by stable identifier.
 message GetUserRequest {
   string user_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -118,6 +146,7 @@ message GetUserRequest {
   }];
 }
 
+// ListUsersRequest lists users within a tenant.
 message ListUsersRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -129,11 +158,13 @@ message ListUsersRequest {
   string query = 4;
 }
 
+// ListUsersResponse returns a page of users.
 message ListUsersResponse {
   repeated User users = 1;
   string next_page_token = 2;
 }
 
+// CreateUserRequest creates a new user record in IAM metadata.
 message CreateUserRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -156,6 +187,7 @@ message CreateUserRequest {
   }];
 }
 
+// UpdateUserRequest updates mutable user fields.
 message UpdateUserRequest {
   User user = 1 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 2;
@@ -169,6 +201,7 @@ message UpdateUserRequest {
   }];
 }
 
+// DisableUserRequest disables an existing user.
 message DisableUserRequest {
   string user_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -189,6 +222,7 @@ message DisableUserRequest {
   }];
 }
 
+// GetTenantRequest reads a single tenant.
 message GetTenantRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -197,17 +231,20 @@ message GetTenantRequest {
   }];
 }
 
+// ListTenantsRequest lists tenants known to IAM.
 message ListTenantsRequest {
   int32 page_size = 1;
   string page_token = 2;
   string query = 3;
 }
 
+// ListTenantsResponse returns a page of tenants.
 message ListTenantsResponse {
   repeated Tenant tenants = 1;
   string next_page_token = 2;
 }
 
+// CreateTenantRequest creates a new tenant record.
 message CreateTenantRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -230,6 +267,7 @@ message CreateTenantRequest {
   }];
 }
 
+// UpdateTenantRequest updates mutable tenant fields.
 message UpdateTenantRequest {
   Tenant tenant = 1 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 2;
@@ -243,6 +281,7 @@ message UpdateTenantRequest {
   }];
 }
 
+// ListMembershipsRequest lists user memberships for a tenant.
 message ListMembershipsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -254,11 +293,13 @@ message ListMembershipsRequest {
   string page_token = 4;
 }
 
+// ListMembershipsResponse returns a page of memberships.
 message ListMembershipsResponse {
   repeated Membership memberships = 1;
   string next_page_token = 2;
 }
 
+// CreateMembershipRequest assigns roles to a user in a tenant.
 message CreateMembershipRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -289,6 +330,7 @@ message CreateMembershipRequest {
   }];
 }
 
+// DeleteMembershipRequest removes a membership by identifier.
 message DeleteMembershipRequest {
   string membership_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -309,6 +351,7 @@ message DeleteMembershipRequest {
   }];
 }
 
+// GetGroupRequest reads a single group by identifier.
 message GetGroupRequest {
   string group_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -317,6 +360,7 @@ message GetGroupRequest {
   }];
 }
 
+// ListGroupsRequest lists groups within a tenant.
 message ListGroupsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -328,11 +372,13 @@ message ListGroupsRequest {
   string query = 4;
 }
 
+// ListGroupsResponse returns a page of groups.
 message ListGroupsResponse {
   repeated Group groups = 1;
   string next_page_token = 2;
 }
 
+// CreateGroupRequest creates a new tenant group.
 message CreateGroupRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -360,6 +406,7 @@ message CreateGroupRequest {
   }];
 }
 
+// UpdateGroupRequest updates mutable group fields.
 message UpdateGroupRequest {
   Group group = 1 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 2;
@@ -373,6 +420,7 @@ message UpdateGroupRequest {
   }];
 }
 
+// DeleteGroupRequest removes a group by identifier.
 message DeleteGroupRequest {
   string group_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -393,6 +441,7 @@ message DeleteGroupRequest {
   }];
 }
 
+// AddGroupMemberRequest adds a subject to a group.
 message AddGroupMemberRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -419,6 +468,7 @@ message AddGroupMemberRequest {
   }];
 }
 
+// RemoveGroupMemberRequest removes a subject from a group.
 message RemoveGroupMemberRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -449,6 +499,7 @@ message RemoveGroupMemberRequest {
   }];
 }
 
+// GetServiceAccountRequest reads a single service account.
 message GetServiceAccountRequest {
   string service_account_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -457,6 +508,7 @@ message GetServiceAccountRequest {
   }];
 }
 
+// ListServiceAccountsRequest lists service accounts for a tenant.
 message ListServiceAccountsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -467,11 +519,13 @@ message ListServiceAccountsRequest {
   string page_token = 3;
 }
 
+// ListServiceAccountsResponse returns a page of service accounts.
 message ListServiceAccountsResponse {
   repeated ServiceAccount service_accounts = 1;
   string next_page_token = 2;
 }
 
+// CreateServiceAccountRequest provisions a new machine principal.
 message CreateServiceAccountRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -498,6 +552,7 @@ message CreateServiceAccountRequest {
   }];
 }
 
+// UpdateServiceAccountRequest updates mutable service account fields.
 message UpdateServiceAccountRequest {
   ServiceAccount service_account = 1 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 2;
@@ -511,6 +566,7 @@ message UpdateServiceAccountRequest {
   }];
 }
 
+// DeleteServiceAccountRequest deletes a service account by identifier.
 message DeleteServiceAccountRequest {
   string service_account_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -531,6 +587,7 @@ message DeleteServiceAccountRequest {
   }];
 }
 
+// GetOAuthClientRequest reads a single OAuth client.
 message GetOAuthClientRequest {
   string oauth_client_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -539,6 +596,7 @@ message GetOAuthClientRequest {
   }];
 }
 
+// ListOAuthClientsRequest lists OAuth clients for a tenant.
 message ListOAuthClientsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -549,11 +607,13 @@ message ListOAuthClientsRequest {
   string page_token = 3;
 }
 
+// ListOAuthClientsResponse returns a page of OAuth clients.
 message ListOAuthClientsResponse {
   repeated OAuthClient oauth_clients = 1;
   string next_page_token = 2;
 }
 
+// CreateOAuthClientRequest provisions a new OAuth client.
 message CreateOAuthClientRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -583,6 +643,7 @@ message CreateOAuthClientRequest {
   }];
 }
 
+// UpdateOAuthClientRequest updates mutable OAuth client fields.
 message UpdateOAuthClientRequest {
   OAuthClient oauth_client = 1 [(buf.validate.field).required = true];
   google.protobuf.FieldMask update_mask = 2;
@@ -596,6 +657,7 @@ message UpdateOAuthClientRequest {
   }];
 }
 
+// DeleteOAuthClientRequest deletes an OAuth client by identifier.
 message DeleteOAuthClientRequest {
   string oauth_client_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -616,6 +678,7 @@ message DeleteOAuthClientRequest {
   }];
 }
 
+// RotateClientSecretRequest rotates the secret for a confidential OAuth client.
 message RotateClientSecretRequest {
   string oauth_client_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -636,51 +699,214 @@ message RotateClientSecretRequest {
   }];
 }
 
+// MutateIdentityResponse returns the operation identifier created by a mutation.
 message MutateIdentityResponse {
   string operation_id = 1;
 }
 
+// RotateClientSecretResponse returns the new operation and secret reference.
 message RotateClientSecretResponse {
   string operation_id = 1;
   string secret_ref = 2;
 }
 
+// IdentityService manages tenants, users, groups, memberships, and service accounts.
 service IdentityService {
-  rpc GetUser(GetUserRequest) returns (User);
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
-  rpc CreateUser(CreateUserRequest) returns (User);
-  rpc UpdateUser(UpdateUserRequest) returns (User);
-  rpc DisableUser(DisableUserRequest) returns (MutateIdentityResponse);
+  // GetUser returns a single user by identifier.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {get: "/api/v1/users/{user_id}"};
+  }
 
-  rpc GetTenant(GetTenantRequest) returns (Tenant);
-  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
-  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
-  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
+  // ListUsers returns the users that belong to a tenant.
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/users"};
+  }
 
-  rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse);
-  rpc CreateMembership(CreateMembershipRequest) returns (Membership);
-  rpc DeleteMembership(DeleteMembershipRequest) returns (MutateIdentityResponse);
+  // CreateUser creates a user inside a tenant.
+  rpc CreateUser(CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/users"
+      body: "*"
+    };
+  }
 
-  rpc GetGroup(GetGroupRequest) returns (Group);
-  rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse);
-  rpc CreateGroup(CreateGroupRequest) returns (Group);
-  rpc UpdateGroup(UpdateGroupRequest) returns (Group);
-  rpc DeleteGroup(DeleteGroupRequest) returns (MutateIdentityResponse);
-  rpc AddGroupMember(AddGroupMemberRequest) returns (GroupMember);
-  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (MutateIdentityResponse);
+  // UpdateUser updates mutable user fields.
+  rpc UpdateUser(UpdateUserRequest) returns (User) {
+    option (google.api.http) = {
+      patch: "/api/v1/users/{user.user_id}"
+      body: "*"
+    };
+  }
 
-  rpc GetServiceAccount(GetServiceAccountRequest) returns (ServiceAccount);
-  rpc ListServiceAccounts(ListServiceAccountsRequest) returns (ListServiceAccountsResponse);
-  rpc CreateServiceAccount(CreateServiceAccountRequest) returns (ServiceAccount);
-  rpc UpdateServiceAccount(UpdateServiceAccountRequest) returns (ServiceAccount);
-  rpc DeleteServiceAccount(DeleteServiceAccountRequest) returns (MutateIdentityResponse);
+  // DisableUser disables a user account.
+  rpc DisableUser(DisableUserRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/{user_id}:disable"
+      body: "*"
+    };
+  }
+
+  // GetTenant returns a single tenant.
+  rpc GetTenant(GetTenantRequest) returns (Tenant) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}"};
+  }
+
+  // ListTenants returns all tenants visible to IAM.
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants"};
+  }
+
+  // CreateTenant creates a tenant.
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants"
+      body: "*"
+    };
+  }
+
+  // UpdateTenant updates mutable tenant fields.
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      patch: "/api/v1/tenants/{tenant.tenant_id}"
+      body: "*"
+    };
+  }
+
+  // ListMemberships returns memberships for a tenant.
+  rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/memberships"};
+  }
+
+  // CreateMembership creates a tenant membership.
+  rpc CreateMembership(CreateMembershipRequest) returns (Membership) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/memberships"
+      body: "*"
+    };
+  }
+
+  // DeleteMembership removes a membership.
+  rpc DeleteMembership(DeleteMembershipRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {delete: "/api/v1/memberships/{membership_id}"};
+  }
+
+  // GetGroup returns a single group.
+  rpc GetGroup(GetGroupRequest) returns (Group) {
+    option (google.api.http) = {get: "/api/v1/groups/{group_id}"};
+  }
+
+  // ListGroups returns the groups in a tenant.
+  rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/groups"};
+  }
+
+  // CreateGroup creates a new group.
+  rpc CreateGroup(CreateGroupRequest) returns (Group) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/groups"
+      body: "*"
+    };
+  }
+
+  // UpdateGroup updates mutable group fields.
+  rpc UpdateGroup(UpdateGroupRequest) returns (Group) {
+    option (google.api.http) = {
+      patch: "/api/v1/groups/{group.group_id}"
+      body: "*"
+    };
+  }
+
+  // DeleteGroup removes a group.
+  rpc DeleteGroup(DeleteGroupRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {delete: "/api/v1/groups/{group_id}"};
+  }
+
+  // AddGroupMember adds a subject to a group.
+  rpc AddGroupMember(AddGroupMemberRequest) returns (GroupMember) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}/members"
+      body: "*"
+    };
+  }
+
+  // RemoveGroupMember removes a subject from a group.
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/groups/{group_id}:removeMember"
+      body: "*"
+    };
+  }
+
+  // GetServiceAccount returns a single service account.
+  rpc GetServiceAccount(GetServiceAccountRequest) returns (ServiceAccount) {
+    option (google.api.http) = {get: "/api/v1/service-accounts/{service_account_id}"};
+  }
+
+  // ListServiceAccounts returns service accounts for a tenant.
+  rpc ListServiceAccounts(ListServiceAccountsRequest) returns (ListServiceAccountsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/service-accounts"};
+  }
+
+  // CreateServiceAccount provisions a new service account.
+  rpc CreateServiceAccount(CreateServiceAccountRequest) returns (ServiceAccount) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/service-accounts"
+      body: "*"
+    };
+  }
+
+  // UpdateServiceAccount updates mutable service account fields.
+  rpc UpdateServiceAccount(UpdateServiceAccountRequest) returns (ServiceAccount) {
+    option (google.api.http) = {
+      patch: "/api/v1/service-accounts/{service_account.service_account_id}"
+      body: "*"
+    };
+  }
+
+  // DeleteServiceAccount deletes a service account.
+  rpc DeleteServiceAccount(DeleteServiceAccountRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {delete: "/api/v1/service-accounts/{service_account_id}"};
+  }
 }
 
+// OAuthFacadeService manages OAuth clients and secret rotation.
 service OAuthFacadeService {
-  rpc GetOAuthClient(GetOAuthClientRequest) returns (OAuthClient);
-  rpc ListOAuthClients(ListOAuthClientsRequest) returns (ListOAuthClientsResponse);
-  rpc CreateOAuthClient(CreateOAuthClientRequest) returns (OAuthClient);
-  rpc UpdateOAuthClient(UpdateOAuthClientRequest) returns (OAuthClient);
-  rpc DeleteOAuthClient(DeleteOAuthClientRequest) returns (MutateIdentityResponse);
-  rpc RotateClientSecret(RotateClientSecretRequest) returns (RotateClientSecretResponse);
+  // GetOAuthClient returns a single OAuth client.
+  rpc GetOAuthClient(GetOAuthClientRequest) returns (OAuthClient) {
+    option (google.api.http) = {get: "/api/v1/oauth-clients/{oauth_client_id}"};
+  }
+
+  // ListOAuthClients returns OAuth clients for a tenant.
+  rpc ListOAuthClients(ListOAuthClientsRequest) returns (ListOAuthClientsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/oauth-clients"};
+  }
+
+  // CreateOAuthClient provisions a new OAuth client.
+  rpc CreateOAuthClient(CreateOAuthClientRequest) returns (OAuthClient) {
+    option (google.api.http) = {
+      post: "/api/v1/tenants/{tenant_id}/oauth-clients"
+      body: "*"
+    };
+  }
+
+  // UpdateOAuthClient updates mutable OAuth client fields.
+  rpc UpdateOAuthClient(UpdateOAuthClientRequest) returns (OAuthClient) {
+    option (google.api.http) = {
+      patch: "/api/v1/oauth-clients/{oauth_client.oauth_client_id}"
+      body: "*"
+    };
+  }
+
+  // DeleteOAuthClient deletes an OAuth client.
+  rpc DeleteOAuthClient(DeleteOAuthClientRequest) returns (MutateIdentityResponse) {
+    option (google.api.http) = {delete: "/api/v1/oauth-clients/{oauth_client_id}"};
+  }
+
+  // RotateClientSecret rotates a confidential client secret.
+  rpc RotateClientSecret(RotateClientSecretRequest) returns (RotateClientSecretResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/oauth-clients/{oauth_client_id}:rotateSecret"
+      body: "*"
+    };
+  }
 }

@@ -1,3 +1,4 @@
+// Audit API contracts for querying immutable audit events.
 syntax = "proto3";
 
 package saas.iam.audit.v1;
@@ -5,9 +6,11 @@ package saas.iam.audit.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/audit/v1;auditv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "saas/iam/authz/v1/authz.proto";
 
+// AuditEvent records a completed security-relevant action.
 message AuditEvent {
   string audit_event_id = 1;
   string tenant_id = 2;
@@ -22,6 +25,7 @@ message AuditEvent {
   google.protobuf.Timestamp occurred_at = 11;
 }
 
+// ListAuditEventsRequest lists audit events for a tenant.
 message ListAuditEventsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -33,11 +37,13 @@ message ListAuditEventsRequest {
   string event_type = 4;
 }
 
+// ListAuditEventsResponse returns a page of audit events.
 message ListAuditEventsResponse {
   repeated AuditEvent events = 1;
   string next_page_token = 2;
 }
 
+// GetAuditEventRequest fetches an audit event by identifier.
 message GetAuditEventRequest {
   string audit_event_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -46,7 +52,15 @@ message GetAuditEventRequest {
   }];
 }
 
+// AuditService exposes read-only access to audit history.
 service AuditService {
-  rpc ListAuditEvents(ListAuditEventsRequest) returns (ListAuditEventsResponse);
-  rpc GetAuditEvent(GetAuditEventRequest) returns (AuditEvent);
+  // ListAuditEvents returns audit events for a tenant.
+  rpc ListAuditEvents(ListAuditEventsRequest) returns (ListAuditEventsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/audit-events"};
+  }
+
+  // GetAuditEvent returns one audit event by identifier.
+  rpc GetAuditEvent(GetAuditEventRequest) returns (AuditEvent) {
+    option (google.api.http) = {get: "/api/v1/audit-events/{audit_event_id}"};
+  }
 }

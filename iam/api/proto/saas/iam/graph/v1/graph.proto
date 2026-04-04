@@ -1,3 +1,4 @@
+// Graph API contracts for access graph inspection and simulation.
 syntax = "proto3";
 
 package saas.iam.graph.v1;
@@ -5,9 +6,11 @@ package saas.iam.graph.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1;graphv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "saas/iam/authz/v1/authz.proto";
 
+// ExplainEdge describes one edge in a derived access path.
 message ExplainEdge {
   string edge_id = 1;
   saas.iam.authz.v1.SubjectRef from_subject = 2;
@@ -18,47 +21,75 @@ message ExplainEdge {
   google.protobuf.Timestamp expires_at = 7;
 }
 
+// ListSubjectAccessBindingsRequest lists bindings for one subject.
 message ListSubjectAccessBindingsRequest {
   saas.iam.authz.v1.SubjectRef subject = 1 [(buf.validate.field).required = true];
   int32 page_size = 2;
   string page_token = 3;
 }
 
+// ListSubjectAccessBindingsResponse returns subject bindings and explain edges.
 message ListSubjectAccessBindingsResponse {
   repeated saas.iam.authz.v1.AccessBinding bindings = 1;
   repeated ExplainEdge explain_edges = 2;
   string next_page_token = 3;
 }
 
+// ListResourceSubjectsRequest lists subjects bound to one resource.
 message ListResourceSubjectsRequest {
   saas.iam.authz.v1.ResourceRef resource = 1 [(buf.validate.field).required = true];
   int32 page_size = 2;
   string page_token = 3;
 }
 
+// ListResourceSubjectsResponse returns subjects and bindings for a resource.
 message ListResourceSubjectsResponse {
   repeated saas.iam.authz.v1.SubjectRef subjects = 1;
   repeated saas.iam.authz.v1.AccessBinding bindings = 2;
   string next_page_token = 3;
 }
 
+// SimulateChangeImpactRequest estimates permission changes from a binding delta.
 message SimulateChangeImpactRequest {
   saas.iam.authz.v1.ResourceRef resource = 1 [(buf.validate.field).required = true];
   saas.iam.authz.v1.AccessBindingDelta delta = 2 [(buf.validate.field).required = true];
 }
 
+// ChangeImpact describes how a subject's permissions would change.
 message ChangeImpact {
   saas.iam.authz.v1.SubjectRef subject = 1;
   repeated string added_permissions = 2;
   repeated string removed_permissions = 3;
 }
 
+// SimulateChangeImpactResponse returns the simulated impact per subject.
 message SimulateChangeImpactResponse {
   repeated ChangeImpact impacts = 1;
 }
 
+// GraphService exposes read-only access graph inspection methods.
 service GraphService {
-  rpc ListSubjectAccessBindings(ListSubjectAccessBindingsRequest) returns (ListSubjectAccessBindingsResponse);
-  rpc ListResourceSubjects(ListResourceSubjectsRequest) returns (ListResourceSubjectsResponse);
-  rpc SimulateChangeImpact(SimulateChangeImpactRequest) returns (SimulateChangeImpactResponse);
+  // ListSubjectAccessBindings returns bindings reachable from a subject.
+  rpc ListSubjectAccessBindings(ListSubjectAccessBindingsRequest) returns (ListSubjectAccessBindingsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/graph/subject-access:list"
+      body: "*"
+    };
+  }
+
+  // ListResourceSubjects returns subjects bound to a resource.
+  rpc ListResourceSubjects(ListResourceSubjectsRequest) returns (ListResourceSubjectsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/graph/resource-subjects:list"
+      body: "*"
+    };
+  }
+
+  // SimulateChangeImpact estimates the effects of a binding delta.
+  rpc SimulateChangeImpact(SimulateChangeImpactRequest) returns (SimulateChangeImpactResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/graph/change-impact:simulate"
+      body: "*"
+    };
+  }
 }

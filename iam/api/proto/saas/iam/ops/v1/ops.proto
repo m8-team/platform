@@ -1,3 +1,4 @@
+// Operations API contracts for long-running and asynchronous work tracking.
 syntax = "proto3";
 
 package saas.iam.ops.v1;
@@ -5,8 +6,10 @@ package saas.iam.ops.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/ops/v1;opsv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
+// OperationStatus describes the execution state of an operation.
 enum OperationStatus {
   OPERATION_STATUS_UNSPECIFIED = 0;
   OPERATION_STATUS_PENDING = 1;
@@ -15,6 +18,7 @@ enum OperationStatus {
   OPERATION_STATUS_FAILED = 4;
 }
 
+// Operation stores the current state of an asynchronous action.
 message Operation {
   string operation_id = 1;
   string tenant_id = 2;
@@ -30,6 +34,7 @@ message Operation {
   google.protobuf.Timestamp completed_at = 12;
 }
 
+// ListOperationsRequest lists operations for a tenant.
 message ListOperationsRequest {
   string tenant_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -40,11 +45,13 @@ message ListOperationsRequest {
   string page_token = 3;
 }
 
+// ListOperationsResponse returns a page of operations.
 message ListOperationsResponse {
   repeated Operation operations = 1;
   string next_page_token = 2;
 }
 
+// GetOperationRequest fetches an operation by identifier.
 message GetOperationRequest {
   string operation_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -53,7 +60,15 @@ message GetOperationRequest {
   }];
 }
 
+// OperationsService exposes read-only operation tracking.
 service OperationsService {
-  rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse);
-  rpc GetOperation(GetOperationRequest) returns (Operation);
+  // ListOperations returns operations for a tenant.
+  rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse) {
+    option (google.api.http) = {get: "/api/v1/tenants/{tenant_id}/operations"};
+  }
+
+  // GetOperation returns a single operation.
+  rpc GetOperation(GetOperationRequest) returns (Operation) {
+    option (google.api.http) = {get: "/api/v1/operations/{operation_id}"};
+  }
 }

@@ -12,6 +12,7 @@ type Config struct {
 	Environment string
 	Development bool
 	GRPC        GRPCConfig
+	HTTP        HTTPConfig
 	YDB         YDBConfig
 	Redis       RedisConfig
 	Keycloak    KeycloakConfig
@@ -22,6 +23,11 @@ type Config struct {
 
 type GRPCConfig struct {
 	Address string
+}
+
+type HTTPConfig struct {
+	Address    string
+	OpenAPIDir string
 }
 
 type YDBConfig struct {
@@ -79,6 +85,10 @@ func Load() Config {
 		Development: envBool("IAM_DEVELOPMENT", true),
 		GRPC: GRPCConfig{
 			Address: envString("IAM_GRPC_ADDRESS", ":8080"),
+		},
+		HTTP: HTTPConfig{
+			Address:    envString("IAM_HTTP_ADDRESS", ":8082"),
+			OpenAPIDir: envString("IAM_OPENAPI_DIR", "gen/openapi"),
 		},
 		YDB: YDBConfig{
 			DSN:      envString("IAM_YDB_DSN", ""),

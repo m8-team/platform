@@ -1,3 +1,4 @@
+// Authorization API contracts for roles, bindings, and permission evaluation.
 syntax = "proto3";
 
 package saas.iam.authz.v1;
@@ -5,9 +6,11 @@ package saas.iam.authz.v1;
 option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1;authzv1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
+// SubjectType enumerates principal categories supported by IAM authorization.
 enum SubjectType {
   SUBJECT_TYPE_UNSPECIFIED = 0;
   SUBJECT_TYPE_USER_ACCOUNT = 1;
@@ -17,6 +20,7 @@ enum SubjectType {
   SUBJECT_TYPE_SYSTEM = 5;
 }
 
+// ResourceType enumerates resource categories governed by IAM permissions.
 enum ResourceType {
   RESOURCE_TYPE_UNSPECIFIED = 0;
   RESOURCE_TYPE_TENANT = 1;
@@ -27,6 +31,7 @@ enum ResourceType {
   RESOURCE_TYPE_SUPPORT_CASE = 6;
 }
 
+// PermissionDecision describes the result of a permission evaluation.
 enum PermissionDecision {
   PERMISSION_DECISION_UNSPECIFIED = 0;
   PERMISSION_DECISION_ALLOW = 1;
@@ -34,12 +39,14 @@ enum PermissionDecision {
   PERMISSION_DECISION_CONDITIONAL = 3;
 }
 
+// BindingMutationKind describes how a binding set should be changed.
 enum BindingMutationKind {
   BINDING_MUTATION_KIND_UNSPECIFIED = 0;
   BINDING_MUTATION_KIND_ADD = 1;
   BINDING_MUTATION_KIND_REMOVE = 2;
 }
 
+// SubjectRef identifies the actor participating in a permission check or binding.
 message SubjectRef {
   SubjectType type = 1;
   string id = 2 [(buf.validate.field).string = {
@@ -54,6 +61,7 @@ message SubjectRef {
   }];
 }
 
+// ResourceRef identifies the protected object participating in authorization.
 message ResourceRef {
   ResourceType type = 1;
   string id = 2 [(buf.validate.field).string = {
@@ -68,6 +76,7 @@ message ResourceRef {
   }];
 }
 
+// Permission describes a concrete action exposed by a role.
 message Permission {
   string id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -81,6 +90,7 @@ message Permission {
   string description = 3 [(buf.validate.field).string.max_len = 1024];
 }
 
+// Role describes a reusable set of permissions and backing relation names.
 message Role {
   string role_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -102,6 +112,7 @@ message Role {
   google.protobuf.Timestamp updated_at = 8;
 }
 
+// AccessBinding binds a subject to a resource with a role.
 message AccessBinding {
   string binding_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -125,11 +136,13 @@ message AccessBinding {
   google.protobuf.Timestamp expires_at = 9;
 }
 
+// AccessBindingMutation describes a single add or remove operation on a binding.
 message AccessBindingMutation {
   BindingMutationKind kind = 1;
   AccessBinding binding = 2 [(buf.validate.field).required = true];
 }
 
+// AccessBindingDelta groups binding mutations to apply atomically.
 message AccessBindingDelta {
   repeated AccessBindingMutation mutations = 1 [(buf.validate.field).repeated = {
     min_items: 1,
@@ -137,6 +150,7 @@ message AccessBindingDelta {
   }];
 }
 
+// AccessCheckResult returns the outcome of a permission evaluation.
 message AccessCheckResult {
   PermissionDecision decision = 1;
   string permission = 2;
@@ -145,6 +159,7 @@ message AccessCheckResult {
   repeated string caveat_expressions = 5;
 }
 
+// GetRoleRequest fetches a role by identifier.
 message GetRoleRequest {
   string role_id = 1 [(buf.validate.field).string = {
     min_len: 3,
@@ -153,16 +168,19 @@ message GetRoleRequest {
   }];
 }
 
+// ListRolesRequest lists available roles.
 message ListRolesRequest {
   int32 page_size = 1;
   string page_token = 2;
 }
 
+// ListRolesResponse returns a page of roles.
 message ListRolesResponse {
   repeated Role roles = 1;
   string next_page_token = 2;
 }
 
+// SetAccessBindingsRequest replaces the desired binding set for a resource.
 message SetAccessBindingsRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -183,11 +201,13 @@ message SetAccessBindingsRequest {
   }];
 }
 
+// SetAccessBindingsResponse returns the resulting bindings and operation identifier.
 message SetAccessBindingsResponse {
   repeated AccessBinding bindings = 1;
   string operation_id = 2;
 }
 
+// UpdateAccessBindingsRequest applies an incremental mutation set to bindings.
 message UpdateAccessBindingsRequest {
   string request_id = 1 [(buf.validate.field).string = {
     min_len: 8,
@@ -205,11 +225,13 @@ message UpdateAccessBindingsRequest {
   }];
 }
 
+// UpdateAccessBindingsResponse returns the resulting bindings and operation identifier.
 message UpdateAccessBindingsResponse {
   repeated AccessBinding bindings = 1;
   string operation_id = 2;
 }
 
+// CheckAccessRequest evaluates one permission for one subject and resource.
 message CheckAccessRequest {
   SubjectRef subject = 1 [(buf.validate.field).required = true];
   ResourceRef resource = 2 [(buf.validate.field).required = true];
@@ -221,6 +243,7 @@ message CheckAccessRequest {
   google.protobuf.Struct caveat_context = 4;
 }
 
+// BatchCheckAccessRequest evaluates a batch of permission checks.
 message BatchCheckAccessRequest {
   repeated CheckAccessRequest items = 1 [(buf.validate.field).repeated = {
     min_items: 1,
@@ -228,10 +251,12 @@ message BatchCheckAccessRequest {
   }];
 }
 
+// BatchCheckAccessResponse returns the results for a batch check call.
 message BatchCheckAccessResponse {
   repeated AccessCheckResult results = 1;
 }
 
+// ExplainAccessRequest asks IAM to explain why a decision was made.
 message ExplainAccessRequest {
   SubjectRef subject = 1 [(buf.validate.field).required = true];
   ResourceRef resource = 2 [(buf.validate.field).required = true];
@@ -242,6 +267,7 @@ message ExplainAccessRequest {
   }];
 }
 
+// ExplainAccessResponse returns the decision and the matching path identifiers.
 message ExplainAccessResponse {
   PermissionDecision decision = 1;
   string summary = 2;
@@ -249,12 +275,55 @@ message ExplainAccessResponse {
   string revision = 4;
 }
 
+// AuthorizationFacadeService manages roles and evaluates permissions.
 service AuthorizationFacadeService {
-  rpc GetRole(GetRoleRequest) returns (Role);
-  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse);
-  rpc SetAccessBindings(SetAccessBindingsRequest) returns (SetAccessBindingsResponse);
-  rpc UpdateAccessBindings(UpdateAccessBindingsRequest) returns (UpdateAccessBindingsResponse);
-  rpc CheckAccess(CheckAccessRequest) returns (AccessCheckResult);
-  rpc BatchCheckAccess(BatchCheckAccessRequest) returns (BatchCheckAccessResponse);
-  rpc ExplainAccess(ExplainAccessRequest) returns (ExplainAccessResponse);
+  // GetRole returns one role definition.
+  rpc GetRole(GetRoleRequest) returns (Role) {
+    option (google.api.http) = {get: "/api/v1/roles/{role_id}"};
+  }
+
+  // ListRoles returns the role catalog.
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
+    option (google.api.http) = {get: "/api/v1/roles"};
+  }
+
+  // SetAccessBindings replaces the desired binding set for a resource.
+  rpc SetAccessBindings(SetAccessBindingsRequest) returns (SetAccessBindingsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/authz/bindings:set"
+      body: "*"
+    };
+  }
+
+  // UpdateAccessBindings applies an incremental binding mutation set.
+  rpc UpdateAccessBindings(UpdateAccessBindingsRequest) returns (UpdateAccessBindingsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/authz/bindings:update"
+      body: "*"
+    };
+  }
+
+  // CheckAccess evaluates a single permission.
+  rpc CheckAccess(CheckAccessRequest) returns (AccessCheckResult) {
+    option (google.api.http) = {
+      post: "/api/v1/authz/check"
+      body: "*"
+    };
+  }
+
+  // BatchCheckAccess evaluates multiple permissions in one call.
+  rpc BatchCheckAccess(BatchCheckAccessRequest) returns (BatchCheckAccessResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/authz/check:batch"
+      body: "*"
+    };
+  }
+
+  // ExplainAccess returns an explanation for the authorization decision.
+  rpc ExplainAccess(ExplainAccessRequest) returns (ExplainAccessResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/authz/explain"
+      body: "*"
+    };
+  }
 }

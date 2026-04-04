@@ -5,9 +5,10 @@ M8 Platform IAM is a modular monolith for identity and access management of the 
 Implemented repository outputs:
 
 - protobuf-first gRPC contracts under `api/proto`
-- `buf` configuration and generated Go stubs under `gen/proto`
+- `buf` configuration, generated Go stubs, grpc-gateway handlers, and OpenAPI spec under `gen/proto` and `gen/openapi`
 - modular Go services for `identity`, `authz`, `graph`, `support`, `audit`, `ops`
 - adapters for `YDB`, `Redis`, `Keycloak`, `SpiceDB`, `Temporal`, and `YDB Topics`
+- HTTP REST gateway layered on top of the gRPC API
 - Temporal workflows for service-account lifecycle, support access, read-model rebuild and relationship sync
 - seed data, YDB migrations, SpiceDB schema, deployment manifests, and basic unit tests
 
@@ -82,6 +83,12 @@ go test ./...
 make run-local
 ```
 
+This starts:
+
+- gRPC API on `127.0.0.1:8080`
+- REST gateway on `http://127.0.0.1:8082`
+- generated OpenAPI JSON on `http://127.0.0.1:8082/openapi/iam.swagger.json`
+
 4. Run the Temporal worker against the local stack:
 
 ```bash
@@ -111,8 +118,11 @@ make env-down
   - admin console: `admin / admin`
   - test realm user: `test-admin / admin`
 - `run-local` and `worker-local` load environment from `deploy/local/iamd.env`.
+- `IAM_HTTP_ADDRESS` controls the REST gateway listener and defaults to `:8082`.
+- `IAM_OPENAPI_DIR` points to generated OpenAPI artifacts and defaults to `gen/openapi`.
 - `migrate-local` applies `migrations/*.sql`, creates `schema_migrations` if needed, backfills bootstrap migrations when tables already exist, and applies new unapplied schema updates.
 - `seed-local` idempotently upserts demo tenants, users, memberships, groups, group members, service accounts, OAuth clients, and access bindings from `testdata/seed/*.json`.
+- `buf generate` now produces grpc-gateway handlers and a merged OpenAPI document at `gen/openapi/iam.swagger.json`.
 - `YDB` runs with `platform: linux/amd64` and in-memory PDisks. On Apple Silicon, make sure Docker Desktop has Rosetta support enabled as recommended by YDB's Docker documentation.
 
 ## Local Seed Data

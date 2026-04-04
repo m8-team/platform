@@ -1,3 +1,4 @@
+// Internal contracts used to map IAM bindings into SpiceDB relationships.
 syntax = "proto3";
 
 package saas.iam.spicedb.v1;
@@ -8,12 +9,14 @@ import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "saas/iam/authz/v1/authz.proto";
 
+// RelationshipRef identifies one SpiceDB tuple derived from IAM state.
 message RelationshipRef {
   saas.iam.authz.v1.ResourceRef resource = 1;
   string relation = 2;
   saas.iam.authz.v1.SubjectRef subject = 3;
 }
 
+// RelationshipMutation describes a single tuple write or delete for SpiceDB.
 message RelationshipMutation {
   saas.iam.authz.v1.BindingMutationKind kind = 1;
   RelationshipRef relationship = 2;
