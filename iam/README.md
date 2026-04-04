@@ -157,6 +157,7 @@ make env-down
   - test realm user: `test-admin / admin`
 - `run-local` and `worker-local` load environment from `deploy/local/iamd.env`.
 - `local-up` uses the same env file and additionally starts the Vite UI with `IAM_UI_HOST`, `IAM_UI_PORT`, and `VITE_IAM_API_BASE_URL`.
+- Leave `VITE_IAM_API_BASE_URL` empty in local development to use the built-in Vite proxy for `/api` and `/openapi`; setting `http://127.0.0.1:8082` directly makes the browser use cross-origin requests and requires CORS on the backend.
 - `run-local` checks `IAM_GRPC_ADDRESS` and `IAM_HTTP_ADDRESS` before startup and prints the conflicting PID if a previous `iamd` is still running.
 - `stop-local` stops managed local `iamd`, `worker`, and `UI` processes.
 - `IAM_HTTP_ADDRESS` controls the REST gateway listener and defaults to `:8082`.

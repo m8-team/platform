@@ -14,7 +14,8 @@ load_local_env() {
 
   export IAM_UI_HOST="${IAM_UI_HOST:-127.0.0.1}"
   export IAM_UI_PORT="${IAM_UI_PORT:-5173}"
-  export VITE_IAM_API_BASE_URL="${VITE_IAM_API_BASE_URL:-http://${IAM_UI_HOST}${IAM_HTTP_ADDRESS:-:8082}}"
+  # Keep the API base URL empty in local UI runs so Vite proxies /api to the REST gateway.
+  export VITE_IAM_API_BASE_URL="${VITE_IAM_API_BASE_URL-}"
 }
 
 ensure_local_state_dirs() {
