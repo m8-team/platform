@@ -25,11 +25,11 @@
     "@gravity-ui/uikit": "^7.36.1",
     "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-router": "^1.168.10",
-    "final-form": "^4.20.2",
+    "final-form": "^4.20.10",
     "lodash": "^4.18.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-final-form": "^6.5.3"
+    "react-final-form": "^6.5.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
