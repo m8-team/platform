@@ -20,6 +20,7 @@ import {
   RoleDetailPage,
   RolesPage,
   SearchPage,
+  ServiceAccountCreatePage,
   ServiceAccountsPage,
   ServiceAccountsOverviewRoutePage,
   ServiceAccountsKeysRoutePage,
@@ -146,6 +147,12 @@ const serviceAccountsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/service-accounts',
   component: ServiceAccountsPage,
+});
+
+const serviceAccountCreateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/service-accounts/create',
+  component: ServiceAccountCreatePage,
 });
 
 const serviceAccountRoute = createRoute({
@@ -286,6 +293,7 @@ const routeTree = rootRoute.addChildren([
   groupsRoute,
   groupRoute,
   serviceAccountsRoute,
+  serviceAccountCreateRoute,
   serviceAccountRoute,
   serviceAccountKeysRoute,
   oauthClientsRoute,

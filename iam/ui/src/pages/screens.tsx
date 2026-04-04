@@ -23,6 +23,7 @@ import {
   useAuditEventQuery,
   useAuditEventsQuery,
   useCreateTenantMutation,
+  useCreateServiceAccountMutation,
   useDashboardQuery,
   useEffectiveAccessQuery,
   useExplainAccessQuery,
@@ -1398,10 +1399,112 @@ export function GroupDetailPage() {
   );
 }
 
+export function ServiceAccountCreatePage() {
+  const navigate = useNavigate();
+  const tenantsQuery = useTenantsQuery();
+  const mutation = useCreateServiceAccountMutation();
+  const [tenantId, setTenantId] = React.useState('');
+  const [displayName, setDisplayName] = React.useState('');
+  const [description, setDescription] = React.useState('');
+
+  if (tenantsQuery.isPending) {
+    return <LoadingState title="Loading tenants" />;
+  }
+
+  if (tenantsQuery.error || !tenantsQuery.data) {
+    return <ErrorState description={getErrorMessage(tenantsQuery.error)} />;
+  }
+
+  const tenantOptions = tenantsQuery.data.items.map((tenant) => ({
+    value: tenant.tenantId,
+    content: `${tenant.name} (${tenant.tenantId})`,
+  }));
+
+  const canSubmit = tenantId.trim().length > 0 && displayName.trim().length > 1;
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Machine identity"
+        title="Create Service Account"
+        description="Provision a machine identity through the IAM identity facade."
+        actions={
+          <Flex gap="2" wrap>
+            <Button view="flat" onClick={() => navigate({to: '/service-accounts'})}>
+              Cancel
+            </Button>
+            <Button
+              view="action"
+              loading={mutation.isPending}
+              disabled={!canSubmit}
+              onClick={() => {
+                mutation.mutate(
+                  {
+                    tenantId,
+                    displayName: displayName.trim(),
+                    description: description.trim(),
+                  },
+                  {
+                    onSuccess: (account) => {
+                      appToaster.add({
+                        name: `sa-created-page-${account.serviceAccountId}`,
+                        title: 'Service account created',
+                        content: `${account.name} for ${account.tenantName}`,
+                        theme: 'success',
+                      });
+                      navigate({
+                        to: '/service-accounts/$serviceAccountId',
+                        params: {serviceAccountId: account.serviceAccountId},
+                      });
+                    },
+                  },
+                );
+              }}
+            >
+              Create Service Account
+            </Button>
+          </Flex>
+        }
+      />
+      <SectionCard
+        title="Service account metadata"
+        description="Choose the tenant scope and machine identity attributes."
+      >
+        <div className="form-grid">
+          <Select
+            label="Tenant"
+            value={tenantId ? [tenantId] : []}
+            options={tenantOptions}
+            placeholder="Choose tenant"
+            onUpdate={(value) => setTenantId(value[0] ?? '')}
+          />
+          <TextInput
+            label="Display name"
+            placeholder="billing-worker"
+            value={displayName}
+            onUpdate={setDisplayName}
+          />
+          <div className="form-grid__full">
+            <Text variant="body-2">Description</Text>
+            <TextArea
+              rows={4}
+              value={description}
+              onUpdate={setDescription}
+              placeholder="Worker for invoice sync and exports"
+            />
+          </div>
+          <Text variant="body-1" color="secondary">
+            The service account is created in the selected tenant and becomes available immediately in the IAM inventory.
+          </Text>
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
 export function ServiceAccountsPage() {
   const accountsQuery = useServiceAccountsQuery();
   const navigate = useNavigate();
-  const [createOpen, setCreateOpen] = React.useState(false);
 
   if (accountsQuery.isPending) {
     return <LoadingState title="Loading service accounts" />;
@@ -1444,7 +1547,11 @@ export function ServiceAccountsPage() {
       <PageHeader
         title="Service Accounts"
         description="Machine identities, keys and token footprints."
-        actions={<Button view="action" onClick={() => setCreateOpen(true)}>Create Service Account</Button>}
+        actions={
+          <Button view="action" onClick={() => navigate({to: '/service-accounts/create'})}>
+            Create Service Account
+          </Button>
+        }
       />
       <DataTableCard
         title="Service accounts"
@@ -1453,7 +1560,6 @@ export function ServiceAccountsPage() {
         columns={columns}
         emptyTitle="No service accounts"
       />
-      <CreateServiceAccountWizard open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
   );
 }
