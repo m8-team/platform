@@ -3,7 +3,7 @@ import * as React from 'react';
 import {DynamicView, SpecTypes, dynamicViewConfig} from '@gravity-ui/dynamic-forms';
 import {DatePicker} from '@gravity-ui/date-components';
 import {dateTime} from '@gravity-ui/date-utils';
-import {Button, Dialog, Drawer, Flex, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
+import {Button, Dialog, Drawer, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 
 import {appToaster} from '@/app/providers/app-providers';
 import {
@@ -108,9 +108,7 @@ export function CreateServiceAccountWizard({
 
   return (
     <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="m">
-      <Dialog.Header>
-        <Text variant="subheader-3">Create Service Account</Text>
-      </Dialog.Header>
+      <Dialog.Header caption="Create Service Account" />
       <Dialog.Body>
         <div className="wizard-stepper">
           <span className={`wizard-stepper__step${step === 'form' ? ' wizard-stepper__step_active' : ''}`}>1. Details</span>
@@ -132,13 +130,8 @@ export function CreateServiceAccountWizard({
               onUpdate={setDisplayName}
             />
             <div className="form-grid__full">
-              <TextArea
-                label="Description"
-                rows={4}
-                value={description}
-                onUpdate={setDescription}
-                placeholder="Worker for invoice sync and exports"
-              />
+              <Text variant="body-2">Description</Text>
+              <TextArea rows={4} value={description} onUpdate={setDescription} placeholder="Worker for invoice sync and exports" />
             </div>
           </div>
         ) : (
@@ -214,9 +207,7 @@ export function RotateSecretDialog({
 
   return (
     <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="s">
-      <Dialog.Header>
-        <Text variant="subheader-3">Rotate OAuth Secret</Text>
-      </Dialog.Header>
+      <Dialog.Header caption="Rotate OAuth Secret" />
       <Dialog.Body>
         <HighlightAlert
           title={clientName}
@@ -225,13 +216,8 @@ export function RotateSecretDialog({
         />
         <div className="form-grid">
           <div className="form-grid__full">
-            <TextArea
-              label="Rotation note"
-              rows={4}
-              value={note}
-              onUpdate={setNote}
-              placeholder="Routine rotation for production client"
-            />
+            <Text variant="body-2">Rotation note</Text>
+            <TextArea rows={4} value={note} onUpdate={setNote} placeholder="Routine rotation for production client" />
           </div>
         </div>
       </Dialog.Body>
@@ -442,7 +428,9 @@ export function SupportGrantWizard({
   const [roleId, setRoleId] = React.useState('support-operator');
   const [incidentId, setIncidentId] = React.useState('INC-');
   const [reason, setReason] = React.useState('');
-  const [expiresAt, setExpiresAt] = React.useState(dateTime({input: new Date(Date.now() + 4 * 60 * 60 * 1000)}));
+  const [expiresAt, setExpiresAt] = React.useState<ReturnType<typeof dateTime> | null>(
+    dateTime({input: new Date(Date.now() + 4 * 60 * 60 * 1000)}),
+  );
 
   React.useEffect(() => {
     if (open) {
@@ -470,9 +458,7 @@ export function SupportGrantWizard({
 
   return (
     <Dialog open={open} onClose={closeDialog(onClose)} onOpenChange={onClose} size="l">
-      <Dialog.Header>
-        <Text variant="subheader-3">Grant Temporary Support Access</Text>
-      </Dialog.Header>
+      <Dialog.Header caption="Grant Temporary Support Access" />
       <Dialog.Body>
         <div className="wizard-stepper">
           <span className={`wizard-stepper__step${step === 'form' ? ' wizard-stepper__step_active' : ''}`}>1. Scope</span>
@@ -510,13 +496,8 @@ export function SupportGrantWizard({
               <FieldHint>Local timezone value: {formatDateTime(expiresAt?.toISOString())}</FieldHint>
             </div>
             <div className="form-grid__full">
-              <TextArea
-                label="Reason"
-                rows={4}
-                value={reason}
-                onUpdate={setReason}
-                placeholder="Customer reports billing issue and needs temporary guided investigation."
-              />
+              <Text variant="body-2">Reason</Text>
+              <TextArea rows={4} value={reason} onUpdate={setReason} placeholder="Customer reports billing issue and needs temporary guided investigation." />
             </div>
           </div>
         ) : (

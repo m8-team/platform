@@ -4,6 +4,7 @@ import {createId, cloneValue, delay, getMockDatabase} from '@/mocks/data';
 import type {
   AuditEvent,
   DashboardData,
+  EffectiveAccessRow,
   ExplainAccessResult,
   GroupDetail,
   GroupMember,
@@ -353,20 +354,22 @@ async function listOperationsLive(): Promise<PagedResponse<Operation>> {
     `/api/v1/tenants/${env.defaultTenantId}/operations`,
   );
 
-  const items = (response.operations ?? []).map((operation) => ({
+  const items: Operation[] = (response.operations ?? []).map((operation) => ({
     id: String(operation.operation_id ?? ''),
     operationId: String(operation.operation_id ?? ''),
     tenantId: String(operation.tenant_id ?? env.defaultTenantId),
     type: String(operation.operation_type ?? ''),
     resource: `${String(operation.resource_type ?? 'resource')}/${String(operation.resource_id ?? '')}`,
     actor: String(operation.correlation_id ?? 'system'),
-    status: String(operation.status ?? '').includes('FAILED')
-      ? 'failed'
-      : String(operation.status ?? '').includes('SUCCEEDED')
-        ? 'done'
-        : String(operation.status ?? '').includes('RUNNING')
-          ? 'running'
-          : 'pending',
+    status: (
+      String(operation.status ?? '').includes('FAILED')
+        ? 'failed'
+        : String(operation.status ?? '').includes('SUCCEEDED')
+          ? 'done'
+          : String(operation.status ?? '').includes('RUNNING')
+            ? 'running'
+            : 'pending'
+    ) as Operation['status'],
     startedAt: String(operation.created_at ?? new Date().toISOString()),
     updatedAt: String(operation.updated_at ?? new Date().toISOString()),
     completedAt: operation.completed_at ? String(operation.completed_at) : undefined,
@@ -861,7 +864,7 @@ export const repositories = {
     incidentId: string;
     expiresAt: string;
   }): Promise<SupportGrant> {
-    return withFallback(
+    return withFallback<SupportGrant>(
       async () => {
         const response = await apiClient.post<Record<string, unknown>>(
           `/api/v1/tenants/${payload.tenantId}/support-grants`,

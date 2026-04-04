@@ -1,12 +1,10 @@
 import type {
-  ActivityItem,
   ApiKey,
   AsymmetricKey,
   AuditEvent,
   DashboardData,
   EffectiveAccessRow,
   GroupDetail,
-  GroupSummary,
   OAuthClientDetail,
   Operation,
   PolicyTemplate,

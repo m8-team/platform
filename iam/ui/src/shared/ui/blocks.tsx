@@ -12,7 +12,6 @@ import {
   Label,
   Loader,
   Pagination,
-  Tabs,
   Text,
 } from '@gravity-ui/uikit';
 
@@ -273,13 +272,18 @@ export function DetailTabs({
   onSelectTab: (tabId: string) => void;
 }) {
   return (
-    <Tabs
-      className="detail-tabs"
-      size="l"
-      items={items}
-      activeTab={activeTab}
-      onSelectTab={onSelectTab}
-    />
+    <div className="detail-tabs">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          className={`detail-tabs__item${item.id === activeTab ? ' detail-tabs__item_active' : ''}`}
+          onClick={() => onSelectTab(item.id)}
+        >
+          {item.title}
+        </button>
+      ))}
+    </div>
   );
 }
 
