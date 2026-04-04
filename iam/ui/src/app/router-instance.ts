@@ -29,6 +29,8 @@ import {
   TenantAccessRoutePage,
   TenantAuditRoutePage,
   TenantGroupsRoutePage,
+  TenantCreatePage,
+  TenantEditPage,
   TenantMembersRoutePage,
   TenantOAuthClientsRoutePage,
   TenantOverviewRoutePage,
@@ -60,6 +62,18 @@ const tenantsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/tenants',
   component: TenantsPage,
+});
+
+const tenantCreateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tenants/create',
+  component: TenantCreatePage,
+});
+
+const tenantEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tenants/$tenantId/edit',
+  component: TenantEditPage,
 });
 
 const tenantOverviewRoute = createRoute({
@@ -258,6 +272,8 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
   tenantsRoute,
+  tenantCreateRoute,
+  tenantEditRoute,
   tenantOverviewRoute,
   tenantMembersRoute,
   tenantGroupsRoute,

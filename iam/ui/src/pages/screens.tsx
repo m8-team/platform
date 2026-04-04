@@ -22,6 +22,7 @@ import {
   useAccessBindingsQuery,
   useAuditEventQuery,
   useAuditEventsQuery,
+  useCreateTenantMutation,
   useDashboardQuery,
   useEffectiveAccessQuery,
   useExplainAccessQuery,
@@ -46,15 +47,14 @@ import {
   useSupportGrantsQuery,
   useTenantQuery,
   useTenantsQuery,
+  useUpdateTenantMutation,
   useUserQuery,
   useUsersQuery,
   useAddGroupMemberMutation,
 } from '@/entities/queries';
 import {
-  CreateTenantDialog,
   CreateServiceAccountWizard,
   DeleteTenantDialog,
-  EditTenantDialog,
   GrantAccessDrawer,
   RotateSecretDialog,
   SupportGrantWizard,
@@ -117,25 +117,164 @@ function showBulkToast(label: string, count: number) {
 
 function TenantCreateAction() {
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(false);
 
   return (
-    <>
-      <Button view="action" onClick={() => setOpen(true)}>
-        Create Tenant
-      </Button>
-      <CreateTenantDialog
-        open={open}
-        onClose={() => setOpen(false)}
-        onSuccess={(tenantId) =>
-          navigate({
-            to: '/tenants/$tenantId',
-            params: {tenantId},
-          })
+    <Button view="action" onClick={() => navigate({to: '/tenants/create'})}>
+      Create Tenant
+    </Button>
+  );
+}
+
+const tenantIdPattern = /^[a-z][a-z0-9-]{2,127}$/;
+
+function TenantFormPage({mode}: {mode: 'create' | 'edit'}) {
+  const navigate = useNavigate();
+  const params = useParams({strict: false}) as {tenantId?: string};
+  const tenantIdFromParams = params.tenantId ?? '';
+  const tenantQuery = useTenantQuery(tenantIdFromParams);
+  const createMutation = useCreateTenantMutation();
+  const updateMutation = useUpdateTenantMutation();
+  const mutation = mode === 'create' ? createMutation : updateMutation;
+
+  const [tenantId, setTenantId] = React.useState('');
+  const [displayName, setDisplayName] = React.useState('');
+  const [externalRef, setExternalRef] = React.useState('');
+  const [region, setRegion] = React.useState('eu-central');
+  const [tier, setTier] = React.useState<'active' | 'trial'>('active');
+
+  React.useEffect(() => {
+    if (mode === 'edit' && tenantQuery.data) {
+      setTenantId(tenantQuery.data.tenantId);
+      setDisplayName(tenantQuery.data.name);
+      setExternalRef(tenantQuery.data.externalRef ?? '');
+      setRegion(tenantQuery.data.region);
+      setTier(tenantQuery.data.status === 'trial' ? 'trial' : 'active');
+    }
+  }, [mode, tenantQuery.data]);
+
+  if (mode === 'edit' && tenantQuery.isPending) {
+    return <LoadingState title="Loading tenant form" />;
+  }
+
+  if (mode === 'edit' && (tenantQuery.error || !tenantQuery.data)) {
+    return <ErrorState description={getErrorMessage(tenantQuery.error)} />;
+  }
+
+  const canSubmit =
+    tenantIdPattern.test(tenantId.trim()) &&
+    displayName.trim().length > 1 &&
+    region.trim().length > 1;
+
+  return (
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Tenant form"
+        title={mode === 'create' ? 'Create Tenant' : 'Edit Tenant'}
+        description={
+          mode === 'create'
+            ? 'Provision tenant metadata through the IAM identity facade.'
+            : `Update tenant metadata for ${tenantIdFromParams}.`
+        }
+        actions={
+          <Flex gap="2" wrap>
+            <Button
+              view="flat"
+              onClick={() =>
+                navigate(
+                  mode === 'create'
+                    ? {to: '/tenants'}
+                    : {to: '/tenants/$tenantId', params: {tenantId: tenantIdFromParams}},
+                )
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              view="action"
+              loading={mutation.isPending}
+              disabled={!canSubmit}
+              onClick={() => {
+                mutation.mutate(
+                  {
+                    tenantId: tenantId.trim(),
+                    displayName: displayName.trim(),
+                    externalRef: externalRef.trim(),
+                    region: region.trim(),
+                    tier,
+                  },
+                  {
+                    onSuccess: (tenant) => {
+                      appToaster.add({
+                        name: `${mode}-tenant-page-${tenant.tenantId}`,
+                        title: mode === 'create' ? 'Tenant created' : 'Tenant updated',
+                        content: `${tenant.name} (${tenant.tenantId})`,
+                        theme: 'success',
+                      });
+                      navigate({
+                        to: '/tenants/$tenantId',
+                        params: {tenantId: tenant.tenantId},
+                      });
+                    },
+                  },
+                );
+              }}
+            >
+              {mode === 'create' ? 'Create Tenant' : 'Save Changes'}
+            </Button>
+          </Flex>
         }
       />
-    </>
+      <SectionCard
+        title="Tenant metadata"
+        description="These fields are sent to the current IAM API and stored in the source of truth."
+      >
+        <div className="form-grid">
+          <TextInput
+            label="Tenant ID"
+            placeholder="tenant-acme-prod"
+            value={tenantId}
+            disabled={mode === 'edit'}
+            onUpdate={setTenantId}
+          />
+          <TextInput
+            label="Display name"
+            placeholder="Acme Production"
+            value={displayName}
+            onUpdate={setDisplayName}
+          />
+          <TextInput
+            label="External ref"
+            placeholder="crm-acme-001"
+            value={externalRef}
+            onUpdate={setExternalRef}
+          />
+          <TextInput
+            label="Region"
+            placeholder="eu-central"
+            value={region}
+            onUpdate={setRegion}
+          />
+          <TextInput
+            label="Tier"
+            placeholder="active or trial"
+            value={tier}
+            onUpdate={(value) => setTier(value === 'trial' ? 'trial' : 'active')}
+          />
+          <Text variant="body-1" color="secondary">
+            Use `active` or `trial` for tier. Tenant ID must match `[a-z][a-z0-9-]` and be 3-128 chars long.
+          </Text>
+        </div>
+      </SectionCard>
+    </div>
   );
+}
+
+export function TenantCreatePage() {
+  return <TenantFormPage mode="create" />;
+}
+
+export function TenantEditPage() {
+  return <TenantFormPage mode="edit" />;
 }
 
 function AccessBindingsTable({
@@ -453,7 +592,6 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
   const [createOpen, setCreateOpen] = React.useState(false);
   const [supportOpen, setSupportOpen] = React.useState(false);
   const [grantOpen, setGrantOpen] = React.useState(false);
-  const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   if (tenantQuery.isPending) {
@@ -633,7 +771,15 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
         description={tenant.description}
         actions={
           <Flex gap="2" wrap>
-            <Button view="outlined" onClick={() => setEditOpen(true)}>
+            <Button
+              view="outlined"
+              onClick={() =>
+                navigate({
+                  to: '/tenants/$tenantId/edit',
+                  params: {tenantId},
+                })
+              }
+            >
               Edit Tenant
             </Button>
             <Button view="outlined" onClick={() => setCreateOpen(true)}>
@@ -742,17 +888,6 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
         open={createOpen}
         defaultTenantId={tenantId}
         onClose={() => setCreateOpen(false)}
-      />
-      <EditTenantDialog
-        open={editOpen}
-        tenant={{
-          tenantId: tenant.tenantId,
-          name: tenant.name,
-          externalRef: tenant.externalRef,
-          region: tenant.region,
-          status: tenant.status,
-        }}
-        onClose={() => setEditOpen(false)}
       />
       <DeleteTenantDialog
         open={deleteOpen}
