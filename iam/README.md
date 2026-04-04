@@ -38,6 +38,7 @@ make env-logs
 make env-ps
 make run-local
 make worker-local
+make stop-local
 make migrate-local
 make seed-local
 make run
@@ -106,6 +107,7 @@ go run ./cmd/schema-sync
 6. Inspect or stop the stack:
 
 ```bash
+make stop-local
 make env-ps
 make env-logs
 make env-down
@@ -118,6 +120,8 @@ make env-down
   - admin console: `admin / admin`
   - test realm user: `test-admin / admin`
 - `run-local` and `worker-local` load environment from `deploy/local/iamd.env`.
+- `run-local` checks `IAM_GRPC_ADDRESS` and `IAM_HTTP_ADDRESS` before startup and prints the conflicting PID if a previous `iamd` is still running.
+- `stop-local` stops previously started local `iamd` processes.
 - `IAM_HTTP_ADDRESS` controls the REST gateway listener and defaults to `:8082`.
 - `IAM_OPENAPI_DIR` points to generated OpenAPI artifacts and defaults to `gen/openapi`.
 - `migrate-local` applies `migrations/*.sql`, creates `schema_migrations` if needed, backfills bootstrap migrations when tables already exist, and applies new unapplied schema updates.

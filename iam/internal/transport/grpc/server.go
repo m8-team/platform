@@ -1,9 +1,13 @@
 package grpc
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"mime"
 	"net"
 	"net/http"
 	"os"
@@ -164,6 +168,7 @@ func (s *Server) initHTTPGateway(cfg config.HTTPConfig) error {
 				DiscardUnknown: true,
 			},
 		}),
+		runtime.WithErrorHandler(gatewayErrorHandler),
 	)
 
 	endpoint := localDialAddress(s.grpcListener.Addr())
@@ -185,7 +190,7 @@ func (s *Server) initHTTPGateway(cfg config.HTTPConfig) error {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		_, _ = w.Write([]byte("ok\n"))
 	})
-	rootMux.Handle("/", gatewayMux)
+	rootMux.Handle("/", normalizeFormBody(gatewayMux))
 
 	s.gatewayConn = gatewayConn
 	s.httpListener = httpListener
@@ -260,6 +265,87 @@ func normalizeServeError(err error) error {
 	default:
 		return err
 	}
+}
+
+func gatewayErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
+	if _, ok := runtime.ServerMetadataFromContext(ctx); !ok {
+		ctx = runtime.NewServerMetadataContext(ctx, runtime.ServerMetadata{})
+	}
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+}
+
+func normalizeFormBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		normalized, err := rewriteFormRequest(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		next.ServeHTTP(w, normalized)
+	})
+}
+
+func rewriteFormRequest(r *http.Request) (*http.Request, error) {
+	if r == nil || r.Body == nil {
+		return r, nil
+	}
+	contentType := r.Header.Get("Content-Type")
+	if contentType == "" {
+		return r, nil
+	}
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return nil, err
+	}
+	switch mediaType {
+	case "multipart/form-data":
+		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			return nil, err
+		}
+		if r.MultipartForm != nil && len(r.MultipartForm.File) > 0 {
+			return nil, errors.New("multipart file uploads are not supported by the IAM REST gateway")
+		}
+		return formRequestWithJSONBody(r, r.MultipartForm.Value)
+	case "application/x-www-form-urlencoded":
+		if err := r.ParseForm(); err != nil {
+			return nil, err
+		}
+		return formRequestWithJSONBody(r, r.PostForm)
+	default:
+		return r, nil
+	}
+}
+
+func formRequestWithJSONBody(r *http.Request, formValues map[string][]string) (*http.Request, error) {
+	if len(formValues) == 0 {
+		r.Body = io.NopCloser(bytes.NewReader([]byte("{}")))
+		r.ContentLength = 2
+		r.Header.Set("Content-Type", "application/json")
+		return r, nil
+	}
+
+	payload := make(map[string]any, len(formValues))
+	for key, values := range formValues {
+		switch len(values) {
+		case 0:
+			payload[key] = ""
+		case 1:
+			payload[key] = values[0]
+		default:
+			copied := make([]string, len(values))
+			copy(copied, values)
+			payload[key] = copied
+		}
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+	r.Body = io.NopCloser(bytes.NewReader(body))
+	r.ContentLength = int64(len(body))
+	r.Header.Set("Content-Type", "application/json")
+	return r, nil
 }
 
 func validationInterceptor(validator core.Validator) grpc.UnaryServerInterceptor {
