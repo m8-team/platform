@@ -71,17 +71,12 @@ services:
       - "7243"
       - --metrics-port
       - "9091"
-      - --db-filename
-      - /temporal-data/temporal.db
     ports:
       - "7233:7233"
       - "8233:8233"
       - "7243:7243"
       - "9091:9091"
-    volumes:
-      - temporal-data:/temporal-data
 
 volumes:
   keycloak-data:
   redis-data:
-  temporal-data:

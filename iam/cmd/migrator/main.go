@@ -1,20 +1,35 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
+	"context"
+	"log"
+	"os/signal"
+	"syscall"
+
+	"github.com/m8platform/platform/iam/internal/config"
+	"github.com/m8platform/platform/iam/internal/migrator"
 )
 
 func main() {
-	entries, err := os.ReadDir("migrations")
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	cfg := config.Load()
+	runner, err := migrator.New(cfg.YDB, "migrations")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		fmt.Println(filepath.Join("migrations", entry.Name()))
+	defer func() {
+		_ = runner.Close(context.Background())
+	}()
+
+	report, err := runner.Run(ctx)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	for _, item := range report.Items {
+		log.Printf("%s: %s", item.Name, item.Status)
+	}
+	log.Printf("migrations complete: applied=%d backfilled=%d skipped=%d", report.Applied, report.Backfilled, report.Skipped)
 }

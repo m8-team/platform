@@ -1,6 +1,6 @@
 -- Authorization metadata and read models.
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -9,7 +9,7 @@ CREATE TABLE roles (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE resources (
+CREATE TABLE IF NOT EXISTS resources (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -18,7 +18,7 @@ CREATE TABLE resources (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE role_templates (
+CREATE TABLE IF NOT EXISTS role_templates (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -27,7 +27,7 @@ CREATE TABLE role_templates (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE binding_operations (
+CREATE TABLE IF NOT EXISTS binding_operations (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -36,7 +36,7 @@ CREATE TABLE binding_operations (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE subject_access_index (
+CREATE TABLE IF NOT EXISTS subject_access_index (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -45,7 +45,7 @@ CREATE TABLE subject_access_index (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE resource_subject_index (
+CREATE TABLE IF NOT EXISTS resource_subject_index (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -54,7 +54,7 @@ CREATE TABLE resource_subject_index (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE access_explain_edges (
+CREATE TABLE IF NOT EXISTS access_explain_edges (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -63,7 +63,7 @@ CREATE TABLE access_explain_edges (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE change_impact_index (
+CREATE TABLE IF NOT EXISTS change_impact_index (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -72,7 +72,7 @@ CREATE TABLE change_impact_index (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE audit_events (
+CREATE TABLE IF NOT EXISTS audit_events (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -81,7 +81,7 @@ CREATE TABLE audit_events (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE operations (
+CREATE TABLE IF NOT EXISTS operations (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,

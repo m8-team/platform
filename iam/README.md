@@ -37,6 +37,7 @@ make env-logs
 make env-ps
 make run-local
 make worker-local
+make migrate-local
 make run
 make worker
 make migrate
@@ -83,7 +84,7 @@ make worker-local
 5. Print migrations and SpiceDB schema for bootstrap:
 
 ```bash
-go run ./cmd/migrator
+make migrate-local
 go run ./cmd/schema-sync
 ```
 
@@ -102,6 +103,7 @@ make env-down
   - admin console: `admin / admin`
   - test realm user: `test-admin / admin`
 - `run-local` and `worker-local` load environment from `deploy/local/iamd.env`.
+- `migrate-local` applies `migrations/*.sql`, creates `schema_migrations` if needed, backfills bootstrap migrations when tables already exist, and applies new unapplied schema updates.
 - `YDB` runs with `platform: linux/amd64` and in-memory PDisks. On Apple Silicon, make sure Docker Desktop has Rosetta support enabled as recommended by YDB's Docker documentation.
 
 ## Current Notes

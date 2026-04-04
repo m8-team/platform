@@ -1,6 +1,6 @@
 -- Identity and OAuth facade tables.
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -9,7 +9,7 @@ CREATE TABLE users (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE tenants (
+CREATE TABLE IF NOT EXISTS tenants (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -18,7 +18,7 @@ CREATE TABLE tenants (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE memberships (
+CREATE TABLE IF NOT EXISTS memberships (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -27,7 +27,7 @@ CREATE TABLE memberships (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE groups (
+CREATE TABLE IF NOT EXISTS groups (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -36,7 +36,7 @@ CREATE TABLE groups (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE group_members (
+CREATE TABLE IF NOT EXISTS group_members (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -45,7 +45,7 @@ CREATE TABLE group_members (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE service_accounts (
+CREATE TABLE IF NOT EXISTS service_accounts (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -54,7 +54,7 @@ CREATE TABLE service_accounts (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE federated_links (
+CREATE TABLE IF NOT EXISTS federated_links (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -63,7 +63,7 @@ CREATE TABLE federated_links (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE oauth_clients (
+CREATE TABLE IF NOT EXISTS oauth_clients (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -72,7 +72,7 @@ CREATE TABLE oauth_clients (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE client_secret_refs (
+CREATE TABLE IF NOT EXISTS client_secret_refs (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,

@@ -2,7 +2,7 @@ BUF ?= buf
 GO ?= go
 DOCKER_COMPOSE ?= docker compose -f deploy/local/docker-compose.yaml
 
-.PHONY: buf-lint buf-generate test run worker migrate schema-sync env-up env-down env-logs env-ps run-local worker-local
+.PHONY: buf-lint buf-generate test run worker migrate schema-sync env-up env-down env-logs env-ps run-local worker-local migrate-local
 
 buf-lint:
 	$(BUF) lint
@@ -40,6 +40,9 @@ env-ps:
 
 migrate:
 	$(GO) run ./cmd/migrator
+
+migrate-local:
+	set -a; . ./deploy/local/iamd.env; set +a; $(GO) run ./cmd/migrator
 
 schema-sync:
 	$(GO) run ./cmd/schema-sync

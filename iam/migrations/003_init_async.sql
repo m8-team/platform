@@ -1,6 +1,6 @@
 -- Async infrastructure.
 
-CREATE TABLE outbox_events (
+CREATE TABLE IF NOT EXISTS outbox_events (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -9,7 +9,7 @@ CREATE TABLE outbox_events (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE topic_offsets (
+CREATE TABLE IF NOT EXISTS topic_offsets (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -18,7 +18,7 @@ CREATE TABLE topic_offsets (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE projection_checkpoints (
+CREATE TABLE IF NOT EXISTS projection_checkpoints (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
@@ -27,7 +27,7 @@ CREATE TABLE projection_checkpoints (
   PRIMARY KEY (tenant_id, id)
 );
 
-CREATE TABLE workflow_locks (
+CREATE TABLE IF NOT EXISTS workflow_locks (
   id Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   payload JsonDocument,
