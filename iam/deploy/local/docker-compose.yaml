@@ -2,7 +2,7 @@ name: m8-iam-local
 
 services:
   redis:
-    image: redis:7-alpine
+    image: redis:latest
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     ports:
       - "6379:6379"
@@ -28,7 +28,7 @@ services:
       - "8765:8765"
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.5
+    image: quay.io/keycloak/keycloak:latest
     command: ["start-dev", "--import-realm"]
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -41,7 +41,7 @@ services:
       - keycloak-data:/opt/keycloak/data
 
   spicedb:
-    image: authzed/spicedb:v1.49.2
+    image: authzed/spicedb:latest
     command:
       - serve
       - --grpc-preshared-key
@@ -56,7 +56,7 @@ services:
       - "9090:9090"
 
   temporal:
-    image: temporalio/server:1.29.5
+    image: temporalio/server:latest
     entrypoint: ["temporal"]
     command:
       - server
