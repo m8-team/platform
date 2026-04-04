@@ -5,7 +5,7 @@ import {DatePicker} from '@gravity-ui/date-components';
 import {dateTime} from '@gravity-ui/date-utils';
 import {Button, Dialog, Drawer, Select, Text, TextArea, TextInput} from '@gravity-ui/uikit';
 
-import {appToaster} from '@/app/providers/app-providers';
+import {appToaster} from '@/app/providers/app-toaster';
 import {
   useCreateServiceAccountMutation,
   useCreateSupportGrantMutation,
@@ -23,6 +23,10 @@ import type {ResourceType} from '@/shared/types/iam';
 
 function closeDialog(onClose: () => void) {
   return () => onClose();
+}
+
+function createDefaultSupportGrantExpiry() {
+  return dateTime({input: new Date(Date.now() + 4 * 60 * 60 * 1000)});
 }
 
 const serviceAccountReviewSpec = {
@@ -429,7 +433,7 @@ export function SupportGrantWizard({
   const [incidentId, setIncidentId] = React.useState('INC-');
   const [reason, setReason] = React.useState('');
   const [expiresAt, setExpiresAt] = React.useState<ReturnType<typeof dateTime> | null>(
-    dateTime({input: new Date(Date.now() + 4 * 60 * 60 * 1000)}),
+    createDefaultSupportGrantExpiry,
   );
 
   React.useEffect(() => {
@@ -440,7 +444,7 @@ export function SupportGrantWizard({
       setRoleId('support-operator');
       setIncidentId('INC-');
       setReason('');
-      setExpiresAt(dateTime({input: new Date(Date.now() + 4 * 60 * 60 * 1000)}));
+      setExpiresAt(createDefaultSupportGrantExpiry());
     }
   }, [defaultTenantId, open]);
 

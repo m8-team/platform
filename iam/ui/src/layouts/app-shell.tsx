@@ -5,7 +5,7 @@ import {AsideHeader} from '@gravity-ui/navigation';
 import {Magnifier, Shield} from '@gravity-ui/icons';
 import {Button, Icon, Label, Select, Text, TextInput} from '@gravity-ui/uikit';
 
-import {useAppUI} from '@/app/providers/app-providers';
+import {useAppUI} from '@/app/providers/app-ui-context';
 import {buildBreadcrumbs, getActiveNavigation, navigationItems} from '@/shared/config/navigation';
 import {BreadcrumbTrail} from '@/shared/ui/blocks';
 

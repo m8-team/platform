@@ -16,7 +16,8 @@ import {
   TextInput,
 } from '@gravity-ui/uikit';
 
-import {appToaster, useAppUI} from '@/app/providers/app-providers';
+import {appToaster} from '@/app/providers/app-toaster';
+import {useAppUI} from '@/app/providers/app-ui-context';
 import {
   useAccessBindingsQuery,
   useAuditEventQuery,
@@ -737,6 +738,34 @@ export function TenantDetailPage({tab}: {tab: 'overview' | 'members' | 'groups' 
   );
 }
 
+export function TenantOverviewRoutePage() {
+  return <TenantDetailPage tab="overview" />;
+}
+
+export function TenantMembersRoutePage() {
+  return <TenantDetailPage tab="members" />;
+}
+
+export function TenantGroupsRoutePage() {
+  return <TenantDetailPage tab="groups" />;
+}
+
+export function TenantServiceAccountsRoutePage() {
+  return <TenantDetailPage tab="serviceAccounts" />;
+}
+
+export function TenantOAuthClientsRoutePage() {
+  return <TenantDetailPage tab="oauthClients" />;
+}
+
+export function TenantAccessRoutePage() {
+  return <TenantDetailPage tab="access" />;
+}
+
+export function TenantAuditRoutePage() {
+  return <TenantDetailPage tab="audit" />;
+}
+
 export function UsersPage() {
   const usersQuery = useUsersQuery();
   const navigate = useNavigate();
@@ -1364,6 +1393,14 @@ export function ServiceAccountDetailPage({tab}: {tab: 'overview' | 'keys'}) {
       ) : null}
     </div>
   );
+}
+
+export function ServiceAccountsOverviewRoutePage() {
+  return <ServiceAccountDetailPage tab="overview" />;
+}
+
+export function ServiceAccountsKeysRoutePage() {
+  return <ServiceAccountDetailPage tab="keys" />;
 }
 
 export function OAuthClientsPage() {
