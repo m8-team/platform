@@ -1,0 +1,50 @@
+{
+  "service": "saas.iam.graph.v1.GraphService",
+  "methods": {
+    "ListSubjectAccessBindings": {
+      "subject": {
+        "type": "SUBJECT_TYPE_USER_ACCOUNT",
+        "id": "{{support_user_id}}",
+        "tenant_id": "{{tenant_id}}"
+      },
+      "page_size": 50
+    },
+    "ListResourceSubjects": {
+      "resource": {
+        "type": "RESOURCE_TYPE_PROJECT",
+        "id": "{{project_id}}",
+        "tenant_id": "{{tenant_id}}"
+      },
+      "page_size": 50
+    },
+    "SimulateChangeImpact": {
+      "resource": {
+        "type": "RESOURCE_TYPE_PROJECT",
+        "id": "{{analytics_project_id}}",
+        "tenant_id": "{{tenant_id}}"
+      },
+      "delta": {
+        "mutations": [
+          {
+            "kind": "BINDING_MUTATION_KIND_ADD",
+            "binding": {
+              "binding_id": "bind-postman-simulate",
+              "subject": {
+                "type": "SUBJECT_TYPE_USER_ACCOUNT",
+                "id": "{{support_user_id}}",
+                "tenant_id": "{{tenant_id}}"
+              },
+              "resource": {
+                "type": "RESOURCE_TYPE_PROJECT",
+                "id": "{{analytics_project_id}}",
+                "tenant_id": "{{tenant_id}}"
+              },
+              "role_id": "{{role_id}}",
+              "reason": "postman grpc simulate"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

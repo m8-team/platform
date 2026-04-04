@@ -1,0 +1,12 @@
+{
+  "service": "saas.iam.ops.v1.OperationsService",
+  "methods": {
+    "ListOperations": {
+      "tenant_id": "{{tenant_id}}",
+      "page_size": 50
+    },
+    "GetOperation": {
+      "operation_id": "{{operation_id}}"
+    }
+  }
+}
