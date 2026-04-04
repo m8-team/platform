@@ -1,0 +1,54 @@
+{
+  "tenants": [
+    {
+      "tenant_id": "tenant-demo",
+      "display_name": "Demo Tenant"
+    }
+  ],
+  "users": [
+    {
+      "user_id": "user-demo-admin",
+      "tenant_id": "tenant-demo",
+      "primary_email": "admin@example.com",
+      "display_name": "Demo Admin"
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "grp-demo-ops",
+      "tenant_id": "tenant-demo",
+      "display_name": "Operations"
+    }
+  ],
+  "service_accounts": [
+    {
+      "service_account_id": "sa-demo-bot",
+      "tenant_id": "tenant-demo",
+      "display_name": "Demo Bot"
+    }
+  ],
+  "oauth_clients": [
+    {
+      "oauth_client_id": "client-demo-admin-ui",
+      "tenant_id": "tenant-demo",
+      "display_name": "Admin UI"
+    }
+  ],
+  "bindings": [
+    {
+      "binding_id": "bind-demo-admin",
+      "subject": {
+        "type": "SUBJECT_TYPE_USER_ACCOUNT",
+        "id": "user-demo-admin",
+        "tenant_id": "tenant-demo"
+      },
+      "resource": {
+        "type": "RESOURCE_TYPE_PROJECT",
+        "id": "project-demo",
+        "tenant_id": "tenant-demo"
+      },
+      "role_id": "project-editor",
+      "reason": "demo seed"
+    }
+  ]
+}

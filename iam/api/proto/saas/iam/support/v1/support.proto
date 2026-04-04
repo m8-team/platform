@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package saas.iam.support.v1;
+
+option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1;supportv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "saas/iam/authz/v1/authz.proto";
+
+enum SupportGrantStatus {
+  SUPPORT_GRANT_STATUS_UNSPECIFIED = 0;
+  SUPPORT_GRANT_STATUS_PENDING_APPROVAL = 1;
+  SUPPORT_GRANT_STATUS_ACTIVE = 2;
+  SUPPORT_GRANT_STATUS_REVOKED = 3;
+  SUPPORT_GRANT_STATUS_EXPIRED = 4;
+  SUPPORT_GRANT_STATUS_DENIED = 5;
+}
+
+message SupportGrant {
+  string support_grant_id = 1;
+  string tenant_id = 2;
+  saas.iam.authz.v1.SubjectRef subject = 3;
+  saas.iam.authz.v1.ResourceRef resource = 4;
+  string role_id = 5;
+  google.protobuf.Duration ttl = 6;
+  SupportGrantStatus status = 7;
+  string reason = 8;
+  string approval_ticket = 9;
+  google.protobuf.Timestamp approved_at = 10;
+  google.protobuf.Timestamp expires_at = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message GrantTemporaryAccessRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string tenant_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  saas.iam.authz.v1.SubjectRef subject = 3 [(buf.validate.field).required = true];
+  saas.iam.authz.v1.ResourceRef resource = 4 [(buf.validate.field).required = true];
+  string role_id = 5 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  google.protobuf.Duration ttl = 6 [(buf.validate.field).required = true];
+  string reason = 7 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string requested_by = 8 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message ApproveTemporaryAccessRequest {
+  string support_grant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string approval_ticket = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 256
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string approved_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message RevokeTemporaryAccessRequest {
+  string support_grant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string reason = 2 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string revoked_by = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message ListSupportGrantsRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListSupportGrantsResponse {
+  repeated SupportGrant grants = 1;
+  string next_page_token = 2;
+}
+
+service SupportAccessService {
+  rpc GrantTemporaryAccess(GrantTemporaryAccessRequest) returns (SupportGrant);
+  rpc ApproveTemporaryAccess(ApproveTemporaryAccessRequest) returns (SupportGrant);
+  rpc RevokeTemporaryAccess(RevokeTemporaryAccessRequest) returns (SupportGrant);
+  rpc ListSupportGrants(ListSupportGrantsRequest) returns (ListSupportGrantsResponse);
+}

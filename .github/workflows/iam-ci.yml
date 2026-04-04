@@ -1,0 +1,28 @@
+name: iam-ci
+
+on:
+  push:
+    paths:
+      - "iam/**"
+      - ".github/workflows/iam-ci.yml"
+  pull_request:
+    paths:
+      - "iam/**"
+      - ".github/workflows/iam-ci.yml"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: iam
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bufbuild/buf-setup-action@v1
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: iam/go.mod
+      - run: buf dep update
+      - run: buf lint
+      - run: buf generate
+      - run: go test ./...

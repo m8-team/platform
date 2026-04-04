@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package saas.iam.spicedb.v1;
+
+option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/spicedb/v1;spicedbv1";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "saas/iam/authz/v1/authz.proto";
+
+message RelationshipRef {
+  saas.iam.authz.v1.ResourceRef resource = 1;
+  string relation = 2;
+  saas.iam.authz.v1.SubjectRef subject = 3;
+}
+
+message RelationshipMutation {
+  saas.iam.authz.v1.BindingMutationKind kind = 1;
+  RelationshipRef relationship = 2;
+  google.protobuf.Struct caveat_context = 3;
+  google.protobuf.Timestamp expires_at = 4;
+}

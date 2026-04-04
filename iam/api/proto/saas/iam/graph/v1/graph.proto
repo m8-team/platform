@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package saas.iam.graph.v1;
+
+option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1;graphv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "saas/iam/authz/v1/authz.proto";
+
+message ExplainEdge {
+  string edge_id = 1;
+  saas.iam.authz.v1.SubjectRef from_subject = 2;
+  saas.iam.authz.v1.ResourceRef to_resource = 3;
+  string relation = 4;
+  string role_id = 5;
+  string source = 6;
+  google.protobuf.Timestamp expires_at = 7;
+}
+
+message ListSubjectAccessBindingsRequest {
+  saas.iam.authz.v1.SubjectRef subject = 1 [(buf.validate.field).required = true];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListSubjectAccessBindingsResponse {
+  repeated saas.iam.authz.v1.AccessBinding bindings = 1;
+  repeated ExplainEdge explain_edges = 2;
+  string next_page_token = 3;
+}
+
+message ListResourceSubjectsRequest {
+  saas.iam.authz.v1.ResourceRef resource = 1 [(buf.validate.field).required = true];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListResourceSubjectsResponse {
+  repeated saas.iam.authz.v1.SubjectRef subjects = 1;
+  repeated saas.iam.authz.v1.AccessBinding bindings = 2;
+  string next_page_token = 3;
+}
+
+message SimulateChangeImpactRequest {
+  saas.iam.authz.v1.ResourceRef resource = 1 [(buf.validate.field).required = true];
+  saas.iam.authz.v1.AccessBindingDelta delta = 2 [(buf.validate.field).required = true];
+}
+
+message ChangeImpact {
+  saas.iam.authz.v1.SubjectRef subject = 1;
+  repeated string added_permissions = 2;
+  repeated string removed_permissions = 3;
+}
+
+message SimulateChangeImpactResponse {
+  repeated ChangeImpact impacts = 1;
+}
+
+service GraphService {
+  rpc ListSubjectAccessBindings(ListSubjectAccessBindingsRequest) returns (ListSubjectAccessBindingsResponse);
+  rpc ListResourceSubjects(ListResourceSubjectsRequest) returns (ListResourceSubjectsResponse);
+  rpc SimulateChangeImpact(SimulateChangeImpactRequest) returns (SimulateChangeImpactResponse);
+}

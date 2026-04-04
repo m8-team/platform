@@ -1,0 +1,686 @@
+syntax = "proto3";
+
+package saas.iam.identity.v1;
+
+option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1;identityv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+
+enum UserState {
+  USER_STATE_UNSPECIFIED = 0;
+  USER_STATE_ACTIVE = 1;
+  USER_STATE_DISABLED = 2;
+}
+
+enum MembershipState {
+  MEMBERSHIP_STATE_UNSPECIFIED = 0;
+  MEMBERSHIP_STATE_ACTIVE = 1;
+  MEMBERSHIP_STATE_INVITED = 2;
+  MEMBERSHIP_STATE_DISABLED = 3;
+}
+
+enum OAuthClientType {
+  OAUTH_CLIENT_TYPE_UNSPECIFIED = 0;
+  OAUTH_CLIENT_TYPE_CONFIDENTIAL = 1;
+  OAUTH_CLIENT_TYPE_PUBLIC = 2;
+}
+
+message User {
+  string user_id = 1;
+  string tenant_id = 2;
+  string primary_email = 3;
+  string display_name = 4;
+  UserState state = 5;
+  repeated string group_ids = 6;
+  map<string, string> labels = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  string keycloak_user_id = 10;
+}
+
+message Tenant {
+  string tenant_id = 1;
+  string display_name = 2;
+  string external_ref = 3;
+  map<string, string> labels = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message Membership {
+  string membership_id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  repeated string role_ids = 4;
+  MembershipState state = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message Group {
+  string group_id = 1;
+  string tenant_id = 2;
+  string display_name = 3;
+  string description = 4;
+  map<string, string> labels = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+message GroupMember {
+  string group_id = 1;
+  string subject_id = 2;
+  string subject_type = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message FederatedIdentityLink {
+  string link_id = 1;
+  string tenant_id = 2;
+  string user_id = 3;
+  string provider = 4;
+  string external_subject = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message ServiceAccount {
+  string service_account_id = 1;
+  string tenant_id = 2;
+  string display_name = 3;
+  string description = 4;
+  bool disabled = 5;
+  string keycloak_client_id = 6;
+  string operation_id = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message OAuthClient {
+  string oauth_client_id = 1;
+  string tenant_id = 2;
+  string display_name = 3;
+  OAuthClientType client_type = 4;
+  repeated string redirect_uris = 5;
+  repeated string scopes = 6;
+  bool service_accounts_enabled = 7;
+  string keycloak_client_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message GetUserRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+}
+
+message ListUsersRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  int32 page_size = 2;
+  string page_token = 3;
+  string query = 4;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message CreateUserRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string tenant_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string primary_email = 3 [(buf.validate.field).string.email = true];
+  string display_name = 4 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 256
+  }];
+  map<string, string> labels = 5;
+  string performed_by = 6 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message UpdateUserRequest {
+  User user = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message DisableUserRequest {
+  string user_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string reason = 2 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message GetTenantRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+}
+
+message ListTenantsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  string query = 3;
+}
+
+message ListTenantsResponse {
+  repeated Tenant tenants = 1;
+  string next_page_token = 2;
+}
+
+message CreateTenantRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string tenant_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string display_name = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 256
+  }];
+  string external_ref = 4 [(buf.validate.field).string.max_len = 256];
+  map<string, string> labels = 5;
+  string performed_by = 6 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message UpdateTenantRequest {
+  Tenant tenant = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message ListMembershipsRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string user_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListMembershipsResponse {
+  repeated Membership memberships = 1;
+  string next_page_token = 2;
+}
+
+message CreateMembershipRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string membership_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string tenant_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string user_id = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  repeated string role_ids = 5 [(buf.validate.field).repeated = {
+    min_items: 1,
+    max_items: 32
+  }];
+  string performed_by = 6 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message DeleteMembershipRequest {
+  string membership_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string request_id = 2 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message GetGroupRequest {
+  string group_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+}
+
+message ListGroupsRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  int32 page_size = 2;
+  string page_token = 3;
+  string query = 4;
+}
+
+message ListGroupsResponse {
+  repeated Group groups = 1;
+  string next_page_token = 2;
+}
+
+message CreateGroupRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string group_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string tenant_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string display_name = 4 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 256
+  }];
+  string description = 5 [(buf.validate.field).string.max_len = 1024];
+  map<string, string> labels = 6;
+  string performed_by = 7 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message UpdateGroupRequest {
+  Group group = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message DeleteGroupRequest {
+  string group_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string request_id = 2 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message AddGroupMemberRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string group_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string subject_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string subject_type = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 64,
+    pattern: "^[a-z_]{3,64}$"
+  }];
+  string performed_by = 5 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message RemoveGroupMemberRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string group_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string subject_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string subject_type = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 64,
+    pattern: "^[a-z_]{3,64}$"
+  }];
+  string reason = 5 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 6 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message GetServiceAccountRequest {
+  string service_account_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+}
+
+message ListServiceAccountsRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListServiceAccountsResponse {
+  repeated ServiceAccount service_accounts = 1;
+  string next_page_token = 2;
+}
+
+message CreateServiceAccountRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string service_account_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string tenant_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string display_name = 4 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 256
+  }];
+  string description = 5 [(buf.validate.field).string.max_len = 1024];
+  string performed_by = 6 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message UpdateServiceAccountRequest {
+  ServiceAccount service_account = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message DeleteServiceAccountRequest {
+  string service_account_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string request_id = 2 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message GetOAuthClientRequest {
+  string oauth_client_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+}
+
+message ListOAuthClientsRequest {
+  string tenant_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListOAuthClientsResponse {
+  repeated OAuthClient oauth_clients = 1;
+  string next_page_token = 2;
+}
+
+message CreateOAuthClientRequest {
+  string request_id = 1 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string oauth_client_id = 2 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string tenant_id = 3 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string display_name = 4 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 256
+  }];
+  OAuthClientType client_type = 5;
+  repeated string redirect_uris = 6 [(buf.validate.field).repeated.max_items = 64];
+  repeated string scopes = 7 [(buf.validate.field).repeated.max_items = 64];
+  bool service_accounts_enabled = 8;
+  string performed_by = 9 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message UpdateOAuthClientRequest {
+  OAuthClient oauth_client = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message DeleteOAuthClientRequest {
+  string oauth_client_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string request_id = 2 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message RotateClientSecretRequest {
+  string oauth_client_id = 1 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128,
+    pattern: "^[a-z][a-z0-9-]{2,127}$"
+  }];
+  string request_id = 2 [(buf.validate.field).string = {
+    min_len: 8,
+    max_len: 128
+  }];
+  string reason = 3 [(buf.validate.field).string = {
+    min_len: 1,
+    max_len: 1024
+  }];
+  string performed_by = 4 [(buf.validate.field).string = {
+    min_len: 3,
+    max_len: 128
+  }];
+}
+
+message MutateIdentityResponse {
+  string operation_id = 1;
+}
+
+message RotateClientSecretResponse {
+  string operation_id = 1;
+  string secret_ref = 2;
+}
+
+service IdentityService {
+  rpc GetUser(GetUserRequest) returns (User);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc CreateUser(CreateUserRequest) returns (User);
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  rpc DisableUser(DisableUserRequest) returns (MutateIdentityResponse);
+
+  rpc GetTenant(GetTenantRequest) returns (Tenant);
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse);
+  rpc CreateTenant(CreateTenantRequest) returns (Tenant);
+  rpc UpdateTenant(UpdateTenantRequest) returns (Tenant);
+
+  rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse);
+  rpc CreateMembership(CreateMembershipRequest) returns (Membership);
+  rpc DeleteMembership(DeleteMembershipRequest) returns (MutateIdentityResponse);
+
+  rpc GetGroup(GetGroupRequest) returns (Group);
+  rpc ListGroups(ListGroupsRequest) returns (ListGroupsResponse);
+  rpc CreateGroup(CreateGroupRequest) returns (Group);
+  rpc UpdateGroup(UpdateGroupRequest) returns (Group);
+  rpc DeleteGroup(DeleteGroupRequest) returns (MutateIdentityResponse);
+  rpc AddGroupMember(AddGroupMemberRequest) returns (GroupMember);
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (MutateIdentityResponse);
+
+  rpc GetServiceAccount(GetServiceAccountRequest) returns (ServiceAccount);
+  rpc ListServiceAccounts(ListServiceAccountsRequest) returns (ListServiceAccountsResponse);
+  rpc CreateServiceAccount(CreateServiceAccountRequest) returns (ServiceAccount);
+  rpc UpdateServiceAccount(UpdateServiceAccountRequest) returns (ServiceAccount);
+  rpc DeleteServiceAccount(DeleteServiceAccountRequest) returns (MutateIdentityResponse);
+}
+
+service OAuthFacadeService {
+  rpc GetOAuthClient(GetOAuthClientRequest) returns (OAuthClient);
+  rpc ListOAuthClients(ListOAuthClientsRequest) returns (ListOAuthClientsResponse);
+  rpc CreateOAuthClient(CreateOAuthClientRequest) returns (OAuthClient);
+  rpc UpdateOAuthClient(UpdateOAuthClientRequest) returns (OAuthClient);
+  rpc DeleteOAuthClient(DeleteOAuthClientRequest) returns (MutateIdentityResponse);
+  rpc RotateClientSecret(RotateClientSecretRequest) returns (RotateClientSecretResponse);
+}

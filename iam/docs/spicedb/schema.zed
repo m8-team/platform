@@ -1,0 +1,29 @@
+definition user {}
+
+definition service_account {}
+
+definition group {
+  relation member: user | service_account
+}
+
+definition tenant {
+  relation owner: user | group
+  relation admin: user | group
+  permission manage = owner + admin
+}
+
+definition project {
+  relation tenant: tenant
+  relation viewer: user | group | service_account
+  relation editor: user | group | service_account
+  relation support: user | group | service_account
+
+  permission read = viewer + editor + support + tenant->manage
+  permission write = editor + tenant->manage
+}
+
+definition support_case {
+  relation tenant: tenant
+  relation viewer: user | group | service_account
+  permission read = viewer + tenant->manage
+}
