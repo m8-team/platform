@@ -115,6 +115,29 @@ function showBulkToast(label: string, count: number) {
   });
 }
 
+function TenantCreateAction() {
+  const navigate = useNavigate();
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <>
+      <Button view="action" onClick={() => setOpen(true)}>
+        Create Tenant
+      </Button>
+      <CreateTenantDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onSuccess={(tenantId) =>
+          navigate({
+            to: '/tenants/$tenantId',
+            params: {tenantId},
+          })
+        }
+      />
+    </>
+  );
+}
+
 function AccessBindingsTable({
   bindings,
   onOpen,
@@ -294,7 +317,6 @@ export function TenantsPage() {
   const navigate = useNavigate();
   const [query, setQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState('all');
-  const [createOpen, setCreateOpen] = React.useState(false);
   const deferredQuery = React.useDeferredValue(query);
 
   if (tenantsQuery.isPending) {
@@ -383,14 +405,7 @@ export function TenantsPage() {
       <PageHeader
         title="Tenants"
         description="Tenant inventory with quick operational entry points."
-        actions={
-          <Button
-            view="action"
-            onClick={() => setCreateOpen(true)}
-          >
-            Create Tenant
-          </Button>
-        }
+        actions={<TenantCreateAction />}
       />
       <MetricGrid items={metrics} />
       <SectionCard title="Filters" description="Search and operational filters">
@@ -419,22 +434,6 @@ export function TenantsPage() {
         description="Operational tenant inventory from the current IAM source of truth."
         data={items}
         columns={columns}
-        selectable
-        bulkActions={[
-          {label: 'Export', onClick: (rows) => showBulkToast('Export scheduled', rows.length)},
-          {label: 'Suspend', onClick: (rows) => showBulkToast('Suspend requested', rows.length)},
-          {label: 'Activate', onClick: (rows) => showBulkToast('Activate requested', rows.length)},
-        ]}
-      />
-      <CreateTenantDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSuccess={(tenantId) =>
-          navigate({
-            to: '/tenants/$tenantId',
-            params: {tenantId},
-          })
-        }
       />
     </div>
   );

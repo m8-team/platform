@@ -99,7 +99,7 @@ const tenantRegionOptions = [
   {value: 'ap-south', content: 'ap-south'},
 ];
 
-function TenantEditorDialog({
+function TenantEditorDrawer({
   open,
   mode,
   tenant,
@@ -140,86 +140,95 @@ function TenantEditorDialog({
   const canSubmit = tenantIdPattern.test(tenantId.trim()) && displayName.trim().length > 1;
 
   return (
-    <Dialog
-      open={open}
-      onClose={closeDialog(onClose)}
-      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
-      size="m"
-    >
-      <Dialog.Header caption={mode === 'create' ? 'Create Tenant' : 'Edit Tenant'} />
-      <Dialog.Body>
-        <div className="form-grid">
-          <TextInput
-            label="Tenant ID"
-            placeholder="tenant-acme-prod"
-            value={tenantId}
-            disabled={mode === 'edit'}
-            onUpdate={setTenantId}
-          />
-          <TextInput
-            label="Display name"
-            placeholder="Acme Production"
-            value={displayName}
-            onUpdate={setDisplayName}
-          />
-          <TextInput
-            label="External ref"
-            placeholder="crm-acme-001"
-            value={externalRef}
-            onUpdate={setExternalRef}
-          />
-          <Select
-            label="Region"
-            value={[region]}
-            options={tenantRegionOptions}
-            onUpdate={(value) => setRegion(value[0] ?? 'eu-central')}
-          />
-          <Select
-            label="Tier"
-            value={[tier]}
-            options={tenantTierOptions}
-            onUpdate={(value) => setTier((value[0] ?? 'active') as 'active' | 'trial')}
-          />
-          <div className="form-grid__full">
-            <FieldHint>
-              {mode === 'create'
-                ? 'Tenant metadata is created through the IAM identity facade.'
-                : 'Display name, external reference and labels are updated via the tenant API.'}
-            </FieldHint>
+    <Drawer open={open} onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)} size={520}>
+      <div className="drawer-panel">
+        <div className="drawer-panel__header">
+          <Text variant="subheader-3">{mode === 'create' ? 'Create Tenant' : 'Edit Tenant'}</Text>
+          <Text color="secondary">
+            {mode === 'create'
+              ? 'Provision tenant metadata through the IAM identity facade'
+              : tenantId || tenant?.tenantId}
+          </Text>
+        </div>
+        <div className="drawer-panel__body">
+          <div className="form-grid">
+            <TextInput
+              label="Tenant ID"
+              placeholder="tenant-acme-prod"
+              value={tenantId}
+              disabled={mode === 'edit'}
+              onUpdate={setTenantId}
+            />
+            <TextInput
+              label="Display name"
+              placeholder="Acme Production"
+              value={displayName}
+              onUpdate={setDisplayName}
+            />
+            <TextInput
+              label="External ref"
+              placeholder="crm-acme-001"
+              value={externalRef}
+              onUpdate={setExternalRef}
+            />
+            <Select
+              label="Region"
+              value={[region]}
+              options={tenantRegionOptions}
+              onUpdate={(value) => setRegion(value[0] ?? 'eu-central')}
+            />
+            <Select
+              label="Tier"
+              value={[tier]}
+              options={tenantTierOptions}
+              onUpdate={(value) => setTier((value[0] ?? 'active') as 'active' | 'trial')}
+            />
+            <div className="form-grid__full">
+              <FieldHint>
+                {mode === 'create'
+                  ? 'Tenant metadata is created through the IAM identity facade.'
+                  : 'Display name, external reference and labels are updated via the tenant API.'}
+              </FieldHint>
+            </div>
           </div>
         </div>
-      </Dialog.Body>
-      <Dialog.Footer
-        textButtonCancel="Cancel"
-        textButtonApply={mode === 'create' ? 'Create' : 'Save'}
-        onClickButtonCancel={onClose}
-        onClickButtonApply={() => {
-          mutation.mutate(
-            {
-              tenantId: tenantId.trim(),
-              displayName: displayName.trim(),
-              externalRef: externalRef.trim(),
-              region,
-              tier,
-            },
-            {
-              onSuccess: (savedTenant) => {
-                appToaster.add({
-                  name: `${mode}-tenant-${savedTenant.tenantId}`,
-                  title: mode === 'create' ? 'Tenant created' : 'Tenant updated',
-                  content: `${savedTenant.name} (${savedTenant.tenantId})`,
-                  theme: 'success',
-                });
-                onSuccess?.(savedTenant.tenantId);
-                onClose();
-              },
-            },
-          );
-        }}
-        propsButtonApply={{view: 'action', disabled: !canSubmit}}
-        loading={mutation.isPending}
-      />
-    </Dialog>
+        <div className="drawer-panel__footer">
+          <Button view="flat" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            view="action"
+            loading={mutation.isPending}
+            disabled={!canSubmit}
+            onClick={() => {
+              mutation.mutate(
+                {
+                  tenantId: tenantId.trim(),
+                  displayName: displayName.trim(),
+                  externalRef: externalRef.trim(),
+                  region,
+                  tier,
+                },
+                {
+                  onSuccess: (savedTenant) => {
+                    appToaster.add({
+                      name: `${mode}-tenant-${savedTenant.tenantId}`,
+                      title: mode === 'create' ? 'Tenant created' : 'Tenant updated',
+                      content: `${savedTenant.name} (${savedTenant.tenantId})`,
+                      theme: 'success',
+                    });
+                    onSuccess?.(savedTenant.tenantId);
+                    onClose();
+                  },
+                },
+              );
+            }}
+          >
+            {mode === 'create' ? 'Create Tenant' : 'Save Changes'}
+          </Button>
+        </div>
+      </div>
+    </Drawer>
   );
 }
 
@@ -232,7 +241,7 @@ export function CreateTenantDialog({
   onClose: () => void;
   onSuccess?: (tenantId: string) => void;
 }) {
-  return <TenantEditorDialog open={open} mode="create" onClose={onClose} onSuccess={onSuccess} />;
+  return <TenantEditorDrawer open={open} mode="create" onClose={onClose} onSuccess={onSuccess} />;
 }
 
 export function EditTenantDialog({
@@ -253,7 +262,7 @@ export function EditTenantDialog({
   onSuccess?: (tenantId: string) => void;
 }) {
   return (
-    <TenantEditorDialog
+    <TenantEditorDrawer
       open={open}
       mode="edit"
       tenant={tenant}
@@ -286,56 +295,61 @@ export function DeleteTenantDialog({
   }, [open]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={closeDialog(onClose)}
-      onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
-      size="s"
-    >
-      <Dialog.Header caption="Delete Tenant" />
-      <Dialog.Body>
-        <HighlightAlert
-          title={`${tenantName} (${tenantId})`}
-          message="Tenant metadata will be removed from IAM. Use a clear reason so the audit trail stays useful."
-          theme="danger"
-        />
-        <div className="form-grid">
-          <div className="form-grid__full">
-            <Text variant="body-2">Reason</Text>
-            <TextArea
-              rows={4}
-              value={reason}
-              onUpdate={setReason}
-              placeholder="Tenant decommissioned after migration to the new organization."
-            />
+    <Drawer open={open} onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)} size={480}>
+      <div className="drawer-panel">
+        <div className="drawer-panel__header">
+          <Text variant="subheader-3">Delete Tenant</Text>
+          <Text color="secondary">{tenantId}</Text>
+        </div>
+        <div className="drawer-panel__body">
+          <HighlightAlert
+            title={`${tenantName} (${tenantId})`}
+            message="Tenant metadata will be removed from IAM. Use a clear reason so the audit trail stays useful."
+            theme="danger"
+          />
+          <div className="form-grid">
+            <div className="form-grid__full">
+              <Text variant="body-2">Reason</Text>
+              <TextArea
+                rows={4}
+                value={reason}
+                onUpdate={setReason}
+                placeholder="Tenant decommissioned after migration to the new organization."
+              />
+            </div>
           </div>
         </div>
-      </Dialog.Body>
-      <Dialog.Footer
-        textButtonCancel="Cancel"
-        textButtonApply="Delete"
-        onClickButtonCancel={onClose}
-        onClickButtonApply={() => {
-          mutation.mutate(
-            {tenantId, reason: reason.trim()},
-            {
-              onSuccess: () => {
-                appToaster.add({
-                  name: `delete-tenant-${tenantId}`,
-                  title: 'Tenant deleted',
-                  content: `${tenantName} removed from IAM`,
-                  theme: 'success',
-                });
-                onSuccess?.(tenantId);
-                onClose();
-              },
-            },
-          );
-        }}
-        propsButtonApply={{view: 'outlined-danger', disabled: reason.trim().length < 3}}
-        loading={mutation.isPending}
-      />
-    </Dialog>
+        <div className="drawer-panel__footer">
+          <Button view="flat" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            view="outlined-danger"
+            loading={mutation.isPending}
+            disabled={reason.trim().length < 3}
+            onClick={() => {
+              mutation.mutate(
+                {tenantId, reason: reason.trim()},
+                {
+                  onSuccess: () => {
+                    appToaster.add({
+                      name: `delete-tenant-${tenantId}`,
+                      title: 'Tenant deleted',
+                      content: `${tenantName} removed from IAM`,
+                      theme: 'success',
+                    });
+                    onSuccess?.(tenantId);
+                    onClose();
+                  },
+                },
+              );
+            }}
+          >
+            Delete Tenant
+          </Button>
+        </div>
+      </div>
+    </Drawer>
   );
 }
 
@@ -376,6 +390,7 @@ export function CreateServiceAccountWizard({
       open={open}
       onClose={closeDialog(onClose)}
       onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      disableHeightTransition
       size="m"
     >
       <Dialog.Header caption="Create Service Account" />
@@ -480,6 +495,7 @@ export function RotateSecretDialog({
       open={open}
       onClose={closeDialog(onClose)}
       onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      disableHeightTransition
       size="s"
     >
       <Dialog.Header caption="Rotate OAuth Secret" />
@@ -736,6 +752,7 @@ export function SupportGrantWizard({
       open={open}
       onClose={closeDialog(onClose)}
       onOpenChange={(nextOpen) => syncOverlayOpen(nextOpen, onClose)}
+      disableHeightTransition
       size="l"
     >
       <Dialog.Header caption="Grant Temporary Support Access" />
