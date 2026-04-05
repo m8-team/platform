@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/m8platform/platform/iam/internal/config"
 	"github.com/m8platform/platform/iam/internal/core"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 )

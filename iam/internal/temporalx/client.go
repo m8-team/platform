@@ -3,7 +3,7 @@ package temporalx
 import (
 	"context"
 
-	"github.com/m8platform/platform/iam/internal/config"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 	"go.temporal.io/sdk/client"
 )
 

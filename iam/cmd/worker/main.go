@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/m8platform/platform/iam/internal/config"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/m8platform/platform/iam/internal/observability"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.temporal.io/sdk/client"

@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/m8platform/platform/iam/internal/config"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 )
 
 var ErrNotConfigured = errors.New("keycloak client is not configured")

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	"github.com/m8platform/platform/iam/internal/config"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 	goredis "github.com/redis/go-redis/v9"
 )
 

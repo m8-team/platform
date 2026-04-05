@@ -13,8 +13,8 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
-	"github.com/m8platform/platform/iam/internal/config"
 	"github.com/m8platform/platform/iam/internal/core"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
 )
