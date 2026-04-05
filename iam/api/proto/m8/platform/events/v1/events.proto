@@ -1,0 +1,122 @@
+// Domain event contracts emitted by IAM services and workflows.
+syntax = "proto3";
+
+package saas.iam.events.v1;
+
+option go_package = "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1;eventsv1";
+
+import "google/protobuf/timestamp.proto";
+import "saas/iam/audit/v1/audit.proto";
+import "saas/iam/authz/v1/authz.proto";
+import "saas/iam/identity/v1/identity.proto";
+import "saas/iam/support/v1/support.proto";
+
+// EventMeta contains shared envelope metadata for emitted domain events.
+message EventMeta {
+  string event_id = 1;
+  google.protobuf.Timestamp occurred_at = 2;
+  string correlation_id = 3;
+  string tenant_id = 4;
+}
+
+// TenantCreated announces that a tenant record was created.
+message TenantCreated {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.Tenant tenant = 2;
+}
+
+// MembershipCreated announces that a membership was created.
+message MembershipCreated {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.Membership membership = 2;
+}
+
+// MembershipDeleted announces that a membership was deleted.
+message MembershipDeleted {
+  EventMeta meta = 1;
+  string membership_id = 2;
+  string user_id = 3;
+}
+
+// GroupCreated announces that a group was created.
+message GroupCreated {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.Group group = 2;
+}
+
+// GroupMemberAdded announces that a subject joined a group.
+message GroupMemberAdded {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.GroupMember member = 2;
+}
+
+// GroupMemberRemoved announces that a subject left a group.
+message GroupMemberRemoved {
+  EventMeta meta = 1;
+  string group_id = 2;
+  string subject_id = 3;
+  string subject_type = 4;
+}
+
+// ServiceAccountCreated announces that a service account was created.
+message ServiceAccountCreated {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.ServiceAccount service_account = 2;
+}
+
+// OAuthClientCreated announces that an OAuth client was created.
+message OAuthClientCreated {
+  EventMeta meta = 1;
+  saas.iam.identity.v1.OAuthClient oauth_client = 2;
+}
+
+// AccessIntentChanged announces a desired authorization state change.
+message AccessIntentChanged {
+  string event_id = 1;
+  google.protobuf.Timestamp occurred_at = 2;
+  string tenant_id = 3;
+  saas.iam.authz.v1.ResourceRef resource = 4;
+  string actor = 5;
+  string reason = 6;
+  repeated saas.iam.authz.v1.AccessBinding desired_bindings = 7;
+  repeated saas.iam.authz.v1.AccessBindingMutation relationship_mutations = 8;
+  string correlation_id = 9;
+}
+
+// SupportGrantCreated announces that a temporary support grant was created.
+message SupportGrantCreated {
+  EventMeta meta = 1;
+  saas.iam.support.v1.SupportGrant grant = 2;
+}
+
+// SupportGrantRevoked announces that a support grant was revoked.
+message SupportGrantRevoked {
+  EventMeta meta = 1;
+  string support_grant_id = 2;
+}
+
+// UserDisabled announces that a user was disabled.
+message UserDisabled {
+  EventMeta meta = 1;
+  string user_id = 2;
+  string reason = 3;
+}
+
+// DomainEvent wraps all emitted IAM domain event variants.
+message DomainEvent {
+  oneof event {
+    TenantCreated tenant_created = 1;
+    MembershipCreated membership_created = 2;
+    MembershipDeleted membership_deleted = 3;
+    GroupCreated group_created = 4;
+    GroupMemberAdded group_member_added = 5;
+    GroupMemberRemoved group_member_removed = 6;
+    ServiceAccountCreated service_account_created = 7;
+    OAuthClientCreated oauth_client_created = 8;
+    AccessIntentChanged access_intent_changed = 9;
+    SupportGrantCreated support_grant_created = 10;
+    SupportGrantRevoked support_grant_revoked = 11;
+    UserDisabled user_disabled = 12;
+    saas.iam.audit.v1.AuditEvent audit_event = 13;
+  }
+}
