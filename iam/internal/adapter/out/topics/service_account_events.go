@@ -6,16 +6,15 @@ import (
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
-	legacytopics "github.com/m8platform/platform/iam/internal/topics"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ServiceAccountEventPublisher struct {
-	publisher *legacytopics.Publisher
+	publisher *Publisher
 	topic     string
 }
 
-func NewServiceAccountEventPublisher(publisher *legacytopics.Publisher, topic string) *ServiceAccountEventPublisher {
+func NewServiceAccountEventPublisher(publisher *Publisher, topic string) *ServiceAccountEventPublisher {
 	return &ServiceAccountEventPublisher{
 		publisher: publisher,
 		topic:     topic,

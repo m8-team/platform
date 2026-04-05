@@ -9,17 +9,16 @@ import (
 	supportv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1"
 	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
 	tenantmodel "github.com/m8platform/platform/iam/internal/module/tenant/model"
-	legacytopics "github.com/m8platform/platform/iam/internal/topics"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type SupportGrantEventPublisher struct {
-	publisher *legacytopics.Publisher
+	publisher *Publisher
 	topic     string
 }
 
-func NewSupportGrantEventPublisher(publisher *legacytopics.Publisher, topic string) *SupportGrantEventPublisher {
+func NewSupportGrantEventPublisher(publisher *Publisher, topic string) *SupportGrantEventPublisher {
 	return &SupportGrantEventPublisher{
 		publisher: publisher,
 		topic:     topic,

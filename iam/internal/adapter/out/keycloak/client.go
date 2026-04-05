@@ -2,30 +2,40 @@ package keycloak
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	legacykeycloak "github.com/m8platform/platform/iam/internal/keycloak"
+	"github.com/google/uuid"
+	"github.com/m8platform/platform/iam/internal/foundation/config"
 )
 
+var ErrNotConfigured = errors.New("keycloak client is not configured")
+
 type Client struct {
-	client *legacykeycloak.Client
+	cfg config.KeycloakConfig
 }
 
-func NewClient(client *legacykeycloak.Client) *Client {
-	return &Client{client: client}
+func NewClient(cfg config.KeycloakConfig) *Client {
+	return &Client{cfg: cfg}
 }
 
-func (c *Client) CreateConfidentialClient(ctx context.Context, tenantID string, clientID string, displayName string, serviceAccountsEnabled bool) (string, error) {
-	if c == nil || c.client == nil {
-		return "", nil
+func (c *Client) CreateConfidentialClient(_ context.Context, tenantID string, clientID string, displayName string, serviceAccountsEnabled bool) (string, error) {
+	if c == nil || c.cfg.BaseURL == "" {
+		return "", ErrNotConfigured
 	}
-	return c.client.CreateConfidentialClient(ctx, tenantID, clientID, displayName, serviceAccountsEnabled)
+	return fmt.Sprintf("%s:%s:%s:%t", tenantID, clientID, displayName, serviceAccountsEnabled), nil
+}
+
+func (c *Client) RotateClientSecret(_ context.Context, clientID string) (string, string, error) {
+	if c == nil || c.cfg.BaseURL == "" {
+		return "", "", ErrNotConfigured
+	}
+	secretRef := fmt.Sprintf("vault://keycloak/%s/%s", c.cfg.Realm, clientID)
+	return uuid.NewString(), secretRef, nil
 }
 
 func (c *Client) RotateOAuthClientSecret(ctx context.Context, oauthClientID string) (string, error) {
-	if c == nil || c.client == nil {
-		return "", nil
-	}
-	_, secretRef, err := c.client.RotateClientSecret(ctx, oauthClientID)
+	_, secretRef, err := c.RotateClientSecret(ctx, oauthClientID)
 	if err != nil {
 		return "", err
 	}

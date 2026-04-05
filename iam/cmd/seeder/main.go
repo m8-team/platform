@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/seeder"
+	"github.com/m8platform/platform/iam/internal/infrastructure/seeder"
 )
 
 func main() {

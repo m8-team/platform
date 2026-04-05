@@ -5,9 +5,10 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
-	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationcontracts "github.com/m8platform/platform/iam/internal/foundation/contracts"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	"github.com/m8platform/platform/iam/internal/module/iam/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/iam/delivery/grpc"
 	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
@@ -16,11 +17,11 @@ import (
 )
 
 type Dependencies struct {
-	Store                   core.DocumentStore
-	Publisher               core.EventPublisher
-	Workflows               core.WorkflowStarter
-	Runtime                 core.AuthorizationRuntime
-	Keycloak                core.KeycloakClient
+	Store                   foundationstore.DocumentStore
+	Publisher               foundationcontracts.EventPublisher
+	Workflows               foundationcontracts.WorkflowStarter
+	Runtime                 foundationcontracts.AuthorizationRuntime
+	Keycloak                foundationcontracts.KeycloakClient
 	Logger                  *zap.Logger
 	Topics                  foundationconfig.TopicsConfig
 	CreateServiceAccount    *identityuc.CreateServiceAccountUseCase

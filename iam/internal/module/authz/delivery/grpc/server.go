@@ -14,8 +14,11 @@ import (
 	redisstore "github.com/m8platform/platform/iam/internal/adapter/out/redis"
 	legacyspicedb "github.com/m8platform/platform/iam/internal/adapter/out/spicedb"
 	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
-	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationcontracts "github.com/m8platform/platform/iam/internal/foundation/contracts"
+	foundationprotokit "github.com/m8platform/platform/iam/internal/foundation/protokit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
+	modulaudit "github.com/m8platform/platform/iam/internal/module/audit"
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
 	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
@@ -28,10 +31,10 @@ import (
 type Server struct {
 	authzv1.UnimplementedAuthorizationFacadeServiceServer
 
-	store                core.DocumentStore
-	cache                core.Cache
-	publisher            core.EventPublisher
-	runtime              core.AuthorizationRuntime
+	store                foundationstore.DocumentStore
+	cache                foundationcontracts.Cache
+	publisher            foundationcontracts.EventPublisher
+	runtime              foundationcontracts.AuthorizationRuntime
 	logger               *zap.Logger
 	now                  func() time.Time
 	policyVersion        string
@@ -45,10 +48,10 @@ type Server struct {
 }
 
 func NewServer(
-	store core.DocumentStore,
-	cache core.Cache,
-	publisher core.EventPublisher,
-	runtime core.AuthorizationRuntime,
+	store foundationstore.DocumentStore,
+	cache foundationcontracts.Cache,
+	publisher foundationcontracts.EventPublisher,
+	runtime foundationcontracts.AuthorizationRuntime,
 	logger *zap.Logger,
 	policyVersion string,
 	topics foundationconfig.TopicsConfig,
@@ -100,18 +103,18 @@ func (s *Server) SetAccessBindings(ctx context.Context, req *authzv1.SetAccessBi
 	if err := s.syncResourceWrite(ctx, req.GetResource(), req.GetDesiredBindings(), current, now); err != nil {
 		return nil, err
 	}
-	operation := core.NewOperation(now, req.GetResource().GetTenantId(), "set_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, req.GetResource().GetTenantId(), "set_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	audit := core.NewAuditEvent(now, req.GetResource().GetTenantId(), "access_bindings.set", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
+	audit := modulaudit.NewEvent(now, req.GetResource().GetTenantId(), "access_bindings.set", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
 	audit.Resource = req.GetResource()
-	if err := core.PersistAuditEvent(ctx, s.store, audit, now); err != nil {
+	if err := modulaudit.PersistEvent(ctx, s.store, audit, now); err != nil {
 		return nil, err
 	}
 	event := &eventsv1.AccessIntentChanged{
 		EventId:               operation.GetOperationId(),
-		OccurredAt:            core.Timestamp(now),
+		OccurredAt:            foundationprotokit.Timestamp(now),
 		TenantId:              req.GetResource().GetTenantId(),
 		Resource:              req.GetResource(),
 		Actor:                 req.GetPerformedBy(),
@@ -154,18 +157,18 @@ func (s *Server) UpdateAccessBindings(ctx context.Context, req *authzv1.UpdateAc
 	if err := s.applyBindingsSnapshot(ctx, current, bindings, now); err != nil {
 		return nil, err
 	}
-	operation := core.NewOperation(now, req.GetResource().GetTenantId(), "update_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, req.GetResource().GetTenantId(), "update_access_bindings", req.GetResource().GetType().String(), req.GetResource().GetId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	audit := core.NewAuditEvent(now, req.GetResource().GetTenantId(), "access_bindings.updated", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
+	audit := modulaudit.NewEvent(now, req.GetResource().GetTenantId(), "access_bindings.updated", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
 	audit.Resource = req.GetResource()
-	if err := core.PersistAuditEvent(ctx, s.store, audit, now); err != nil {
+	if err := modulaudit.PersistEvent(ctx, s.store, audit, now); err != nil {
 		return nil, err
 	}
 	event := &eventsv1.AccessIntentChanged{
 		EventId:               operation.GetOperationId(),
-		OccurredAt:            core.Timestamp(now),
+		OccurredAt:            foundationprotokit.Timestamp(now),
 		TenantId:              req.GetResource().GetTenantId(),
 		Resource:              req.GetResource(),
 		Actor:                 req.GetPerformedBy(),
@@ -307,7 +310,7 @@ func (s *Server) ExplainAccess(ctx context.Context, req *authzv1.ExplainAccessRe
 	}, nil
 }
 
-func ListBindingsForSubject(ctx context.Context, store core.DocumentStore, subject *authzv1.SubjectRef) ([]*authzv1.AccessBinding, error) {
+func ListBindingsForSubject(ctx context.Context, store foundationstore.DocumentStore, subject *authzv1.SubjectRef) ([]*authzv1.AccessBinding, error) {
 	documents, _, err := store.ListDocuments(ctx, ydb.TableBindingOperations, subject.GetTenantId(), 0, 1000)
 	if err != nil {
 		return nil, err
@@ -315,7 +318,7 @@ func ListBindingsForSubject(ctx context.Context, store core.DocumentStore, subje
 	bindings := make([]*authzv1.AccessBinding, 0, len(documents))
 	for _, document := range documents {
 		binding := &authzv1.AccessBinding{}
-		if err := core.UnmarshalProto(document.Payload, binding); err != nil {
+		if err := foundationprotokit.Unmarshal(document.Payload, binding); err != nil {
 			return nil, err
 		}
 		if sameSubject(binding.GetSubject(), subject) {
@@ -325,7 +328,7 @@ func ListBindingsForSubject(ctx context.Context, store core.DocumentStore, subje
 	return bindings, nil
 }
 
-func ListBindingsForResource(ctx context.Context, store core.DocumentStore, resource *authzv1.ResourceRef) ([]*authzv1.AccessBinding, error) {
+func ListBindingsForResource(ctx context.Context, store foundationstore.DocumentStore, resource *authzv1.ResourceRef) ([]*authzv1.AccessBinding, error) {
 	service := &Server{store: store}
 	return service.listBindingsForResource(ctx, resource)
 }
@@ -338,7 +341,7 @@ func (s *Server) listBindingsForResource(ctx context.Context, resource *authzv1.
 	bindings := make([]*authzv1.AccessBinding, 0, len(documents))
 	for _, document := range documents {
 		binding := &authzv1.AccessBinding{}
-		if err := core.UnmarshalProto(document.Payload, binding); err != nil {
+		if err := foundationprotokit.Unmarshal(document.Payload, binding); err != nil {
 			return nil, err
 		}
 		if sameResource(binding.GetResource(), resource) {
@@ -355,7 +358,7 @@ func (s *Server) applyBindingsSnapshot(ctx context.Context, current []*authzv1.A
 			continue
 		}
 		desiredIDs[binding.GetBindingId()] = struct{}{}
-		if err := core.SaveProto(ctx, s.store, ydb.TableBindingOperations, binding.GetBindingId(), binding.GetResource().GetTenantId(), binding, now); err != nil {
+		if err := foundationstore.SaveProto(ctx, s.store, ydb.TableBindingOperations, binding.GetBindingId(), binding.GetResource().GetTenantId(), binding, now); err != nil {
 			return err
 		}
 	}
@@ -366,7 +369,7 @@ func (s *Server) applyBindingsSnapshot(ctx context.Context, current []*authzv1.A
 		if _, ok := desiredIDs[binding.GetBindingId()]; ok {
 			continue
 		}
-		if err := s.store.DeleteDocument(ctx, ydb.TableBindingOperations, binding.GetBindingId()); err != nil && err != core.ErrNotFound {
+		if err := s.store.DeleteDocument(ctx, ydb.TableBindingOperations, binding.GetBindingId()); err != nil && err != foundationstore.ErrNotFound {
 			return err
 		}
 	}

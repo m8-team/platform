@@ -5,17 +5,17 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	graphv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1"
-	"github.com/m8platform/platform/iam/internal/core"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 )
 
 type GraphServer struct {
 	graphv1.UnimplementedGraphServiceServer
 
-	store core.DocumentStore
+	store foundationstore.DocumentStore
 }
 
-func NewGraphServer(store core.DocumentStore) *GraphServer {
+func NewGraphServer(store foundationstore.DocumentStore) *GraphServer {
 	return &GraphServer{store: store}
 }
 

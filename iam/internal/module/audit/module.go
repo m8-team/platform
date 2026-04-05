@@ -6,8 +6,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	auditv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/audit/v1"
 	opsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/ops/v1"
-	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/audit/delivery/grpc"
 	"google.golang.org/grpc"
 )
@@ -17,7 +17,7 @@ type Module struct {
 	opsServer   *deliverygrpc.OperationsServer
 }
 
-func New(store core.DocumentStore) *Module {
+func New(store foundationstore.DocumentStore) *Module {
 	return &Module{
 		auditServer: deliverygrpc.NewAuditServer(store),
 		opsServer:   deliverygrpc.NewOperationsServer(store),

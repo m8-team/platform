@@ -9,12 +9,15 @@ import (
 
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
+	temporaladapter "github.com/m8platform/platform/iam/internal/adapter/out/temporalclient"
 	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
-	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationcontracts "github.com/m8platform/platform/iam/internal/foundation/contracts"
+	foundationprotokit "github.com/m8platform/platform/iam/internal/foundation/protokit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
+	modulaudit "github.com/m8platform/platform/iam/internal/module/audit"
 	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
 	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
-	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -25,11 +28,11 @@ type Server struct {
 	identityv1.UnimplementedIdentityServiceServer
 	identityv1.UnimplementedOAuthFacadeServiceServer
 
-	store                core.DocumentStore
-	publisher            core.EventPublisher
-	workflows            core.WorkflowStarter
-	runtime              core.AuthorizationRuntime
-	keycloak             core.KeycloakClient
+	store                foundationstore.DocumentStore
+	publisher            foundationcontracts.EventPublisher
+	workflows            foundationcontracts.WorkflowStarter
+	runtime              foundationcontracts.AuthorizationRuntime
+	keycloak             foundationcontracts.KeycloakClient
 	logger               *zap.Logger
 	now                  func() time.Time
 	topics               foundationconfig.TopicsConfig
@@ -38,11 +41,11 @@ type Server struct {
 }
 
 func NewServer(
-	store core.DocumentStore,
-	publisher core.EventPublisher,
-	workflows core.WorkflowStarter,
-	runtime core.AuthorizationRuntime,
-	keycloak core.KeycloakClient,
+	store foundationstore.DocumentStore,
+	publisher foundationcontracts.EventPublisher,
+	workflows foundationcontracts.WorkflowStarter,
+	runtime foundationcontracts.AuthorizationRuntime,
+	keycloak foundationcontracts.KeycloakClient,
 	logger *zap.Logger,
 	topics foundationconfig.TopicsConfig,
 	createServiceAccount *identityuc.CreateServiceAccountUseCase,
@@ -64,14 +67,14 @@ func NewServer(
 
 func (s *Server) GetUser(ctx context.Context, req *identityv1.GetUserRequest) (*identityv1.User, error) {
 	user := &identityv1.User{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableUsers, req.GetUserId(), user); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableUsers, req.GetUserId(), user); err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
 func (s *Server) ListUsers(ctx context.Context, req *identityv1.ListUsersRequest) (*identityv1.ListUsersResponse, error) {
-	users, next, err := core.ListProto(ctx, s.store, ydb.TableUsers, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.User {
+	users, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableUsers, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.User {
 		return &identityv1.User{}
 	})
 	if err != nil {
@@ -97,19 +100,19 @@ func (s *Server) CreateUser(ctx context.Context, req *identityv1.CreateUserReque
 		PrimaryEmail: strings.ToLower(req.GetPrimaryEmail()),
 		DisplayName:  req.GetDisplayName(),
 		State:        identityv1.UserState_USER_STATE_ACTIVE,
-		Labels:       core.LabelsFromMap(req.GetLabels()),
-		CreatedAt:    core.Timestamp(now),
-		UpdatedAt:    core.Timestamp(now),
+		Labels:       foundationprotokit.LabelsFromMap(req.GetLabels()),
+		CreatedAt:    foundationprotokit.Timestamp(now),
+		UpdatedAt:    foundationprotokit.Timestamp(now),
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableUsers, user.GetUserId(), user.GetTenantId(), user, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableUsers, user.GetUserId(), user.GetTenantId(), user, now); err != nil {
 		return nil, err
 	}
-	operation := core.NewOperation(now, user.GetTenantId(), "create_user", "user", user.GetUserId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, user.GetTenantId(), "create_user", "user", user.GetUserId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	audit := core.NewAuditEvent(now, user.GetTenantId(), "user.created", req.GetPerformedBy(), operation.GetOperationId(), "create user")
-	if err := core.PersistAuditEvent(ctx, s.store, audit, now); err != nil {
+	audit := modulaudit.NewEvent(now, user.GetTenantId(), "user.created", req.GetPerformedBy(), operation.GetOperationId(), "create user")
+	if err := modulaudit.PersistEvent(ctx, s.store, audit, now); err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -125,7 +128,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *identityv1.UpdateUserReque
 		&identityv1.User{},
 		func(current *identityv1.User, now time.Time) {
 			applyUserMask(current, req.GetUser(), req.GetUpdateMask())
-			current.UpdatedAt = core.Timestamp(now)
+			current.UpdatedAt = foundationprotokit.Timestamp(now)
 		},
 		func(current *identityv1.User) string { return current.GetUserId() },
 		func(current *identityv1.User) string { return current.GetTenantId() },
@@ -134,21 +137,21 @@ func (s *Server) UpdateUser(ctx context.Context, req *identityv1.UpdateUserReque
 
 func (s *Server) DisableUser(ctx context.Context, req *identityv1.DisableUserRequest) (*identityv1.MutateIdentityResponse, error) {
 	user := &identityv1.User{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableUsers, req.GetUserId(), user); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableUsers, req.GetUserId(), user); err != nil {
 		return nil, err
 	}
 	now := s.now()
 	user.State = identityv1.UserState_USER_STATE_DISABLED
-	user.UpdatedAt = core.Timestamp(now)
-	if err := core.SaveProto(ctx, s.store, ydb.TableUsers, user.GetUserId(), user.GetTenantId(), user, now); err != nil {
+	user.UpdatedAt = foundationprotokit.Timestamp(now)
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableUsers, user.GetUserId(), user.GetTenantId(), user, now); err != nil {
 		return nil, err
 	}
-	operation := core.NewOperation(now, user.GetTenantId(), "disable_user", "user", user.GetUserId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, user.GetTenantId(), "disable_user", "user", user.GetUserId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	audit := core.NewAuditEvent(now, user.GetTenantId(), "user.disabled", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
-	if err := core.PersistAuditEvent(ctx, s.store, audit, now); err != nil {
+	audit := modulaudit.NewEvent(now, user.GetTenantId(), "user.disabled", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason())
+	if err := modulaudit.PersistEvent(ctx, s.store, audit, now); err != nil {
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityUsers, &eventsv1.UserDisabled{
@@ -163,14 +166,14 @@ func (s *Server) DisableUser(ctx context.Context, req *identityv1.DisableUserReq
 
 func (s *Server) GetTenant(ctx context.Context, req *identityv1.GetTenantRequest) (*identityv1.Tenant, error) {
 	tenant := &identityv1.Tenant{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenantId(), tenant); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenantId(), tenant); err != nil {
 		return nil, err
 	}
 	return tenant, nil
 }
 
 func (s *Server) ListTenants(ctx context.Context, req *identityv1.ListTenantsRequest) (*identityv1.ListTenantsResponse, error) {
-	tenants, next, err := core.ListProto(ctx, s.store, ydb.TableTenants, "", int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Tenant {
+	tenants, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableTenants, "", int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Tenant {
 		return &identityv1.Tenant{}
 	})
 	if err != nil {
@@ -194,18 +197,18 @@ func (s *Server) CreateTenant(ctx context.Context, req *identityv1.CreateTenantR
 		TenantId:    req.GetTenantId(),
 		DisplayName: req.GetDisplayName(),
 		ExternalRef: req.GetExternalRef(),
-		Labels:      core.LabelsFromMap(req.GetLabels()),
-		CreatedAt:   core.Timestamp(now),
-		UpdatedAt:   core.Timestamp(now),
+		Labels:      foundationprotokit.LabelsFromMap(req.GetLabels()),
+		CreatedAt:   foundationprotokit.Timestamp(now),
+		UpdatedAt:   foundationprotokit.Timestamp(now),
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableTenants, tenant.GetTenantId(), tenant.GetTenantId(), tenant, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableTenants, tenant.GetTenantId(), tenant.GetTenantId(), tenant, now); err != nil {
 		return nil, err
 	}
-	operation := core.NewOperation(now, tenant.GetTenantId(), "create_tenant", "tenant", tenant.GetTenantId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, tenant.GetTenantId(), "create_tenant", "tenant", tenant.GetTenantId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	if err := core.PersistAuditEvent(ctx, s.store, core.NewAuditEvent(now, tenant.GetTenantId(), "tenant.created", req.GetPerformedBy(), operation.GetOperationId(), "create tenant"), now); err != nil {
+	if err := modulaudit.PersistEvent(ctx, s.store, modulaudit.NewEvent(now, tenant.GetTenantId(), "tenant.created", req.GetPerformedBy(), operation.GetOperationId(), "create tenant"), now); err != nil {
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityMemberships, &eventsv1.TenantCreated{
@@ -227,7 +230,7 @@ func (s *Server) UpdateTenant(ctx context.Context, req *identityv1.UpdateTenantR
 		&identityv1.Tenant{},
 		func(current *identityv1.Tenant, now time.Time) {
 			applyTenantMask(current, req.GetTenant(), req.GetUpdateMask())
-			current.UpdatedAt = core.Timestamp(now)
+			current.UpdatedAt = foundationprotokit.Timestamp(now)
 		},
 		func(current *identityv1.Tenant) string { return current.GetTenantId() },
 		func(current *identityv1.Tenant) string { return current.GetTenantId() },
@@ -236,25 +239,25 @@ func (s *Server) UpdateTenant(ctx context.Context, req *identityv1.UpdateTenantR
 
 func (s *Server) DeleteTenant(ctx context.Context, req *identityv1.DeleteTenantRequest) (*identityv1.MutateIdentityResponse, error) {
 	tenant := &identityv1.Tenant{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenantId(), tenant); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableTenants, req.GetTenantId(), tenant); err != nil {
 		return nil, err
 	}
 	if err := s.store.DeleteDocument(ctx, ydb.TableTenants, req.GetTenantId()); err != nil {
 		return nil, err
 	}
 	now := s.now()
-	operation := core.NewOperation(now, tenant.GetTenantId(), "delete_tenant", "tenant", tenant.GetTenantId())
-	if err := core.PersistOperation(ctx, s.store, operation, now); err != nil {
+	operation := modulaudit.NewOperation(now, tenant.GetTenantId(), "delete_tenant", "tenant", tenant.GetTenantId())
+	if err := modulaudit.PersistOperation(ctx, s.store, operation, now); err != nil {
 		return nil, err
 	}
-	if err := core.PersistAuditEvent(ctx, s.store, core.NewAuditEvent(now, tenant.GetTenantId(), "tenant.deleted", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason()), now); err != nil {
+	if err := modulaudit.PersistEvent(ctx, s.store, modulaudit.NewEvent(now, tenant.GetTenantId(), "tenant.deleted", req.GetPerformedBy(), operation.GetOperationId(), req.GetReason()), now); err != nil {
 		return nil, err
 	}
 	return &identityv1.MutateIdentityResponse{OperationId: operation.GetOperationId()}, nil
 }
 
 func (s *Server) ListMemberships(ctx context.Context, req *identityv1.ListMembershipsRequest) (*identityv1.ListMembershipsResponse, error) {
-	memberships, next, err := core.ListProto(ctx, s.store, ydb.TableMemberships, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Membership {
+	memberships, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableMemberships, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Membership {
 		return &identityv1.Membership{}
 	})
 	if err != nil {
@@ -280,10 +283,10 @@ func (s *Server) CreateMembership(ctx context.Context, req *identityv1.CreateMem
 		UserId:       req.GetUserId(),
 		RoleIds:      slices.Clone(req.GetRoleIds()),
 		State:        identityv1.MembershipState_MEMBERSHIP_STATE_ACTIVE,
-		CreatedAt:    core.Timestamp(now),
-		UpdatedAt:    core.Timestamp(now),
+		CreatedAt:    foundationprotokit.Timestamp(now),
+		UpdatedAt:    foundationprotokit.Timestamp(now),
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableMemberships, membership.GetMembershipId(), membership.GetTenantId(), membership, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableMemberships, membership.GetMembershipId(), membership.GetTenantId(), membership, now); err != nil {
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityMemberships, &eventsv1.MembershipCreated{
@@ -297,7 +300,7 @@ func (s *Server) CreateMembership(ctx context.Context, req *identityv1.CreateMem
 
 func (s *Server) DeleteMembership(ctx context.Context, req *identityv1.DeleteMembershipRequest) (*identityv1.MutateIdentityResponse, error) {
 	membership := &identityv1.Membership{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableMemberships, req.GetMembershipId(), membership); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableMemberships, req.GetMembershipId(), membership); err != nil {
 		return nil, err
 	}
 	if err := s.store.DeleteDocument(ctx, ydb.TableMemberships, req.GetMembershipId()); err != nil {
@@ -316,14 +319,14 @@ func (s *Server) DeleteMembership(ctx context.Context, req *identityv1.DeleteMem
 
 func (s *Server) GetGroup(ctx context.Context, req *identityv1.GetGroupRequest) (*identityv1.Group, error) {
 	group := &identityv1.Group{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
 		return nil, err
 	}
 	return group, nil
 }
 
 func (s *Server) ListGroups(ctx context.Context, req *identityv1.ListGroupsRequest) (*identityv1.ListGroupsResponse, error) {
-	groups, next, err := core.ListProto(ctx, s.store, ydb.TableGroups, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Group {
+	groups, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableGroups, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.Group {
 		return &identityv1.Group{}
 	})
 	if err != nil {
@@ -348,11 +351,11 @@ func (s *Server) CreateGroup(ctx context.Context, req *identityv1.CreateGroupReq
 		TenantId:    req.GetTenantId(),
 		DisplayName: req.GetDisplayName(),
 		Description: req.GetDescription(),
-		Labels:      core.LabelsFromMap(req.GetLabels()),
-		CreatedAt:   core.Timestamp(now),
-		UpdatedAt:   core.Timestamp(now),
+		Labels:      foundationprotokit.LabelsFromMap(req.GetLabels()),
+		CreatedAt:   foundationprotokit.Timestamp(now),
+		UpdatedAt:   foundationprotokit.Timestamp(now),
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableGroups, group.GetGroupId(), group.GetTenantId(), group, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableGroups, group.GetGroupId(), group.GetTenantId(), group, now); err != nil {
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.IdentityGroups, &eventsv1.GroupCreated{
@@ -374,7 +377,7 @@ func (s *Server) UpdateGroup(ctx context.Context, req *identityv1.UpdateGroupReq
 		&identityv1.Group{},
 		func(current *identityv1.Group, now time.Time) {
 			applyGroupMask(current, req.GetGroup(), req.GetUpdateMask())
-			current.UpdatedAt = core.Timestamp(now)
+			current.UpdatedAt = foundationprotokit.Timestamp(now)
 		},
 		func(current *identityv1.Group) string { return current.GetGroupId() },
 		func(current *identityv1.Group) string { return current.GetTenantId() },
@@ -383,7 +386,7 @@ func (s *Server) UpdateGroup(ctx context.Context, req *identityv1.UpdateGroupReq
 
 func (s *Server) DeleteGroup(ctx context.Context, req *identityv1.DeleteGroupRequest) (*identityv1.MutateIdentityResponse, error) {
 	group := &identityv1.Group{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
 		return nil, err
 	}
 	if err := s.store.DeleteDocument(ctx, ydb.TableGroups, req.GetGroupId()); err != nil {
@@ -398,14 +401,14 @@ func (s *Server) AddGroupMember(ctx context.Context, req *identityv1.AddGroupMem
 		GroupId:     req.GetGroupId(),
 		SubjectId:   req.GetSubjectId(),
 		SubjectType: req.GetSubjectType(),
-		CreatedAt:   core.Timestamp(now),
+		CreatedAt:   foundationprotokit.Timestamp(now),
 	}
 	memberID := groupMemberID(req.GetGroupId(), req.GetSubjectType(), req.GetSubjectId())
 	group := &identityv1.Group{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
 		return nil, err
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableGroupMembers, memberID, group.GetTenantId(), member, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableGroupMembers, memberID, group.GetTenantId(), member, now); err != nil {
 		return nil, err
 	}
 	if s.runtime != nil {
@@ -424,7 +427,7 @@ func (s *Server) AddGroupMember(ctx context.Context, req *identityv1.AddGroupMem
 
 func (s *Server) RemoveGroupMember(ctx context.Context, req *identityv1.RemoveGroupMemberRequest) (*identityv1.MutateIdentityResponse, error) {
 	group := &identityv1.Group{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableGroups, req.GetGroupId(), group); err != nil {
 		return nil, err
 	}
 	if err := s.store.DeleteDocument(ctx, ydb.TableGroupMembers, groupMemberID(req.GetGroupId(), req.GetSubjectType(), req.GetSubjectId())); err != nil {
@@ -449,14 +452,14 @@ func (s *Server) RemoveGroupMember(ctx context.Context, req *identityv1.RemoveGr
 
 func (s *Server) GetServiceAccount(ctx context.Context, req *identityv1.GetServiceAccountRequest) (*identityv1.ServiceAccount, error) {
 	account := &identityv1.ServiceAccount{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableServiceAccounts, req.GetServiceAccountId(), account); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableServiceAccounts, req.GetServiceAccountId(), account); err != nil {
 		return nil, err
 	}
 	return account, nil
 }
 
 func (s *Server) ListServiceAccounts(ctx context.Context, req *identityv1.ListServiceAccountsRequest) (*identityv1.ListServiceAccountsResponse, error) {
-	accounts, next, err := core.ListProto(ctx, s.store, ydb.TableServiceAccounts, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.ServiceAccount {
+	accounts, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableServiceAccounts, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.ServiceAccount {
 		return &identityv1.ServiceAccount{}
 	})
 	if err != nil {
@@ -500,8 +503,8 @@ func (s *Server) CreateServiceAccount(ctx context.Context, req *identityv1.Creat
 		Description:      req.GetDescription(),
 		Disabled:         false,
 		OperationId:      operationID,
-		CreatedAt:        core.Timestamp(now),
-		UpdatedAt:        core.Timestamp(now),
+		CreatedAt:        foundationprotokit.Timestamp(now),
+		UpdatedAt:        foundationprotokit.Timestamp(now),
 	}
 	if s.keycloak != nil {
 		if keycloakClientID, err := s.keycloak.CreateConfidentialClient(ctx, req.GetTenantId(), req.GetServiceAccountId(), req.GetDisplayName(), true); err == nil {
@@ -510,11 +513,11 @@ func (s *Server) CreateServiceAccount(ctx context.Context, req *identityv1.Creat
 			s.logger.Warn("keycloak client creation skipped", zap.Error(err))
 		}
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableServiceAccounts, account.GetServiceAccountId(), account.GetTenantId(), account, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableServiceAccounts, account.GetServiceAccountId(), account.GetTenantId(), account, now); err != nil {
 		return nil, err
 	}
 	if s.workflows != nil {
-		if _, err := s.workflows.StartWorkflow(ctx, temporalx.CreateServiceAccountWorkflowName, operationID, temporalx.CreateServiceAccountInput{
+		if _, err := s.workflows.StartWorkflow(ctx, temporaladapter.CreateServiceAccountWorkflowName, operationID, temporaladapter.CreateServiceAccountInput{
 			ServiceAccountID: account.GetServiceAccountId(),
 			TenantID:         account.GetTenantId(),
 			DisplayName:      account.GetDisplayName(),
@@ -543,7 +546,7 @@ func (s *Server) UpdateServiceAccount(ctx context.Context, req *identityv1.Updat
 		&identityv1.ServiceAccount{},
 		func(current *identityv1.ServiceAccount, now time.Time) {
 			applyServiceAccountMask(current, req.GetServiceAccount(), req.GetUpdateMask())
-			current.UpdatedAt = core.Timestamp(now)
+			current.UpdatedAt = foundationprotokit.Timestamp(now)
 		},
 		func(current *identityv1.ServiceAccount) string { return current.GetServiceAccountId() },
 		func(current *identityv1.ServiceAccount) string { return current.GetTenantId() },
@@ -559,14 +562,14 @@ func (s *Server) DeleteServiceAccount(ctx context.Context, req *identityv1.Delet
 
 func (s *Server) GetOAuthClient(ctx context.Context, req *identityv1.GetOAuthClientRequest) (*identityv1.OAuthClient, error) {
 	client := &identityv1.OAuthClient{}
-	if err := core.LoadProto(ctx, s.store, ydb.TableOAuthClients, req.GetOauthClientId(), client); err != nil {
+	if err := foundationstore.LoadProto(ctx, s.store, ydb.TableOAuthClients, req.GetOauthClientId(), client); err != nil {
 		return nil, err
 	}
 	return client, nil
 }
 
 func (s *Server) ListOAuthClients(ctx context.Context, req *identityv1.ListOAuthClientsRequest) (*identityv1.ListOAuthClientsResponse, error) {
-	clients, next, err := core.ListProto(ctx, s.store, ydb.TableOAuthClients, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.OAuthClient {
+	clients, next, err := foundationstore.ListProto(ctx, s.store, ydb.TableOAuthClients, req.GetTenantId(), int(req.GetPageSize()), req.GetPageToken(), func() *identityv1.OAuthClient {
 		return &identityv1.OAuthClient{}
 	})
 	if err != nil {
@@ -585,8 +588,8 @@ func (s *Server) CreateOAuthClient(ctx context.Context, req *identityv1.CreateOA
 		RedirectUris:           slices.Clone(req.GetRedirectUris()),
 		Scopes:                 slices.Clone(req.GetScopes()),
 		ServiceAccountsEnabled: req.GetServiceAccountsEnabled(),
-		CreatedAt:              core.Timestamp(now),
-		UpdatedAt:              core.Timestamp(now),
+		CreatedAt:              foundationprotokit.Timestamp(now),
+		UpdatedAt:              foundationprotokit.Timestamp(now),
 	}
 	if s.keycloak != nil {
 		if keycloakClientID, err := s.keycloak.CreateConfidentialClient(ctx, client.GetTenantId(), client.GetOauthClientId(), client.GetDisplayName(), client.GetServiceAccountsEnabled()); err == nil {
@@ -595,7 +598,7 @@ func (s *Server) CreateOAuthClient(ctx context.Context, req *identityv1.CreateOA
 			s.logger.Warn("oauth keycloak client creation skipped", zap.Error(err))
 		}
 	}
-	if err := core.SaveProto(ctx, s.store, ydb.TableOAuthClients, client.GetOauthClientId(), client.GetTenantId(), client, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, s.store, ydb.TableOAuthClients, client.GetOauthClientId(), client.GetTenantId(), client, now); err != nil {
 		return nil, err
 	}
 	if err := s.publisher.PublishProto(ctx, s.topics.OAuthClients, &eventsv1.OAuthClientCreated{
@@ -617,7 +620,7 @@ func (s *Server) UpdateOAuthClient(ctx context.Context, req *identityv1.UpdateOA
 		&identityv1.OAuthClient{},
 		func(current *identityv1.OAuthClient, now time.Time) {
 			applyOAuthClientMask(current, req.GetOauthClient(), req.GetUpdateMask())
-			current.UpdatedAt = core.Timestamp(now)
+			current.UpdatedAt = foundationprotokit.Timestamp(now)
 		},
 		func(current *identityv1.OAuthClient) string { return current.GetOauthClientId() },
 		func(current *identityv1.OAuthClient) string { return current.GetTenantId() },
@@ -659,7 +662,7 @@ func (s *Server) RotateClientSecret(ctx context.Context, req *identityv1.RotateC
 		}
 	}
 	if s.workflows != nil {
-		if _, err := s.workflows.StartWorkflow(ctx, temporalx.RotateClientSecretWorkflowName, operationID, temporalx.RotateClientSecretInput{
+		if _, err := s.workflows.StartWorkflow(ctx, temporaladapter.RotateClientSecretWorkflowName, operationID, temporaladapter.RotateClientSecretInput{
 			OAuthClientID: req.GetOauthClientId(),
 			RequestedBy:   req.GetPerformedBy(),
 			Reason:        req.GetReason(),
@@ -696,7 +699,7 @@ func applyUserMask(target *identityv1.User, patch *identityv1.User, mask *fieldm
 		case "display_name":
 			target.DisplayName = patch.GetDisplayName()
 		case "labels":
-			target.Labels = core.LabelsFromMap(patch.GetLabels())
+			target.Labels = foundationprotokit.LabelsFromMap(patch.GetLabels())
 		case "group_ids":
 			target.GroupIds = slices.Clone(patch.GetGroupIds())
 		case "state":
@@ -715,7 +718,7 @@ func applyTenantMask(target *identityv1.Tenant, patch *identityv1.Tenant, mask *
 		case "external_ref":
 			target.ExternalRef = patch.GetExternalRef()
 		case "labels":
-			target.Labels = core.LabelsFromMap(patch.GetLabels())
+			target.Labels = foundationprotokit.LabelsFromMap(patch.GetLabels())
 		}
 	})
 }
@@ -730,7 +733,7 @@ func applyGroupMask(target *identityv1.Group, patch *identityv1.Group, mask *fie
 		case "description":
 			target.Description = patch.GetDescription()
 		case "labels":
-			target.Labels = core.LabelsFromMap(patch.GetLabels())
+			target.Labels = foundationprotokit.LabelsFromMap(patch.GetLabels())
 		}
 	})
 }
@@ -772,7 +775,7 @@ func applyOAuthClientMask(target *identityv1.OAuthClient, patch *identityv1.OAut
 func newEventMeta(now time.Time, eventID string, tenantID string) *eventsv1.EventMeta {
 	return &eventsv1.EventMeta{
 		EventId:       eventID,
-		OccurredAt:    core.Timestamp(now),
+		OccurredAt:    foundationprotokit.Timestamp(now),
 		CorrelationId: eventID,
 		TenantId:      tenantID,
 	}
@@ -797,7 +800,7 @@ func replaceProtoMessage(target proto.Message, patch proto.Message) {
 
 func updateStoredProto[T proto.Message](
 	ctx context.Context,
-	store core.DocumentStore,
+	store foundationstore.DocumentStore,
 	nowFn func() time.Time,
 	table string,
 	id string,
@@ -807,14 +810,14 @@ func updateStoredProto[T proto.Message](
 	tenantID func(T) string,
 ) (T, error) {
 	var zero T
-	if err := core.LoadProto(ctx, store, table, id, target); err != nil {
+	if err := foundationstore.LoadProto(ctx, store, table, id, target); err != nil {
 		return zero, err
 	}
 
 	now := nowFn()
 	mutate(target, now)
 
-	if err := core.SaveProto(ctx, store, table, documentID(target), tenantID(target), target, now); err != nil {
+	if err := foundationstore.SaveProto(ctx, store, table, documentID(target), tenantID(target), target, now); err != nil {
 		return zero, err
 	}
 	return target, nil

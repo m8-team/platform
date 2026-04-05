@@ -4,17 +4,18 @@ import (
 	"context"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	legacycore "github.com/m8platform/platform/iam/internal/core"
+	foundationprotokit "github.com/m8platform/platform/iam/internal/foundation/protokit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 	"github.com/m8platform/platform/iam/internal/shared/principal"
 	"github.com/m8platform/platform/iam/internal/shared/resource"
 )
 
 type AccessBindingRepository struct {
-	store legacycore.DocumentStore
+	store foundationstore.DocumentStore
 }
 
-func NewAccessBindingRepository(store legacycore.DocumentStore) *AccessBindingRepository {
+func NewAccessBindingRepository(store foundationstore.DocumentStore) *AccessBindingRepository {
 	return &AccessBindingRepository{store: store}
 }
 
@@ -27,7 +28,7 @@ func (r *AccessBindingRepository) ListByResource(ctx context.Context, ref resour
 	bindings := make([]authzentity.AccessBinding, 0, len(documents))
 	for _, document := range documents {
 		record := &authzv1.AccessBinding{}
-		if err := legacycore.UnmarshalProto(document.Payload, record); err != nil {
+		if err := foundationprotokit.Unmarshal(document.Payload, record); err != nil {
 			return nil, err
 		}
 		if record.GetResource().GetType().String() != ref.Type || record.GetResource().GetId() != ref.ID {

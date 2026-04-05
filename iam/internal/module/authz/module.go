@@ -6,9 +6,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	graphv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1"
-	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationcontracts "github.com/m8platform/platform/iam/internal/foundation/contracts"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	"github.com/m8platform/platform/iam/internal/module/authz/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/authz/delivery/grpc"
 	"github.com/m8platform/platform/iam/internal/module/authz/port"
@@ -18,10 +19,10 @@ import (
 )
 
 type Dependencies struct {
-	Store         core.DocumentStore
-	Cache         core.Cache
-	Publisher     core.EventPublisher
-	Runtime       core.AuthorizationRuntime
+	Store         foundationstore.DocumentStore
+	Cache         foundationcontracts.Cache
+	Publisher     foundationcontracts.EventPublisher
+	Runtime       foundationcontracts.AuthorizationRuntime
 	Logger        *zap.Logger
 	PolicyVersion string
 	Topics        foundationconfig.TopicsConfig

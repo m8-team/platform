@@ -4,14 +4,13 @@ import (
 	"context"
 
 	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
-	"github.com/m8platform/platform/iam/internal/temporalx"
 )
 
 type IdentityWorkflowStarter struct {
-	starter *temporalx.WorkflowStarter
+	starter *WorkflowStarter
 }
 
-func NewIdentityWorkflowStarter(starter *temporalx.WorkflowStarter) *IdentityWorkflowStarter {
+func NewIdentityWorkflowStarter(starter *WorkflowStarter) *IdentityWorkflowStarter {
 	return &IdentityWorkflowStarter{starter: starter}
 }
 
@@ -19,7 +18,7 @@ func (s *IdentityWorkflowStarter) StartCreateServiceAccount(ctx context.Context,
 	if s == nil || s.starter == nil {
 		return nil
 	}
-	_, err := s.starter.StartWorkflow(ctx, temporalx.CreateServiceAccountWorkflowName, workflowIDOrDefault("create-service-account", workflow.OperationID), temporalx.CreateServiceAccountInput{
+	_, err := s.starter.StartWorkflow(ctx, CreateServiceAccountWorkflowName, workflowIDOrDefault("create-service-account", workflow.OperationID), CreateServiceAccountInput{
 		ServiceAccountID: workflow.ServiceAccountID,
 		TenantID:         workflow.TenantID,
 		DisplayName:      workflow.DisplayName,
@@ -33,7 +32,7 @@ func (s *IdentityWorkflowStarter) StartRotateOAuthClientSecret(ctx context.Conte
 	if s == nil || s.starter == nil {
 		return nil
 	}
-	_, err := s.starter.StartWorkflow(ctx, temporalx.RotateClientSecretWorkflowName, workflow.OperationID, temporalx.RotateClientSecretInput{
+	_, err := s.starter.StartWorkflow(ctx, RotateClientSecretWorkflowName, workflow.OperationID, RotateClientSecretInput{
 		OAuthClientID: workflow.OAuthClientID,
 		RequestedBy:   workflow.RequestedBy,
 		Reason:        workflow.Reason,

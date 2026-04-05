@@ -1,9 +1,9 @@
 package main
 
 import (
+	temporaladapter "github.com/m8platform/platform/iam/internal/adapter/out/temporalclient"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
 	foundationlogging "github.com/m8platform/platform/iam/internal/foundation/logging"
-	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
@@ -16,7 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	starter, err := temporalx.NewWorkflowStarter(cfg.Temporal)
+	starter, err := temporaladapter.NewWorkflowStarter(cfg.Temporal)
 	if err != nil {
 		panic(err)
 	}
@@ -37,24 +37,24 @@ func main() {
 	defer temporalClient.Close()
 
 	w := worker.New(temporalClient, cfg.Temporal.TaskQueue, worker.Options{})
-	activities := &temporalx.Activities{Logger: logger}
-	w.RegisterWorkflowWithOptions(temporalx.CreateServiceAccountWorkflow, workflow.RegisterOptions{
-		Name: temporalx.CreateServiceAccountWorkflowName,
+	activities := &temporaladapter.Activities{Logger: logger}
+	w.RegisterWorkflowWithOptions(temporaladapter.CreateServiceAccountWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.CreateServiceAccountWorkflowName,
 	})
-	w.RegisterWorkflowWithOptions(temporalx.RotateClientSecretWorkflow, workflow.RegisterOptions{
-		Name: temporalx.RotateClientSecretWorkflowName,
+	w.RegisterWorkflowWithOptions(temporaladapter.RotateClientSecretWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.RotateClientSecretWorkflowName,
 	})
-	w.RegisterWorkflowWithOptions(temporalx.GrantTemporarySupportAccessWorkflow, workflow.RegisterOptions{
-		Name: temporalx.GrantSupportAccessWorkflowName,
+	w.RegisterWorkflowWithOptions(temporaladapter.GrantTemporarySupportAccessWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.GrantSupportAccessWorkflowName,
 	})
-	w.RegisterWorkflowWithOptions(temporalx.SyncRelationshipsToSpiceDBWorkflow, workflow.RegisterOptions{
-		Name: temporalx.SyncRelationshipsWorkflowName,
+	w.RegisterWorkflowWithOptions(temporaladapter.SyncRelationshipsToSpiceDBWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.SyncRelationshipsWorkflowName,
 	})
-	w.RegisterWorkflowWithOptions(temporalx.RebuildAccessReadModelsWorkflow, workflow.RegisterOptions{
-		Name: temporalx.RebuildAccessReadModelsWorkflowName,
+	w.RegisterWorkflowWithOptions(temporaladapter.RebuildAccessReadModelsWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.RebuildAccessReadModelsWorkflowName,
 	})
-	w.RegisterWorkflowWithOptions(temporalx.ImportFederatedUserWorkflow, workflow.RegisterOptions{
-		Name: temporalx.ImportFederatedUserWorkflowName,
+	w.RegisterWorkflowWithOptions(temporaladapter.ImportFederatedUserWorkflow, workflow.RegisterOptions{
+		Name: temporaladapter.ImportFederatedUserWorkflowName,
 	})
 	w.RegisterActivity(activities)
 

@@ -15,8 +15,8 @@ import (
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
-	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
@@ -241,7 +241,7 @@ func (c *Client) DeleteGroupMembership(ctx context.Context, _ string, groupID st
 	return nil
 }
 
-func (c *Client) SyncSnapshot(ctx context.Context, store core.DocumentStore) (*SyncReport, error) {
+func (c *Client) SyncSnapshot(ctx context.Context, store foundationstore.DocumentStore) (*SyncReport, error) {
 	if store == nil {
 		return nil, errors.New("spicedb snapshot sync requires a document store")
 	}
@@ -426,12 +426,12 @@ func (c *Client) deleteResourceBindings(ctx context.Context, client *authzed.Cli
 	return nil
 }
 
-func loadAllProto[T proto.Message](ctx context.Context, store core.DocumentStore, table string, newItem func() T) ([]T, error) {
+func loadAllProto[T proto.Message](ctx context.Context, store foundationstore.DocumentStore, table string, newItem func() T) ([]T, error) {
 	pageToken := ""
 	items := make([]T, 0)
 
 	for {
-		page, nextToken, err := core.ListProto(ctx, store, table, "", 1000, pageToken, newItem)
+		page, nextToken, err := foundationstore.ListProto(ctx, store, table, "", 1000, pageToken, newItem)
 		if err != nil {
 			return nil, err
 		}

@@ -8,37 +8,38 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
-	"github.com/m8platform/platform/iam/internal/core"
+	foundationcontracts "github.com/m8platform/platform/iam/internal/foundation/contracts"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	"google.golang.org/protobuf/proto"
 )
 
 type FakeStore struct {
 	mu     sync.Mutex
-	tables map[string]map[string]core.StoredDocument
+	tables map[string]map[string]foundationstore.StoredDocument
 }
 
 func NewFakeStore() *FakeStore {
-	return &FakeStore{tables: make(map[string]map[string]core.StoredDocument)}
+	return &FakeStore{tables: make(map[string]map[string]foundationstore.StoredDocument)}
 }
 
-func (s *FakeStore) GetDocument(_ context.Context, table string, id string) (core.StoredDocument, error) {
+func (s *FakeStore) GetDocument(_ context.Context, table string, id string) (foundationstore.StoredDocument, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.tables[table] == nil {
-		return core.StoredDocument{}, core.ErrNotFound
+		return foundationstore.StoredDocument{}, foundationstore.ErrNotFound
 	}
 	document, ok := s.tables[table][id]
 	if !ok {
-		return core.StoredDocument{}, core.ErrNotFound
+		return foundationstore.StoredDocument{}, foundationstore.ErrNotFound
 	}
 	return document, nil
 }
 
-func (s *FakeStore) UpsertDocument(_ context.Context, table string, doc core.StoredDocument) error {
+func (s *FakeStore) UpsertDocument(_ context.Context, table string, doc foundationstore.StoredDocument) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.tables[table] == nil {
-		s.tables[table] = make(map[string]core.StoredDocument)
+		s.tables[table] = make(map[string]foundationstore.StoredDocument)
 	}
 	s.tables[table][doc.ID] = doc
 	return nil
@@ -48,19 +49,19 @@ func (s *FakeStore) DeleteDocument(_ context.Context, table string, id string) e
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.tables[table] == nil {
-		return core.ErrNotFound
+		return foundationstore.ErrNotFound
 	}
 	delete(s.tables[table], id)
 	return nil
 }
 
-func (s *FakeStore) ListDocuments(_ context.Context, table string, tenantID string, offset int, limit int) ([]core.StoredDocument, string, error) {
+func (s *FakeStore) ListDocuments(_ context.Context, table string, tenantID string, offset int, limit int) ([]foundationstore.StoredDocument, string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if limit <= 0 {
-		limit = core.DefaultPageSize
+		limit = foundationstore.DefaultPageSize
 	}
-	records := make([]core.StoredDocument, 0, len(s.tables[table]))
+	records := make([]foundationstore.StoredDocument, 0, len(s.tables[table]))
 	for _, document := range s.tables[table] {
 		if tenantID == "" || document.TenantID == tenantID {
 			records = append(records, document)
@@ -78,7 +79,7 @@ func (s *FakeStore) ListDocuments(_ context.Context, table string, tenantID stri
 	}
 	next := ""
 	if end < len(records) {
-		next = core.EncodePageToken(end)
+		next = foundationstore.EncodePageToken(end)
 	}
 	return records[offset:end], next, nil
 }
@@ -160,6 +161,8 @@ type FakeCache struct {
 	mu   sync.Mutex
 	data map[string]string
 }
+
+var _ foundationcontracts.Cache = (*FakeCache)(nil)
 
 func NewFakeCache() *FakeCache {
 	return &FakeCache{data: make(map[string]string)}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	legacycore "github.com/m8platform/platform/iam/internal/core"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	identityentity "github.com/m8platform/platform/iam/internal/module/iam/entity"
 )
 
@@ -21,10 +21,10 @@ type serviceAccountDocument struct {
 }
 
 type ServiceAccountRepository struct {
-	store legacycore.DocumentStore
+	store foundationstore.DocumentStore
 }
 
-func NewServiceAccountRepository(store legacycore.DocumentStore) *ServiceAccountRepository {
+func NewServiceAccountRepository(store foundationstore.DocumentStore) *ServiceAccountRepository {
 	return &ServiceAccountRepository{store: store}
 }
 
@@ -44,7 +44,7 @@ func (r *ServiceAccountRepository) Save(ctx context.Context, account identityent
 		return err
 	}
 
-	return r.store.UpsertDocument(ctx, TableServiceAccounts, legacycore.StoredDocument{
+	return r.store.UpsertDocument(ctx, TableServiceAccounts, foundationstore.StoredDocument{
 		ID:        account.ID,
 		TenantID:  account.TenantID,
 		Payload:   payload,

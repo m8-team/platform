@@ -7,7 +7,7 @@ import (
 	"syscall"
 
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/migrator"
+	"github.com/m8platform/platform/iam/internal/infrastructure/migrator"
 )
 
 func main() {

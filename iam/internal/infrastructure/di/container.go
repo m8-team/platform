@@ -15,7 +15,6 @@ import (
 	foundationlogging "github.com/m8platform/platform/iam/internal/foundation/logging"
 	foundationmetrics "github.com/m8platform/platform/iam/internal/foundation/metrics"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
-	legacykeycloak "github.com/m8platform/platform/iam/internal/keycloak"
 	modulaudit "github.com/m8platform/platform/iam/internal/module/audit"
 	modauthz "github.com/m8platform/platform/iam/internal/module/authz"
 	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
@@ -25,8 +24,6 @@ import (
 	modtenant "github.com/m8platform/platform/iam/internal/module/tenant"
 	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
 	"github.com/m8platform/platform/iam/internal/shared/clock"
-	"github.com/m8platform/platform/iam/internal/temporalx"
-	legacytopics "github.com/m8platform/platform/iam/internal/topics"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -39,8 +36,8 @@ type Container struct {
 	Metrics   *foundationmetrics.Metrics
 	Store     *ydbadapter.Client
 	Cache     *redisadapter.Cache
-	Publisher *legacytopics.Publisher
-	Workflows *temporalx.WorkflowStarter
+	Publisher *topicsadapter.Publisher
+	Workflows *temporaladapter.WorkflowStarter
 	SpiceDB   *spicedbadapter.Client
 	Modules   *modulekit.Registry
 	GRPC      *foundationgrpc.Server
@@ -71,16 +68,15 @@ func NewContainer(ctx context.Context, cfg foundationconfig.Config) (*Container,
 		return nil, err
 	}
 	cache := redisadapter.NewCache(cfg.Redis)
-	publisher := legacytopics.NewPublisher(logger)
-	keycloakClient := legacykeycloak.NewClient(cfg.Keycloak)
+	publisher := topicsadapter.NewPublisher(logger)
+	keycloakClient := keycloakadapter.NewClient(cfg.Keycloak)
 	spicedbClient := spicedbadapter.NewClient(cfg.SpiceDB)
-	workflowStarter, err := temporalx.NewWorkflowStarter(cfg.Temporal)
+	workflowStarter, err := temporaladapter.NewWorkflowStarter(cfg.Temporal)
 	if err != nil {
 		return nil, err
 	}
 
 	systemClock := clock.System{}
-	keycloakAdapter := keycloakadapter.NewClient(keycloakClient)
 	identityWorkflowStarter := temporaladapter.NewIdentityWorkflowStarter(workflowStarter)
 	serviceAccountRepository := ydbadapter.NewServiceAccountRepository(store)
 	serviceAccountEvents := topicsadapter.NewServiceAccountEventPublisher(publisher, cfg.Topics.ServiceAccounts)
@@ -88,13 +84,13 @@ func NewContainer(ctx context.Context, cfg foundationconfig.Config) (*Container,
 	createServiceAccount := identityuc.NewCreateServiceAccountUseCase(
 		systemClock,
 		serviceAccountRepository,
-		keycloakAdapter,
+		keycloakClient,
 		identityWorkflowStarter,
 		serviceAccountEvents,
 	)
 	rotateClientSecret := identityuc.NewRotateOAuthClientSecretUseCase(
 		systemClock,
-		keycloakAdapter,
+		keycloakClient,
 		identityWorkflowStarter,
 	)
 

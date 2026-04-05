@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	ydbsdk "github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 )
@@ -38,9 +38,9 @@ func (c *Client) Close(ctx context.Context) error {
 	return c.driver.Close(ctx)
 }
 
-func (c *Client) GetDocument(ctx context.Context, table string, id string) (core.StoredDocument, error) {
+func (c *Client) GetDocument(ctx context.Context, table string, id string) (foundationstore.StoredDocument, error) {
 	if c.driver == nil {
-		return core.StoredDocument{}, ErrNotConfigured
+		return foundationstore.StoredDocument{}, ErrNotConfigured
 	}
 
 	documents, err := c.queryDocuments(ctx, table, `
@@ -57,19 +57,19 @@ LIMIT 2;
 			Build(),
 	))
 	if err != nil {
-		return core.StoredDocument{}, err
+		return foundationstore.StoredDocument{}, err
 	}
 	switch len(documents) {
 	case 0:
-		return core.StoredDocument{}, core.ErrNotFound
+		return foundationstore.StoredDocument{}, foundationstore.ErrNotFound
 	case 1:
 		return documents[0], nil
 	default:
-		return core.StoredDocument{}, fmt.Errorf("document %q is not unique in %s", id, table)
+		return foundationstore.StoredDocument{}, fmt.Errorf("document %q is not unique in %s", id, table)
 	}
 }
 
-func (c *Client) UpsertDocument(ctx context.Context, table string, doc core.StoredDocument) error {
+func (c *Client) UpsertDocument(ctx context.Context, table string, doc foundationstore.StoredDocument) error {
 	if c.driver == nil {
 		return ErrNotConfigured
 	}
@@ -133,12 +133,12 @@ WHERE tenant_id = $tenant_id AND id = $id;
 	)
 }
 
-func (c *Client) ListDocuments(ctx context.Context, table string, tenantID string, offset int, limit int) ([]core.StoredDocument, string, error) {
+func (c *Client) ListDocuments(ctx context.Context, table string, tenantID string, offset int, limit int) ([]foundationstore.StoredDocument, string, error) {
 	if c.driver == nil {
 		return nil, "", ErrNotConfigured
 	}
 	if limit <= 0 {
-		limit = core.DefaultPageSize
+		limit = foundationstore.DefaultPageSize
 	}
 
 	sql := `
@@ -163,7 +163,7 @@ ORDER BY tenant_id, id;
 		return nil, "", err
 	}
 	if offset >= len(documents) {
-		return []core.StoredDocument{}, "", nil
+		return []foundationstore.StoredDocument{}, "", nil
 	}
 
 	end := offset + limit
@@ -172,12 +172,12 @@ ORDER BY tenant_id, id;
 	}
 	next := ""
 	if end < len(documents) {
-		next = core.EncodePageToken(end)
+		next = foundationstore.EncodePageToken(end)
 	}
 	return documents[offset:end], next, nil
 }
 
-func (c *Client) queryDocuments(ctx context.Context, table string, sql string, options ...query.ExecuteOption) ([]core.StoredDocument, error) {
+func (c *Client) queryDocuments(ctx context.Context, table string, sql string, options ...query.ExecuteOption) ([]foundationstore.StoredDocument, error) {
 	resultSet, err := c.driver.Query().QueryResultSet(ctx, c.prefixedSQL(sql), options...)
 	if err != nil {
 		return nil, err
@@ -186,7 +186,7 @@ func (c *Client) queryDocuments(ctx context.Context, table string, sql string, o
 		_ = resultSet.Close(ctx)
 	}()
 
-	documents := make([]core.StoredDocument, 0)
+	documents := make([]foundationstore.StoredDocument, 0)
 	for row, rowErr := range resultSet.Rows(ctx) {
 		if rowErr != nil {
 			return nil, rowErr
@@ -209,7 +209,7 @@ func (c *Client) queryDocuments(ctx context.Context, table string, sql string, o
 			return nil, fmt.Errorf("%s: %w", table, err)
 		}
 
-		documents = append(documents, core.StoredDocument{
+		documents = append(documents, foundationstore.StoredDocument{
 			ID:        id,
 			TenantID:  tenantID,
 			Payload:   []byte(payload),

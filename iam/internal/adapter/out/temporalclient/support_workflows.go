@@ -5,14 +5,13 @@ import (
 	"fmt"
 
 	tenantmodel "github.com/m8platform/platform/iam/internal/module/tenant/model"
-	"github.com/m8platform/platform/iam/internal/temporalx"
 )
 
 type SupportGrantWorkflowStarter struct {
-	starter *temporalx.WorkflowStarter
+	starter *WorkflowStarter
 }
 
-func NewSupportGrantWorkflowStarter(starter *temporalx.WorkflowStarter) *SupportGrantWorkflowStarter {
+func NewSupportGrantWorkflowStarter(starter *WorkflowStarter) *SupportGrantWorkflowStarter {
 	return &SupportGrantWorkflowStarter{starter: starter}
 }
 
@@ -20,7 +19,7 @@ func (s *SupportGrantWorkflowStarter) StartSupportGrantExpiry(ctx context.Contex
 	if s == nil || s.starter == nil {
 		return nil
 	}
-	_, err := s.starter.StartWorkflow(ctx, temporalx.GrantSupportAccessWorkflowName, fmt.Sprintf("grant-support-%s", workflow.SupportGrantID), temporalx.GrantTemporarySupportAccessInput{
+	_, err := s.starter.StartWorkflow(ctx, GrantSupportAccessWorkflowName, fmt.Sprintf("grant-support-%s", workflow.SupportGrantID), GrantTemporarySupportAccessInput{
 		SupportGrantID: workflow.SupportGrantID,
 		TenantID:       workflow.TenantID,
 		RequestedBy:    workflow.RequestedBy,

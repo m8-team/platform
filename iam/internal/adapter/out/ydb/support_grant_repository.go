@@ -6,7 +6,8 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	supportv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1"
-	legacycore "github.com/m8platform/platform/iam/internal/core"
+	foundationprotokit "github.com/m8platform/platform/iam/internal/foundation/protokit"
+	foundationstore "github.com/m8platform/platform/iam/internal/foundation/store"
 	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
 	"github.com/m8platform/platform/iam/internal/shared/principal"
 	"github.com/m8platform/platform/iam/internal/shared/resource"
@@ -15,19 +16,19 @@ import (
 )
 
 type SupportGrantRepository struct {
-	store legacycore.DocumentStore
+	store foundationstore.DocumentStore
 }
 
-func NewSupportGrantRepository(store legacycore.DocumentStore) *SupportGrantRepository {
+func NewSupportGrantRepository(store foundationstore.DocumentStore) *SupportGrantRepository {
 	return &SupportGrantRepository{store: store}
 }
 
 func (r *SupportGrantRepository) Save(ctx context.Context, grant tenantentity.SupportGrant) error {
-	payload, err := legacycore.MarshalProto(supportGrantToProto(grant))
+	payload, err := foundationprotokit.Marshal(supportGrantToProto(grant))
 	if err != nil {
 		return err
 	}
-	return r.store.UpsertDocument(ctx, TableWorkflowLocks, legacycore.StoredDocument{
+	return r.store.UpsertDocument(ctx, TableWorkflowLocks, foundationstore.StoredDocument{
 		ID:        grant.ID,
 		TenantID:  grant.TenantID,
 		Payload:   payload,
@@ -42,7 +43,7 @@ func (r *SupportGrantRepository) GetByID(ctx context.Context, supportGrantID str
 		return tenantentity.SupportGrant{}, err
 	}
 	record := &supportv1.SupportGrant{}
-	if err := legacycore.UnmarshalProto(document.Payload, record); err != nil {
+	if err := foundationprotokit.Unmarshal(document.Payload, record); err != nil {
 		return tenantentity.SupportGrant{}, err
 	}
 	return supportGrantFromProto(record), nil
@@ -50,9 +51,9 @@ func (r *SupportGrantRepository) GetByID(ctx context.Context, supportGrantID str
 
 func (r *SupportGrantRepository) ListByTenant(ctx context.Context, tenantID string, pageSize int, pageToken string) ([]tenantentity.SupportGrant, string, error) {
 	if pageSize <= 0 {
-		pageSize = legacycore.DefaultPageSize
+		pageSize = foundationstore.DefaultPageSize
 	}
-	offset := legacycore.DecodePageToken(pageToken)
+	offset := foundationstore.DecodePageToken(pageToken)
 	documents, next, err := r.store.ListDocuments(ctx, TableWorkflowLocks, tenantID, offset, pageSize)
 	if err != nil {
 		return nil, "", err
@@ -61,7 +62,7 @@ func (r *SupportGrantRepository) ListByTenant(ctx context.Context, tenantID stri
 	grants := make([]tenantentity.SupportGrant, 0, len(documents))
 	for _, document := range documents {
 		record := &supportv1.SupportGrant{}
-		if err := legacycore.UnmarshalProto(document.Payload, record); err != nil {
+		if err := foundationprotokit.Unmarshal(document.Payload, record); err != nil {
 			return nil, "", err
 		}
 		grants = append(grants, supportGrantFromProto(record))
