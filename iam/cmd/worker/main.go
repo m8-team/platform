@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/observability"
+	foundationlogging "github.com/m8platform/platform/iam/internal/foundation/logging"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
@@ -11,7 +11,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-	logger, err := observability.NewLogger(cfg.Development)
+	logger, err := foundationlogging.New(cfg.Development)
 	if err != nil {
 		panic(err)
 	}
