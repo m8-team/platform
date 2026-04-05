@@ -9,8 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/m8platform/platform/iam/internal/app"
-	"github.com/m8platform/platform/iam/internal/config"
+	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	"github.com/m8platform/platform/iam/internal/infrastructure/bootstrap"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func run() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	cfg := config.Load()
-	application, err := app.New(ctx, cfg)
+	cfg := foundationconfig.Load()
+	application, err := bootstrap.NewApplication(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("build application: %w", err)
 	}

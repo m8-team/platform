@@ -1,0 +1,342 @@
+package grpcserver
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"mime"
+	"net"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	health "google.golang.org/grpc/health"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
+)
+
+type Validator interface {
+	Validate(message proto.Message) error
+}
+
+type Server struct {
+	grpcServer   *grpc.Server
+	grpcListener net.Listener
+	httpServer   *http.Server
+	httpListener net.Listener
+	gatewayConn  *grpc.ClientConn
+	logger       *zap.Logger
+	services     []modulekit.GRPCService
+}
+
+func New(
+	grpcCfg foundationconfig.GRPCConfig,
+	httpCfg foundationconfig.HTTPConfig,
+	logger *zap.Logger,
+	validator Validator,
+	services []modulekit.GRPCService,
+) (*Server, error) {
+	grpcListener, err := net.Listen("tcp", grpcCfg.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(validationInterceptor(validator)),
+	)
+
+	for _, service := range services {
+		if service.Register != nil {
+			service.Register(grpcServer)
+		}
+	}
+
+	healthServer := health.NewServer()
+	healthServer.SetServingStatus("", healthv1.HealthCheckResponse_SERVING)
+	healthv1.RegisterHealthServer(grpcServer, healthServer)
+
+	server := &Server{
+		grpcServer:   grpcServer,
+		grpcListener: grpcListener,
+		logger:       logger,
+		services:     append([]modulekit.GRPCService(nil), services...),
+	}
+	if err := server.initHTTPGateway(httpCfg); err != nil {
+		_ = grpcListener.Close()
+		return nil, err
+	}
+
+	return server, nil
+}
+
+func (s *Server) Serve() error {
+	if s == nil {
+		return errors.New("grpc server is nil")
+	}
+
+	expected := 1
+	errCh := make(chan error, 2)
+
+	s.logger.Info("starting grpc server", zap.String("address", s.grpcListener.Addr().String()))
+	go func() {
+		errCh <- normalizeServeError(s.grpcServer.Serve(s.grpcListener))
+	}()
+
+	if s.httpServer != nil && s.httpListener != nil {
+		expected++
+		s.logger.Info("starting http gateway", zap.String("address", s.httpListener.Addr().String()))
+		go func() {
+			errCh <- normalizeServeError(s.httpServer.Serve(s.httpListener))
+		}()
+	}
+
+	for i := 0; i < expected; i++ {
+		if err := <-errCh; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	if s == nil {
+		return nil
+	}
+
+	var shutdownErr error
+	if s.httpServer != nil {
+		if err := s.httpServer.Shutdown(ctx); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			shutdownErr = errors.Join(shutdownErr, err)
+		}
+	}
+	if s.gatewayConn != nil {
+		if err := s.gatewayConn.Close(); err != nil {
+			shutdownErr = errors.Join(shutdownErr, err)
+		}
+	}
+	if s.grpcServer != nil {
+		s.grpcServer.GracefulStop()
+	}
+	if s.httpListener != nil {
+		if err := s.httpListener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+			shutdownErr = errors.Join(shutdownErr, err)
+		}
+	}
+	if s.grpcListener != nil {
+		if err := s.grpcListener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+			shutdownErr = errors.Join(shutdownErr, err)
+		}
+	}
+
+	return shutdownErr
+}
+
+func (s *Server) initHTTPGateway(cfg foundationconfig.HTTPConfig) error {
+	if strings.TrimSpace(cfg.Address) == "" {
+		return nil
+	}
+
+	httpListener, err := net.Listen("tcp", cfg.Address)
+	if err != nil {
+		return err
+	}
+
+	gatewayMux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			MarshalOptions: protojson.MarshalOptions{UseProtoNames: true},
+			UnmarshalOptions: protojson.UnmarshalOptions{
+				DiscardUnknown: true,
+			},
+		}),
+		runtime.WithErrorHandler(gatewayErrorHandler),
+	)
+
+	endpoint := localDialAddress(s.grpcListener.Addr())
+	dialOptions := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	gatewayConn, err := grpc.NewClient(endpoint, dialOptions...)
+	if err != nil {
+		_ = httpListener.Close()
+		return err
+	}
+	if err := registerGatewayHandlers(context.Background(), gatewayMux, gatewayConn, s.services); err != nil {
+		_ = gatewayConn.Close()
+		_ = httpListener.Close()
+		return err
+	}
+
+	rootMux := http.NewServeMux()
+	rootMux.Handle("/openapi/", openAPIHandler(cfg.OpenAPIDir))
+	rootMux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte("ok\n"))
+	})
+	rootMux.Handle("/", normalizeFormBody(gatewayMux))
+
+	s.gatewayConn = gatewayConn
+	s.httpListener = httpListener
+	s.httpServer = &http.Server{Handler: rootMux}
+
+	return nil
+}
+
+func registerGatewayHandlers(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn, services []modulekit.GRPCService) error {
+	for _, service := range services {
+		if service.RegisterGateway == nil {
+			continue
+		}
+		if err := service.RegisterGateway(ctx, mux, conn); err != nil {
+			return fmt.Errorf("register %s gateway: %w", service.Name, err)
+		}
+	}
+	return nil
+}
+
+func openAPIHandler(openAPIDir string) http.Handler {
+	if strings.TrimSpace(openAPIDir) == "" {
+		return http.NotFoundHandler()
+	}
+	cleanPath := filepath.Clean(openAPIDir)
+	if _, err := os.Stat(cleanPath); err != nil {
+		return http.NotFoundHandler()
+	}
+	return http.StripPrefix("/openapi/", http.FileServer(http.Dir(cleanPath)))
+}
+
+func localDialAddress(addr net.Addr) string {
+	tcpAddr, ok := addr.(*net.TCPAddr)
+	if ok {
+		return net.JoinHostPort("127.0.0.1", strconv.Itoa(tcpAddr.Port))
+	}
+	host, port, err := net.SplitHostPort(addr.String())
+	if err != nil {
+		return addr.String()
+	}
+	switch host {
+	case "", "0.0.0.0", "::", "[::]":
+		host = "127.0.0.1"
+	}
+	return net.JoinHostPort(host, port)
+}
+
+func normalizeServeError(err error) error {
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, http.ErrServerClosed):
+		return nil
+	case errors.Is(err, grpc.ErrServerStopped):
+		return nil
+	case errors.Is(err, net.ErrClosed):
+		return nil
+	default:
+		return err
+	}
+}
+
+func gatewayErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
+	if _, ok := runtime.ServerMetadataFromContext(ctx); !ok {
+		ctx = runtime.NewServerMetadataContext(ctx, runtime.ServerMetadata{})
+	}
+	runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, w, r, err)
+}
+
+func normalizeFormBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		normalized, err := rewriteFormRequest(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		next.ServeHTTP(w, normalized)
+	})
+}
+
+func rewriteFormRequest(r *http.Request) (*http.Request, error) {
+	if r == nil || r.Body == nil {
+		return r, nil
+	}
+	contentType := r.Header.Get("Content-Type")
+	if contentType == "" {
+		return r, nil
+	}
+	mediaType, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		return nil, err
+	}
+	switch mediaType {
+	case "multipart/form-data":
+		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			return nil, err
+		}
+		if r.MultipartForm != nil && len(r.MultipartForm.File) > 0 {
+			return nil, errors.New("multipart file uploads are not supported by the IAM REST gateway")
+		}
+		return formRequestWithJSONBody(r, r.MultipartForm.Value)
+	case "application/x-www-form-urlencoded":
+		if err := r.ParseForm(); err != nil {
+			return nil, err
+		}
+		return formRequestWithJSONBody(r, r.PostForm)
+	default:
+		return r, nil
+	}
+}
+
+func formRequestWithJSONBody(r *http.Request, formValues map[string][]string) (*http.Request, error) {
+	if len(formValues) == 0 {
+		r.Body = io.NopCloser(bytes.NewReader([]byte("{}")))
+		r.ContentLength = 2
+		r.Header.Set("Content-Type", "application/json")
+		return r, nil
+	}
+
+	payload := make(map[string]any, len(formValues))
+	for key, values := range formValues {
+		switch len(values) {
+		case 0:
+			payload[key] = ""
+		case 1:
+			payload[key] = values[0]
+		default:
+			copied := make([]string, len(values))
+			copy(copied, values)
+			payload[key] = copied
+		}
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+	r.Body = io.NopCloser(bytes.NewReader(body))
+	r.ContentLength = int64(len(body))
+	r.Header.Set("Content-Type", "application/json")
+	return r, nil
+}
+
+func validationInterceptor(validator Validator) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		if validator != nil {
+			if message, ok := req.(proto.Message); ok {
+				if err := validator.Validate(message); err != nil {
+					return nil, status.Error(codes.InvalidArgument, info.FullMethod+": "+err.Error())
+				}
+			}
+		}
+		return handler(ctx, req)
+	}
+}
