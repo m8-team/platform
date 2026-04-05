@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package m8.platform.extension.v1;
+
+import "google/protobuf/descriptor.proto";
+
+// topic declares the Kafka topic that receives aggregate change events for a message.
+extend google.protobuf.MessageOptions {
+  string topic = 50001;
+}

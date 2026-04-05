@@ -5,62 +5,53 @@ package m8.platform.organization.v1;
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
+import "m8/platform/extension/v1/extension.proto";
 
-// Organization stores canonical organization metadata.
+// Organization stores canonical organization metadata for the organization aggregate.
 message Organization {
+  option (m8.platform.extension.v1.topic) = "m8.platform.organization.organizations.v1";
 
   // OrganizationState describes the lifecycle state of an organization aggregate.
   enum State {
+    // Invalid persisted value. Requests must not use this state.
     STATE_UNSPECIFIED = 0;
+    // Organization is being provisioned and is not fully ready yet.
     CREATING = 1;
+    // Organization is active and can be used normally.
     ACTIVE = 2;
+    // Organization exists but is temporarily inactive.
     INACTIVE = 3;
+    // Organization is soft-deleted.
     DELETED = 4;
   }
 
-  // Stable aggregate identifier.
+  // Stable system-assigned aggregate identifier.
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // System name, expected length: 3..63 characters.
+  // Stable organization name. Expected length: 3..63 characters.
   string name = 2 [(buf.validate.field).string = {
-    min_len: 3,
+    min_len: 3
     max_len: 63
   }];
 
-  // Aggregate lifecycle state.
+  // Lifecycle state of the organization aggregate.
   State state = 3 [(buf.validate.field).enum = {
-    defined_only: true,
+    defined_only: true
     not_in: [0]
   }];
 
-  // Human-readable title, expected length: 0..256 characters.
+  // Human-readable title. Expected length: 0..256 characters.
   string title = 4 [(buf.validate.field).string.max_len = 256];
 
-  // Optional description, expected length: 0..256 characters.
+  // Optional description. Expected length: 0..256 characters.
   string description = 5 [(buf.validate.field).string.max_len = 256];
 
-  // Aggregate creation time.
+  // Time when the organization was created. Output only. Rendered as RFC3339 in JSON.
   google.protobuf.Timestamp created_at = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Aggregate last update time.
+  // Time of the most recent organization update. Output only. Rendered as RFC3339 in JSON.
   google.protobuf.Timestamp updated_at = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Aggregate deletion time, set when state becomes DELETED.
+  // Time when the organization was deleted. Set only when state becomes DELETED. Output only.
   google.protobuf.Timestamp deleted_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Resource labels as key:value pairs, maximum 64 pairs.
-  map<string, string> labels = 9 [(buf.validate.field).map = {
-    max_pairs: 64,
-    keys: {
-      string: {
-        min_len: 1,
-        max_len: 63
-      }
-    },
-    values: {
-      string: {
-        max_len: 63
-      }
-    }
-  }];
 }
