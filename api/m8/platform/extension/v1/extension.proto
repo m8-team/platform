@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package m8.platform.extension.v1;
 
+option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1;extensionv1";
+
 import "google/protobuf/descriptor.proto";
 
 // topic declares the Kafka topic that receives aggregate change events for a message.
