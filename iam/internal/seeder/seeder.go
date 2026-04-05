@@ -13,14 +13,13 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
+	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
 	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/storage/ydb"
-	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 
 type Runner struct {
-	store   *ydbstore.Client
+	store   *ydb.Client
 	seedDir string
 }
 
@@ -137,7 +136,7 @@ func New(cfg config.YDBConfig, seedDir string) (*Runner, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	store, err := ydbstore.Open(ctx, cfg)
+	store, err := ydb.Open(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}

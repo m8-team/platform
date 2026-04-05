@@ -10,7 +10,6 @@ import (
 	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
 	"github.com/m8platform/platform/iam/internal/shared/principal"
 	"github.com/m8platform/platform/iam/internal/shared/resource"
-	legacystorage "github.com/m8platform/platform/iam/internal/storage/ydb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -28,7 +27,7 @@ func (r *SupportGrantRepository) Save(ctx context.Context, grant tenantentity.Su
 	if err != nil {
 		return err
 	}
-	return r.store.UpsertDocument(ctx, legacystorage.TableWorkflowLocks, legacycore.StoredDocument{
+	return r.store.UpsertDocument(ctx, TableWorkflowLocks, legacycore.StoredDocument{
 		ID:        grant.ID,
 		TenantID:  grant.TenantID,
 		Payload:   payload,
@@ -38,7 +37,7 @@ func (r *SupportGrantRepository) Save(ctx context.Context, grant tenantentity.Su
 }
 
 func (r *SupportGrantRepository) GetByID(ctx context.Context, supportGrantID string) (tenantentity.SupportGrant, error) {
-	document, err := r.store.GetDocument(ctx, legacystorage.TableWorkflowLocks, supportGrantID)
+	document, err := r.store.GetDocument(ctx, TableWorkflowLocks, supportGrantID)
 	if err != nil {
 		return tenantentity.SupportGrant{}, err
 	}
@@ -54,7 +53,7 @@ func (r *SupportGrantRepository) ListByTenant(ctx context.Context, tenantID stri
 		pageSize = legacycore.DefaultPageSize
 	}
 	offset := legacycore.DecodePageToken(pageToken)
-	documents, next, err := r.store.ListDocuments(ctx, legacystorage.TableWorkflowLocks, tenantID, offset, pageSize)
+	documents, next, err := r.store.ListDocuments(ctx, TableWorkflowLocks, tenantID, offset, pageSize)
 	if err != nil {
 		return nil, "", err
 	}

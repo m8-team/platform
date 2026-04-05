@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
+	"github.com/m8platform/platform/iam/internal/adapter/out/spicedb"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/spicedb"
 	"github.com/m8platform/platform/iam/internal/testutil"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

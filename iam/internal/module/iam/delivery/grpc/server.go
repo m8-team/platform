@@ -9,11 +9,11 @@ import (
 
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
+	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
 	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
 	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
 	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
-	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"

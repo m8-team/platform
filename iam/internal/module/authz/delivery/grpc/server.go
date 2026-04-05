@@ -11,6 +11,9 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
+	redisstore "github.com/m8platform/platform/iam/internal/adapter/out/redis"
+	legacyspicedb "github.com/m8platform/platform/iam/internal/adapter/out/spicedb"
+	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
 	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
@@ -19,9 +22,6 @@ import (
 	authzuc "github.com/m8platform/platform/iam/internal/module/authz/usecase"
 	"github.com/m8platform/platform/iam/internal/shared/principal"
 	"github.com/m8platform/platform/iam/internal/shared/resource"
-	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
-	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
-	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	"go.uber.org/zap"
 )
 

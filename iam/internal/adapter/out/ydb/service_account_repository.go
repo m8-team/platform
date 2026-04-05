@@ -6,7 +6,6 @@ import (
 
 	legacycore "github.com/m8platform/platform/iam/internal/core"
 	identityentity "github.com/m8platform/platform/iam/internal/module/iam/entity"
-	"github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 
 type serviceAccountDocument struct {
@@ -45,7 +44,7 @@ func (r *ServiceAccountRepository) Save(ctx context.Context, account identityent
 		return err
 	}
 
-	return r.store.UpsertDocument(ctx, ydb.TableServiceAccounts, legacycore.StoredDocument{
+	return r.store.UpsertDocument(ctx, TableServiceAccounts, legacycore.StoredDocument{
 		ID:        account.ID,
 		TenantID:  account.TenantID,
 		Payload:   payload,

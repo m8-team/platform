@@ -8,7 +8,6 @@ import (
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 	"github.com/m8platform/platform/iam/internal/shared/principal"
 	"github.com/m8platform/platform/iam/internal/shared/resource"
-	legacystorage "github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 
 type AccessBindingRepository struct {
@@ -20,7 +19,7 @@ func NewAccessBindingRepository(store legacycore.DocumentStore) *AccessBindingRe
 }
 
 func (r *AccessBindingRepository) ListByResource(ctx context.Context, ref resource.Ref) ([]authzentity.AccessBinding, error) {
-	documents, _, err := r.store.ListDocuments(ctx, legacystorage.TableBindingOperations, ref.TenantID, 0, 1000)
+	documents, _, err := r.store.ListDocuments(ctx, TableBindingOperations, ref.TenantID, 0, 1000)
 	if err != nil {
 		return nil, err
 	}

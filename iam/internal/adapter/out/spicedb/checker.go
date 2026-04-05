@@ -10,14 +10,13 @@ import (
 	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
 	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
-	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
 )
 
 type AuthorizationChecker struct {
-	client *legacyspicedb.Client
+	client *Client
 }
 
-func NewAuthorizationChecker(client *legacyspicedb.Client) *AuthorizationChecker {
+func NewAuthorizationChecker(client *Client) *AuthorizationChecker {
 	return &AuthorizationChecker{client: client}
 }
 
@@ -50,7 +49,7 @@ func (c *AuthorizationChecker) CheckAccess(ctx context.Context, query authzmodel
 		CaveatContext: caveatContext,
 	})
 	if err != nil {
-		if errors.Is(err, legacyspicedb.ErrNotConfigured) || errors.Is(err, legacyspicedb.ErrNotImplemented) {
+		if errors.Is(err, ErrNotConfigured) || errors.Is(err, ErrNotImplemented) {
 			return authzmodel.AccessCheckResult{}, authzport.ErrAuthorizationUnavailable
 		}
 		return authzmodel.AccessCheckResult{}, err

@@ -9,14 +9,14 @@ import (
 
 	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/ydb-platform/ydb-go-sdk/v3"
+	ydbsdk "github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 )
 
 var ErrNotConfigured = errors.New("ydb document store is not configured")
 
 type Client struct {
-	driver       *ydb.Driver
+	driver       *ydbsdk.Driver
 	databaseName string
 }
 
@@ -24,7 +24,7 @@ func Open(ctx context.Context, cfg config.YDBConfig) (*Client, error) {
 	if cfg.DSN == "" {
 		return &Client{}, nil
 	}
-	driver, err := ydb.Open(ctx, cfg.DSN)
+	driver, err := ydbsdk.Open(ctx, cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ WHERE id = $id
 ORDER BY tenant_id, id
 LIMIT 2;
 `, query.WithParameters(
-		ydb.ParamsBuilder().
+		ydbsdk.ParamsBuilder().
 			Param("$id").Text(id).
 			Build(),
 	))
@@ -95,7 +95,7 @@ VALUES ($id, $tenant_id, $payload, $created_at, $updated_at);
 `
 	return c.driver.Query().Exec(ctx, c.prefixedSQL(sql),
 		query.WithParameters(
-			ydb.ParamsBuilder().
+			ydbsdk.ParamsBuilder().
 				Param("$id").Text(doc.ID).
 				Param("$tenant_id").Text(doc.TenantID).
 				Param("$payload").JSONDocumentFromBytes(doc.Payload).
@@ -125,7 +125,7 @@ WHERE tenant_id = $tenant_id AND id = $id;
 `
 	return c.driver.Query().Exec(ctx, c.prefixedSQL(sql),
 		query.WithParameters(
-			ydb.ParamsBuilder().
+			ydbsdk.ParamsBuilder().
 				Param("$id").Text(document.ID).
 				Param("$tenant_id").Text(document.TenantID).
 				Build(),
@@ -149,7 +149,7 @@ FROM ` + quoteTable(table)
 		sql += `
 WHERE tenant_id = $tenant_id`
 		options = append(options, query.WithParameters(
-			ydb.ParamsBuilder().
+			ydbsdk.ParamsBuilder().
 				Param("$tenant_id").Text(tenantID).
 				Build(),
 		))

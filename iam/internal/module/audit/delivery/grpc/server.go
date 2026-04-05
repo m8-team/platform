@@ -5,8 +5,8 @@ import (
 
 	auditv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/audit/v1"
 	opsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/ops/v1"
+	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
 	"github.com/m8platform/platform/iam/internal/core"
-	"github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 
 type AuditServer struct {

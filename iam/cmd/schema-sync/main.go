@@ -6,9 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	spicedb "github.com/m8platform/platform/iam/internal/adapter/out/spicedb"
+	ydb "github.com/m8platform/platform/iam/internal/adapter/out/ydb"
 	"github.com/m8platform/platform/iam/internal/foundation/config"
-	"github.com/m8platform/platform/iam/internal/spicedb"
-	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		return
 	}
 
-	store, err := ydbstore.Open(ctx, cfg.YDB)
+	store, err := ydb.Open(ctx, cfg.YDB)
 	if err != nil {
 		log.Fatal(err)
 	}

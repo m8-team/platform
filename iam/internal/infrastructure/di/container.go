@@ -25,9 +25,6 @@ import (
 	modtenant "github.com/m8platform/platform/iam/internal/module/tenant"
 	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
 	"github.com/m8platform/platform/iam/internal/shared/clock"
-	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
-	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
-	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	legacytopics "github.com/m8platform/platform/iam/internal/topics"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,11 +37,11 @@ type Container struct {
 	Logger    *zap.Logger
 	Validator foundationgrpc.Validator
 	Metrics   *foundationmetrics.Metrics
-	Store     *ydbstore.Client
-	Cache     *redisstore.Cache
+	Store     *ydbadapter.Client
+	Cache     *redisadapter.Cache
 	Publisher *legacytopics.Publisher
 	Workflows *temporalx.WorkflowStarter
-	SpiceDB   *legacyspicedb.Client
+	SpiceDB   *spicedbadapter.Client
 	Modules   *modulekit.Registry
 	GRPC      *foundationgrpc.Server
 }
@@ -69,14 +66,14 @@ func NewContainer(ctx context.Context, cfg foundationconfig.Config) (*Container,
 	}
 	validation := validatorAdapter{inner: validator}
 
-	store, err := ydbstore.Open(ctx, cfg.YDB)
+	store, err := ydbadapter.Open(ctx, cfg.YDB)
 	if err != nil {
 		return nil, err
 	}
-	cache := redisstore.NewCache(cfg.Redis)
+	cache := redisadapter.NewCache(cfg.Redis)
 	publisher := legacytopics.NewPublisher(logger)
 	keycloakClient := legacykeycloak.NewClient(cfg.Keycloak)
-	spicedbClient := legacyspicedb.NewClient(cfg.SpiceDB)
+	spicedbClient := spicedbadapter.NewClient(cfg.SpiceDB)
 	workflowStarter, err := temporalx.NewWorkflowStarter(cfg.Temporal)
 	if err != nil {
 		return nil, err

@@ -7,15 +7,14 @@ import (
 	"time"
 
 	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
-	legacyredis "github.com/m8platform/platform/iam/internal/storage/redis"
 )
 
 type AccessDecisionCache struct {
-	cache         *legacyredis.Cache
+	cache         *Cache
 	policyVersion string
 }
 
-func NewAccessDecisionCache(cache *legacyredis.Cache, policyVersion string) *AccessDecisionCache {
+func NewAccessDecisionCache(cache *Cache, policyVersion string) *AccessDecisionCache {
 	return &AccessDecisionCache{
 		cache:         cache,
 		policyVersion: policyVersion,
