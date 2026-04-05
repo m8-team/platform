@@ -5,31 +5,53 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	legacyauthz "github.com/m8platform/platform/iam/internal/authz"
+	graphv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1"
+	"github.com/m8platform/platform/iam/internal/core"
+	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
 	"github.com/m8platform/platform/iam/internal/module/authz/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/authz/delivery/grpc"
 	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
 	"github.com/m8platform/platform/iam/internal/usecase/port"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
 type Dependencies struct {
-	LegacyService *legacyauthz.Service
+	Store         core.DocumentStore
+	Cache         core.Cache
+	Publisher     core.EventPublisher
+	Runtime       core.AuthorizationRuntime
+	Logger        *zap.Logger
+	PolicyVersion string
+	Topics        foundationconfig.TopicsConfig
 	CheckAccess   *authzuc.CheckAccessUseCase
 	Bindings      port.AccessBindingRepository
 	Roles         port.RolePermissionResolver
 }
 
 type Module struct {
-	server *deliverygrpc.Server
-	facade api.Facade
+	server      *deliverygrpc.Server
+	graphServer *deliverygrpc.GraphServer
+	facade      api.Facade
 }
 
 func New(deps Dependencies) *Module {
 	return &Module{
-		server: deliverygrpc.NewServer(deps.LegacyService, deps.CheckAccess, deps.Bindings, deps.Roles),
-		facade: api.New(deps.CheckAccess),
+		server: deliverygrpc.NewServer(
+			deps.Store,
+			deps.Cache,
+			deps.Publisher,
+			deps.Runtime,
+			deps.Logger,
+			deps.PolicyVersion,
+			deps.Topics,
+			deps.CheckAccess,
+			deps.Bindings,
+			deps.Roles,
+		),
+		graphServer: deliverygrpc.NewGraphServer(deps.Store),
+		facade:      api.New(deps.CheckAccess),
 	}
 }
 
@@ -54,9 +76,13 @@ func (m *Module) RegisterGRPC(reg modulekit.GRPCRegistrar) {
 		Name: "authz.authorization",
 		Register: func(s grpc.ServiceRegistrar) {
 			authzv1.RegisterAuthorizationFacadeServiceServer(s, m.server)
+			graphv1.RegisterGraphServiceServer(s, m.graphServer)
 		},
 		RegisterGateway: func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-			return authzv1.RegisterAuthorizationFacadeServiceHandler(ctx, mux, conn)
+			if err := authzv1.RegisterAuthorizationFacadeServiceHandler(ctx, mux, conn); err != nil {
+				return err
+			}
+			return graphv1.RegisterGraphServiceHandler(ctx, mux, conn)
 		},
 	})
 }

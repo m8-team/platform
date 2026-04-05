@@ -5,18 +5,23 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	auditv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/audit/v1"
-	legacyaudit "github.com/m8platform/platform/iam/internal/audit"
+	opsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/ops/v1"
+	"github.com/m8platform/platform/iam/internal/core"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/audit/delivery/grpc"
 	"google.golang.org/grpc"
 )
 
 type Module struct {
-	server *deliverygrpc.Server
+	auditServer *deliverygrpc.AuditServer
+	opsServer   *deliverygrpc.OperationsServer
 }
 
-func New(service *legacyaudit.Service) *Module {
-	return &Module{server: deliverygrpc.NewServer(service)}
+func New(store core.DocumentStore) *Module {
+	return &Module{
+		auditServer: deliverygrpc.NewAuditServer(store),
+		opsServer:   deliverygrpc.NewOperationsServer(store),
+	}
 }
 
 func (m *Module) Name() string {
@@ -26,16 +31,20 @@ func (m *Module) Name() string {
 func (m *Module) RegisterHTTP(reg modulekit.HTTPRegistrar) {}
 
 func (m *Module) RegisterGRPC(reg modulekit.GRPCRegistrar) {
-	if m == nil || m.server == nil {
+	if m == nil || m.auditServer == nil || m.opsServer == nil {
 		return
 	}
 	reg.RegisterGRPCService(modulekit.GRPCService{
 		Name: "audit",
 		Register: func(s grpc.ServiceRegistrar) {
-			auditv1.RegisterAuditServiceServer(s, m.server)
+			auditv1.RegisterAuditServiceServer(s, m.auditServer)
+			opsv1.RegisterOperationsServiceServer(s, m.opsServer)
 		},
 		RegisterGateway: func(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-			return auditv1.RegisterAuditServiceHandler(ctx, mux, conn)
+			if err := auditv1.RegisterAuditServiceHandler(ctx, mux, conn); err != nil {
+				return err
+			}
+			return opsv1.RegisterOperationsServiceHandler(ctx, mux, conn)
 		},
 	})
 }

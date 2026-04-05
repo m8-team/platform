@@ -1,27 +1,26 @@
-package graph
+package grpc
 
 import (
 	"context"
 
-	authzsvc "github.com/m8platform/platform/iam/internal/authz"
-
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	graphv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1"
 	"github.com/m8platform/platform/iam/internal/core"
+	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
 )
 
-type Service struct {
+type GraphServer struct {
 	graphv1.UnimplementedGraphServiceServer
 
 	store core.DocumentStore
 }
 
-func NewService(store core.DocumentStore) *Service {
-	return &Service{store: store}
+func NewGraphServer(store core.DocumentStore) *GraphServer {
+	return &GraphServer{store: store}
 }
 
-func (s *Service) ListSubjectAccessBindings(ctx context.Context, req *graphv1.ListSubjectAccessBindingsRequest) (*graphv1.ListSubjectAccessBindingsResponse, error) {
-	bindings, err := authzsvc.ListBindingsForSubject(ctx, s.store, req.GetSubject())
+func (s *GraphServer) ListSubjectAccessBindings(ctx context.Context, req *graphv1.ListSubjectAccessBindingsRequest) (*graphv1.ListSubjectAccessBindingsResponse, error) {
+	bindings, err := ListBindingsForSubject(ctx, s.store, req.GetSubject())
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +38,8 @@ func (s *Service) ListSubjectAccessBindings(ctx context.Context, req *graphv1.Li
 	return &graphv1.ListSubjectAccessBindingsResponse{Bindings: bindings, ExplainEdges: edges}, nil
 }
 
-func (s *Service) ListResourceSubjects(ctx context.Context, req *graphv1.ListResourceSubjectsRequest) (*graphv1.ListResourceSubjectsResponse, error) {
-	bindings, err := authzsvc.ListBindingsForResource(ctx, s.store, req.GetResource())
+func (s *GraphServer) ListResourceSubjects(ctx context.Context, req *graphv1.ListResourceSubjectsRequest) (*graphv1.ListResourceSubjectsResponse, error) {
+	bindings, err := ListBindingsForResource(ctx, s.store, req.GetResource())
 	if err != nil {
 		return nil, err
 	}
@@ -51,17 +50,15 @@ func (s *Service) ListResourceSubjects(ctx context.Context, req *graphv1.ListRes
 	return &graphv1.ListResourceSubjectsResponse{Subjects: subjects, Bindings: bindings}, nil
 }
 
-func (s *Service) SimulateChangeImpact(_ context.Context, req *graphv1.SimulateChangeImpactRequest) (*graphv1.SimulateChangeImpactResponse, error) {
+func (s *GraphServer) SimulateChangeImpact(_ context.Context, req *graphv1.SimulateChangeImpactRequest) (*graphv1.SimulateChangeImpactResponse, error) {
 	impacts := make([]*graphv1.ChangeImpact, 0, len(req.GetDelta().GetMutations()))
 	for _, mutation := range req.GetDelta().GetMutations() {
-		impact := &graphv1.ChangeImpact{
-			Subject: mutation.GetBinding().GetSubject(),
-		}
+		impact := &graphv1.ChangeImpact{Subject: mutation.GetBinding().GetSubject()}
 		switch mutation.GetKind() {
 		case authzv1.BindingMutationKind_BINDING_MUTATION_KIND_ADD:
-			impact.AddedPermissions = authzsvc.PermissionsForRole(mutation.GetBinding().GetRoleId())
+			impact.AddedPermissions = authzentity.PermissionsForRole(mutation.GetBinding().GetRoleId())
 		case authzv1.BindingMutationKind_BINDING_MUTATION_KIND_REMOVE:
-			impact.RemovedPermissions = authzsvc.PermissionsForRole(mutation.GetBinding().GetRoleId())
+			impact.RemovedPermissions = authzentity.PermissionsForRole(mutation.GetBinding().GetRoleId())
 		}
 		impacts = append(impacts, impact)
 	}

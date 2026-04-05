@@ -1,4 +1,4 @@
-package authz
+package grpc
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	"github.com/m8platform/platform/iam/internal/config"
+	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/m8platform/platform/iam/internal/spicedb"
 	"github.com/m8platform/platform/iam/internal/testutil"
 	"go.uber.org/zap"
@@ -17,8 +17,7 @@ import (
 func TestSetBindingsFallbackCheckAndExplain(t *testing.T) {
 	store := testutil.NewFakeStore()
 	publisher := &testutil.FakePublisher{}
-	cache := testutil.NewFakeCache()
-	service := NewService(store, cache, publisher, nil, zap.NewNop(), config.Load())
+	service := NewServer(store, testutil.NewFakeCache(), publisher, nil, zap.NewNop(), foundationconfig.Load().Redis.PolicyVersion, foundationconfig.Load().Topics, nil, nil, nil)
 
 	binding := &authzv1.AccessBinding{
 		BindingId: "bind-1",
@@ -82,7 +81,7 @@ func TestCheckAccessLogsExpectedSpiceDBFallbackOnceAsInfo(t *testing.T) {
 	publisher := &testutil.FakePublisher{}
 	runtime := &testutil.FakeAuthorizationRuntime{Err: spicedb.ErrNotImplemented}
 	core, observed := observer.New(zapcore.InfoLevel)
-	service := NewService(store, nil, publisher, runtime, zap.New(core), config.Load())
+	service := NewServer(store, nil, publisher, runtime, zap.New(core), foundationconfig.Load().Redis.PolicyVersion, foundationconfig.Load().Topics, nil, nil, nil)
 
 	binding := &authzv1.AccessBinding{
 		BindingId: "bind-expected-fallback",
@@ -146,7 +145,7 @@ func TestCheckAccessSkipsCacheWhenRuntimeIsConfigured(t *testing.T) {
 			ZedToken:   "zed-1",
 		},
 	}
-	service := NewService(store, cache, publisher, runtime, zap.NewNop(), config.Load())
+	service := NewServer(store, cache, publisher, runtime, zap.NewNop(), foundationconfig.Load().Redis.PolicyVersion, foundationconfig.Load().Topics, nil, nil, nil)
 
 	req := &authzv1.CheckAccessRequest{
 		Subject: &authzv1.SubjectRef{
@@ -193,7 +192,7 @@ func TestCheckAccessSkipsCacheWhenRuntimeIsConfigured(t *testing.T) {
 func TestSetAccessBindingsReplacesExistingSnapshotInStore(t *testing.T) {
 	store := testutil.NewFakeStore()
 	publisher := &testutil.FakePublisher{}
-	service := NewService(store, nil, publisher, nil, zap.NewNop(), config.Load())
+	service := NewServer(store, nil, publisher, nil, zap.NewNop(), foundationconfig.Load().Redis.PolicyVersion, foundationconfig.Load().Topics, nil, nil, nil)
 
 	resource := &authzv1.ResourceRef{
 		Type:     authzv1.ResourceType_RESOURCE_TYPE_PROJECT,
@@ -258,7 +257,7 @@ func TestSetAccessBindingsRollsBackOnSpiceDBSyncFailure(t *testing.T) {
 	store := testutil.NewFakeStore()
 	publisher := &testutil.FakePublisher{}
 	runtime := &testutil.FakeAuthorizationRuntime{SyncErr: errors.New("spicedb unavailable")}
-	service := NewService(store, nil, publisher, runtime, zap.NewNop(), config.Load())
+	service := NewServer(store, nil, publisher, runtime, zap.NewNop(), foundationconfig.Load().Redis.PolicyVersion, foundationconfig.Load().Topics, nil, nil, nil)
 
 	resource := &authzv1.ResourceRef{
 		Type:     authzv1.ResourceType_RESOURCE_TYPE_PROJECT,

@@ -7,7 +7,6 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	legacyauthz "github.com/m8platform/platform/iam/internal/authz"
 	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
 	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
 	"github.com/m8platform/platform/iam/internal/usecase/model"
@@ -106,5 +105,5 @@ func permissionDecisionFromProto(value authzv1.PermissionDecision) authzentity.P
 type RolePermissionResolver struct{}
 
 func (RolePermissionResolver) Permissions(roleID string) []string {
-	return legacyauthz.PermissionsForRole(roleID)
+	return authzentity.PermissionsForRole(roleID)
 }

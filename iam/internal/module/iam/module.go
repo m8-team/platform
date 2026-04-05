@@ -5,8 +5,9 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
+	"github.com/m8platform/platform/iam/internal/core"
+	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
-	legacyidentity "github.com/m8platform/platform/iam/internal/identity"
 	"github.com/m8platform/platform/iam/internal/module/iam/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/iam/delivery/grpc"
 	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
@@ -15,8 +16,13 @@ import (
 )
 
 type Dependencies struct {
-	LegacyService           *legacyidentity.Service
+	Store                   core.DocumentStore
+	Publisher               core.EventPublisher
+	Workflows               core.WorkflowStarter
+	Runtime                 core.AuthorizationRuntime
+	Keycloak                core.KeycloakClient
 	Logger                  *zap.Logger
+	Topics                  foundationconfig.TopicsConfig
 	CreateServiceAccount    *identityuc.CreateServiceAccountUseCase
 	RotateOAuthClientSecret *identityuc.RotateOAuthClientSecretUseCase
 }
@@ -29,8 +35,13 @@ type Module struct {
 func New(deps Dependencies) *Module {
 	return &Module{
 		server: deliverygrpc.NewServer(
-			deps.LegacyService,
+			deps.Store,
+			deps.Publisher,
+			deps.Workflows,
+			deps.Runtime,
+			deps.Keycloak,
 			deps.Logger,
+			deps.Topics,
 			deps.CreateServiceAccount,
 			deps.RotateOAuthClientSecret,
 		),

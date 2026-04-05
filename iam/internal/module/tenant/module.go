@@ -9,14 +9,12 @@ import (
 	"github.com/m8platform/platform/iam/internal/module/tenant/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/tenant/delivery/grpc"
 	deliverytopic "github.com/m8platform/platform/iam/internal/module/tenant/delivery/topic"
-	legacysupport "github.com/m8platform/platform/iam/internal/support"
 	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
 type Dependencies struct {
-	LegacyService *legacysupport.Service
 	Logger        *zap.Logger
 	SupportAccess *tenantuc.SupportAccessUseCase
 }
@@ -29,7 +27,7 @@ type Module struct {
 
 func New(deps Dependencies) *Module {
 	return &Module{
-		server:   deliverygrpc.NewServer(deps.LegacyService, deps.Logger, deps.SupportAccess),
+		server:   deliverygrpc.NewServer(deps.Logger, deps.SupportAccess),
 		facade:   api.New(deps.SupportAccess),
 		consumer: deliverytopic.NewSupportAccessConsumer(deps.SupportAccess),
 	}
