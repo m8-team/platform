@@ -1,4 +1,4 @@
-// Support access API contracts for temporary elevated support workflows.
+  // Support access API contracts for temporary elevated support workflows.
 syntax = "proto3";
 
 package saas.iam.support.v1;
