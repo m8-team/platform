@@ -59,4 +59,9 @@ message Organization {
   // Time when the organization was soft-deleted. Unset until state becomes DELETED.
   // Output only. Rendered as RFC3339 in JSON.
   google.protobuf.Timestamp deleted_at = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Aggregate version used for optimistic concurrency control.
+  // Starts at 1 on creation and is incremented after each successful state change.
+  // Output only.
+  uint64 version = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
