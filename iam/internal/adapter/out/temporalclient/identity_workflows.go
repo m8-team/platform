@@ -3,8 +3,8 @@ package temporalclient
 import (
 	"context"
 
+	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
 	"github.com/m8platform/platform/iam/internal/temporalx"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
 )
 
 type IdentityWorkflowStarter struct {
@@ -15,7 +15,7 @@ func NewIdentityWorkflowStarter(starter *temporalx.WorkflowStarter) *IdentityWor
 	return &IdentityWorkflowStarter{starter: starter}
 }
 
-func (s *IdentityWorkflowStarter) StartCreateServiceAccount(ctx context.Context, workflow model.CreateServiceAccountWorkflow) error {
+func (s *IdentityWorkflowStarter) StartCreateServiceAccount(ctx context.Context, workflow identitymodel.CreateServiceAccountWorkflow) error {
 	if s == nil || s.starter == nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func (s *IdentityWorkflowStarter) StartCreateServiceAccount(ctx context.Context,
 	return err
 }
 
-func (s *IdentityWorkflowStarter) StartRotateOAuthClientSecret(ctx context.Context, workflow model.RotateOAuthClientSecretWorkflow) error {
+func (s *IdentityWorkflowStarter) StartRotateOAuthClientSecret(ctx context.Context, workflow identitymodel.RotateOAuthClientSecretWorkflow) error {
 	if s == nil || s.starter == nil {
 		return nil
 	}

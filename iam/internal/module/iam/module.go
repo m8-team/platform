@@ -10,7 +10,7 @@ import (
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
 	"github.com/m8platform/platform/iam/internal/module/iam/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/iam/delivery/grpc"
-	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
+	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

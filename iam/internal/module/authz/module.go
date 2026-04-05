@@ -11,8 +11,8 @@ import (
 	"github.com/m8platform/platform/iam/internal/foundation/modulekit"
 	"github.com/m8platform/platform/iam/internal/module/authz/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/authz/delivery/grpc"
-	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
-	"github.com/m8platform/platform/iam/internal/usecase/port"
+	"github.com/m8platform/platform/iam/internal/module/authz/port"
+	authzuc "github.com/m8platform/platform/iam/internal/module/authz/usecase"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

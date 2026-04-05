@@ -7,9 +7,9 @@ import (
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	supportv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1"
-	tenantentity "github.com/m8platform/platform/iam/internal/entity/tenant"
+	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
+	tenantmodel "github.com/m8platform/platform/iam/internal/module/tenant/model"
 	legacytopics "github.com/m8platform/platform/iam/internal/topics"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -26,7 +26,7 @@ func NewSupportGrantEventPublisher(publisher *legacytopics.Publisher, topic stri
 	}
 }
 
-func (p *SupportGrantEventPublisher) PublishSupportGrantCreated(ctx context.Context, event model.SupportGrantCreatedEvent) error {
+func (p *SupportGrantEventPublisher) PublishSupportGrantCreated(ctx context.Context, event tenantmodel.SupportGrantCreatedEvent) error {
 	if p == nil || p.publisher == nil {
 		return nil
 	}
@@ -41,7 +41,7 @@ func (p *SupportGrantEventPublisher) PublishSupportGrantCreated(ctx context.Cont
 	})
 }
 
-func (p *SupportGrantEventPublisher) PublishSupportGrantRevoked(ctx context.Context, event model.SupportGrantRevokedEvent) error {
+func (p *SupportGrantEventPublisher) PublishSupportGrantRevoked(ctx context.Context, event tenantmodel.SupportGrantRevokedEvent) error {
 	if p == nil || p.publisher == nil {
 		return nil
 	}

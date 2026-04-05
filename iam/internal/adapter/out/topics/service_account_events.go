@@ -5,8 +5,8 @@ import (
 
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
+	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
 	legacytopics "github.com/m8platform/platform/iam/internal/topics"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -22,7 +22,7 @@ func NewServiceAccountEventPublisher(publisher *legacytopics.Publisher, topic st
 	}
 }
 
-func (p *ServiceAccountEventPublisher) PublishServiceAccountCreated(ctx context.Context, event model.ServiceAccountCreatedEvent) error {
+func (p *ServiceAccountEventPublisher) PublishServiceAccountCreated(ctx context.Context, event identitymodel.ServiceAccountCreatedEvent) error {
 	if p == nil || p.publisher == nil {
 		return nil
 	}

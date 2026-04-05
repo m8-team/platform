@@ -12,14 +12,16 @@ import (
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	eventsv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/events/v1"
 	"github.com/m8platform/platform/iam/internal/core"
-	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
+	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
+	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
+	authzuc "github.com/m8platform/platform/iam/internal/module/authz/usecase"
+	"github.com/m8platform/platform/iam/internal/shared/principal"
+	"github.com/m8platform/platform/iam/internal/shared/resource"
 	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
 	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
-	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
-	"github.com/m8platform/platform/iam/internal/usecase/port"
 	"go.uber.org/zap"
 )
 
@@ -38,8 +40,8 @@ type Server struct {
 	writeFallbackLogOnce sync.Once
 
 	checkAccess *authzuc.CheckAccessUseCase
-	bindings    port.AccessBindingRepository
-	roles       port.RolePermissionResolver
+	bindings    authzport.AccessBindingRepository
+	roles       authzport.RolePermissionResolver
 }
 
 func NewServer(
@@ -51,8 +53,8 @@ func NewServer(
 	policyVersion string,
 	topics foundationconfig.TopicsConfig,
 	checkAccess *authzuc.CheckAccessUseCase,
-	bindings port.AccessBindingRepository,
-	roles port.RolePermissionResolver,
+	bindings authzport.AccessBindingRepository,
+	roles authzport.RolePermissionResolver,
 ) *Server {
 	return &Server{
 		store:         store,
@@ -233,13 +235,13 @@ func (s *Server) BatchCheckAccess(ctx context.Context, req *authzv1.BatchCheckAc
 
 func (s *Server) ExplainAccess(ctx context.Context, req *authzv1.ExplainAccessRequest) (*authzv1.ExplainAccessResponse, error) {
 	if s.checkAccess != nil && s.bindings != nil && s.roles != nil && req.GetSubject() != nil && req.GetResource() != nil {
-		result, err := s.checkAccess.Execute(ctx, model.AccessCheckQuery{
-			Subject: authzentity.SubjectRef{
+		result, err := s.checkAccess.Execute(ctx, authzmodel.AccessCheckQuery{
+			Subject: principal.Principal{
 				TenantID: req.GetSubject().GetTenantId(),
 				Type:     req.GetSubject().GetType().String(),
 				ID:       req.GetSubject().GetId(),
 			},
-			Resource: authzentity.ResourceRef{
+			Resource: resource.Ref{
 				TenantID: req.GetResource().GetTenantId(),
 				Type:     req.GetResource().GetType().String(),
 				ID:       req.GetResource().GetId(),
@@ -247,7 +249,7 @@ func (s *Server) ExplainAccess(ctx context.Context, req *authzv1.ExplainAccessRe
 			Permission: req.GetPermission(),
 		})
 		if err == nil {
-			bindings, repoErr := s.bindings.ListByResource(ctx, authzentity.ResourceRef{
+			bindings, repoErr := s.bindings.ListByResource(ctx, resource.Ref{
 				TenantID: req.GetResource().GetTenantId(),
 				Type:     req.GetResource().GetType().String(),
 				ID:       req.GetResource().GetId(),
@@ -257,7 +259,7 @@ func (s *Server) ExplainAccess(ctx context.Context, req *authzv1.ExplainAccessRe
 			}
 			pathIDs := make([]string, 0, len(bindings))
 			summary := "no matching access path found"
-			subject := authzentity.SubjectRef{
+			subject := principal.Principal{
 				TenantID: req.GetSubject().GetTenantId(),
 				Type:     req.GetSubject().GetType().String(),
 				ID:       req.GetSubject().GetId(),
@@ -419,14 +421,14 @@ func (s *Server) checkWithRuntimeOrFallback(ctx context.Context, req *authzv1.Ch
 	}, nil
 }
 
-func accessCheckQueryFromProto(req *authzv1.CheckAccessRequest) model.AccessCheckQuery {
-	query := model.AccessCheckQuery{
-		Subject: authzentity.SubjectRef{
+func accessCheckQueryFromProto(req *authzv1.CheckAccessRequest) authzmodel.AccessCheckQuery {
+	query := authzmodel.AccessCheckQuery{
+		Subject: principal.Principal{
 			TenantID: req.GetSubject().GetTenantId(),
 			Type:     req.GetSubject().GetType().String(),
 			ID:       req.GetSubject().GetId(),
 		},
-		Resource: authzentity.ResourceRef{
+		Resource: resource.Ref{
 			TenantID: req.GetResource().GetTenantId(),
 			Type:     req.GetResource().GetType().String(),
 			ID:       req.GetResource().GetId(),

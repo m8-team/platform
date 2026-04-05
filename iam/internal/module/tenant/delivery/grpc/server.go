@@ -6,10 +6,11 @@ import (
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	supportv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1"
-	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
-	tenantentity "github.com/m8platform/platform/iam/internal/entity/tenant"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
-	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
+	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
+	"github.com/m8platform/platform/iam/internal/module/tenant/model"
+	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
+	"github.com/m8platform/platform/iam/internal/shared/principal"
+	"github.com/m8platform/platform/iam/internal/shared/resource"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -33,12 +34,12 @@ func (s *Server) GrantTemporaryAccess(ctx context.Context, req *supportv1.GrantT
 	result, err := s.useCase.Grant(ctx, model.GrantSupportAccessCommand{
 		RequestID: req.GetRequestId(),
 		TenantID:  req.GetTenantId(),
-		Subject: authzentity.SubjectRef{
+		Subject: principal.Principal{
 			TenantID: req.GetSubject().GetTenantId(),
 			Type:     req.GetSubject().GetType().String(),
 			ID:       req.GetSubject().GetId(),
 		},
-		Resource: authzentity.ResourceRef{
+		Resource: resource.Ref{
 			TenantID: req.GetResource().GetTenantId(),
 			Type:     req.GetResource().GetType().String(),
 			ID:       req.GetResource().GetId(),

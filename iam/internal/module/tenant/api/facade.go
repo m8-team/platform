@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	tenantentity "github.com/m8platform/platform/iam/internal/entity/tenant"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
-	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
+	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
+	"github.com/m8platform/platform/iam/internal/module/tenant/model"
+	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
 )
 
 var ErrFacadeUnavailable = errors.New("tenant facade is unavailable")

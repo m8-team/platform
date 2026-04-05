@@ -9,7 +9,7 @@ import (
 	"github.com/m8platform/platform/iam/internal/module/tenant/api"
 	deliverygrpc "github.com/m8platform/platform/iam/internal/module/tenant/delivery/grpc"
 	deliverytopic "github.com/m8platform/platform/iam/internal/module/tenant/delivery/topic"
-	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
+	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

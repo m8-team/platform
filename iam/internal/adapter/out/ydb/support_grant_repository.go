@@ -7,8 +7,9 @@ import (
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	supportv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/support/v1"
 	legacycore "github.com/m8platform/platform/iam/internal/core"
-	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
-	tenantentity "github.com/m8platform/platform/iam/internal/entity/tenant"
+	tenantentity "github.com/m8platform/platform/iam/internal/module/tenant/entity"
+	"github.com/m8platform/platform/iam/internal/shared/principal"
+	"github.com/m8platform/platform/iam/internal/shared/resource"
 	legacystorage "github.com/m8platform/platform/iam/internal/storage/ydb"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -134,12 +135,12 @@ func supportGrantFromProto(grant *supportv1.SupportGrant) tenantentity.SupportGr
 	return tenantentity.SupportGrant{
 		ID:       grant.GetSupportGrantId(),
 		TenantID: grant.GetTenantId(),
-		Subject: authzentity.SubjectRef{
+		Subject: principal.Principal{
 			TenantID: grant.GetSubject().GetTenantId(),
 			Type:     grant.GetSubject().GetType().String(),
 			ID:       grant.GetSubject().GetId(),
 		},
-		Resource: authzentity.ResourceRef{
+		Resource: resource.Ref{
 			TenantID: grant.GetResource().GetTenantId(),
 			Type:     grant.GetResource().GetType().String(),
 			ID:       grant.GetResource().GetId(),

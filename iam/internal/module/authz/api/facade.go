@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
+	"github.com/m8platform/platform/iam/internal/module/authz/model"
+	authzuc "github.com/m8platform/platform/iam/internal/module/authz/usecase"
 )
 
 var ErrFacadeUnavailable = errors.New("authz facade is unavailable")

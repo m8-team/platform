@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	legacycore "github.com/m8platform/platform/iam/internal/core"
-	identityentity "github.com/m8platform/platform/iam/internal/entity/identity"
+	identityentity "github.com/m8platform/platform/iam/internal/module/iam/entity"
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
 )
 

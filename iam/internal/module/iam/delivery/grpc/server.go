@@ -11,10 +11,10 @@ import (
 	identityv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/identity/v1"
 	"github.com/m8platform/platform/iam/internal/core"
 	foundationconfig "github.com/m8platform/platform/iam/internal/foundation/config"
+	identitymodel "github.com/m8platform/platform/iam/internal/module/iam/model"
+	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
 	"github.com/m8platform/platform/iam/internal/storage/ydb"
 	"github.com/m8platform/platform/iam/internal/temporalx"
-	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
@@ -467,7 +467,7 @@ func (s *Server) ListServiceAccounts(ctx context.Context, req *identityv1.ListSe
 
 func (s *Server) CreateServiceAccount(ctx context.Context, req *identityv1.CreateServiceAccountRequest) (*identityv1.ServiceAccount, error) {
 	if s.createServiceAccount != nil {
-		result, err := s.createServiceAccount.Execute(ctx, model.CreateServiceAccountCommand{
+		result, err := s.createServiceAccount.Execute(ctx, identitymodel.CreateServiceAccountCommand{
 			ServiceAccountID: req.GetServiceAccountId(),
 			TenantID:         req.GetTenantId(),
 			DisplayName:      req.GetDisplayName(),
@@ -633,7 +633,7 @@ func (s *Server) DeleteOAuthClient(ctx context.Context, req *identityv1.DeleteOA
 
 func (s *Server) RotateClientSecret(ctx context.Context, req *identityv1.RotateClientSecretRequest) (*identityv1.RotateClientSecretResponse, error) {
 	if s.rotateClientSecret != nil {
-		result, err := s.rotateClientSecret.Execute(ctx, model.RotateOAuthClientSecretCommand{
+		result, err := s.rotateClientSecret.Execute(ctx, identitymodel.RotateOAuthClientSecretCommand{
 			OAuthClientID: req.GetOauthClientId(),
 			PerformedBy:   req.GetPerformedBy(),
 			Reason:        req.GetReason(),

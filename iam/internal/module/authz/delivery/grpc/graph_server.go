@@ -6,7 +6,7 @@ import (
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
 	graphv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/graph/v1"
 	"github.com/m8platform/platform/iam/internal/core"
-	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
+	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
 )
 
 type GraphServer struct {

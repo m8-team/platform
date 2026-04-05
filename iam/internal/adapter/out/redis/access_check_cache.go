@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
 	legacyredis "github.com/m8platform/platform/iam/internal/storage/redis"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
 )
 
 type AccessDecisionCache struct {
@@ -22,23 +22,23 @@ func NewAccessDecisionCache(cache *legacyredis.Cache, policyVersion string) *Acc
 	}
 }
 
-func (c *AccessDecisionCache) GetAccessDecision(ctx context.Context, query model.AccessCheckQuery) (model.AccessCheckResult, bool, error) {
+func (c *AccessDecisionCache) GetAccessDecision(ctx context.Context, query authzmodel.AccessCheckQuery) (authzmodel.AccessCheckResult, bool, error) {
 	if c == nil || c.cache == nil {
-		return model.AccessCheckResult{}, false, nil
+		return authzmodel.AccessCheckResult{}, false, nil
 	}
 	payload, ok, err := c.cache.Get(ctx, c.cacheKey(query))
 	if err != nil || !ok {
-		return model.AccessCheckResult{}, ok, err
+		return authzmodel.AccessCheckResult{}, ok, err
 	}
 
-	var result model.AccessCheckResult
+	var result authzmodel.AccessCheckResult
 	if err := json.Unmarshal([]byte(payload), &result); err != nil {
-		return model.AccessCheckResult{}, false, err
+		return authzmodel.AccessCheckResult{}, false, err
 	}
 	return result, true, nil
 }
 
-func (c *AccessDecisionCache) SaveAccessDecision(ctx context.Context, query model.AccessCheckQuery, result model.AccessCheckResult) error {
+func (c *AccessDecisionCache) SaveAccessDecision(ctx context.Context, query authzmodel.AccessCheckQuery, result authzmodel.AccessCheckResult) error {
 	if c == nil || c.cache == nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func (c *AccessDecisionCache) SaveAccessDecision(ctx context.Context, query mode
 	return c.cache.Set(ctx, c.cacheKey(query), string(payload), 30*time.Second)
 }
 
-func (c *AccessDecisionCache) cacheKey(query model.AccessCheckQuery) string {
+func (c *AccessDecisionCache) cacheKey(query authzmodel.AccessCheckQuery) string {
 	return fmt.Sprintf(
 		"authz:%s:%s:%s:%s:%s:%s",
 		query.Subject.Type,

@@ -7,10 +7,10 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	authzv1 "github.com/m8platform/platform/iam/gen/proto/saas/iam/authz/v1"
-	authzentity "github.com/m8platform/platform/iam/internal/entity/authz"
+	authzentity "github.com/m8platform/platform/iam/internal/module/authz/entity"
+	authzmodel "github.com/m8platform/platform/iam/internal/module/authz/model"
+	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
 	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
-	"github.com/m8platform/platform/iam/internal/usecase/port"
 )
 
 type AuthorizationChecker struct {
@@ -21,16 +21,16 @@ func NewAuthorizationChecker(client *legacyspicedb.Client) *AuthorizationChecker
 	return &AuthorizationChecker{client: client}
 }
 
-func (c *AuthorizationChecker) CheckAccess(ctx context.Context, query model.AccessCheckQuery) (model.AccessCheckResult, error) {
+func (c *AuthorizationChecker) CheckAccess(ctx context.Context, query authzmodel.AccessCheckQuery) (authzmodel.AccessCheckResult, error) {
 	if c == nil || c.client == nil {
-		return model.AccessCheckResult{}, port.ErrAuthorizationUnavailable
+		return authzmodel.AccessCheckResult{}, authzport.ErrAuthorizationUnavailable
 	}
 
 	var caveatContext *structpb.Struct
 	if len(query.CaveatContext) > 0 {
 		ctxStruct, err := structpb.NewStruct(query.CaveatContext)
 		if err != nil {
-			return model.AccessCheckResult{}, err
+			return authzmodel.AccessCheckResult{}, err
 		}
 		caveatContext = ctxStruct
 	}
@@ -51,12 +51,12 @@ func (c *AuthorizationChecker) CheckAccess(ctx context.Context, query model.Acce
 	})
 	if err != nil {
 		if errors.Is(err, legacyspicedb.ErrNotConfigured) || errors.Is(err, legacyspicedb.ErrNotImplemented) {
-			return model.AccessCheckResult{}, port.ErrAuthorizationUnavailable
+			return authzmodel.AccessCheckResult{}, authzport.ErrAuthorizationUnavailable
 		}
-		return model.AccessCheckResult{}, err
+		return authzmodel.AccessCheckResult{}, err
 	}
 
-	return model.AccessCheckResult{
+	return authzmodel.AccessCheckResult{
 		Decision:          permissionDecisionFromProto(result.GetDecision()),
 		Permission:        result.GetPermission(),
 		CacheHit:          result.GetCacheHit(),

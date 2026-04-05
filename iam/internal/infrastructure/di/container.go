@@ -18,18 +18,18 @@ import (
 	legacykeycloak "github.com/m8platform/platform/iam/internal/keycloak"
 	modulaudit "github.com/m8platform/platform/iam/internal/module/audit"
 	modauthz "github.com/m8platform/platform/iam/internal/module/authz"
+	authzport "github.com/m8platform/platform/iam/internal/module/authz/port"
+	authzuc "github.com/m8platform/platform/iam/internal/module/authz/usecase"
 	modiam "github.com/m8platform/platform/iam/internal/module/iam"
+	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
 	modtenant "github.com/m8platform/platform/iam/internal/module/tenant"
+	tenantuc "github.com/m8platform/platform/iam/internal/module/tenant/usecase"
 	"github.com/m8platform/platform/iam/internal/shared/clock"
 	legacyspicedb "github.com/m8platform/platform/iam/internal/spicedb"
 	redisstore "github.com/m8platform/platform/iam/internal/storage/redis"
 	ydbstore "github.com/m8platform/platform/iam/internal/storage/ydb"
 	"github.com/m8platform/platform/iam/internal/temporalx"
 	legacytopics "github.com/m8platform/platform/iam/internal/topics"
-	authzuc "github.com/m8platform/platform/iam/internal/usecase/authz"
-	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
-	usecaseport "github.com/m8platform/platform/iam/internal/usecase/port"
-	tenantuc "github.com/m8platform/platform/iam/internal/usecase/tenant"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
@@ -104,7 +104,7 @@ func NewContainer(ctx context.Context, cfg foundationconfig.Config) (*Container,
 	accessBindings := ydbadapter.NewAccessBindingRepository(store)
 	roleResolver := spicedbadapter.RolePermissionResolver{}
 	accessCache := redisadapter.NewAccessDecisionCache(cache, cfg.Redis.PolicyVersion)
-	var runtimeChecker usecaseport.AuthorizationChecker
+	var runtimeChecker authzport.AuthorizationChecker
 	if cfg.SpiceDB.Endpoint != "" {
 		runtimeChecker = spicedbadapter.NewAuthorizationChecker(spicedbClient)
 	}

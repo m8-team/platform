@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	identityuc "github.com/m8platform/platform/iam/internal/usecase/identity"
-	"github.com/m8platform/platform/iam/internal/usecase/model"
+	"github.com/m8platform/platform/iam/internal/module/iam/model"
+	identityuc "github.com/m8platform/platform/iam/internal/module/iam/usecase"
 )
 
 var ErrFacadeUnavailable = errors.New("iam facade is unavailable")
