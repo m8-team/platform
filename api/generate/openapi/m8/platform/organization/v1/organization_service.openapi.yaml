@@ -201,6 +201,17 @@ paths:
 components:
     schemas:
         ListOrganizationsResponse:
+            example:
+                organizations:
+                    - name: organizations/acme-eu
+                      uid: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44
+                      state: ACTIVE
+                      title: Acme Europe
+                      description: EU business unit
+                      createTime: '2026-04-06T12:00:00Z'
+                      updateTime: '2026-04-06T12:00:00Z'
+                      etag: acme-eu-v1
+                nextPageToken: ''
             type: object
             properties:
                 organizations:
@@ -213,9 +224,19 @@ components:
                     description: Token to retrieve the next page. Empty when there are no more results.
             description: ListOrganizationsResponse returns a single page of organizations.
         Organization:
+            example:
+                name: organizations/acme-eu
+                uid: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44
+                state: ACTIVE
+                title: Acme Europe
+                description: EU business unit
+                createTime: '2026-04-06T12:00:00Z'
+                updateTime: '2026-04-06T12:00:00Z'
+                etag: acme-eu-v1
             type: object
             properties:
                 name:
+                    example: organizations/acme-eu
                     type: string
                     description: |-
                         Identifier. The resource name of the organization.
@@ -223,10 +244,12 @@ components:
                          Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
                 uid:
                     readOnly: true
+                    example: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44
                     type: string
                     description: Output only. System-assigned unique identifier for the organization.
                 state:
                     readOnly: true
+                    example: ACTIVE
                     enum:
                         - STATE_UNSPECIFIED
                         - CREATING
@@ -237,43 +260,53 @@ components:
                     description: Output only. Lifecycle state of the organization.
                     format: enum
                 title:
+                    example: Acme Europe
                     type: string
                     description: Optional. Official organization title shown to users.
                 description:
+                    example: EU business unit
                     type: string
                     description: Optional. Organization description.
                 createTime:
                     readOnly: true
+                    example: 2026-04-06T12:00:00Z
                     type: string
                     description: Output only. Time when the organization was created.
                     format: date-time
                 updateTime:
                     readOnly: true
+                    example: 2026-04-06T12:00:00Z
                     type: string
                     description: Output only. Time when the organization was most recently updated.
                     format: date-time
                 deleteTime:
                     readOnly: true
+                    example: 2026-04-30T18:00:00Z
                     type: string
                     description: Output only. Time when the organization was soft-deleted.
                     format: date-time
                 purgeTime:
                     readOnly: true
+                    example: 2026-05-30T18:00:00Z
                     type: string
                     description: Output only. Time when the soft-deleted organization is scheduled to be purged.
                     format: date-time
                 etag:
+                    example: acme-eu-v1
                     type: string
                     description: |-
                         The etag for this organization.
                          If this is provided on update or delete, it must match the server's etag.
             description: Organization stores canonical organization metadata for the organization aggregate.
         UndeleteOrganizationRequest:
+            example:
+                name: organizations/acme-eu
             required:
                 - name
             type: object
             properties:
                 name:
+                    example: organizations/acme-eu
                     type: string
                     description: |-
                         The name of the organization to restore.

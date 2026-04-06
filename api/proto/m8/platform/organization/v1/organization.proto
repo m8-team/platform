@@ -3,6 +3,7 @@ syntax = "proto3";
 package m8.platform.organization.v1;
 
 import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
@@ -21,6 +22,11 @@ message Organization {
     pattern: "organizations/{organization}"
     singular: "organization"
     plural: "organizations"
+  };
+  option (gnostic.openapi.v3.schema) = {
+    example: {
+      yaml: "name: organizations/acme-eu\nuid: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44\nstate: ACTIVE\ntitle: Acme Europe\ndescription: EU business unit\ncreateTime: '2026-04-06T12:00:00Z'\nupdateTime: '2026-04-06T12:00:00Z'\netag: acme-eu-v1"
+    }
   };
 
   // Kafka topic that receives organization aggregate change events.
@@ -43,13 +49,17 @@ message Organization {
   // Identifier. The resource name of the organization.
   // Format: organizations/{organization}
   // Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
-  string name = 2 [(google.api.field_behavior) = IDENTIFIER];
+  string name = 2 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (gnostic.openapi.v3.property) = {example: {yaml: "organizations/acme-eu"}}
+  ];
 
   // Output only. System-assigned unique identifier for the organization.
   string uid = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_info).format = UUID4,
-    (buf.validate.field).string.uuid = true
+    (buf.validate.field).string.uuid = true,
+    (gnostic.openapi.v3.property) = {example: {yaml: "6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44"}}
   ];
 
   // Output only. Lifecycle state of the organization.
@@ -58,34 +68,52 @@ message Organization {
     (buf.validate.field).enum = {
       defined_only: true
       not_in: [0]
-    }
+    },
+    (gnostic.openapi.v3.property) = {example: {yaml: "ACTIVE"}}
   ];
 
   // Optional. Official organization title shown to users.
   string title = 4 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string.max_len = 256,
+    (gnostic.openapi.v3.property) = {example: {yaml: "Acme Europe"}}
   ];
 
   // Optional. Organization description.
   string description = 5 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string.max_len = 256,
+    (gnostic.openapi.v3.property) = {example: {yaml: "EU business unit"}}
   ];
 
   // Output only. Time when the organization was created.
-  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (gnostic.openapi.v3.property) = {example: {yaml: "2026-04-06T12:00:00Z"}}
+  ];
 
   // Output only. Time when the organization was most recently updated.
-  google.protobuf.Timestamp update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp update_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (gnostic.openapi.v3.property) = {example: {yaml: "2026-04-06T12:00:00Z"}}
+  ];
 
   // Output only. Time when the organization was soft-deleted.
-  google.protobuf.Timestamp delete_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp delete_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (gnostic.openapi.v3.property) = {example: {yaml: "2026-04-30T18:00:00Z"}}
+  ];
 
   // Output only. Time when the soft-deleted organization is scheduled to be purged.
-  google.protobuf.Timestamp purge_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp purge_time = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (gnostic.openapi.v3.property) = {example: {yaml: "2026-05-30T18:00:00Z"}}
+  ];
 
   // The etag for this organization.
   // If this is provided on update or delete, it must match the server's etag.
-  string etag = 10 [(google.api.field_behavior) = OPTIONAL];
+  string etag = 10 [
+    (google.api.field_behavior) = OPTIONAL,
+    (gnostic.openapi.v3.property) = {example: {yaml: "acme-eu-v1"}}
+  ];
 }
