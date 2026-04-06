@@ -1,0 +1,68 @@
+{
+  "service": "saas.iam.identity.v1.OAuthFacadeService",
+  "methods": {
+    "GetOAuthClient": {
+      "oauth_client_id": "{{oauth_client_id}}"
+    },
+    "ListOAuthClients": {
+      "tenant_id": "{{tenant_id}}",
+      "page_size": 50
+    },
+    "CreateOAuthClient": {
+      "request_id": "req-{{$timestamp}}",
+      "oauth_client_id": "client-postman-{{$timestamp}}",
+      "tenant_id": "{{tenant_id}}",
+      "display_name": "Postman UI {{$timestamp}}",
+      "client_type": "OAUTH_CLIENT_TYPE_PUBLIC",
+      "redirect_uris": [
+        "http://localhost:3100/callback"
+      ],
+      "scopes": [
+        "openid",
+        "profile",
+        "email"
+      ],
+      "service_accounts_enabled": false,
+      "performed_by": "{{performed_by}}"
+    },
+    "UpdateOAuthClient": {
+      "oauth_client": {
+        "oauth_client_id": "{{oauth_client_id}}",
+        "tenant_id": "{{tenant_id}}",
+        "display_name": "Admin UI Updated",
+        "client_type": "OAUTH_CLIENT_TYPE_CONFIDENTIAL",
+        "redirect_uris": [
+          "http://localhost:3000/callback",
+          "http://localhost:3000/silent-renew"
+        ],
+        "scopes": [
+          "openid",
+          "profile",
+          "email"
+        ],
+        "service_accounts_enabled": false
+      },
+      "update_mask": {
+        "paths": [
+          "display_name",
+          "redirect_uris",
+          "scopes"
+        ]
+      },
+      "request_id": "req-{{$timestamp}}",
+      "performed_by": "{{performed_by}}"
+    },
+    "DeleteOAuthClient": {
+      "oauth_client_id": "{{oauth_client_id}}",
+      "request_id": "req-{{$timestamp}}",
+      "reason": "postman grpc delete",
+      "performed_by": "{{performed_by}}"
+    },
+    "RotateClientSecret": {
+      "oauth_client_id": "{{oauth_client_id}}",
+      "request_id": "req-{{$timestamp}}",
+      "reason": "postman grpc rotation",
+      "performed_by": "{{performed_by}}"
+    }
+  }
+}

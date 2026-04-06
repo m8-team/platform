@@ -1,0 +1,3650 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "M8 Platform IAM API",
+    "description": "Identity and OAuth facade for the M8 Platform IAM control plane.",
+    "version": "v1"
+  },
+  "tags": [
+    {
+      "name": "IdentityService"
+    },
+    {
+      "name": "OAuthFacadeService"
+    },
+    {
+      "name": "AuthorizationFacadeService"
+    },
+    {
+      "name": "AuditService"
+    },
+    {
+      "name": "SupportAccessService"
+    },
+    {
+      "name": "GraphService"
+    },
+    {
+      "name": "OperationsService"
+    }
+  ],
+  "basePath": "/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/audit-events/{audit_event_id}": {
+      "get": {
+        "summary": "GetAuditEvent returns one audit event by identifier.",
+        "operationId": "AuditService_GetAuditEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AuditEvent"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "audit_event_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuditService"
+        ]
+      }
+    },
+    "/api/v1/authz/bindings:set": {
+      "post": {
+        "summary": "SetAccessBindings replaces the desired binding set for a resource.",
+        "operationId": "AuthorizationFacadeService_SetAccessBindings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SetAccessBindingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SetAccessBindingsRequest replaces the desired binding set for a resource.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SetAccessBindingsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/authz/bindings:update": {
+      "post": {
+        "summary": "UpdateAccessBindings applies an incremental binding mutation set.",
+        "operationId": "AuthorizationFacadeService_UpdateAccessBindings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateAccessBindingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "UpdateAccessBindingsRequest applies an incremental mutation set to bindings.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateAccessBindingsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/authz/check": {
+      "post": {
+        "summary": "CheckAccess evaluates a single permission.",
+        "operationId": "AuthorizationFacadeService_CheckAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AccessCheckResult"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "CheckAccessRequest evaluates one permission for one subject and resource.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckAccessRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/authz/check:batch": {
+      "post": {
+        "summary": "BatchCheckAccess evaluates multiple permissions in one call.",
+        "operationId": "AuthorizationFacadeService_BatchCheckAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckAccessResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "BatchCheckAccessRequest evaluates a batch of permission checks.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckAccessRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/authz/explain": {
+      "post": {
+        "summary": "ExplainAccess returns an explanation for the authorization decision.",
+        "operationId": "AuthorizationFacadeService_ExplainAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ExplainAccessResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ExplainAccessRequest asks IAM to explain why a decision was made.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ExplainAccessRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/graph/change-impact:simulate": {
+      "post": {
+        "summary": "SimulateChangeImpact estimates the effects of a binding delta.",
+        "operationId": "GraphService_SimulateChangeImpact",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SimulateChangeImpactResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SimulateChangeImpactRequest estimates permission changes from a binding delta.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SimulateChangeImpactRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GraphService"
+        ]
+      }
+    },
+    "/api/v1/graph/resource-subjects:list": {
+      "post": {
+        "summary": "ListResourceSubjects returns subjects bound to a resource.",
+        "operationId": "GraphService_ListResourceSubjects",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourceSubjectsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ListResourceSubjectsRequest lists subjects bound to one resource.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListResourceSubjectsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GraphService"
+        ]
+      }
+    },
+    "/api/v1/graph/subject-access:list": {
+      "post": {
+        "summary": "ListSubjectAccessBindings returns bindings reachable from a subject.",
+        "operationId": "GraphService_ListSubjectAccessBindings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSubjectAccessBindingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ListSubjectAccessBindingsRequest lists bindings for one subject.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListSubjectAccessBindingsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GraphService"
+        ]
+      }
+    },
+    "/api/v1/groups/{group.group_id}": {
+      "patch": {
+        "summary": "UpdateGroup updates mutable group fields.",
+        "operationId": "IdentityService_UpdateGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group.group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceUpdateGroupBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/groups/{group_id}": {
+      "get": {
+        "summary": "GetGroup returns a single group.",
+        "operationId": "IdentityService_GetGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteGroup removes a group.",
+        "operationId": "IdentityService_DeleteGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "performed_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/groups/{group_id}/members": {
+      "post": {
+        "summary": "AddGroupMember adds a subject to a group.",
+        "operationId": "IdentityService_AddGroupMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GroupMember"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceAddGroupMemberBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/groups/{group_id}:removeMember": {
+      "post": {
+        "summary": "RemoveGroupMember removes a subject from a group.",
+        "operationId": "IdentityService_RemoveGroupMember",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceRemoveGroupMemberBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/memberships/{membership_id}": {
+      "delete": {
+        "summary": "DeleteMembership removes a membership.",
+        "operationId": "IdentityService_DeleteMembership",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "membership_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "performed_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/oauth-clients/{oauth_client.oauth_client_id}": {
+      "patch": {
+        "summary": "UpdateOAuthClient updates mutable OAuth client fields.",
+        "operationId": "OAuthFacadeService_UpdateOAuthClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuthClient"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "oauth_client.oauth_client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OAuthFacadeServiceUpdateOAuthClientBody"
+            }
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      }
+    },
+    "/api/v1/oauth-clients/{oauth_client_id}": {
+      "get": {
+        "summary": "GetOAuthClient returns a single OAuth client.",
+        "operationId": "OAuthFacadeService_GetOAuthClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuthClient"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "oauth_client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteOAuthClient deletes an OAuth client.",
+        "operationId": "OAuthFacadeService_DeleteOAuthClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "oauth_client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "performed_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      }
+    },
+    "/api/v1/oauth-clients/{oauth_client_id}:rotateSecret": {
+      "post": {
+        "summary": "RotateClientSecret rotates a confidential client secret.",
+        "operationId": "OAuthFacadeService_RotateClientSecret",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RotateClientSecretResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "oauth_client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OAuthFacadeServiceRotateClientSecretBody"
+            }
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      }
+    },
+    "/api/v1/operations/{operation_id}": {
+      "get": {
+        "summary": "GetOperation returns a single operation.",
+        "operationId": "OperationsService_GetOperation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/opsV1Operation"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "operation_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OperationsService"
+        ]
+      }
+    },
+    "/api/v1/roles": {
+      "get": {
+        "summary": "ListRoles returns the role catalog.",
+        "operationId": "AuthorizationFacadeService_ListRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/roles/{role_id}": {
+      "get": {
+        "summary": "GetRole returns one role definition.",
+        "operationId": "AuthorizationFacadeService_GetRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Role"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuthorizationFacadeService"
+        ]
+      }
+    },
+    "/api/v1/service-accounts/{service_account.service_account_id}": {
+      "patch": {
+        "summary": "UpdateServiceAccount updates mutable service account fields.",
+        "operationId": "IdentityService_UpdateServiceAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ServiceAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_account.service_account_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceUpdateServiceAccountBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/service-accounts/{service_account_id}": {
+      "get": {
+        "summary": "GetServiceAccount returns a single service account.",
+        "operationId": "IdentityService_GetServiceAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ServiceAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteServiceAccount deletes a service account.",
+        "operationId": "IdentityService_DeleteServiceAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_account_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "performed_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/support-grants/{support_grant_id}:approve": {
+      "post": {
+        "summary": "ApproveTemporaryAccess approves a pending support grant.",
+        "operationId": "SupportAccessService_ApproveTemporaryAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SupportGrant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "support_grant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SupportAccessServiceApproveTemporaryAccessBody"
+            }
+          }
+        ],
+        "tags": [
+          "SupportAccessService"
+        ]
+      }
+    },
+    "/api/v1/support-grants/{support_grant_id}:revoke": {
+      "post": {
+        "summary": "RevokeTemporaryAccess revokes an existing support grant.",
+        "operationId": "SupportAccessService_RevokeTemporaryAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SupportGrant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "support_grant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SupportAccessServiceRevokeTemporaryAccessBody"
+            }
+          }
+        ],
+        "tags": [
+          "SupportAccessService"
+        ]
+      }
+    },
+    "/api/v1/tenants": {
+      "get": {
+        "summary": "ListTenants returns all tenants visible to IAM.",
+        "operationId": "IdentityService_ListTenants",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTenantsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "post": {
+        "summary": "CreateTenant creates a tenant.",
+        "operationId": "IdentityService_CreateTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "CreateTenantRequest creates a new tenant record.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTenantRequest"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant.tenant_id}": {
+      "patch": {
+        "summary": "UpdateTenant updates mutable tenant fields.",
+        "operationId": "IdentityService_UpdateTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant.tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceUpdateTenantBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}": {
+      "get": {
+        "summary": "GetTenant returns a single tenant.",
+        "operationId": "IdentityService_GetTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteTenant removes a tenant.",
+        "operationId": "IdentityService_DeleteTenant",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "performed_by",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/audit-events": {
+      "get": {
+        "summary": "ListAuditEvents returns audit events for a tenant.",
+        "operationId": "AuditService_ListAuditEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAuditEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "event_type",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AuditService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/groups": {
+      "get": {
+        "summary": "ListGroups returns the groups in a tenant.",
+        "operationId": "IdentityService_ListGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "post": {
+        "summary": "CreateGroup creates a new group.",
+        "operationId": "IdentityService_CreateGroup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Group"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceCreateGroupBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/memberships": {
+      "get": {
+        "summary": "ListMemberships returns memberships for a tenant.",
+        "operationId": "IdentityService_ListMemberships",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListMembershipsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "post": {
+        "summary": "CreateMembership creates a tenant membership.",
+        "operationId": "IdentityService_CreateMembership",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Membership"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceCreateMembershipBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/oauth-clients": {
+      "get": {
+        "summary": "ListOAuthClients returns OAuth clients for a tenant.",
+        "operationId": "OAuthFacadeService_ListOAuthClients",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListOAuthClientsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      },
+      "post": {
+        "summary": "CreateOAuthClient provisions a new OAuth client.",
+        "operationId": "OAuthFacadeService_CreateOAuthClient",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuthClient"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OAuthFacadeServiceCreateOAuthClientBody"
+            }
+          }
+        ],
+        "tags": [
+          "OAuthFacadeService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/operations": {
+      "get": {
+        "summary": "ListOperations returns operations for a tenant.",
+        "operationId": "OperationsService_ListOperations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListOperationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OperationsService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/service-accounts": {
+      "get": {
+        "summary": "ListServiceAccounts returns service accounts for a tenant.",
+        "operationId": "IdentityService_ListServiceAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListServiceAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "post": {
+        "summary": "CreateServiceAccount provisions a new service account.",
+        "operationId": "IdentityService_CreateServiceAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ServiceAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceCreateServiceAccountBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/support-grants": {
+      "get": {
+        "summary": "ListSupportGrants returns grants for a tenant.",
+        "operationId": "SupportAccessService_ListSupportGrants",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportGrantsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SupportAccessService"
+        ]
+      },
+      "post": {
+        "summary": "GrantTemporaryAccess creates a new support grant request.",
+        "operationId": "SupportAccessService_GrantTemporaryAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SupportGrant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SupportAccessServiceGrantTemporaryAccessBody"
+            }
+          }
+        ],
+        "tags": [
+          "SupportAccessService"
+        ]
+      }
+    },
+    "/api/v1/tenants/{tenant_id}/users": {
+      "get": {
+        "summary": "ListUsers returns the users that belong to a tenant.",
+        "operationId": "IdentityService_ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      },
+      "post": {
+        "summary": "CreateUser creates a user inside a tenant.",
+        "operationId": "IdentityService_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceCreateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/users/{user.user_id}": {
+      "patch": {
+        "summary": "UpdateUser updates mutable user fields.",
+        "operationId": "IdentityService_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user.user_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceUpdateUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/users/{user_id}": {
+      "get": {
+        "summary": "GetUser returns a single user by identifier.",
+        "operationId": "IdentityService_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1User"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    },
+    "/api/v1/users/{user_id}:disable": {
+      "post": {
+        "summary": "DisableUser disables a user account.",
+        "operationId": "IdentityService_DisableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MutateIdentityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IdentityServiceDisableUserBody"
+            }
+          }
+        ],
+        "tags": [
+          "IdentityService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "IdentityServiceAddGroupMemberBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "subject_id": {
+          "type": "string"
+        },
+        "subject_type": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "AddGroupMemberRequest adds a subject to a group."
+    },
+    "IdentityServiceCreateGroupBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "group_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateGroupRequest creates a new tenant group."
+    },
+    "IdentityServiceCreateMembershipBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "membership_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "role_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateMembershipRequest assigns roles to a user in a tenant."
+    },
+    "IdentityServiceCreateServiceAccountBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "service_account_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateServiceAccountRequest provisions a new machine principal."
+    },
+    "IdentityServiceCreateUserBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "primary_email": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateUserRequest creates a new user record in IAM metadata."
+    },
+    "IdentityServiceDisableUserBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "DisableUserRequest disables an existing user."
+    },
+    "IdentityServiceRemoveGroupMemberBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "subject_id": {
+          "type": "string"
+        },
+        "subject_type": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "RemoveGroupMemberRequest removes a subject from a group."
+    },
+    "IdentityServiceUpdateGroupBody": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "object",
+          "properties": {
+            "tenant_id": {
+              "type": "string"
+            },
+            "display_name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "description": "Group stores a reusable tenant-scoped subject collection."
+        },
+        "update_mask": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateGroupRequest updates mutable group fields."
+    },
+    "IdentityServiceUpdateServiceAccountBody": {
+      "type": "object",
+      "properties": {
+        "service_account": {
+          "type": "object",
+          "properties": {
+            "tenant_id": {
+              "type": "string"
+            },
+            "display_name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "disabled": {
+              "type": "boolean"
+            },
+            "keycloak_client_id": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "description": "ServiceAccount stores metadata for a machine principal managed by IAM."
+        },
+        "update_mask": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateServiceAccountRequest updates mutable service account fields."
+    },
+    "IdentityServiceUpdateTenantBody": {
+      "type": "object",
+      "properties": {
+        "tenant": {
+          "type": "object",
+          "properties": {
+            "display_name": {
+              "type": "string"
+            },
+            "external_ref": {
+              "type": "string"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "description": "Tenant stores tenant metadata known to the IAM domain."
+        },
+        "update_mask": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateTenantRequest updates mutable tenant fields."
+    },
+    "IdentityServiceUpdateUserBody": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "tenant_id": {
+              "type": "string"
+            },
+            "primary_email": {
+              "type": "string"
+            },
+            "display_name": {
+              "type": "string"
+            },
+            "state": {
+              "$ref": "#/definitions/v1UserState"
+            },
+            "group_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "keycloak_user_id": {
+              "type": "string"
+            }
+          },
+          "description": "User stores IAM user metadata replicated into the control plane."
+        },
+        "update_mask": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateUserRequest updates mutable user fields."
+    },
+    "OAuthFacadeServiceCreateOAuthClientBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "oauth_client_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "client_type": {
+          "$ref": "#/definitions/v1OAuthClientType"
+        },
+        "redirect_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "service_accounts_enabled": {
+          "type": "boolean"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateOAuthClientRequest provisions a new OAuth client."
+    },
+    "OAuthFacadeServiceRotateClientSecretBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "RotateClientSecretRequest rotates the secret for a confidential OAuth client."
+    },
+    "OAuthFacadeServiceUpdateOAuthClientBody": {
+      "type": "object",
+      "properties": {
+        "oauth_client": {
+          "type": "object",
+          "properties": {
+            "tenant_id": {
+              "type": "string"
+            },
+            "display_name": {
+              "type": "string"
+            },
+            "client_type": {
+              "$ref": "#/definitions/v1OAuthClientType"
+            },
+            "redirect_uris": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "service_accounts_enabled": {
+              "type": "boolean"
+            },
+            "keycloak_client_id": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "description": "OAuthClient stores metadata for an OAuth/OIDC client provisioned through IAM."
+        },
+        "update_mask": {
+          "type": "string"
+        },
+        "request_id": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateOAuthClientRequest updates mutable OAuth client fields."
+    },
+    "SupportAccessServiceApproveTemporaryAccessBody": {
+      "type": "object",
+      "properties": {
+        "approval_ticket": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "approved_by": {
+          "type": "string"
+        }
+      },
+      "description": "ApproveTemporaryAccessRequest approves a pending support grant."
+    },
+    "SupportAccessServiceGrantTemporaryAccessBody": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "ttl": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requested_by": {
+          "type": "string"
+        }
+      },
+      "description": "GrantTemporaryAccessRequest requests a temporary support grant."
+    },
+    "SupportAccessServiceRevokeTemporaryAccessBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "revoked_by": {
+          "type": "string"
+        }
+      },
+      "description": "RevokeTemporaryAccessRequest revokes an active or pending support grant."
+    },
+    "opsV1Operation": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "operation_type": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/v1OperationStatus"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        },
+        "error_message": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Operation stores the current state of an asynchronous action."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\nThe JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AccessBinding": {
+      "type": "object",
+      "properties": {
+        "binding_id": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "caveat_context": {
+          "type": "object"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "AccessBinding binds a subject to a resource with a role."
+    },
+    "v1AccessBindingDelta": {
+      "type": "object",
+      "properties": {
+        "mutations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBindingMutation"
+          }
+        }
+      },
+      "description": "AccessBindingDelta groups binding mutations to apply atomically."
+    },
+    "v1AccessBindingMutation": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "$ref": "#/definitions/v1BindingMutationKind"
+        },
+        "binding": {
+          "$ref": "#/definitions/v1AccessBinding"
+        }
+      },
+      "description": "AccessBindingMutation describes a single add or remove operation on a binding."
+    },
+    "v1AccessCheckResult": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "$ref": "#/definitions/v1PermissionDecision"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "cache_hit": {
+          "type": "boolean"
+        },
+        "zed_token": {
+          "type": "string"
+        },
+        "caveat_expressions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "AccessCheckResult returns the outcome of a permission evaluation."
+    },
+    "v1AuditEvent": {
+      "type": "object",
+      "properties": {
+        "audit_event_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "event_type": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "correlation_id": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "AuditEvent records a completed security-relevant action."
+    },
+    "v1BatchCheckAccessRequest": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CheckAccessRequest"
+          }
+        }
+      },
+      "description": "BatchCheckAccessRequest evaluates a batch of permission checks."
+    },
+    "v1BatchCheckAccessResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessCheckResult"
+          }
+        }
+      },
+      "description": "BatchCheckAccessResponse returns the results for a batch check call."
+    },
+    "v1BindingMutationKind": {
+      "type": "string",
+      "enum": [
+        "BINDING_MUTATION_KIND_UNSPECIFIED",
+        "BINDING_MUTATION_KIND_ADD",
+        "BINDING_MUTATION_KIND_REMOVE"
+      ],
+      "default": "BINDING_MUTATION_KIND_UNSPECIFIED",
+      "description": "BindingMutationKind describes how a binding set should be changed."
+    },
+    "v1ChangeImpact": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "added_permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed_permissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "ChangeImpact describes how a subject's permissions would change."
+    },
+    "v1CheckAccessRequest": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "permission": {
+          "type": "string"
+        },
+        "caveat_context": {
+          "type": "object"
+        }
+      },
+      "description": "CheckAccessRequest evaluates one permission for one subject and resource."
+    },
+    "v1CreateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "external_ref": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "CreateTenantRequest creates a new tenant record."
+    },
+    "v1ExplainAccessRequest": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "permission": {
+          "type": "string"
+        }
+      },
+      "description": "ExplainAccessRequest asks IAM to explain why a decision was made."
+    },
+    "v1ExplainAccessResponse": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "$ref": "#/definitions/v1PermissionDecision"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "path_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revision": {
+          "type": "string"
+        }
+      },
+      "description": "ExplainAccessResponse returns the decision and the matching path identifiers."
+    },
+    "v1ExplainEdge": {
+      "type": "object",
+      "properties": {
+        "edge_id": {
+          "type": "string"
+        },
+        "from_subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "to_resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "ExplainEdge describes one edge in a derived access path."
+    },
+    "v1Group": {
+      "type": "object",
+      "properties": {
+        "group_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Group stores a reusable tenant-scoped subject collection."
+    },
+    "v1GroupMember": {
+      "type": "object",
+      "properties": {
+        "group_id": {
+          "type": "string"
+        },
+        "subject_id": {
+          "type": "string"
+        },
+        "subject_type": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "GroupMember stores a single subject membership inside a group."
+    },
+    "v1ListAuditEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuditEvent"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListAuditEventsResponse returns a page of audit events."
+    },
+    "v1ListGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Group"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListGroupsResponse returns a page of groups."
+    },
+    "v1ListMembershipsResponse": {
+      "type": "object",
+      "properties": {
+        "memberships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Membership"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListMembershipsResponse returns a page of memberships."
+    },
+    "v1ListOAuthClientsResponse": {
+      "type": "object",
+      "properties": {
+        "oauth_clients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OAuthClient"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListOAuthClientsResponse returns a page of OAuth clients."
+    },
+    "v1ListOperationsResponse": {
+      "type": "object",
+      "properties": {
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/opsV1Operation"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListOperationsResponse returns a page of operations."
+    },
+    "v1ListResourceSubjectsRequest": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListResourceSubjectsRequest lists subjects bound to one resource."
+    },
+    "v1ListResourceSubjectsResponse": {
+      "type": "object",
+      "properties": {
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SubjectRef"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBinding"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListResourceSubjectsResponse returns subjects and bindings for a resource."
+    },
+    "v1ListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Role"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListRolesResponse returns a page of roles."
+    },
+    "v1ListServiceAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "service_accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ServiceAccount"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListServiceAccountsResponse returns a page of service accounts."
+    },
+    "v1ListSubjectAccessBindingsRequest": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "page_size": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListSubjectAccessBindingsRequest lists bindings for one subject."
+    },
+    "v1ListSubjectAccessBindingsResponse": {
+      "type": "object",
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBinding"
+          }
+        },
+        "explain_edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ExplainEdge"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListSubjectAccessBindingsResponse returns subject bindings and explain edges."
+    },
+    "v1ListSupportGrantsResponse": {
+      "type": "object",
+      "properties": {
+        "grants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SupportGrant"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListSupportGrantsResponse returns a page of support grants."
+    },
+    "v1ListTenantsResponse": {
+      "type": "object",
+      "properties": {
+        "tenants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Tenant"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListTenantsResponse returns a page of tenants."
+    },
+    "v1ListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1User"
+          }
+        },
+        "next_page_token": {
+          "type": "string"
+        }
+      },
+      "description": "ListUsersResponse returns a page of users."
+    },
+    "v1Membership": {
+      "type": "object",
+      "properties": {
+        "membership_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "role_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "state": {
+          "$ref": "#/definitions/v1MembershipState"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Membership stores the tenant-scoped roles assigned to a user."
+    },
+    "v1MembershipState": {
+      "type": "string",
+      "enum": [
+        "MEMBERSHIP_STATE_UNSPECIFIED",
+        "MEMBERSHIP_STATE_ACTIVE",
+        "MEMBERSHIP_STATE_INVITED",
+        "MEMBERSHIP_STATE_DISABLED"
+      ],
+      "default": "MEMBERSHIP_STATE_UNSPECIFIED",
+      "description": "MembershipState describes the lifecycle state of a tenant membership."
+    },
+    "v1MutateIdentityResponse": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string"
+        }
+      },
+      "description": "MutateIdentityResponse returns the operation identifier created by a mutation."
+    },
+    "v1OAuthClient": {
+      "type": "object",
+      "properties": {
+        "oauth_client_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "client_type": {
+          "$ref": "#/definitions/v1OAuthClientType"
+        },
+        "redirect_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "service_accounts_enabled": {
+          "type": "boolean"
+        },
+        "keycloak_client_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "OAuthClient stores metadata for an OAuth/OIDC client provisioned through IAM."
+    },
+    "v1OAuthClientType": {
+      "type": "string",
+      "enum": [
+        "OAUTH_CLIENT_TYPE_UNSPECIFIED",
+        "OAUTH_CLIENT_TYPE_CONFIDENTIAL",
+        "OAUTH_CLIENT_TYPE_PUBLIC"
+      ],
+      "default": "OAUTH_CLIENT_TYPE_UNSPECIFIED",
+      "description": "OAuthClientType describes the client profile provisioned in Keycloak."
+    },
+    "v1OperationStatus": {
+      "type": "string",
+      "enum": [
+        "OPERATION_STATUS_UNSPECIFIED",
+        "OPERATION_STATUS_PENDING",
+        "OPERATION_STATUS_RUNNING",
+        "OPERATION_STATUS_SUCCEEDED",
+        "OPERATION_STATUS_FAILED"
+      ],
+      "default": "OPERATION_STATUS_UNSPECIFIED",
+      "description": "OperationStatus describes the execution state of an operation."
+    },
+    "v1Permission": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "description": "Permission describes a concrete action exposed by a role."
+    },
+    "v1PermissionDecision": {
+      "type": "string",
+      "enum": [
+        "PERMISSION_DECISION_UNSPECIFIED",
+        "PERMISSION_DECISION_ALLOW",
+        "PERMISSION_DECISION_DENY",
+        "PERMISSION_DECISION_CONDITIONAL"
+      ],
+      "default": "PERMISSION_DECISION_UNSPECIFIED",
+      "description": "PermissionDecision describes the result of a permission evaluation."
+    },
+    "v1ResourceRef": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1ResourceType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        }
+      },
+      "description": "ResourceRef identifies the protected object participating in authorization."
+    },
+    "v1ResourceType": {
+      "type": "string",
+      "enum": [
+        "RESOURCE_TYPE_UNSPECIFIED",
+        "RESOURCE_TYPE_TENANT",
+        "RESOURCE_TYPE_PROJECT",
+        "RESOURCE_TYPE_ENVIRONMENT",
+        "RESOURCE_TYPE_SECRET",
+        "RESOURCE_TYPE_BILLING_ACCOUNT",
+        "RESOURCE_TYPE_SUPPORT_CASE"
+      ],
+      "default": "RESOURCE_TYPE_UNSPECIFIED",
+      "description": "ResourceType enumerates resource categories governed by IAM permissions."
+    },
+    "v1Role": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Permission"
+          }
+        },
+        "relation_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Role describes a reusable set of permissions and backing relation names."
+    },
+    "v1RotateClientSecretResponse": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string"
+        },
+        "secret_ref": {
+          "type": "string"
+        }
+      },
+      "description": "RotateClientSecretResponse returns the new operation and secret reference."
+    },
+    "v1ServiceAccount": {
+      "type": "object",
+      "properties": {
+        "service_account_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "keycloak_client_id": {
+          "type": "string"
+        },
+        "operation_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "ServiceAccount stores metadata for a machine principal managed by IAM."
+    },
+    "v1SetAccessBindingsRequest": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "desired_bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBinding"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "SetAccessBindingsRequest replaces the desired binding set for a resource."
+    },
+    "v1SetAccessBindingsResponse": {
+      "type": "object",
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBinding"
+          }
+        },
+        "operation_id": {
+          "type": "string"
+        }
+      },
+      "description": "SetAccessBindingsResponse returns the resulting bindings and operation identifier."
+    },
+    "v1SimulateChangeImpactRequest": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "delta": {
+          "$ref": "#/definitions/v1AccessBindingDelta"
+        }
+      },
+      "description": "SimulateChangeImpactRequest estimates permission changes from a binding delta."
+    },
+    "v1SimulateChangeImpactResponse": {
+      "type": "object",
+      "properties": {
+        "impacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ChangeImpact"
+          }
+        }
+      },
+      "description": "SimulateChangeImpactResponse returns the simulated impact per subject."
+    },
+    "v1SubjectRef": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1SubjectType"
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        }
+      },
+      "description": "SubjectRef identifies the actor participating in a permission check or binding."
+    },
+    "v1SubjectType": {
+      "type": "string",
+      "enum": [
+        "SUBJECT_TYPE_UNSPECIFIED",
+        "SUBJECT_TYPE_USER_ACCOUNT",
+        "SUBJECT_TYPE_SERVICE_ACCOUNT",
+        "SUBJECT_TYPE_FEDERATED_USER",
+        "SUBJECT_TYPE_GROUP",
+        "SUBJECT_TYPE_SYSTEM"
+      ],
+      "default": "SUBJECT_TYPE_UNSPECIFIED",
+      "description": "SubjectType enumerates principal categories supported by IAM authorization."
+    },
+    "v1SupportGrant": {
+      "type": "object",
+      "properties": {
+        "support_grant_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/definitions/v1SubjectRef"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "role_id": {
+          "type": "string"
+        },
+        "ttl": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/v1SupportGrantStatus"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "approval_ticket": {
+          "type": "string"
+        },
+        "approved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "SupportGrant records a temporary elevated-access request and its outcome."
+    },
+    "v1SupportGrantStatus": {
+      "type": "string",
+      "enum": [
+        "SUPPORT_GRANT_STATUS_UNSPECIFIED",
+        "SUPPORT_GRANT_STATUS_PENDING_APPROVAL",
+        "SUPPORT_GRANT_STATUS_ACTIVE",
+        "SUPPORT_GRANT_STATUS_REVOKED",
+        "SUPPORT_GRANT_STATUS_EXPIRED",
+        "SUPPORT_GRANT_STATUS_DENIED"
+      ],
+      "default": "SUPPORT_GRANT_STATUS_UNSPECIFIED",
+      "description": "SupportGrantStatus describes the lifecycle of a temporary support grant."
+    },
+    "v1Tenant": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "external_ref": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Tenant stores tenant metadata known to the IAM domain."
+    },
+    "v1UpdateAccessBindingsRequest": {
+      "type": "object",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1ResourceRef"
+        },
+        "delta": {
+          "$ref": "#/definitions/v1AccessBindingDelta"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "performed_by": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateAccessBindingsRequest applies an incremental mutation set to bindings."
+    },
+    "v1UpdateAccessBindingsResponse": {
+      "type": "object",
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AccessBinding"
+          }
+        },
+        "operation_id": {
+          "type": "string"
+        }
+      },
+      "description": "UpdateAccessBindingsResponse returns the resulting bindings and operation identifier."
+    },
+    "v1User": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "primary_email": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/v1UserState"
+        },
+        "group_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "keycloak_user_id": {
+          "type": "string"
+        }
+      },
+      "description": "User stores IAM user metadata replicated into the control plane."
+    },
+    "v1UserState": {
+      "type": "string",
+      "enum": [
+        "USER_STATE_UNSPECIFIED",
+        "USER_STATE_ACTIVE",
+        "USER_STATE_DISABLED"
+      ],
+      "default": "USER_STATE_UNSPECIFIED",
+      "description": "UserState describes the lifecycle state of a user account."
+    }
+  }
+}

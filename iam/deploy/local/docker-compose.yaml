@@ -1,0 +1,81 @@
+name: m8-iam-local
+
+services:
+  redis:
+    image: redis:latest
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis-data:/data
+
+  ydb:
+    image: ydbplatform/local-ydb:latest
+    platform: linux/amd64
+    hostname: localhost
+    environment:
+      YDB_GRPC_ENABLE_TLS: "0"
+      YDB_USE_IN_MEMORY_PDISKS: "1"
+      GRPC_PORT: "2136"
+      MON_PORT: "8765"
+    ports:
+      - "2136:2136"
+      - "8765:8765"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+      - keycloak-data:/opt/keycloak/data
+
+  spicedb:
+    image: authzed/spicedb:latest
+    command:
+      - serve
+      - --grpc-preshared-key
+      - dev-spicedb-key
+      - --http-enabled
+      - --datastore-engine
+      - memory
+      - --skip-release-check
+    ports:
+      - "50051:50051"
+      - "8443:8443"
+      - "9090:9090"
+
+  temporal:
+    image: temporalio/temporal:latest
+    command:
+      - server
+      - start-dev
+      - --ip
+      - 0.0.0.0
+      - --port
+      - "7233"
+      - --ui-port
+      - "8233"
+      - --http-port
+      - "7243"
+      - --metrics-port
+      - "9091"
+    ports:
+      - "7233:7233"
+      - "8233:8233"
+      - "7243:7243"
+      - "9091:9091"
+
+volumes:
+  keycloak-data:
+  redis-data:
