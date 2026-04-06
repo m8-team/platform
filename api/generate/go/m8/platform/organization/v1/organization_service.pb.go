@@ -4,16 +4,16 @@
 // 	protoc        (unknown)
 // source: m8/platform/organization/v1/organization_service.proto
 
-package organizationv1
+package organization
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	_ "github.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -508,8 +508,7 @@ const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x82\x01\xdaA\x1corganization,organization_id\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xa6\x02\n" +
 	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\xac\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x027:\forganization2'/v1/{organization.name=organizations/*}\x12\xe5\x01\n" +
 	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"l\xdaA\tname,etag\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x12\x88\x02\n" +
-	"\x14UndeleteOrganization\x128.m8.platform.organization.v1.UndeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x8a\x01\xdaA\x04name\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=organizations/*}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B\x96\x01\n" +
-	"\x1fcom.m8.platform.organization.v1B\x18OrganizationServiceProtoP\x01ZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"\x14UndeleteOrganization\x128.m8.platform.organization.v1.UndeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x8a\x01\xdaA\x04name\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=organizations/*}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B*Z(m8/platform/organization/v1;organizationb\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce sync.Once

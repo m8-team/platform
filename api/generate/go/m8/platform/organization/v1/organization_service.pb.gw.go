@@ -2,11 +2,11 @@
 // source: m8/platform/organization/v1/organization_service.proto
 
 /*
-Package organizationv1 is a reverse proxy.
+Package organization is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package organizationv1
+package organization
 
 import (
 	"context"

@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: m8/platform/extension/v1/extension.proto
 
-package extensionv1
+package extension
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -58,7 +58,7 @@ const file_m8_platform_extension_v1_extension_proto_rawDesc = "" +
 	"\n" +
 	"(m8/platform/extension/v1/extension.proto\x12\x18m8.platform.extension.v1\x1a google/protobuf/descriptor.proto:7\n" +
 	"\x05topic\x12\x1f.google.protobuf.MessageOptions\x18ц\x03 \x01(\tR\x05topic:C\n" +
-	"\vdescription\x12\x1f.google.protobuf.ServiceOptions\x18҆\x03 \x01(\tR\vdescriptionBSZQgithub.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1;extensionv1b\x06proto3"
+	"\vdescription\x12\x1f.google.protobuf.ServiceOptions\x18҆\x03 \x01(\tR\vdescriptionB$Z\"m8/platform/extension/v1;extensionb\x06proto3"
 
 var file_m8_platform_extension_v1_extension_proto_goTypes = []any{
 	(*descriptorpb.MessageOptions)(nil), // 0: google.protobuf.MessageOptions

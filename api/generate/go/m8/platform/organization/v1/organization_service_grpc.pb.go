@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: m8/platform/organization/v1/organization_service.proto
 
-package organizationv1
+package organization
 
 import (
 	context "context"

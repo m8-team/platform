@@ -4,16 +4,16 @@
 // 	protoc        (unknown)
 // source: m8/platform/organization/v1/organization.proto
 
-package organizationv1
+package organization
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	_ "github.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -254,8 +254,7 @@ const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"description: EU business unit\n" +
 	"createTime: '2026-04-06T12:00:00Z'\n" +
 	"updateTime: '2026-04-06T12:00:00Z'\n" +
-	"etag: acme-eu-v1\x8a\xb5\x18)m8.platform.organization.organizations.v1B\x8f\x01\n" +
-	"\x1fcom.m8.platform.organization.v1B\x11OrganizationProtoP\x01ZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"etag: acme-eu-v1\x8a\xb5\x18)m8.platform.organization.organizations.v1B*Z(m8/platform/organization/v1;organizationb\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_proto_rawDescOnce sync.Once
