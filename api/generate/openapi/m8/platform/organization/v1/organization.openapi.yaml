@@ -1,0 +1,11 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform Organization API
+    description: Resource-oriented API for reading and updating organizations.
+    version: v1
+paths: {}
+components:
+    schemas: {}
