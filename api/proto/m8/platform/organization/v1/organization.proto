@@ -42,6 +42,7 @@ message Organization {
 
   // Identifier. The resource name of the organization.
   // Format: organizations/{organization}
+  // Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
   string name = 2 [(google.api.field_behavior) = IDENTIFIER];
 
   // Output only. System-assigned unique identifier for the organization.

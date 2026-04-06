@@ -91,6 +91,7 @@ type Organization struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identifier. The resource name of the organization.
 	// Format: organizations/{organization}
+	// Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Output only. System-assigned unique identifier for the organization.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
@@ -106,13 +107,11 @@ type Organization struct {
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Output only. Time when the organization was soft-deleted.
 	DeleteTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
-	// Output only. Aggregate version number for internal change tracking.
-	Version int64 `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	// Output only. Time when the soft-deleted organization is scheduled to be purged.
+	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
 	// The etag for this organization.
 	// If this is provided on update or delete, it must match the server's etag.
-	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
-	// Output only. Time when the soft-deleted organization is scheduled to be purged.
-	PurgeTime     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
+	Etag          string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -203,11 +202,11 @@ func (x *Organization) GetDeleteTime() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Organization) GetVersion() int64 {
+func (x *Organization) GetPurgeTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.Version
+		return x.PurgeTime
 	}
-	return 0
+	return nil
 }
 
 func (x *Organization) GetEtag() string {
@@ -217,18 +216,11 @@ func (x *Organization) GetEtag() string {
 	return ""
 }
 
-func (x *Organization) GetPurgeTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.PurgeTime
-	}
-	return nil
-}
-
 var File_m8_platform_organization_v1_organization_proto protoreflect.FileDescriptor
 
 const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xa2\x06\n" +
+	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x83\x06\n" +
 	"\fOrganization\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
 	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12T\n" +
@@ -240,12 +232,11 @@ const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"deleteTime\x12\x1d\n" +
-	"\aversion\x18\t \x01(\x03B\x03\xe0A\x03R\aversion\x12\x17\n" +
-	"\x04etag\x18\n" +
-	" \x01(\tB\x03\xe0A\x01R\x04etag\x12>\n" +
+	"deleteTime\x12>\n" +
 	"\n" +
-	"purge_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\"T\n" +
+	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
+	"\x04etag\x18\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\"T\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +

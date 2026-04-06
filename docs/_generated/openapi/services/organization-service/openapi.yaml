@@ -205,6 +205,7 @@ components:
           description: |-
             Identifier. The resource name of the organization.
              Format: organizations/{organization}
+             Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
         uid:
           readOnly: true
           type: string
@@ -241,20 +242,16 @@ components:
           type: string
           description: Output only. Time when the organization was soft-deleted.
           format: date-time
-        version:
-          readOnly: true
-          type: string
-          description: Output only. Aggregate version number for internal change tracking.
-        etag:
-          type: string
-          description: |-
-            The etag for this organization.
-             If this is provided on update or delete, it must match the server's etag.
         purgeTime:
           readOnly: true
           type: string
           description: Output only. Time when the soft-deleted organization is scheduled to be purged.
           format: date-time
+        etag:
+          type: string
+          description: |-
+            The etag for this organization.
+             If this is provided on update or delete, it must match the server's etag.
       description: Organization stores canonical organization metadata for the organization aggregate.
     UndeleteOrganizationRequest:
       required:
