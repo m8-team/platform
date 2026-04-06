@@ -1,0 +1,24 @@
+title: M8 Platform Docs
+href: index.md
+items:
+  - name: API Reference
+    href: api-reference.md
+    items:
+      - name: Organization Service
+        include:
+          path: generated/services/organization-service
+          includers:
+            - name: openapi
+              input: generated/services/organization-service/openapi.yaml
+              leadingPage:
+                spec:
+                  renderMode: hidden
+              tags:
+                __root__:
+                  name: Обзор
+                  path: overview.md
+                  alias: overview
+                OrganizationService:
+                  name: Операции
+                  alias: operations
+          mode: link

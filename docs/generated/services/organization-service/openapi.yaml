@@ -1,0 +1,215 @@
+openapi: 3.0.3
+info:
+  title: Organization Service API
+  description: OrganizationService provides standard read, update, and delete operations for organizations.
+  version: v1
+paths:
+  /organization/v1/organizations:
+    get:
+      tags:
+        - OrganizationService
+      description: ListOrganizations returns a paginated list of organizations.
+      operationId: OrganizationService_ListOrganizations
+      parameters:
+        - name: pageSize
+          in: query
+          description: Maximum number of organizations to return.
+          schema:
+            type: integer
+            format: int32
+        - name: pageToken
+          in: query
+          description: Token returned by a previous `ListOrganizations` call.
+          schema:
+            type: string
+        - name: filter
+          in: query
+          description: Optional AIP-160 style filter expression.
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          description: Optional AIP-132 style ordering expression.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOrganizationsResponse'
+  /organization/v1/organizations/{organizationId}:
+    get:
+      tags:
+        - OrganizationService
+      description: GetOrganization returns a single organization by stable ID.
+      operationId: OrganizationService_GetOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: Stable system-assigned organization identifier in UUID format.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOrganizationResponse'
+    delete:
+      tags:
+        - OrganizationService
+      description: DeleteOrganization soft-deletes an organization by stable ID.
+      operationId: OrganizationService_DeleteOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: Stable system-assigned organization identifier in UUID format.
+          required: true
+          schema:
+            type: string
+        - name: expectedVersion
+          in: query
+          description: Aggregate version expected by the caller for optimistic concurrency control.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteOrganizationResponse'
+    patch:
+      tags:
+        - OrganizationService
+      description: UpdateOrganization updates mutable organization fields by stable ID.
+      operationId: OrganizationService_UpdateOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: Stable system-assigned identifier of the organization to update.
+          required: true
+          schema:
+            type: string
+        - name: updateMask
+          in: query
+          description: List of organization fields to update.
+          schema:
+            type: string
+            format: field-mask
+        - name: expectedVersion
+          in: query
+          description: Aggregate version expected by the caller for optimistic concurrency control.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organization'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrganizationResponse'
+components:
+  schemas:
+    DeleteOrganizationResponse:
+      type: object
+      properties:
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+          description: Organization after the successful soft-delete.
+      description: DeleteOrganizationResponse returns the soft-deleted organization.
+    GetOrganizationResponse:
+      type: object
+      properties:
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+          description: Organization returned by the read operation.
+      description: GetOrganizationResponse returns a single organization.
+    ListOrganizationsResponse:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organization'
+          description: Organizations returned for the current page.
+        nextPageToken:
+          type: string
+          description: Token to retrieve the next page. Empty when there are no more results.
+      description: ListOrganizationsResponse returns a single page of organizations.
+    Organization:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: Stable system-assigned aggregate identifier in UUID format.
+        name:
+          type: string
+          description: |-
+            Stable machine-readable organization name.
+             Must be 3..63 characters, start with a lowercase letter, and contain only
+             lowercase letters, digits, and hyphens.
+        state:
+          enum:
+            - STATE_UNSPECIFIED
+            - STATE_PROVISIONING
+            - STATE_ACTIVE
+            - STATE_SUSPENDED
+            - STATE_DELETED
+          type: string
+          description: Lifecycle state of the organization aggregate.
+          format: enum
+        title:
+          type: string
+          description: 'Optional human-readable display title. Maximum length: 256 characters.'
+        description:
+          type: string
+          description: 'Optional organization description. Maximum length: 256 characters.'
+        createdAt:
+          readOnly: true
+          type: string
+          description: Time when the organization was created. Output only. Rendered as RFC3339 in JSON.
+          format: date-time
+        updatedAt:
+          readOnly: true
+          type: string
+          description: Time of the most recent successful mutation. Output only. Rendered as RFC3339 in JSON.
+          format: date-time
+        deletedAt:
+          readOnly: true
+          type: string
+          description: |-
+            Time when the organization was soft-deleted. Unset until state becomes DELETED.
+             Output only. Rendered as RFC3339 in JSON.
+          format: date-time
+        version:
+          readOnly: true
+          type: string
+          description: |-
+            Aggregate version used for optimistic concurrency control.
+             Starts at 1 on creation and is incremented after each successful state change.
+             Output only.
+      description: Organization stores canonical organization metadata for the organization aggregate.
+    UpdateOrganizationResponse:
+      type: object
+      properties:
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/Organization'
+          description: Organization after the successful update.
+      description: UpdateOrganizationResponse returns the updated organization.
+tags:
+  - name: OrganizationService

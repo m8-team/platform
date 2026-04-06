@@ -10,8 +10,8 @@ plugins:
   - remote: buf.build/community/google-gnostic-openapi
     out: api/generate/openapi
     opt:
-      - title=M8 Platform Organization API
-      - description=Resource-oriented API for reading and updating organizations.
+      - title=M8 Platform API
+      - description=HTTP API specifications generated from protobuf contracts.
       - version=v1
       - default_response=false
       - naming=json

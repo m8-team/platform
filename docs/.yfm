@@ -1,0 +1,12 @@
+allowHtml: true
+needToSanitizeHtml: true
+lang: ru
+langs:
+  - ru
+docs-viewer:
+  project-name: M8 Platform API
+  no-index: true
+  langs:
+    - ru
+search:
+  provider: local
