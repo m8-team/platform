@@ -3,6 +3,7 @@ syntax = "proto3";
 package m8.platform.organization.v1;
 
 import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
@@ -17,11 +18,19 @@ service OrganizationService {
   rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
     option (google.api.http) = {get: "/organization/v1/organizations/{organization_id}"};
     option (google.api.method_signature) = "organization_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get"
+      operation_id: "Get"
+    };
   }
 
   // ListOrganizations returns a paginated list of organizations.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
     option (google.api.http) = {get: "/organization/v1/organizations"};
+    option (gnostic.openapi.v3.operation) = {
+      summary: "List"
+      operation_id: "List"
+    };
   }
 
   // UpdateOrganization updates mutable organization fields by stable ID.
@@ -31,12 +40,20 @@ service OrganizationService {
       body: "organization"
     };
     option (google.api.method_signature) = "organization_id,organization,update_mask,expected_version";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Update"
+      operation_id: "Update"
+    };
   }
 
   // DeleteOrganization soft-deletes an organization by stable ID.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {
     option (google.api.http) = {delete: "/organization/v1/organizations/{organization_id}"};
     option (google.api.method_signature) = "organization_id,expected_version";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Delete"
+      operation_id: "Delete"
+    };
   }
 }
 

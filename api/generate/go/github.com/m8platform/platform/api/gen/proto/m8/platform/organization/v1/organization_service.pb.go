@@ -8,6 +8,7 @@ package organizationv1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -469,7 +470,7 @@ var File_m8_platform_organization_v1_organization_service_proto protoreflect.Fil
 
 const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/organization/v1/organization.proto\"N\n" +
+	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/organization/v1/organization.proto\"N\n" +
 	"\x16GetOrganizationRequest\x124\n" +
 	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\"\xbf\x01\n" +
 	"\x18ListOrganizationsRequest\x12*\n" +
@@ -497,12 +498,13 @@ const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\x10expected_version\x18\x02 \x01(\x04B\n" +
 	"\xe0A\x02\xbaH\x042\x02(\x01R\x0fexpectedVersion\"k\n" +
 	"\x1aDeleteOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization2\xff\x06\n" +
-	"\x13OrganizationService\x12\xc8\x01\n" +
-	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a4.m8.platform.organization.v1.GetOrganizationResponse\"J\xdaA\x0forganization_id\x82\xd3\xe4\x93\x022\x120/organization/v1/organizations/{organization_id}\x12\xaa\x01\n" +
-	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/organization/v1/organizations\x12\x8a\x02\n" +
-	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a7.m8.platform.organization.v1.UpdateOrganizationResponse\"\x82\x01\xdaA9organization_id,organization,update_mask,expected_version\x82\xd3\xe4\x93\x02@:\forganization20/organization/v1/organizations/{organization_id}\x12\xe2\x01\n" +
-	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a7.m8.platform.organization.v1.DeleteOrganizationResponse\"[\xdaA organization_id,expected_version\x82\xd3\xe4\x93\x022*0/organization/v1/organizations/{organization_id}BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization2\xc1\a\n" +
+	"\x13OrganizationService\x12\xd5\x01\n" +
+	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a4.m8.platform.organization.v1.GetOrganizationResponse\"W\xdaA\x0forganization_id\xbaG\n" +
+	"\x12\x03Get*\x03Get\x82\xd3\xe4\x93\x022\x120/organization/v1/organizations/{organization_id}\x12\xb9\x01\n" +
+	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"5\xbaG\f\x12\x04List*\x04List\x82\xd3\xe4\x93\x02 \x12\x1e/organization/v1/organizations\x12\x9d\x02\n" +
+	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a7.m8.platform.organization.v1.UpdateOrganizationResponse\"\x95\x01\xdaA9organization_id,organization,update_mask,expected_version\xbaG\x10\x12\x06Update*\x06Update\x82\xd3\xe4\x93\x02@:\forganization20/organization/v1/organizations/{organization_id}\x12\xf5\x01\n" +
+	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a7.m8.platform.organization.v1.DeleteOrganizationResponse\"n\xdaA organization_id,expected_version\xbaG\x10\x12\x06Delete*\x06Delete\x82\xd3\xe4\x93\x022*0/organization/v1/organizations/{organization_id}BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce sync.Once

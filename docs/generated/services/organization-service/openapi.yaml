@@ -8,8 +8,9 @@ paths:
     get:
       tags:
         - OrganizationService
+      summary: List
       description: ListOrganizations returns a paginated list of organizations.
-      operationId: OrganizationService_ListOrganizations
+      operationId: List
       parameters:
         - name: pageSize
           in: query
@@ -43,8 +44,9 @@ paths:
     get:
       tags:
         - OrganizationService
+      summary: Get
       description: GetOrganization returns a single organization by stable ID.
-      operationId: OrganizationService_GetOrganization
+      operationId: Get
       parameters:
         - name: organizationId
           in: path
@@ -62,8 +64,9 @@ paths:
     delete:
       tags:
         - OrganizationService
+      summary: Delete
       description: DeleteOrganization soft-deletes an organization by stable ID.
-      operationId: OrganizationService_DeleteOrganization
+      operationId: Delete
       parameters:
         - name: organizationId
           in: path
@@ -86,8 +89,9 @@ paths:
     patch:
       tags:
         - OrganizationService
+      summary: Update
       description: UpdateOrganization updates mutable organization fields by stable ID.
-      operationId: OrganizationService_UpdateOrganization
+      operationId: Update
       parameters:
         - name: organizationId
           in: path
