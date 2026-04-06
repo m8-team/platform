@@ -69,7 +69,7 @@ message ListOrganizationsRequest {
   // Optional AIP-160 style filter expression.
   string filter = 3 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string.max_len = 1024
   ];
 
   // Optional AIP-132 style ordering expression.
