@@ -31,31 +31,31 @@ type Organization_State int32
 const (
 	// Invalid persisted value. Requests must not use this state.
 	Organization_STATE_UNSPECIFIED Organization_State = 0
-	// Organization is being provisioned and is not fully ready for normal use yet.
-	Organization_STATE_PROVISIONING Organization_State = 1
+	// Organization creation is in progress.
+	Organization_CREATING Organization_State = 1
 	// Organization is active and can be used normally.
-	Organization_STATE_ACTIVE Organization_State = 2
+	Organization_ACTIVE Organization_State = 2
 	// Organization is temporarily suspended and normal operations are restricted.
-	Organization_STATE_SUSPENDED Organization_State = 3
+	Organization_SUSPENDED Organization_State = 3
 	// Organization is soft-deleted.
-	Organization_STATE_DELETED Organization_State = 4
+	Organization_DELETED Organization_State = 4
 )
 
 // Enum value maps for Organization_State.
 var (
 	Organization_State_name = map[int32]string{
 		0: "STATE_UNSPECIFIED",
-		1: "STATE_PROVISIONING",
-		2: "STATE_ACTIVE",
-		3: "STATE_SUSPENDED",
-		4: "STATE_DELETED",
+		1: "CREATING",
+		2: "ACTIVE",
+		3: "SUSPENDED",
+		4: "DELETED",
 	}
 	Organization_State_value = map[string]int32{
-		"STATE_UNSPECIFIED":  0,
-		"STATE_PROVISIONING": 1,
-		"STATE_ACTIVE":       2,
-		"STATE_SUSPENDED":    3,
-		"STATE_DELETED":      4,
+		"STATE_UNSPECIFIED": 0,
+		"CREATING":          1,
+		"ACTIVE":            2,
+		"SUSPENDED":         3,
+		"DELETED":           4,
 	}
 )
 
@@ -89,29 +89,30 @@ func (Organization_State) EnumDescriptor() ([]byte, []int) {
 // Organization stores canonical organization metadata for the organization aggregate.
 type Organization struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable system-assigned aggregate identifier in UUID format.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Stable machine-readable organization name.
-	// Must be 3..63 characters, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
+	// Identifier. The resource name of the organization.
+	// Format: organizations/{organization}
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Lifecycle state of the organization aggregate.
+	// Output only. System-assigned unique identifier for the organization.
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// Output only. Lifecycle state of the organization.
 	State Organization_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.organization.v1.Organization_State" json:"state,omitempty"`
-	// Optional human-readable display title. Maximum length: 256 characters.
+	// Optional. Official organization title shown to users.
 	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
-	// Optional organization description. Maximum length: 256 characters.
+	// Optional. Organization description.
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	// Time when the organization was created. Output only. Rendered as RFC3339 in JSON.
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	// Time of the most recent successful mutation. Output only. Rendered as RFC3339 in JSON.
-	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	// Time when the organization was soft-deleted. Unset until state becomes DELETED.
-	// Output only. Rendered as RFC3339 in JSON.
-	DeletedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`
-	// Aggregate version used for optimistic concurrency control.
-	// Starts at 1 on creation and is incremented after each successful state change.
-	// Output only.
-	Version       uint64 `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	// Output only. Time when the organization was created.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// Output only. Time when the organization was most recently updated.
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// Output only. Time when the organization was soft-deleted.
+	DeleteTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
+	// Output only. Aggregate version number for internal change tracking.
+	Version int64 `protobuf:"varint,9,opt,name=version,proto3" json:"version,omitempty"`
+	// The etag for this organization.
+	// If this is provided on update or delete, it must match the server's etag.
+	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Output only. Time when the soft-deleted organization is scheduled to be purged.
+	PurgeTime     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -146,16 +147,16 @@ func (*Organization) Descriptor() ([]byte, []int) {
 	return file_m8_platform_organization_v1_organization_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Organization) GetId() string {
+func (x *Organization) GetName() string {
 	if x != nil {
-		return x.Id
+		return x.Name
 	}
 	return ""
 }
 
-func (x *Organization) GetName() string {
+func (x *Organization) GetUid() string {
 	if x != nil {
-		return x.Name
+		return x.Uid
 	}
 	return ""
 }
@@ -181,59 +182,79 @@ func (x *Organization) GetDescription() string {
 	return ""
 }
 
-func (x *Organization) GetCreatedAt() *timestamppb.Timestamp {
+func (x *Organization) GetCreateTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.CreatedAt
+		return x.CreateTime
 	}
 	return nil
 }
 
-func (x *Organization) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *Organization) GetUpdateTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.UpdatedAt
+		return x.UpdateTime
 	}
 	return nil
 }
 
-func (x *Organization) GetDeletedAt() *timestamppb.Timestamp {
+func (x *Organization) GetDeleteTime() *timestamppb.Timestamp {
 	if x != nil {
-		return x.DeletedAt
+		return x.DeleteTime
 	}
 	return nil
 }
 
-func (x *Organization) GetVersion() uint64 {
+func (x *Organization) GetVersion() int64 {
 	if x != nil {
 		return x.Version
 	}
 	return 0
 }
 
+func (x *Organization) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+func (x *Organization) GetPurgeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PurgeTime
+	}
+	return nil
+}
+
 var File_m8_platform_organization_v1_organization_proto protoreflect.FileDescriptor
 
 const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x81\x05\n" +
-	"\fOrganization\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x02id\x125\n" +
-	"\x04name\x18\x02 \x01(\tB!\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x04name\x12Q\n" +
-	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.organization.v1.Organization.StateB\n" +
-	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12\x1e\n" +
-	"\x05title\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\x05title\x12*\n" +
-	"\vdescription\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12>\n" +
+	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xa2\x06\n" +
+	"\fOrganization\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
+	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12T\n" +
+	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.organization.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12!\n" +
+	"\x05title\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x05title\x12-\n" +
+	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
+	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"createTime\x12@\n" +
+	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"updateTime\x12@\n" +
+	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"deleteTime\x12\x1d\n" +
+	"\aversion\x18\t \x01(\x03B\x03\xe0A\x03R\aversion\x12\x17\n" +
+	"\x04etag\x18\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\x12>\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tcreatedAt\x12>\n" +
-	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tupdatedAt\x12>\n" +
-	"\n" +
-	"deleted_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tdeletedAt\x12\x1d\n" +
-	"\aversion\x18\t \x01(\x04B\x03\xe0A\x03R\aversion\"p\n" +
+	"purge_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\"T\n" +
 	"\x05State\x12\x15\n" +
-	"\x11STATE_UNSPECIFIED\x10\x00\x12\x16\n" +
-	"\x12STATE_PROVISIONING\x10\x01\x12\x10\n" +
-	"\fSTATE_ACTIVE\x10\x02\x12\x13\n" +
-	"\x0fSTATE_SUSPENDED\x10\x03\x12\x11\n" +
-	"\rSTATE_DELETED\x10\x04:-\x8a\xb5\x18)m8.platform.organization.organizations.v1BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
+	"\bCREATING\x10\x01\x12\n" +
+	"\n" +
+	"\x06ACTIVE\x10\x02\x12\r\n" +
+	"\tSUSPENDED\x10\x03\x12\v\n" +
+	"\aDELETED\x10\x04:\x95\x01\xeaAe\n" +
+	"(m8.platform.organization.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\x8a\xb5\x18)m8.platform.organization.organizations.v1B\x8f\x01\n" +
+	"\x1fcom.m8.platform.organization.v1B\x11OrganizationProtoP\x01ZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_proto_rawDescOnce sync.Once
@@ -256,14 +277,15 @@ var file_m8_platform_organization_v1_organization_proto_goTypes = []any{
 }
 var file_m8_platform_organization_v1_organization_proto_depIdxs = []int32{
 	0, // 0: m8.platform.organization.v1.Organization.state:type_name -> m8.platform.organization.v1.Organization.State
-	2, // 1: m8.platform.organization.v1.Organization.created_at:type_name -> google.protobuf.Timestamp
-	2, // 2: m8.platform.organization.v1.Organization.updated_at:type_name -> google.protobuf.Timestamp
-	2, // 3: m8.platform.organization.v1.Organization.deleted_at:type_name -> google.protobuf.Timestamp
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 1: m8.platform.organization.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
+	2, // 2: m8.platform.organization.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
+	2, // 3: m8.platform.organization.v1.Organization.delete_time:type_name -> google.protobuf.Timestamp
+	2, // 4: m8.platform.organization.v1.Organization.purge_time:type_name -> google.protobuf.Timestamp
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_organization_v1_organization_proto_init() }

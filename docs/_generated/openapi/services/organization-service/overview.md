@@ -2,14 +2,15 @@
 
 # Organization API: REST reference
 
-Use this API to create, view, update, and delete organizations.
+Use this API to create, view, update, delete, and undelete organizations.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| [List](./List.md) | Returns a paginated list of organizations available to the caller. |
-| [Create](./Create.md) | Creates a new organization. |
-| [Get](./Get.md) | Returns a single organization by its stable ID. |
-| [Delete](./Delete.md) | Soft-deletes an organization by its stable ID. |
-| [Update](./Update.md) | Updates mutable fields of an existing organization by its stable ID. |
+| [List](./ListOrganizations.md) | Returns a paginated list of organizations available to the caller. |
+| [Create](./CreateOrganization.md) | Creates a new organization. |
+| [Get](./GetOrganization.md) | Returns a single organization by its resource name. |
+| [Delete](./DeleteOrganization.md) | Soft-deletes an organization. |
+| [Update](./UpdateOrganization.md) | Updates mutable fields of an existing organization. |
+| [Undelete](./UndeleteOrganization.md) | Restores a previously soft-deleted organization. |

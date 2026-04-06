@@ -26,13 +26,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetOrganizationRequest fetches a single organization by stable ID.
+// GetOrganizationRequest fetches a single organization by resource name.
 type GetOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable system-assigned organization identifier in UUID format.
-	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The name of the organization to retrieve.
+	// Format: organizations/{organization}
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetOrganizationRequest) Reset() {
@@ -65,9 +66,9 @@ func (*GetOrganizationRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetOrganizationRequest) GetOrganizationId() string {
+func (x *GetOrganizationRequest) GetName() string {
 	if x != nil {
-		return x.OrganizationId
+		return x.Name
 	}
 	return ""
 }
@@ -75,14 +76,23 @@ func (x *GetOrganizationRequest) GetOrganizationId() string {
 // ListOrganizationsRequest lists organizations visible to the caller.
 type ListOrganizationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Maximum number of organizations to return.
+	// The maximum number of organizations to return.
+	// The service may return fewer than this value.
+	// If unspecified, at most 50 organizations are returned.
+	// The maximum value is 1000; values above 1000 are coerced to 1000.
 	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// Token returned by a previous `ListOrganizations` call.
+	// A page token, received from a previous `ListOrganizations` call.
+	// Provide this to retrieve the subsequent page.
+	//
+	// When paginating, all other parameters provided to `ListOrganizations`
+	// must match the call that provided the page token.
 	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Optional AIP-160 style filter expression.
 	Filter string `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional AIP-132 style ordering expression.
-	OrderBy       string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	OrderBy string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// If true, soft-deleted organizations are included in the response.
+	ShowDeleted   bool `protobuf:"varint,5,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -145,6 +155,13 @@ func (x *ListOrganizationsRequest) GetOrderBy() string {
 	return ""
 }
 
+func (x *ListOrganizationsRequest) GetShowDeleted() bool {
+	if x != nil {
+		return x.ShowDeleted
+	}
+	return false
+}
+
 // ListOrganizationsResponse returns a single page of organizations.
 type ListOrganizationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -200,56 +217,14 @@ func (x *ListOrganizationsResponse) GetNextPageToken() string {
 	return ""
 }
 
-// GetOrganizationResponse returns a single organization.
-type GetOrganizationResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Organization returned by the read operation.
-	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetOrganizationResponse) Reset() {
-	*x = GetOrganizationResponse{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetOrganizationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetOrganizationResponse) ProtoMessage() {}
-
-func (x *GetOrganizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetOrganizationResponse.ProtoReflect.Descriptor instead.
-func (*GetOrganizationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetOrganizationResponse) GetOrganization() *Organization {
-	if x != nil {
-		return x.Organization
-	}
-	return nil
-}
-
 // CreateOrganizationRequest creates a new organization.
 type CreateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Desired organization values for the new organization.
+	// The ID to use for the organization, which becomes the final component of
+	// the organization's resource name.
+	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	// The organization to create.
+	// The `organization.name` and `organization.uid` fields are ignored on create.
 	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -257,7 +232,7 @@ type CreateOrganizationRequest struct {
 
 func (x *CreateOrganizationRequest) Reset() {
 	*x = CreateOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -269,7 +244,7 @@ func (x *CreateOrganizationRequest) String() string {
 func (*CreateOrganizationRequest) ProtoMessage() {}
 
 func (x *CreateOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -282,7 +257,14 @@ func (x *CreateOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*CreateOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateOrganizationRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
 }
 
 func (x *CreateOrganizationRequest) GetOrganization() *Organization {
@@ -292,71 +274,24 @@ func (x *CreateOrganizationRequest) GetOrganization() *Organization {
 	return nil
 }
 
-// CreateOrganizationResponse returns the created organization.
-type CreateOrganizationResponse struct {
+// UpdateOrganizationRequest updates mutable fields on an existing organization.
+type UpdateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Organization after the successful create operation.
-	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The organization to update.
+	//
+	// The organization's `name` field is used to identify the organization to update.
+	// Format: organizations/{organization}
+	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The list of fields to update.
+	// If omitted, all populated fields in `organization` are updated.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateOrganizationResponse) Reset() {
-	*x = CreateOrganizationResponse{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateOrganizationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateOrganizationResponse) ProtoMessage() {}
-
-func (x *CreateOrganizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateOrganizationResponse.ProtoReflect.Descriptor instead.
-func (*CreateOrganizationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *CreateOrganizationResponse) GetOrganization() *Organization {
-	if x != nil {
-		return x.Organization
-	}
-	return nil
-}
-
-// UpdateOrganizationRequest updates mutable fields on an existing organization.
-type UpdateOrganizationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable system-assigned identifier of the organization to update.
-	OrganizationId string `protobuf:"bytes,4,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	// Desired organization values after the update.
-	// The target organization is identified by `organization_id`.
-	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	// List of organization fields to update.
-	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	// Aggregate version expected by the caller for optimistic concurrency control.
-	ExpectedVersion uint64 `protobuf:"varint,3,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
 func (x *UpdateOrganizationRequest) Reset() {
 	*x = UpdateOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -368,7 +303,7 @@ func (x *UpdateOrganizationRequest) String() string {
 func (*UpdateOrganizationRequest) ProtoMessage() {}
 
 func (x *UpdateOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,14 +316,7 @@ func (x *UpdateOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpdateOrganizationRequest) GetOrganizationId() string {
-	if x != nil {
-		return x.OrganizationId
-	}
-	return ""
+	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateOrganizationRequest) GetOrganization() *Organization {
@@ -405,73 +333,24 @@ func (x *UpdateOrganizationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-func (x *UpdateOrganizationRequest) GetExpectedVersion() uint64 {
-	if x != nil {
-		return x.ExpectedVersion
-	}
-	return 0
-}
-
-// UpdateOrganizationResponse returns the updated organization.
-type UpdateOrganizationResponse struct {
+// DeleteOrganizationRequest soft-deletes an organization.
+type DeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Organization after the successful update.
-	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The name of the organization to delete.
+	// Format: organizations/{organization}
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Optional. The etag of the organization.
+	// If this is provided, it must match the server's etag.
+	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
+	// If true, the request succeeds even if the organization is missing or already deleted.
+	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateOrganizationResponse) Reset() {
-	*x = UpdateOrganizationResponse{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateOrganizationResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateOrganizationResponse) ProtoMessage() {}
-
-func (x *UpdateOrganizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateOrganizationResponse.ProtoReflect.Descriptor instead.
-func (*UpdateOrganizationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *UpdateOrganizationResponse) GetOrganization() *Organization {
-	if x != nil {
-		return x.Organization
-	}
-	return nil
-}
-
-// DeleteOrganizationRequest soft-deletes an organization by stable ID.
-type DeleteOrganizationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable system-assigned organization identifier in UUID format.
-	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	// Aggregate version expected by the caller for optimistic concurrency control.
-	ExpectedVersion uint64 `protobuf:"varint,2,opt,name=expected_version,json=expectedVersion,proto3" json:"expected_version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
 func (x *DeleteOrganizationRequest) Reset() {
 	*x = DeleteOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[8]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -483,7 +362,7 @@ func (x *DeleteOrganizationRequest) String() string {
 func (*DeleteOrganizationRequest) ProtoMessage() {}
 
 func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[8]
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -496,47 +375,55 @@ func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{8}
+	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *DeleteOrganizationRequest) GetOrganizationId() string {
+func (x *DeleteOrganizationRequest) GetName() string {
 	if x != nil {
-		return x.OrganizationId
+		return x.Name
 	}
 	return ""
 }
 
-func (x *DeleteOrganizationRequest) GetExpectedVersion() uint64 {
+func (x *DeleteOrganizationRequest) GetEtag() string {
 	if x != nil {
-		return x.ExpectedVersion
+		return x.Etag
 	}
-	return 0
+	return ""
 }
 
-// DeleteOrganizationResponse returns the soft-deleted organization.
-type DeleteOrganizationResponse struct {
+func (x *DeleteOrganizationRequest) GetAllowMissing() bool {
+	if x != nil {
+		return x.AllowMissing
+	}
+	return false
+}
+
+// UndeleteOrganizationRequest restores a soft-deleted organization.
+type UndeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Organization after the successful soft-delete.
-	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+	// The name of the organization to restore.
+	// Format: organizations/{organization}
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteOrganizationResponse) Reset() {
-	*x = DeleteOrganizationResponse{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[9]
+func (x *UndeleteOrganizationRequest) Reset() {
+	*x = UndeleteOrganizationRequest{}
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteOrganizationResponse) String() string {
+func (x *UndeleteOrganizationRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteOrganizationResponse) ProtoMessage() {}
+func (*UndeleteOrganizationRequest) ProtoMessage() {}
 
-func (x *DeleteOrganizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[9]
+func (x *UndeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -547,61 +434,59 @@ func (x *DeleteOrganizationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteOrganizationResponse.ProtoReflect.Descriptor instead.
-func (*DeleteOrganizationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{9}
+// Deprecated: Use UndeleteOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*UndeleteOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *DeleteOrganizationResponse) GetOrganization() *Organization {
+func (x *UndeleteOrganizationRequest) GetName() string {
 	if x != nil {
-		return x.Organization
+		return x.Name
 	}
-	return nil
+	return ""
 }
 
 var File_m8_platform_organization_v1_organization_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"N\n" +
-	"\x16GetOrganizationRequest\x124\n" +
-	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\"\xbf\x01\n" +
+	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"\x8d\x01\n" +
+	"\x16GetOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\"\xe7\x01\n" +
 	"\x18ListOrganizationsRequest\x12*\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
 	"\x06filter\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\x06filter\x12&\n" +
-	"\border_by\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\"\x94\x01\n" +
+	"\border_by\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x12&\n" +
+	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\x94\x01\n" +
 	"\x19ListOrganizationsResponse\x12O\n" +
 	"\rorganizations\x18\x01 \x03(\v2).m8.platform.organization.v1.OrganizationR\rorganizations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"h\n" +
-	"\x17GetOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization\"u\n" +
-	"\x19CreateOrganizationRequest\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"k\n" +
-	"\x1aCreateOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization\"\xaa\x02\n" +
-	"\x19UpdateOrganizationRequest\x124\n" +
-	"\x0forganization_id\x18\x04 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12F\n" +
-	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
-	"updateMask\x125\n" +
-	"\x10expected_version\x18\x03 \x01(\x04B\n" +
-	"\xe0A\x02\xbaH\x042\x02(\x01R\x0fexpectedVersion\"k\n" +
-	"\x1aUpdateOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization\"\x88\x01\n" +
-	"\x19DeleteOrganizationRequest\x124\n" +
-	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x125\n" +
-	"\x10expected_version\x18\x02 \x01(\x04B\n" +
-	"\xe0A\x02\xbaH\x042\x02(\x01R\x0fexpectedVersion\"k\n" +
-	"\x1aDeleteOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization2\xf0\v\n" +
-	"\x13OrganizationService\x12\x87\x02\n" +
-	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a4.m8.platform.organization.v1.GetOrganizationResponse\"\x88\x01\xdaA\x0forganization_id\xbaG;\x12\x03Get\x1a/Returns a single organization by its stable ID.*\x03Get\x82\xd3\xe4\x93\x022\x120/organization/v1/organizations/{organization_id}\x12\xfd\x01\n" +
-	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"y\xbaGP\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x04List\x82\xd3\xe4\x93\x02 \x12\x1e/organization/v1/organizations\x12\xfa\x01\n" +
-	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a7.m8.platform.organization.v1.CreateOrganizationResponse\"s\xdaA\forganization\xbaG-\x12\x06Create\x1a\x1bCreates a new organization.*\x06Create\x82\xd3\xe4\x93\x02.:\forganization\"\x1e/organization/v1/organizations\x12\xe3\x02\n" +
-	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a7.m8.platform.organization.v1.UpdateOrganizationResponse\"\xdb\x01\xdaA9organization_id,organization,update_mask,expected_version\xbaGV\x12\x06Update\x1aDUpdates mutable fields of an existing organization by its stable ID.*\x06Update\x82\xd3\xe4\x93\x02@:\forganization20/organization/v1/organizations/{organization_id}\x12\xa6\x02\n" +
-	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a7.m8.platform.organization.v1.DeleteOrganizationResponse\"\x9e\x01\xdaA organization_id,expected_version\xbaG@\x12\x06Delete\x1a.Soft-deletes an organization by its stable ID.*\x06Delete\x82\xd3\xe4\x93\x022*0/organization/v1/organizations/{organization_id}\x1aC\x92\xb5\x18?Use this API to create, view, update, and delete organizations.BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc4\x01\n" +
+	"\x19CreateOrganizationRequest\x12M\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB$\xe0A\x02\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x0eorganizationId\x12X\n" +
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xb7\x01\n" +
+	"\x19UpdateOrganizationRequest\x12X\n" +
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12@\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
+	"updateMask\"\xd3\x01\n" +
+	"\x19DeleteOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\x12\x17\n" +
+	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
+	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"\x92\x01\n" +
+	"\x1bUndeleteOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name2\xec\f\n" +
+	"\x13OrganizationService\x12\xea\x01\n" +
+	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"w\xdaA\x04name\xbaGK\x12\x03Get\x1a3Returns a single organization by its resource name.*\x0fGetOrganization\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/{name=organizations/*}\x12\xfd\x01\n" +
+	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"y\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xfc\x01\n" +
+	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x82\x01\xdaA\x1corganization,organization_id\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xa6\x02\n" +
+	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\xac\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x027:\forganization2'/v1/{organization.name=organizations/*}\x12\xe5\x01\n" +
+	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"l\xdaA\tname,etag\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x12\x88\x02\n" +
+	"\x14UndeleteOrganization\x128.m8.platform.organization.v1.UndeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x8a\x01\xdaA\x04name\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=organizations/*}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B\x96\x01\n" +
+	"\x1fcom.m8.platform.organization.v1B\x18OrganizationServiceProtoP\x01ZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce sync.Once
@@ -615,45 +500,40 @@ func file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP() [
 	return file_m8_platform_organization_v1_organization_service_proto_rawDescData
 }
 
-var file_m8_platform_organization_v1_organization_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_m8_platform_organization_v1_organization_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_m8_platform_organization_v1_organization_service_proto_goTypes = []any{
-	(*GetOrganizationRequest)(nil),     // 0: m8.platform.organization.v1.GetOrganizationRequest
-	(*ListOrganizationsRequest)(nil),   // 1: m8.platform.organization.v1.ListOrganizationsRequest
-	(*ListOrganizationsResponse)(nil),  // 2: m8.platform.organization.v1.ListOrganizationsResponse
-	(*GetOrganizationResponse)(nil),    // 3: m8.platform.organization.v1.GetOrganizationResponse
-	(*CreateOrganizationRequest)(nil),  // 4: m8.platform.organization.v1.CreateOrganizationRequest
-	(*CreateOrganizationResponse)(nil), // 5: m8.platform.organization.v1.CreateOrganizationResponse
-	(*UpdateOrganizationRequest)(nil),  // 6: m8.platform.organization.v1.UpdateOrganizationRequest
-	(*UpdateOrganizationResponse)(nil), // 7: m8.platform.organization.v1.UpdateOrganizationResponse
-	(*DeleteOrganizationRequest)(nil),  // 8: m8.platform.organization.v1.DeleteOrganizationRequest
-	(*DeleteOrganizationResponse)(nil), // 9: m8.platform.organization.v1.DeleteOrganizationResponse
-	(*Organization)(nil),               // 10: m8.platform.organization.v1.Organization
-	(*fieldmaskpb.FieldMask)(nil),      // 11: google.protobuf.FieldMask
+	(*GetOrganizationRequest)(nil),      // 0: m8.platform.organization.v1.GetOrganizationRequest
+	(*ListOrganizationsRequest)(nil),    // 1: m8.platform.organization.v1.ListOrganizationsRequest
+	(*ListOrganizationsResponse)(nil),   // 2: m8.platform.organization.v1.ListOrganizationsResponse
+	(*CreateOrganizationRequest)(nil),   // 3: m8.platform.organization.v1.CreateOrganizationRequest
+	(*UpdateOrganizationRequest)(nil),   // 4: m8.platform.organization.v1.UpdateOrganizationRequest
+	(*DeleteOrganizationRequest)(nil),   // 5: m8.platform.organization.v1.DeleteOrganizationRequest
+	(*UndeleteOrganizationRequest)(nil), // 6: m8.platform.organization.v1.UndeleteOrganizationRequest
+	(*Organization)(nil),                // 7: m8.platform.organization.v1.Organization
+	(*fieldmaskpb.FieldMask)(nil),       // 8: google.protobuf.FieldMask
 }
 var file_m8_platform_organization_v1_organization_service_proto_depIdxs = []int32{
-	10, // 0: m8.platform.organization.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.organization.v1.Organization
-	10, // 1: m8.platform.organization.v1.GetOrganizationResponse.organization:type_name -> m8.platform.organization.v1.Organization
-	10, // 2: m8.platform.organization.v1.CreateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
-	10, // 3: m8.platform.organization.v1.CreateOrganizationResponse.organization:type_name -> m8.platform.organization.v1.Organization
-	10, // 4: m8.platform.organization.v1.UpdateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
-	11, // 5: m8.platform.organization.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
-	10, // 6: m8.platform.organization.v1.UpdateOrganizationResponse.organization:type_name -> m8.platform.organization.v1.Organization
-	10, // 7: m8.platform.organization.v1.DeleteOrganizationResponse.organization:type_name -> m8.platform.organization.v1.Organization
-	0,  // 8: m8.platform.organization.v1.OrganizationService.GetOrganization:input_type -> m8.platform.organization.v1.GetOrganizationRequest
-	1,  // 9: m8.platform.organization.v1.OrganizationService.ListOrganizations:input_type -> m8.platform.organization.v1.ListOrganizationsRequest
-	4,  // 10: m8.platform.organization.v1.OrganizationService.CreateOrganization:input_type -> m8.platform.organization.v1.CreateOrganizationRequest
-	6,  // 11: m8.platform.organization.v1.OrganizationService.UpdateOrganization:input_type -> m8.platform.organization.v1.UpdateOrganizationRequest
-	8,  // 12: m8.platform.organization.v1.OrganizationService.DeleteOrganization:input_type -> m8.platform.organization.v1.DeleteOrganizationRequest
-	3,  // 13: m8.platform.organization.v1.OrganizationService.GetOrganization:output_type -> m8.platform.organization.v1.GetOrganizationResponse
-	2,  // 14: m8.platform.organization.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.organization.v1.ListOrganizationsResponse
-	5,  // 15: m8.platform.organization.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.organization.v1.CreateOrganizationResponse
-	7,  // 16: m8.platform.organization.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.organization.v1.UpdateOrganizationResponse
-	9,  // 17: m8.platform.organization.v1.OrganizationService.DeleteOrganization:output_type -> m8.platform.organization.v1.DeleteOrganizationResponse
-	13, // [13:18] is the sub-list for method output_type
-	8,  // [8:13] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	7,  // 0: m8.platform.organization.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.organization.v1.Organization
+	7,  // 1: m8.platform.organization.v1.CreateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
+	7,  // 2: m8.platform.organization.v1.UpdateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
+	8,  // 3: m8.platform.organization.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 4: m8.platform.organization.v1.OrganizationService.GetOrganization:input_type -> m8.platform.organization.v1.GetOrganizationRequest
+	1,  // 5: m8.platform.organization.v1.OrganizationService.ListOrganizations:input_type -> m8.platform.organization.v1.ListOrganizationsRequest
+	3,  // 6: m8.platform.organization.v1.OrganizationService.CreateOrganization:input_type -> m8.platform.organization.v1.CreateOrganizationRequest
+	4,  // 7: m8.platform.organization.v1.OrganizationService.UpdateOrganization:input_type -> m8.platform.organization.v1.UpdateOrganizationRequest
+	5,  // 8: m8.platform.organization.v1.OrganizationService.DeleteOrganization:input_type -> m8.platform.organization.v1.DeleteOrganizationRequest
+	6,  // 9: m8.platform.organization.v1.OrganizationService.UndeleteOrganization:input_type -> m8.platform.organization.v1.UndeleteOrganizationRequest
+	7,  // 10: m8.platform.organization.v1.OrganizationService.GetOrganization:output_type -> m8.platform.organization.v1.Organization
+	2,  // 11: m8.platform.organization.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.organization.v1.ListOrganizationsResponse
+	7,  // 12: m8.platform.organization.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.organization.v1.Organization
+	7,  // 13: m8.platform.organization.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.organization.v1.Organization
+	7,  // 14: m8.platform.organization.v1.OrganizationService.DeleteOrganization:output_type -> m8.platform.organization.v1.Organization
+	7,  // 15: m8.platform.organization.v1.OrganizationService.UndeleteOrganization:output_type -> m8.platform.organization.v1.Organization
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_organization_v1_organization_service_proto_init() }
@@ -668,7 +548,7 @@ func file_m8_platform_organization_v1_organization_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_organization_v1_organization_service_proto_rawDesc), len(file_m8_platform_organization_v1_organization_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

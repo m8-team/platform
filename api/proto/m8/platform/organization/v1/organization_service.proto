@@ -7,90 +7,116 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
 import "google/protobuf/field_mask.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/organization/v1/organization.proto";
 
 option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
+option java_multiple_files = true;
+option java_outer_classname = "OrganizationServiceProto";
+option java_package = "com.m8.platform.organization.v1";
 
-// OrganizationService provides standard create, read, update, and delete operations for organizations.
+// OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
 service OrganizationService {
-  option (m8.platform.extension.v1.description) =
-    "Use this API to create, view, update, and delete organizations.";
+  option (m8.platform.extension.v1.description) = "Use this API to create, view, update, delete, and undelete organizations.";
 
-  // GetOrganization returns a single organization by stable ID.
-  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
-    option (google.api.http) = {get: "/organization/v1/organizations/{organization_id}"};
-    option (google.api.method_signature) = "organization_id";
+  // GetOrganization returns a single organization by resource name.
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {get: "/v1/{name=organizations/*}"};
+    option (google.api.method_signature) = "name";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
-      description: "Returns a single organization by its stable ID."
-      operation_id: "Get"
+      description: "Returns a single organization by its resource name."
+      operation_id: "GetOrganization"
     };
   }
 
   // ListOrganizations returns a paginated list of organizations.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {get: "/organization/v1/organizations"};
+    option (google.api.http) = {get: "/v1/organizations"};
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
-      operation_id: "List"
+      operation_id: "ListOrganizations"
     };
   }
 
   // CreateOrganization creates a new organization.
-  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
-      post: "/organization/v1/organizations"
+      post: "/v1/organizations"
       body: "organization"
     };
-    option (google.api.method_signature) = "organization";
+    option (google.api.method_signature) = "organization,organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new organization."
-      operation_id: "Create"
+      operation_id: "CreateOrganization"
     };
   }
 
-  // UpdateOrganization updates mutable organization fields by stable ID.
-  rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {
+  // UpdateOrganization updates mutable organization fields.
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
-      patch: "/organization/v1/organizations/{organization_id}"
+      patch: "/v1/{organization.name=organizations/*}"
       body: "organization"
     };
-    option (google.api.method_signature) = "organization_id,organization,update_mask,expected_version";
+    option (google.api.method_signature) = "organization,update_mask";
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
-      description: "Updates mutable fields of an existing organization by its stable ID."
-      operation_id: "Update"
+      description: "Updates mutable fields of an existing organization."
+      operation_id: "UpdateOrganization"
     };
   }
 
-  // DeleteOrganization soft-deletes an organization by stable ID.
-  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {
-    option (google.api.http) = {delete: "/organization/v1/organizations/{organization_id}"};
-    option (google.api.method_signature) = "organization_id,expected_version";
+  // DeleteOrganization soft-deletes an organization.
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {delete: "/v1/{name=organizations/*}"};
+    option (google.api.method_signature) = "name,etag";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
-      description: "Soft-deletes an organization by its stable ID."
-      operation_id: "Delete"
+      description: "Soft-deletes an organization."
+      operation_id: "DeleteOrganization"
+    };
+  }
+
+  // UndeleteOrganization restores a previously soft-deleted organization.
+  rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {
+      post: "/v1/{name=organizations/*}:undelete"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Undelete"
+      description: "Restores a previously soft-deleted organization."
+      operation_id: "UndeleteOrganization"
     };
   }
 }
 
-// GetOrganizationRequest fetches a single organization by stable ID.
+// GetOrganizationRequest fetches a single organization by resource name.
 message GetOrganizationRequest {
-  // Stable system-assigned organization identifier in UUID format.
-  string organization_id = 1 [
+  // The name of the organization to retrieve.
+  // Format: organizations/{organization}
+  string name = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
+    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
+    (buf.validate.field).string = {
+      min_len: 17
+      max_len: 77
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
+    }
   ];
 }
 
 // ListOrganizationsRequest lists organizations visible to the caller.
 message ListOrganizationsRequest {
-  // Maximum number of organizations to return.
+  // The maximum number of organizations to return.
+  // The service may return fewer than this value.
+  // If unspecified, at most 50 organizations are returned.
+  // The maximum value is 1000; values above 1000 are coerced to 1000.
   int32 page_size = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).int32 = {
@@ -99,7 +125,11 @@ message ListOrganizationsRequest {
     }
   ];
 
-  // Token returned by a previous `ListOrganizations` call.
+  // A page token, received from a previous `ListOrganizations` call.
+  // Provide this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `ListOrganizations`
+  // must match the call that provided the page token.
   string page_token = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 1024
@@ -116,6 +146,9 @@ message ListOrganizationsRequest {
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 128
   ];
+
+  // If true, soft-deleted organizations are included in the response.
+  bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListOrganizationsResponse returns a single page of organizations.
@@ -127,78 +160,76 @@ message ListOrganizationsResponse {
   string next_page_token = 2;
 }
 
-// GetOrganizationResponse returns a single organization.
-message GetOrganizationResponse {
-  // Organization returned by the read operation.
-  Organization organization = 1;
-}
-
 // CreateOrganizationRequest creates a new organization.
 message CreateOrganizationRequest {
-  // Desired organization values for the new organization.
+  // The ID to use for the organization, which becomes the final component of
+  // the organization's resource name.
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 63
+      pattern: "^[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+
+  // The organization to create.
+  // The `organization.name` and `organization.uid` fields are ignored on create.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
-}
-
-// CreateOrganizationResponse returns the created organization.
-message CreateOrganizationResponse {
-  // Organization after the successful create operation.
-  Organization organization = 1;
 }
 
 // UpdateOrganizationRequest updates mutable fields on an existing organization.
 message UpdateOrganizationRequest {
-  // Stable system-assigned identifier of the organization to update.
-  string organization_id = 4 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  // Desired organization values after the update.
-  // The target organization is identified by `organization_id`.
+  // The organization to update.
+  //
+  // The organization's `name` field is used to identify the organization to update.
+  // Format: organizations/{organization}
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // List of organization fields to update.
-  google.protobuf.FieldMask update_mask = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-
-  // Aggregate version expected by the caller for optimistic concurrency control.
-  uint64 expected_version = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).uint64.gte = 1
-  ];
+  // The list of fields to update.
+  // If omitted, all populated fields in `organization` are updated.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// UpdateOrganizationResponse returns the updated organization.
-message UpdateOrganizationResponse {
-  // Organization after the successful update.
-  Organization organization = 1;
-}
-
-// DeleteOrganizationRequest soft-deletes an organization by stable ID.
+// DeleteOrganizationRequest soft-deletes an organization.
 message DeleteOrganizationRequest {
-  // Stable system-assigned organization identifier in UUID format.
-  string organization_id = 1 [
+  // The name of the organization to delete.
+  // Format: organizations/{organization}
+  string name = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
+    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
+    (buf.validate.field).string = {
+      min_len: 17
+      max_len: 77
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
+    }
   ];
 
-  // Aggregate version expected by the caller for optimistic concurrency control.
-  uint64 expected_version = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).uint64.gte = 1
-  ];
+  // Optional. The etag of the organization.
+  // If this is provided, it must match the server's etag.
+  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // If true, the request succeeds even if the organization is missing or already deleted.
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// DeleteOrganizationResponse returns the soft-deleted organization.
-message DeleteOrganizationResponse {
-  // Organization after the successful soft-delete.
-  Organization organization = 1;
+// UndeleteOrganizationRequest restores a soft-deleted organization.
+message UndeleteOrganizationRequest {
+  // The name of the organization to restore.
+  // Format: organizations/{organization}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
+    (buf.validate.field).string = {
+      min_len: 17
+      max_len: 77
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
 }

@@ -9,6 +9,10 @@ deps:
 lint:
   use:
     - STANDARD
+  except:
+    - ENUM_VALUE_PREFIX
+    - RPC_REQUEST_RESPONSE_UNIQUE
+    - RPC_RESPONSE_STANDARD_NAME
 breaking:
   use:
     - FILE
