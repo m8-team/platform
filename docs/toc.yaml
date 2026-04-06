@@ -6,11 +6,13 @@ items:
       - name: Organization
         href: services/organization/index.md
         items:
+          - name: Управление доступом
+            href: services/organization/access-management.md
           - name: Справочник API
             href: services/organization/api-reference/index.md
             items:
               - name: Аутентификация
-                href: services/organization/api-reference/authentication.md
+                href: common/api/authentication.md
               - name: REST (англ.)
                 include:
                   path: _generated/openapi/services/organization-service

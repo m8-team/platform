@@ -117,16 +117,22 @@ async function readProtoMetadata(protoFile) {
       return {};
     }
 
+    const serviceBody = readBalancedBlock(source, source.indexOf('{', match.index));
     const comment = match[1]
       .split('\n')
       .map((line) => line.replace(/^\/\/\s?/, '').trim())
       .filter(Boolean)
       .join(' ')
       .trim();
+    const optionDescription = readString(
+      serviceBody?.match(
+        /option\s+\((?:m8\.platform\.extension\.v1\.)?description\)\s*=\s*"((?:[^"\\]|\\.)*)"\s*;/m,
+      )?.[1],
+    );
 
     return {
       serviceName: match[2],
-      description: comment || undefined,
+      description: optionDescription ? decodeProtoString(optionDescription) : comment || undefined,
     };
   } catch {
     return {};
@@ -256,12 +262,49 @@ function readString(value) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
 }
 
+function decodeProtoString(value) {
+  return value
+    .replace(/\\\\/g, '\\')
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t');
+}
+
 function escapeTableCell(value) {
   return value.replace(/\|/g, '\\|');
 }
 
 function isObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function readBalancedBlock(source, openBraceIndex) {
+  if (openBraceIndex < 0 || source[openBraceIndex] !== '{') {
+    return undefined;
+  }
+
+  let depth = 0;
+
+  for (let index = openBraceIndex; index < source.length; index += 1) {
+    const char = source[index];
+
+    if (char === '{') {
+      depth += 1;
+      continue;
+    }
+
+    if (char !== '}') {
+      continue;
+    }
+
+    depth -= 1;
+
+    if (depth === 0) {
+      return source.slice(openBraceIndex + 1, index);
+    }
+  }
+
+  return undefined;
 }
 
 async function walk(root) {

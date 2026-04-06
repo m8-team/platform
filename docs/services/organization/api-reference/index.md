@@ -2,5 +2,5 @@
 
 В этом разделе собраны материалы по API сервиса `Organization`.
 
-- [Аутентификация](./authentication.md)
+- [Аутентификация](../../../common/api/authentication.md)
 - `REST (англ.)` содержит автогенерируемый справочник из OpenAPI.

@@ -30,6 +30,14 @@ var file_m8_platform_extension_v1_extension_proto_extTypes = []protoimpl.Extensi
 		Tag:           "bytes,50001,opt,name=topic",
 		Filename:      "m8/platform/extension/v1/extension.proto",
 	},
+	{
+		ExtendedType:  (*descriptorpb.ServiceOptions)(nil),
+		ExtensionType: (*string)(nil),
+		Field:         50002,
+		Name:          "m8.platform.extension.v1.description",
+		Tag:           "bytes,50002,opt,name=description",
+		Filename:      "m8/platform/extension/v1/extension.proto",
+	},
 }
 
 // Extension fields to descriptorpb.MessageOptions.
@@ -38,22 +46,31 @@ var (
 	E_Topic = &file_m8_platform_extension_v1_extension_proto_extTypes[0]
 )
 
+// Extension fields to descriptorpb.ServiceOptions.
+var (
+	// optional string description = 50002;
+	E_Description = &file_m8_platform_extension_v1_extension_proto_extTypes[1]
+)
+
 var File_m8_platform_extension_v1_extension_proto protoreflect.FileDescriptor
 
 const file_m8_platform_extension_v1_extension_proto_rawDesc = "" +
 	"\n" +
 	"(m8/platform/extension/v1/extension.proto\x12\x18m8.platform.extension.v1\x1a google/protobuf/descriptor.proto:7\n" +
-	"\x05topic\x12\x1f.google.protobuf.MessageOptions\x18ц\x03 \x01(\tR\x05topicBSZQgithub.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1;extensionv1b\x06proto3"
+	"\x05topic\x12\x1f.google.protobuf.MessageOptions\x18ц\x03 \x01(\tR\x05topic:C\n" +
+	"\vdescription\x12\x1f.google.protobuf.ServiceOptions\x18҆\x03 \x01(\tR\vdescriptionBSZQgithub.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1;extensionv1b\x06proto3"
 
 var file_m8_platform_extension_v1_extension_proto_goTypes = []any{
 	(*descriptorpb.MessageOptions)(nil), // 0: google.protobuf.MessageOptions
+	(*descriptorpb.ServiceOptions)(nil), // 1: google.protobuf.ServiceOptions
 }
 var file_m8_platform_extension_v1_extension_proto_depIdxs = []int32{
 	0, // 0: m8.platform.extension.v1.topic:extendee -> google.protobuf.MessageOptions
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	0, // [0:1] is the sub-list for extension extendee
+	1, // 1: m8.platform.extension.v1.description:extendee -> google.protobuf.ServiceOptions
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	0, // [0:2] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
 }
 
@@ -69,7 +86,7 @@ func file_m8_platform_extension_v1_extension_proto_init() {
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_extension_v1_extension_proto_rawDesc), len(file_m8_platform_extension_v1_extension_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   0,
-			NumExtensions: 1,
+			NumExtensions: 2,
 			NumServices:   0,
 		},
 		GoTypes:           file_m8_platform_extension_v1_extension_proto_goTypes,

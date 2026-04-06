@@ -10,3 +10,8 @@ import "google/protobuf/descriptor.proto";
 extend google.protobuf.MessageOptions {
   string topic = 50001;
 }
+
+// description declares a human-readable service description for generated documentation.
+extend google.protobuf.ServiceOptions {
+  string description = 50002;
+}

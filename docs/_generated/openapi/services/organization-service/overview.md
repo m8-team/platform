@@ -2,14 +2,14 @@
 
 # Organization API: REST reference
 
-OrganizationService provides standard create, read, update, and delete operations for organizations.
+Use this API to create, view, update, and delete organizations.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| [List](./List.md) | ListOrganizations returns a paginated list of organizations. |
-| [Create](./Create.md) | CreateOrganization creates a new organization. |
-| [Get](./Get.md) | GetOrganization returns a single organization by stable ID. |
-| [Delete](./Delete.md) | DeleteOrganization soft-deletes an organization by stable ID. |
-| [Update](./Update.md) | UpdateOrganization updates mutable organization fields by stable ID. |
+| [List](./List.md) | Returns a paginated list of organizations available to the caller. |
+| [Create](./Create.md) | Creates a new organization. |
+| [Get](./Get.md) | Returns a single organization by its stable ID. |
+| [Delete](./Delete.md) | Soft-deletes an organization by its stable ID. |
+| [Update](./Update.md) | Updates mutable fields of an existing organization by its stable ID. |

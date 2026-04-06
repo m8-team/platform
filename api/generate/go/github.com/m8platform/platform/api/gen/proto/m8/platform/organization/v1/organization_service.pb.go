@@ -9,6 +9,7 @@ package organizationv1
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -562,7 +563,7 @@ var File_m8_platform_organization_v1_organization_service_proto protoreflect.Fil
 
 const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/organization/v1/organization.proto\"N\n" +
+	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"N\n" +
 	"\x16GetOrganizationRequest\x124\n" +
 	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\"\xbf\x01\n" +
 	"\x18ListOrganizationsRequest\x12*\n" +
@@ -594,13 +595,13 @@ const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\x10expected_version\x18\x02 \x01(\x04B\n" +
 	"\xe0A\x02\xbaH\x042\x02(\x01R\x0fexpectedVersion\"k\n" +
 	"\x1aDeleteOrganizationResponse\x12M\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization2\xd4\v\n" +
-	"\x13OrganizationService\x12\x93\x02\n" +
-	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a4.m8.platform.organization.v1.GetOrganizationResponse\"\x94\x01\xdaA\x0forganization_id\xbaGG\x12\x03Get\x1a;GetOrganization returns a single organization by stable ID.*\x03Get\x82\xd3\xe4\x93\x022\x120/organization/v1/organizations/{organization_id}\x12\xf7\x01\n" +
-	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"s\xbaGJ\x12\x04List\x1a<ListOrganizations returns a paginated list of organizations.*\x04List\x82\xd3\xe4\x93\x02 \x12\x1e/organization/v1/organizations\x12\x8e\x02\n" +
-	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a7.m8.platform.organization.v1.CreateOrganizationResponse\"\x86\x01\xdaA\forganization\xbaG@\x12\x06Create\x1a.CreateOrganization creates a new organization.*\x06Create\x82\xd3\xe4\x93\x02.:\forganization\"\x1e/organization/v1/organizations\x12\xe3\x02\n" +
-	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a7.m8.platform.organization.v1.UpdateOrganizationResponse\"\xdb\x01\xdaA9organization_id,organization,update_mask,expected_version\xbaGV\x12\x06Update\x1aDUpdateOrganization updates mutable organization fields by stable ID.*\x06Update\x82\xd3\xe4\x93\x02@:\forganization20/organization/v1/organizations/{organization_id}\x12\xb5\x02\n" +
-	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a7.m8.platform.organization.v1.DeleteOrganizationResponse\"\xad\x01\xdaA organization_id,expected_version\xbaGO\x12\x06Delete\x1a=DeleteOrganization soft-deletes an organization by stable ID.*\x06Delete\x82\xd3\xe4\x93\x022*0/organization/v1/organizations/{organization_id}BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationR\forganization2\xf0\v\n" +
+	"\x13OrganizationService\x12\x87\x02\n" +
+	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a4.m8.platform.organization.v1.GetOrganizationResponse\"\x88\x01\xdaA\x0forganization_id\xbaG;\x12\x03Get\x1a/Returns a single organization by its stable ID.*\x03Get\x82\xd3\xe4\x93\x022\x120/organization/v1/organizations/{organization_id}\x12\xfd\x01\n" +
+	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"y\xbaGP\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x04List\x82\xd3\xe4\x93\x02 \x12\x1e/organization/v1/organizations\x12\xfa\x01\n" +
+	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a7.m8.platform.organization.v1.CreateOrganizationResponse\"s\xdaA\forganization\xbaG-\x12\x06Create\x1a\x1bCreates a new organization.*\x06Create\x82\xd3\xe4\x93\x02.:\forganization\"\x1e/organization/v1/organizations\x12\xe3\x02\n" +
+	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a7.m8.platform.organization.v1.UpdateOrganizationResponse\"\xdb\x01\xdaA9organization_id,organization,update_mask,expected_version\xbaGV\x12\x06Update\x1aDUpdates mutable fields of an existing organization by its stable ID.*\x06Update\x82\xd3\xe4\x93\x02@:\forganization20/organization/v1/organizations/{organization_id}\x12\xa6\x02\n" +
+	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a7.m8.platform.organization.v1.DeleteOrganizationResponse\"\x9e\x01\xdaA organization_id,expected_version\xbaG@\x12\x06Delete\x1a.Soft-deletes an organization by its stable ID.*\x06Delete\x82\xd3\xe4\x93\x022*0/organization/v1/organizations/{organization_id}\x1aC\x92\xb5\x18?Use this API to create, view, update, and delete organizations.BYZWgithub.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1b\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce sync.Once

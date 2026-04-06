@@ -1,13 +1,13 @@
 openapi: 3.0.3
 info:
   title: Organization Service API
-  description: OrganizationService provides standard create, read, update, and delete operations for organizations.
+  description: Use this API to create, view, update, and delete organizations.
   version: v1
 paths:
   /organization/v1/organizations:
     get:
       summary: List
-      description: ListOrganizations returns a paginated list of organizations.
+      description: Returns a paginated list of organizations available to the caller.
       operationId: List
       parameters:
         - name: pageSize
@@ -40,7 +40,7 @@ paths:
                 $ref: '#/components/schemas/ListOrganizationsResponse'
     post:
       summary: Create
-      description: CreateOrganization creates a new organization.
+      description: Creates a new organization.
       operationId: Create
       requestBody:
         content:
@@ -58,7 +58,7 @@ paths:
   /organization/v1/organizations/{organizationId}:
     get:
       summary: Get
-      description: GetOrganization returns a single organization by stable ID.
+      description: Returns a single organization by its stable ID.
       operationId: Get
       parameters:
         - name: organizationId
@@ -76,7 +76,7 @@ paths:
                 $ref: '#/components/schemas/GetOrganizationResponse'
     delete:
       summary: Delete
-      description: DeleteOrganization soft-deletes an organization by stable ID.
+      description: Soft-deletes an organization by its stable ID.
       operationId: Delete
       parameters:
         - name: organizationId
@@ -99,7 +99,7 @@ paths:
                 $ref: '#/components/schemas/DeleteOrganizationResponse'
     patch:
       summary: Update
-      description: UpdateOrganization updates mutable organization fields by stable ID.
+      description: Updates mutable fields of an existing organization by its stable ID.
       operationId: Update
       parameters:
         - name: organizationId
