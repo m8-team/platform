@@ -11,16 +11,41 @@ import "m8/platform/organization/v1/organization.proto";
 
 option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
 
-// GetOrganizationRequest fetches a single organization by stable name.
+// OrganizationService provides standard read, update, and delete operations for organizations.
+service OrganizationService {
+  // GetOrganization returns a single organization by stable ID.
+  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
+    option (google.api.http) = {get: "/organization/v1/organizations/{organization_id}"};
+    option (google.api.method_signature) = "organization_id";
+  }
+
+  // ListOrganizations returns a paginated list of organizations.
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
+    option (google.api.http) = {get: "/organization/v1/organizations"};
+  }
+
+  // UpdateOrganization updates mutable organization fields by stable ID.
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {
+    option (google.api.http) = {
+      patch: "/organization/v1/organizations/{organization_id}"
+      body: "organization"
+    };
+    option (google.api.method_signature) = "organization_id,organization,update_mask,expected_version";
+  }
+
+  // DeleteOrganization soft-deletes an organization by stable ID.
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (DeleteOrganizationResponse) {
+    option (google.api.http) = {delete: "/organization/v1/organizations/{organization_id}"};
+    option (google.api.method_signature) = "organization_id,expected_version";
+  }
+}
+
+// GetOrganizationRequest fetches a single organization by stable ID.
 message GetOrganizationRequest {
-  // Stable organization name.
-  string name = 1 [
+  // Stable system-assigned organization identifier in UUID format.
+  string organization_id = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string = {
-      min_len: 3
-      max_len: 63
-      pattern: "^[a-z][a-z0-9-]{2,62}$"
-    }
+    (buf.validate.field).string.uuid = true
   ];
 }
 
@@ -71,7 +96,14 @@ message GetOrganizationResponse {
 
 // UpdateOrganizationRequest updates mutable fields on an existing organization.
 message UpdateOrganizationRequest {
+  // Stable system-assigned identifier of the organization to update.
+  string organization_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
   // Desired organization values after the update.
+  // The target organization is identified by `organization_id`.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
@@ -96,25 +128,23 @@ message UpdateOrganizationResponse {
   Organization organization = 1;
 }
 
-// OrganizationService provides standard read and update operations for organizations.
-service OrganizationService {
-  // GetOrganization returns a single organization by stable name.
-  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
-    option (google.api.http) = {get: "/v1/organizations/{name}"};
-    option (google.api.method_signature) = "name";
-  }
+// DeleteOrganizationRequest soft-deletes an organization by stable ID.
+message DeleteOrganizationRequest {
+  // Stable system-assigned organization identifier in UUID format.
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 
-  // ListOrganizations returns a paginated list of organizations.
-  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {get: "/v1/organizations"};
-  }
+  // Aggregate version expected by the caller for optimistic concurrency control.
+  uint64 expected_version = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).uint64.gte = 1
+  ];
+}
 
-  // UpdateOrganization updates mutable organization fields.
-  rpc UpdateOrganization(UpdateOrganizationRequest) returns (UpdateOrganizationResponse) {
-    option (google.api.http) = {
-      patch: "/v1/organizations/{organization.name}"
-      body: "organization"
-    };
-    option (google.api.method_signature) = "organization,update_mask";
-  }
+// DeleteOrganizationResponse returns the soft-deleted organization.
+message DeleteOrganizationResponse {
+  // Organization after the successful soft-delete.
+  Organization organization = 1;
 }

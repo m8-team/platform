@@ -7,7 +7,7 @@ info:
     description: Resource-oriented API for reading and updating organizations.
     version: v1
 paths:
-    /v1/organizations:
+    /organization/v1/organizations:
         get:
             tags:
                 - OrganizationService
@@ -48,16 +48,16 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/organizations/{name}:
+    /organization/v1/organizations/{organizationId}:
         get:
             tags:
                 - OrganizationService
-            description: GetOrganization returns a single organization by stable name.
+            description: GetOrganization returns a single organization by stable ID.
             operationId: OrganizationService_GetOrganization
             parameters:
-                - name: name
+                - name: organizationId
                   in: path
-                  description: Stable organization name.
+                  description: Stable system-assigned organization identifier in UUID format.
                   required: true
                   schema:
                     type: string
@@ -74,15 +74,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
-    /v1/organizations/{organization.name}:
+        delete:
+            tags:
+                - OrganizationService
+            description: DeleteOrganization soft-deletes an organization by stable ID.
+            operationId: OrganizationService_DeleteOrganization
+            parameters:
+                - name: organizationId
+                  in: path
+                  description: Stable system-assigned organization identifier in UUID format.
+                  required: true
+                  schema:
+                    type: string
+                - name: expectedVersion
+                  in: query
+                  description: Aggregate version expected by the caller for optimistic concurrency control.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteOrganizationResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
         patch:
             tags:
                 - OrganizationService
-            description: UpdateOrganization updates mutable organization fields.
+            description: UpdateOrganization updates mutable organization fields by stable ID.
             operationId: OrganizationService_UpdateOrganization
             parameters:
-                - name: organization.name
+                - name: organizationId
                   in: path
+                  description: Stable system-assigned identifier of the organization to update.
                   required: true
                   schema:
                     type: string
@@ -118,6 +148,14 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        DeleteOrganizationResponse:
+            type: object
+            properties:
+                organization:
+                    allOf:
+                        - $ref: '#/components/schemas/Organization'
+                    description: Organization after the successful soft-delete.
+            description: DeleteOrganizationResponse returns the soft-deleted organization.
         GetOrganizationResponse:
             type: object
             properties:
@@ -152,11 +190,11 @@ components:
                 id:
                     readOnly: true
                     type: string
-                    description: Stable system-assigned aggregate identifier.
+                    description: Stable system-assigned aggregate identifier in UUID format.
                 name:
                     type: string
                     description: |-
-                        Stable machine-readable organization name used in resource identifiers and APIs.
+                        Stable machine-readable organization name.
                          Must be 3..63 characters, start with a lowercase letter, and contain only
                          lowercase letters, digits, and hyphens.
                 state:

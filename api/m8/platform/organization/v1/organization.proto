@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package m8.platform.organization.v1;
 
-option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
-
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
+
+option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
 
 // Organization stores canonical organization metadata for the organization aggregate.
 message Organization {
@@ -28,10 +28,13 @@ message Organization {
     STATE_DELETED = 4;
   }
 
-  // Stable system-assigned aggregate identifier.
-  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Stable system-assigned aggregate identifier in UUID format.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.uuid = true
+  ];
 
-  // Stable machine-readable organization name used in resource identifiers and APIs.
+  // Stable machine-readable organization name.
   // Must be 3..63 characters, start with a lowercase letter, and contain only
   // lowercase letters, digits, and hyphens.
   string name = 2 [(buf.validate.field).string = {
