@@ -43,6 +43,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListOrganizationsResponse'
+        post:
+            tags:
+                - OrganizationService
+            summary: Create
+            description: CreateOrganization creates a new organization.
+            operationId: Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Organization'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateOrganizationResponse'
     /organization/v1/organizations/{organizationId}:
         get:
             tags:
@@ -128,6 +147,14 @@ paths:
                                 $ref: '#/components/schemas/UpdateOrganizationResponse'
 components:
     schemas:
+        CreateOrganizationResponse:
+            type: object
+            properties:
+                organization:
+                    allOf:
+                        - $ref: '#/components/schemas/Organization'
+                    description: Organization after the successful create operation.
+            description: CreateOrganizationResponse returns the created organization.
         DeleteOrganizationResponse:
             type: object
             properties:

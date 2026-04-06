@@ -12,7 +12,7 @@ import "m8/platform/organization/v1/organization.proto";
 
 option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
 
-// OrganizationService provides standard read, update, and delete operations for organizations.
+// OrganizationService provides standard create, read, update, and delete operations for organizations.
 service OrganizationService {
   // GetOrganization returns a single organization by stable ID.
   rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse) {
@@ -20,6 +20,7 @@ service OrganizationService {
     option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
+      description: "GetOrganization returns a single organization by stable ID."
       operation_id: "Get"
     };
   }
@@ -29,7 +30,22 @@ service OrganizationService {
     option (google.api.http) = {get: "/organization/v1/organizations"};
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
+      description: "ListOrganizations returns a paginated list of organizations."
       operation_id: "List"
+    };
+  }
+
+  // CreateOrganization creates a new organization.
+  rpc CreateOrganization(CreateOrganizationRequest) returns (CreateOrganizationResponse) {
+    option (google.api.http) = {
+      post: "/organization/v1/organizations"
+      body: "organization"
+    };
+    option (google.api.method_signature) = "organization";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Create"
+      description: "CreateOrganization creates a new organization."
+      operation_id: "Create"
     };
   }
 
@@ -42,6 +58,7 @@ service OrganizationService {
     option (google.api.method_signature) = "organization_id,organization,update_mask,expected_version";
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
+      description: "UpdateOrganization updates mutable organization fields by stable ID."
       operation_id: "Update"
     };
   }
@@ -52,6 +69,7 @@ service OrganizationService {
     option (google.api.method_signature) = "organization_id,expected_version";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
+      description: "DeleteOrganization soft-deletes an organization by stable ID."
       operation_id: "Delete"
     };
   }
@@ -108,6 +126,21 @@ message ListOrganizationsResponse {
 // GetOrganizationResponse returns a single organization.
 message GetOrganizationResponse {
   // Organization returned by the read operation.
+  Organization organization = 1;
+}
+
+// CreateOrganizationRequest creates a new organization.
+message CreateOrganizationRequest {
+  // Desired organization values for the new organization.
+  Organization organization = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+// CreateOrganizationResponse returns the created organization.
+message CreateOrganizationResponse {
+  // Organization after the successful create operation.
   Organization organization = 1;
 }
 
