@@ -6,8 +6,6 @@ info:
 paths:
   /organization/v1/organizations:
     get:
-      tags:
-        - OrganizationService
       summary: List
       description: ListOrganizations returns a paginated list of organizations.
       operationId: List
@@ -42,8 +40,6 @@ paths:
                 $ref: '#/components/schemas/ListOrganizationsResponse'
   /organization/v1/organizations/{organizationId}:
     get:
-      tags:
-        - OrganizationService
       summary: Get
       description: GetOrganization returns a single organization by stable ID.
       operationId: Get
@@ -62,8 +58,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetOrganizationResponse'
     delete:
-      tags:
-        - OrganizationService
       summary: Delete
       description: DeleteOrganization soft-deletes an organization by stable ID.
       operationId: Delete
@@ -87,8 +81,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/DeleteOrganizationResponse'
     patch:
-      tags:
-        - OrganizationService
       summary: Update
       description: UpdateOrganization updates mutable organization fields by stable ID.
       operationId: Update
@@ -215,5 +207,3 @@ components:
             - $ref: '#/components/schemas/Organization'
           description: Organization after the successful update.
       description: UpdateOrganizationResponse returns the updated organization.
-tags:
-  - name: OrganizationService

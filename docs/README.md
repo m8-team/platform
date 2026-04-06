@@ -1,6 +1,9 @@
 # M8 Platform Docs
 
-Документация в `docs/` собирается на базе Diplodoc и автоматически подтягивает OpenAPI-спецификации из `../api/generate/openapi`.
+Документация в `docs/` разделена на два слоя:
+
+- ручной контент в `docs/services`, `docs/index.md`, `docs/toc.yaml`;
+- автогенерируемый OpenAPI-контент в `docs/_generated/openapi`.
 
 ## Команды
 
@@ -16,7 +19,7 @@ npm run build
 npm run dev
 ```
 
-## Обновление API Reference
+## Обновление OpenAPI Reference
 
 1. Перегенерировать protobuf-артефакты и OpenAPI:
 
@@ -30,10 +33,12 @@ buf generate
 npm run sync:openapi
 ```
 
+Команда `sync:openapi` изменяет только `docs/_generated/openapi`.
+
 3. Собрать сайт:
 
 ```bash
 npm run build
 ```
 
-В публикацию попадают только OpenAPI-файлы с непустым `paths`, поэтому служебные protobuf-схемы без HTTP-методов в API Reference не появляются.
+В публикацию попадают только OpenAPI-файлы с непустым `paths`, поэтому служебные protobuf-схемы без HTTP-методов не появляются в сгенерированном REST reference.

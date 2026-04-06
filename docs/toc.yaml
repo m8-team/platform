@@ -1,27 +1,29 @@
 title: M8 Platform Docs
 href: index.md
 items:
-  - name: Справочник API
+  - name: Сервисы
     items:
-      - name: REST (англ.)
+      - name: Organization
+        href: services/organization/index.md
         items:
-          - name: Overview
-            href: generated/rest/overview.md
-          - name: Organization Service
-            include:
-              path: generated/services/organization-service
-              includers:
-                - name: openapi
-                  input: generated/services/organization-service/openapi.yaml
-                  leadingPage:
-                    spec:
-                      renderMode: hidden
-                  tags:
-                    __root__:
-                      name: Обзор
-                      path: overview.md
-                      alias: overview
-                    OrganizationService:
-                      name: Операции
-                      alias: operations
-              mode: link
+          - name: Справочник API
+            href: services/organization/api-reference/index.md
+            items:
+              - name: Аутентификация
+                href: services/organization/api-reference/authentication.md
+              - name: REST (англ.)
+                include:
+                  path: _generated/openapi/services/organization-service
+                  includers:
+                    - name: openapi
+                      input: _generated/openapi/services/organization-service/openapi.yaml
+                      leadingPage:
+                        name: Overview
+                        spec:
+                          renderMode: hidden
+                      tags:
+                        __root__:
+                          name: Overview
+                          path: overview.md
+                          alias: overview
+                  mode: link

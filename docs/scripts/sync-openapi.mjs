@@ -10,20 +10,16 @@ const docsRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(docsRoot, '..');
 const sourceOpenapiRoot = path.join(repoRoot, 'api', 'generate', 'openapi');
 const sourceProtoRoot = path.join(repoRoot, 'api', 'proto');
-const generatedRoot = path.join(docsRoot, 'generated');
-const generatedRestRoot = path.join(generatedRoot, 'rest');
-const generatedServicesRoot = path.join(generatedRoot, 'services');
+const generatedOpenapiRoot = path.join(docsRoot, '_generated', 'openapi');
+const generatedServicesRoot = path.join(generatedOpenapiRoot, 'services');
 
 async function main() {
-  await fs.rm(generatedRoot, {recursive: true, force: true});
-  await fs.mkdir(generatedRestRoot, {recursive: true});
+  await fs.rm(generatedOpenapiRoot, {recursive: true, force: true});
   await fs.mkdir(generatedServicesRoot, {recursive: true});
 
   const specFiles = (await walk(sourceOpenapiRoot))
     .filter((filePath) => filePath.endsWith('.openapi.yaml'))
     .sort();
-
-  const services = [];
 
   for (const specFile of specFiles) {
     const source = yaml.load(await fs.readFile(specFile, 'utf8'));
@@ -42,13 +38,20 @@ async function main() {
     const serviceName = protoMeta.serviceName ?? inferServiceNameFromSpec(source, specFile);
     const slug = toKebabCase(serviceName);
     const displayName = humanizeServiceName(serviceName);
+    const navName = toProductName(displayName);
     const description =
       protoMeta.description ??
       readString(source.info?.description) ??
       `${displayName} HTTP API.`;
     const version = readString(source.info?.version) ?? inferVersion(relativeDir);
-    const basePath = inferBasePath(Object.keys(source.paths));
     const tags = collectTags(source);
+    const flattenTagSections = tags.length === 1 && tags[0] === serviceName;
+
+    if (flattenTagSections) {
+      flattenSingleTagSections(source);
+    }
+
+    const operations = extractOperations(source, {flattenTagSections});
     const serviceDir = path.join(generatedServicesRoot, slug);
 
     source.info = {
@@ -67,149 +70,42 @@ async function main() {
     await fs.writeFile(
       path.join(serviceDir, 'overview.md'),
       renderServiceOverview({
-        displayName,
+        navName,
         description,
-        version,
-        basePath,
-        protoFile: toRepoPath(protoFile),
-        openapiFile: toRepoPath(specFile),
+        operations,
       }),
       'utf8',
     );
-
-    services.push({
-      slug,
-      displayName,
-      description,
-      serviceName,
-      version,
-      basePath,
-      tags,
-    });
   }
 
-  services.sort((left, right) => left.displayName.localeCompare(right.displayName, 'en'));
-
-  await fs.writeFile(path.join(generatedRestRoot, 'overview.md'), renderRestOverviewPage(services), 'utf8');
-  await fs.writeFile(path.join(docsRoot, 'toc.yaml'), yaml.dump(renderToc(services), {lineWidth: -1}), 'utf8');
-
-  console.log(`Generated Diplodoc sources for ${services.length} service(s).`);
+  console.log('Generated OpenAPI docs into docs/_generated/openapi.');
 }
 
-function renderToc(services) {
-  const restOverviewPath = path.posix.join('generated', 'rest', 'overview.md');
-
-  return {
-    title: 'M8 Platform Docs',
-    href: 'index.md',
-    items: [
-      {
-        name: 'Справочник API',
-        items: [
-          {
-            name: 'REST (англ.)',
-            items: [
-              {
-                name: 'Overview',
-                href: restOverviewPath,
-              },
-              ...services.map((service) => {
-                const includePath = path.posix.join('generated', 'services', service.slug);
-
-                return {
-                  name: service.displayName,
-                  include: {
-                    path: includePath,
-                    includers: [
-                      {
-                        name: 'openapi',
-                        input: path.posix.join(includePath, 'openapi.yaml'),
-                        leadingPage: {
-                          spec: {
-                            renderMode: 'hidden',
-                          },
-                        },
-                        tags: renderTagOverrides(service),
-                      },
-                    ],
-                    mode: 'link',
-                  },
-                };
-              }),
-            ],
-          },
-        ],
-      },
-    ],
-  };
-}
-
-function renderTagOverrides(service) {
-  const overrides = {
-    __root__: {
-      name: 'Обзор',
-      path: 'overview.md',
-      alias: 'overview',
-    },
-  };
-
-  if (service.tags.length === 1 && service.tags[0] === service.serviceName) {
-    overrides[service.serviceName] = {
-      name: 'Операции',
-      alias: 'operations',
-    };
-  }
-
-  return overrides;
-}
-
-function renderRestOverviewPage(services) {
+function renderServiceOverview({navName, description, operations}) {
   const lines = [
     '<!-- Generated by docs/scripts/sync-openapi.mjs -->',
     '',
-    '# M8 Platform API: REST reference',
+    `# ${navName} API: REST reference`,
     '',
-    'This API reference is organized by service and generated from protobuf contracts via OpenAPI.',
+    description,
     '',
-    'Only services with HTTP methods and non-empty `paths` are published here.',
+    '## Methods',
     '',
-    '## Services',
-    '',
-    '| Service | Description |',
+    '| Method | Description |',
     '| --- | --- |',
   ];
 
-  if (services.length === 0) {
-    lines.push('| No published services | OpenAPI sections will appear here after generation. |');
+  if (operations.length === 0) {
+    lines.push('| No published methods | Methods will appear here after OpenAPI generation. |');
   } else {
-    for (const service of services) {
+    for (const operation of operations) {
       lines.push(
-        `| [${service.displayName}](../services/${service.slug}/index.md) | ${escapeTableCell(service.description)} |`,
+        `| [${operation.name}](${operation.docHref}) | ${escapeTableCell(operation.description)} |`,
       );
     }
   }
 
   return `${lines.join('\n')}\n`;
-}
-
-function renderServiceOverview({displayName, description, version, basePath, protoFile, openapiFile}) {
-  return `<!-- Generated by docs/scripts/sync-openapi.mjs -->
-
-# ${displayName}
-
-${description}
-
-## Кратко
-
-- Версия: \`${version}\`
-- Базовый путь: \`${basePath}\`
-- Исходный protobuf: \`${protoFile}\`
-- Исходный OpenAPI: \`${openapiFile}\`
-
-## Примечание
-
-Этот раздел собран автоматически из OpenAPI-спецификации. Ниже опубликованы операции и схемы текущего сервиса.
-`;
 }
 
 async function readProtoMetadata(protoFile) {
@@ -271,24 +167,58 @@ function collectTags(spec) {
   return [...tags];
 }
 
-function inferBasePath(paths) {
-  const firstPath = paths[0];
+function extractOperations(spec, {flattenTagSections}) {
+  const operations = [];
 
-  if (!firstPath) {
-    return '/';
+  for (const [routePath, methods] of Object.entries(spec.paths ?? {})) {
+    if (!isObject(methods)) {
+      continue;
+    }
+
+    for (const [method, operation] of Object.entries(methods)) {
+      if (!isObject(operation)) {
+        continue;
+      }
+
+      const name =
+        readString(operation.summary) ??
+        readString(operation.operationId) ??
+        `${method.toUpperCase()} ${routePath}`;
+      const fileName = readString(operation.operationId) ?? slugForFile(name);
+      const description =
+        readString(operation.description) ??
+        readString(operation.summary) ??
+        'No description.';
+
+      operations.push({
+        name,
+        description,
+        docHref: flattenTagSections ? `./${fileName}.md` : `./operations/${fileName}.md`,
+      });
+    }
   }
 
-  const segments = firstPath.split('/').filter(Boolean);
+  return operations;
+}
 
-  if (segments.length >= 2 && /^v\d/.test(segments[1])) {
-    return `/${segments.slice(0, 2).join('/')}`;
+function flattenSingleTagSections(spec) {
+  if (Array.isArray(spec.tags)) {
+    delete spec.tags;
   }
 
-  if (segments.length > 0) {
-    return `/${segments[0]}`;
-  }
+  for (const methods of Object.values(spec.paths ?? {})) {
+    if (!isObject(methods)) {
+      continue;
+    }
 
-  return '/';
+    for (const operation of Object.values(methods)) {
+      if (!isObject(operation)) {
+        continue;
+      }
+
+      delete operation.tags;
+    }
+  }
 }
 
 function inferVersion(relativeDir) {
@@ -312,8 +242,14 @@ function toKebabCase(value) {
     .replace(/^-+|-+$/g, '');
 }
 
-function toRepoPath(filePath) {
-  return path.relative(repoRoot, filePath).split(path.sep).join('/');
+function toProductName(displayName) {
+  return displayName.replace(/\s+Service$/, '').trim();
+}
+
+function slugForFile(value) {
+  return value
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 function readString(value) {
