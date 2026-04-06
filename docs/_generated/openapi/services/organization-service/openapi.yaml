@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Organization Service API
+  title: Organization API
   description: Use this API to create, view, update, and delete organizations.
   version: v1
 paths:

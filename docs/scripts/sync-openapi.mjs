@@ -56,7 +56,7 @@ async function main() {
 
     source.info = {
       ...(isObject(source.info) ? source.info : {}),
-      title: `${displayName} API`,
+      title: `${navName} API`,
       description,
       version,
     };

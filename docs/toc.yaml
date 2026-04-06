@@ -9,7 +9,6 @@ items:
           - name: Управление доступом
             href: services/organization/access-management.md
           - name: Справочник API
-            href: services/organization/api-reference/index.md
             items:
               - name: Аутентификация
                 href: common/api/authentication.md
