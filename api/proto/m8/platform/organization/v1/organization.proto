@@ -81,13 +81,10 @@ message Organization {
   // Output only. Time when the organization was soft-deleted.
   google.protobuf.Timestamp delete_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Aggregate version number for internal change tracking.
-  int64 version = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Output only. Time when the soft-deleted organization is scheduled to be purged.
+  google.protobuf.Timestamp purge_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // The etag for this organization.
   // If this is provided on update or delete, it must match the server's etag.
   string etag = 10 [(google.api.field_behavior) = OPTIONAL];
-
-  // Output only. Time when the soft-deleted organization is scheduled to be purged.
-  google.protobuf.Timestamp purge_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
