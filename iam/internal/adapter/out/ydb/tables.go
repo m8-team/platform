@@ -1,0 +1,27 @@
+package ydb
+
+const (
+	TableUsers                = "users"
+	TableTenants              = "tenants"
+	TableMemberships          = "memberships"
+	TableGroups               = "groups"
+	TableGroupMembers         = "group_members"
+	TableServiceAccounts      = "service_accounts"
+	TableFederatedLinks       = "federated_links"
+	TableOAuthClients         = "oauth_clients"
+	TableClientSecretRefs     = "client_secret_refs"
+	TableRoles                = "roles"
+	TableResources            = "resources"
+	TableRoleTemplates        = "role_templates"
+	TableBindingOperations    = "binding_operations"
+	TableSubjectAccessIndex   = "subject_access_index"
+	TableResourceSubjectIdx   = "resource_subject_index"
+	TableAccessExplainEdges   = "access_explain_edges"
+	TableChangeImpactIndex    = "change_impact_index"
+	TableOperations           = "operations"
+	TableAuditEvents          = "audit_events"
+	TableOutboxEvents         = "outbox_events"
+	TableTopicOffsets         = "topic_offsets"
+	TableProjectionCheckpoint = "projection_checkpoints"
+	TableWorkflowLocks        = "workflow_locks"
+)

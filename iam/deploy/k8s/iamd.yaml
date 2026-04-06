@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iamd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iamd
+  template:
+    metadata:
+      labels:
+        app: iamd
+    spec:
+      containers:
+        - name: iamd
+          image: ghcr.io/m8platform/iam:latest
+          args: ["./iamd"]
+          envFrom:
+            - secretRef:
+                name: iamd-env
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iamd
+spec:
+  selector:
+    app: iamd
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080

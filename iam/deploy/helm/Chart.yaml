@@ -1,0 +1,6 @@
+apiVersion: v2
+name: m8-platform-iam
+description: Helm chart for M8 Platform IAM
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

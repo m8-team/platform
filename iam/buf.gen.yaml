@@ -1,0 +1,21 @@
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/go
+    out: gen/proto
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc/go
+    out: gen/proto
+    opt:
+      - paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway
+    out: gen/proto
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=false
+  - remote: buf.build/grpc-ecosystem/openapiv2
+    out: gen/openapi
+    opt:
+      - allow_merge=true
+      - merge_file_name=iam
+      - json_names_for_fields=false

@@ -1,0 +1,38 @@
+{
+  "service": "saas.iam.support.v1.SupportAccessService",
+  "methods": {
+    "GrantTemporaryAccess": {
+      "request_id": "req-{{$timestamp}}",
+      "tenant_id": "{{tenant_id}}",
+      "subject": {
+        "type": "SUBJECT_TYPE_USER_ACCOUNT",
+        "id": "{{support_user_id}}",
+        "tenant_id": "{{tenant_id}}"
+      },
+      "resource": {
+        "type": "RESOURCE_TYPE_SUPPORT_CASE",
+        "id": "{{support_case_id}}",
+        "tenant_id": "{{tenant_id}}"
+      },
+      "role_id": "support-operator",
+      "ttl": "3600s",
+      "reason": "postman grpc support drill",
+      "requested_by": "{{performed_by}}"
+    },
+    "ApproveTemporaryAccess": {
+      "support_grant_id": "{{support_grant_id}}",
+      "approval_ticket": "TICKET-{{$timestamp}}",
+      "reason": "approved in postman grpc",
+      "approved_by": "{{performed_by}}"
+    },
+    "RevokeTemporaryAccess": {
+      "support_grant_id": "{{support_grant_id}}",
+      "reason": "cleanup after postman grpc check",
+      "revoked_by": "{{performed_by}}"
+    },
+    "ListSupportGrants": {
+      "tenant_id": "{{tenant_id}}",
+      "page_size": 50
+    }
+  }
+}
