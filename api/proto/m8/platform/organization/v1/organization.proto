@@ -10,10 +10,7 @@ import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
 
-option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/organization/v1;organizationv1";
-option java_multiple_files = true;
-option java_outer_classname = "OrganizationProto";
-option java_package = "com.m8.platform.organization.v1";
+option go_package = "m8/platform/organization/v1;organization";
 
 // Organization stores canonical organization metadata for the organization aggregate.
 message Organization {

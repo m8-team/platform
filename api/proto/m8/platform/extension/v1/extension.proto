@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package m8.platform.extension.v1;
 
-option go_package = "github.com/m8platform/platform/api/gen/proto/m8/platform/extension/v1;extensionv1";
+option go_package = "m8/platform/extension/v1;extension";
 
 import "google/protobuf/descriptor.proto";
 
