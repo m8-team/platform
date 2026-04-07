@@ -32,19 +32,20 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// ProjectService provides standard create, read, update, delete, and list operations for projects.
+// ProjectService provides standard create, read, list, update, soft-delete,
+// and undelete operations for projects.
 type ProjectServiceClient interface {
 	// GetProject returns a single project by ID.
 	GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	// ListProjects returns a paginated list of projects under a workspace ID.
-	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// ListProjects returns a paginated list of projects under a workspace ID. In
+	// the HTTP API, the parent workspace UUID is provided as a query parameter.
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	// CreateProject creates a new project under a workspace ID.
 	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	// DeleteProject deletes a project by ID.
+	// DeleteProject soft-deletes a project by ID.
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UndeleteProject restores a previously soft-deleted project.
 	UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error)
@@ -122,19 +123,20 @@ func (c *projectServiceClient) UndeleteProject(ctx context.Context, in *Undelete
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
 //
-// ProjectService provides standard create, read, update, delete, and list operations for projects.
+// ProjectService provides standard create, read, list, update, soft-delete,
+// and undelete operations for projects.
 type ProjectServiceServer interface {
 	// GetProject returns a single project by ID.
 	GetProject(context.Context, *GetProjectRequest) (*Project, error)
-	// ListProjects returns a paginated list of projects under a workspace ID.
-	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// ListProjects returns a paginated list of projects under a workspace ID. In
+	// the HTTP API, the parent workspace UUID is provided as a query parameter.
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	// CreateProject creates a new project under a workspace ID.
 	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	CreateProject(context.Context, *CreateProjectRequest) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error)
-	// DeleteProject deletes a project by ID.
+	// DeleteProject soft-deletes a project by ID.
 	DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error)
 	// UndeleteProject restores a previously soft-deleted project.
 	UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error)

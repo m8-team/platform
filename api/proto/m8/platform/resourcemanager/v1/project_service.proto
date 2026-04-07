@@ -13,7 +13,8 @@ import "m8/platform/resourcemanager/v1/project.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 
-// ProjectService provides standard create, read, update, delete, and list operations for projects.
+// ProjectService provides standard create, read, list, update, soft-delete,
+// and undelete operations for projects.
 service ProjectService {
   // GetProject returns a single project by ID.
   rpc GetProject(GetProjectRequest) returns (Project) {
@@ -26,8 +27,8 @@ service ProjectService {
     };
   }
 
-  // ListProjects returns a paginated list of projects under a workspace ID.
-  // In the HTTP API, the parent workspace UUID is provided as a query parameter.
+  // ListProjects returns a paginated list of projects under a workspace ID. In
+  // the HTTP API, the parent workspace UUID is provided as a query parameter.
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (google.api.http) = {get: "/v1/projects"};
     option (google.api.method_signature) = "workspace_id";
@@ -67,13 +68,13 @@ service ProjectService {
     };
   }
 
-  // DeleteProject deletes a project by ID.
+  // DeleteProject soft-deletes a project by ID.
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/projects/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
-      description: "Deletes a project by its UUID."
+      description: "Soft-deletes a project by its UUID."
       operation_id: "delete"
     };
   }
@@ -140,6 +141,9 @@ message ListProjectsRequest {
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 128
   ];
+
+  // Optional. If true, soft-deleted projects are included in the response.
+  bool show_deleted = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListProjectsResponse returns a single page of projects.
@@ -194,18 +198,18 @@ message UpdateProjectRequest {
   ];
 }
 
-// DeleteProjectRequest deletes a project by ID.
+// DeleteProjectRequest soft-deletes a project by ID.
 message DeleteProjectRequest {
   // Required. Stable unique identifier of the project to delete.
   // The value must be a valid UUID4 string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
-  // Optional. The etag of the organization.
+  // Optional. The etag of the project.
   // If provided, the value must exactly match the current server-side etag.
   string etag = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. If true, the request succeeds even if the organization does not
-  // exist or has already been deleted.
+  // Optional. If true, the request succeeds even if the project does not
+  // exist or has already been soft-deleted.
   bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 

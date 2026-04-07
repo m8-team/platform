@@ -58,6 +58,11 @@ paths:
                      The expression must not exceed 128 characters.
                   schema:
                     type: string
+                - name: showDeleted
+                  in: query
+                  description: Optional. If true, soft-deleted workspaces are included in the response.
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -120,7 +125,7 @@ paths:
             tags:
                 - WorkspaceService
             summary: Delete
-            description: Deletes a workspace by its UUID.
+            description: Soft-deletes a workspace by its UUID.
             operationId: delete
             parameters:
                 - name: id
@@ -134,15 +139,15 @@ paths:
                 - name: etag
                   in: query
                   description: |-
-                    Optional. The etag of the organization.
+                    Optional. The etag of the workspace.
                      If provided, the value must exactly match the current server-side etag.
                   schema:
                     type: string
                 - name: allowMissing
                   in: query
                   description: |-
-                    Optional. If true, the request succeeds even if the organization does not
-                     exist or has already been deleted.
+                    Optional. If true, the request succeeds even if the workspace does not
+                     exist or has already been soft-deleted.
                   schema:
                     type: boolean
             responses:

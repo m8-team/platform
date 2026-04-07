@@ -13,7 +13,8 @@ import "m8/platform/resourcemanager/v1/workspace.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 
-// WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
+// WorkspaceService provides standard create, read, list, update, soft-delete,
+// and undelete operations for workspaces.
 service WorkspaceService {
   // GetWorkspace returns a single workspace by ID.
   rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
@@ -26,8 +27,9 @@ service WorkspaceService {
     };
   }
 
-  // ListWorkspaces returns a paginated list of workspaces under an organization ID.
-  // In the HTTP API, the parent organization UUID is provided as a query parameter.
+  // ListWorkspaces returns a paginated list of workspaces under an organization
+  // ID. In the HTTP API, the parent organization UUID is provided as a query
+  // parameter.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
     option (google.api.http) = {get: "/v1/workspaces"};
     option (google.api.method_signature) = "organization_id";
@@ -67,13 +69,13 @@ service WorkspaceService {
     };
   }
 
-  // DeleteWorkspace deletes a workspace by ID.
+  // DeleteWorkspace soft-deletes a workspace by ID.
   rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/workspaces/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
-      description: "Deletes a workspace by its UUID."
+      description: "Soft-deletes a workspace by its UUID."
       operation_id: "delete"
     };
   }
@@ -140,6 +142,9 @@ message ListWorkspacesRequest {
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 128
   ];
+
+  // Optional. If true, soft-deleted workspaces are included in the response.
+  bool show_deleted = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ListWorkspacesResponse returns a single page of workspaces.
@@ -194,18 +199,18 @@ message UpdateWorkspaceRequest {
   ];
 }
 
-// DeleteWorkspaceRequest deletes a workspace by ID.
+// DeleteWorkspaceRequest soft-deletes a workspace by ID.
 message DeleteWorkspaceRequest {
   // Required. Stable unique identifier of the workspace to delete.
   // The value must be a valid UUID4 string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
-  // Optional. The etag of the organization.
+  // Optional. The etag of the workspace.
   // If provided, the value must exactly match the current server-side etag.
   string etag = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. If true, the request succeeds even if the organization does not
-  // exist or has already been deleted.
+  // Optional. If true, the request succeeds even if the workspace does not
+  // exist or has already been soft-deleted.
   bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 

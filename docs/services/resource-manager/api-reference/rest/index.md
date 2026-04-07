@@ -9,3 +9,5 @@
 | Service | Description |
 | --- | --- |
 | [Organization](./organization/index.md) | Use this API to create, view, update, delete, and undelete organizations. |
+| [Project](./project/index.md) | ProjectService provides standard create, read, list, update, soft-delete, and undelete operations for projects. |
+| [Workspace](./workspace/index.md) | WorkspaceService provides standard create, read, list, update, soft-delete, and undelete operations for workspaces. |

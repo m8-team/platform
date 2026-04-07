@@ -97,7 +97,9 @@ type ListProjectsRequest struct {
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional. AIP-132 compatible ordering expression.
 	// The expression must not exceed 128 characters.
-	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	OrderBy string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	// Optional. If true, soft-deleted projects are included in the response.
+	ShowDeleted   bool `protobuf:"varint,6,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,6 +167,13 @@ func (x *ListProjectsRequest) GetOrderBy() string {
 		return x.OrderBy
 	}
 	return ""
+}
+
+func (x *ListProjectsRequest) GetShowDeleted() bool {
+	if x != nil {
+		return x.ShowDeleted
+	}
+	return false
 }
 
 // ListProjectsResponse returns a single page of projects.
@@ -354,17 +363,17 @@ func (x *UpdateProjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteProjectRequest deletes a project by ID.
+// DeleteProjectRequest soft-deletes a project by ID.
 type DeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the project to delete.
 	// The value must be a valid UUID4 string.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Optional. The etag of the organization.
+	// Optional. The etag of the project.
 	// If provided, the value must exactly match the current server-side etag.
 	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
-	// Optional. If true, the request succeeds even if the organization does not
-	// exist or has already been deleted.
+	// Optional. If true, the request succeeds even if the project does not
+	// exist or has already been soft-deleted.
 	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -474,14 +483,15 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\n" +
 	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
 	"\x11GetProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xea\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x92\x02\n" +
 	"\x13ListProjectsRequest\x12.\n" +
 	"\fworkspace_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12*\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
 	"\x06filter\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\x06filter\x12&\n" +
-	"\border_by\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\"\xa2\x01\n" +
+	"\border_by\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x12&\n" +
+	"\fshow_deleted\x18\x06 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\xa2\x01\n" +
 	"\x14ListProjectsResponse\x12C\n" +
 	"\bprojects\x18\x01 \x03(\v2'.m8.platform.resourcemanager.v1.ProjectR\bprojects\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
@@ -499,15 +509,15 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xd6\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xe3\n" +
 	"\n" +
 	"\x0eProjectService\x12\xbc\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"R\xdaA\x02id\xbaG1\x12\x03Get\x1a%Returns a single project by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/projects/{id}\x12\xf7\x01\n" +
 	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"|\xdaA\fworkspace_id\xbaGV\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\x04list\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/projects\x12\xf3\x01\n" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x82\x01\xdaA\x14workspace_id,project\xbaGK\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\x06create\x82\xd3\xe4\x93\x02\x17:\aproject\"\f/v1/projects\x12\xf4\x01\n" +
-	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xbb\x01\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"\\\xdaA\rid,request_id\xbaG0\x12\x06Delete\x1a\x1eDeletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
+	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xc8\x01\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"i\xdaA\x15id,etag,allow_missing\xbaG5\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
 	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"k\xdaA\x02id\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (

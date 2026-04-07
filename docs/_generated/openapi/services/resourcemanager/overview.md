@@ -9,3 +9,5 @@ This section contains generated OpenAPI references for the services in this grou
 | Service | Description |
 | --- | --- |
 | [Organization](./organization-service/overview.md) | Use this API to create, view, update, delete, and undelete organizations. |
+| [Project](./project-service/overview.md) | ProjectService provides standard create, read, list, update, soft-delete, and undelete operations for projects. |
+| [Workspace](./workspace-service/overview.md) | WorkspaceService provides standard create, read, list, update, soft-delete, and undelete operations for workspaces. |

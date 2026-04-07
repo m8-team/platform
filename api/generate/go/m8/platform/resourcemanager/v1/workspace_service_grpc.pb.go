@@ -32,19 +32,21 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
+// WorkspaceService provides standard create, read, list, update, soft-delete,
+// and undelete operations for workspaces.
 type WorkspaceServiceClient interface {
 	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(ctx context.Context, in *GetWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
-	// In the HTTP API, the parent organization UUID is provided as a query parameter.
+	// ListWorkspaces returns a paginated list of workspaces under an organization
+	// ID. In the HTTP API, the parent organization UUID is provided as a query
+	// parameter.
 	ListWorkspaces(ctx context.Context, in *ListWorkspacesRequest, opts ...grpc.CallOption) (*ListWorkspacesResponse, error)
 	// CreateWorkspace creates a new workspace under an organization ID.
 	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
-	// DeleteWorkspace deletes a workspace by ID.
+	// DeleteWorkspace soft-deletes a workspace by ID.
 	DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UndeleteWorkspace restores a previously soft-deleted workspace.
 	UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
@@ -122,19 +124,21 @@ func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *Unde
 // All implementations must embed UnimplementedWorkspaceServiceServer
 // for forward compatibility.
 //
-// WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
+// WorkspaceService provides standard create, read, list, update, soft-delete,
+// and undelete operations for workspaces.
 type WorkspaceServiceServer interface {
 	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(context.Context, *GetWorkspaceRequest) (*Workspace, error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
-	// In the HTTP API, the parent organization UUID is provided as a query parameter.
+	// ListWorkspaces returns a paginated list of workspaces under an organization
+	// ID. In the HTTP API, the parent organization UUID is provided as a query
+	// parameter.
 	ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	// CreateWorkspace creates a new workspace under an organization ID.
 	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error)
-	// DeleteWorkspace deletes a workspace by ID.
+	// DeleteWorkspace soft-deletes a workspace by ID.
 	DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 	// UndeleteWorkspace restores a previously soft-deleted workspace.
 	UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error)
