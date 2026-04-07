@@ -277,7 +277,7 @@ type UpdateOrganizationRequest struct {
 	// Required. The organization to update.
 	//
 	// The `organization.id` field identifies the resource to update and must be
-	// a valid UUID4 string.
+	// a valid UUID4 string. The identifier is immutable and cannot be changed.
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`

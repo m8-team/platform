@@ -78,6 +78,7 @@ type ListWorkspacesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
 	// The value must be a valid UUID4 string.
+	// In the HTTP API, pass this field in the query string.
 	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// Optional. The maximum number of workspaces to return.
 	// Valid values are in the range 0 to 1000.
@@ -236,6 +237,7 @@ type CreateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
 	// The value must be a valid UUID4 string.
+	// In the HTTP API, pass this field in the query string.
 	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// Required. The workspace to create.
 	// Client-specified values in `workspace.id`, `workspace.organization_id`,
@@ -306,7 +308,7 @@ type UpdateWorkspaceRequest struct {
 	// Required. The workspace to update.
 	//
 	// The `workspace.id` field identifies the resource to update and must be a
-	// valid UUID4 string.
+	// valid UUID4 string. The identifier is immutable and cannot be changed.
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Workspace *Workspace `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`

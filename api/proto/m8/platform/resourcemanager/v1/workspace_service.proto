@@ -27,6 +27,7 @@ service WorkspaceService {
   }
 
   // ListWorkspaces returns a paginated list of workspaces under an organization ID.
+  // In the HTTP API, the parent organization UUID is provided as a query parameter.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
     option (google.api.http) = {get: "/v1/workspaces"};
     option (google.api.method_signature) = "organization_id";
@@ -38,6 +39,7 @@ service WorkspaceService {
   }
 
   // CreateWorkspace creates a new workspace under an organization ID.
+  // In the HTTP API, the parent organization UUID is provided as a query parameter.
   rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
       post: "/v1/workspaces"
@@ -99,6 +101,7 @@ message GetWorkspaceRequest {
 message ListWorkspacesRequest {
   // Required. Stable unique identifier of the parent organization.
   // The value must be a valid UUID4 string.
+  // In the HTTP API, pass this field in the query string.
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Optional. The maximum number of workspaces to return.
@@ -156,6 +159,7 @@ message ListWorkspacesResponse {
 message CreateWorkspaceRequest {
   // Required. Stable unique identifier of the parent organization.
   // The value must be a valid UUID4 string.
+  // In the HTTP API, pass this field in the query string.
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Required. The workspace to create.
@@ -177,7 +181,7 @@ message UpdateWorkspaceRequest {
   // Required. The workspace to update.
   //
   // The `workspace.id` field identifies the resource to update and must be a
-  // valid UUID4 string.
+  // valid UUID4 string. The identifier is immutable and cannot be changed.
   // Output-only fields are ignored except for `etag`, which may be provided for
   // optimistic concurrency control.
   Workspace workspace = 1 [

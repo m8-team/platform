@@ -78,6 +78,7 @@ type ListProjectsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent workspace.
 	// The value must be a valid UUID4 string.
+	// In the HTTP API, pass this field in the query string.
 	WorkspaceId string `protobuf:"bytes,1,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
 	// Optional. The maximum number of projects to return.
 	// Valid values are in the range 0 to 1000.
@@ -236,6 +237,7 @@ type CreateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent workspace.
 	// The value must be a valid UUID4 string.
+	// In the HTTP API, pass this field in the query string.
 	WorkspaceId string `protobuf:"bytes,1,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
 	// Required. The project to create.
 	// Client-specified values in `project.id`, `project.workspace_id`,
@@ -306,7 +308,7 @@ type UpdateProjectRequest struct {
 	// Required. The project to update.
 	//
 	// The `project.id` field identifies the resource to update and must be a
-	// valid UUID4 string.
+	// valid UUID4 string. The identifier is immutable and cannot be changed.
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Project *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`

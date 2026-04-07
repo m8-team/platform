@@ -37,8 +37,10 @@ type WorkspaceServiceClient interface {
 	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(ctx context.Context, in *GetWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
+	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	ListWorkspaces(ctx context.Context, in *ListWorkspacesRequest, opts ...grpc.CallOption) (*ListWorkspacesResponse, error)
 	// CreateWorkspace creates a new workspace under an organization ID.
+	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
@@ -125,8 +127,10 @@ type WorkspaceServiceServer interface {
 	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(context.Context, *GetWorkspaceRequest) (*Workspace, error)
 	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
+	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	// CreateWorkspace creates a new workspace under an organization ID.
+	// In the HTTP API, the parent organization UUID is provided as a query parameter.
 	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error)

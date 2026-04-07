@@ -37,8 +37,10 @@ type ProjectServiceClient interface {
 	// GetProject returns a single project by ID.
 	GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	// ListProjects returns a paginated list of projects under a workspace ID.
+	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	// CreateProject creates a new project under a workspace ID.
+	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error)
@@ -125,8 +127,10 @@ type ProjectServiceServer interface {
 	// GetProject returns a single project by ID.
 	GetProject(context.Context, *GetProjectRequest) (*Project, error)
 	// ListProjects returns a paginated list of projects under a workspace ID.
+	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	// CreateProject creates a new project under a workspace ID.
+	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
 	CreateProject(context.Context, *CreateProjectRequest) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error)
