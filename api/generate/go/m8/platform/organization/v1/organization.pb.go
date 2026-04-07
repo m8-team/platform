@@ -8,7 +8,6 @@ package organization
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -221,40 +220,31 @@ var File_m8_platform_organization_v1_organization_proto protoreflect.FileDescrip
 
 const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xe2\t\n" +
-	"\fOrganization\x123\n" +
-	"\x04name\x18\x02 \x01(\tB\x1f\xe0A\b\xbaG\x19:\x17\x12\x15organizations/acme-euR\x04name\x12P\n" +
-	"\x03uid\x18\x01 \x01(\tB>\xe0A\x03\xbaG(:&\x12$6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12a\n" +
-	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.organization.v1.Organization.StateB\x1a\xe0A\x03\xbaG\n" +
-	":\b\x12\x06ACTIVE\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x123\n" +
-	"\x05title\x18\x04 \x01(\tB\x1d\xe0A\x01\xbaG\x0f:\r\x12\vAcme Europe\xbaH\x05r\x03\x18\x80\x02R\x05title\x12D\n" +
-	"\vdescription\x18\x05 \x01(\tB\"\xe0A\x01\xbaG\x14:\x12\x12\x10EU business unit\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12[\n" +
-	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x1e\xe0A\x03\xbaG\x18:\x16\x12\x142026-04-06T12:00:00ZR\n" +
-	"createTime\x12[\n" +
-	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x1e\xe0A\x03\xbaG\x18:\x16\x12\x142026-04-06T12:00:00ZR\n" +
-	"updateTime\x12[\n" +
-	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x1e\xe0A\x03\xbaG\x18:\x16\x12\x142026-04-30T18:00:00ZR\n" +
-	"deleteTime\x12Y\n" +
+	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x83\x06\n" +
+	"\fOrganization\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
+	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12T\n" +
+	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.organization.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12!\n" +
+	"\x05title\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x05title\x12-\n" +
+	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
+	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"createTime\x12@\n" +
+	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"updateTime\x12@\n" +
+	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"deleteTime\x12>\n" +
 	"\n" +
-	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x1e\xe0A\x03\xbaG\x18:\x16\x12\x142026-05-30T18:00:00ZR\tpurgeTime\x12(\n" +
+	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
 	"\x04etag\x18\n" +
-	" \x01(\tB\x14\xe0A\x01\xbaG\x0e:\f\x12\n" +
-	"acme-eu-v1R\x04etag\"T\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\"T\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +
 	"\n" +
 	"\x06ACTIVE\x10\x02\x12\r\n" +
 	"\tSUSPENDED\x10\x03\x12\v\n" +
-	"\aDELETED\x10\x04:\xfa\x02\xeaAe\n" +
-	"(m8.platform.organization.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\xbaG\xe1\x01:\xde\x01\x12\xdb\x01name: organizations/acme-eu\n" +
-	"uid: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44\n" +
-	"state: ACTIVE\n" +
-	"title: Acme Europe\n" +
-	"description: EU business unit\n" +
-	"createTime: '2026-04-06T12:00:00Z'\n" +
-	"updateTime: '2026-04-06T12:00:00Z'\n" +
-	"etag: acme-eu-v1\x8a\xb5\x18)m8.platform.organization.organizations.v1B*Z(m8/platform/organization/v1;organizationb\x06proto3"
+	"\aDELETED\x10\x04:\x95\x01\xeaAe\n" +
+	"(m8.platform.organization.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\x8a\xb5\x18)m8.platform.organization.organizations.v1B*Z(m8/platform/organization/v1;organizationb\x06proto3"
 
 var (
 	file_m8_platform_organization_v1_organization_proto_rawDescOnce sync.Once

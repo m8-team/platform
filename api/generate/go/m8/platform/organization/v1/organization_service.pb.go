@@ -450,58 +450,35 @@ var File_m8_platform_organization_v1_organization_service_proto protoreflect.Fil
 
 const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"\xce\x01\n" +
-	"\x16GetOrganizationRequest\x12\x8f\x01\n" +
-	"\x04name\x18\x01 \x01(\tB{\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaG\x19:\x17\x12\x15organizations/acme-eu\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name:\"\xbaG\x1f:\x1d\x12\x1bname: organizations/acme-eu\"\xfc\x02\n" +
-	"\x18ListOrganizationsRequest\x123\n" +
-	"\tpage_size\x18\x01 \x01(\x05B\x16\xe0A\x01\xbaG\x06:\x04\x12\x0250\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12@\n" +
+	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"\x8d\x01\n" +
+	"\x16GetOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\"\xe7\x01\n" +
+	"\x18ListOrganizationsRequest\x12*\n" +
+	"\tpage_size\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tB!\xe0A\x01\xbaG\x13:\x11\x12\x0fnext-page-token\xbaH\x05r\x03\x18\x80\bR\tpageToken\x124\n" +
-	"\x06filter\x18\x03 \x01(\tB\x1c\xe0A\x01\xbaG\x0e:\f\x12\n" +
-	"title:Acme\xbaH\x05r\x03\x18\x80\bR\x06filter\x12=\n" +
-	"\border_by\x18\x04 \x01(\tB\"\xe0A\x01\xbaG\x14:\x12\x12\x10update_time desc\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x122\n" +
-	"\fshow_deleted\x18\x05 \x01(\bB\x0f\xe0A\x01\xbaG\t:\a\x12\x05falseR\vshowDeleted:@\xbaG=:;\x129pageSize: 50\n" +
-	"orderBy: update_time desc\n" +
-	"showDeleted: false\"\xbd\x03\n" +
+	"page_token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
+	"\x06filter\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\x06filter\x12&\n" +
+	"\border_by\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x12&\n" +
+	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\x94\x01\n" +
 	"\x19ListOrganizationsResponse\x12O\n" +
 	"\rorganizations\x18\x01 \x03(\v2).m8.platform.organization.v1.OrganizationR\rorganizations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken:\xa6\x02\xbaG\xa2\x02:\x9f\x02\x12\x9c\x02organizations:\n" +
-	"  - name: organizations/acme-eu\n" +
-	"    uid: 6d8d8a9d-2d9b-4a41-8f6f-6e2e9b5d1c44\n" +
-	"    state: ACTIVE\n" +
-	"    title: Acme Europe\n" +
-	"    description: EU business unit\n" +
-	"    createTime: '2026-04-06T12:00:00Z'\n" +
-	"    updateTime: '2026-04-06T12:00:00Z'\n" +
-	"    etag: acme-eu-v1\n" +
-	"nextPageToken: ''\"\xb5\x02\n" +
-	"\x19CreateOrganizationRequest\x12[\n" +
-	"\x0forganization_id\x18\x02 \x01(\tB2\xe0A\x02\xbaG\v:\t\x12\aacme-eu\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x0eorganizationId\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization:a\xbaG^:\\\x12ZorganizationId: acme-eu\n" +
-	"organization:\n" +
-	"  title: Acme Europe\n" +
-	"  description: EU business unit\"\xf5\x02\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc4\x01\n" +
+	"\x19CreateOrganizationRequest\x12M\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB$\xe0A\x02\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x0eorganizationId\x12X\n" +
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xb7\x01\n" +
 	"\x19UpdateOrganizationRequest\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12X\n" +
-	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x1b\xe0A\x01\xbaG\x15:\x13\x12\x11title,descriptionR\n" +
-	"updateMask:\xa3\x01\xbaG\x9f\x01:\x9c\x01\x12\x99\x01organization:\n" +
-	"  name: organizations/acme-eu\n" +
-	"  title: Acme Europe\n" +
-	"  description: Updated EU business unit\n" +
-	"  etag: acme-eu-v1\n" +
-	"updateMask: title,description\"\xd6\x02\n" +
-	"\x19DeleteOrganizationRequest\x12\x8f\x01\n" +
-	"\x04name\x18\x01 \x01(\tB{\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaG\x19:\x17\x12\x15organizations/acme-eu\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\x12(\n" +
-	"\x04etag\x18\x02 \x01(\tB\x14\xe0A\x01\xbaG\x0e:\f\x12\n" +
-	"acme-eu-v1R\x04etag\x124\n" +
-	"\rallow_missing\x18\x03 \x01(\bB\x0f\xe0A\x01\xbaG\t:\a\x12\x05falseR\fallowMissing:G\xbaGD:B\x12@name: organizations/acme-eu\n" +
-	"etag: acme-eu-v1\n" +
-	"allowMissing: false\"\xd3\x01\n" +
-	"\x1bUndeleteOrganizationRequest\x12\x8f\x01\n" +
-	"\x04name\x18\x01 \x01(\tB{\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaG\x19:\x17\x12\x15organizations/acme-eu\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name:\"\xbaG\x1f:\x1d\x12\x1bname: organizations/acme-eu2\xec\f\n" +
+	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12@\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
+	"updateMask\"\xd3\x01\n" +
+	"\x19DeleteOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\x12\x17\n" +
+	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
+	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"\x92\x01\n" +
+	"\x1bUndeleteOrganizationRequest\x12s\n" +
+	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name2\xec\f\n" +
 	"\x13OrganizationService\x12\xea\x01\n" +
 	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"w\xdaA\x04name\xbaGK\x12\x03Get\x1a3Returns a single organization by its resource name.*\x0fGetOrganization\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/{name=organizations/*}\x12\xfd\x01\n" +
 	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"y\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xfc\x01\n" +
