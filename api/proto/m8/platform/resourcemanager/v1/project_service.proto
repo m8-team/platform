@@ -80,8 +80,12 @@ service ProjectService {
 
 // GetProjectRequest fetches a single project by resource name.
 message GetProjectRequest {
-  // Required. The name of the project to retrieve.
+  // Required. The resource name of the project to retrieve.
   // Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+  // The {organization}, {workspace}, and {project} segments must each be 3 to
+  // 63 characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 45 to 225 characters long.
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.team/Project",
@@ -97,6 +101,10 @@ message GetProjectRequest {
 message ListProjectsRequest {
   // Required. The parent workspace resource name.
   // Format: organizations/{organization}/workspaces/{workspace}
+  // The {organization} and {workspace} segments must each be 3 to 63
+  // characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // The full parent resource name is therefore 32 to 152 characters long.
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.team/Workspace",
@@ -108,9 +116,9 @@ message ListProjectsRequest {
   ];
 
   // Optional. The maximum number of projects to return.
-  // The service may return fewer than this value.
-  // If unspecified, at most 50 projects are returned.
-  // The maximum value is 1000; values above 1000 are coerced to 1000.
+  // Valid values are in the range 0 to 1000.
+  // If omitted, the service returns up to 50 projects.
+  // The service may return fewer results than requested.
   int32 page_size = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).int32 = {
@@ -119,23 +127,26 @@ message ListProjectsRequest {
     }
   ];
 
-  // Optional. A page token, received from a previous `ListProjects` call.
-  // Provide this to retrieve the subsequent page.
+  // Optional. A page token returned by a previous `ListProjects` call.
+  // Use this field to retrieve the next page of results.
   //
   // When paginating, all other parameters provided to `ListProjects`
-  // must match the call that provided the page token.
+  // must match the call that produced the page token.
+  // The token must not exceed 1024 characters.
   string page_token = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 1024
   ];
 
   // Optional. AIP-160 compatible filter expression.
+  // The expression must not exceed 1024 characters.
   string filter = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 1024
   ];
 
   // Optional. AIP-132 compatible ordering expression.
+  // The expression must not exceed 128 characters.
   string order_by = 5 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 128
@@ -147,7 +158,8 @@ message ListProjectsResponse {
   // Projects returned for the current page.
   repeated Project projects = 1;
 
-  // Token to retrieve the next page. Empty when there are no more results.
+  // Token to retrieve the next page.
+  // This field is empty when there are no more results.
   string next_page_token = 2;
 
   // The total number of projects that match the request.
@@ -158,6 +170,10 @@ message ListProjectsResponse {
 message CreateProjectRequest {
   // Required. The parent workspace resource name.
   // Format: organizations/{organization}/workspaces/{workspace}
+  // The {organization} and {workspace} segments must each be 3 to 63
+  // characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // The full parent resource name is therefore 32 to 152 characters long.
   string parent = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.team/Workspace",
@@ -168,8 +184,10 @@ message CreateProjectRequest {
     }
   ];
 
-  // Optional. The ID to use for the project, which becomes the final
-  // component of the project resource name.
+  // Optional. The client-assigned ID to use for the project.
+  // This value becomes the final {project} segment of the resource name.
+  // The ID must be 3 to 63 characters long, start with a lowercase letter,
+  // and contain only lowercase letters, digits, and hyphens.
   string project_id = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string = {
@@ -180,13 +198,15 @@ message CreateProjectRequest {
   ];
 
   // Required. The project to create.
-  // The `project.name` and `project.uid` fields are ignored on create.
+  // Client-specified values in `project.name`, `project.uid`,
+  // `project.state`, `project.create_time`, `project.update_time`,
+  // `project.delete_time`, and `project.purge_time` are ignored.
   Project project = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // Optional. A unique request ID for idempotent create requests.
+  // Optional. A caller-provided request ID used to make create retries idempotent.
   string request_id = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -194,27 +214,37 @@ message CreateProjectRequest {
 message UpdateProjectRequest {
   // Required. The project to update.
   //
-  // The project's `name` field is used to identify the project to update.
+  // The `project.name` field identifies the resource to update.
   // Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+  // The {organization}, {workspace}, and {project} segments must each be 3 to
+  // 63 characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // Output-only fields are ignored except for `etag`, which may be provided for
+  // optimistic concurrency control.
   Project project = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // Required. The list of fields to update.
+  // Required. The field mask that selects which mutable fields to update.
+  // Paths in the mask should refer only to fields that clients are allowed to modify.
   google.protobuf.FieldMask update_mask = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // Optional. A unique request ID for idempotent update requests.
+  // Optional. A caller-provided request ID used to make update retries idempotent.
   string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // DeleteProjectRequest deletes a project by resource name.
 message DeleteProjectRequest {
-  // Required. The name of the project to delete.
+  // Required. The resource name of the project to delete.
   // Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+  // The {organization}, {workspace}, and {project} segments must each be 3 to
+  // 63 characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 45 to 225 characters long.
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.team/Project",
@@ -225,6 +255,6 @@ message DeleteProjectRequest {
     }
   ];
 
-  // Optional. A unique request ID for idempotent delete requests.
+  // Optional. A caller-provided request ID used to make delete retries idempotent.
   string request_id = 2 [(google.api.field_behavior) = OPTIONAL];
 }

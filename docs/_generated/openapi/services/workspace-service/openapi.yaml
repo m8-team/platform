@@ -20,30 +20,35 @@ paths:
           in: query
           description: |-
             Optional. The maximum number of workspaces to return.
-             The service may return fewer than this value.
-             If unspecified, at most 50 workspaces are returned.
-             The maximum value is 1000; values above 1000 are coerced to 1000.
+             Valid values are in the range 0 to 1000.
+             If omitted, the service returns up to 50 workspaces.
+             The service may return fewer results than requested.
           schema:
             type: integer
             format: int32
         - name: pageToken
           in: query
           description: |-
-            Optional. A page token, received from a previous `ListWorkspaces` call.
-             Provide this to retrieve the subsequent page.
+            Optional. A page token returned by a previous `ListWorkspaces` call.
+             Use this field to retrieve the next page of results.
 
              When paginating, all other parameters provided to `ListWorkspaces`
-             must match the call that provided the page token.
+             must match the call that produced the page token.
+             The token must not exceed 1024 characters.
           schema:
             type: string
         - name: filter
           in: query
-          description: Optional. AIP-160 compatible filter expression.
+          description: |-
+            Optional. AIP-160 compatible filter expression.
+             The expression must not exceed 1024 characters.
           schema:
             type: string
         - name: orderBy
           in: query
-          description: Optional. AIP-132 compatible ordering expression.
+          description: |-
+            Optional. AIP-132 compatible ordering expression.
+             The expression must not exceed 128 characters.
           schema:
             type: string
       responses:
@@ -67,13 +72,15 @@ paths:
         - name: workspaceId
           in: query
           description: |-
-            Optional. The ID to use for the workspace, which becomes the final
-             component of the workspace resource name.
+            Optional. The client-assigned ID to use for the workspace.
+             This value becomes the final {workspace} segment of the resource name.
+             The ID must be 3 to 63 characters long, start with a lowercase letter,
+             and contain only lowercase letters, digits, and hyphens.
           schema:
             type: string
         - name: requestId
           in: query
-          description: Optional. A unique request ID for idempotent create requests.
+          description: Optional. A caller-provided request ID used to make create retries idempotent.
           schema:
             type: string
       requestBody:
@@ -133,7 +140,7 @@ paths:
             type: string
         - name: requestId
           in: query
-          description: Optional. A unique request ID for idempotent delete requests.
+          description: Optional. A caller-provided request ID used to make delete retries idempotent.
           schema:
             type: string
       responses:
@@ -159,13 +166,15 @@ paths:
             type: string
         - name: updateMask
           in: query
-          description: Required. The list of fields to update.
+          description: |-
+            Required. The field mask that selects which mutable fields to update.
+             Paths in the mask should refer only to fields that clients are allowed to modify.
           schema:
             type: string
             format: field-mask
         - name: requestId
           in: query
-          description: Optional. A unique request ID for idempotent update requests.
+          description: Optional. A caller-provided request ID used to make update retries idempotent.
           schema:
             type: string
       requestBody:
@@ -193,7 +202,9 @@ components:
           description: Workspaces returned for the current page.
         nextPageToken:
           type: string
-          description: Token to retrieve the next page. Empty when there are no more results.
+          description: |-
+            Token to retrieve the next page.
+             This field is empty when there are no more results.
         totalSize:
           type: integer
           description: The total number of workspaces that match the request.
@@ -207,10 +218,15 @@ components:
           description: |-
             Identifier. The resource name of the workspace.
              Format: organizations/{organization}/workspaces/{workspace}
+             The {organization} and {workspace} segments must each be 3 to 63
+             characters long, start with a lowercase letter, and contain only
+             lowercase letters, digits, and hyphens.
         uid:
           readOnly: true
           type: string
-          description: Output only. System-assigned stable unique identifier for the workspace.
+          description: |-
+            Output only. System-assigned stable unique identifier for the workspace.
+             The value is generated by the server and is returned as a UUID4 string.
         state:
           readOnly: true
           enum:
@@ -222,14 +238,20 @@ components:
             - DELETED
             - FAILED
           type: string
-          description: Output only. Server-computed lifecycle state of the workspace.
+          description: |-
+            Output only. Server-computed lifecycle state of the workspace.
+             The value is always one of the defined non-zero enum values.
           format: enum
         displayName:
           type: string
-          description: Optional. Human-readable display name of the workspace.
+          description: |-
+            Optional. Human-readable display name of the workspace.
+             The value may be updated by clients and must not exceed 256 characters.
         description:
           type: string
-          description: Optional. Description of the workspace.
+          description: |-
+            Optional. Free-form description of the workspace.
+             The value may be updated by clients and must not exceed 256 characters.
         createTime:
           readOnly: true
           type: string
@@ -253,13 +275,15 @@ components:
         etag:
           type: string
           description: |-
-            The etag for this workspace.
-             If this is provided on update or delete, it must match the server's etag.
+            Optional. Opaque concurrency token for the workspace.
+             If this value is provided on update or delete, it must exactly match the
+             current server-side etag or the request is rejected.
         annotations:
           type: object
           additionalProperties:
             type: string
           description: |-
             Optional. Client-provided metadata for tooling and integrations.
-             Use namespaced keys such as "example.com/key" to avoid collisions.
-      description: Workspace stores canonical metadata for an organization workspace.
+             Use namespaced keys such as "example.com/key" to avoid collisions between
+             independent producers of annotations.
+      description: Workspace stores canonical metadata for a workspace resource within an organization.

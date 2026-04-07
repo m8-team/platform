@@ -29,8 +29,11 @@ const (
 // GetOrganizationRequest fetches a single organization by resource name.
 type GetOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The name of the organization to retrieve.
+	// Required. The resource name of the organization to retrieve.
 	// Format: organizations/{organization}
+	// The {organization} segment must be 3 to 63 characters long, start with a
+	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 17 to 77 characters long.
 	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -76,22 +79,25 @@ func (x *GetOrganizationRequest) GetName() string {
 // ListOrganizationsRequest lists organizations visible to the caller.
 type ListOrganizationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The maximum number of organizations to return.
-	// The service may return fewer than this value.
-	// If unspecified, at most 50 organizations are returned.
-	// The maximum value is 1000; values above 1000 are coerced to 1000.
+	// Optional. The maximum number of organizations to return.
+	// Valid values are in the range 0 to 1000.
+	// If omitted, the service returns up to 50 organizations.
+	// The service may return fewer results than requested.
 	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// A page token, received from a previous `ListOrganizations` call.
-	// Provide this to retrieve the subsequent page.
+	// Optional. A page token returned by a previous `ListOrganizations` call.
+	// Use this field to retrieve the next page of results.
 	//
 	// When paginating, all other parameters provided to `ListOrganizations`
-	// must match the call that provided the page token.
+	// must match the call that produced the page token.
+	// The token must not exceed 1024 characters.
 	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Optional AIP-160 style filter expression.
+	// Optional. AIP-160 style filter expression.
+	// The expression must not exceed 1024 characters.
 	Filter string `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
-	// Optional AIP-132 style ordering expression.
+	// Optional. AIP-132 style ordering expression.
+	// The expression must not exceed 128 characters.
 	OrderBy string `protobuf:"bytes,4,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
-	// If true, soft-deleted organizations are included in the response.
+	// Optional. If true, soft-deleted organizations are included in the response.
 	ShowDeleted   bool `protobuf:"varint,5,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -167,7 +173,8 @@ type ListOrganizationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Organizations returned for the current page.
 	Organizations []*Organization `protobuf:"bytes,1,rep,name=organizations,proto3" json:"organizations,omitempty"`
-	// Token to retrieve the next page. Empty when there are no more results.
+	// Token to retrieve the next page.
+	// This field is empty when there are no more results.
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -220,11 +227,15 @@ func (x *ListOrganizationsResponse) GetNextPageToken() string {
 // CreateOrganizationRequest creates a new organization.
 type CreateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The ID to use for the organization, which becomes the final component of
-	// the organization's resource name.
+	// Required. The client-assigned ID to use for the organization.
+	// This value becomes the final {organization} segment of the resource name.
+	// The ID must be 3 to 63 characters long, start with a lowercase letter,
+	// and contain only lowercase letters, digits, and hyphens.
 	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	// The organization to create.
-	// The `organization.name` and `organization.uid` fields are ignored on create.
+	// Required. The organization to create.
+	// Client-specified values in `organization.name`, `organization.uid`,
+	// `organization.state`, `organization.create_time`, `organization.update_time`,
+	// `organization.delete_time`, and `organization.purge_time` are ignored.
 	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -277,13 +288,18 @@ func (x *CreateOrganizationRequest) GetOrganization() *Organization {
 // UpdateOrganizationRequest updates mutable fields on an existing organization.
 type UpdateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The organization to update.
+	// Required. The organization to update.
 	//
-	// The organization's `name` field is used to identify the organization to update.
+	// The `organization.name` field identifies the resource to update.
 	// Format: organizations/{organization}
+	// The {organization} segment must be 3 to 63 characters long, start with a
+	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
+	// Output-only fields are ignored except for `etag`, which may be provided for
+	// optimistic concurrency control.
 	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	// The list of fields to update.
-	// If omitted, all populated fields in `organization` are updated.
+	// Optional. The field mask that selects which mutable fields to update.
+	// If omitted, all populated mutable fields in `organization` are updated.
+	// Paths in the mask should refer only to fields that clients are allowed to modify.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -336,13 +352,17 @@ func (x *UpdateOrganizationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 // DeleteOrganizationRequest soft-deletes an organization.
 type DeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The name of the organization to delete.
+	// Required. The resource name of the organization to delete.
 	// Format: organizations/{organization}
+	// The {organization} segment must be 3 to 63 characters long, start with a
+	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 17 to 77 characters long.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Optional. The etag of the organization.
-	// If this is provided, it must match the server's etag.
+	// If provided, the value must exactly match the current server-side etag.
 	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
-	// If true, the request succeeds even if the organization is missing or already deleted.
+	// Optional. If true, the request succeeds even if the organization does not
+	// exist or has already been deleted.
 	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -402,8 +422,11 @@ func (x *DeleteOrganizationRequest) GetAllowMissing() bool {
 // UndeleteOrganizationRequest restores a soft-deleted organization.
 type UndeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The name of the organization to restore.
+	// Required. The resource name of the organization to restore.
 	// Format: organizations/{organization}
+	// The {organization} segment must be 3 to 63 characters long, start with a
+	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 17 to 77 characters long.
 	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

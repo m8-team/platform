@@ -95,8 +95,11 @@ service OrganizationService {
 
 // GetOrganizationRequest fetches a single organization by resource name.
 message GetOrganizationRequest {
-  // The name of the organization to retrieve.
+  // Required. The resource name of the organization to retrieve.
   // Format: organizations/{organization}
+  // The {organization} segment must be 3 to 63 characters long, start with a
+  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 17 to 77 characters long.
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
@@ -110,10 +113,10 @@ message GetOrganizationRequest {
 
 // ListOrganizationsRequest lists organizations visible to the caller.
 message ListOrganizationsRequest {
-  // The maximum number of organizations to return.
-  // The service may return fewer than this value.
-  // If unspecified, at most 50 organizations are returned.
-  // The maximum value is 1000; values above 1000 are coerced to 1000.
+  // Optional. The maximum number of organizations to return.
+  // Valid values are in the range 0 to 1000.
+  // If omitted, the service returns up to 50 organizations.
+  // The service may return fewer results than requested.
   int32 page_size = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).int32 = {
@@ -122,29 +125,32 @@ message ListOrganizationsRequest {
     }
   ];
 
-  // A page token, received from a previous `ListOrganizations` call.
-  // Provide this to retrieve the subsequent page.
+  // Optional. A page token returned by a previous `ListOrganizations` call.
+  // Use this field to retrieve the next page of results.
   //
   // When paginating, all other parameters provided to `ListOrganizations`
-  // must match the call that provided the page token.
+  // must match the call that produced the page token.
+  // The token must not exceed 1024 characters.
   string page_token = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 1024
   ];
 
-  // Optional AIP-160 style filter expression.
+  // Optional. AIP-160 style filter expression.
+  // The expression must not exceed 1024 characters.
   string filter = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 1024
   ];
 
-  // Optional AIP-132 style ordering expression.
+  // Optional. AIP-132 style ordering expression.
+  // The expression must not exceed 128 characters.
   string order_by = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 128
   ];
 
-  // If true, soft-deleted organizations are included in the response.
+  // Optional. If true, soft-deleted organizations are included in the response.
   bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
@@ -153,14 +159,17 @@ message ListOrganizationsResponse {
   // Organizations returned for the current page.
   repeated Organization organizations = 1;
 
-  // Token to retrieve the next page. Empty when there are no more results.
+  // Token to retrieve the next page.
+  // This field is empty when there are no more results.
   string next_page_token = 2;
 }
 
 // CreateOrganizationRequest creates a new organization.
 message CreateOrganizationRequest {
-  // The ID to use for the organization, which becomes the final component of
-  // the organization's resource name.
+  // Required. The client-assigned ID to use for the organization.
+  // This value becomes the final {organization} segment of the resource name.
+  // The ID must be 3 to 63 characters long, start with a lowercase letter,
+  // and contain only lowercase letters, digits, and hyphens.
   string organization_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
@@ -170,8 +179,10 @@ message CreateOrganizationRequest {
     }
   ];
 
-  // The organization to create.
-  // The `organization.name` and `organization.uid` fields are ignored on create.
+  // Required. The organization to create.
+  // Client-specified values in `organization.name`, `organization.uid`,
+  // `organization.state`, `organization.create_time`, `organization.update_time`,
+  // `organization.delete_time`, and `organization.purge_time` are ignored.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
@@ -180,24 +191,32 @@ message CreateOrganizationRequest {
 
 // UpdateOrganizationRequest updates mutable fields on an existing organization.
 message UpdateOrganizationRequest {
-  // The organization to update.
+  // Required. The organization to update.
   //
-  // The organization's `name` field is used to identify the organization to update.
+  // The `organization.name` field identifies the resource to update.
   // Format: organizations/{organization}
+  // The {organization} segment must be 3 to 63 characters long, start with a
+  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
+  // Output-only fields are ignored except for `etag`, which may be provided for
+  // optimistic concurrency control.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // The list of fields to update.
-  // If omitted, all populated fields in `organization` are updated.
+  // Optional. The field mask that selects which mutable fields to update.
+  // If omitted, all populated mutable fields in `organization` are updated.
+  // Paths in the mask should refer only to fields that clients are allowed to modify.
   google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // DeleteOrganizationRequest soft-deletes an organization.
 message DeleteOrganizationRequest {
-  // The name of the organization to delete.
+  // Required. The resource name of the organization to delete.
   // Format: organizations/{organization}
+  // The {organization} segment must be 3 to 63 characters long, start with a
+  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 17 to 77 characters long.
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
@@ -209,17 +228,21 @@ message DeleteOrganizationRequest {
   ];
 
   // Optional. The etag of the organization.
-  // If this is provided, it must match the server's etag.
+  // If provided, the value must exactly match the current server-side etag.
   string etag = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // If true, the request succeeds even if the organization is missing or already deleted.
+  // Optional. If true, the request succeeds even if the organization does not
+  // exist or has already been deleted.
   bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UndeleteOrganizationRequest restores a soft-deleted organization.
 message UndeleteOrganizationRequest {
-  // The name of the organization to restore.
+  // Required. The resource name of the organization to restore.
   // Format: organizations/{organization}
+  // The {organization} segment must be 3 to 63 characters long, start with a
+  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 17 to 77 characters long.
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",

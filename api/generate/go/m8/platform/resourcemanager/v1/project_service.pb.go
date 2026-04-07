@@ -29,8 +29,12 @@ const (
 // GetProjectRequest fetches a single project by resource name.
 type GetProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The name of the project to retrieve.
+	// Required. The resource name of the project to retrieve.
 	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+	// The {organization}, {workspace}, and {project} segments must each be 3 to
+	// 63 characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 45 to 225 characters long.
 	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -78,21 +82,28 @@ type ListProjectsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The parent workspace resource name.
 	// Format: organizations/{organization}/workspaces/{workspace}
+	// The {organization} and {workspace} segments must each be 3 to 63
+	// characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// The full parent resource name is therefore 32 to 152 characters long.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
 	// Optional. The maximum number of projects to return.
-	// The service may return fewer than this value.
-	// If unspecified, at most 50 projects are returned.
-	// The maximum value is 1000; values above 1000 are coerced to 1000.
+	// Valid values are in the range 0 to 1000.
+	// If omitted, the service returns up to 50 projects.
+	// The service may return fewer results than requested.
 	PageSize int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// Optional. A page token, received from a previous `ListProjects` call.
-	// Provide this to retrieve the subsequent page.
+	// Optional. A page token returned by a previous `ListProjects` call.
+	// Use this field to retrieve the next page of results.
 	//
 	// When paginating, all other parameters provided to `ListProjects`
-	// must match the call that provided the page token.
+	// must match the call that produced the page token.
+	// The token must not exceed 1024 characters.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	// Optional. AIP-160 compatible filter expression.
+	// The expression must not exceed 1024 characters.
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional. AIP-132 compatible ordering expression.
+	// The expression must not exceed 128 characters.
 	OrderBy       string `protobuf:"bytes,5,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -168,7 +179,8 @@ type ListProjectsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Projects returned for the current page.
 	Projects []*Project `protobuf:"bytes,1,rep,name=projects,proto3" json:"projects,omitempty"`
-	// Token to retrieve the next page. Empty when there are no more results.
+	// Token to retrieve the next page.
+	// This field is empty when there are no more results.
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	// The total number of projects that match the request.
 	TotalSize     int32 `protobuf:"varint,3,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
@@ -232,14 +244,22 @@ type CreateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The parent workspace resource name.
 	// Format: organizations/{organization}/workspaces/{workspace}
+	// The {organization} and {workspace} segments must each be 3 to 63
+	// characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// The full parent resource name is therefore 32 to 152 characters long.
 	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Optional. The ID to use for the project, which becomes the final
-	// component of the project resource name.
+	// Optional. The client-assigned ID to use for the project.
+	// This value becomes the final {project} segment of the resource name.
+	// The ID must be 3 to 63 characters long, start with a lowercase letter,
+	// and contain only lowercase letters, digits, and hyphens.
 	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	// Required. The project to create.
-	// The `project.name` and `project.uid` fields are ignored on create.
+	// Client-specified values in `project.name`, `project.uid`,
+	// `project.state`, `project.create_time`, `project.update_time`,
+	// `project.delete_time`, and `project.purge_time` are ignored.
 	Project *Project `protobuf:"bytes,3,opt,name=project,proto3" json:"project,omitempty"`
-	// Optional. A unique request ID for idempotent create requests.
+	// Optional. A caller-provided request ID used to make create retries idempotent.
 	RequestId     string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -308,12 +328,18 @@ type UpdateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The project to update.
 	//
-	// The project's `name` field is used to identify the project to update.
+	// The `project.name` field identifies the resource to update.
 	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+	// The {organization}, {workspace}, and {project} segments must each be 3 to
+	// 63 characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// Output-only fields are ignored except for `etag`, which may be provided for
+	// optimistic concurrency control.
 	Project *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
-	// Required. The list of fields to update.
+	// Required. The field mask that selects which mutable fields to update.
+	// Paths in the mask should refer only to fields that clients are allowed to modify.
 	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	// Optional. A unique request ID for idempotent update requests.
+	// Optional. A caller-provided request ID used to make update retries idempotent.
 	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -373,10 +399,14 @@ func (x *UpdateProjectRequest) GetRequestId() string {
 // DeleteProjectRequest deletes a project by resource name.
 type DeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The name of the project to delete.
+	// Required. The resource name of the project to delete.
 	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+	// The {organization}, {workspace}, and {project} segments must each be 3 to
+	// 63 characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 45 to 225 characters long.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Optional. A unique request ID for idempotent delete requests.
+	// Optional. A caller-provided request ID used to make delete retries idempotent.
 	RequestId     string `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
