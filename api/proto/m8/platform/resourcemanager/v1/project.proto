@@ -7,35 +7,39 @@ import "google/api/field_behavior.proto";
 import "google/api/field_info.proto";
 import "google/api/resource.proto";
 import "google/protobuf/timestamp.proto";
+import "m8/platform/extension/v1/extension.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
-
-// ProjectState describes the lifecycle state of a project.
-enum ProjectState {
-  // The default value. This value is unused.
-  STATE_UNSPECIFIED = 0;
-  // The project is being created.
-  CREATING = 1;
-  // The project is active and available for use.
-  ACTIVE = 2;
-  // The project is archived.
-  ARCHIVED = 3;
-  // The project is being deleted.
-  DELETING = 4;
-  // The project has been deleted.
-  DELETED = 5;
-  // The project entered a failed state.
-  FAILED = 6;
-}
 
 // Project stores canonical metadata for a workspace project.
 message Project {
   option (google.api.resource) = {
-    type: "m8.team/Project"
+    type: "m8.platform.resourcemanager.v1/Project"
     pattern: "organizations/{organization}/workspaces/{workspace}/projects/{project}"
     singular: "project"
     plural: "projects"
   };
+
+  // Kafka topic that receives project aggregate change events.
+  option (m8.platform.extension.v1.topic) = "m8.platform.resourcemanager.projects.v1";
+
+  // ProjectState describes the lifecycle state of a project.
+  enum State {
+    // The default value. This value is unused.
+    STATE_UNSPECIFIED = 0;
+    // The project is being created.
+    CREATING = 1;
+    // The project is active and available for use.
+    ACTIVE = 2;
+    // The project is archived.
+    ARCHIVED = 3;
+    // The project is being deleted.
+    DELETING = 4;
+    // The project has been deleted.
+    DELETED = 5;
+    // The project entered a failed state.
+    FAILED = 6;
+  }
 
   // Identifier. The resource name of the project.
   // Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
@@ -48,25 +52,25 @@ message Project {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. Human-readable display name of the project.
-  string display_name = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 256
-  ];
-
-  // Optional. Description of the project.
-  string description = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 1024
-  ];
-
   // Output only. Server-computed lifecycle state of the project.
-  ProjectState state = 5 [
+  State state = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
       not_in: [0]
     }
+  ];
+
+  // Optional. Human-readable display name of the project.
+  string display_name = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Optional. Description of the project.
+  string description = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
   ];
 
   // Output only. Time when the project was created.
@@ -75,7 +79,17 @@ message Project {
   // Output only. Time when the project was most recently updated.
   google.protobuf.Timestamp update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Time when the project was soft-deleted.
+  google.protobuf.Timestamp delete_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the soft-deleted project is scheduled to be purged.
+  google.protobuf.Timestamp purge_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The etag for this project.
+  // If this is provided on update or delete, it must match the server's etag.
+  string etag = 10 [(google.api.field_behavior) = OPTIONAL];
+
   // Optional. Client-provided metadata for tooling and integrations.
   // Use namespaced keys such as "example.com/key" to avoid collisions.
-  map<string, string> annotations = 8 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> annotations = 11 [(google.api.field_behavior) = OPTIONAL];
 }

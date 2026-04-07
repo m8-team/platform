@@ -12,6 +12,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -24,29 +25,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// WorkspaceState describes the lifecycle state of a workspace.
-type Workspace_WorkspaceState int32
+// State describes the lifecycle state of a workspace.
+type Workspace_State int32
 
 const (
 	// The default value. This value is unused.
-	Workspace_STATE_UNSPECIFIED Workspace_WorkspaceState = 0
+	Workspace_STATE_UNSPECIFIED Workspace_State = 0
 	// The workspace is being created.
-	Workspace_CREATING Workspace_WorkspaceState = 1
+	Workspace_CREATING Workspace_State = 1
 	// The workspace is active and available for use.
-	Workspace_ACTIVE Workspace_WorkspaceState = 2
+	Workspace_ACTIVE Workspace_State = 2
 	// The workspace is suspended and normal operations are restricted.
-	Workspace_SUSPENDED Workspace_WorkspaceState = 3
+	Workspace_SUSPENDED Workspace_State = 3
 	// The workspace is being deleted.
-	Workspace_DELETING Workspace_WorkspaceState = 4
+	Workspace_DELETING Workspace_State = 4
 	// The workspace has been deleted.
-	Workspace_DELETED Workspace_WorkspaceState = 5
+	Workspace_DELETED Workspace_State = 5
 	// The workspace entered a failed state.
-	Workspace_FAILED Workspace_WorkspaceState = 6
+	Workspace_FAILED Workspace_State = 6
 )
 
-// Enum value maps for Workspace_WorkspaceState.
+// Enum value maps for Workspace_State.
 var (
-	Workspace_WorkspaceState_name = map[int32]string{
+	Workspace_State_name = map[int32]string{
 		0: "STATE_UNSPECIFIED",
 		1: "CREATING",
 		2: "ACTIVE",
@@ -55,7 +56,7 @@ var (
 		5: "DELETED",
 		6: "FAILED",
 	}
-	Workspace_WorkspaceState_value = map[string]int32{
+	Workspace_State_value = map[string]int32{
 		"STATE_UNSPECIFIED": 0,
 		"CREATING":          1,
 		"ACTIVE":            2,
@@ -66,30 +67,30 @@ var (
 	}
 )
 
-func (x Workspace_WorkspaceState) Enum() *Workspace_WorkspaceState {
-	p := new(Workspace_WorkspaceState)
+func (x Workspace_State) Enum() *Workspace_State {
+	p := new(Workspace_State)
 	*p = x
 	return p
 }
 
-func (x Workspace_WorkspaceState) String() string {
+func (x Workspace_State) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Workspace_WorkspaceState) Descriptor() protoreflect.EnumDescriptor {
+func (Workspace_State) Descriptor() protoreflect.EnumDescriptor {
 	return file_m8_platform_resourcemanager_v1_workspace_proto_enumTypes[0].Descriptor()
 }
 
-func (Workspace_WorkspaceState) Type() protoreflect.EnumType {
+func (Workspace_State) Type() protoreflect.EnumType {
 	return &file_m8_platform_resourcemanager_v1_workspace_proto_enumTypes[0]
 }
 
-func (x Workspace_WorkspaceState) Number() protoreflect.EnumNumber {
+func (x Workspace_State) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Workspace_WorkspaceState.Descriptor instead.
-func (Workspace_WorkspaceState) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Workspace_State.Descriptor instead.
+func (Workspace_State) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_proto_rawDescGZIP(), []int{0, 0}
 }
 
@@ -101,19 +102,26 @@ type Workspace struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Output only. System-assigned stable unique identifier for the workspace.
 	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
-	// Optional. Human-readable display name of the workspace.
-	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	// Optional. Description of the workspace.
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Server-computed lifecycle state of the workspace.
-	State Workspace_WorkspaceState `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.Workspace_WorkspaceState" json:"state,omitempty"`
+	State Workspace_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.Workspace_State" json:"state,omitempty"`
+	// Optional. Human-readable display name of the workspace.
+	DisplayName string `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	// Optional. Description of the workspace.
+	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Time when the workspace was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// Output only. Time when the workspace was most recently updated.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// Output only. Time when the workspace was soft-deleted.
+	DeleteTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
+	// Output only. Time when the soft-deleted workspace is scheduled to be purged.
+	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
+	// The etag for this workspace.
+	// If this is provided on update or delete, it must match the server's etag.
+	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
 	// Optional. Client-provided metadata for tooling and integrations.
 	// Use namespaced keys such as "example.com/key" to avoid collisions.
-	Annotations   map[string]string `protobuf:"bytes,8,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Annotations   map[string]string `protobuf:"bytes,11,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,6 +170,13 @@ func (x *Workspace) GetUid() string {
 	return ""
 }
 
+func (x *Workspace) GetState() Workspace_State {
+	if x != nil {
+		return x.State
+	}
+	return Workspace_STATE_UNSPECIFIED
+}
+
 func (x *Workspace) GetDisplayName() string {
 	if x != nil {
 		return x.DisplayName
@@ -174,13 +189,6 @@ func (x *Workspace) GetDescription() string {
 		return x.Description
 	}
 	return ""
-}
-
-func (x *Workspace) GetState() Workspace_WorkspaceState {
-	if x != nil {
-		return x.State
-	}
-	return Workspace_STATE_UNSPECIFIED
 }
 
 func (x *Workspace) GetCreateTime() *timestamppb.Timestamp {
@@ -197,6 +205,27 @@ func (x *Workspace) GetUpdateTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Workspace) GetDeleteTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeleteTime
+	}
+	return nil
+}
+
+func (x *Workspace) GetPurgeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PurgeTime
+	}
+	return nil
+}
+
+func (x *Workspace) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
 func (x *Workspace) GetAnnotations() map[string]string {
 	if x != nil {
 		return x.Annotations
@@ -208,22 +237,28 @@ var File_m8_platform_resourcemanager_v1_workspace_proto protoreflect.FileDescrip
 
 const file_m8_platform_resourcemanager_v1_workspace_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8d\x06\n" +
+	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xdb\a\n" +
 	"\tWorkspace\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
-	"\x03uid\x18\x02 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12.\n" +
-	"\fdisplay_name\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdisplayName\x12-\n" +
-	"\vdescription\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\vdescription\x12]\n" +
-	"\x05state\x18\x05 \x01(\x0e28.m8.platform.resourcemanager.v1.Workspace.WorkspaceStateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12@\n" +
+	"\x03uid\x18\x02 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12T\n" +
+	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.resourcemanager.v1.Workspace.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12.\n" +
+	"\fdisplay_name\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdisplayName\x12-\n" +
+	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"updateTime\x12a\n" +
-	"\vannotations\x18\b \x03(\v2:.m8.platform.resourcemanager.v1.Workspace.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
+	"updateTime\x12@\n" +
+	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"deleteTime\x12>\n" +
+	"\n" +
+	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
+	"\x04etag\x18\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\x12a\n" +
+	"\vannotations\x18\v \x03(\v2:.m8.platform.resourcemanager.v1.Workspace.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"w\n" +
-	"\x0eWorkspaceState\x12\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"n\n" +
+	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +
 	"\n" +
@@ -232,9 +267,9 @@ const file_m8_platform_resourcemanager_v1_workspace_proto_rawDesc = "" +
 	"\bDELETING\x10\x04\x12\v\n" +
 	"\aDELETED\x10\x05\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x06:b\xeaA_\n" +
-	"\x11m8.team/Workspace\x123organizations/{organization}/workspaces/{workspace}*\n" +
-	"workspaces2\tworkspaceB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x06FAILED\x10\x06:\xa6\x01\xeaAv\n" +
+	"(m8.platform.resourcemanager.v1/Workspace\x123organizations/{organization}/workspaces/{workspace}*\n" +
+	"workspaces2\tworkspace\x8a\xb5\x18)m8.platform.resourcemanager.workspaces.v1B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_proto_rawDescOnce sync.Once
@@ -251,21 +286,23 @@ func file_m8_platform_resourcemanager_v1_workspace_proto_rawDescGZIP() []byte {
 var file_m8_platform_resourcemanager_v1_workspace_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_m8_platform_resourcemanager_v1_workspace_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_resourcemanager_v1_workspace_proto_goTypes = []any{
-	(Workspace_WorkspaceState)(0), // 0: m8.platform.resourcemanager.v1.Workspace.WorkspaceState
+	(Workspace_State)(0),          // 0: m8.platform.resourcemanager.v1.Workspace.State
 	(*Workspace)(nil),             // 1: m8.platform.resourcemanager.v1.Workspace
 	nil,                           // 2: m8.platform.resourcemanager.v1.Workspace.AnnotationsEntry
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_workspace_proto_depIdxs = []int32{
-	0, // 0: m8.platform.resourcemanager.v1.Workspace.state:type_name -> m8.platform.resourcemanager.v1.Workspace.WorkspaceState
+	0, // 0: m8.platform.resourcemanager.v1.Workspace.state:type_name -> m8.platform.resourcemanager.v1.Workspace.State
 	3, // 1: m8.platform.resourcemanager.v1.Workspace.create_time:type_name -> google.protobuf.Timestamp
 	3, // 2: m8.platform.resourcemanager.v1.Workspace.update_time:type_name -> google.protobuf.Timestamp
-	2, // 3: m8.platform.resourcemanager.v1.Workspace.annotations:type_name -> m8.platform.resourcemanager.v1.Workspace.AnnotationsEntry
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 3: m8.platform.resourcemanager.v1.Workspace.delete_time:type_name -> google.protobuf.Timestamp
+	3, // 4: m8.platform.resourcemanager.v1.Workspace.purge_time:type_name -> google.protobuf.Timestamp
+	2, // 5: m8.platform.resourcemanager.v1.Workspace.annotations:type_name -> m8.platform.resourcemanager.v1.Workspace.AnnotationsEntry
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_workspace_proto_init() }

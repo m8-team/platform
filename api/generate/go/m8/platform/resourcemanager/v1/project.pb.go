@@ -12,6 +12,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -25,28 +26,28 @@ const (
 )
 
 // ProjectState describes the lifecycle state of a project.
-type ProjectState int32
+type Project_State int32
 
 const (
 	// The default value. This value is unused.
-	ProjectState_STATE_UNSPECIFIED ProjectState = 0
+	Project_STATE_UNSPECIFIED Project_State = 0
 	// The project is being created.
-	ProjectState_CREATING ProjectState = 1
+	Project_CREATING Project_State = 1
 	// The project is active and available for use.
-	ProjectState_ACTIVE ProjectState = 2
+	Project_ACTIVE Project_State = 2
 	// The project is archived.
-	ProjectState_ARCHIVED ProjectState = 3
+	Project_ARCHIVED Project_State = 3
 	// The project is being deleted.
-	ProjectState_DELETING ProjectState = 4
+	Project_DELETING Project_State = 4
 	// The project has been deleted.
-	ProjectState_DELETED ProjectState = 5
+	Project_DELETED Project_State = 5
 	// The project entered a failed state.
-	ProjectState_FAILED ProjectState = 6
+	Project_FAILED Project_State = 6
 )
 
-// Enum value maps for ProjectState.
+// Enum value maps for Project_State.
 var (
-	ProjectState_name = map[int32]string{
+	Project_State_name = map[int32]string{
 		0: "STATE_UNSPECIFIED",
 		1: "CREATING",
 		2: "ACTIVE",
@@ -55,7 +56,7 @@ var (
 		5: "DELETED",
 		6: "FAILED",
 	}
-	ProjectState_value = map[string]int32{
+	Project_State_value = map[string]int32{
 		"STATE_UNSPECIFIED": 0,
 		"CREATING":          1,
 		"ACTIVE":            2,
@@ -66,31 +67,31 @@ var (
 	}
 )
 
-func (x ProjectState) Enum() *ProjectState {
-	p := new(ProjectState)
+func (x Project_State) Enum() *Project_State {
+	p := new(Project_State)
 	*p = x
 	return p
 }
 
-func (x ProjectState) String() string {
+func (x Project_State) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (ProjectState) Descriptor() protoreflect.EnumDescriptor {
+func (Project_State) Descriptor() protoreflect.EnumDescriptor {
 	return file_m8_platform_resourcemanager_v1_project_proto_enumTypes[0].Descriptor()
 }
 
-func (ProjectState) Type() protoreflect.EnumType {
+func (Project_State) Type() protoreflect.EnumType {
 	return &file_m8_platform_resourcemanager_v1_project_proto_enumTypes[0]
 }
 
-func (x ProjectState) Number() protoreflect.EnumNumber {
+func (x Project_State) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use ProjectState.Descriptor instead.
-func (ProjectState) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_project_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use Project_State.Descriptor instead.
+func (Project_State) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_project_proto_rawDescGZIP(), []int{0, 0}
 }
 
 // Project stores canonical metadata for a workspace project.
@@ -101,19 +102,26 @@ type Project struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Output only. System-assigned stable unique identifier for the project.
 	Uid string `protobuf:"bytes,2,opt,name=uid,proto3" json:"uid,omitempty"`
-	// Optional. Human-readable display name of the project.
-	DisplayName string `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	// Optional. Description of the project.
-	Description string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Server-computed lifecycle state of the project.
-	State ProjectState `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.ProjectState" json:"state,omitempty"`
+	State Project_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.Project_State" json:"state,omitempty"`
+	// Optional. Human-readable display name of the project.
+	DisplayName string `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	// Optional. Description of the project.
+	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Time when the project was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// Output only. Time when the project was most recently updated.
 	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// Output only. Time when the project was soft-deleted.
+	DeleteTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
+	// Output only. Time when the soft-deleted project is scheduled to be purged.
+	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
+	// The etag for this project.
+	// If this is provided on update or delete, it must match the server's etag.
+	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
 	// Optional. Client-provided metadata for tooling and integrations.
 	// Use namespaced keys such as "example.com/key" to avoid collisions.
-	Annotations   map[string]string `protobuf:"bytes,8,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Annotations   map[string]string `protobuf:"bytes,11,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,6 +170,13 @@ func (x *Project) GetUid() string {
 	return ""
 }
 
+func (x *Project) GetState() Project_State {
+	if x != nil {
+		return x.State
+	}
+	return Project_STATE_UNSPECIFIED
+}
+
 func (x *Project) GetDisplayName() string {
 	if x != nil {
 		return x.DisplayName
@@ -174,13 +189,6 @@ func (x *Project) GetDescription() string {
 		return x.Description
 	}
 	return ""
-}
-
-func (x *Project) GetState() ProjectState {
-	if x != nil {
-		return x.State
-	}
-	return ProjectState_STATE_UNSPECIFIED
 }
 
 func (x *Project) GetCreateTime() *timestamppb.Timestamp {
@@ -197,6 +205,27 @@ func (x *Project) GetUpdateTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Project) GetDeleteTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeleteTime
+	}
+	return nil
+}
+
+func (x *Project) GetPurgeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PurgeTime
+	}
+	return nil
+}
+
+func (x *Project) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
 func (x *Project) GetAnnotations() map[string]string {
 	if x != nil {
 		return x.Annotations
@@ -208,23 +237,28 @@ var File_m8_platform_resourcemanager_v1_project_proto protoreflect.FileDescripto
 
 const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"\n" +
-	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x91\x05\n" +
+	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xe0\a\n" +
 	"\aProject\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
-	"\x03uid\x18\x02 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12.\n" +
-	"\fdisplay_name\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdisplayName\x12-\n" +
-	"\vdescription\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\vdescription\x12Q\n" +
-	"\x05state\x18\x05 \x01(\x0e2,.m8.platform.resourcemanager.v1.ProjectStateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12@\n" +
+	"\x03uid\x18\x02 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12R\n" +
+	"\x05state\x18\x03 \x01(\x0e2-.m8.platform.resourcemanager.v1.Project.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12.\n" +
+	"\fdisplay_name\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdisplayName\x12-\n" +
+	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\vdescription\x12@\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"updateTime\x12_\n" +
-	"\vannotations\x18\b \x03(\v28.m8.platform.resourcemanager.v1.Project.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
+	"updateTime\x12@\n" +
+	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"deleteTime\x12>\n" +
+	"\n" +
+	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
+	"\x04etag\x18\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\x12_\n" +
+	"\vannotations\x18\v \x03(\v28.m8.platform.resourcemanager.v1.Project.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:o\xeaAl\n" +
-	"\x0fm8.team/Project\x12Forganizations/{organization}/workspaces/{workspace}/projects/{project}*\bprojects2\aproject*t\n" +
-	"\fProjectState\x12\x15\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"m\n" +
+	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +
 	"\n" +
@@ -233,7 +267,8 @@ const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"\bDELETING\x10\x04\x12\v\n" +
 	"\aDELETED\x10\x05\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x06B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x06FAILED\x10\x06:\xb2\x01\xeaA\x83\x01\n" +
+	"&m8.platform.resourcemanager.v1/Project\x12Forganizations/{organization}/workspaces/{workspace}/projects/{project}*\bprojects2\aproject\x8a\xb5\x18'm8.platform.resourcemanager.projects.v1B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_proto_rawDescOnce sync.Once
@@ -250,21 +285,23 @@ func file_m8_platform_resourcemanager_v1_project_proto_rawDescGZIP() []byte {
 var file_m8_platform_resourcemanager_v1_project_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_m8_platform_resourcemanager_v1_project_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_resourcemanager_v1_project_proto_goTypes = []any{
-	(ProjectState)(0),             // 0: m8.platform.resourcemanager.v1.ProjectState
+	(Project_State)(0),            // 0: m8.platform.resourcemanager.v1.Project.State
 	(*Project)(nil),               // 1: m8.platform.resourcemanager.v1.Project
 	nil,                           // 2: m8.platform.resourcemanager.v1.Project.AnnotationsEntry
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_project_proto_depIdxs = []int32{
-	0, // 0: m8.platform.resourcemanager.v1.Project.state:type_name -> m8.platform.resourcemanager.v1.ProjectState
+	0, // 0: m8.platform.resourcemanager.v1.Project.state:type_name -> m8.platform.resourcemanager.v1.Project.State
 	3, // 1: m8.platform.resourcemanager.v1.Project.create_time:type_name -> google.protobuf.Timestamp
 	3, // 2: m8.platform.resourcemanager.v1.Project.update_time:type_name -> google.protobuf.Timestamp
-	2, // 3: m8.platform.resourcemanager.v1.Project.annotations:type_name -> m8.platform.resourcemanager.v1.Project.AnnotationsEntry
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 3: m8.platform.resourcemanager.v1.Project.delete_time:type_name -> google.protobuf.Timestamp
+	3, // 4: m8.platform.resourcemanager.v1.Project.purge_time:type_name -> google.protobuf.Timestamp
+	2, // 5: m8.platform.resourcemanager.v1.Project.annotations:type_name -> m8.platform.resourcemanager.v1.Project.AnnotationsEntry
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_project_proto_init() }

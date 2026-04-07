@@ -37,8 +37,12 @@ const (
 	Organization_ACTIVE Organization_State = 2
 	// Organization is temporarily suspended and normal operations are restricted.
 	Organization_SUSPENDED Organization_State = 3
+	// Organization deletion is in progress.
+	Organization_DELETING Organization_State = 4
 	// Organization is soft-deleted.
-	Organization_DELETED Organization_State = 4
+	Organization_DELETED Organization_State = 5
+	// Organization entered a failed state.
+	Organization_FAILED Organization_State = 6
 )
 
 // Enum value maps for Organization_State.
@@ -48,14 +52,18 @@ var (
 		1: "CREATING",
 		2: "ACTIVE",
 		3: "SUSPENDED",
-		4: "DELETED",
+		4: "DELETING",
+		5: "DELETED",
+		6: "FAILED",
 	}
 	Organization_State_value = map[string]int32{
 		"STATE_UNSPECIFIED": 0,
 		"CREATING":          1,
 		"ACTIVE":            2,
 		"SUSPENDED":         3,
-		"DELETED":           4,
+		"DELETING":          4,
+		"DELETED":           5,
+		"FAILED":            6,
 	}
 )
 
@@ -98,7 +106,7 @@ type Organization struct {
 	// Output only. Lifecycle state of the organization.
 	State Organization_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.Organization_State" json:"state,omitempty"`
 	// Optional. Official organization title shown to users.
-	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
+	DisplayName string `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	// Optional. Organization description.
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Time when the organization was created.
@@ -111,7 +119,10 @@ type Organization struct {
 	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
 	// The etag for this organization.
 	// If this is provided on update or delete, it must match the server's etag.
-	Etag          string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
+	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Optional. Client-provided metadata for tooling and integrations.
+	// Use namespaced keys such as "example.com/key" to avoid collisions.
+	Annotations   map[string]string `protobuf:"bytes,11,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -167,9 +178,9 @@ func (x *Organization) GetState() Organization_State {
 	return Organization_STATE_UNSPECIFIED
 }
 
-func (x *Organization) GetTitle() string {
+func (x *Organization) GetDisplayName() string {
 	if x != nil {
-		return x.Title
+		return x.DisplayName
 	}
 	return ""
 }
@@ -216,16 +227,23 @@ func (x *Organization) GetEtag() string {
 	return ""
 }
 
+func (x *Organization) GetAnnotations() map[string]string {
+	if x != nil {
+		return x.Annotations
+	}
+	return nil
+}
+
 var File_m8_platform_resourcemanager_v1_organization_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x8c\x06\n" +
+	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xd9\a\n" +
 	"\fOrganization\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
 	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12W\n" +
-	"\x05state\x18\x03 \x01(\x0e22.m8.platform.resourcemanager.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12!\n" +
-	"\x05title\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x05title\x12-\n" +
+	"\x05state\x18\x03 \x01(\x0e22.m8.platform.resourcemanager.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12.\n" +
+	"\fdisplay_name\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdisplayName\x12-\n" +
 	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12@\n" +
@@ -236,14 +254,21 @@ const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\n" +
 	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
 	"\x04etag\x18\n" +
-	" \x01(\tB\x03\xe0A\x01R\x04etag\"T\n" +
+	" \x01(\tB\x03\xe0A\x01R\x04etag\x12d\n" +
+	"\vannotations\x18\v \x03(\v2=.m8.platform.resourcemanager.v1.Organization.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
+	"\x10AnnotationsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"n\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +
 	"\n" +
 	"\x06ACTIVE\x10\x02\x12\r\n" +
-	"\tSUSPENDED\x10\x03\x12\v\n" +
-	"\aDELETED\x10\x04:\x9b\x01\xeaAh\n" +
+	"\tSUSPENDED\x10\x03\x12\f\n" +
+	"\bDELETING\x10\x04\x12\v\n" +
+	"\aDELETED\x10\x05\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x06:\x9b\x01\xeaAh\n" +
 	"+m8.platform.resourcemanager.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\x8a\xb5\x18,m8.platform.resourcemanager.organizations.v1B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
@@ -259,23 +284,25 @@ func file_m8_platform_resourcemanager_v1_organization_proto_rawDescGZIP() []byte
 }
 
 var file_m8_platform_resourcemanager_v1_organization_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_m8_platform_resourcemanager_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_m8_platform_resourcemanager_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_resourcemanager_v1_organization_proto_goTypes = []any{
 	(Organization_State)(0),       // 0: m8.platform.resourcemanager.v1.Organization.State
 	(*Organization)(nil),          // 1: m8.platform.resourcemanager.v1.Organization
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	nil,                           // 2: m8.platform.resourcemanager.v1.Organization.AnnotationsEntry
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_organization_proto_depIdxs = []int32{
 	0, // 0: m8.platform.resourcemanager.v1.Organization.state:type_name -> m8.platform.resourcemanager.v1.Organization.State
-	2, // 1: m8.platform.resourcemanager.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
-	2, // 2: m8.platform.resourcemanager.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
-	2, // 3: m8.platform.resourcemanager.v1.Organization.delete_time:type_name -> google.protobuf.Timestamp
-	2, // 4: m8.platform.resourcemanager.v1.Organization.purge_time:type_name -> google.protobuf.Timestamp
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 1: m8.platform.resourcemanager.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
+	3, // 2: m8.platform.resourcemanager.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
+	3, // 3: m8.platform.resourcemanager.v1.Organization.delete_time:type_name -> google.protobuf.Timestamp
+	3, // 4: m8.platform.resourcemanager.v1.Organization.purge_time:type_name -> google.protobuf.Timestamp
+	2, // 5: m8.platform.resourcemanager.v1.Organization.annotations:type_name -> m8.platform.resourcemanager.v1.Organization.AnnotationsEntry
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_organization_proto_init() }
@@ -289,7 +316,7 @@ func file_m8_platform_resourcemanager_v1_organization_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -33,8 +33,12 @@ message Organization {
     ACTIVE = 2;
     // Organization is temporarily suspended and normal operations are restricted.
     SUSPENDED = 3;
+    // Organization deletion is in progress.
+    DELETING = 4;
     // Organization is soft-deleted.
-    DELETED = 4;
+    DELETED = 5;
+    // Organization entered a failed state.
+    FAILED = 6;
   }
 
   // Identifier. The resource name of the organization.
@@ -59,7 +63,7 @@ message Organization {
   ];
 
   // Optional. Official organization title shown to users.
-  string title = 4 [
+  string display_name = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 256
   ];
@@ -85,4 +89,8 @@ message Organization {
   // The etag for this organization.
   // If this is provided on update or delete, it must match the server's etag.
   string etag = 10 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Client-provided metadata for tooling and integrations.
+  // Use namespaced keys such as "example.com/key" to avoid collisions.
+  map<string, string> annotations = 11 [(google.api.field_behavior) = OPTIONAL];
 }

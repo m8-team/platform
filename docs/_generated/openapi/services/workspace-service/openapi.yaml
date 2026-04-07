@@ -211,12 +211,6 @@ components:
           readOnly: true
           type: string
           description: Output only. System-assigned stable unique identifier for the workspace.
-        displayName:
-          type: string
-          description: Optional. Human-readable display name of the workspace.
-        description:
-          type: string
-          description: Optional. Description of the workspace.
         state:
           readOnly: true
           enum:
@@ -230,6 +224,12 @@ components:
           type: string
           description: Output only. Server-computed lifecycle state of the workspace.
           format: enum
+        displayName:
+          type: string
+          description: Optional. Human-readable display name of the workspace.
+        description:
+          type: string
+          description: Optional. Description of the workspace.
         createTime:
           readOnly: true
           type: string
@@ -240,6 +240,21 @@ components:
           type: string
           description: Output only. Time when the workspace was most recently updated.
           format: date-time
+        deleteTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when the workspace was soft-deleted.
+          format: date-time
+        purgeTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when the soft-deleted workspace is scheduled to be purged.
+          format: date-time
+        etag:
+          type: string
+          description: |-
+            The etag for this workspace.
+             If this is provided on update or delete, it must match the server's etag.
         annotations:
           type: object
           additionalProperties:

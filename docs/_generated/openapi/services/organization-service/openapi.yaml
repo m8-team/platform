@@ -217,11 +217,13 @@ components:
             - CREATING
             - ACTIVE
             - SUSPENDED
+            - DELETING
             - DELETED
+            - FAILED
           type: string
           description: Output only. Lifecycle state of the organization.
           format: enum
-        title:
+        displayName:
           type: string
           description: Optional. Official organization title shown to users.
         description:
@@ -252,6 +254,13 @@ components:
           description: |-
             The etag for this organization.
              If this is provided on update or delete, it must match the server's etag.
+        annotations:
+          type: object
+          additionalProperties:
+            type: string
+          description: |-
+            Optional. Client-provided metadata for tooling and integrations.
+             Use namespaced keys such as "example.com/key" to avoid collisions.
       description: Organization stores canonical organization metadata for the organization aggregate.
     UndeleteOrganizationRequest:
       required:
