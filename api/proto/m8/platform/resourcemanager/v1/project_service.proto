@@ -26,7 +26,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single project by its UUID."
-      operation_id: "get"
+      operation_id: "getProject"
     };
   }
 
@@ -38,7 +38,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of projects under the specified workspace UUID."
-      operation_id: "list"
+      operation_id: "listProjects"
     };
   }
 
@@ -53,7 +53,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new project under the specified workspace UUID."
-      operation_id: "create"
+      operation_id: "createProject"
     };
   }
 
@@ -67,7 +67,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
       description: "Updates mutable fields of an existing project."
-      operation_id: "update"
+      operation_id: "updateProject"
     };
   }
 
@@ -78,7 +78,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes a project by its UUID."
-      operation_id: "delete"
+      operation_id: "deleteProject"
     };
   }
 
@@ -89,7 +89,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted project."
-      operation_id: "undelete"
+      operation_id: "undeleteProject"
     };
   }
 }
@@ -97,14 +97,14 @@ service ProjectService {
 // GetProjectRequest fetches a single project by ID.
 message GetProjectRequest {
   // Required. Stable unique identifier of the project to retrieve.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }
 
 // ListProjectsRequest lists projects visible under a workspace ID.
 message ListProjectsRequest {
   // Required. Stable unique identifier of the parent workspace.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   // In the HTTP API, pass this field in the query string.
   string workspace_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
@@ -165,7 +165,7 @@ message ListProjectsResponse {
 // CreateProjectRequest creates a new project.
 message CreateProjectRequest {
   // Required. Stable unique identifier of the parent workspace.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   // In the HTTP API, pass this field in the query string.
   string workspace_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
@@ -185,7 +185,7 @@ message UpdateProjectRequest {
   // Required. The project to update.
   //
   // The `project.id` field identifies the resource to update and must be a
-  // valid UUID4 string. The identifier is immutable and cannot be changed.
+  // valid UUID string. The identifier is immutable and cannot be changed.
   // Output-only fields are ignored except for `etag`, which may be provided for
   // optimistic concurrency control.
   Project project = 1 [
@@ -204,7 +204,7 @@ message UpdateProjectRequest {
 // DeleteProjectRequest soft-deletes a project by ID.
 message DeleteProjectRequest {
   // Required. Stable unique identifier of the project to delete.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Optional. The etag of the project.
@@ -219,6 +219,6 @@ message DeleteProjectRequest {
 // UndeleteProjectRequest restores a soft-deleted project.
 message UndeleteProjectRequest {
   // Required. Stable unique identifier of the project to restore.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }

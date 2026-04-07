@@ -26,7 +26,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single organization by its UUID."
-      operation_id: "get"
+      operation_id: "getOrganization"
     };
   }
 
@@ -36,7 +36,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
-      operation_id: "list"
+      operation_id: "listOrganizations"
     };
   }
 
@@ -50,7 +50,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new organization."
-      operation_id: "create"
+      operation_id: "createOrganization"
     };
   }
 
@@ -64,7 +64,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
       description: "Updates mutable fields of an existing organization."
-      operation_id: "update"
+      operation_id: "updateOrganization"
     };
   }
 
@@ -75,7 +75,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
-      operation_id: "delete"
+      operation_id: "deleteOrganization"
     };
   }
 
@@ -86,7 +86,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted organization."
-      operation_id: "undelete"
+      operation_id: "undeleteOrganization"
     };
   }
 }
@@ -94,7 +94,7 @@ service OrganizationService {
 // GetOrganizationRequest fetches a single organization by ID.
 message GetOrganizationRequest {
   // Required. Stable unique identifier of the organization to retrieve.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }
 
@@ -173,7 +173,7 @@ message UpdateOrganizationRequest {
   // Required. The organization to update.
   //
   // The `organization.id` field identifies the resource to update and must be
-  // a valid UUID4 string. The identifier is immutable and cannot be changed.
+  // a valid UUID string. The identifier is immutable and cannot be changed.
   // Output-only fields are ignored except for `etag`, which may be provided for
   // optimistic concurrency control.
   Organization organization = 1 [
@@ -192,7 +192,7 @@ message UpdateOrganizationRequest {
 // DeleteOrganizationRequest soft-deletes an organization by ID.
 message DeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to delete.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Optional. The etag of the organization.
@@ -207,6 +207,6 @@ message DeleteOrganizationRequest {
 // UndeleteOrganizationRequest restores a soft-deleted organization.
 message UndeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to restore.
-  // The value must be a valid UUID4 string.
+  // The value must be a valid UUID string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }
