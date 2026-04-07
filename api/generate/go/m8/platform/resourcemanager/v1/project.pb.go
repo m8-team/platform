@@ -125,7 +125,8 @@ type Project struct {
 	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
 	// Optional. Opaque concurrency token for the project.
 	// If this value is provided on update or delete, it must exactly match the
-	// current server-side etag or the request is rejected.
+	// current server-side etag or the request is rejected. Clients must not set
+	// this field when creating a project.
 	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
 	// Optional. Client-provided metadata for tooling and integrations.
 	// Use namespaced keys such as "example.com/key" to avoid collisions between

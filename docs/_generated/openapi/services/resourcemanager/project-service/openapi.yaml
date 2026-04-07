@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Project API
-  description: ProjectService provides standard create, read, list, update, soft-delete, and undelete operations for projects.
+  description: Use this API to create, list, view, update, soft-delete, and undelete projects.
   version: v1
 paths:
   /v1/projects:
@@ -283,7 +283,8 @@ components:
           description: |-
             Optional. Opaque concurrency token for the project.
              If this value is provided on update or delete, it must exactly match the
-             current server-side etag or the request is rejected.
+             current server-side etag or the request is rejected. Clients must not set
+             this field when creating a project.
         annotations:
           type: object
           additionalProperties:

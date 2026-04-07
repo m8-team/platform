@@ -14,6 +14,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -251,8 +252,8 @@ type CreateWorkspaceRequest struct {
 	// Required. The workspace to create.
 	// Client-specified values in `workspace.id`, `workspace.organization_id`,
 	// `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-	// `workspace.delete_time`, and `workspace.purge_time` are ignored because
-	// the server assigns them.
+	// `workspace.delete_time`, `workspace.purge_time`, and `workspace.etag`
+	// must not be set by the client. The server assigns those fields.
 	Workspace     *Workspace `protobuf:"bytes,2,opt,name=workspace,proto3" json:"workspace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -481,7 +482,7 @@ var File_m8_platform_resourcemanager_v1_workspace_service_proto protoreflect.Fil
 
 const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"2\n" +
+	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"2\n" +
 	"\x13GetWorkspaceRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x9a\x02\n" +
 	"\x15ListWorkspacesRequest\x124\n" +
@@ -511,14 +512,14 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"7\n" +
 	"\x18UndeleteWorkspaceRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xb6\v\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\x8d\f\n" +
 	"\x10WorkspaceService\x12\xc6\x01\n" +
 	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"V\xdaA\x02id\xbaG3\x12\x03Get\x1a'Returns a single workspace by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/workspaces/{id}\x12\x88\x02\n" +
 	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\x86\x01\xdaA\x0forganization_id\xbaG[\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x04list\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/workspaces\x12\x87\x02\n" +
 	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x90\x01\xdaA\x19organization_id,workspace\xbaGP\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x06create\x82\xd3\xe4\x93\x02\x1b:\tworkspace\"\x0e/v1/workspaces\x12\x84\x02\n" +
 	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x8d\x01\xdaA\x15workspace,update_mask\xbaGB\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x06update\x82\xd3\xe4\x93\x02*:\tworkspace2\x1d/v1/workspaces/{workspace.id}\x12\xd0\x01\n" +
 	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x16.google.protobuf.Empty\"m\xdaA\x15id,etag,allow_missing\xbaG7\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x15*\x13/v1/workspaces/{id}\x12\xe9\x01\n" +
-	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"o\xdaA\x02id\xbaGC\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\bundelete\x82\xd3\xe4\x93\x02\x1e\"\x1c/v1/workspaces/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"o\xdaA\x02id\xbaGC\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\bundelete\x82\xd3\xe4\x93\x02\x1e\"\x1c/v1/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescOnce sync.Once

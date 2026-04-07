@@ -2,7 +2,7 @@
 
 # Workspace API: REST reference
 
-WorkspaceService provides standard create, read, list, update, soft-delete, and undelete operations for workspaces.
+Use this API to create, list, view, update, soft-delete, and undelete workspaces.
 
 ## Methods
 

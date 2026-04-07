@@ -32,7 +32,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
+// OrganizationService provides standard create, read, list, update,
+// soft-delete, and undelete operations for organizations.
 type OrganizationServiceClient interface {
 	// GetOrganization returns a single organization by ID.
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
@@ -120,7 +121,8 @@ func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, in
 // All implementations must embed UnimplementedOrganizationServiceServer
 // for forward compatibility.
 //
-// OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
+// OrganizationService provides standard create, read, list, update,
+// soft-delete, and undelete operations for organizations.
 type OrganizationServiceServer interface {
 	// GetOrganization returns a single organization by ID.
 	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)

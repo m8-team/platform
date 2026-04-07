@@ -9,6 +9,7 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/workspace.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
@@ -16,6 +17,8 @@ option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 // WorkspaceService provides standard create, read, list, update, soft-delete,
 // and undelete operations for workspaces.
 service WorkspaceService {
+  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete workspaces.";
+
   // GetWorkspace returns a single workspace by ID.
   rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {get: "/v1/workspaces/{id}"};
@@ -170,8 +173,8 @@ message CreateWorkspaceRequest {
   // Required. The workspace to create.
   // Client-specified values in `workspace.id`, `workspace.organization_id`,
   // `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-  // `workspace.delete_time`, and `workspace.purge_time` are ignored because
-  // the server assigns them.
+  // `workspace.delete_time`, `workspace.purge_time`, and `workspace.etag`
+  // must not be set by the client. The server assigns those fields.
   Workspace workspace = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true

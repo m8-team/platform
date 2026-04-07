@@ -9,6 +9,7 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
@@ -16,6 +17,8 @@ option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 // ProjectService provides standard create, read, list, update, soft-delete,
 // and undelete operations for projects.
 service ProjectService {
+  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete projects.";
+
   // GetProject returns a single project by ID.
   rpc GetProject(GetProjectRequest) returns (Project) {
     option (google.api.http) = {get: "/v1/projects/{id}"};
@@ -169,8 +172,8 @@ message CreateProjectRequest {
   // Required. The project to create.
   // Client-specified values in `project.id`, `project.workspace_id`,
   // `project.state`, `project.create_time`, `project.update_time`,
-  // `project.delete_time`, and `project.purge_time` are ignored because the
-  // server assigns them.
+  // `project.delete_time`, `project.purge_time`, and `project.etag` must not
+  // be set by the client. The server assigns those fields.
   Project project = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true

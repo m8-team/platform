@@ -14,9 +14,10 @@ import "m8/platform/resourcemanager/v1/organization.proto";
 
 option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 
-// OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
+// OrganizationService provides standard create, read, list, update,
+// soft-delete, and undelete operations for organizations.
 service OrganizationService {
-  option (m8.platform.extension.v1.description) = "Use this API to create, view, update, delete, and undelete organizations.";
+  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete organizations.";
 
   // GetOrganization returns a single organization by ID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
@@ -158,8 +159,9 @@ message CreateOrganizationRequest {
   // Required. The organization to create.
   // Client-specified values in `organization.id`,
   // `organization.state`, `organization.create_time`, `organization.update_time`,
-  // `organization.delete_time`, and `organization.purge_time` are ignored
-  // because the server assigns them.
+  // `organization.delete_time`, `organization.purge_time`, and
+  // `organization.etag` must not be set by the client. The server assigns
+  // those fields.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true

@@ -14,6 +14,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
+	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -251,8 +252,8 @@ type CreateProjectRequest struct {
 	// Required. The project to create.
 	// Client-specified values in `project.id`, `project.workspace_id`,
 	// `project.state`, `project.create_time`, `project.update_time`,
-	// `project.delete_time`, and `project.purge_time` are ignored because the
-	// server assigns them.
+	// `project.delete_time`, `project.purge_time`, and `project.etag` must not
+	// be set by the client. The server assigns those fields.
 	Project       *Project `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -481,7 +482,7 @@ var File_m8_platform_resourcemanager_v1_project_service_proto protoreflect.FileD
 
 const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\n" +
-	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
+	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
 	"\x11GetProjectRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x92\x02\n" +
 	"\x13ListProjectsRequest\x12.\n" +
@@ -509,8 +510,7 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xe3\n" +
-	"\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xb8\v\n" +
 	"\x0eProjectService\x12\xbc\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"R\xdaA\x02id\xbaG1\x12\x03Get\x1a%Returns a single project by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/projects/{id}\x12\xf7\x01\n" +
@@ -518,7 +518,7 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x82\x01\xdaA\x14workspace_id,project\xbaGK\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\x06create\x82\xd3\xe4\x93\x02\x17:\aproject\"\f/v1/projects\x12\xf4\x01\n" +
 	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xc8\x01\n" +
 	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"i\xdaA\x15id,etag,allow_missing\xbaG5\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
-	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"k\xdaA\x02id\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"k\xdaA\x02id\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_service_proto_rawDescOnce sync.Once

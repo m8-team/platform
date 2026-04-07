@@ -2,7 +2,7 @@
 
 # Organization API: REST reference
 
-Use this API to create, view, update, delete, and undelete organizations.
+Use this API to create, list, view, update, soft-delete, and undelete organizations.
 
 ## Methods
 

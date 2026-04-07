@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Organization API
-  description: Use this API to create, view, update, delete, and undelete organizations.
+  description: Use this API to create, list, view, update, soft-delete, and undelete organizations.
   version: v1
 paths:
   /v1/organizations:
@@ -259,7 +259,8 @@ components:
           description: |-
             Optional. Opaque concurrency token for the organization.
              If this value is provided on update or delete, it must exactly match the
-             current server-side etag or the request is rejected.
+             current server-side etag or the request is rejected. Clients must not set
+             this field when creating an organization.
         annotations:
           type: object
           additionalProperties:

@@ -2,7 +2,7 @@
 
 # Project API: REST reference
 
-ProjectService provides standard create, read, list, update, soft-delete, and undelete operations for projects.
+Use this API to create, list, view, update, soft-delete, and undelete projects.
 
 ## Methods
 
