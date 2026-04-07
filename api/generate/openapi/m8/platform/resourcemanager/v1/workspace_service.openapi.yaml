@@ -7,7 +7,7 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/organizations/{organizationId}/workspaces:
+    /v1/workspaces:
         get:
             tags:
                 - WorkspaceService
@@ -16,11 +16,10 @@ paths:
             operationId: list
             parameters:
                 - name: organizationId
-                  in: path
+                  in: query
                   description: |-
                     Required. Stable unique identifier of the parent organization.
                      The value must be a valid UUID4 string.
-                  required: true
                   schema:
                     type: string
                 - name: pageSize
@@ -73,11 +72,10 @@ paths:
             operationId: create
             parameters:
                 - name: organizationId
-                  in: path
+                  in: query
                   description: |-
                     Required. Stable unique identifier of the parent organization.
                      The value must be a valid UUID4 string.
-                  required: true
                   schema:
                     type: string
                 - name: requestId
@@ -267,7 +265,7 @@ components:
                     type: string
                     description: |-
                         Optional. Free-form description of the workspace.
-                         The value may be updated by clients and must not exceed 256 characters.
+                         The value may be updated by clients and must not exceed 1024 characters.
                 createTime:
                     readOnly: true
                     type: string

@@ -28,7 +28,7 @@ service WorkspaceService {
 
   // ListWorkspaces returns a paginated list of workspaces under an organization ID.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
-    option (google.api.http) = {get: "/v1/organizations/{organization_id}/workspaces"};
+    option (google.api.http) = {get: "/v1/workspaces"};
     option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
@@ -40,7 +40,7 @@ service WorkspaceService {
   // CreateWorkspace creates a new workspace under an organization ID.
   rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
-      post: "/v1/organizations/{organization_id}/workspaces"
+      post: "/v1/workspaces"
       body: "workspace"
     };
     option (google.api.method_signature) = "organization_id,workspace";

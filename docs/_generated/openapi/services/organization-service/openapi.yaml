@@ -223,16 +223,16 @@ components:
             Output only. Server-computed lifecycle state of the organization.
              The value is always one of the defined non-zero enum values.
           format: enum
-        displayName:
+        name:
           type: string
           description: |-
-            Optional. Human-readable display name of the organization.
+            Optional. Human-readable name of the organization.
              The value may be updated by clients and must not exceed 256 characters.
         description:
           type: string
           description: |-
             Optional. Free-form description of the organization.
-             The value may be updated by clients and must not exceed 256 characters.
+             The value may be updated by clients and must not exceed 1024 characters.
         createTime:
           readOnly: true
           type: string

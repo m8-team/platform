@@ -112,7 +112,7 @@ type Workspace struct {
 	// The value may be updated by clients and must not exceed 256 characters.
 	Name string `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	// Optional. Free-form description of the workspace.
-	// The value may be updated by clients and must not exceed 256 characters.
+	// The value may be updated by clients and must not exceed 1024 characters.
 	Description string `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
 	// Output only. Time when the workspace was created.
 	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
@@ -251,7 +251,7 @@ const file_m8_platform_resourcemanager_v1_workspace_proto_rawDesc = "" +
 	"\x0forganization_id\x18\x02 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x0eorganizationId\x12T\n" +
 	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.resourcemanager.v1.Workspace.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12\x1f\n" +
 	"\x04name\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x04name\x12-\n" +
-	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
+	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\vdescription\x12@\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +

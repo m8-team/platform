@@ -247,7 +247,7 @@ components:
                     type: string
                     description: |-
                         Optional. Free-form description of the organization.
-                         The value may be updated by clients and must not exceed 256 characters.
+                         The value may be updated by clients and must not exceed 1024 characters.
                 createTime:
                     readOnly: true
                     type: string

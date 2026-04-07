@@ -4,18 +4,17 @@ info:
   description: WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
   version: v1
 paths:
-  /v1/organizations/{organizationId}/workspaces:
+  /v1/workspaces:
     get:
       summary: List
       description: Returns a paginated list of workspaces under the specified organization UUID.
       operationId: list
       parameters:
         - name: organizationId
-          in: path
+          in: query
           description: |-
             Required. Stable unique identifier of the parent organization.
              The value must be a valid UUID4 string.
-          required: true
           schema:
             type: string
         - name: pageSize
@@ -66,11 +65,10 @@ paths:
       operationId: create
       parameters:
         - name: organizationId
-          in: path
+          in: query
           description: |-
             Required. Stable unique identifier of the parent organization.
              The value must be a valid UUID4 string.
-          required: true
           schema:
             type: string
         - name: requestId
@@ -243,16 +241,16 @@ components:
             Output only. Server-computed lifecycle state of the workspace.
              The value is always one of the defined non-zero enum values.
           format: enum
-        displayName:
+        name:
           type: string
           description: |-
-            Optional. Human-readable display name of the workspace.
+            Optional. Human-readable name of the workspace.
              The value may be updated by clients and must not exceed 256 characters.
         description:
           type: string
           description: |-
             Optional. Free-form description of the workspace.
-             The value may be updated by clients and must not exceed 256 characters.
+             The value may be updated by clients and must not exceed 1024 characters.
         createTime:
           readOnly: true
           type: string

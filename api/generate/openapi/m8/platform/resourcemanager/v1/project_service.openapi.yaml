@@ -7,6 +7,95 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
+    /v1/projects:
+        get:
+            tags:
+                - ProjectService
+            summary: List
+            description: Returns a paginated list of projects under the specified workspace UUID.
+            operationId: list
+            parameters:
+                - name: workspaceId
+                  in: query
+                  description: |-
+                    Required. Stable unique identifier of the parent workspace.
+                     The value must be a valid UUID4 string.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  description: |-
+                    Optional. The maximum number of projects to return.
+                     Valid values are in the range 0 to 1000.
+                     If omitted, the service returns up to 50 projects.
+                     The service may return fewer results than requested.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: |-
+                    Optional. A page token returned by a previous `ListProjects` call.
+                     Use this field to retrieve the next page of results.
+
+                     When paginating, all other parameters provided to `ListProjects`
+                     must match the call that produced the page token.
+                     The token must not exceed 1024 characters.
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: |-
+                    Optional. AIP-160 compatible filter expression.
+                     The expression must not exceed 1024 characters.
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  description: |-
+                    Optional. AIP-132 compatible ordering expression.
+                     The expression must not exceed 128 characters.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListProjectsResponse'
+        post:
+            tags:
+                - ProjectService
+            summary: Create
+            description: Creates a new project under the specified workspace UUID.
+            operationId: create
+            parameters:
+                - name: workspaceId
+                  in: query
+                  description: |-
+                    Required. Stable unique identifier of the parent workspace.
+                     The value must be a valid UUID4 string.
+                  schema:
+                    type: string
+                - name: requestId
+                  in: query
+                  description: Optional. A caller-provided request ID used to make create retries idempotent.
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Project'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
     /v1/projects/{id}:
         get:
             tags:
@@ -101,97 +190,6 @@ paths:
                 - name: requestId
                   in: query
                   description: Optional. A caller-provided request ID used to make update retries idempotent.
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/Project'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Project'
-    /v1/workspaces/{workspaceId}/projects:
-        get:
-            tags:
-                - ProjectService
-            summary: List
-            description: Returns a paginated list of projects under the specified workspace UUID.
-            operationId: list
-            parameters:
-                - name: workspaceId
-                  in: path
-                  description: |-
-                    Required. Stable unique identifier of the parent workspace.
-                     The value must be a valid UUID4 string.
-                  required: true
-                  schema:
-                    type: string
-                - name: pageSize
-                  in: query
-                  description: |-
-                    Optional. The maximum number of projects to return.
-                     Valid values are in the range 0 to 1000.
-                     If omitted, the service returns up to 50 projects.
-                     The service may return fewer results than requested.
-                  schema:
-                    type: integer
-                    format: int32
-                - name: pageToken
-                  in: query
-                  description: |-
-                    Optional. A page token returned by a previous `ListProjects` call.
-                     Use this field to retrieve the next page of results.
-
-                     When paginating, all other parameters provided to `ListProjects`
-                     must match the call that produced the page token.
-                     The token must not exceed 1024 characters.
-                  schema:
-                    type: string
-                - name: filter
-                  in: query
-                  description: |-
-                    Optional. AIP-160 compatible filter expression.
-                     The expression must not exceed 1024 characters.
-                  schema:
-                    type: string
-                - name: orderBy
-                  in: query
-                  description: |-
-                    Optional. AIP-132 compatible ordering expression.
-                     The expression must not exceed 128 characters.
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListProjectsResponse'
-        post:
-            tags:
-                - ProjectService
-            summary: Create
-            description: Creates a new project under the specified workspace UUID.
-            operationId: create
-            parameters:
-                - name: workspaceId
-                  in: path
-                  description: |-
-                    Required. Stable unique identifier of the parent workspace.
-                     The value must be a valid UUID4 string.
-                  required: true
-                  schema:
-                    type: string
-                - name: requestId
-                  in: query
-                  description: Optional. A caller-provided request ID used to make create retries idempotent.
                   schema:
                     type: string
             requestBody:
