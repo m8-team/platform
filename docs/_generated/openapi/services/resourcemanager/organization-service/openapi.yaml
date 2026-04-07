@@ -8,7 +8,7 @@ paths:
     get:
       summary: List
       description: Returns a paginated list of organizations available to the caller.
-      operationId: listOrganizations
+      operationId: ListOrganizations
       parameters:
         - name: pageSize
           in: query
@@ -60,7 +60,7 @@ paths:
     post:
       summary: Create
       description: Creates a new organization.
-      operationId: createOrganization
+      operationId: CreateOrganization
       requestBody:
         content:
           application/json:
@@ -78,7 +78,7 @@ paths:
     get:
       summary: Get
       description: Returns a single organization by its UUID.
-      operationId: getOrganization
+      operationId: GetOrganization
       parameters:
         - name: id
           in: path
@@ -98,7 +98,7 @@ paths:
     delete:
       summary: Delete
       description: Soft-deletes an organization.
-      operationId: deleteOrganization
+      operationId: DeleteOrganization
       parameters:
         - name: id
           in: path
@@ -130,7 +130,7 @@ paths:
     post:
       summary: Undelete
       description: Restores a previously soft-deleted organization.
-      operationId: undeleteOrganization
+      operationId: UndeleteOrganization
       parameters:
         - name: id
           in: path
@@ -151,7 +151,7 @@ paths:
     patch:
       summary: Update
       description: Updates mutable fields of an existing organization.
-      operationId: updateOrganization
+      operationId: UpdateOrganization
       parameters:
         - name: organization.id
           in: path

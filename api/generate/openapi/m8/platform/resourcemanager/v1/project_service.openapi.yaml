@@ -13,7 +13,7 @@ paths:
                 - ProjectService
             summary: List
             description: Returns a paginated list of projects under the specified workspace UUID.
-            operationId: listProjects
+            operationId: ListProjects
             parameters:
                 - name: workspaceId
                   in: query
@@ -75,7 +75,7 @@ paths:
                 - ProjectService
             summary: Create
             description: Creates a new project under the specified workspace UUID.
-            operationId: createProject
+            operationId: CreateProject
             parameters:
                 - name: workspaceId
                   in: query
@@ -104,7 +104,7 @@ paths:
                 - ProjectService
             summary: Get
             description: Returns a single project by its UUID.
-            operationId: getProject
+            operationId: GetProject
             parameters:
                 - name: id
                   in: path
@@ -126,7 +126,7 @@ paths:
                 - ProjectService
             summary: Delete
             description: Soft-deletes a project by its UUID.
-            operationId: deleteProject
+            operationId: DeleteProject
             parameters:
                 - name: id
                   in: path
@@ -160,7 +160,7 @@ paths:
                 - ProjectService
             summary: Undelete
             description: Restores a previously soft-deleted project.
-            operationId: undeleteProject
+            operationId: UndeleteProject
             parameters:
                 - name: id
                   in: path
@@ -183,7 +183,7 @@ paths:
                 - ProjectService
             summary: Update
             description: Updates mutable fields of an existing project.
-            operationId: updateProject
+            operationId: UpdateProject
             parameters:
                 - name: project.id
                   in: path

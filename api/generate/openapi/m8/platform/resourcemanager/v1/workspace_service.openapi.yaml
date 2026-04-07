@@ -13,7 +13,7 @@ paths:
                 - WorkspaceService
             summary: List
             description: Returns a paginated list of workspaces under the specified organization UUID.
-            operationId: listWorkspaces
+            operationId: ListWorkspaces
             parameters:
                 - name: organizationId
                   in: query
@@ -75,7 +75,7 @@ paths:
                 - WorkspaceService
             summary: Create
             description: Creates a new workspace under the specified organization UUID.
-            operationId: createWorkspace
+            operationId: CreateWorkspace
             parameters:
                 - name: organizationId
                   in: query
@@ -104,7 +104,7 @@ paths:
                 - WorkspaceService
             summary: Get
             description: Returns a single workspace by its UUID.
-            operationId: getWorkspace
+            operationId: GetWorkspace
             parameters:
                 - name: id
                   in: path
@@ -126,7 +126,7 @@ paths:
                 - WorkspaceService
             summary: Delete
             description: Soft-deletes a workspace by its UUID.
-            operationId: deleteWorkspace
+            operationId: DeleteWorkspace
             parameters:
                 - name: id
                   in: path
@@ -160,7 +160,7 @@ paths:
                 - WorkspaceService
             summary: Undelete
             description: Restores a previously soft-deleted workspace.
-            operationId: undeleteWorkspace
+            operationId: UndeleteWorkspace
             parameters:
                 - name: id
                   in: path
@@ -183,7 +183,7 @@ paths:
                 - WorkspaceService
             summary: Update
             description: Updates mutable fields of an existing workspace.
-            operationId: updateWorkspace
+            operationId: UpdateWorkspace
             parameters:
                 - name: workspace.id
                   in: path

@@ -26,7 +26,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single organization by its UUID."
-      operation_id: "getOrganization"
+      operation_id: "GetOrganization"
     };
   }
 
@@ -36,7 +36,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
-      operation_id: "listOrganizations"
+      operation_id: "ListOrganizations"
     };
   }
 
@@ -50,7 +50,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new organization."
-      operation_id: "createOrganization"
+      operation_id: "CreateOrganization"
     };
   }
 
@@ -64,7 +64,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
       description: "Updates mutable fields of an existing organization."
-      operation_id: "updateOrganization"
+      operation_id: "UpdateOrganization"
     };
   }
 
@@ -75,7 +75,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
-      operation_id: "deleteOrganization"
+      operation_id: "DeleteOrganization"
     };
   }
 
@@ -86,7 +86,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted organization."
-      operation_id: "undeleteOrganization"
+      operation_id: "UndeleteOrganization"
     };
   }
 }

@@ -8,9 +8,9 @@ Use this API to create, list, view, update, soft-delete, and undelete workspaces
 
 | Method | Description |
 | --- | --- |
-| [List](./listWorkspaces.md) | Returns a paginated list of workspaces under the specified organization UUID. |
-| [Create](./createWorkspace.md) | Creates a new workspace under the specified organization UUID. |
-| [Get](./getWorkspace.md) | Returns a single workspace by its UUID. |
-| [Delete](./deleteWorkspace.md) | Soft-deletes a workspace by its UUID. |
-| [Undelete](./undeleteWorkspace.md) | Restores a previously soft-deleted workspace. |
-| [Update](./updateWorkspace.md) | Updates mutable fields of an existing workspace. |
+| [List](./ListWorkspaces.md) | Returns a paginated list of workspaces under the specified organization UUID. |
+| [Create](./CreateWorkspace.md) | Creates a new workspace under the specified organization UUID. |
+| [Get](./GetWorkspace.md) | Returns a single workspace by its UUID. |
+| [Delete](./DeleteWorkspace.md) | Soft-deletes a workspace by its UUID. |
+| [Undelete](./UndeleteWorkspace.md) | Restores a previously soft-deleted workspace. |
+| [Update](./UpdateWorkspace.md) | Updates mutable fields of an existing workspace. |

@@ -8,9 +8,9 @@ Use this API to create, list, view, update, soft-delete, and undelete projects.
 
 | Method | Description |
 | --- | --- |
-| [List](./listProjects.md) | Returns a paginated list of projects under the specified workspace UUID. |
-| [Create](./createProject.md) | Creates a new project under the specified workspace UUID. |
-| [Get](./getProject.md) | Returns a single project by its UUID. |
-| [Delete](./deleteProject.md) | Soft-deletes a project by its UUID. |
-| [Undelete](./undeleteProject.md) | Restores a previously soft-deleted project. |
-| [Update](./updateProject.md) | Updates mutable fields of an existing project. |
+| [List](./ListProjects.md) | Returns a paginated list of projects under the specified workspace UUID. |
+| [Create](./CreateProject.md) | Creates a new project under the specified workspace UUID. |
+| [Get](./GetProject.md) | Returns a single project by its UUID. |
+| [Delete](./DeleteProject.md) | Soft-deletes a project by its UUID. |
+| [Undelete](./UndeleteProject.md) | Restores a previously soft-deleted project. |
+| [Update](./UpdateProject.md) | Updates mutable fields of an existing project. |

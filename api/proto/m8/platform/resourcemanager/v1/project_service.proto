@@ -26,7 +26,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single project by its UUID."
-      operation_id: "getProject"
+      operation_id: "GetProject"
     };
   }
 
@@ -38,7 +38,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of projects under the specified workspace UUID."
-      operation_id: "listProjects"
+      operation_id: "ListProjects"
     };
   }
 
@@ -53,7 +53,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new project under the specified workspace UUID."
-      operation_id: "createProject"
+      operation_id: "CreateProject"
     };
   }
 
@@ -67,7 +67,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
       description: "Updates mutable fields of an existing project."
-      operation_id: "updateProject"
+      operation_id: "UpdateProject"
     };
   }
 
@@ -78,7 +78,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes a project by its UUID."
-      operation_id: "deleteProject"
+      operation_id: "DeleteProject"
     };
   }
 
@@ -89,7 +89,7 @@ service ProjectService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted project."
-      operation_id: "undeleteProject"
+      operation_id: "UndeleteProject"
     };
   }
 }
