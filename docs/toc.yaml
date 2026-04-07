@@ -9,13 +9,13 @@ items:
           - name: Управление доступом
             href: services/resource-manager/access-management.md
           - name: Справочник API
-            href: services/resource-manager/api-reference/index.md
             items:
-              - name: Аутентификация в API
+              - name: Аутентификация
                 href: services/resource-manager/api-reference/authentication.md
               - name: REST
-                href: services/resource-manager/api-reference/rest/index.md
                 items:
+                  - name: Overview
+                    href: services/resource-manager/api-reference/rest/index.md
                   - name: Organization
                     include:
                       path: services/resource-manager/api-reference/rest/organization

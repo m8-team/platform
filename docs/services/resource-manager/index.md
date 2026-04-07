@@ -20,4 +20,4 @@
   - `Workspace`
   - `Project`
 
-Материалы доступны в подразделе [api-reference](./api-reference/index.md).
+Материалы доступны в подразделе `Справочник API`.
