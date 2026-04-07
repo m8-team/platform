@@ -3,28 +3,64 @@ href: index.md
 items:
   - name: Сервисы
     items:
-      - name: Organization
-        href: services/organization/index.md
+      - name: Resource Manager
+        href: services/resource-manager/index.md
         items:
           - name: Управление доступом
-            href: services/organization/access-management.md
+            href: services/resource-manager/access-management.md
           - name: Справочник API
+            href: services/resource-manager/api-reference/index.md
             items:
-              - name: Аутентификация
-                href: common/api/authentication.md
-              - name: REST (англ.)
-                include:
-                  path: _generated/openapi/services/organization-service
-                  includers:
-                    - name: openapi
-                      input: _generated/openapi/services/organization-service/openapi.yaml
-                      leadingPage:
-                        name: Overview
-                        spec:
-                          renderMode: hidden
-                      tags:
-                        __root__:
-                          name: Overview
-                          path: overview.md
-                          alias: overview
-                  mode: link
+              - name: Аутентификация в API
+                href: services/resource-manager/api-reference/authentication.md
+              - name: REST
+                href: services/resource-manager/api-reference/rest/index.md
+                items:
+                  - name: Organization
+                    include:
+                      path: services/resource-manager/api-reference/rest/organization
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/organization-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
+                  - name: Workspace
+                    include:
+                      path: services/resource-manager/api-reference/rest/workspace
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/workspace-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
+                  - name: Project
+                    include:
+                      path: services/resource-manager/api-reference/rest/project
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/project-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link

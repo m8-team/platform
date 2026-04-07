@@ -13,7 +13,7 @@ paths:
                 - OrganizationService
             summary: List
             description: Returns a paginated list of organizations available to the caller.
-            operationId: ListOrganizations
+            operationId: list
             parameters:
                 - name: pageSize
                   in: query
@@ -62,7 +62,7 @@ paths:
                 - OrganizationService
             summary: Create
             description: Creates a new organization.
-            operationId: CreateOrganization
+            operationId: create
             parameters:
                 - name: organizationId
                   in: query
@@ -90,7 +90,7 @@ paths:
                 - OrganizationService
             summary: Get
             description: Returns a single organization by its resource name.
-            operationId: GetOrganization
+            operationId: get
             parameters:
                 - name: organization
                   in: path
@@ -110,7 +110,7 @@ paths:
                 - OrganizationService
             summary: Delete
             description: Soft-deletes an organization.
-            operationId: DeleteOrganization
+            operationId: delete
             parameters:
                 - name: organization
                   in: path
@@ -142,7 +142,7 @@ paths:
                 - OrganizationService
             summary: Update
             description: Updates mutable fields of an existing organization.
-            operationId: UpdateOrganization
+            operationId: update
             parameters:
                 - name: organization
                   in: path
@@ -177,7 +177,7 @@ paths:
                 - OrganizationService
             summary: Undelete
             description: Restores a previously soft-deleted organization.
-            operationId: UndeleteOrganization
+            operationId: undelete
             parameters:
                 - name: organization
                   in: path

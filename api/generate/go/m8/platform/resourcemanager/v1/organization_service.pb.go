@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: m8/platform/organization/v1/organization_service.proto
+// source: m8/platform/resourcemanager/v1/organization_service.proto
 
-package organization
+package resourcemanager
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -38,7 +38,7 @@ type GetOrganizationRequest struct {
 
 func (x *GetOrganizationRequest) Reset() {
 	*x = GetOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[0]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -50,7 +50,7 @@ func (x *GetOrganizationRequest) String() string {
 func (*GetOrganizationRequest) ProtoMessage() {}
 
 func (x *GetOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[0]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -63,7 +63,7 @@ func (x *GetOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*GetOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetOrganizationRequest) GetName() string {
@@ -99,7 +99,7 @@ type ListOrganizationsRequest struct {
 
 func (x *ListOrganizationsRequest) Reset() {
 	*x = ListOrganizationsRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[1]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -111,7 +111,7 @@ func (x *ListOrganizationsRequest) String() string {
 func (*ListOrganizationsRequest) ProtoMessage() {}
 
 func (x *ListOrganizationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[1]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -124,7 +124,7 @@ func (x *ListOrganizationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOrganizationsRequest.ProtoReflect.Descriptor instead.
 func (*ListOrganizationsRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ListOrganizationsRequest) GetPageSize() int32 {
@@ -175,7 +175,7 @@ type ListOrganizationsResponse struct {
 
 func (x *ListOrganizationsResponse) Reset() {
 	*x = ListOrganizationsResponse{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[2]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -187,7 +187,7 @@ func (x *ListOrganizationsResponse) String() string {
 func (*ListOrganizationsResponse) ProtoMessage() {}
 
 func (x *ListOrganizationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[2]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -200,7 +200,7 @@ func (x *ListOrganizationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOrganizationsResponse.ProtoReflect.Descriptor instead.
 func (*ListOrganizationsResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ListOrganizationsResponse) GetOrganizations() []*Organization {
@@ -232,7 +232,7 @@ type CreateOrganizationRequest struct {
 
 func (x *CreateOrganizationRequest) Reset() {
 	*x = CreateOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -244,7 +244,7 @@ func (x *CreateOrganizationRequest) String() string {
 func (*CreateOrganizationRequest) ProtoMessage() {}
 
 func (x *CreateOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[3]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,7 +257,7 @@ func (x *CreateOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*CreateOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{3}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CreateOrganizationRequest) GetOrganizationId() string {
@@ -291,7 +291,7 @@ type UpdateOrganizationRequest struct {
 
 func (x *UpdateOrganizationRequest) Reset() {
 	*x = UpdateOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +303,7 @@ func (x *UpdateOrganizationRequest) String() string {
 func (*UpdateOrganizationRequest) ProtoMessage() {}
 
 func (x *UpdateOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[4]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +316,7 @@ func (x *UpdateOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateOrganizationRequest) GetOrganization() *Organization {
@@ -350,7 +350,7 @@ type DeleteOrganizationRequest struct {
 
 func (x *DeleteOrganizationRequest) Reset() {
 	*x = DeleteOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -362,7 +362,7 @@ func (x *DeleteOrganizationRequest) String() string {
 func (*DeleteOrganizationRequest) ProtoMessage() {}
 
 func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[5]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -375,7 +375,7 @@ func (x *DeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{5}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DeleteOrganizationRequest) GetName() string {
@@ -411,7 +411,7 @@ type UndeleteOrganizationRequest struct {
 
 func (x *UndeleteOrganizationRequest) Reset() {
 	*x = UndeleteOrganizationRequest{}
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +423,7 @@ func (x *UndeleteOrganizationRequest) String() string {
 func (*UndeleteOrganizationRequest) ProtoMessage() {}
 
 func (x *UndeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_service_proto_msgTypes[6]
+	mi := &file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +436,7 @@ func (x *UndeleteOrganizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UndeleteOrganizationRequest.ProtoReflect.Descriptor instead.
 func (*UndeleteOrganizationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP(), []int{6}
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UndeleteOrganizationRequest) GetName() string {
@@ -446,11 +446,11 @@ func (x *UndeleteOrganizationRequest) GetName() string {
 	return ""
 }
 
-var File_m8_platform_organization_v1_organization_service_proto protoreflect.FileDescriptor
+var File_m8_platform_resourcemanager_v1_organization_service_proto protoreflect.FileDescriptor
 
-const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
+const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/organization/v1/organization_service.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/organization/v1/organization.proto\"\x8d\x01\n" +
+	"9m8/platform/resourcemanager/v1/organization_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\"\x8d\x01\n" +
 	"\x16GetOrganizationRequest\x12s\n" +
 	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
 	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name\"\xe7\x01\n" +
@@ -460,15 +460,15 @@ const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
 	"\x06filter\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\x06filter\x12&\n" +
 	"\border_by\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x12&\n" +
-	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\x94\x01\n" +
-	"\x19ListOrganizationsResponse\x12O\n" +
-	"\rorganizations\x18\x01 \x03(\v2).m8.platform.organization.v1.OrganizationR\rorganizations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc4\x01\n" +
+	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\x97\x01\n" +
+	"\x19ListOrganizationsResponse\x12R\n" +
+	"\rorganizations\x18\x01 \x03(\v2,.m8.platform.resourcemanager.v1.OrganizationR\rorganizations\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xc7\x01\n" +
 	"\x19CreateOrganizationRequest\x12M\n" +
-	"\x0forganization_id\x18\x02 \x01(\tB$\xe0A\x02\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x0eorganizationId\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xb7\x01\n" +
-	"\x19UpdateOrganizationRequest\x12X\n" +
-	"\forganization\x18\x01 \x01(\v2).m8.platform.organization.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12@\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB$\xe0A\x02\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\x0eorganizationId\x12[\n" +
+	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xba\x01\n" +
+	"\x19UpdateOrganizationRequest\x12[\n" +
+	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12@\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
 	"updateMask\"\xd3\x01\n" +
 	"\x19DeleteOrganizationRequest\x12s\n" +
@@ -478,56 +478,56 @@ const file_m8_platform_organization_v1_organization_service_proto_rawDesc = "" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"\x92\x01\n" +
 	"\x1bUndeleteOrganizationRequest\x12s\n" +
 	"\x04name\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name2\xec\f\n" +
-	"\x13OrganizationService\x12\xea\x01\n" +
-	"\x0fGetOrganization\x123.m8.platform.organization.v1.GetOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"w\xdaA\x04name\xbaGK\x12\x03Get\x1a3Returns a single organization by its resource name.*\x0fGetOrganization\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/{name=organizations/*}\x12\xfd\x01\n" +
-	"\x11ListOrganizations\x125.m8.platform.organization.v1.ListOrganizationsRequest\x1a6.m8.platform.organization.v1.ListOrganizationsResponse\"y\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xfc\x01\n" +
-	"\x12CreateOrganization\x126.m8.platform.organization.v1.CreateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x82\x01\xdaA\x1corganization,organization_id\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xa6\x02\n" +
-	"\x12UpdateOrganization\x126.m8.platform.organization.v1.UpdateOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\xac\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x027:\forganization2'/v1/{organization.name=organizations/*}\x12\xe5\x01\n" +
-	"\x12DeleteOrganization\x126.m8.platform.organization.v1.DeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"l\xdaA\tname,etag\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x12\x88\x02\n" +
-	"\x14UndeleteOrganization\x128.m8.platform.organization.v1.UndeleteOrganizationRequest\x1a).m8.platform.organization.v1.Organization\"\x8a\x01\xdaA\x04name\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=organizations/*}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B*Z(m8/platform/organization/v1;organizationb\x06proto3"
+	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x04name2\xc5\f\n" +
+	"\x13OrganizationService\x12\xe4\x01\n" +
+	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"k\xdaA\x04name\xbaG?\x12\x03Get\x1a3Returns a single organization by its resource name.*\x03get\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/{name=organizations/*}\x12\xf6\x01\n" +
+	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"l\xbaGP\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x04list\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xf5\x01\n" +
+	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"v\xdaA\x1corganization,organization_id\xbaG-\x12\x06Create\x1a\x1bCreates a new organization.*\x06create\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xa0\x02\n" +
+	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xa0\x01\xdaA\x18organization,update_mask\xbaGE\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x06update\x82\xd3\xe4\x93\x027:\forganization2'/v1/{organization.name=organizations/*}\x12\xdf\x01\n" +
+	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"`\xdaA\tname,etag\xbaG/\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x06delete\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/{name=organizations/*}\x12\x81\x02\n" +
+	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"~\xdaA\x04name\xbaGF\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\bundelete\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/{name=organizations/*}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
-	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce sync.Once
-	file_m8_platform_organization_v1_organization_service_proto_rawDescData []byte
+	file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescOnce sync.Once
+	file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescData []byte
 )
 
-func file_m8_platform_organization_v1_organization_service_proto_rawDescGZIP() []byte {
-	file_m8_platform_organization_v1_organization_service_proto_rawDescOnce.Do(func() {
-		file_m8_platform_organization_v1_organization_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_organization_v1_organization_service_proto_rawDesc), len(file_m8_platform_organization_v1_organization_service_proto_rawDesc)))
+func file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescGZIP() []byte {
+	file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescOnce.Do(func() {
+		file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc)))
 	})
-	return file_m8_platform_organization_v1_organization_service_proto_rawDescData
+	return file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescData
 }
 
-var file_m8_platform_organization_v1_organization_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_m8_platform_organization_v1_organization_service_proto_goTypes = []any{
-	(*GetOrganizationRequest)(nil),      // 0: m8.platform.organization.v1.GetOrganizationRequest
-	(*ListOrganizationsRequest)(nil),    // 1: m8.platform.organization.v1.ListOrganizationsRequest
-	(*ListOrganizationsResponse)(nil),   // 2: m8.platform.organization.v1.ListOrganizationsResponse
-	(*CreateOrganizationRequest)(nil),   // 3: m8.platform.organization.v1.CreateOrganizationRequest
-	(*UpdateOrganizationRequest)(nil),   // 4: m8.platform.organization.v1.UpdateOrganizationRequest
-	(*DeleteOrganizationRequest)(nil),   // 5: m8.platform.organization.v1.DeleteOrganizationRequest
-	(*UndeleteOrganizationRequest)(nil), // 6: m8.platform.organization.v1.UndeleteOrganizationRequest
-	(*Organization)(nil),                // 7: m8.platform.organization.v1.Organization
+var file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_m8_platform_resourcemanager_v1_organization_service_proto_goTypes = []any{
+	(*GetOrganizationRequest)(nil),      // 0: m8.platform.resourcemanager.v1.GetOrganizationRequest
+	(*ListOrganizationsRequest)(nil),    // 1: m8.platform.resourcemanager.v1.ListOrganizationsRequest
+	(*ListOrganizationsResponse)(nil),   // 2: m8.platform.resourcemanager.v1.ListOrganizationsResponse
+	(*CreateOrganizationRequest)(nil),   // 3: m8.platform.resourcemanager.v1.CreateOrganizationRequest
+	(*UpdateOrganizationRequest)(nil),   // 4: m8.platform.resourcemanager.v1.UpdateOrganizationRequest
+	(*DeleteOrganizationRequest)(nil),   // 5: m8.platform.resourcemanager.v1.DeleteOrganizationRequest
+	(*UndeleteOrganizationRequest)(nil), // 6: m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
+	(*Organization)(nil),                // 7: m8.platform.resourcemanager.v1.Organization
 	(*fieldmaskpb.FieldMask)(nil),       // 8: google.protobuf.FieldMask
 }
-var file_m8_platform_organization_v1_organization_service_proto_depIdxs = []int32{
-	7,  // 0: m8.platform.organization.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.organization.v1.Organization
-	7,  // 1: m8.platform.organization.v1.CreateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
-	7,  // 2: m8.platform.organization.v1.UpdateOrganizationRequest.organization:type_name -> m8.platform.organization.v1.Organization
-	8,  // 3: m8.platform.organization.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 4: m8.platform.organization.v1.OrganizationService.GetOrganization:input_type -> m8.platform.organization.v1.GetOrganizationRequest
-	1,  // 5: m8.platform.organization.v1.OrganizationService.ListOrganizations:input_type -> m8.platform.organization.v1.ListOrganizationsRequest
-	3,  // 6: m8.platform.organization.v1.OrganizationService.CreateOrganization:input_type -> m8.platform.organization.v1.CreateOrganizationRequest
-	4,  // 7: m8.platform.organization.v1.OrganizationService.UpdateOrganization:input_type -> m8.platform.organization.v1.UpdateOrganizationRequest
-	5,  // 8: m8.platform.organization.v1.OrganizationService.DeleteOrganization:input_type -> m8.platform.organization.v1.DeleteOrganizationRequest
-	6,  // 9: m8.platform.organization.v1.OrganizationService.UndeleteOrganization:input_type -> m8.platform.organization.v1.UndeleteOrganizationRequest
-	7,  // 10: m8.platform.organization.v1.OrganizationService.GetOrganization:output_type -> m8.platform.organization.v1.Organization
-	2,  // 11: m8.platform.organization.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.organization.v1.ListOrganizationsResponse
-	7,  // 12: m8.platform.organization.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.organization.v1.Organization
-	7,  // 13: m8.platform.organization.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.organization.v1.Organization
-	7,  // 14: m8.platform.organization.v1.OrganizationService.DeleteOrganization:output_type -> m8.platform.organization.v1.Organization
-	7,  // 15: m8.platform.organization.v1.OrganizationService.UndeleteOrganization:output_type -> m8.platform.organization.v1.Organization
+var file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = []int32{
+	7,  // 0: m8.platform.resourcemanager.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.resourcemanager.v1.Organization
+	7,  // 1: m8.platform.resourcemanager.v1.CreateOrganizationRequest.organization:type_name -> m8.platform.resourcemanager.v1.Organization
+	7,  // 2: m8.platform.resourcemanager.v1.UpdateOrganizationRequest.organization:type_name -> m8.platform.resourcemanager.v1.Organization
+	8,  // 3: m8.platform.resourcemanager.v1.UpdateOrganizationRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 4: m8.platform.resourcemanager.v1.OrganizationService.GetOrganization:input_type -> m8.platform.resourcemanager.v1.GetOrganizationRequest
+	1,  // 5: m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations:input_type -> m8.platform.resourcemanager.v1.ListOrganizationsRequest
+	3,  // 6: m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization:input_type -> m8.platform.resourcemanager.v1.CreateOrganizationRequest
+	4,  // 7: m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization:input_type -> m8.platform.resourcemanager.v1.UpdateOrganizationRequest
+	5,  // 8: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:input_type -> m8.platform.resourcemanager.v1.DeleteOrganizationRequest
+	6,  // 9: m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization:input_type -> m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
+	7,  // 10: m8.platform.resourcemanager.v1.OrganizationService.GetOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	2,  // 11: m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.resourcemanager.v1.ListOrganizationsResponse
+	7,  // 12: m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	7,  // 13: m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	7,  // 14: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	7,  // 15: m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
 	10, // [10:16] is the sub-list for method output_type
 	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -535,27 +535,27 @@ var file_m8_platform_organization_v1_organization_service_proto_depIdxs = []int3
 	0,  // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_m8_platform_organization_v1_organization_service_proto_init() }
-func file_m8_platform_organization_v1_organization_service_proto_init() {
-	if File_m8_platform_organization_v1_organization_service_proto != nil {
+func init() { file_m8_platform_resourcemanager_v1_organization_service_proto_init() }
+func file_m8_platform_resourcemanager_v1_organization_service_proto_init() {
+	if File_m8_platform_resourcemanager_v1_organization_service_proto != nil {
 		return
 	}
-	file_m8_platform_organization_v1_organization_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_organization_v1_organization_service_proto_rawDesc), len(file_m8_platform_organization_v1_organization_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_m8_platform_organization_v1_organization_service_proto_goTypes,
-		DependencyIndexes: file_m8_platform_organization_v1_organization_service_proto_depIdxs,
-		MessageInfos:      file_m8_platform_organization_v1_organization_service_proto_msgTypes,
+		GoTypes:           file_m8_platform_resourcemanager_v1_organization_service_proto_goTypes,
+		DependencyIndexes: file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs,
+		MessageInfos:      file_m8_platform_resourcemanager_v1_organization_service_proto_msgTypes,
 	}.Build()
-	File_m8_platform_organization_v1_organization_service_proto = out.File
-	file_m8_platform_organization_v1_organization_service_proto_goTypes = nil
-	file_m8_platform_organization_v1_organization_service_proto_depIdxs = nil
+	File_m8_platform_resourcemanager_v1_organization_service_proto = out.File
+	file_m8_platform_resourcemanager_v1_organization_service_proto_goTypes = nil
+	file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = nil
 }

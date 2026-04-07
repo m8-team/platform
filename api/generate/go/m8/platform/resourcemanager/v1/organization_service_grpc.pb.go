@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             (unknown)
-// source: m8/platform/organization/v1/organization_service.proto
+// source: m8/platform/resourcemanager/v1/organization_service.proto
 
-package organization
+package resourcemanager
 
 import (
 	context "context"
@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrganizationService_GetOrganization_FullMethodName      = "/m8.platform.organization.v1.OrganizationService/GetOrganization"
-	OrganizationService_ListOrganizations_FullMethodName    = "/m8.platform.organization.v1.OrganizationService/ListOrganizations"
-	OrganizationService_CreateOrganization_FullMethodName   = "/m8.platform.organization.v1.OrganizationService/CreateOrganization"
-	OrganizationService_UpdateOrganization_FullMethodName   = "/m8.platform.organization.v1.OrganizationService/UpdateOrganization"
-	OrganizationService_DeleteOrganization_FullMethodName   = "/m8.platform.organization.v1.OrganizationService/DeleteOrganization"
-	OrganizationService_UndeleteOrganization_FullMethodName = "/m8.platform.organization.v1.OrganizationService/UndeleteOrganization"
+	OrganizationService_GetOrganization_FullMethodName      = "/m8.platform.resourcemanager.v1.OrganizationService/GetOrganization"
+	OrganizationService_ListOrganizations_FullMethodName    = "/m8.platform.resourcemanager.v1.OrganizationService/ListOrganizations"
+	OrganizationService_CreateOrganization_FullMethodName   = "/m8.platform.resourcemanager.v1.OrganizationService/CreateOrganization"
+	OrganizationService_UpdateOrganization_FullMethodName   = "/m8.platform.resourcemanager.v1.OrganizationService/UpdateOrganization"
+	OrganizationService_DeleteOrganization_FullMethodName   = "/m8.platform.resourcemanager.v1.OrganizationService/DeleteOrganization"
+	OrganizationService_UndeleteOrganization_FullMethodName = "/m8.platform.resourcemanager.v1.OrganizationService/UndeleteOrganization"
 )
 
 // OrganizationServiceClient is the client API for OrganizationService service.
@@ -294,7 +294,7 @@ func _OrganizationService_UndeleteOrganization_Handler(srv interface{}, ctx cont
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var OrganizationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "m8.platform.organization.v1.OrganizationService",
+	ServiceName: "m8.platform.resourcemanager.v1.OrganizationService",
 	HandlerType: (*OrganizationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -323,5 +323,5 @@ var OrganizationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "m8/platform/organization/v1/organization_service.proto",
+	Metadata: "m8/platform/resourcemanager/v1/organization_service.proto",
 }

@@ -1,0 +1,265 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /v1/organizations/{organization}/workspaces:
+        get:
+            tags:
+                - WorkspaceService
+            summary: List
+            description: Returns a paginated list of workspaces under the specified organization.
+            operationId: list
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  description: |-
+                    Optional. The maximum number of workspaces to return.
+                     The service may return fewer than this value.
+                     If unspecified, at most 50 workspaces are returned.
+                     The maximum value is 1000; values above 1000 are coerced to 1000.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: |-
+                    Optional. A page token, received from a previous `ListWorkspaces` call.
+                     Provide this to retrieve the subsequent page.
+
+                     When paginating, all other parameters provided to `ListWorkspaces`
+                     must match the call that provided the page token.
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: Optional. AIP-160 compatible filter expression.
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  description: Optional. AIP-132 compatible ordering expression.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListWorkspacesResponse'
+        post:
+            tags:
+                - WorkspaceService
+            summary: Create
+            description: Creates a new workspace under the specified organization.
+            operationId: create
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: workspaceId
+                  in: query
+                  description: |-
+                    Optional. The ID to use for the workspace, which becomes the final
+                     component of the workspace resource name.
+                  schema:
+                    type: string
+                - name: requestId
+                  in: query
+                  description: Optional. A unique request ID for idempotent create requests.
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Workspace'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Workspace'
+    /v1/organizations/{organization}/workspaces/{workspace}:
+        get:
+            tags:
+                - WorkspaceService
+            summary: Get
+            description: Returns a single workspace by its resource name.
+            operationId: get
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: workspace
+                  in: path
+                  description: The workspace id.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Workspace'
+        delete:
+            tags:
+                - WorkspaceService
+            summary: Delete
+            description: Deletes a workspace by its resource name.
+            operationId: delete
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: workspace
+                  in: path
+                  description: The workspace id.
+                  required: true
+                  schema:
+                    type: string
+                - name: requestId
+                  in: query
+                  description: Optional. A unique request ID for idempotent delete requests.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        patch:
+            tags:
+                - WorkspaceService
+            summary: Update
+            description: Updates mutable fields of an existing workspace.
+            operationId: update
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: workspace
+                  in: path
+                  description: The workspace id.
+                  required: true
+                  schema:
+                    type: string
+                - name: updateMask
+                  in: query
+                  description: Required. The list of fields to update.
+                  schema:
+                    type: string
+                    format: field-mask
+                - name: requestId
+                  in: query
+                  description: Optional. A unique request ID for idempotent update requests.
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Workspace'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Workspace'
+components:
+    schemas:
+        ListWorkspacesResponse:
+            type: object
+            properties:
+                workspaces:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Workspace'
+                    description: Workspaces returned for the current page.
+                nextPageToken:
+                    type: string
+                    description: Token to retrieve the next page. Empty when there are no more results.
+                totalSize:
+                    type: integer
+                    description: The total number of workspaces that match the request.
+                    format: int32
+            description: ListWorkspacesResponse returns a single page of workspaces.
+        Workspace:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: |-
+                        Identifier. The resource name of the workspace.
+                         Format: organizations/{organization}/workspaces/{workspace}
+                uid:
+                    readOnly: true
+                    type: string
+                    description: Output only. System-assigned stable unique identifier for the workspace.
+                displayName:
+                    type: string
+                    description: Optional. Human-readable display name of the workspace.
+                description:
+                    type: string
+                    description: Optional. Description of the workspace.
+                state:
+                    readOnly: true
+                    enum:
+                        - STATE_UNSPECIFIED
+                        - CREATING
+                        - ACTIVE
+                        - SUSPENDED
+                        - DELETING
+                        - DELETED
+                        - FAILED
+                    type: string
+                    description: Output only. Server-computed lifecycle state of the workspace.
+                    format: enum
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the workspace was created.
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the workspace was most recently updated.
+                    format: date-time
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Optional. Client-provided metadata for tooling and integrations.
+                         Use namespaced keys such as "example.com/key" to avoid collisions.
+            description: Workspace stores canonical metadata for an organization workspace.
+tags:
+    - name: WorkspaceService

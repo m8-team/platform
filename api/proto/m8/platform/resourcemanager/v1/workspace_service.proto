@@ -1,0 +1,230 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "m8/platform/resourcemanager/v1/workspace.proto";
+
+option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
+
+// WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
+service WorkspaceService {
+  // GetWorkspace returns a single workspace by resource name.
+  rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {get: "/v1/{name=organizations/*/workspaces/*}"};
+    option (google.api.method_signature) = "name";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get"
+      description: "Returns a single workspace by its resource name."
+      operation_id: "get"
+    };
+  }
+
+  // ListWorkspaces returns a paginated list of workspaces under an organization.
+  rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
+    option (google.api.http) = {get: "/v1/{parent=organizations/*}/workspaces"};
+    option (google.api.method_signature) = "parent";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "List"
+      description: "Returns a paginated list of workspaces under the specified organization."
+      operation_id: "list"
+    };
+  }
+
+  // CreateWorkspace creates a new workspace under an organization.
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {
+      post: "/v1/{parent=organizations/*}/workspaces"
+      body: "workspace"
+    };
+    option (google.api.method_signature) = "parent,workspace,workspace_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Create"
+      description: "Creates a new workspace under the specified organization."
+      operation_id: "create"
+    };
+  }
+
+  // UpdateWorkspace updates mutable fields on an existing workspace.
+  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {
+      patch: "/v1/{workspace.name=organizations/*/workspaces/*}"
+      body: "workspace"
+    };
+    option (google.api.method_signature) = "workspace,update_mask";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Update"
+      description: "Updates mutable fields of an existing workspace."
+      operation_id: "update"
+    };
+  }
+
+  // DeleteWorkspace deletes a workspace by resource name.
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/{name=organizations/*/workspaces/*}"};
+    option (google.api.method_signature) = "name";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Delete"
+      description: "Deletes a workspace by its resource name."
+      operation_id: "delete"
+    };
+  }
+}
+
+// GetWorkspaceRequest fetches a single workspace by resource name.
+message GetWorkspaceRequest {
+  // Required. The name of the workspace to retrieve.
+  // Format: organizations/{organization}/workspaces/{workspace}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.team/Workspace",
+    (buf.validate.field).string = {
+      min_len: 32
+      max_len: 152
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+}
+
+// ListWorkspacesRequest lists workspaces visible under an organization.
+message ListWorkspacesRequest {
+  // Required. The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
+    (buf.validate.field).string = {
+      min_len: 17
+      max_len: 77
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+
+  // Optional. The maximum number of workspaces to return.
+  // The service may return fewer than this value.
+  // If unspecified, at most 50 workspaces are returned.
+  // The maximum value is 1000; values above 1000 are coerced to 1000.
+  int32 page_size = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int32 = {
+      gte: 0
+      lte: 1000
+    }
+  ];
+
+  // Optional. A page token, received from a previous `ListWorkspaces` call.
+  // Provide this to retrieve the subsequent page.
+  //
+  // When paginating, all other parameters provided to `ListWorkspaces`
+  // must match the call that provided the page token.
+  string page_token = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-160 compatible filter expression.
+  string filter = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-132 compatible ordering expression.
+  string order_by = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+// ListWorkspacesResponse returns a single page of workspaces.
+message ListWorkspacesResponse {
+  // Workspaces returned for the current page.
+  repeated Workspace workspaces = 1;
+
+  // Token to retrieve the next page. Empty when there are no more results.
+  string next_page_token = 2;
+
+  // The total number of workspaces that match the request.
+  int32 total_size = 3;
+}
+
+// CreateWorkspaceRequest creates a new workspace.
+message CreateWorkspaceRequest {
+  // Required. The parent organization resource name.
+  // Format: organizations/{organization}
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
+    (buf.validate.field).string = {
+      min_len: 17
+      max_len: 77
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+
+  // Optional. The ID to use for the workspace, which becomes the final
+  // component of the workspace resource name.
+  string workspace_id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 63
+      pattern: "^[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+
+  // Required. The workspace to create.
+  // The `workspace.name` and `workspace.uid` fields are ignored on create.
+  Workspace workspace = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Optional. A unique request ID for idempotent create requests.
+  string request_id = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UpdateWorkspaceRequest updates mutable fields on an existing workspace.
+message UpdateWorkspaceRequest {
+  // Required. The workspace to update.
+  //
+  // The workspace's `name` field is used to identify the workspace to update.
+  // Format: organizations/{organization}/workspaces/{workspace}
+  Workspace workspace = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Required. The list of fields to update.
+  google.protobuf.FieldMask update_mask = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Optional. A unique request ID for idempotent update requests.
+  string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// DeleteWorkspaceRequest deletes a workspace by resource name.
+message DeleteWorkspaceRequest {
+  // Required. The name of the workspace to delete.
+  // Format: organizations/{organization}/workspaces/{workspace}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.team/Workspace",
+    (buf.validate.field).string = {
+      min_len: 32
+      max_len: 152
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
+
+  // Optional. A unique request ID for idempotent delete requests.
+  string request_id = 2 [(google.api.field_behavior) = OPTIONAL];
+}

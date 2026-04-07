@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: m8/platform/organization/v1/organization.proto
+// source: m8/platform/resourcemanager/v1/organization.proto
 
-package organization
+package resourcemanager
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -70,11 +70,11 @@ func (x Organization_State) String() string {
 }
 
 func (Organization_State) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_organization_v1_organization_proto_enumTypes[0].Descriptor()
+	return file_m8_platform_resourcemanager_v1_organization_proto_enumTypes[0].Descriptor()
 }
 
 func (Organization_State) Type() protoreflect.EnumType {
-	return &file_m8_platform_organization_v1_organization_proto_enumTypes[0]
+	return &file_m8_platform_resourcemanager_v1_organization_proto_enumTypes[0]
 }
 
 func (x Organization_State) Number() protoreflect.EnumNumber {
@@ -83,7 +83,7 @@ func (x Organization_State) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Organization_State.Descriptor instead.
 func (Organization_State) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_proto_rawDescGZIP(), []int{0, 0}
+	return file_m8_platform_resourcemanager_v1_organization_proto_rawDescGZIP(), []int{0, 0}
 }
 
 // Organization stores canonical organization metadata for the organization aggregate.
@@ -96,7 +96,7 @@ type Organization struct {
 	// Output only. System-assigned unique identifier for the organization.
 	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
 	// Output only. Lifecycle state of the organization.
-	State Organization_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.organization.v1.Organization_State" json:"state,omitempty"`
+	State Organization_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.Organization_State" json:"state,omitempty"`
 	// Optional. Official organization title shown to users.
 	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	// Optional. Organization description.
@@ -118,7 +118,7 @@ type Organization struct {
 
 func (x *Organization) Reset() {
 	*x = Organization{}
-	mi := &file_m8_platform_organization_v1_organization_proto_msgTypes[0]
+	mi := &file_m8_platform_resourcemanager_v1_organization_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -130,7 +130,7 @@ func (x *Organization) String() string {
 func (*Organization) ProtoMessage() {}
 
 func (x *Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_organization_v1_organization_proto_msgTypes[0]
+	mi := &file_m8_platform_resourcemanager_v1_organization_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -143,7 +143,7 @@ func (x *Organization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Organization.ProtoReflect.Descriptor instead.
 func (*Organization) Descriptor() ([]byte, []int) {
-	return file_m8_platform_organization_v1_organization_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_resourcemanager_v1_organization_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Organization) GetName() string {
@@ -216,15 +216,15 @@ func (x *Organization) GetEtag() string {
 	return ""
 }
 
-var File_m8_platform_organization_v1_organization_proto protoreflect.FileDescriptor
+var File_m8_platform_resourcemanager_v1_organization_proto protoreflect.FileDescriptor
 
-const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
+const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/organization/v1/organization.proto\x12\x1bm8.platform.organization.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x83\x06\n" +
+	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/api/field_info.proto\x1a\x19google/api/resource.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\x8c\x06\n" +
 	"\fOrganization\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tB\x03\xe0A\bR\x04name\x12%\n" +
-	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12T\n" +
-	"\x05state\x18\x03 \x01(\x0e2/.m8.platform.organization.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12!\n" +
+	"\x03uid\x18\x01 \x01(\tB\x13\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01\xe2\x8c\xcf\xd7\b\x02\b\x01R\x03uid\x12W\n" +
+	"\x05state\x18\x03 \x01(\x0e22.m8.platform.resourcemanager.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12!\n" +
 	"\x05title\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x05title\x12-\n" +
 	"\vdescription\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\vdescription\x12@\n" +
 	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
@@ -243,34 +243,34 @@ const file_m8_platform_organization_v1_organization_proto_rawDesc = "" +
 	"\n" +
 	"\x06ACTIVE\x10\x02\x12\r\n" +
 	"\tSUSPENDED\x10\x03\x12\v\n" +
-	"\aDELETED\x10\x04:\x95\x01\xeaAe\n" +
-	"(m8.platform.organization.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\x8a\xb5\x18)m8.platform.organization.organizations.v1B*Z(m8/platform/organization/v1;organizationb\x06proto3"
+	"\aDELETED\x10\x04:\x9b\x01\xeaAh\n" +
+	"+m8.platform.resourcemanager.v1/Organization\x12\x1corganizations/{organization}*\rorganizations2\forganization\x8a\xb5\x18,m8.platform.resourcemanager.organizations.v1B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
-	file_m8_platform_organization_v1_organization_proto_rawDescOnce sync.Once
-	file_m8_platform_organization_v1_organization_proto_rawDescData []byte
+	file_m8_platform_resourcemanager_v1_organization_proto_rawDescOnce sync.Once
+	file_m8_platform_resourcemanager_v1_organization_proto_rawDescData []byte
 )
 
-func file_m8_platform_organization_v1_organization_proto_rawDescGZIP() []byte {
-	file_m8_platform_organization_v1_organization_proto_rawDescOnce.Do(func() {
-		file_m8_platform_organization_v1_organization_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_organization_v1_organization_proto_rawDesc), len(file_m8_platform_organization_v1_organization_proto_rawDesc)))
+func file_m8_platform_resourcemanager_v1_organization_proto_rawDescGZIP() []byte {
+	file_m8_platform_resourcemanager_v1_organization_proto_rawDescOnce.Do(func() {
+		file_m8_platform_resourcemanager_v1_organization_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc)))
 	})
-	return file_m8_platform_organization_v1_organization_proto_rawDescData
+	return file_m8_platform_resourcemanager_v1_organization_proto_rawDescData
 }
 
-var file_m8_platform_organization_v1_organization_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_m8_platform_organization_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_m8_platform_organization_v1_organization_proto_goTypes = []any{
-	(Organization_State)(0),       // 0: m8.platform.organization.v1.Organization.State
-	(*Organization)(nil),          // 1: m8.platform.organization.v1.Organization
+var file_m8_platform_resourcemanager_v1_organization_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_m8_platform_resourcemanager_v1_organization_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_m8_platform_resourcemanager_v1_organization_proto_goTypes = []any{
+	(Organization_State)(0),       // 0: m8.platform.resourcemanager.v1.Organization.State
+	(*Organization)(nil),          // 1: m8.platform.resourcemanager.v1.Organization
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
-var file_m8_platform_organization_v1_organization_proto_depIdxs = []int32{
-	0, // 0: m8.platform.organization.v1.Organization.state:type_name -> m8.platform.organization.v1.Organization.State
-	2, // 1: m8.platform.organization.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
-	2, // 2: m8.platform.organization.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
-	2, // 3: m8.platform.organization.v1.Organization.delete_time:type_name -> google.protobuf.Timestamp
-	2, // 4: m8.platform.organization.v1.Organization.purge_time:type_name -> google.protobuf.Timestamp
+var file_m8_platform_resourcemanager_v1_organization_proto_depIdxs = []int32{
+	0, // 0: m8.platform.resourcemanager.v1.Organization.state:type_name -> m8.platform.resourcemanager.v1.Organization.State
+	2, // 1: m8.platform.resourcemanager.v1.Organization.create_time:type_name -> google.protobuf.Timestamp
+	2, // 2: m8.platform.resourcemanager.v1.Organization.update_time:type_name -> google.protobuf.Timestamp
+	2, // 3: m8.platform.resourcemanager.v1.Organization.delete_time:type_name -> google.protobuf.Timestamp
+	2, // 4: m8.platform.resourcemanager.v1.Organization.purge_time:type_name -> google.protobuf.Timestamp
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -278,27 +278,27 @@ var file_m8_platform_organization_v1_organization_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_m8_platform_organization_v1_organization_proto_init() }
-func file_m8_platform_organization_v1_organization_proto_init() {
-	if File_m8_platform_organization_v1_organization_proto != nil {
+func init() { file_m8_platform_resourcemanager_v1_organization_proto_init() }
+func file_m8_platform_resourcemanager_v1_organization_proto_init() {
+	if File_m8_platform_resourcemanager_v1_organization_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_organization_v1_organization_proto_rawDesc), len(file_m8_platform_organization_v1_organization_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_organization_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_m8_platform_organization_v1_organization_proto_goTypes,
-		DependencyIndexes: file_m8_platform_organization_v1_organization_proto_depIdxs,
-		EnumInfos:         file_m8_platform_organization_v1_organization_proto_enumTypes,
-		MessageInfos:      file_m8_platform_organization_v1_organization_proto_msgTypes,
+		GoTypes:           file_m8_platform_resourcemanager_v1_organization_proto_goTypes,
+		DependencyIndexes: file_m8_platform_resourcemanager_v1_organization_proto_depIdxs,
+		EnumInfos:         file_m8_platform_resourcemanager_v1_organization_proto_enumTypes,
+		MessageInfos:      file_m8_platform_resourcemanager_v1_organization_proto_msgTypes,
 	}.Build()
-	File_m8_platform_organization_v1_organization_proto = out.File
-	file_m8_platform_organization_v1_organization_proto_goTypes = nil
-	file_m8_platform_organization_v1_organization_proto_depIdxs = nil
+	File_m8_platform_resourcemanager_v1_organization_proto = out.File
+	file_m8_platform_resourcemanager_v1_organization_proto_goTypes = nil
+	file_m8_platform_resourcemanager_v1_organization_proto_depIdxs = nil
 }

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package m8.platform.organization.v1;
+package m8.platform.resourcemanager.v1;
 
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
@@ -10,9 +10,9 @@ import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/protobuf/field_mask.proto";
 import "m8/platform/extension/v1/extension.proto";
-import "m8/platform/organization/v1/organization.proto";
+import "m8/platform/resourcemanager/v1/organization.proto";
 
-option go_package = "m8/platform/organization/v1;organization";
+option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 
 // OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
 service OrganizationService {
@@ -25,7 +25,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single organization by its resource name."
-      operation_id: "GetOrganization"
+      operation_id: "get"
     };
   }
 
@@ -35,7 +35,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
-      operation_id: "ListOrganizations"
+      operation_id: "list"
     };
   }
 
@@ -49,7 +49,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
       description: "Creates a new organization."
-      operation_id: "CreateOrganization"
+      operation_id: "create"
     };
   }
 
@@ -63,7 +63,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Update"
       description: "Updates mutable fields of an existing organization."
-      operation_id: "UpdateOrganization"
+      operation_id: "update"
     };
   }
 
@@ -74,7 +74,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
-      operation_id: "DeleteOrganization"
+      operation_id: "delete"
     };
   }
 
@@ -88,7 +88,7 @@ service OrganizationService {
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted organization."
-      operation_id: "UndeleteOrganization"
+      operation_id: "undelete"
     };
   }
 }
