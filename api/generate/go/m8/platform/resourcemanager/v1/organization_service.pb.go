@@ -12,6 +12,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	_ "m8/platform/extension/v1"
 	reflect "reflect"
@@ -173,6 +174,8 @@ type ListOrganizationsResponse struct {
 	// Token to retrieve the next page.
 	// This field is empty when there are no more results.
 	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	// The total number of organizations that match the request.
+	TotalSize     int32 `protobuf:"varint,3,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -219,6 +222,13 @@ func (x *ListOrganizationsResponse) GetNextPageToken() string {
 		return x.NextPageToken
 	}
 	return ""
+}
+
+func (x *ListOrganizationsResponse) GetTotalSize() int32 {
+	if x != nil {
+		return x.TotalSize
+	}
+	return 0
 }
 
 // CreateOrganizationRequest creates a new organization.
@@ -281,8 +291,7 @@ type UpdateOrganizationRequest struct {
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
-	// Optional. The field mask that selects which mutable fields to update.
-	// If omitted, all populated mutable fields in `organization` are updated.
+	// Required. The field mask that selects which mutable fields to update.
 	// Paths in the mask should refer only to fields that clients are allowed to modify.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -451,7 +460,7 @@ var File_m8_platform_resourcemanager_v1_organization_service_proto protoreflect.
 
 const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"9m8/platform/resourcemanager/v1/organization_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\"5\n" +
+	"9m8/platform/resourcemanager/v1/organization_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\"5\n" +
 	"\x16GetOrganizationRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xe7\x01\n" +
 	"\x18ListOrganizationsRequest\x12*\n" +
@@ -460,28 +469,30 @@ const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "
 	"page_token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
 	"\x06filter\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\x06filter\x12&\n" +
 	"\border_by\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\aorderBy\x12&\n" +
-	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\x97\x01\n" +
+	"\fshow_deleted\x18\x05 \x01(\bB\x03\xe0A\x01R\vshowDeleted\"\xb6\x01\n" +
 	"\x19ListOrganizationsResponse\x12R\n" +
 	"\rorganizations\x18\x01 \x03(\v2,.m8.platform.resourcemanager.v1.OrganizationR\rorganizations\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"x\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
+	"\n" +
+	"total_size\x18\x03 \x01(\x05R\ttotalSize\"x\n" +
 	"\x19CreateOrganizationRequest\x12[\n" +
-	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xba\x01\n" +
+	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\"\xc0\x01\n" +
 	"\x19UpdateOrganizationRequest\x12[\n" +
-	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12@\n" +
-	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\x03\xe0A\x01R\n" +
+	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12F\n" +
+	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
 	"updateMask\"{\n" +
 	"\x19DeleteOrganizationRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x17\n" +
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\":\n" +
 	"\x1bUndeleteOrganizationRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\x93\f\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\x96\f\n" +
 	"\x13OrganizationService\x12\xd5\x01\n" +
 	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\\\xdaA\x02id\xbaG6\x12\x03Get\x1a*Returns a single organization by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/organizations/{id}\x12\xf6\x01\n" +
 	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"l\xbaGP\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x04list\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xe5\x01\n" +
 	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"f\xdaA\forganization\xbaG-\x12\x06Create\x1a\x1bCreates a new organization.*\x06create\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\x9c\x02\n" +
-	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x9c\x01\xdaA\x18organization,update_mask\xbaGE\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x06update\x82\xd3\xe4\x93\x023:\forganization2#/v1/organizations/{organization.id}\x12\xd9\x01\n" +
-	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"Z\xdaA\aid,etag\xbaG/\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x06delete\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\xf8\x01\n" +
+	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x9c\x01\xdaA\x18organization,update_mask\xbaGE\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x06update\x82\xd3\xe4\x93\x023:\forganization2#/v1/organizations/{organization.id}\x12\xdc\x01\n" +
+	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\"s\xdaA id,etag,allow_missing,request_id\xbaG/\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x06delete\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\xf8\x01\n" +
 	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"u\xdaA\x02id\xbaGF\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\bundelete\x82\xd3\xe4\x93\x02!\"\x1f/v1/organizations/{id}:undelete\x1aM\x92\xb5\x18IUse this API to create, view, update, delete, and undelete organizations.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
@@ -507,6 +518,7 @@ var file_m8_platform_resourcemanager_v1_organization_service_proto_goTypes = []a
 	(*UndeleteOrganizationRequest)(nil), // 6: m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
 	(*Organization)(nil),                // 7: m8.platform.resourcemanager.v1.Organization
 	(*fieldmaskpb.FieldMask)(nil),       // 8: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),               // 9: google.protobuf.Empty
 }
 var file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = []int32{
 	7,  // 0: m8.platform.resourcemanager.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.resourcemanager.v1.Organization
@@ -523,7 +535,7 @@ var file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = []i
 	2,  // 11: m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.resourcemanager.v1.ListOrganizationsResponse
 	7,  // 12: m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
 	7,  // 13: m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
-	7,  // 14: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	9,  // 14: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
 	7,  // 15: m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
 	10, // [10:16] is the sub-list for method output_type
 	4,  // [4:10] is the sub-list for method input_type

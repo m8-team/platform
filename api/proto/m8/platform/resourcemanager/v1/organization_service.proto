@@ -7,6 +7,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/organization.proto";
@@ -67,9 +68,9 @@ service OrganizationService {
   }
 
   // DeleteOrganization soft-deletes an organization by ID.
-  rpc DeleteOrganization(DeleteOrganizationRequest) returns (Organization) {
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/organizations/{id}"};
-    option (google.api.method_signature) = "id,etag";
+    option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
@@ -147,6 +148,9 @@ message ListOrganizationsResponse {
   // Token to retrieve the next page.
   // This field is empty when there are no more results.
   string next_page_token = 2;
+
+  // The total number of organizations that match the request.
+  int32 total_size = 3;
 }
 
 // CreateOrganizationRequest creates a new organization.
@@ -175,10 +179,12 @@ message UpdateOrganizationRequest {
     (buf.validate.field).required = true
   ];
 
-  // Optional. The field mask that selects which mutable fields to update.
-  // If omitted, all populated mutable fields in `organization` are updated.
+  // Required. The field mask that selects which mutable fields to update.
   // Paths in the mask should refer only to fields that clients are allowed to modify.
-  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+  google.protobuf.FieldMask update_mask = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
 }
 
 // DeleteOrganizationRequest soft-deletes an organization by ID.

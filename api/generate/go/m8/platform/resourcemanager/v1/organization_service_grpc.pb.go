@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -42,7 +43,7 @@ type OrganizationServiceClient interface {
 	// UpdateOrganization updates mutable organization fields.
 	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// DeleteOrganization soft-deletes an organization by ID.
-	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
+	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UndeleteOrganization restores a previously soft-deleted organization.
 	UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 }
@@ -95,9 +96,9 @@ func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
+func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, OrganizationService_DeleteOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -130,7 +131,7 @@ type OrganizationServiceServer interface {
 	// UpdateOrganization updates mutable organization fields.
 	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
 	// DeleteOrganization soft-deletes an organization by ID.
-	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*Organization, error)
+	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*emptypb.Empty, error)
 	// UndeleteOrganization restores a previously soft-deleted organization.
 	UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*Organization, error)
 	mustEmbedUnimplementedOrganizationServiceServer()
@@ -155,7 +156,7 @@ func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context
 func (UnimplementedOrganizationServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateOrganization not implemented")
 }
-func (UnimplementedOrganizationServiceServer) DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*Organization, error) {
+func (UnimplementedOrganizationServiceServer) DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteOrganization not implemented")
 }
 func (UnimplementedOrganizationServiceServer) UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*Organization, error) {

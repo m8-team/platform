@@ -80,11 +80,6 @@ paths:
                      In the HTTP API, pass this field in the query string.
                   schema:
                     type: string
-                - name: requestId
-                  in: query
-                  description: Optional. A caller-provided request ID used to make create retries idempotent.
-                  schema:
-                    type: string
             requestBody:
                 content:
                     application/json:
@@ -136,11 +131,20 @@ paths:
                   required: true
                   schema:
                     type: string
-                - name: requestId
+                - name: etag
                   in: query
-                  description: Optional. A caller-provided request ID used to make delete retries idempotent.
+                  description: |-
+                    Optional. The etag of the organization.
+                     If provided, the value must exactly match the current server-side etag.
                   schema:
                     type: string
+                - name: allowMissing
+                  in: query
+                  description: |-
+                    Optional. If true, the request succeeds even if the organization does not
+                     exist or has already been deleted.
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -189,11 +193,6 @@ paths:
                   schema:
                     type: string
                     format: field-mask
-                - name: requestId
-                  in: query
-                  description: Optional. A caller-provided request ID used to make update retries idempotent.
-                  schema:
-                    type: string
             requestBody:
                 content:
                     application/json:

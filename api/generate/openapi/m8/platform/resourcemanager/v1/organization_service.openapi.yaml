@@ -136,10 +136,7 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Organization'
+                    content: {}
     /v1/organizations/{id}:undelete:
         post:
             tags:
@@ -179,8 +176,7 @@ paths:
                 - name: updateMask
                   in: query
                   description: |-
-                    Optional. The field mask that selects which mutable fields to update.
-                     If omitted, all populated mutable fields in `organization` are updated.
+                    Required. The field mask that selects which mutable fields to update.
                      Paths in the mask should refer only to fields that clients are allowed to modify.
                   schema:
                     type: string
@@ -213,6 +209,10 @@ components:
                     description: |-
                         Token to retrieve the next page.
                          This field is empty when there are no more results.
+                totalSize:
+                    type: integer
+                    description: The total number of organizations that match the request.
+                    format: int32
             description: ListOrganizationsResponse returns a single page of organizations.
         Organization:
             type: object

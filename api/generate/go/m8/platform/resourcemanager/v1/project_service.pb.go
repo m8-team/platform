@@ -244,9 +244,7 @@ type CreateProjectRequest struct {
 	// `project.state`, `project.create_time`, `project.update_time`,
 	// `project.delete_time`, and `project.purge_time` are ignored because the
 	// server assigns them.
-	Project *Project `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
-	// Optional. A caller-provided request ID used to make create retries idempotent.
-	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Project       *Project `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -295,13 +293,6 @@ func (x *CreateProjectRequest) GetProject() *Project {
 	return nil
 }
 
-func (x *CreateProjectRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
 // UpdateProjectRequest updates mutable fields on an existing project.
 type UpdateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -314,9 +305,7 @@ type UpdateProjectRequest struct {
 	Project *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	// Required. The field mask that selects which mutable fields to update.
 	// Paths in the mask should refer only to fields that clients are allowed to modify.
-	UpdateMask *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
-	// Optional. A caller-provided request ID used to make update retries idempotent.
-	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,2,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -365,21 +354,18 @@ func (x *UpdateProjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-func (x *UpdateProjectRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
 // DeleteProjectRequest deletes a project by ID.
 type DeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the project to delete.
 	// The value must be a valid UUID4 string.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Optional. A caller-provided request ID used to make delete retries idempotent.
-	RequestId     string `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Optional. The etag of the organization.
+	// If provided, the value must exactly match the current server-side etag.
+	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Optional. If true, the request succeeds even if the organization does not
+	// exist or has already been deleted.
+	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -421,11 +407,18 @@ func (x *DeleteProjectRequest) GetId() string {
 	return ""
 }
 
-func (x *DeleteProjectRequest) GetRequestId() string {
+func (x *DeleteProjectRequest) GetEtag() string {
 	if x != nil {
-		return x.RequestId
+		return x.Etag
 	}
 	return ""
+}
+
+func (x *DeleteProjectRequest) GetAllowMissing() bool {
+	if x != nil {
+		return x.AllowMissing
+	}
+	return false
 }
 
 // UndeleteProjectRequest restores a soft-deleted project.
@@ -493,32 +486,28 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\bprojects\x18\x01 \x03(\v2'.m8.platform.resourcemanager.v1.ProjectR\bprojects\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xb8\x01\n" +
+	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\x94\x01\n" +
 	"\x14CreateProjectRequest\x12.\n" +
 	"\fworkspace_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12L\n" +
-	"\aproject\x18\x02 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12\"\n" +
-	"\n" +
-	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd0\x01\n" +
+	"\aproject\x18\x02 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\"\xac\x01\n" +
 	"\x14UpdateProjectRequest\x12L\n" +
 	"\aproject\x18\x01 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12F\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
-	"updateMask\x12\"\n" +
-	"\n" +
-	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"W\n" +
+	"updateMask\"v\n" +
 	"\x14DeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\"\n" +
-	"\n" +
-	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"5\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x17\n" +
+	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
+	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xcb\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xd6\n" +
 	"\n" +
 	"\x0eProjectService\x12\xbc\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"R\xdaA\x02id\xbaG1\x12\x03Get\x1a%Returns a single project by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/projects/{id}\x12\xf7\x01\n" +
 	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"|\xdaA\fworkspace_id\xbaGV\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\x04list\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/projects\x12\xf3\x01\n" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x82\x01\xdaA\x14workspace_id,project\xbaGK\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\x06create\x82\xd3\xe4\x93\x02\x17:\aproject\"\f/v1/projects\x12\xf4\x01\n" +
-	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xb0\x01\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"Q\xdaA\x02id\xbaG0\x12\x06Delete\x1a\x1eDeletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
+	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xbb\x01\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"\\\xdaA\rid,request_id\xbaG0\x12\x06Delete\x1a\x1eDeletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
 	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"k\xdaA\x02id\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (

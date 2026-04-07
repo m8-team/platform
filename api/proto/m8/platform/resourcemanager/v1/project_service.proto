@@ -70,7 +70,7 @@ service ProjectService {
   // DeleteProject deletes a project by ID.
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/projects/{id}"};
-    option (google.api.method_signature) = "id";
+    option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Deletes a project by its UUID."
@@ -171,9 +171,6 @@ message CreateProjectRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
-
-  // Optional. A caller-provided request ID used to make create retries idempotent.
-  string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UpdateProjectRequest updates mutable fields on an existing project.
@@ -195,9 +192,6 @@ message UpdateProjectRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
-
-  // Optional. A caller-provided request ID used to make update retries idempotent.
-  string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // DeleteProjectRequest deletes a project by ID.
@@ -206,8 +200,13 @@ message DeleteProjectRequest {
   // The value must be a valid UUID4 string.
   string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
-  // Optional. A caller-provided request ID used to make delete retries idempotent.
-  string request_id = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The etag of the organization.
+  // If provided, the value must exactly match the current server-side etag.
+  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. If true, the request succeeds even if the organization does not
+  // exist or has already been deleted.
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UndeleteProjectRequest restores a soft-deleted project.
