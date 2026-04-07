@@ -456,6 +456,57 @@ func (x *DeleteProjectRequest) GetRequestId() string {
 	return ""
 }
 
+// UndeleteProjectRequest restores a soft-deleted project.
+type UndeleteProjectRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. The resource name of the project to restore.
+	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+	// The {organization}, {workspace}, and {project} segments must each be 3 to
+	// 63 characters long, start with a lowercase letter, and contain only
+	// lowercase letters, digits, and hyphens.
+	// The full resource name is therefore 45 to 225 characters long.
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UndeleteProjectRequest) Reset() {
+	*x = UndeleteProjectRequest{}
+	mi := &file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UndeleteProjectRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UndeleteProjectRequest) ProtoMessage() {}
+
+func (x *UndeleteProjectRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UndeleteProjectRequest.ProtoReflect.Descriptor instead.
+func (*UndeleteProjectRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UndeleteProjectRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 var File_m8_platform_resourcemanager_v1_project_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
@@ -495,15 +546,18 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tB\x85\x01\xe0A\x02\xfaA\x11\n" +
 	"\x0fm8.team/Project\xbaHkri\x10-\x18\xe1\x012b^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$R\x04name\x12\"\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId2\xa4\n" +
-	"\n" +
+	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"\xb5\x01\n" +
+	"\x16UndeleteProjectRequest\x12\x9a\x01\n" +
+	"\x04name\x18\x01 \x01(\tB\x85\x01\xe0A\x02\xfaA\x11\n" +
+	"\x0fm8.team/Project\xbaHkri\x10-\x18\xe1\x012b^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$R\x04name2\xad\f\n" +
 	"\x0eProjectService\x12\xe8\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"~\xdaA\x04name\xbaG:\x12\x03Get\x1a.Returns a single project by its resource name.*\x03get\x82\xd3\xe4\x93\x024\x122/v1/{name=organizations/*/workspaces/*/projects/*}\x12\x93\x02\n" +
 	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x97\x01\xdaA\x06parent\xbaGQ\x12\x04List\x1aCReturns a paginated list of projects under the specified workspace.*\x04list\x82\xd3\xe4\x93\x024\x122/v1/{parent=organizations/*/workspaces/*}/projects\x12\x99\x02\n" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\xa8\x01\xdaA\x19parent,project,project_id\xbaGF\x12\x06Create\x1a4Creates a new project under the specified workspace.*\x06create\x82\xd3\xe4\x93\x02=:\aproject\"2/v1/{parent=organizations/*/workspaces/*}/projects\x12\x95\x02\n" +
 	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\xa4\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02E:\aproject2:/v1/{project.name=organizations/*/workspaces/*/projects/*}\x12\xdc\x01\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"}\xdaA\x04name\xbaG9\x12\x06Delete\x1a'Deletes a project by its resource name.*\x06delete\x82\xd3\xe4\x93\x024*2/v1/{name=organizations/*/workspaces/*/projects/*}B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"}\xdaA\x04name\xbaG9\x12\x06Delete\x1a'Deletes a project by its resource name.*\x06delete\x82\xd3\xe4\x93\x024*2/v1/{name=organizations/*/workspaces/*/projects/*}\x12\x86\x02\n" +
+	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x91\x01\xdaA\x04name\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02@:\x01*\";/v1/{name=organizations/*/workspaces/*/projects/*}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_service_proto_rawDescOnce sync.Once
@@ -517,38 +571,41 @@ func file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP() []b
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescData
 }
 
-var file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_m8_platform_resourcemanager_v1_project_service_proto_goTypes = []any{
-	(*GetProjectRequest)(nil),     // 0: m8.platform.resourcemanager.v1.GetProjectRequest
-	(*ListProjectsRequest)(nil),   // 1: m8.platform.resourcemanager.v1.ListProjectsRequest
-	(*ListProjectsResponse)(nil),  // 2: m8.platform.resourcemanager.v1.ListProjectsResponse
-	(*CreateProjectRequest)(nil),  // 3: m8.platform.resourcemanager.v1.CreateProjectRequest
-	(*UpdateProjectRequest)(nil),  // 4: m8.platform.resourcemanager.v1.UpdateProjectRequest
-	(*DeleteProjectRequest)(nil),  // 5: m8.platform.resourcemanager.v1.DeleteProjectRequest
-	(*Project)(nil),               // 6: m8.platform.resourcemanager.v1.Project
-	(*fieldmaskpb.FieldMask)(nil), // 7: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
+	(*GetProjectRequest)(nil),      // 0: m8.platform.resourcemanager.v1.GetProjectRequest
+	(*ListProjectsRequest)(nil),    // 1: m8.platform.resourcemanager.v1.ListProjectsRequest
+	(*ListProjectsResponse)(nil),   // 2: m8.platform.resourcemanager.v1.ListProjectsResponse
+	(*CreateProjectRequest)(nil),   // 3: m8.platform.resourcemanager.v1.CreateProjectRequest
+	(*UpdateProjectRequest)(nil),   // 4: m8.platform.resourcemanager.v1.UpdateProjectRequest
+	(*DeleteProjectRequest)(nil),   // 5: m8.platform.resourcemanager.v1.DeleteProjectRequest
+	(*UndeleteProjectRequest)(nil), // 6: m8.platform.resourcemanager.v1.UndeleteProjectRequest
+	(*Project)(nil),                // 7: m8.platform.resourcemanager.v1.Project
+	(*fieldmaskpb.FieldMask)(nil),  // 8: google.protobuf.FieldMask
+	(*emptypb.Empty)(nil),          // 9: google.protobuf.Empty
 }
 var file_m8_platform_resourcemanager_v1_project_service_proto_depIdxs = []int32{
-	6, // 0: m8.platform.resourcemanager.v1.ListProjectsResponse.projects:type_name -> m8.platform.resourcemanager.v1.Project
-	6, // 1: m8.platform.resourcemanager.v1.CreateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
-	6, // 2: m8.platform.resourcemanager.v1.UpdateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
-	7, // 3: m8.platform.resourcemanager.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0, // 4: m8.platform.resourcemanager.v1.ProjectService.GetProject:input_type -> m8.platform.resourcemanager.v1.GetProjectRequest
-	1, // 5: m8.platform.resourcemanager.v1.ProjectService.ListProjects:input_type -> m8.platform.resourcemanager.v1.ListProjectsRequest
-	3, // 6: m8.platform.resourcemanager.v1.ProjectService.CreateProject:input_type -> m8.platform.resourcemanager.v1.CreateProjectRequest
-	4, // 7: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:input_type -> m8.platform.resourcemanager.v1.UpdateProjectRequest
-	5, // 8: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:input_type -> m8.platform.resourcemanager.v1.DeleteProjectRequest
-	6, // 9: m8.platform.resourcemanager.v1.ProjectService.GetProject:output_type -> m8.platform.resourcemanager.v1.Project
-	2, // 10: m8.platform.resourcemanager.v1.ProjectService.ListProjects:output_type -> m8.platform.resourcemanager.v1.ListProjectsResponse
-	6, // 11: m8.platform.resourcemanager.v1.ProjectService.CreateProject:output_type -> m8.platform.resourcemanager.v1.Project
-	6, // 12: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:output_type -> m8.platform.resourcemanager.v1.Project
-	8, // 13: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:output_type -> google.protobuf.Empty
-	9, // [9:14] is the sub-list for method output_type
-	4, // [4:9] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7,  // 0: m8.platform.resourcemanager.v1.ListProjectsResponse.projects:type_name -> m8.platform.resourcemanager.v1.Project
+	7,  // 1: m8.platform.resourcemanager.v1.CreateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
+	7,  // 2: m8.platform.resourcemanager.v1.UpdateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
+	8,  // 3: m8.platform.resourcemanager.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 4: m8.platform.resourcemanager.v1.ProjectService.GetProject:input_type -> m8.platform.resourcemanager.v1.GetProjectRequest
+	1,  // 5: m8.platform.resourcemanager.v1.ProjectService.ListProjects:input_type -> m8.platform.resourcemanager.v1.ListProjectsRequest
+	3,  // 6: m8.platform.resourcemanager.v1.ProjectService.CreateProject:input_type -> m8.platform.resourcemanager.v1.CreateProjectRequest
+	4,  // 7: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:input_type -> m8.platform.resourcemanager.v1.UpdateProjectRequest
+	5,  // 8: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:input_type -> m8.platform.resourcemanager.v1.DeleteProjectRequest
+	6,  // 9: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:input_type -> m8.platform.resourcemanager.v1.UndeleteProjectRequest
+	7,  // 10: m8.platform.resourcemanager.v1.ProjectService.GetProject:output_type -> m8.platform.resourcemanager.v1.Project
+	2,  // 11: m8.platform.resourcemanager.v1.ProjectService.ListProjects:output_type -> m8.platform.resourcemanager.v1.ListProjectsResponse
+	7,  // 12: m8.platform.resourcemanager.v1.ProjectService.CreateProject:output_type -> m8.platform.resourcemanager.v1.Project
+	7,  // 13: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:output_type -> m8.platform.resourcemanager.v1.Project
+	9,  // 14: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:output_type -> google.protobuf.Empty
+	7,  // 15: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:output_type -> m8.platform.resourcemanager.v1.Project
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_project_service_proto_init() }
@@ -563,7 +620,7 @@ func file_m8_platform_resourcemanager_v1_project_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

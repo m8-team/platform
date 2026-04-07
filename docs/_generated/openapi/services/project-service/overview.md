@@ -13,3 +13,4 @@ ProjectService provides standard create, read, update, delete, and list operatio
 | [Get](./get.md) | Returns a single project by its resource name. |
 | [Delete](./delete.md) | Deletes a project by its resource name. |
 | [Update](./update.md) | Updates mutable fields of an existing project. |
+| [Undelete](./undelete.md) | Restores a previously soft-deleted project. |

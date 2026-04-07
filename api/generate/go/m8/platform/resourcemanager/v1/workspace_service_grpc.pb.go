@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WorkspaceService_GetWorkspace_FullMethodName    = "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace"
-	WorkspaceService_ListWorkspaces_FullMethodName  = "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces"
-	WorkspaceService_CreateWorkspace_FullMethodName = "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace"
-	WorkspaceService_UpdateWorkspace_FullMethodName = "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace"
-	WorkspaceService_DeleteWorkspace_FullMethodName = "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace"
+	WorkspaceService_GetWorkspace_FullMethodName      = "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace"
+	WorkspaceService_ListWorkspaces_FullMethodName    = "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces"
+	WorkspaceService_CreateWorkspace_FullMethodName   = "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace"
+	WorkspaceService_UpdateWorkspace_FullMethodName   = "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace"
+	WorkspaceService_DeleteWorkspace_FullMethodName   = "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace"
+	WorkspaceService_UndeleteWorkspace_FullMethodName = "/m8.platform.resourcemanager.v1.WorkspaceService/UndeleteWorkspace"
 )
 
 // WorkspaceServiceClient is the client API for WorkspaceService service.
@@ -43,6 +44,8 @@ type WorkspaceServiceClient interface {
 	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 	// DeleteWorkspace deletes a workspace by resource name.
 	DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// UndeleteWorkspace restores a previously soft-deleted workspace.
+	UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 }
 
 type workspaceServiceClient struct {
@@ -103,6 +106,16 @@ func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, in *Delete
 	return out, nil
 }
 
+func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Workspace)
+	err := c.cc.Invoke(ctx, WorkspaceService_UndeleteWorkspace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WorkspaceServiceServer is the server API for WorkspaceService service.
 // All implementations must embed UnimplementedWorkspaceServiceServer
 // for forward compatibility.
@@ -119,6 +132,8 @@ type WorkspaceServiceServer interface {
 	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error)
 	// DeleteWorkspace deletes a workspace by resource name.
 	DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error)
+	// UndeleteWorkspace restores a previously soft-deleted workspace.
+	UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error)
 	mustEmbedUnimplementedWorkspaceServiceServer()
 }
 
@@ -143,6 +158,9 @@ func (UnimplementedWorkspaceServiceServer) UpdateWorkspace(context.Context, *Upd
 }
 func (UnimplementedWorkspaceServiceServer) DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteWorkspace not implemented")
+}
+func (UnimplementedWorkspaceServiceServer) UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error) {
+	return nil, status.Error(codes.Unimplemented, "method UndeleteWorkspace not implemented")
 }
 func (UnimplementedWorkspaceServiceServer) mustEmbedUnimplementedWorkspaceServiceServer() {}
 func (UnimplementedWorkspaceServiceServer) testEmbeddedByValue()                          {}
@@ -255,6 +273,24 @@ func _WorkspaceService_DeleteWorkspace_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WorkspaceService_UndeleteWorkspace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UndeleteWorkspaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkspaceServiceServer).UndeleteWorkspace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WorkspaceService_UndeleteWorkspace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkspaceServiceServer).UndeleteWorkspace(ctx, req.(*UndeleteWorkspaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WorkspaceService_ServiceDesc is the grpc.ServiceDesc for WorkspaceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -281,6 +317,10 @@ var WorkspaceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteWorkspace",
 			Handler:    _WorkspaceService_DeleteWorkspace_Handler,
+		},
+		{
+			MethodName: "UndeleteWorkspace",
+			Handler:    _WorkspaceService_UndeleteWorkspace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

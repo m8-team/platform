@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_GetProject_FullMethodName    = "/m8.platform.resourcemanager.v1.ProjectService/GetProject"
-	ProjectService_ListProjects_FullMethodName  = "/m8.platform.resourcemanager.v1.ProjectService/ListProjects"
-	ProjectService_CreateProject_FullMethodName = "/m8.platform.resourcemanager.v1.ProjectService/CreateProject"
-	ProjectService_UpdateProject_FullMethodName = "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject"
-	ProjectService_DeleteProject_FullMethodName = "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject"
+	ProjectService_GetProject_FullMethodName      = "/m8.platform.resourcemanager.v1.ProjectService/GetProject"
+	ProjectService_ListProjects_FullMethodName    = "/m8.platform.resourcemanager.v1.ProjectService/ListProjects"
+	ProjectService_CreateProject_FullMethodName   = "/m8.platform.resourcemanager.v1.ProjectService/CreateProject"
+	ProjectService_UpdateProject_FullMethodName   = "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject"
+	ProjectService_DeleteProject_FullMethodName   = "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject"
+	ProjectService_UndeleteProject_FullMethodName = "/m8.platform.resourcemanager.v1.ProjectService/UndeleteProject"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -43,6 +44,8 @@ type ProjectServiceClient interface {
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	// DeleteProject deletes a project by resource name.
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// UndeleteProject restores a previously soft-deleted project.
+	UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error)
 }
 
 type projectServiceClient struct {
@@ -103,6 +106,16 @@ func (c *projectServiceClient) DeleteProject(ctx context.Context, in *DeleteProj
 	return out, nil
 }
 
+func (c *projectServiceClient) UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Project)
+	err := c.cc.Invoke(ctx, ProjectService_UndeleteProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -119,6 +132,8 @@ type ProjectServiceServer interface {
 	UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error)
 	// DeleteProject deletes a project by resource name.
 	DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error)
+	// UndeleteProject restores a previously soft-deleted project.
+	UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -143,6 +158,9 @@ func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *UpdateP
 }
 func (UnimplementedProjectServiceServer) DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteProject not implemented")
+}
+func (UnimplementedProjectServiceServer) UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error) {
+	return nil, status.Error(codes.Unimplemented, "method UndeleteProject not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -255,6 +273,24 @@ func _ProjectService_DeleteProject_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_UndeleteProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UndeleteProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).UndeleteProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_UndeleteProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).UndeleteProject(ctx, req.(*UndeleteProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -281,6 +317,10 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProject",
 			Handler:    _ProjectService_DeleteProject_Handler,
+		},
+		{
+			MethodName: "UndeleteProject",
+			Handler:    _ProjectService_UndeleteProject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

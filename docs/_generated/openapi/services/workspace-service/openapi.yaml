@@ -190,6 +190,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Workspace'
+  /v1/organizations/{organization}/workspaces/{workspace}:undelete:
+    post:
+      summary: Undelete
+      description: Restores a previously soft-deleted workspace.
+      operationId: undelete
+      parameters:
+        - name: organization
+          in: path
+          description: The organization id.
+          required: true
+          schema:
+            type: string
+        - name: workspace
+          in: path
+          description: The workspace id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UndeleteWorkspaceRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
 components:
   schemas:
     ListWorkspacesResponse:
@@ -210,6 +241,21 @@ components:
           description: The total number of workspaces that match the request.
           format: int32
       description: ListWorkspacesResponse returns a single page of workspaces.
+    UndeleteWorkspaceRequest:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: |-
+            Required. The resource name of the workspace to restore.
+             Format: organizations/{organization}/workspaces/{workspace}
+             The {organization} and {workspace} segments must each be 3 to 63
+             characters long, start with a lowercase letter, and contain only
+             lowercase letters, digits, and hyphens.
+             The full resource name is therefore 32 to 152 characters long.
+      description: UndeleteWorkspaceRequest restores a soft-deleted workspace.
     Workspace:
       type: object
       properties:

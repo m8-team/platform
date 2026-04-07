@@ -76,6 +76,20 @@ service ProjectService {
       operation_id: "delete"
     };
   }
+
+  // UndeleteProject restores a previously soft-deleted project.
+  rpc UndeleteProject(UndeleteProjectRequest) returns (Project) {
+    option (google.api.http) = {
+      post: "/v1/{name=organizations/*/workspaces/*/projects/*}:undelete"
+      body: "*"
+    };
+    option (google.api.method_signature) = "name";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Undelete"
+      description: "Restores a previously soft-deleted project."
+      operation_id: "undelete"
+    };
+  }
 }
 
 // GetProjectRequest fetches a single project by resource name.
@@ -257,4 +271,23 @@ message DeleteProjectRequest {
 
   // Optional. A caller-provided request ID used to make delete retries idempotent.
   string request_id = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UndeleteProjectRequest restores a soft-deleted project.
+message UndeleteProjectRequest {
+  // Required. The resource name of the project to restore.
+  // Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+  // The {organization}, {workspace}, and {project} segments must each be 3 to
+  // 63 characters long, start with a lowercase letter, and contain only
+  // lowercase letters, digits, and hyphens.
+  // The full resource name is therefore 45 to 225 characters long.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference).type = "m8.team/Project",
+    (buf.validate.field).string = {
+      min_len: 45
+      max_len: 225
+      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$"
+    }
+  ];
 }

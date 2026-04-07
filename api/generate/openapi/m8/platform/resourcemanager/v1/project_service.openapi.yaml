@@ -233,6 +233,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Project'
+    /v1/organizations/{organization}/workspaces/{workspace}/projects/{project}:undelete:
+        post:
+            tags:
+                - ProjectService
+            summary: Undelete
+            description: Restores a previously soft-deleted project.
+            operationId: undelete
+            parameters:
+                - name: organization
+                  in: path
+                  description: The organization id.
+                  required: true
+                  schema:
+                    type: string
+                - name: workspace
+                  in: path
+                  description: The workspace id.
+                  required: true
+                  schema:
+                    type: string
+                - name: project
+                  in: path
+                  description: The project id.
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UndeleteProjectRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
 components:
     schemas:
         ListProjectsResponse:
@@ -330,5 +369,20 @@ components:
                          Use namespaced keys such as "example.com/key" to avoid collisions between
                          independent producers of annotations.
             description: Project stores canonical metadata for a project resource within a workspace.
+        UndeleteProjectRequest:
+            required:
+                - name
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: |-
+                        Required. The resource name of the project to restore.
+                         Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
+                         The {organization}, {workspace}, and {project} segments must each be 3 to
+                         63 characters long, start with a lowercase letter, and contain only
+                         lowercase letters, digits, and hyphens.
+                         The full resource name is therefore 45 to 225 characters long.
+            description: UndeleteProjectRequest restores a soft-deleted project.
 tags:
     - name: ProjectService

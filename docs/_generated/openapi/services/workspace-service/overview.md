@@ -13,3 +13,4 @@ WorkspaceService provides standard create, read, update, delete, and list operat
 | [Get](./get.md) | Returns a single workspace by its resource name. |
 | [Delete](./delete.md) | Deletes a workspace by its resource name. |
 | [Update](./update.md) | Updates mutable fields of an existing workspace. |
+| [Undelete](./undelete.md) | Restores a previously soft-deleted workspace. |
