@@ -26,16 +26,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetProjectRequest fetches a single project by resource name.
+// GetProjectRequest fetches a single project by ID.
 type GetProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the project to retrieve.
-	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-	// The {organization}, {workspace}, and {project} segments must each be 3 to
-	// 63 characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 45 to 225 characters long.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the project to retrieve.
+	// The value must be a valid UUID4 string.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,23 +66,19 @@ func (*GetProjectRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetProjectRequest) GetName() string {
+func (x *GetProjectRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
 
-// ListProjectsRequest lists projects visible under a workspace.
+// ListProjectsRequest lists projects visible under a workspace ID.
 type ListProjectsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The parent workspace resource name.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full parent resource name is therefore 32 to 152 characters long.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Required. Stable unique identifier of the parent workspace.
+	// The value must be a valid UUID4 string.
+	WorkspaceId string `protobuf:"bytes,1,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
 	// Optional. The maximum number of projects to return.
 	// Valid values are in the range 0 to 1000.
 	// If omitted, the service returns up to 50 projects.
@@ -139,9 +131,9 @@ func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListProjectsRequest) GetParent() string {
+func (x *ListProjectsRequest) GetWorkspaceId() string {
 	if x != nil {
-		return x.Parent
+		return x.WorkspaceId
 	}
 	return ""
 }
@@ -242,25 +234,17 @@ func (x *ListProjectsResponse) GetTotalSize() int32 {
 // CreateProjectRequest creates a new project.
 type CreateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The parent workspace resource name.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full parent resource name is therefore 32 to 152 characters long.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Optional. The client-assigned ID to use for the project.
-	// This value becomes the final {project} segment of the resource name.
-	// The ID must be 3 to 63 characters long, start with a lowercase letter,
-	// and contain only lowercase letters, digits, and hyphens.
-	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	// Required. Stable unique identifier of the parent workspace.
+	// The value must be a valid UUID4 string.
+	WorkspaceId string `protobuf:"bytes,1,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
 	// Required. The project to create.
-	// Client-specified values in `project.name`, `project.uid`,
+	// Client-specified values in `project.id`, `project.workspace_id`,
 	// `project.state`, `project.create_time`, `project.update_time`,
-	// `project.delete_time`, and `project.purge_time` are ignored.
-	Project *Project `protobuf:"bytes,3,opt,name=project,proto3" json:"project,omitempty"`
+	// `project.delete_time`, and `project.purge_time` are ignored because the
+	// server assigns them.
+	Project *Project `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
 	// Optional. A caller-provided request ID used to make create retries idempotent.
-	RequestId     string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -295,16 +279,9 @@ func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CreateProjectRequest) GetParent() string {
+func (x *CreateProjectRequest) GetWorkspaceId() string {
 	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *CreateProjectRequest) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
+		return x.WorkspaceId
 	}
 	return ""
 }
@@ -328,11 +305,8 @@ type UpdateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The project to update.
 	//
-	// The `project.name` field identifies the resource to update.
-	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-	// The {organization}, {workspace}, and {project} segments must each be 3 to
-	// 63 characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
+	// The `project.id` field identifies the resource to update and must be a
+	// valid UUID4 string.
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Project *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
@@ -396,16 +370,12 @@ func (x *UpdateProjectRequest) GetRequestId() string {
 	return ""
 }
 
-// DeleteProjectRequest deletes a project by resource name.
+// DeleteProjectRequest deletes a project by ID.
 type DeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the project to delete.
-	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-	// The {organization}, {workspace}, and {project} segments must each be 3 to
-	// 63 characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 45 to 225 characters long.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the project to delete.
+	// The value must be a valid UUID4 string.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Optional. A caller-provided request ID used to make delete retries idempotent.
 	RequestId     string `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -442,9 +412,9 @@ func (*DeleteProjectRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *DeleteProjectRequest) GetName() string {
+func (x *DeleteProjectRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
@@ -459,13 +429,9 @@ func (x *DeleteProjectRequest) GetRequestId() string {
 // UndeleteProjectRequest restores a soft-deleted project.
 type UndeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the project to restore.
-	// Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-	// The {organization}, {workspace}, and {project} segments must each be 3 to
-	// 63 characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 45 to 225 characters long.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the project to restore.
+	// The value must be a valid UUID4 string.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -500,9 +466,9 @@ func (*UndeleteProjectRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *UndeleteProjectRequest) GetName() string {
+func (x *UndeleteProjectRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
@@ -511,13 +477,11 @@ var File_m8_platform_resourcemanager_v1_project_service_proto protoreflect.FileD
 
 const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\n" +
-	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"\xb0\x01\n" +
-	"\x11GetProjectRequest\x12\x9a\x01\n" +
-	"\x04name\x18\x01 \x01(\tB\x85\x01\xe0A\x02\xfaA\x11\n" +
-	"\x0fm8.team/Project\xbaHkri\x10-\x18\xe1\x012b^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$R\x04name\"\xbe\x02\n" +
-	"\x13ListProjectsRequest\x12\x81\x01\n" +
-	"\x06parent\x18\x01 \x01(\tBi\xe0A\x02\xfaA\x13\n" +
-	"\x11m8.team/Workspace\xbaHMrK\x10 \x18\x98\x012D^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$R\x06parent\x12*\n" +
+	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
+	"\x11GetProjectRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xea\x01\n" +
+	"\x13ListProjectsRequest\x12.\n" +
+	"\fworkspace_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12*\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
@@ -527,37 +491,32 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\bprojects\x18\x01 \x03(\v2'.m8.platform.resourcemanager.v1.ProjectR\bprojects\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xd1\x02\n" +
-	"\x14CreateProjectRequest\x12\x81\x01\n" +
-	"\x06parent\x18\x01 \x01(\tBi\xe0A\x02\xfaA\x13\n" +
-	"\x11m8.team/Workspace\xbaHMrK\x10 \x18\x98\x012D^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$R\x06parent\x12C\n" +
+	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xb8\x01\n" +
+	"\x14CreateProjectRequest\x12.\n" +
+	"\fworkspace_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12L\n" +
+	"\aproject\x18\x02 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12\"\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\tB$\xe0A\x01\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\tprojectId\x12L\n" +
-	"\aproject\x18\x03 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12\"\n" +
-	"\n" +
-	"request_id\x18\x04 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd0\x01\n" +
+	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd0\x01\n" +
 	"\x14UpdateProjectRequest\x12L\n" +
 	"\aproject\x18\x01 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12F\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
 	"updateMask\x12\"\n" +
 	"\n" +
-	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd7\x01\n" +
-	"\x14DeleteProjectRequest\x12\x9a\x01\n" +
-	"\x04name\x18\x01 \x01(\tB\x85\x01\xe0A\x02\xfaA\x11\n" +
-	"\x0fm8.team/Project\xbaHkri\x10-\x18\xe1\x012b^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$R\x04name\x12\"\n" +
+	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"W\n" +
+	"\x14DeleteProjectRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\"\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"\xb5\x01\n" +
-	"\x16UndeleteProjectRequest\x12\x9a\x01\n" +
-	"\x04name\x18\x01 \x01(\tB\x85\x01\xe0A\x02\xfaA\x11\n" +
-	"\x0fm8.team/Project\xbaHkri\x10-\x18\xe1\x012b^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}/projects/[a-z][a-z0-9-]{2,62}$R\x04name2\xad\f\n" +
-	"\x0eProjectService\x12\xe8\x01\n" +
+	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"5\n" +
+	"\x16UndeleteProjectRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\x80\v\n" +
+	"\x0eProjectService\x12\xbc\x01\n" +
 	"\n" +
-	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"~\xdaA\x04name\xbaG:\x12\x03Get\x1a.Returns a single project by its resource name.*\x03get\x82\xd3\xe4\x93\x024\x122/v1/{name=organizations/*/workspaces/*/projects/*}\x12\x93\x02\n" +
-	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x97\x01\xdaA\x06parent\xbaGQ\x12\x04List\x1aCReturns a paginated list of projects under the specified workspace.*\x04list\x82\xd3\xe4\x93\x024\x122/v1/{parent=organizations/*/workspaces/*}/projects\x12\x99\x02\n" +
-	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\xa8\x01\xdaA\x19parent,project,project_id\xbaGF\x12\x06Create\x1a4Creates a new project under the specified workspace.*\x06create\x82\xd3\xe4\x93\x02=:\aproject\"2/v1/{parent=organizations/*/workspaces/*}/projects\x12\x95\x02\n" +
-	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\xa4\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02E:\aproject2:/v1/{project.name=organizations/*/workspaces/*/projects/*}\x12\xdc\x01\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"}\xdaA\x04name\xbaG9\x12\x06Delete\x1a'Deletes a project by its resource name.*\x06delete\x82\xd3\xe4\x93\x024*2/v1/{name=organizations/*/workspaces/*/projects/*}\x12\x86\x02\n" +
-	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x91\x01\xdaA\x04name\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02@:\x01*\";/v1/{name=organizations/*/workspaces/*/projects/*}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"R\xdaA\x02id\xbaG1\x12\x03Get\x1a%Returns a single project by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/projects/{id}\x12\x92\x02\n" +
+	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x96\x01\xdaA\fworkspace_id\xbaGV\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\x04list\x82\xd3\xe4\x93\x02(\x12&/v1/workspaces/{workspace_id}/projects\x12\x8d\x02\n" +
+	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x9c\x01\xdaA\x14workspace_id,project\xbaGK\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\x06create\x82\xd3\xe4\x93\x021:\aproject\"&/v1/workspaces/{workspace_id}/projects\x12\xf4\x01\n" +
+	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x83\x01\xdaA\x13project,update_mask\xbaG@\x12\x06Update\x1a.Updates mutable fields of an existing project.*\x06update\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xb0\x01\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"Q\xdaA\x02id\xbaG0\x12\x06Delete\x1a\x1eDeletes a project by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xdf\x01\n" +
+	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"k\xdaA\x02id\xbaGA\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\bundelete\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_service_proto_rawDescOnce sync.Once

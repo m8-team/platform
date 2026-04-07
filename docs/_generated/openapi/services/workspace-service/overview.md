@@ -8,9 +8,9 @@ WorkspaceService provides standard create, read, update, delete, and list operat
 
 | Method | Description |
 | --- | --- |
-| [List](./list.md) | Returns a paginated list of workspaces under the specified organization. |
-| [Create](./create.md) | Creates a new workspace under the specified organization. |
-| [Get](./get.md) | Returns a single workspace by its resource name. |
-| [Delete](./delete.md) | Deletes a workspace by its resource name. |
-| [Update](./update.md) | Updates mutable fields of an existing workspace. |
+| [List](./list.md) | Returns a paginated list of workspaces under the specified organization UUID. |
+| [Create](./create.md) | Creates a new workspace under the specified organization UUID. |
+| [Get](./get.md) | Returns a single workspace by its UUID. |
+| [Delete](./delete.md) | Deletes a workspace by its UUID. |
 | [Undelete](./undelete.md) | Restores a previously soft-deleted workspace. |
+| [Update](./update.md) | Updates mutable fields of an existing workspace. |

@@ -8,9 +8,9 @@ ProjectService provides standard create, read, update, delete, and list operatio
 
 | Method | Description |
 | --- | --- |
-| [List](./list.md) | Returns a paginated list of projects under the specified workspace. |
-| [Create](./create.md) | Creates a new project under the specified workspace. |
-| [Get](./get.md) | Returns a single project by its resource name. |
-| [Delete](./delete.md) | Deletes a project by its resource name. |
-| [Update](./update.md) | Updates mutable fields of an existing project. |
+| [Get](./get.md) | Returns a single project by its UUID. |
+| [Delete](./delete.md) | Deletes a project by its UUID. |
 | [Undelete](./undelete.md) | Restores a previously soft-deleted project. |
+| [Update](./update.md) | Updates mutable fields of an existing project. |
+| [List](./list.md) | Returns a paginated list of projects under the specified workspace UUID. |
+| [Create](./create.md) | Creates a new project under the specified workspace UUID. |

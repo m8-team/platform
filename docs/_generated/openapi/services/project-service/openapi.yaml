@@ -4,21 +4,118 @@ info:
   description: ProjectService provides standard create, read, update, delete, and list operations for projects.
   version: v1
 paths:
-  /v1/organizations/{organization}/workspaces/{workspace}/projects:
+  /v1/projects/{id}:
     get:
-      summary: List
-      description: Returns a paginated list of projects under the specified workspace.
-      operationId: list
+      summary: Get
+      description: Returns a single project by its UUID.
+      operationId: get
       parameters:
-        - name: organization
+        - name: id
           in: path
-          description: The organization id.
+          description: |-
+            Required. Stable unique identifier of the project to retrieve.
+             The value must be a valid UUID4 string.
           required: true
           schema:
             type: string
-        - name: workspace
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    delete:
+      summary: Delete
+      description: Deletes a project by its UUID.
+      operationId: delete
+      parameters:
+        - name: id
           in: path
-          description: The workspace id.
+          description: |-
+            Required. Stable unique identifier of the project to delete.
+             The value must be a valid UUID4 string.
+          required: true
+          schema:
+            type: string
+        - name: requestId
+          in: query
+          description: Optional. A caller-provided request ID used to make delete retries idempotent.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content: {}
+  /v1/projects/{id}:undelete:
+    post:
+      summary: Undelete
+      description: Restores a previously soft-deleted project.
+      operationId: undelete
+      parameters:
+        - name: id
+          in: path
+          description: |-
+            Required. Stable unique identifier of the project to restore.
+             The value must be a valid UUID4 string.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /v1/projects/{project.id}:
+    patch:
+      summary: Update
+      description: Updates mutable fields of an existing project.
+      operationId: update
+      parameters:
+        - name: project.id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: updateMask
+          in: query
+          description: |-
+            Required. The field mask that selects which mutable fields to update.
+             Paths in the mask should refer only to fields that clients are allowed to modify.
+          schema:
+            type: string
+            format: field-mask
+        - name: requestId
+          in: query
+          description: Optional. A caller-provided request ID used to make update retries idempotent.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+  /v1/workspaces/{workspaceId}/projects:
+    get:
+      summary: List
+      description: Returns a paginated list of projects under the specified workspace UUID.
+      operationId: list
+      parameters:
+        - name: workspaceId
+          in: path
+          description: |-
+            Required. Stable unique identifier of the parent workspace.
+             The value must be a valid UUID4 string.
           required: true
           schema:
             type: string
@@ -66,28 +163,15 @@ paths:
                 $ref: '#/components/schemas/ListProjectsResponse'
     post:
       summary: Create
-      description: Creates a new project under the specified workspace.
+      description: Creates a new project under the specified workspace UUID.
       operationId: create
       parameters:
-        - name: organization
+        - name: workspaceId
           in: path
-          description: The organization id.
-          required: true
-          schema:
-            type: string
-        - name: workspace
-          in: path
-          description: The workspace id.
-          required: true
-          schema:
-            type: string
-        - name: projectId
-          in: query
           description: |-
-            Optional. The client-assigned ID to use for the project.
-             This value becomes the final {project} segment of the resource name.
-             The ID must be 3 to 63 characters long, start with a lowercase letter,
-             and contain only lowercase letters, digits, and hyphens.
+            Required. Stable unique identifier of the parent workspace.
+             The value must be a valid UUID4 string.
+          required: true
           schema:
             type: string
         - name: requestId
@@ -100,155 +184,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Project'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-  /v1/organizations/{organization}/workspaces/{workspace}/projects/{project}:
-    get:
-      summary: Get
-      description: Returns a single project by its resource name.
-      operationId: get
-      parameters:
-        - name: organization
-          in: path
-          description: The organization id.
-          required: true
-          schema:
-            type: string
-        - name: workspace
-          in: path
-          description: The workspace id.
-          required: true
-          schema:
-            type: string
-        - name: project
-          in: path
-          description: The project id.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-    delete:
-      summary: Delete
-      description: Deletes a project by its resource name.
-      operationId: delete
-      parameters:
-        - name: organization
-          in: path
-          description: The organization id.
-          required: true
-          schema:
-            type: string
-        - name: workspace
-          in: path
-          description: The workspace id.
-          required: true
-          schema:
-            type: string
-        - name: project
-          in: path
-          description: The project id.
-          required: true
-          schema:
-            type: string
-        - name: requestId
-          in: query
-          description: Optional. A caller-provided request ID used to make delete retries idempotent.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content: {}
-    patch:
-      summary: Update
-      description: Updates mutable fields of an existing project.
-      operationId: update
-      parameters:
-        - name: organization
-          in: path
-          description: The organization id.
-          required: true
-          schema:
-            type: string
-        - name: workspace
-          in: path
-          description: The workspace id.
-          required: true
-          schema:
-            type: string
-        - name: project
-          in: path
-          description: The project id.
-          required: true
-          schema:
-            type: string
-        - name: updateMask
-          in: query
-          description: |-
-            Required. The field mask that selects which mutable fields to update.
-             Paths in the mask should refer only to fields that clients are allowed to modify.
-          schema:
-            type: string
-            format: field-mask
-        - name: requestId
-          in: query
-          description: Optional. A caller-provided request ID used to make update retries idempotent.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Project'
-        required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-  /v1/organizations/{organization}/workspaces/{workspace}/projects/{project}:undelete:
-    post:
-      summary: Undelete
-      description: Restores a previously soft-deleted project.
-      operationId: undelete
-      parameters:
-        - name: organization
-          in: path
-          description: The organization id.
-          required: true
-          schema:
-            type: string
-        - name: workspace
-          in: path
-          description: The workspace id.
-          required: true
-          schema:
-            type: string
-        - name: project
-          in: path
-          description: The project id.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UndeleteProjectRequest'
         required: true
       responses:
         '200':
@@ -280,20 +215,19 @@ components:
     Project:
       type: object
       properties:
-        name:
+        id:
           type: string
           description: |-
-            Identifier. The resource name of the project.
-             Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-             The {organization}, {workspace}, and {project} segments must each be 3 to
-             63 characters long, start with a lowercase letter, and contain only
-             lowercase letters, digits, and hyphens.
-        uid:
+            Identifier. Stable unique identifier of the project.
+             The value is generated by the server and is returned as a UUID4 string.
+             Clients must not provide this field when creating a project.
+        workspaceId:
           readOnly: true
           type: string
           description: |-
-            Output only. System-assigned stable unique identifier for the project.
-             The value is generated by the server and is returned as a UUID4 string.
+            Output only. Stable unique identifier of the parent workspace.
+             The value is set by the server from the create request and is returned as
+             a UUID4 string. The parent workspace of a project never changes.
         state:
           readOnly: true
           enum:
@@ -354,18 +288,3 @@ components:
              Use namespaced keys such as "example.com/key" to avoid collisions between
              independent producers of annotations.
       description: Project stores canonical metadata for a project resource within a workspace.
-    UndeleteProjectRequest:
-      required:
-        - name
-      type: object
-      properties:
-        name:
-          type: string
-          description: |-
-            Required. The resource name of the project to restore.
-             Format: organizations/{organization}/workspaces/{workspace}/projects/{project}
-             The {organization}, {workspace}, and {project} segments must each be 3 to
-             63 characters long, start with a lowercase letter, and contain only
-             lowercase letters, digits, and hyphens.
-             The full resource name is therefore 45 to 225 characters long.
-      description: UndeleteProjectRequest restores a soft-deleted project.

@@ -34,15 +34,15 @@ const (
 //
 // WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
 type WorkspaceServiceClient interface {
-	// GetWorkspace returns a single workspace by resource name.
+	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(ctx context.Context, in *GetWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization.
+	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
 	ListWorkspaces(ctx context.Context, in *ListWorkspacesRequest, opts ...grpc.CallOption) (*ListWorkspacesResponse, error)
-	// CreateWorkspace creates a new workspace under an organization.
+	// CreateWorkspace creates a new workspace under an organization ID.
 	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
-	// DeleteWorkspace deletes a workspace by resource name.
+	// DeleteWorkspace deletes a workspace by ID.
 	DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UndeleteWorkspace restores a previously soft-deleted workspace.
 	UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
@@ -122,15 +122,15 @@ func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *Unde
 //
 // WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
 type WorkspaceServiceServer interface {
-	// GetWorkspace returns a single workspace by resource name.
+	// GetWorkspace returns a single workspace by ID.
 	GetWorkspace(context.Context, *GetWorkspaceRequest) (*Workspace, error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization.
+	// ListWorkspaces returns a paginated list of workspaces under an organization ID.
 	ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
-	// CreateWorkspace creates a new workspace under an organization.
+	// CreateWorkspace creates a new workspace under an organization ID.
 	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error)
 	// UpdateWorkspace updates mutable fields on an existing workspace.
 	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error)
-	// DeleteWorkspace deletes a workspace by resource name.
+	// DeleteWorkspace deletes a workspace by ID.
 	DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error)
 	// UndeleteWorkspace restores a previously soft-deleted workspace.
 	UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error)

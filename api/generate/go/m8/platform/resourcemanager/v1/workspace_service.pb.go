@@ -26,16 +26,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetWorkspaceRequest fetches a single workspace by resource name.
+// GetWorkspaceRequest fetches a single workspace by ID.
 type GetWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the workspace to retrieve.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 32 to 152 characters long.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the workspace to retrieve.
+	// The value must be a valid UUID4 string.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,22 +66,19 @@ func (*GetWorkspaceRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetWorkspaceRequest) GetName() string {
+func (x *GetWorkspaceRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
 
-// ListWorkspacesRequest lists workspaces visible under an organization.
+// ListWorkspacesRequest lists workspaces visible under an organization ID.
 type ListWorkspacesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The parent organization resource name.
-	// Format: organizations/{organization}
-	// The {organization} segment must be 3 to 63 characters long, start with a
-	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
-	// The full parent resource name is therefore 17 to 77 characters long.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Required. Stable unique identifier of the parent organization.
+	// The value must be a valid UUID4 string.
+	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// Optional. The maximum number of workspaces to return.
 	// Valid values are in the range 0 to 1000.
 	// If omitted, the service returns up to 50 workspaces.
@@ -138,9 +131,9 @@ func (*ListWorkspacesRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListWorkspacesRequest) GetParent() string {
+func (x *ListWorkspacesRequest) GetOrganizationId() string {
 	if x != nil {
-		return x.Parent
+		return x.OrganizationId
 	}
 	return ""
 }
@@ -241,24 +234,17 @@ func (x *ListWorkspacesResponse) GetTotalSize() int32 {
 // CreateWorkspaceRequest creates a new workspace.
 type CreateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The parent organization resource name.
-	// Format: organizations/{organization}
-	// The {organization} segment must be 3 to 63 characters long, start with a
-	// lowercase letter, and contain only lowercase letters, digits, and hyphens.
-	// The full parent resource name is therefore 17 to 77 characters long.
-	Parent string `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	// Optional. The client-assigned ID to use for the workspace.
-	// This value becomes the final {workspace} segment of the resource name.
-	// The ID must be 3 to 63 characters long, start with a lowercase letter,
-	// and contain only lowercase letters, digits, and hyphens.
-	WorkspaceId string `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
+	// Required. Stable unique identifier of the parent organization.
+	// The value must be a valid UUID4 string.
+	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// Required. The workspace to create.
-	// Client-specified values in `workspace.name`, `workspace.uid`,
+	// Client-specified values in `workspace.id`, `workspace.organization_id`,
 	// `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-	// `workspace.delete_time`, and `workspace.purge_time` are ignored.
-	Workspace *Workspace `protobuf:"bytes,3,opt,name=workspace,proto3" json:"workspace,omitempty"`
+	// `workspace.delete_time`, and `workspace.purge_time` are ignored because
+	// the server assigns them.
+	Workspace *Workspace `protobuf:"bytes,2,opt,name=workspace,proto3" json:"workspace,omitempty"`
 	// Optional. A caller-provided request ID used to make create retries idempotent.
-	RequestId     string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	RequestId     string `protobuf:"bytes,3,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -293,16 +279,9 @@ func (*CreateWorkspaceRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CreateWorkspaceRequest) GetParent() string {
+func (x *CreateWorkspaceRequest) GetOrganizationId() string {
 	if x != nil {
-		return x.Parent
-	}
-	return ""
-}
-
-func (x *CreateWorkspaceRequest) GetWorkspaceId() string {
-	if x != nil {
-		return x.WorkspaceId
+		return x.OrganizationId
 	}
 	return ""
 }
@@ -326,11 +305,8 @@ type UpdateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The workspace to update.
 	//
-	// The `workspace.name` field identifies the resource to update.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
+	// The `workspace.id` field identifies the resource to update and must be a
+	// valid UUID4 string.
 	// Output-only fields are ignored except for `etag`, which may be provided for
 	// optimistic concurrency control.
 	Workspace *Workspace `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
@@ -394,16 +370,12 @@ func (x *UpdateWorkspaceRequest) GetRequestId() string {
 	return ""
 }
 
-// DeleteWorkspaceRequest deletes a workspace by resource name.
+// DeleteWorkspaceRequest deletes a workspace by ID.
 type DeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the workspace to delete.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 32 to 152 characters long.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the workspace to delete.
+	// The value must be a valid UUID4 string.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Optional. A caller-provided request ID used to make delete retries idempotent.
 	RequestId     string `protobuf:"bytes,2,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -440,9 +412,9 @@ func (*DeleteWorkspaceRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *DeleteWorkspaceRequest) GetName() string {
+func (x *DeleteWorkspaceRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
@@ -457,13 +429,9 @@ func (x *DeleteWorkspaceRequest) GetRequestId() string {
 // UndeleteWorkspaceRequest restores a soft-deleted workspace.
 type UndeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. The resource name of the workspace to restore.
-	// Format: organizations/{organization}/workspaces/{workspace}
-	// The {organization} and {workspace} segments must each be 3 to 63
-	// characters long, start with a lowercase letter, and contain only
-	// lowercase letters, digits, and hyphens.
-	// The full resource name is therefore 32 to 152 characters long.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Required. Stable unique identifier of the workspace to restore.
+	// The value must be a valid UUID4 string.
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -498,9 +466,9 @@ func (*UndeleteWorkspaceRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *UndeleteWorkspaceRequest) GetName() string {
+func (x *UndeleteWorkspaceRequest) GetId() string {
 	if x != nil {
-		return x.Name
+		return x.Id
 	}
 	return ""
 }
@@ -509,13 +477,11 @@ var File_m8_platform_resourcemanager_v1_workspace_service_proto protoreflect.Fil
 
 const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x19google/api/resource.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"\x94\x01\n" +
-	"\x13GetWorkspaceRequest\x12}\n" +
-	"\x04name\x18\x01 \x01(\tBi\xe0A\x02\xfaA\x13\n" +
-	"\x11m8.team/Workspace\xbaHMrK\x10 \x18\x98\x012D^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$R\x04name\"\xb5\x02\n" +
-	"\x15ListWorkspacesRequest\x12w\n" +
-	"\x06parent\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x06parent\x12*\n" +
+	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"2\n" +
+	"\x13GetWorkspaceRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xf2\x01\n" +
+	"\x15ListWorkspacesRequest\x124\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12*\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
@@ -527,35 +493,31 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"workspaces\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\x12\x1d\n" +
 	"\n" +
-	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xd2\x02\n" +
-	"\x16CreateWorkspaceRequest\x12w\n" +
-	"\x06parent\x18\x01 \x01(\tB_\xe0A\x02\xfaA*\n" +
-	"(m8.platform.organization.v1/Organization\xbaH,r*\x10\x11\x18M2$^organizations/[a-z][a-z0-9-]{2,62}$R\x06parent\x12G\n" +
-	"\fworkspace_id\x18\x02 \x01(\tB$\xe0A\x01\xbaH\x1er\x1c\x10\x03\x18?2\x16^[a-z][a-z0-9-]{2,62}$R\vworkspaceId\x12R\n" +
-	"\tworkspace\x18\x03 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\tworkspace\x12\"\n" +
+	"total_size\x18\x03 \x01(\x05R\ttotalSize\"\xc6\x01\n" +
+	"\x16CreateWorkspaceRequest\x124\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12R\n" +
+	"\tworkspace\x18\x02 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\tworkspace\x12\"\n" +
 	"\n" +
-	"request_id\x18\x04 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd8\x01\n" +
+	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"\xd8\x01\n" +
 	"\x16UpdateWorkspaceRequest\x12R\n" +
 	"\tworkspace\x18\x01 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\tworkspace\x12F\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
 	"updateMask\x12\"\n" +
 	"\n" +
-	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"\xbb\x01\n" +
-	"\x16DeleteWorkspaceRequest\x12}\n" +
-	"\x04name\x18\x01 \x01(\tBi\xe0A\x02\xfaA\x13\n" +
-	"\x11m8.team/Workspace\xbaHMrK\x10 \x18\x98\x012D^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$R\x04name\x12\"\n" +
+	"request_id\x18\x03 \x01(\tB\x03\xe0A\x01R\trequestId\"Y\n" +
+	"\x16DeleteWorkspaceRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\"\n" +
 	"\n" +
-	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"\x99\x01\n" +
-	"\x18UndeleteWorkspaceRequest\x12}\n" +
-	"\x04name\x18\x01 \x01(\tBi\xe0A\x02\xfaA\x13\n" +
-	"\x11m8.team/Workspace\xbaHMrK\x10 \x18\x98\x012D^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$R\x04name2\xad\f\n" +
-	"\x10WorkspaceService\x12\xe5\x01\n" +
-	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"u\xdaA\x04name\xbaG<\x12\x03Get\x1a0Returns a single workspace by its resource name.*\x03get\x82\xd3\xe4\x93\x02)\x12'/v1/{name=organizations/*/workspaces/*}\x12\x93\x02\n" +
-	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\x91\x01\xdaA\x06parent\xbaGV\x12\x04List\x1aHReturns a paginated list of workspaces under the specified organization.*\x04list\x82\xd3\xe4\x93\x02)\x12'/v1/{parent=organizations/*}/workspaces\x12\x9f\x02\n" +
-	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\xa8\x01\xdaA\x1dparent,workspace,workspace_id\xbaGK\x12\x06Create\x1a9Creates a new workspace under the specified organization.*\x06create\x82\xd3\xe4\x93\x024:\tworkspace\"'/v1/{parent=organizations/*}/workspaces\x12\x98\x02\n" +
-	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\xa1\x01\xdaA\x15workspace,update_mask\xbaGB\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x06update\x82\xd3\xe4\x93\x02>:\tworkspace21/v1/{workspace.name=organizations/*/workspaces/*}\x12\xd7\x01\n" +
-	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x16.google.protobuf.Empty\"t\xdaA\x04name\xbaG;\x12\x06Delete\x1a)Deletes a workspace by its resource name.*\x06delete\x82\xd3\xe4\x93\x02)*'/v1/{name=organizations/*/workspaces/*}\x12\x83\x02\n" +
-	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x88\x01\xdaA\x04name\xbaGC\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\bundelete\x82\xd3\xe4\x93\x025:\x01*\"0/v1/{name=organizations/*/workspaces/*}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"request_id\x18\x02 \x01(\tB\x03\xe0A\x01R\trequestId\"7\n" +
+	"\x18UndeleteWorkspaceRequest\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xde\v\n" +
+	"\x10WorkspaceService\x12\xc6\x01\n" +
+	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"V\xdaA\x02id\xbaG3\x12\x03Get\x1a'Returns a single workspace by its UUID.*\x03get\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/workspaces/{id}\x12\xa8\x02\n" +
+	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\xa6\x01\xdaA\x0forganization_id\xbaG[\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x04list\x82\xd3\xe4\x93\x020\x12./v1/organizations/{organization_id}/workspaces\x12\xa7\x02\n" +
+	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\xb0\x01\xdaA\x19organization_id,workspace\xbaGP\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x06create\x82\xd3\xe4\x93\x02;:\tworkspace\"./v1/organizations/{organization_id}/workspaces\x12\x84\x02\n" +
+	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x8d\x01\xdaA\x15workspace,update_mask\xbaGB\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x06update\x82\xd3\xe4\x93\x02*:\tworkspace2\x1d/v1/workspaces/{workspace.id}\x12\xb8\x01\n" +
+	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x16.google.protobuf.Empty\"U\xdaA\x02id\xbaG2\x12\x06Delete\x1a Deletes a workspace by its UUID.*\x06delete\x82\xd3\xe4\x93\x02\x15*\x13/v1/workspaces/{id}\x12\xe9\x01\n" +
+	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"o\xdaA\x02id\xbaGC\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\bundelete\x82\xd3\xe4\x93\x02\x1e\"\x1c/v1/workspaces/{id}:undeleteB0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescOnce sync.Once

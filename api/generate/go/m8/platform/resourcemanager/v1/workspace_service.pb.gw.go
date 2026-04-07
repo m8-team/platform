@@ -44,13 +44,13 @@ func request_WorkspaceService_GetWorkspace_0(ctx context.Context, marshaler runt
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := client.GetWorkspace(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -62,19 +62,19 @@ func local_request_WorkspaceService_GetWorkspace_0(ctx context.Context, marshale
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := server.GetWorkspace(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_WorkspaceService_ListWorkspaces_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_WorkspaceService_ListWorkspaces_0 = &utilities.DoubleArray{Encoding: map[string]int{"organization_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_WorkspaceService_ListWorkspaces_0(ctx context.Context, marshaler runtime.Marshaler, client WorkspaceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -85,13 +85,13 @@ func request_WorkspaceService_ListWorkspaces_0(ctx context.Context, marshaler ru
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["organization_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.OrganizationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -109,13 +109,13 @@ func local_request_WorkspaceService_ListWorkspaces_0(ctx context.Context, marsha
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["organization_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.OrganizationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -127,7 +127,7 @@ func local_request_WorkspaceService_ListWorkspaces_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
-var filter_WorkspaceService_CreateWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"workspace": 0, "parent": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var filter_WorkspaceService_CreateWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"workspace": 0, "organization_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_WorkspaceService_CreateWorkspace_0(ctx context.Context, marshaler runtime.Marshaler, client WorkspaceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -141,13 +141,13 @@ func request_WorkspaceService_CreateWorkspace_0(ctx context.Context, marshaler r
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["organization_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.OrganizationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -168,13 +168,13 @@ func local_request_WorkspaceService_CreateWorkspace_0(ctx context.Context, marsh
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Workspace); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["organization_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.OrganizationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -186,7 +186,7 @@ func local_request_WorkspaceService_CreateWorkspace_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-var filter_WorkspaceService_UpdateWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"workspace": 0, "name": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
+var filter_WorkspaceService_UpdateWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"workspace": 0, "id": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_WorkspaceService_UpdateWorkspace_0(ctx context.Context, marshaler runtime.Marshaler, client WorkspaceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -211,13 +211,13 @@ func request_WorkspaceService_UpdateWorkspace_0(ctx context.Context, marshaler r
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-	val, ok := pathParams["workspace.name"]
+	val, ok := pathParams["workspace.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace.id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "workspace.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "workspace.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace.id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -249,13 +249,13 @@ func local_request_WorkspaceService_UpdateWorkspace_0(ctx context.Context, marsh
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-	val, ok := pathParams["workspace.name"]
+	val, ok := pathParams["workspace.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace.id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "workspace.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "workspace.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace.id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -267,7 +267,7 @@ func local_request_WorkspaceService_UpdateWorkspace_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-var filter_WorkspaceService_DeleteWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_WorkspaceService_DeleteWorkspace_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_WorkspaceService_DeleteWorkspace_0(ctx context.Context, marshaler runtime.Marshaler, client WorkspaceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -278,13 +278,13 @@ func request_WorkspaceService_DeleteWorkspace_0(ctx context.Context, marshaler r
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -302,13 +302,13 @@ func local_request_WorkspaceService_DeleteWorkspace_0(ctx context.Context, marsh
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -326,19 +326,16 @@ func request_WorkspaceService_UndeleteWorkspace_0(ctx context.Context, marshaler
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := client.UndeleteWorkspace(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -350,16 +347,13 @@ func local_request_WorkspaceService_UndeleteWorkspace_0(ctx context.Context, mar
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := server.UndeleteWorkspace(ctx, &protoReq)
 	return msg, metadata, err
@@ -377,7 +371,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -397,7 +391,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/workspaces"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces", runtime.WithHTTPPathPattern("/v1/organizations/{organization_id}/workspaces"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -417,7 +411,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/workspaces"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace", runtime.WithHTTPPathPattern("/v1/organizations/{organization_id}/workspaces"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -437,7 +431,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace", runtime.WithHTTPPathPattern("/v1/{workspace.name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -457,7 +451,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -477,7 +471,7 @@ func RegisterWorkspaceServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UndeleteWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}:undelete"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UndeleteWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -535,7 +529,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/GetWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -552,7 +546,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/workspaces"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/ListWorkspaces", runtime.WithHTTPPathPattern("/v1/organizations/{organization_id}/workspaces"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -569,7 +563,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*}/workspaces"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/CreateWorkspace", runtime.WithHTTPPathPattern("/v1/organizations/{organization_id}/workspaces"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -586,7 +580,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace", runtime.WithHTTPPathPattern("/v1/{workspace.name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UpdateWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -603,7 +597,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/DeleteWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -620,7 +614,7 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UndeleteWorkspace", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*}:undelete"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.WorkspaceService/UndeleteWorkspace", runtime.WithHTTPPathPattern("/v1/workspaces/{id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -637,12 +631,12 @@ func RegisterWorkspaceServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 }
 
 var (
-	pattern_WorkspaceService_GetWorkspace_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "workspaces", "name"}, ""))
-	pattern_WorkspaceService_ListWorkspaces_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "organizations", "parent", "workspaces"}, ""))
-	pattern_WorkspaceService_CreateWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 2, 5, 2, 2, 3}, []string{"v1", "organizations", "parent", "workspaces"}, ""))
-	pattern_WorkspaceService_UpdateWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "workspaces", "workspace.name"}, ""))
-	pattern_WorkspaceService_DeleteWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "workspaces", "name"}, ""))
-	pattern_WorkspaceService_UndeleteWorkspace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3}, []string{"v1", "organizations", "workspaces", "name"}, "undelete"))
+	pattern_WorkspaceService_GetWorkspace_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "workspaces", "id"}, ""))
+	pattern_WorkspaceService_ListWorkspaces_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "organizations", "organization_id", "workspaces"}, ""))
+	pattern_WorkspaceService_CreateWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "organizations", "organization_id", "workspaces"}, ""))
+	pattern_WorkspaceService_UpdateWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "workspaces", "workspace.id"}, ""))
+	pattern_WorkspaceService_DeleteWorkspace_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "workspaces", "id"}, ""))
+	pattern_WorkspaceService_UndeleteWorkspace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "workspaces", "id"}, "undelete"))
 )
 
 var (

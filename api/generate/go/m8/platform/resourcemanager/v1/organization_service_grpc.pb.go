@@ -33,7 +33,7 @@ const (
 //
 // OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
 type OrganizationServiceClient interface {
-	// GetOrganization returns a single organization by resource name.
+	// GetOrganization returns a single organization by ID.
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// ListOrganizations returns a paginated list of organizations.
 	ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsResponse, error)
@@ -41,7 +41,7 @@ type OrganizationServiceClient interface {
 	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// UpdateOrganization updates mutable organization fields.
 	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
-	// DeleteOrganization soft-deletes an organization.
+	// DeleteOrganization soft-deletes an organization by ID.
 	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// UndeleteOrganization restores a previously soft-deleted organization.
 	UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
@@ -121,7 +121,7 @@ func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, in
 //
 // OrganizationService provides standard create, read, update, delete, and undelete operations for organizations.
 type OrganizationServiceServer interface {
-	// GetOrganization returns a single organization by resource name.
+	// GetOrganization returns a single organization by ID.
 	GetOrganization(context.Context, *GetOrganizationRequest) (*Organization, error)
 	// ListOrganizations returns a paginated list of organizations.
 	ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error)
@@ -129,7 +129,7 @@ type OrganizationServiceServer interface {
 	CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error)
 	// UpdateOrganization updates mutable organization fields.
 	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
-	// DeleteOrganization soft-deletes an organization.
+	// DeleteOrganization soft-deletes an organization by ID.
 	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*Organization, error)
 	// UndeleteOrganization restores a previously soft-deleted organization.
 	UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*Organization, error)

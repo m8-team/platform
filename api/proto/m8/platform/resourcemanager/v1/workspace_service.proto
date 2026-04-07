@@ -7,7 +7,6 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/api/resource.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "m8/platform/resourcemanager/v1/workspace.proto";
@@ -16,38 +15,38 @@ option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
 
 // WorkspaceService provides standard create, read, update, delete, and list operations for workspaces.
 service WorkspaceService {
-  // GetWorkspace returns a single workspace by resource name.
+  // GetWorkspace returns a single workspace by ID.
   rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
-    option (google.api.http) = {get: "/v1/{name=organizations/*/workspaces/*}"};
-    option (google.api.method_signature) = "name";
+    option (google.api.http) = {get: "/v1/workspaces/{id}"};
+    option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
-      description: "Returns a single workspace by its resource name."
+      description: "Returns a single workspace by its UUID."
       operation_id: "get"
     };
   }
 
-  // ListWorkspaces returns a paginated list of workspaces under an organization.
+  // ListWorkspaces returns a paginated list of workspaces under an organization ID.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
-    option (google.api.http) = {get: "/v1/{parent=organizations/*}/workspaces"};
-    option (google.api.method_signature) = "parent";
+    option (google.api.http) = {get: "/v1/organizations/{organization_id}/workspaces"};
+    option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
-      description: "Returns a paginated list of workspaces under the specified organization."
+      description: "Returns a paginated list of workspaces under the specified organization UUID."
       operation_id: "list"
     };
   }
 
-  // CreateWorkspace creates a new workspace under an organization.
+  // CreateWorkspace creates a new workspace under an organization ID.
   rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
-      post: "/v1/{parent=organizations/*}/workspaces"
+      post: "/v1/organizations/{organization_id}/workspaces"
       body: "workspace"
     };
-    option (google.api.method_signature) = "parent,workspace,workspace_id";
+    option (google.api.method_signature) = "organization_id,workspace";
     option (gnostic.openapi.v3.operation) = {
       summary: "Create"
-      description: "Creates a new workspace under the specified organization."
+      description: "Creates a new workspace under the specified organization UUID."
       operation_id: "create"
     };
   }
@@ -55,7 +54,7 @@ service WorkspaceService {
   // UpdateWorkspace updates mutable fields on an existing workspace.
   rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
-      patch: "/v1/{workspace.name=organizations/*/workspaces/*}"
+      patch: "/v1/workspaces/{workspace.id}"
       body: "workspace"
     };
     option (google.api.method_signature) = "workspace,update_mask";
@@ -66,24 +65,21 @@ service WorkspaceService {
     };
   }
 
-  // DeleteWorkspace deletes a workspace by resource name.
+  // DeleteWorkspace deletes a workspace by ID.
   rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/{name=organizations/*/workspaces/*}"};
-    option (google.api.method_signature) = "name";
+    option (google.api.http) = {delete: "/v1/workspaces/{id}"};
+    option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
-      description: "Deletes a workspace by its resource name."
+      description: "Deletes a workspace by its UUID."
       operation_id: "delete"
     };
   }
 
   // UndeleteWorkspace restores a previously soft-deleted workspace.
   rpc UndeleteWorkspace(UndeleteWorkspaceRequest) returns (Workspace) {
-    option (google.api.http) = {
-      post: "/v1/{name=organizations/*/workspaces/*}:undelete"
-      body: "*"
-    };
-    option (google.api.method_signature) = "name";
+    option (google.api.http) = {post: "/v1/workspaces/{id}:undelete"};
+    option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted workspace."
@@ -92,41 +88,18 @@ service WorkspaceService {
   }
 }
 
-// GetWorkspaceRequest fetches a single workspace by resource name.
+// GetWorkspaceRequest fetches a single workspace by ID.
 message GetWorkspaceRequest {
-  // Required. The resource name of the workspace to retrieve.
-  // Format: organizations/{organization}/workspaces/{workspace}
-  // The {organization} and {workspace} segments must each be 3 to 63
-  // characters long, start with a lowercase letter, and contain only
-  // lowercase letters, digits, and hyphens.
-  // The full resource name is therefore 32 to 152 characters long.
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "m8.team/Workspace",
-    (buf.validate.field).string = {
-      min_len: 32
-      max_len: 152
-      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
+  // Required. Stable unique identifier of the workspace to retrieve.
+  // The value must be a valid UUID4 string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }
 
-// ListWorkspacesRequest lists workspaces visible under an organization.
+// ListWorkspacesRequest lists workspaces visible under an organization ID.
 message ListWorkspacesRequest {
-  // Required. The parent organization resource name.
-  // Format: organizations/{organization}
-  // The {organization} segment must be 3 to 63 characters long, start with a
-  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
-  // The full parent resource name is therefore 17 to 77 characters long.
-  string parent = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
-    (buf.validate.field).string = {
-      min_len: 17
-      max_len: 77
-      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
+  // Required. Stable unique identifier of the parent organization.
+  // The value must be a valid UUID4 string.
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Optional. The maximum number of workspaces to return.
   // Valid values are in the range 0 to 1000.
@@ -181,56 +154,30 @@ message ListWorkspacesResponse {
 
 // CreateWorkspaceRequest creates a new workspace.
 message CreateWorkspaceRequest {
-  // Required. The parent organization resource name.
-  // Format: organizations/{organization}
-  // The {organization} segment must be 3 to 63 characters long, start with a
-  // lowercase letter, and contain only lowercase letters, digits, and hyphens.
-  // The full parent resource name is therefore 17 to 77 characters long.
-  string parent = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "m8.platform.organization.v1/Organization",
-    (buf.validate.field).string = {
-      min_len: 17
-      max_len: 77
-      pattern: "^organizations/[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
-
-  // Optional. The client-assigned ID to use for the workspace.
-  // This value becomes the final {workspace} segment of the resource name.
-  // The ID must be 3 to 63 characters long, start with a lowercase letter,
-  // and contain only lowercase letters, digits, and hyphens.
-  string workspace_id = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string = {
-      min_len: 3
-      max_len: 63
-      pattern: "^[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
+  // Required. Stable unique identifier of the parent organization.
+  // The value must be a valid UUID4 string.
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Required. The workspace to create.
-  // Client-specified values in `workspace.name`, `workspace.uid`,
+  // Client-specified values in `workspace.id`, `workspace.organization_id`,
   // `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-  // `workspace.delete_time`, and `workspace.purge_time` are ignored.
-  Workspace workspace = 3 [
+  // `workspace.delete_time`, and `workspace.purge_time` are ignored because
+  // the server assigns them.
+  Workspace workspace = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
   // Optional. A caller-provided request ID used to make create retries idempotent.
-  string request_id = 4 [(google.api.field_behavior) = OPTIONAL];
+  string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // UpdateWorkspaceRequest updates mutable fields on an existing workspace.
 message UpdateWorkspaceRequest {
   // Required. The workspace to update.
   //
-  // The `workspace.name` field identifies the resource to update.
-  // Format: organizations/{organization}/workspaces/{workspace}
-  // The {organization} and {workspace} segments must each be 3 to 63
-  // characters long, start with a lowercase letter, and contain only
-  // lowercase letters, digits, and hyphens.
+  // The `workspace.id` field identifies the resource to update and must be a
+  // valid UUID4 string.
   // Output-only fields are ignored except for `etag`, which may be provided for
   // optimistic concurrency control.
   Workspace workspace = 1 [
@@ -249,23 +196,11 @@ message UpdateWorkspaceRequest {
   string request_id = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// DeleteWorkspaceRequest deletes a workspace by resource name.
+// DeleteWorkspaceRequest deletes a workspace by ID.
 message DeleteWorkspaceRequest {
-  // Required. The resource name of the workspace to delete.
-  // Format: organizations/{organization}/workspaces/{workspace}
-  // The {organization} and {workspace} segments must each be 3 to 63
-  // characters long, start with a lowercase letter, and contain only
-  // lowercase letters, digits, and hyphens.
-  // The full resource name is therefore 32 to 152 characters long.
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "m8.team/Workspace",
-    (buf.validate.field).string = {
-      min_len: 32
-      max_len: 152
-      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
+  // Required. Stable unique identifier of the workspace to delete.
+  // The value must be a valid UUID4 string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 
   // Optional. A caller-provided request ID used to make delete retries idempotent.
   string request_id = 2 [(google.api.field_behavior) = OPTIONAL];
@@ -273,19 +208,7 @@ message DeleteWorkspaceRequest {
 
 // UndeleteWorkspaceRequest restores a soft-deleted workspace.
 message UndeleteWorkspaceRequest {
-  // Required. The resource name of the workspace to restore.
-  // Format: organizations/{organization}/workspaces/{workspace}
-  // The {organization} and {workspace} segments must each be 3 to 63
-  // characters long, start with a lowercase letter, and contain only
-  // lowercase letters, digits, and hyphens.
-  // The full resource name is therefore 32 to 152 characters long.
-  string name = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.resource_reference).type = "m8.team/Workspace",
-    (buf.validate.field).string = {
-      min_len: 32
-      max_len: 152
-      pattern: "^organizations/[a-z][a-z0-9-]{2,62}/workspaces/[a-z][a-z0-9-]{2,62}$"
-    }
-  ];
+  // Required. Stable unique identifier of the workspace to restore.
+  // The value must be a valid UUID4 string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
 }

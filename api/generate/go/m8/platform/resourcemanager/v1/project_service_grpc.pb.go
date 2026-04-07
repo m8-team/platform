@@ -34,15 +34,15 @@ const (
 //
 // ProjectService provides standard create, read, update, delete, and list operations for projects.
 type ProjectServiceClient interface {
-	// GetProject returns a single project by resource name.
+	// GetProject returns a single project by ID.
 	GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	// ListProjects returns a paginated list of projects under a workspace.
+	// ListProjects returns a paginated list of projects under a workspace ID.
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
-	// CreateProject creates a new project under a workspace.
+	// CreateProject creates a new project under a workspace ID.
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	// DeleteProject deletes a project by resource name.
+	// DeleteProject deletes a project by ID.
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// UndeleteProject restores a previously soft-deleted project.
 	UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error)
@@ -122,15 +122,15 @@ func (c *projectServiceClient) UndeleteProject(ctx context.Context, in *Undelete
 //
 // ProjectService provides standard create, read, update, delete, and list operations for projects.
 type ProjectServiceServer interface {
-	// GetProject returns a single project by resource name.
+	// GetProject returns a single project by ID.
 	GetProject(context.Context, *GetProjectRequest) (*Project, error)
-	// ListProjects returns a paginated list of projects under a workspace.
+	// ListProjects returns a paginated list of projects under a workspace ID.
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
-	// CreateProject creates a new project under a workspace.
+	// CreateProject creates a new project under a workspace ID.
 	CreateProject(context.Context, *CreateProjectRequest) (*Project, error)
 	// UpdateProject updates mutable fields on an existing project.
 	UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error)
-	// DeleteProject deletes a project by resource name.
+	// DeleteProject deletes a project by ID.
 	DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error)
 	// UndeleteProject restores a previously soft-deleted project.
 	UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error)

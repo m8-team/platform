@@ -7,17 +7,19 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/organizations/{organization}/workspaces:
+    /v1/organizations/{organizationId}/workspaces:
         get:
             tags:
                 - WorkspaceService
             summary: List
-            description: Returns a paginated list of workspaces under the specified organization.
+            description: Returns a paginated list of workspaces under the specified organization UUID.
             operationId: list
             parameters:
-                - name: organization
+                - name: organizationId
                   in: path
-                  description: The organization id.
+                  description: |-
+                    Required. Stable unique identifier of the parent organization.
+                     The value must be a valid UUID4 string.
                   required: true
                   schema:
                     type: string
@@ -67,22 +69,15 @@ paths:
             tags:
                 - WorkspaceService
             summary: Create
-            description: Creates a new workspace under the specified organization.
+            description: Creates a new workspace under the specified organization UUID.
             operationId: create
             parameters:
-                - name: organization
+                - name: organizationId
                   in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-                - name: workspaceId
-                  in: query
                   description: |-
-                    Optional. The client-assigned ID to use for the workspace.
-                     This value becomes the final {workspace} segment of the resource name.
-                     The ID must be 3 to 63 characters long, start with a lowercase letter,
-                     and contain only lowercase letters, digits, and hyphens.
+                    Required. Stable unique identifier of the parent organization.
+                     The value must be a valid UUID4 string.
+                  required: true
                   schema:
                     type: string
                 - name: requestId
@@ -103,23 +98,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Workspace'
-    /v1/organizations/{organization}/workspaces/{workspace}:
+    /v1/workspaces/{id}:
         get:
             tags:
                 - WorkspaceService
             summary: Get
-            description: Returns a single workspace by its resource name.
+            description: Returns a single workspace by its UUID.
             operationId: get
             parameters:
-                - name: organization
+                - name: id
                   in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-                - name: workspace
-                  in: path
-                  description: The workspace id.
+                  description: |-
+                    Required. Stable unique identifier of the workspace to retrieve.
+                     The value must be a valid UUID4 string.
                   required: true
                   schema:
                     type: string
@@ -134,18 +125,14 @@ paths:
             tags:
                 - WorkspaceService
             summary: Delete
-            description: Deletes a workspace by its resource name.
+            description: Deletes a workspace by its UUID.
             operationId: delete
             parameters:
-                - name: organization
+                - name: id
                   in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-                - name: workspace
-                  in: path
-                  description: The workspace id.
+                  description: |-
+                    Required. Stable unique identifier of the workspace to delete.
+                     The value must be a valid UUID4 string.
                   required: true
                   schema:
                     type: string
@@ -158,6 +145,30 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /v1/workspaces/{id}:undelete:
+        post:
+            tags:
+                - WorkspaceService
+            summary: Undelete
+            description: Restores a previously soft-deleted workspace.
+            operationId: undelete
+            parameters:
+                - name: id
+                  in: path
+                  description: |-
+                    Required. Stable unique identifier of the workspace to restore.
+                     The value must be a valid UUID4 string.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Workspace'
+    /v1/workspaces/{workspace.id}:
         patch:
             tags:
                 - WorkspaceService
@@ -165,15 +176,8 @@ paths:
             description: Updates mutable fields of an existing workspace.
             operationId: update
             parameters:
-                - name: organization
+                - name: workspace.id
                   in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-                - name: workspace
-                  in: path
-                  description: The workspace id.
                   required: true
                   schema:
                     type: string
@@ -203,39 +207,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Workspace'
-    /v1/organizations/{organization}/workspaces/{workspace}:undelete:
-        post:
-            tags:
-                - WorkspaceService
-            summary: Undelete
-            description: Restores a previously soft-deleted workspace.
-            operationId: undelete
-            parameters:
-                - name: organization
-                  in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-                - name: workspace
-                  in: path
-                  description: The workspace id.
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UndeleteWorkspaceRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Workspace'
 components:
     schemas:
         ListWorkspacesResponse:
@@ -256,38 +227,22 @@ components:
                     description: The total number of workspaces that match the request.
                     format: int32
             description: ListWorkspacesResponse returns a single page of workspaces.
-        UndeleteWorkspaceRequest:
-            required:
-                - name
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: |-
-                        Required. The resource name of the workspace to restore.
-                         Format: organizations/{organization}/workspaces/{workspace}
-                         The {organization} and {workspace} segments must each be 3 to 63
-                         characters long, start with a lowercase letter, and contain only
-                         lowercase letters, digits, and hyphens.
-                         The full resource name is therefore 32 to 152 characters long.
-            description: UndeleteWorkspaceRequest restores a soft-deleted workspace.
         Workspace:
             type: object
             properties:
-                name:
+                id:
                     type: string
                     description: |-
-                        Identifier. The resource name of the workspace.
-                         Format: organizations/{organization}/workspaces/{workspace}
-                         The {organization} and {workspace} segments must each be 3 to 63
-                         characters long, start with a lowercase letter, and contain only
-                         lowercase letters, digits, and hyphens.
-                uid:
+                        Identifier. Stable unique identifier of the workspace.
+                         The value is generated by the server and is returned as a UUID4 string.
+                         Clients must not provide this field when creating a workspace.
+                organizationId:
                     readOnly: true
                     type: string
                     description: |-
-                        Output only. System-assigned stable unique identifier for the workspace.
-                         The value is generated by the server and is returned as a UUID4 string.
+                        Output only. Stable unique identifier of the parent organization.
+                         The value is set by the server from the create request and is returned as
+                         a UUID4 string. The parent organization of a workspace never changes.
                 state:
                     readOnly: true
                     enum:
@@ -303,10 +258,10 @@ components:
                         Output only. Server-computed lifecycle state of the workspace.
                          The value is always one of the defined non-zero enum values.
                     format: enum
-                displayName:
+                name:
                     type: string
                     description: |-
-                        Optional. Human-readable display name of the workspace.
+                        Optional. Human-readable name of the workspace.
                          The value may be updated by clients and must not exceed 256 characters.
                 description:
                     type: string

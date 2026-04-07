@@ -44,13 +44,13 @@ func request_ProjectService_GetProject_0(ctx context.Context, marshaler runtime.
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := client.GetProject(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -62,19 +62,19 @@ func local_request_ProjectService_GetProject_0(ctx context.Context, marshaler ru
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := server.GetProject(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_ProjectService_ListProjects_0 = &utilities.DoubleArray{Encoding: map[string]int{"parent": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_ProjectService_ListProjects_0 = &utilities.DoubleArray{Encoding: map[string]int{"workspace_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ProjectService_ListProjects_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -85,13 +85,13 @@ func request_ProjectService_ListProjects_0(ctx context.Context, marshaler runtim
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["workspace_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.WorkspaceId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -109,13 +109,13 @@ func local_request_ProjectService_ListProjects_0(ctx context.Context, marshaler 
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["workspace_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.WorkspaceId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -127,7 +127,7 @@ func local_request_ProjectService_ListProjects_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-var filter_ProjectService_CreateProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"project": 0, "parent": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var filter_ProjectService_CreateProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"project": 0, "workspace_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_ProjectService_CreateProject_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -141,13 +141,13 @@ func request_ProjectService_CreateProject_0(ctx context.Context, marshaler runti
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["workspace_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.WorkspaceId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -168,13 +168,13 @@ func local_request_ProjectService_CreateProject_0(ctx context.Context, marshaler
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Project); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["parent"]
+	val, ok := pathParams["workspace_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "parent")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "workspace_id")
 	}
-	protoReq.Parent, err = runtime.String(val)
+	protoReq.WorkspaceId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "parent", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "workspace_id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -186,7 +186,7 @@ func local_request_ProjectService_CreateProject_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-var filter_ProjectService_UpdateProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"project": 0, "name": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
+var filter_ProjectService_UpdateProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"project": 0, "id": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
 
 func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -211,13 +211,13 @@ func request_ProjectService_UpdateProject_0(ctx context.Context, marshaler runti
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-	val, ok := pathParams["project.name"]
+	val, ok := pathParams["project.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -249,13 +249,13 @@ func local_request_ProjectService_UpdateProject_0(ctx context.Context, marshaler
 			protoReq.UpdateMask = fieldMask
 		}
 	}
-	val, ok := pathParams["project.name"]
+	val, ok := pathParams["project.id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "project.id")
 	}
-	err = runtime.PopulateFieldFromPath(&protoReq, "project.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "project.id", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "project.id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -267,7 +267,7 @@ func local_request_ProjectService_UpdateProject_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-var filter_ProjectService_DeleteProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_ProjectService_DeleteProject_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_ProjectService_DeleteProject_0(ctx context.Context, marshaler runtime.Marshaler, client ProjectServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -278,13 +278,13 @@ func request_ProjectService_DeleteProject_0(ctx context.Context, marshaler runti
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -302,13 +302,13 @@ func local_request_ProjectService_DeleteProject_0(ctx context.Context, marshaler
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -326,19 +326,16 @@ func request_ProjectService_UndeleteProject_0(ctx context.Context, marshaler run
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := client.UndeleteProject(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -350,16 +347,13 @@ func local_request_ProjectService_UndeleteProject_0(ctx context.Context, marshal
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["name"]
+	val, ok := pathParams["id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-	protoReq.Name, err = runtime.String(val)
+	protoReq.Id, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 	msg, err := server.UndeleteProject(ctx, &protoReq)
 	return msg, metadata, err
@@ -377,7 +371,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/projects/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -397,7 +391,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/workspaces/*}/projects"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -417,7 +411,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/workspaces/*}/projects"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -437,7 +431,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/{project.name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/projects/{project.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -457,7 +451,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject", runtime.WithHTTPPathPattern("/v1/projects/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -477,7 +471,7 @@ func RegisterProjectServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UndeleteProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}:undelete"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UndeleteProject", runtime.WithHTTPPathPattern("/v1/projects/{id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -535,7 +529,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/GetProject", runtime.WithHTTPPathPattern("/v1/projects/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -552,7 +546,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/workspaces/*}/projects"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/ListProjects", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -569,7 +563,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/{parent=organizations/*/workspaces/*}/projects"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/CreateProject", runtime.WithHTTPPathPattern("/v1/workspaces/{workspace_id}/projects"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -586,7 +580,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/{project.name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UpdateProject", runtime.WithHTTPPathPattern("/v1/projects/{project.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -603,7 +597,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/DeleteProject", runtime.WithHTTPPathPattern("/v1/projects/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -620,7 +614,7 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UndeleteProject", runtime.WithHTTPPathPattern("/v1/{name=organizations/*/workspaces/*/projects/*}:undelete"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ProjectService/UndeleteProject", runtime.WithHTTPPathPattern("/v1/projects/{id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -637,12 +631,12 @@ func RegisterProjectServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_ProjectService_GetProject_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "workspaces", "projects", "name"}, ""))
-	pattern_ProjectService_ListProjects_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "workspaces", "parent", "projects"}, ""))
-	pattern_ProjectService_CreateProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 4, 4, 5, 3, 2, 4}, []string{"v1", "organizations", "workspaces", "parent", "projects"}, ""))
-	pattern_ProjectService_UpdateProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "workspaces", "projects", "project.name"}, ""))
-	pattern_ProjectService_DeleteProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "workspaces", "projects", "name"}, ""))
-	pattern_ProjectService_UndeleteProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 2, 2, 1, 0, 2, 3, 1, 0, 4, 6, 5, 4}, []string{"v1", "organizations", "workspaces", "projects", "name"}, "undelete"))
+	pattern_ProjectService_GetProject_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "projects", "id"}, ""))
+	pattern_ProjectService_ListProjects_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "workspaces", "workspace_id", "projects"}, ""))
+	pattern_ProjectService_CreateProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "workspaces", "workspace_id", "projects"}, ""))
+	pattern_ProjectService_UpdateProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "projects", "project.id"}, ""))
+	pattern_ProjectService_DeleteProject_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "projects", "id"}, ""))
+	pattern_ProjectService_UndeleteProject_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "projects", "id"}, "undelete"))
 )
 
 var (

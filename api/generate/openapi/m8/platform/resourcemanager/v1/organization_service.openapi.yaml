@@ -68,16 +68,6 @@ paths:
             summary: Create
             description: Creates a new organization.
             operationId: create
-            parameters:
-                - name: organizationId
-                  in: query
-                  description: |-
-                    Required. The client-assigned ID to use for the organization.
-                     This value becomes the final {organization} segment of the resource name.
-                     The ID must be 3 to 63 characters long, start with a lowercase letter,
-                     and contain only lowercase letters, digits, and hyphens.
-                  schema:
-                    type: string
             requestBody:
                 content:
                     application/json:
@@ -91,17 +81,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Organization'
-    /v1/organizations/{organization}:
+    /v1/organizations/{id}:
         get:
             tags:
                 - OrganizationService
             summary: Get
-            description: Returns a single organization by its resource name.
+            description: Returns a single organization by its UUID.
             operationId: get
             parameters:
-                - name: organization
+                - name: id
                   in: path
-                  description: The organization id.
+                  description: |-
+                    Required. Stable unique identifier of the organization to retrieve.
+                     The value must be a valid UUID4 string.
                   required: true
                   schema:
                     type: string
@@ -119,9 +111,11 @@ paths:
             description: Soft-deletes an organization.
             operationId: delete
             parameters:
-                - name: organization
+                - name: id
                   in: path
-                  description: The organization id.
+                  description: |-
+                    Required. Stable unique identifier of the organization to delete.
+                     The value must be a valid UUID4 string.
                   required: true
                   schema:
                     type: string
@@ -146,6 +140,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Organization'
+    /v1/organizations/{id}:undelete:
+        post:
+            tags:
+                - OrganizationService
+            summary: Undelete
+            description: Restores a previously soft-deleted organization.
+            operationId: undelete
+            parameters:
+                - name: id
+                  in: path
+                  description: |-
+                    Required. Stable unique identifier of the organization to restore.
+                     The value must be a valid UUID4 string.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Organization'
+    /v1/organizations/{organization.id}:
         patch:
             tags:
                 - OrganizationService
@@ -153,9 +171,8 @@ paths:
             description: Updates mutable fields of an existing organization.
             operationId: update
             parameters:
-                - name: organization
+                - name: organization.id
                   in: path
-                  description: The organization id.
                   required: true
                   schema:
                     type: string
@@ -173,33 +190,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/Organization'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Organization'
-    /v1/organizations/{organization}:undelete:
-        post:
-            tags:
-                - OrganizationService
-            summary: Undelete
-            description: Restores a previously soft-deleted organization.
-            operationId: undelete
-            parameters:
-                - name: organization
-                  in: path
-                  description: The organization id.
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UndeleteOrganizationRequest'
                 required: true
             responses:
                 "200":
@@ -227,20 +217,12 @@ components:
         Organization:
             type: object
             properties:
-                name:
+                id:
                     type: string
                     description: |-
-                        Identifier. The resource name of the organization.
-                         Format: organizations/{organization}
-                         The {organization} segment must be 3 to 63 characters long, start with a
-                         lowercase letter, and contain only lowercase letters, digits, and hyphens.
-                         Examples: organizations/acme, organizations/acme-eu, organizations/platform123.
-                uid:
-                    readOnly: true
-                    type: string
-                    description: |-
-                        Output only. System-assigned stable unique identifier for the organization.
+                        Identifier. Stable unique identifier of the organization.
                          The value is generated by the server and is returned as a UUID4 string.
+                         Clients must not provide this field when creating an organization.
                 state:
                     readOnly: true
                     enum:
@@ -256,10 +238,10 @@ components:
                         Output only. Server-computed lifecycle state of the organization.
                          The value is always one of the defined non-zero enum values.
                     format: enum
-                displayName:
+                name:
                     type: string
                     description: |-
-                        Optional. Human-readable display name of the organization.
+                        Optional. Human-readable name of the organization.
                          The value may be updated by clients and must not exceed 256 characters.
                 description:
                     type: string
@@ -301,19 +283,5 @@ components:
                          Use namespaced keys such as "example.com/key" to avoid collisions between
                          independent producers of annotations.
             description: Organization stores canonical metadata for a top-level organization resource.
-        UndeleteOrganizationRequest:
-            required:
-                - name
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: |-
-                        Required. The resource name of the organization to restore.
-                         Format: organizations/{organization}
-                         The {organization} segment must be 3 to 63 characters long, start with a
-                         lowercase letter, and contain only lowercase letters, digits, and hyphens.
-                         The full resource name is therefore 17 to 77 characters long.
-            description: UndeleteOrganizationRequest restores a soft-deleted organization.
 tags:
     - name: OrganizationService
