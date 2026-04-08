@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/resourcemanager/v1/workspace.proto";
+
+option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
+
+// WorkspaceService provides standard create, read, list, update, soft-delete,
+// and undelete operations for workspaces.
+service WorkspaceService {
+  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete workspaces.";
+
+  // GetWorkspace returns a single workspace by ID.
+  rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {get: "/v1/workspaces/{id}"};
+    option (google.api.method_signature) = "id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get"
+      description: "Returns a single workspace by its UUID."
+      operation_id: "GetWorkspace"
+    };
+  }
+
+  // ListWorkspaces returns a paginated list of workspaces under an organization
+  // ID. In the HTTP API, the parent organization UUID is provided as a query
+  // parameter.
+  rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
+    option (google.api.http) = {get: "/v1/workspaces"};
+    option (google.api.method_signature) = "organization_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "List"
+      description: "Returns a paginated list of workspaces under the specified organization UUID."
+      operation_id: "ListWorkspaces"
+    };
+  }
+
+  // CreateWorkspace creates a new workspace under an organization ID.
+  // In the HTTP API, the parent organization UUID is provided as a query parameter.
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {
+      post: "/v1/workspaces"
+      body: "workspace"
+    };
+    option (google.api.method_signature) = "organization_id,workspace";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Create"
+      description: "Creates a new workspace under the specified organization UUID."
+      operation_id: "CreateWorkspace"
+    };
+  }
+
+  // UpdateWorkspace updates mutable fields on an existing workspace.
+  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {
+      patch: "/v1/workspaces/{workspace.id}"
+      body: "workspace"
+    };
+    option (google.api.method_signature) = "workspace,update_mask";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Update"
+      description: "Updates mutable fields of an existing workspace."
+      operation_id: "UpdateWorkspace"
+    };
+  }
+
+  // DeleteWorkspace soft-deletes a workspace by ID.
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/workspaces/{id}"};
+    option (google.api.method_signature) = "id,etag,allow_missing";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Delete"
+      description: "Soft-deletes a workspace by its UUID."
+      operation_id: "DeleteWorkspace"
+    };
+  }
+
+  // UndeleteWorkspace restores a previously soft-deleted workspace.
+  rpc UndeleteWorkspace(UndeleteWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {post: "/v1/workspaces/{id}:undelete"};
+    option (google.api.method_signature) = "id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Undelete"
+      description: "Restores a previously soft-deleted workspace."
+      operation_id: "UndeleteWorkspace"
+    };
+  }
+}
+
+// GetWorkspaceRequest fetches a single workspace by ID.
+message GetWorkspaceRequest {
+  // Required. Stable unique identifier of the workspace to retrieve.
+  // The value must be a valid UUID string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+}
+
+// ListWorkspacesRequest lists workspaces visible under an organization ID.
+message ListWorkspacesRequest {
+  // Required. Stable unique identifier of the parent organization.
+  // The value must be a valid UUID string.
+  // In the HTTP API, pass this field in the query string.
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+
+  // Optional. The maximum number of workspaces to return.
+  // Valid values are in the range 0 to 1000.
+  // If omitted, the service returns up to 50 workspaces.
+  // The service may return fewer results than requested.
+  int32 page_size = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int32 = {
+      gte: 0
+      lte: 1000
+    }
+  ];
+
+  // Optional. A page token returned by a previous `ListWorkspaces` call.
+  // Use this field to retrieve the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListWorkspaces`
+  // must match the call that produced the page token.
+  // The token must not exceed 1024 characters.
+  string page_token = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-160 compatible filter expression.
+  // The expression must not exceed 1024 characters.
+  string filter = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-132 compatible ordering expression.
+  // The expression must not exceed 128 characters.
+  string order_by = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. If true, soft-deleted workspaces are included in the response.
+  bool show_deleted = 6 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ListWorkspacesResponse returns a single page of workspaces.
+message ListWorkspacesResponse {
+  // Workspaces returned for the current page.
+  repeated Workspace workspaces = 1;
+
+  // Token to retrieve the next page.
+  // This field is empty when there are no more results.
+  string next_page_token = 2;
+
+  // The total number of workspaces that match the request.
+  int32 total_size = 3;
+}
+
+// CreateWorkspaceRequest creates a new workspace.
+message CreateWorkspaceRequest {
+  // Required. Stable unique identifier of the parent organization.
+  // The value must be a valid UUID string.
+  // In the HTTP API, pass this field in the query string.
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+
+  // Required. The workspace to create.
+  // Client-specified values in `workspace.id`, `workspace.organization_id`,
+  // `workspace.state`, `workspace.create_time`, `workspace.update_time`,
+  // `workspace.delete_time`, `workspace.purge_time`, and `workspace.etag`
+  // must not be set by the client. The server assigns those fields.
+  Workspace workspace = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+// UpdateWorkspaceRequest updates mutable fields on an existing workspace.
+message UpdateWorkspaceRequest {
+  // Required. The workspace to update.
+  //
+  // The `workspace.id` field identifies the resource to update and must be a
+  // valid UUID string. The identifier is immutable and cannot be changed.
+  // Output-only fields are ignored except for `etag`, which may be provided for
+  // optimistic concurrency control.
+  Workspace workspace = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Required. The field mask that selects which mutable fields to update.
+  // Paths in the mask should refer only to fields that clients are allowed to modify.
+  google.protobuf.FieldMask update_mask = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+// DeleteWorkspaceRequest soft-deletes a workspace by ID.
+message DeleteWorkspaceRequest {
+  // Required. Stable unique identifier of the workspace to delete.
+  // The value must be a valid UUID string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+
+  // Optional. The etag of the workspace.
+  // If provided, the value must exactly match the current server-side etag.
+  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. If true, the request succeeds even if the workspace does not
+  // exist or has already been soft-deleted.
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// UndeleteWorkspaceRequest restores a soft-deleted workspace.
+message UndeleteWorkspaceRequest {
+  // Required. Stable unique identifier of the workspace to restore.
+  // The value must be a valid UUID string.
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+}

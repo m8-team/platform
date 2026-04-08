@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package m8.platform.extension.v1;
+
+option go_package = "m8/platform/extension/v1;extension";
+
+import "google/protobuf/descriptor.proto";
+
+// topic declares the Kafka topic that receives aggregate change events for a message.
+extend google.protobuf.MessageOptions {
+  string topic = 50001;
+}
+
+// description declares a human-readable service description for generated documentation.
+extend google.protobuf.ServiceOptions {
+  string description = 50002;
+}

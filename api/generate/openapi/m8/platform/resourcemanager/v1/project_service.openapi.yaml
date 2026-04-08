@@ -1,0 +1,313 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /v1/projects:
+        get:
+            tags:
+                - ProjectService
+            summary: List
+            description: Returns a paginated list of projects under the specified workspace UUID.
+            operationId: ListProjects
+            parameters:
+                - name: workspaceId
+                  in: query
+                  description: |-
+                    Required. Stable unique identifier of the parent workspace.
+                     The value must be a valid UUID string.
+                     In the HTTP API, pass this field in the query string.
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  description: |-
+                    Optional. The maximum number of projects to return.
+                     Valid values are in the range 0 to 1000.
+                     If omitted, the service returns up to 50 projects.
+                     The service may return fewer results than requested.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  description: |-
+                    Optional. A page token returned by a previous `ListProjects` call.
+                     Use this field to retrieve the next page of results.
+
+                     When paginating, all other parameters provided to `ListProjects`
+                     must match the call that produced the page token.
+                     The token must not exceed 1024 characters.
+                  schema:
+                    type: string
+                - name: filter
+                  in: query
+                  description: |-
+                    Optional. AIP-160 compatible filter expression.
+                     The expression must not exceed 1024 characters.
+                  schema:
+                    type: string
+                - name: orderBy
+                  in: query
+                  description: |-
+                    Optional. AIP-132 compatible ordering expression.
+                     The expression must not exceed 128 characters.
+                  schema:
+                    type: string
+                - name: showDeleted
+                  in: query
+                  description: Optional. If true, soft-deleted projects are included in the response.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListProjectsResponse'
+        post:
+            tags:
+                - ProjectService
+            summary: Create
+            description: Creates a new project under the specified workspace UUID.
+            operationId: CreateProject
+            parameters:
+                - name: workspaceId
+                  in: query
+                  description: |-
+                    Required. Stable unique identifier of the parent workspace.
+                     The value must be a valid UUID string.
+                     In the HTTP API, pass this field in the query string.
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Project'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
+    /v1/projects/{id}:
+        get:
+            tags:
+                - ProjectService
+            summary: Get
+            description: Returns a single project by its UUID.
+            operationId: GetProject
+            parameters:
+                - name: id
+                  in: path
+                  description: |-
+                    Required. Stable unique identifier of the project to retrieve.
+                     The value must be a valid UUID string.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
+        delete:
+            tags:
+                - ProjectService
+            summary: Delete
+            description: Soft-deletes a project by its UUID.
+            operationId: DeleteProject
+            parameters:
+                - name: id
+                  in: path
+                  description: |-
+                    Required. Stable unique identifier of the project to delete.
+                     The value must be a valid UUID string.
+                  required: true
+                  schema:
+                    type: string
+                - name: etag
+                  in: query
+                  description: |-
+                    Optional. The etag of the project.
+                     If provided, the value must exactly match the current server-side etag.
+                  schema:
+                    type: string
+                - name: allowMissing
+                  in: query
+                  description: |-
+                    Optional. If true, the request succeeds even if the project does not
+                     exist or has already been soft-deleted.
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /v1/projects/{id}:undelete:
+        post:
+            tags:
+                - ProjectService
+            summary: Undelete
+            description: Restores a previously soft-deleted project.
+            operationId: UndeleteProject
+            parameters:
+                - name: id
+                  in: path
+                  description: |-
+                    Required. Stable unique identifier of the project to restore.
+                     The value must be a valid UUID string.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
+    /v1/projects/{project.id}:
+        patch:
+            tags:
+                - ProjectService
+            summary: Update
+            description: Updates mutable fields of an existing project.
+            operationId: UpdateProject
+            parameters:
+                - name: project.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: updateMask
+                  in: query
+                  description: |-
+                    Required. The field mask that selects which mutable fields to update.
+                     Paths in the mask should refer only to fields that clients are allowed to modify.
+                  schema:
+                    type: string
+                    format: field-mask
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Project'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
+components:
+    schemas:
+        ListProjectsResponse:
+            type: object
+            properties:
+                projects:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Project'
+                    description: Projects returned for the current page.
+                nextPageToken:
+                    type: string
+                    description: |-
+                        Token to retrieve the next page.
+                         This field is empty when there are no more results.
+                totalSize:
+                    type: integer
+                    description: The total number of projects that match the request.
+                    format: int32
+            description: ListProjectsResponse returns a single page of projects.
+        Project:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: |-
+                        Identifier. Stable unique identifier of the project.
+                         The value is generated by the server and is returned as a UUID string.
+                         The value is immutable after creation.
+                         Clients must not provide this field when creating a project.
+                workspaceId:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. Stable unique identifier of the parent workspace.
+                         The value is set by the server from the create request and is returned as
+                         a UUID string. The parent workspace of a project never changes.
+                state:
+                    readOnly: true
+                    enum:
+                        - STATE_UNSPECIFIED
+                        - CREATING
+                        - ACTIVE
+                        - ARCHIVED
+                        - DELETING
+                        - DELETED
+                        - FAILED
+                    type: string
+                    description: |-
+                        Output only. Server-computed lifecycle state of the project.
+                         The value is always one of the defined non-zero enum values.
+                    format: enum
+                name:
+                    type: string
+                    description: |-
+                        Optional. Human-readable name of the project.
+                         The value may be updated by clients and must not exceed 256 characters.
+                description:
+                    type: string
+                    description: |-
+                        Optional. Free-form description of the project.
+                         The value may be updated by clients and must not exceed 1024 characters.
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the project was created.
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the project was most recently updated.
+                    format: date-time
+                deleteTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the project was soft-deleted.
+                    format: date-time
+                purgeTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the soft-deleted project is scheduled to be purged.
+                    format: date-time
+                etag:
+                    type: string
+                    description: |-
+                        Optional. Opaque concurrency token for the project.
+                         If this value is provided on update or delete, it must exactly match the
+                         current server-side etag or the request is rejected. Clients must not set
+                         this field when creating a project.
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Optional. Client-provided metadata for tooling and integrations.
+                         Use namespaced keys such as "example.com/key" to avoid collisions between
+                         independent producers of annotations.
+            description: Project stores canonical metadata for a project resource within a workspace.
+tags:
+    - name: ProjectService

@@ -1,0 +1,66 @@
+title: M8 Platform Docs
+href: index.md
+items:
+  - name: Сервисы
+    items:
+      - name: Resource Manager
+        href: services/resource-manager/index.md
+        items:
+          - name: Управление доступом
+            href: services/resource-manager/access-management.md
+          - name: Справочник API
+            items:
+              - name: Аутентификация
+                href: services/resource-manager/api-reference/authentication.md
+              - name: REST
+                items:
+                  - name: Overview
+                    href: services/resource-manager/api-reference/rest/index.md
+                  - name: Organization
+                    include:
+                      path: services/resource-manager/api-reference/rest/organization
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/resourcemanager/organization-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
+                  - name: Workspace
+                    include:
+                      path: services/resource-manager/api-reference/rest/workspace
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/resourcemanager/workspace-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
+                  - name: Project
+                    include:
+                      path: services/resource-manager/api-reference/rest/project
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/resourcemanager/project-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
