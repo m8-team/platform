@@ -1,24 +1,10 @@
 package grpcadapter
 
 import (
-	"context"
 	"slices"
 
 	resourcemanagerv1 "m8/platform/resourcemanager/v1"
-
-	"github.com/m8platform/platform/internal/platform/middleware"
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/requestmeta"
 )
-
-func requestMetadata(ctx context.Context) requestmeta.RequestMetadata {
-	meta := middleware.FromGRPCContext(ctx)
-	return requestmeta.RequestMetadata{
-		Actor:          meta.Actor,
-		CorrelationID:  meta.CorrelationID,
-		CausationID:    meta.CausationID,
-		IdempotencyKey: meta.IdempotencyKey,
-	}
-}
 
 func cloneMap(input map[string]string) map[string]string {
 	if input == nil {

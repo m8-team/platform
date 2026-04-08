@@ -3,29 +3,11 @@ package organizationcommand
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	organizationentity "github.com/m8platform/platform/internal/entity/resourcemanager/organization"
 	usecasecommon "github.com/m8platform/platform/internal/usecase/resourcemanager/common"
 	organizationboundary "github.com/m8platform/platform/internal/usecase/resourcemanager/organization/boundary"
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/requestmeta"
 )
-
-type MetadataValidator interface {
-	Validate(requestmeta.RequestMetadata) error
-}
-
-type RequiredMetadataValidator struct{}
-
-func (RequiredMetadataValidator) Validate(metadata requestmeta.RequestMetadata) error {
-	if strings.TrimSpace(metadata.Actor) == "" {
-		return fmt.Errorf("%w: actor is required", usecasecommon.ErrInvalidInput)
-	}
-	if strings.TrimSpace(metadata.CorrelationID) == "" {
-		return fmt.Errorf("%w: correlation_id is required", usecasecommon.ErrInvalidInput)
-	}
-	return nil
-}
 
 type UpdateInputValidator interface {
 	Validate(organizationboundary.UpdateOrganizationInput) error

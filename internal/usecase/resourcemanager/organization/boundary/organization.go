@@ -3,8 +3,6 @@ package organizationboundary
 import (
 	"context"
 	"time"
-
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/requestmeta"
 )
 
 type Organization struct {
@@ -21,7 +19,6 @@ type Organization struct {
 }
 
 type CreateOrganizationInput struct {
-	Metadata    requestmeta.RequestMetadata
 	Name        string
 	Description string
 	Annotations map[string]string
@@ -32,7 +29,6 @@ type CreateOrganizationOutput struct {
 }
 
 type UpdateOrganizationInput struct {
-	Metadata    requestmeta.RequestMetadata
 	ID          string
 	ETag        string
 	UpdateMask  []string
@@ -46,7 +42,6 @@ type UpdateOrganizationOutput struct {
 }
 
 type DeleteOrganizationInput struct {
-	Metadata     requestmeta.RequestMetadata
 	ID           string
 	ETag         string
 	AllowMissing bool
@@ -55,8 +50,7 @@ type DeleteOrganizationInput struct {
 type DeleteOrganizationOutput struct{}
 
 type UndeleteOrganizationInput struct {
-	Metadata requestmeta.RequestMetadata
-	ID       string
+	ID string
 }
 
 type UndeleteOrganizationOutput struct {

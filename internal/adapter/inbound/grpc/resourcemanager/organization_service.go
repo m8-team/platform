@@ -45,7 +45,6 @@ func (s OrganizationServiceServer) ListOrganizations(ctx context.Context, req *r
 func (s OrganizationServiceServer) CreateOrganization(ctx context.Context, req *resourcemanagerv1.CreateOrganizationRequest) (*resourcemanagerv1.Organization, error) {
 	resource := req.GetOrganization()
 	output, err := s.Commands.CreateOrganization(ctx, organizationboundary.CreateOrganizationInput{
-		Metadata:    requestMetadata(ctx),
 		Name:        resource.GetName(),
 		Description: resource.GetDescription(),
 		Annotations: cloneMap(resource.GetAnnotations()),
@@ -60,7 +59,6 @@ func (s OrganizationServiceServer) UpdateOrganization(ctx context.Context, req *
 	resource := req.GetOrganization()
 	mask := fieldMaskPaths(req)
 	output, err := s.Commands.UpdateOrganization(ctx, organizationboundary.UpdateOrganizationInput{
-		Metadata:    requestMetadata(ctx),
 		ID:          resource.GetId(),
 		ETag:        resource.GetEtag(),
 		UpdateMask:  mask,
@@ -76,7 +74,6 @@ func (s OrganizationServiceServer) UpdateOrganization(ctx context.Context, req *
 
 func (s OrganizationServiceServer) DeleteOrganization(ctx context.Context, req *resourcemanagerv1.DeleteOrganizationRequest) (*emptypb.Empty, error) {
 	_, err := s.Commands.DeleteOrganization(ctx, organizationboundary.DeleteOrganizationInput{
-		Metadata:     requestMetadata(ctx),
 		ID:           req.GetId(),
 		ETag:         req.GetEtag(),
 		AllowMissing: req.GetAllowMissing(),
@@ -89,8 +86,7 @@ func (s OrganizationServiceServer) DeleteOrganization(ctx context.Context, req *
 
 func (s OrganizationServiceServer) UndeleteOrganization(ctx context.Context, req *resourcemanagerv1.UndeleteOrganizationRequest) (*resourcemanagerv1.Organization, error) {
 	output, err := s.Commands.UndeleteOrganization(ctx, organizationboundary.UndeleteOrganizationInput{
-		Metadata: requestMetadata(ctx),
-		ID:       req.GetId(),
+		ID: req.GetId(),
 	})
 	if err != nil {
 		return nil, grpcpresenter.PresentError(err)

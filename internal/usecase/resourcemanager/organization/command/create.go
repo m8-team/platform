@@ -21,7 +21,7 @@ type CreateInteractor struct {
 
 func (i CreateInteractor) Execute(ctx context.Context, input organizationboundary.CreateOrganizationInput) (organizationboundary.CreateOrganizationOutput, error) {
 	var output organizationboundary.CreateOrganizationOutput
-	err := i.Executor.Execute(ctx, "CreateOrganization", input.Metadata.IdempotencyKey, func(ctx context.Context) error {
+	err := i.Executor.Execute(ctx, "CreateOrganization", "", func(ctx context.Context) error {
 		now := i.Clock.Now().UTC()
 		entity, err := organizationentity.New(organizationentity.CreateParams{
 			ID:          i.UUIDGenerator.NewString(),
@@ -40,7 +40,6 @@ func (i CreateInteractor) Execute(ctx context.Context, input organizationboundar
 
 		record, err := usecasecommon.NewOutboxRecord(
 			i.UUIDGenerator,
-			input.Metadata,
 			organizationentity.EventCreated,
 			"organization",
 			entity.ID,

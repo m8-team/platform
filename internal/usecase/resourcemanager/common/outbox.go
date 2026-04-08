@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/m8platform/platform/internal/usecase/resourcemanager/port"
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/requestmeta"
 )
 
 const (
@@ -28,7 +27,6 @@ func WriteOutboxRecord(
 
 func NewOutboxRecord(
 	uuid port.UUIDGenerator,
-	metadata requestmeta.RequestMetadata,
 	eventType string,
 	aggregateType string,
 	aggregateID string,
@@ -55,10 +53,6 @@ func NewOutboxRecord(
 		AggregateID:       aggregateID,
 		ParentAggregateID: parentAggregateID,
 		OccurredAt:        occurredAt.UTC(),
-		Actor:             metadata.Actor,
-		CorrelationID:     metadata.CorrelationID,
-		CausationID:       metadata.CausationID,
-		IdempotencyKey:    metadata.IdempotencyKey,
 		ETagOrRevision:    etag,
 		Payload:           body,
 	}, nil

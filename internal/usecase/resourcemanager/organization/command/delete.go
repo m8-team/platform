@@ -24,7 +24,7 @@ type DeleteInteractor struct {
 }
 
 func (i DeleteInteractor) Execute(ctx context.Context, input organizationboundary.DeleteOrganizationInput) (organizationboundary.DeleteOrganizationOutput, error) {
-	err := i.Executor.Execute(ctx, "DeleteOrganization:"+input.ID, input.Metadata.IdempotencyKey, func(ctx context.Context) error {
+	err := i.Executor.Execute(ctx, "DeleteOrganization:"+input.ID, "", func(ctx context.Context) error {
 		entity, err := i.Reader.GetByID(ctx, input.ID, true)
 		if err != nil {
 			if input.AllowMissing && errors.Is(err, organizationentity.ErrNotFound) {
@@ -49,7 +49,7 @@ func (i DeleteInteractor) Execute(ctx context.Context, input organizationboundar
 			return fmt.Errorf("persist organization delete: %w", err)
 		}
 
-		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, input.Metadata, organizationentity.EventDeleted, "organization", entity.ID, "", entity.ETag.String(), now, entity)
+		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, organizationentity.EventDeleted, "organization", entity.ID, "", entity.ETag.String(), now, entity)
 		if err != nil {
 			return err
 		}

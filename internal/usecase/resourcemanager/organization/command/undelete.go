@@ -22,7 +22,7 @@ type UndeleteInteractor struct {
 
 func (i UndeleteInteractor) Execute(ctx context.Context, input organizationboundary.UndeleteOrganizationInput) (organizationboundary.UndeleteOrganizationOutput, error) {
 	var output organizationboundary.UndeleteOrganizationOutput
-	err := i.Executor.Execute(ctx, "UndeleteOrganization:"+input.ID, input.Metadata.IdempotencyKey, func(ctx context.Context) error {
+	err := i.Executor.Execute(ctx, "UndeleteOrganization:"+input.ID, "", func(ctx context.Context) error {
 		entity, err := i.Reader.GetByID(ctx, input.ID, true)
 		if err != nil {
 			return fmt.Errorf("load organization: %w", err)
@@ -36,7 +36,7 @@ func (i UndeleteInteractor) Execute(ctx context.Context, input organizationbound
 			return fmt.Errorf("persist organization undelete: %w", err)
 		}
 
-		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, input.Metadata, organizationentity.EventUndeleted, "organization", entity.ID, "", entity.ETag.String(), now, entity)
+		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, organizationentity.EventUndeleted, "organization", entity.ID, "", entity.ETag.String(), now, entity)
 		if err != nil {
 			return err
 		}

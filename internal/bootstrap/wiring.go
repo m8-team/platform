@@ -93,7 +93,6 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:         clock,
 			UUIDGenerator: uuidGenerator,
 		},
-		MetadataValidator: organizationcmd.RequiredMetadataValidator{},
 	}
 	orgQueries := organizationqry.QueryService{
 		GetHandler:  organizationqry.GetInteractor{Reader: orgRepository},

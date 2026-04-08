@@ -23,7 +23,7 @@ type UpdateInteractor struct {
 
 func (i UpdateInteractor) Execute(ctx context.Context, input organizationboundary.UpdateOrganizationInput) (organizationboundary.UpdateOrganizationOutput, error) {
 	var output organizationboundary.UpdateOrganizationOutput
-	err := i.Executor.Execute(ctx, "UpdateOrganization:"+input.ID, input.Metadata.IdempotencyKey, func(ctx context.Context) error {
+	err := i.Executor.Execute(ctx, "UpdateOrganization:"+input.ID, "", func(ctx context.Context) error {
 		if i.InputValidator != nil {
 			if err := i.InputValidator.Validate(input); err != nil {
 				return err
@@ -54,7 +54,7 @@ func (i UpdateInteractor) Execute(ctx context.Context, input organizationboundar
 			return fmt.Errorf("update organization: %w", err)
 		}
 
-		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, input.Metadata, organizationentity.EventUpdated, "organization", entity.ID, "", entity.ETag.String(), now, entity)
+		record, err := usecasecommon.NewOutboxRecord(i.UUIDGenerator, organizationentity.EventUpdated, "organization", entity.ID, "", entity.ETag.String(), now, entity)
 		if err != nil {
 			return err
 		}
