@@ -8,12 +8,8 @@ import (
 
 func New(
 	organizationServer grpcadapter.OrganizationServiceServer,
-	workspaceServer grpcadapter.WorkspaceServiceServer,
-	projectServer grpcadapter.ProjectServiceServer,
 ) *grpc.Server {
 	server := grpc.NewServer()
 	resourcemanagerv1.RegisterOrganizationServiceServer(server, organizationServer)
-	resourcemanagerv1.RegisterWorkspaceServiceServer(server, workspaceServer)
-	resourcemanagerv1.RegisterProjectServiceServer(server, projectServer)
 	return server
 }

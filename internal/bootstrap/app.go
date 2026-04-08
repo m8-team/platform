@@ -17,6 +17,4 @@ type App struct {
 	HTTPServer         *http.Server
 	OutboxDispatcher   outbox.Dispatcher
 	OrganizationServer grpcadapter.OrganizationServiceServer
-	WorkspaceServer    grpcadapter.WorkspaceServiceServer
-	ProjectServer      grpcadapter.ProjectServiceServer
 }

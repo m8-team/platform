@@ -7,37 +7,21 @@ import (
 	"time"
 
 	organizationentity "github.com/m8platform/platform/internal/entity/resourcemanager/organization"
-	projectentity "github.com/m8platform/platform/internal/entity/resourcemanager/project"
 	"github.com/m8platform/platform/internal/entity/resourcemanager/shared"
-	workspaceentity "github.com/m8platform/platform/internal/entity/resourcemanager/workspace"
 )
 
 type Store struct {
 	mu            sync.RWMutex
 	organizations map[string]organizationentity.Entity
-	workspaces    map[string]workspaceentity.Entity
-	projects      map[string]projectentity.Entity
 }
 
 func NewStore() *Store {
 	return &Store{
 		organizations: make(map[string]organizationentity.Entity),
-		workspaces:    make(map[string]workspaceentity.Entity),
-		projects:      make(map[string]projectentity.Entity),
 	}
 }
 
 func cloneOrganization(entity organizationentity.Entity) organizationentity.Entity {
-	entity.Annotations = shared.CloneMetadata(entity.Annotations)
-	return entity
-}
-
-func cloneWorkspace(entity workspaceentity.Entity) workspaceentity.Entity {
-	entity.Annotations = shared.CloneMetadata(entity.Annotations)
-	return entity
-}
-
-func cloneProject(entity projectentity.Entity) projectentity.Entity {
 	entity.Annotations = shared.CloneMetadata(entity.Annotations)
 	return entity
 }

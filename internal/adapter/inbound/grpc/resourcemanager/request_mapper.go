@@ -38,20 +38,6 @@ func fieldMaskPaths(mask *resourcemanagerv1.UpdateOrganizationRequest) []string 
 	return append([]string(nil), mask.GetUpdateMask().GetPaths()...)
 }
 
-func fieldMaskPathsWorkspace(mask *resourcemanagerv1.UpdateWorkspaceRequest) []string {
-	if mask.GetUpdateMask() == nil {
-		return nil
-	}
-	return append([]string(nil), mask.GetUpdateMask().GetPaths()...)
-}
-
-func fieldMaskPathsProject(mask *resourcemanagerv1.UpdateProjectRequest) []string {
-	if mask.GetUpdateMask() == nil {
-		return nil
-	}
-	return append([]string(nil), mask.GetUpdateMask().GetPaths()...)
-}
-
 func optionalString(mask []string, path string, value string) *string {
 	if !slices.Contains(mask, path) {
 		return nil
