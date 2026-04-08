@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/m8platform/platform/internal/entities/resourcemanager/hierarchy"
+	"github.com/m8platform/platform/internal/entity/resourcemanager/hierarchy"
 )
 
 func TestDeletePolicyEnsureAllowed(t *testing.T) {

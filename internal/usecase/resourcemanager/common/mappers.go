@@ -1,29 +1,13 @@
 package common
 
 import (
-	"github.com/m8platform/platform/internal/entities/resourcemanager/organization"
-	"github.com/m8platform/platform/internal/entities/resourcemanager/project"
-	"github.com/m8platform/platform/internal/entities/resourcemanager/workspace"
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/boundaries"
+	"github.com/m8platform/platform/internal/entity/resourcemanager/project"
+	"github.com/m8platform/platform/internal/entity/resourcemanager/workspace"
+	"github.com/m8platform/platform/internal/usecase/resourcemanager/boundary"
 )
 
-func OrganizationToBoundary(entity organization.Entity) boundaries.Organization {
-	return boundaries.Organization{
-		ID:          entity.ID,
-		State:       string(entity.State),
-		Name:        entity.Name,
-		Description: entity.Description,
-		CreateTime:  entity.CreateTime,
-		UpdateTime:  entity.UpdateTime,
-		DeleteTime:  entity.DeleteTime,
-		PurgeTime:   entity.PurgeTime,
-		ETag:        entity.ETag.String(),
-		Annotations: cloneMap(entity.Annotations),
-	}
-}
-
-func WorkspaceToBoundary(entity workspace.Entity) boundaries.Workspace {
-	return boundaries.Workspace{
+func WorkspaceToBoundary(entity workspace.Entity) boundary.Workspace {
+	return boundary.Workspace{
 		ID:             entity.ID,
 		OrganizationID: entity.OrganizationID,
 		State:          string(entity.State),
@@ -38,8 +22,8 @@ func WorkspaceToBoundary(entity workspace.Entity) boundaries.Workspace {
 	}
 }
 
-func ProjectToBoundary(entity project.Entity) boundaries.Project {
-	return boundaries.Project{
+func ProjectToBoundary(entity project.Entity) boundary.Project {
+	return boundary.Project{
 		ID:          entity.ID,
 		WorkspaceID: entity.WorkspaceID,
 		State:       string(entity.State),

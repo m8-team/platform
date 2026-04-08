@@ -5,33 +5,33 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/ports"
+	"github.com/m8platform/platform/internal/usecase/resourcemanager/port"
 )
 
 func ReserveIdempotency(
 	ctx context.Context,
-	store ports.IdempotencyStore,
+	store port.IdempotencyStore,
 	scope string,
 	key string,
 	ttl time.Duration,
-) (ports.IdempotencyReservation, error) {
+) (port.IdempotencyReservation, error) {
 	if store == nil || key == "" {
-		return ports.IdempotencyReservation{}, nil
+		return port.IdempotencyReservation{}, nil
 	}
 	reservation, err := store.Reserve(ctx, scope, key, ttl)
 	if err != nil {
-		return ports.IdempotencyReservation{}, fmt.Errorf("reserve idempotency key: %w", err)
+		return port.IdempotencyReservation{}, fmt.Errorf("reserve idempotency key: %w", err)
 	}
 	if reservation.Duplicate {
-		return ports.IdempotencyReservation{}, ErrDuplicateRequest
+		return port.IdempotencyReservation{}, ErrDuplicateRequest
 	}
 	return reservation, nil
 }
 
 func CompleteIdempotency(
 	ctx context.Context,
-	store ports.IdempotencyStore,
-	reservation ports.IdempotencyReservation,
+	store port.IdempotencyStore,
+	reservation port.IdempotencyReservation,
 ) error {
 	if store == nil || reservation.Key == "" {
 		return nil

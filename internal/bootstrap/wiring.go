@@ -3,15 +3,15 @@ package bootstrap
 import (
 	"context"
 
-	grpcadapter "github.com/m8platform/platform/internal/adapters/inbound/grpc/resourcemanager"
-	httpadapter "github.com/m8platform/platform/internal/adapters/inbound/http"
-	eventadapter "github.com/m8platform/platform/internal/adapters/outbound/events"
-	"github.com/m8platform/platform/internal/adapters/outbound/filtering"
-	"github.com/m8platform/platform/internal/adapters/outbound/idempotency"
-	"github.com/m8platform/platform/internal/adapters/outbound/ordering"
-	"github.com/m8platform/platform/internal/adapters/outbound/outbox"
-	"github.com/m8platform/platform/internal/adapters/outbound/postgres/resourcemanager"
-	grpcpresenter "github.com/m8platform/platform/internal/adapters/presenters/grpc/resourcemanager"
+	grpcadapter "github.com/m8platform/platform/internal/adapter/inbound/grpc/resourcemanager"
+	httpadapter "github.com/m8platform/platform/internal/adapter/inbound/http"
+	eventadapter "github.com/m8platform/platform/internal/adapter/outbound/events"
+	"github.com/m8platform/platform/internal/adapter/outbound/filtering"
+	"github.com/m8platform/platform/internal/adapter/outbound/idempotency"
+	"github.com/m8platform/platform/internal/adapter/outbound/ordering"
+	"github.com/m8platform/platform/internal/adapter/outbound/outbox"
+	"github.com/m8platform/platform/internal/adapter/outbound/postgres/resourcemanager"
+	grpcpresenter "github.com/m8platform/platform/internal/adapter/presenters/grpc/resourcemanager"
 	"github.com/m8platform/platform/internal/domainservices/resourcemanager"
 	"github.com/m8platform/platform/internal/frameworks/broker"
 	"github.com/m8platform/platform/internal/frameworks/config"
@@ -20,12 +20,12 @@ import (
 	"github.com/m8platform/platform/internal/frameworks/httpserver"
 	"github.com/m8platform/platform/internal/frameworks/telemetry"
 	"github.com/m8platform/platform/internal/platform"
-	organizationcmd "github.com/m8platform/platform/internal/usecase/resourcemanager/commands/organization"
-	projectcmd "github.com/m8platform/platform/internal/usecase/resourcemanager/commands/project"
-	workspacecmd "github.com/m8platform/platform/internal/usecase/resourcemanager/commands/workspace"
-	organizationqry "github.com/m8platform/platform/internal/usecase/resourcemanager/queries/organization"
-	projectqry "github.com/m8platform/platform/internal/usecase/resourcemanager/queries/project"
-	workspaceqry "github.com/m8platform/platform/internal/usecase/resourcemanager/queries/workspace"
+	projectcommand "github.com/m8platform/platform/internal/usecase/resourcemanager/command/project"
+	workspacecommand "github.com/m8platform/platform/internal/usecase/resourcemanager/command/workspace"
+	organizationcmd "github.com/m8platform/platform/internal/usecase/resourcemanager/organization/command"
+	organizationqry "github.com/m8platform/platform/internal/usecase/resourcemanager/organization/query"
+	projectquery "github.com/m8platform/platform/internal/usecase/resourcemanager/query/project"
+	workspacequery "github.com/m8platform/platform/internal/usecase/resourcemanager/query/workspace"
 )
 
 func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
@@ -56,51 +56,64 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 
 	orgCommands := organizationcmd.CommandService{
 		CreateHandler: organizationcmd.CreateInteractor{
-			TxManager:        txManager,
-			Repository:       orgRepository,
-			IdempotencyStore: idempotencyStore,
-			OutboxWriter:     outboxWriter,
-			Clock:            clock,
-			UUIDGenerator:    uuidGenerator,
+			Executor: organizationcmd.CommandExecutor{
+				TxManager:        txManager,
+				IdempotencyStore: idempotencyStore,
+			},
+			Writer:        orgRepository,
+			OutboxWriter:  outboxWriter,
+			Clock:         clock,
+			UUIDGenerator: uuidGenerator,
 		},
 		UpdateHandler: organizationcmd.UpdateInteractor{
-			TxManager:        txManager,
-			Repository:       orgRepository,
-			IdempotencyStore: idempotencyStore,
-			OutboxWriter:     outboxWriter,
-			Clock:            clock,
-			UUIDGenerator:    uuidGenerator,
+			Executor: organizationcmd.CommandExecutor{
+				TxManager:        txManager,
+				IdempotencyStore: idempotencyStore,
+			},
+			Reader:         orgRepository,
+			Writer:         orgRepository,
+			OutboxWriter:   outboxWriter,
+			Clock:          clock,
+			UUIDGenerator:  uuidGenerator,
+			InputValidator: organizationcmd.UpdateMaskValidator{},
 		},
 		DeleteHandler: organizationcmd.DeleteInteractor{
-			TxManager:        txManager,
-			Repository:       orgRepository,
-			HierarchyReader:  hierarchyReader,
-			DeletePolicy:     deletePolicy,
-			IdempotencyStore: idempotencyStore,
-			OutboxWriter:     outboxWriter,
-			Clock:            clock,
-			UUIDGenerator:    uuidGenerator,
+			Executor: organizationcmd.CommandExecutor{
+				TxManager:        txManager,
+				IdempotencyStore: idempotencyStore,
+			},
+			Reader:          orgRepository,
+			Writer:          orgRepository,
+			HierarchyReader: hierarchyReader,
+			DeletePolicy:    deletePolicy,
+			OutboxWriter:    outboxWriter,
+			Clock:           clock,
+			UUIDGenerator:   uuidGenerator,
 		},
 		UndeleteHandler: organizationcmd.UndeleteInteractor{
-			TxManager:        txManager,
-			Repository:       orgRepository,
-			IdempotencyStore: idempotencyStore,
-			OutboxWriter:     outboxWriter,
-			Clock:            clock,
-			UUIDGenerator:    uuidGenerator,
+			Executor: organizationcmd.CommandExecutor{
+				TxManager:        txManager,
+				IdempotencyStore: idempotencyStore,
+			},
+			Reader:        orgRepository,
+			Writer:        orgRepository,
+			OutboxWriter:  outboxWriter,
+			Clock:         clock,
+			UUIDGenerator: uuidGenerator,
 		},
+		MetadataValidator: organizationcmd.RequiredMetadataValidator{},
 	}
 	orgQueries := organizationqry.QueryService{
-		GetHandler: organizationqry.GetInteractor{Repository: orgRepository},
-		ListHandler: organizationqry.ListInteractor{
-			Repository:      orgRepository,
+		GetHandler:  organizationqry.GetInteractor{Reader: orgRepository},
+		ListHandler: organizationqry.ListInteractor{Reader: orgRepository},
+		ListValidator: organizationqry.QueryValidator{
 			FilterValidator: filterValidator,
 			OrderValidator:  orderValidator,
 		},
 	}
 
-	workspaceCommands := workspacecmd.CommandService{
-		CreateHandler: workspacecmd.CreateInteractor{
+	workspaceCommands := workspacecommand.CommandService{
+		CreateHandler: workspacecommand.CreateInteractor{
 			TxManager:        txManager,
 			Repository:       workspaceRepository,
 			HierarchyReader:  hierarchyReader,
@@ -110,7 +123,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		UpdateHandler: workspacecmd.UpdateInteractor{
+		UpdateHandler: workspacecommand.UpdateInteractor{
 			TxManager:        txManager,
 			Repository:       workspaceRepository,
 			IdempotencyStore: idempotencyStore,
@@ -118,7 +131,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		DeleteHandler: workspacecmd.DeleteInteractor{
+		DeleteHandler: workspacecommand.DeleteInteractor{
 			TxManager:        txManager,
 			Repository:       workspaceRepository,
 			HierarchyReader:  hierarchyReader,
@@ -128,7 +141,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		UndeleteHandler: workspacecmd.UndeleteInteractor{
+		UndeleteHandler: workspacecommand.UndeleteInteractor{
 			TxManager:        txManager,
 			Repository:       workspaceRepository,
 			HierarchyReader:  hierarchyReader,
@@ -139,17 +152,17 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			UUIDGenerator:    uuidGenerator,
 		},
 	}
-	workspaceQueries := workspaceqry.QueryService{
-		GetHandler: workspaceqry.GetInteractor{Repository: workspaceRepository},
-		ListHandler: workspaceqry.ListInteractor{
+	workspaceQueries := workspacequery.QueryService{
+		GetHandler: workspacequery.GetInteractor{Repository: workspaceRepository},
+		ListHandler: workspacequery.ListInteractor{
 			Repository:      workspaceRepository,
 			FilterValidator: filterValidator,
 			OrderValidator:  orderValidator,
 		},
 	}
 
-	projectCommands := projectcmd.CommandService{
-		CreateHandler: projectcmd.CreateInteractor{
+	projectCommands := projectcommand.CommandService{
+		CreateHandler: projectcommand.CreateInteractor{
 			TxManager:        txManager,
 			Repository:       projectRepository,
 			HierarchyReader:  hierarchyReader,
@@ -159,7 +172,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		UpdateHandler: projectcmd.UpdateInteractor{
+		UpdateHandler: projectcommand.UpdateInteractor{
 			TxManager:        txManager,
 			Repository:       projectRepository,
 			IdempotencyStore: idempotencyStore,
@@ -167,7 +180,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		DeleteHandler: projectcmd.DeleteInteractor{
+		DeleteHandler: projectcommand.DeleteInteractor{
 			TxManager:        txManager,
 			Repository:       projectRepository,
 			IdempotencyStore: idempotencyStore,
@@ -175,7 +188,7 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			Clock:            clock,
 			UUIDGenerator:    uuidGenerator,
 		},
-		UndeleteHandler: projectcmd.UndeleteInteractor{
+		UndeleteHandler: projectcommand.UndeleteInteractor{
 			TxManager:        txManager,
 			Repository:       projectRepository,
 			HierarchyReader:  hierarchyReader,
@@ -186,9 +199,9 @@ func NewApp(ctx context.Context, cfg config.Config) (*App, error) {
 			UUIDGenerator:    uuidGenerator,
 		},
 	}
-	projectQueries := projectqry.QueryService{
-		GetHandler: projectqry.GetInteractor{Repository: projectRepository},
-		ListHandler: projectqry.ListInteractor{
+	projectQueries := projectquery.QueryService{
+		GetHandler: projectquery.GetInteractor{Repository: projectRepository},
+		ListHandler: projectquery.ListInteractor{
 			Repository:      projectRepository,
 			FilterValidator: filterValidator,
 			OrderValidator:  orderValidator,

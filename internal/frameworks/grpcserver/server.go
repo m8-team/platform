@@ -1,7 +1,7 @@
 package grpcserver
 
 import (
-	grpcadapter "github.com/m8platform/platform/internal/adapters/inbound/grpc/resourcemanager"
+	grpcadapter "github.com/m8platform/platform/internal/adapter/inbound/grpc/resourcemanager"
 	"google.golang.org/grpc"
 	resourcemanagerv1 "m8/platform/resourcemanager/v1"
 )

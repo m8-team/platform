@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/boundaries"
-	"github.com/m8platform/platform/internal/usecase/resourcemanager/ports"
+	"github.com/m8platform/platform/internal/usecase/resourcemanager/port"
+	"github.com/m8platform/platform/internal/usecase/resourcemanager/requestmeta"
 )
 
 const (
@@ -17,8 +17,8 @@ const (
 
 func WriteOutboxRecord(
 	ctx context.Context,
-	writer ports.OutboxWriter,
-	record ports.OutboxRecord,
+	writer port.OutboxWriter,
+	record port.OutboxRecord,
 ) error {
 	if writer == nil {
 		return nil
@@ -27,8 +27,8 @@ func WriteOutboxRecord(
 }
 
 func NewOutboxRecord(
-	uuid ports.UUIDGenerator,
-	metadata boundaries.RequestMetadata,
+	uuid port.UUIDGenerator,
+	metadata requestmeta.RequestMetadata,
 	eventType string,
 	aggregateType string,
 	aggregateID string,
@@ -36,10 +36,10 @@ func NewOutboxRecord(
 	etag string,
 	occurredAt time.Time,
 	payload any,
-) (ports.OutboxRecord, error) {
+) (port.OutboxRecord, error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
-		return ports.OutboxRecord{}, fmt.Errorf("marshal payload: %w", err)
+		return port.OutboxRecord{}, fmt.Errorf("marshal payload: %w", err)
 	}
 
 	id := ""
@@ -47,7 +47,7 @@ func NewOutboxRecord(
 		id = uuid.NewString()
 	}
 
-	return ports.OutboxRecord{
+	return port.OutboxRecord{
 		ID:                id,
 		EventType:         eventType,
 		EventVersion:      1,

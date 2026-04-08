@@ -1,6 +1,6 @@
 package domainservices
 
-import "github.com/m8platform/platform/internal/entities/resourcemanager/hierarchy"
+import "github.com/m8platform/platform/internal/entity/resourcemanager/hierarchy"
 
 type DeletePolicy struct{}
 

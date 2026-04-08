@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"net/http"
 
-	grpcadapter "github.com/m8platform/platform/internal/adapters/inbound/grpc/resourcemanager"
-	"github.com/m8platform/platform/internal/adapters/outbound/outbox"
+	grpcadapter "github.com/m8platform/platform/internal/adapter/inbound/grpc/resourcemanager"
+	"github.com/m8platform/platform/internal/adapter/outbound/outbox"
 	"github.com/m8platform/platform/internal/frameworks/config"
 	"github.com/m8platform/platform/internal/frameworks/database"
 	"google.golang.org/grpc"
