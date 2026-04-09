@@ -12,7 +12,7 @@ import "google/protobuf/field_mask.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
-option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 // ProjectService provides standard create, read, list, update, soft-delete,
 // and undelete operations for projects.

@@ -7,7 +7,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
 
-option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 // Workspace stores canonical metadata for a workspace resource within an organization.
 message Workspace {

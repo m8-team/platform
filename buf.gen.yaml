@@ -1,12 +1,24 @@
 version: v2
 clean: true
 plugins:
+  - remote: buf.build/connectrpc/go
+    out: api/generate/go
+    opt:
+      - paths=source_relative
   - remote: buf.build/protocolbuffers/go
     out: api/generate/go
+    opt:
+      - paths=source_relative
   - remote: buf.build/grpc/go
     out: api/generate/go
+    opt:
+      - paths=source_relative
   - remote: buf.build/grpc-ecosystem/gateway
     out: api/generate/go
+    opt:
+      - paths=source_relative
+  - remote: buf.build/bufbuild/es:v2.11.0
+    out: api/generate/es
   - remote: buf.build/community/google-gnostic-openapi
     out: api/generate/openapi
     opt:

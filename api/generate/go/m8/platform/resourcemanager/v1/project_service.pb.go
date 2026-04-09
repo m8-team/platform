@@ -9,12 +9,12 @@ package resourcemanager
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -519,7 +519,7 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x89\x01\xdaA\x14workspace_id,project\xbaGR\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\rCreateProject\x82\xd3\xe4\x93\x02\x17:\aproject\"\f/v1/projects\x12\xfb\x01\n" +
 	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x8a\x01\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x02$:\aproject2\x19/v1/projects/{project.id}\x12\xcf\x01\n" +
 	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"p\xdaA\x15id,etag,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02\x13*\x11/v1/projects/{id}\x12\xe6\x01\n" +
-	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"r\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"r\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02\x1c\"\x1a/v1/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_service_proto_rawDescOnce sync.Once
