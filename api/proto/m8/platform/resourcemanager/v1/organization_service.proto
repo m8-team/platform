@@ -42,6 +42,7 @@ service OrganizationService {
 
   // CreateOrganization creates a new organization.
   rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
+    option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
       post: "/v1/organizations"
       body: "organization"
