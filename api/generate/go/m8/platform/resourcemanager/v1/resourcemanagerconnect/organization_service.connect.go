@@ -99,6 +99,7 @@ func NewOrganizationServiceClient(httpClient connect.HTTPClient, baseURL string,
 			httpClient,
 			baseURL+OrganizationServiceCreateOrganizationProcedure,
 			connect.WithSchema(organizationServiceMethods.ByName("CreateOrganization")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		updateOrganization: connect.NewClient[v1.UpdateOrganizationRequest, v1.Organization](
@@ -203,6 +204,7 @@ func NewOrganizationServiceHandler(svc OrganizationServiceHandler, opts ...conne
 		OrganizationServiceCreateOrganizationProcedure,
 		svc.CreateOrganization,
 		connect.WithSchema(organizationServiceMethods.ByName("CreateOrganization")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	organizationServiceUpdateOrganizationHandler := connect.NewUnaryHandler(
