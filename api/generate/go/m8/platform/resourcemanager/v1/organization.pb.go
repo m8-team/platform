@@ -8,11 +8,11 @@ package resourcemanager
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -265,7 +265,7 @@ const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\bDELETING\x10\x04\x12\v\n" +
 	"\aDELETED\x10\x05\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x06:0\x8a\xb5\x18,m8.platform.resourcemanager.organizations.v1B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x06FAILED\x10\x06:0\x8a\xb5\x18,m8.platform.resourcemanager.organizations.v1BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_organization_proto_rawDescOnce sync.Once

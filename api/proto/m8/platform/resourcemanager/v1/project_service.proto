@@ -12,14 +12,14 @@ import "google/protobuf/field_mask.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
-option go_package = "m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// ProjectService provides standard create, read, list, update, soft-delete,
-// and undelete operations for projects.
+// ProjectService manages projects inside workspaces: it lets clients create,
+// read, list, update, archive, and restore them.
 service ProjectService {
   option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete projects.";
 
-  // GetProject returns a single project by ID.
+  // Returns one project by its UUID.
   rpc GetProject(GetProjectRequest) returns (Project) {
     option (google.api.http) = {get: "/v1/projects/{id}"};
     option (google.api.method_signature) = "id";
@@ -30,8 +30,8 @@ service ProjectService {
     };
   }
 
-  // ListProjects returns a paginated list of projects under a workspace ID. In
-  // the HTTP API, the parent workspace UUID is provided as a query parameter.
+  // Returns a page of projects for the specified workspace.
+  // In the HTTP API, the workspace UUID is passed in the query string.
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
     option (google.api.http) = {get: "/v1/projects"};
     option (google.api.method_signature) = "workspace_id";
@@ -42,8 +42,8 @@ service ProjectService {
     };
   }
 
-  // CreateProject creates a new project under a workspace ID.
-  // In the HTTP API, the parent workspace UUID is provided as a query parameter.
+  // Creates a new project inside the specified workspace.
+  // In the HTTP API, the workspace UUID is passed in the query string.
   rpc CreateProject(CreateProjectRequest) returns (Project) {
     option (google.api.http) = {
       post: "/v1/projects"
@@ -57,7 +57,7 @@ service ProjectService {
     };
   }
 
-  // UpdateProject updates mutable fields on an existing project.
+  // Updates the editable fields of an existing project.
   rpc UpdateProject(UpdateProjectRequest) returns (Project) {
     option (google.api.http) = {
       patch: "/v1/projects/{project.id}"
@@ -71,7 +71,7 @@ service ProjectService {
     };
   }
 
-  // DeleteProject soft-deletes a project by ID.
+  // Archives a project without deleting it permanently.
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/projects/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
@@ -82,7 +82,7 @@ service ProjectService {
     };
   }
 
-  // UndeleteProject restores a previously soft-deleted project.
+  // Restores a project that was previously archived.
   rpc UndeleteProject(UndeleteProjectRequest) returns (Project) {
     option (google.api.http) = {post: "/v1/projects/{id}:undelete"};
     option (google.api.method_signature) = "id";
@@ -94,19 +94,25 @@ service ProjectService {
   }
 }
 
-// GetProjectRequest fetches a single project by ID.
+// Request to read one project by UUID.
 message GetProjectRequest {
   // Required. Stable unique identifier of the project to retrieve.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
-// ListProjectsRequest lists projects visible under a workspace ID.
+// Request to list projects in a workspace with pagination and optional filtering.
 message ListProjectsRequest {
   // Required. Stable unique identifier of the parent workspace.
   // The value must be a valid UUID string.
   // In the HTTP API, pass this field in the query string.
-  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string workspace_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 
   // Optional. The maximum number of projects to return.
   // Valid values are in the range 0 to 1000.
@@ -149,7 +155,7 @@ message ListProjectsRequest {
   bool show_deleted = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// ListProjectsResponse returns a single page of projects.
+// One page of projects returned by ListProjects.
 message ListProjectsResponse {
   // Projects returned for the current page.
   repeated Project projects = 1;
@@ -162,12 +168,15 @@ message ListProjectsResponse {
   int32 total_size = 3;
 }
 
-// CreateProjectRequest creates a new project.
+// Request to create a new project in a workspace.
 message CreateProjectRequest {
   // Required. Stable unique identifier of the parent workspace.
   // The value must be a valid UUID string.
   // In the HTTP API, pass this field in the query string.
-  string workspace_id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string workspace_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 
   // Required. The project to create.
   // Client-specified values in `project.id`, `project.workspace_id`,
@@ -180,7 +189,7 @@ message CreateProjectRequest {
   ];
 }
 
-// UpdateProjectRequest updates mutable fields on an existing project.
+// Request to update an existing project.
 message UpdateProjectRequest {
   // Required. The project to update.
   //
@@ -201,11 +210,14 @@ message UpdateProjectRequest {
   ];
 }
 
-// DeleteProjectRequest soft-deletes a project by ID.
+// Request to archive a project by UUID.
 message DeleteProjectRequest {
   // Required. Stable unique identifier of the project to delete.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 
   // Optional. The etag of the project.
   // If provided, the value must exactly match the current server-side etag.
@@ -216,9 +228,12 @@ message DeleteProjectRequest {
   bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// UndeleteProjectRequest restores a soft-deleted project.
+// Request to restore an archived project.
 message UndeleteProjectRequest {
   // Required. Stable unique identifier of the project to restore.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 }

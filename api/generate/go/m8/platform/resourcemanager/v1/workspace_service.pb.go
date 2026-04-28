@@ -9,12 +9,12 @@ package resourcemanager
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetWorkspaceRequest fetches a single workspace by ID.
+// Request to read one workspace by UUID.
 type GetWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to retrieve.
@@ -74,7 +74,7 @@ func (x *GetWorkspaceRequest) GetId() string {
 	return ""
 }
 
-// ListWorkspacesRequest lists workspaces visible under an organization ID.
+// Request to list workspaces in an organization with pagination and optional filtering.
 type ListWorkspacesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
@@ -177,7 +177,7 @@ func (x *ListWorkspacesRequest) GetShowDeleted() bool {
 	return false
 }
 
-// ListWorkspacesResponse returns a single page of workspaces.
+// One page of workspaces returned by ListWorkspaces.
 type ListWorkspacesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Workspaces returned for the current page.
@@ -242,7 +242,7 @@ func (x *ListWorkspacesResponse) GetTotalSize() int32 {
 	return 0
 }
 
-// CreateWorkspaceRequest creates a new workspace.
+// Request to create a new workspace in an organization.
 type CreateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
@@ -303,7 +303,7 @@ func (x *CreateWorkspaceRequest) GetWorkspace() *Workspace {
 	return nil
 }
 
-// UpdateWorkspaceRequest updates mutable fields on an existing workspace.
+// Request to update an existing workspace.
 type UpdateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The workspace to update.
@@ -364,7 +364,7 @@ func (x *UpdateWorkspaceRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteWorkspaceRequest soft-deletes a workspace by ID.
+// Request to archive a workspace by UUID.
 type DeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to delete.
@@ -431,7 +431,7 @@ func (x *DeleteWorkspaceRequest) GetAllowMissing() bool {
 	return false
 }
 
-// UndeleteWorkspaceRequest restores a soft-deleted workspace.
+// Request to restore an archived workspace.
 type UndeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to restore.
@@ -519,7 +519,7 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x99\x01\xdaA\x19organization_id,workspace\xbaGY\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x0fCreateWorkspace\x82\xd3\xe4\x93\x02\x1b:\tworkspace\"\x0e/v1/workspaces\x12\x8d\x02\n" +
 	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"\x96\x01\xdaA\x15workspace,update_mask\xbaGK\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x0fUpdateWorkspace\x82\xd3\xe4\x93\x02*:\tworkspace2\x1d/v1/workspaces/{workspace.id}\x12\xd9\x01\n" +
 	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x16.google.protobuf.Empty\"v\xdaA\x15id,etag,allow_missing\xbaG@\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x0fDeleteWorkspace\x82\xd3\xe4\x93\x02\x15*\x13/v1/workspaces/{id}\x12\xf2\x01\n" +
-	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"x\xdaA\x02id\xbaGL\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\x11UndeleteWorkspace\x82\xd3\xe4\x93\x02\x1e\"\x1c/v1/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"x\xdaA\x02id\xbaGL\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\x11UndeleteWorkspace\x82\xd3\xe4\x93\x02\x1e\"\x1c/v1/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescOnce sync.Once

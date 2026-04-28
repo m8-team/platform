@@ -9,12 +9,12 @@ package resourcemanager
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
-	_ "m8/platform/extension/v1"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetOrganizationRequest fetches a single organization by ID.
+// Request to read one organization by UUID.
 type GetOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to retrieve.
@@ -74,7 +74,7 @@ func (x *GetOrganizationRequest) GetId() string {
 	return ""
 }
 
-// ListOrganizationsRequest lists organizations visible to the caller.
+// Request to list organizations with pagination and optional filtering.
 type ListOrganizationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. The maximum number of organizations to return.
@@ -166,7 +166,7 @@ func (x *ListOrganizationsRequest) GetShowDeleted() bool {
 	return false
 }
 
-// ListOrganizationsResponse returns a single page of organizations.
+// One page of organizations returned by ListOrganizations.
 type ListOrganizationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Organizations returned for the current page.
@@ -231,7 +231,7 @@ func (x *ListOrganizationsResponse) GetTotalSize() int32 {
 	return 0
 }
 
-// CreateOrganizationRequest creates a new organization.
+// Request to create a new organization.
 type CreateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The organization to create.
@@ -282,7 +282,7 @@ func (x *CreateOrganizationRequest) GetOrganization() *Organization {
 	return nil
 }
 
-// UpdateOrganizationRequest updates mutable fields on an existing organization.
+// Request to update an existing organization.
 type UpdateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The organization to update.
@@ -343,7 +343,7 @@ func (x *UpdateOrganizationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteOrganizationRequest soft-deletes an organization by ID.
+// Request to archive an organization by UUID.
 type DeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to delete.
@@ -410,7 +410,7 @@ func (x *DeleteOrganizationRequest) GetAllowMissing() bool {
 	return false
 }
 
-// UndeleteOrganizationRequest restores a soft-deleted organization.
+// Request to restore an archived organization.
 type UndeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to restore.
@@ -487,14 +487,14 @@ const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\":\n" +
 	"\x1bUndeleteOrganizationRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xe0\f\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xe3\f\n" +
 	"\x13OrganizationService\x12\xe1\x01\n" +
 	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"h\xdaA\x02id\xbaGB\x12\x03Get\x1a*Returns a single organization by its UUID.*\x0fGetOrganization\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/organizations/{id}\x12\x83\x02\n" +
-	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"y\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xf1\x01\n" +
-	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"r\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x12\xa8\x02\n" +
+	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"y\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/organizations\x12\xf4\x01\n" +
+	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"u\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x02!:\forganization\"\x11/v1/organizations\x90\x02\x02\x12\xa8\x02\n" +
 	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xa8\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x023:\forganization2#/v1/organizations/{organization.id}\x12\xdd\x01\n" +
 	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\"t\xdaA\x15id,etag,allow_missing\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x02\x18*\x16/v1/organizations/{id}\x12\x85\x02\n" +
-	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x81\x01\xdaA\x02id\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02!\"\x1f/v1/organizations/{id}:undelete\x1aX\x92\xb5\x18TUse this API to create, list, view, update, soft-delete, and undelete organizations.B0Z.m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x81\x01\xdaA\x02id\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02!\"\x1f/v1/organizations/{id}:undelete\x1aX\x92\xb5\x18TUse this API to create, list, view, update, soft-delete, and undelete organizations.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescOnce sync.Once

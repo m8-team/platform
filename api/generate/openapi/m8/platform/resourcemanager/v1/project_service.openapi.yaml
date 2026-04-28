@@ -230,7 +230,7 @@ components:
                     type: integer
                     description: The total number of projects that match the request.
                     format: int32
-            description: ListProjectsResponse returns a single page of projects.
+            description: One page of projects returned by ListProjects.
         Project:
             type: object
             properties:
