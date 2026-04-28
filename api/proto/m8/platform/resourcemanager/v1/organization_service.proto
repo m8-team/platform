@@ -14,12 +14,12 @@ import "m8/platform/resourcemanager/v1/organization.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// OrganizationService provides standard create, read, list, update,
-// soft-delete, and undelete operations for organizations.
+// OrganizationService manages organizations: it lets clients create, read,
+// list, update, archive, and restore them.
 service OrganizationService {
   option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete organizations.";
 
-  // GetOrganization returns a single organization by ID.
+  // Returns one organization by its UUID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
     option (google.api.http) = {get: "/v1/organizations/{id}"};
     option (google.api.method_signature) = "id";
@@ -30,7 +30,7 @@ service OrganizationService {
     };
   }
 
-  // ListOrganizations returns a paginated list of organizations.
+  // Returns a page of organizations available to the caller.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
     option (google.api.http) = {get: "/v1/organizations"};
     option (gnostic.openapi.v3.operation) = {
@@ -40,7 +40,7 @@ service OrganizationService {
     };
   }
 
-  // CreateOrganization creates a new organization.
+  // Creates a new organization from the provided payload.
   rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -55,7 +55,7 @@ service OrganizationService {
     };
   }
 
-  // UpdateOrganization updates mutable organization fields.
+  // Updates the editable fields of an existing organization.
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
       patch: "/v1/organizations/{organization.id}"
@@ -69,7 +69,7 @@ service OrganizationService {
     };
   }
 
-  // DeleteOrganization soft-deletes an organization by ID.
+  // Archives an organization without deleting it permanently.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/organizations/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
@@ -80,7 +80,7 @@ service OrganizationService {
     };
   }
 
-  // UndeleteOrganization restores a previously soft-deleted organization.
+  // Restores an organization that was previously archived.
   rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (Organization) {
     option (google.api.http) = {post: "/v1/organizations/{id}:undelete"};
     option (google.api.method_signature) = "id";
@@ -92,14 +92,17 @@ service OrganizationService {
   }
 }
 
-// GetOrganizationRequest fetches a single organization by ID.
+// Request to read one organization by UUID.
 message GetOrganizationRequest {
   // Required. Stable unique identifier of the organization to retrieve.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
-// ListOrganizationsRequest lists organizations visible to the caller.
+// Request to list organizations with pagination and optional filtering.
 message ListOrganizationsRequest {
   // Optional. The maximum number of organizations to return.
   // Valid values are in the range 0 to 1000.
@@ -142,7 +145,7 @@ message ListOrganizationsRequest {
   bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// ListOrganizationsResponse returns a single page of organizations.
+// One page of organizations returned by ListOrganizations.
 message ListOrganizationsResponse {
   // Organizations returned for the current page.
   repeated Organization organizations = 1;
@@ -155,7 +158,7 @@ message ListOrganizationsResponse {
   int32 total_size = 3;
 }
 
-// CreateOrganizationRequest creates a new organization.
+// Request to create a new organization.
 message CreateOrganizationRequest {
   // Required. The organization to create.
   // Client-specified values in `organization.id`,
@@ -169,7 +172,7 @@ message CreateOrganizationRequest {
   ];
 }
 
-// UpdateOrganizationRequest updates mutable fields on an existing organization.
+// Request to update an existing organization.
 message UpdateOrganizationRequest {
   // Required. The organization to update.
   //
@@ -190,11 +193,14 @@ message UpdateOrganizationRequest {
   ];
 }
 
-// DeleteOrganizationRequest soft-deletes an organization by ID.
+// Request to archive an organization by UUID.
 message DeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to delete.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 
   // Optional. The etag of the organization.
   // If provided, the value must exactly match the current server-side etag.
@@ -205,9 +211,12 @@ message DeleteOrganizationRequest {
   bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
-// UndeleteOrganizationRequest restores a soft-deleted organization.
+// Request to restore an archived organization.
 message UndeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to restore.
   // The value must be a valid UUID string.
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
 }

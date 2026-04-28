@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetWorkspaceRequest fetches a single workspace by ID.
+// Request to read one workspace by UUID.
 type GetWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to retrieve.
@@ -74,7 +74,7 @@ func (x *GetWorkspaceRequest) GetId() string {
 	return ""
 }
 
-// ListWorkspacesRequest lists workspaces visible under an organization ID.
+// Request to list workspaces in an organization with pagination and optional filtering.
 type ListWorkspacesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
@@ -177,7 +177,7 @@ func (x *ListWorkspacesRequest) GetShowDeleted() bool {
 	return false
 }
 
-// ListWorkspacesResponse returns a single page of workspaces.
+// One page of workspaces returned by ListWorkspaces.
 type ListWorkspacesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Workspaces returned for the current page.
@@ -242,7 +242,7 @@ func (x *ListWorkspacesResponse) GetTotalSize() int32 {
 	return 0
 }
 
-// CreateWorkspaceRequest creates a new workspace.
+// Request to create a new workspace in an organization.
 type CreateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent organization.
@@ -303,7 +303,7 @@ func (x *CreateWorkspaceRequest) GetWorkspace() *Workspace {
 	return nil
 }
 
-// UpdateWorkspaceRequest updates mutable fields on an existing workspace.
+// Request to update an existing workspace.
 type UpdateWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The workspace to update.
@@ -364,7 +364,7 @@ func (x *UpdateWorkspaceRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteWorkspaceRequest soft-deletes a workspace by ID.
+// Request to archive a workspace by UUID.
 type DeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to delete.
@@ -431,7 +431,7 @@ func (x *DeleteWorkspaceRequest) GetAllowMissing() bool {
 	return false
 }
 
-// UndeleteWorkspaceRequest restores a soft-deleted workspace.
+// Request to restore an archived workspace.
 type UndeleteWorkspaceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the workspace to restore.

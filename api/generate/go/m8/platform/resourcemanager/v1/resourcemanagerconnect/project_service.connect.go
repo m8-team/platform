@@ -56,19 +56,19 @@ const (
 
 // ProjectServiceClient is a client for the m8.platform.resourcemanager.v1.ProjectService service.
 type ProjectServiceClient interface {
-	// GetProject returns a single project by ID.
+	// Returns one project by its UUID.
 	GetProject(context.Context, *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.Project], error)
-	// ListProjects returns a paginated list of projects under a workspace ID. In
-	// the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// Returns a page of projects for the specified workspace.
+	// In the HTTP API, the workspace UUID is passed in the query string.
 	ListProjects(context.Context, *connect.Request[v1.ListProjectsRequest]) (*connect.Response[v1.ListProjectsResponse], error)
-	// CreateProject creates a new project under a workspace ID.
-	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// Creates a new project inside the specified workspace.
+	// In the HTTP API, the workspace UUID is passed in the query string.
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error)
-	// UpdateProject updates mutable fields on an existing project.
+	// Updates the editable fields of an existing project.
 	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error)
-	// DeleteProject soft-deletes a project by ID.
+	// Archives a project without deleting it permanently.
 	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteProject restores a previously soft-deleted project.
+	// Restores a project that was previously archived.
 	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error)
 }
 
@@ -165,19 +165,19 @@ func (c *projectServiceClient) UndeleteProject(ctx context.Context, req *connect
 // ProjectServiceHandler is an implementation of the m8.platform.resourcemanager.v1.ProjectService
 // service.
 type ProjectServiceHandler interface {
-	// GetProject returns a single project by ID.
+	// Returns one project by its UUID.
 	GetProject(context.Context, *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.Project], error)
-	// ListProjects returns a paginated list of projects under a workspace ID. In
-	// the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// Returns a page of projects for the specified workspace.
+	// In the HTTP API, the workspace UUID is passed in the query string.
 	ListProjects(context.Context, *connect.Request[v1.ListProjectsRequest]) (*connect.Response[v1.ListProjectsResponse], error)
-	// CreateProject creates a new project under a workspace ID.
-	// In the HTTP API, the parent workspace UUID is provided as a query parameter.
+	// Creates a new project inside the specified workspace.
+	// In the HTTP API, the workspace UUID is passed in the query string.
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error)
-	// UpdateProject updates mutable fields on an existing project.
+	// Updates the editable fields of an existing project.
 	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error)
-	// DeleteProject soft-deletes a project by ID.
+	// Archives a project without deleting it permanently.
 	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteProject restores a previously soft-deleted project.
+	// Restores a project that was previously archived.
 	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error)
 }
 

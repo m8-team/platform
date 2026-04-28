@@ -57,17 +57,17 @@ const (
 // OrganizationServiceClient is a client for the m8.platform.resourcemanager.v1.OrganizationService
 // service.
 type OrganizationServiceClient interface {
-	// GetOrganization returns a single organization by ID.
+	// Returns one organization by its UUID.
 	GetOrganization(context.Context, *connect.Request[v1.GetOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// ListOrganizations returns a paginated list of organizations.
+	// Returns a page of organizations available to the caller.
 	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
-	// CreateOrganization creates a new organization.
+	// Creates a new organization from the provided payload.
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// UpdateOrganization updates mutable organization fields.
+	// Updates the editable fields of an existing organization.
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// DeleteOrganization soft-deletes an organization by ID.
+	// Archives an organization without deleting it permanently.
 	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteOrganization restores a previously soft-deleted organization.
+	// Restores an organization that was previously archived.
 	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error)
 }
 
@@ -167,17 +167,17 @@ func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, re
 // OrganizationServiceHandler is an implementation of the
 // m8.platform.resourcemanager.v1.OrganizationService service.
 type OrganizationServiceHandler interface {
-	// GetOrganization returns a single organization by ID.
+	// Returns one organization by its UUID.
 	GetOrganization(context.Context, *connect.Request[v1.GetOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// ListOrganizations returns a paginated list of organizations.
+	// Returns a page of organizations available to the caller.
 	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
-	// CreateOrganization creates a new organization.
+	// Creates a new organization from the provided payload.
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// UpdateOrganization updates mutable organization fields.
+	// Updates the editable fields of an existing organization.
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
-	// DeleteOrganization soft-deletes an organization by ID.
+	// Archives an organization without deleting it permanently.
 	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteOrganization restores a previously soft-deleted organization.
+	// Restores an organization that was previously archived.
 	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error)
 }
 

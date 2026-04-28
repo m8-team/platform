@@ -57,20 +57,19 @@ const (
 // WorkspaceServiceClient is a client for the m8.platform.resourcemanager.v1.WorkspaceService
 // service.
 type WorkspaceServiceClient interface {
-	// GetWorkspace returns a single workspace by ID.
+	// Returns one workspace by its UUID.
 	GetWorkspace(context.Context, *connect.Request[v1.GetWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization
-	// ID. In the HTTP API, the parent organization UUID is provided as a query
-	// parameter.
+	// Returns a page of workspaces for the specified organization.
+	// In the HTTP API, the organization UUID is passed in the query string.
 	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
-	// CreateWorkspace creates a new workspace under an organization ID.
-	// In the HTTP API, the parent organization UUID is provided as a query parameter.
+	// Creates a new workspace inside the specified organization.
+	// In the HTTP API, the organization UUID is passed in the query string.
 	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// UpdateWorkspace updates mutable fields on an existing workspace.
+	// Updates the editable fields of an existing workspace.
 	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// DeleteWorkspace soft-deletes a workspace by ID.
+	// Archives a workspace without deleting it permanently.
 	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteWorkspace restores a previously soft-deleted workspace.
+	// Restores a workspace that was previously archived.
 	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
 }
 
@@ -168,20 +167,19 @@ func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, req *con
 // WorkspaceServiceHandler is an implementation of the
 // m8.platform.resourcemanager.v1.WorkspaceService service.
 type WorkspaceServiceHandler interface {
-	// GetWorkspace returns a single workspace by ID.
+	// Returns one workspace by its UUID.
 	GetWorkspace(context.Context, *connect.Request[v1.GetWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// ListWorkspaces returns a paginated list of workspaces under an organization
-	// ID. In the HTTP API, the parent organization UUID is provided as a query
-	// parameter.
+	// Returns a page of workspaces for the specified organization.
+	// In the HTTP API, the organization UUID is passed in the query string.
 	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
-	// CreateWorkspace creates a new workspace under an organization ID.
-	// In the HTTP API, the parent organization UUID is provided as a query parameter.
+	// Creates a new workspace inside the specified organization.
+	// In the HTTP API, the organization UUID is passed in the query string.
 	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// UpdateWorkspace updates mutable fields on an existing workspace.
+	// Updates the editable fields of an existing workspace.
 	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
-	// DeleteWorkspace soft-deletes a workspace by ID.
+	// Archives a workspace without deleting it permanently.
 	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error)
-	// UndeleteWorkspace restores a previously soft-deleted workspace.
+	// Restores a workspace that was previously archived.
 	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
 }
 

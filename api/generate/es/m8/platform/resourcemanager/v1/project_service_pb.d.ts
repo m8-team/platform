@@ -13,7 +13,7 @@ import type { EmptySchema, FieldMask } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_resourcemanager_v1_project_service: GenFile;
 
 /**
- * GetProjectRequest fetches a single project by ID.
+ * Request to read one project by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.GetProjectRequest
  */
@@ -34,7 +34,7 @@ export declare type GetProjectRequest = Message<"m8.platform.resourcemanager.v1.
 export declare const GetProjectRequestSchema: GenMessage<GetProjectRequest>;
 
 /**
- * ListProjectsRequest lists projects visible under a workspace ID.
+ * Request to list projects in a workspace with pagination and optional filtering.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListProjectsRequest
  */
@@ -101,7 +101,7 @@ export declare type ListProjectsRequest = Message<"m8.platform.resourcemanager.v
 export declare const ListProjectsRequestSchema: GenMessage<ListProjectsRequest>;
 
 /**
- * ListProjectsResponse returns a single page of projects.
+ * One page of projects returned by ListProjects.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListProjectsResponse
  */
@@ -136,7 +136,7 @@ export declare type ListProjectsResponse = Message<"m8.platform.resourcemanager.
 export declare const ListProjectsResponseSchema: GenMessage<ListProjectsResponse>;
 
 /**
- * CreateProjectRequest creates a new project.
+ * Request to create a new project in a workspace.
  *
  * @generated from message m8.platform.resourcemanager.v1.CreateProjectRequest
  */
@@ -169,7 +169,7 @@ export declare type CreateProjectRequest = Message<"m8.platform.resourcemanager.
 export declare const CreateProjectRequestSchema: GenMessage<CreateProjectRequest>;
 
 /**
- * UpdateProjectRequest updates mutable fields on an existing project.
+ * Request to update an existing project.
  *
  * @generated from message m8.platform.resourcemanager.v1.UpdateProjectRequest
  */
@@ -202,7 +202,7 @@ export declare type UpdateProjectRequest = Message<"m8.platform.resourcemanager.
 export declare const UpdateProjectRequestSchema: GenMessage<UpdateProjectRequest>;
 
 /**
- * DeleteProjectRequest soft-deletes a project by ID.
+ * Request to archive a project by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.DeleteProjectRequest
  */
@@ -239,7 +239,7 @@ export declare type DeleteProjectRequest = Message<"m8.platform.resourcemanager.
 export declare const DeleteProjectRequestSchema: GenMessage<DeleteProjectRequest>;
 
 /**
- * UndeleteProjectRequest restores a soft-deleted project.
+ * Request to restore an archived project.
  *
  * @generated from message m8.platform.resourcemanager.v1.UndeleteProjectRequest
  */
@@ -260,14 +260,14 @@ export declare type UndeleteProjectRequest = Message<"m8.platform.resourcemanage
 export declare const UndeleteProjectRequestSchema: GenMessage<UndeleteProjectRequest>;
 
 /**
- * ProjectService provides standard create, read, list, update, soft-delete,
- * and undelete operations for projects.
+ * ProjectService manages projects inside workspaces: it lets clients create,
+ * read, list, update, archive, and restore them.
  *
  * @generated from service m8.platform.resourcemanager.v1.ProjectService
  */
 export declare const ProjectService: GenService<{
   /**
-   * GetProject returns a single project by ID.
+   * Returns one project by its UUID.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.GetProject
    */
@@ -277,8 +277,8 @@ export declare const ProjectService: GenService<{
     output: typeof ProjectSchema;
   },
   /**
-   * ListProjects returns a paginated list of projects under a workspace ID. In
-   * the HTTP API, the parent workspace UUID is provided as a query parameter.
+   * Returns a page of projects for the specified workspace.
+   * In the HTTP API, the workspace UUID is passed in the query string.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.ListProjects
    */
@@ -288,8 +288,8 @@ export declare const ProjectService: GenService<{
     output: typeof ListProjectsResponseSchema;
   },
   /**
-   * CreateProject creates a new project under a workspace ID.
-   * In the HTTP API, the parent workspace UUID is provided as a query parameter.
+   * Creates a new project inside the specified workspace.
+   * In the HTTP API, the workspace UUID is passed in the query string.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.CreateProject
    */
@@ -299,7 +299,7 @@ export declare const ProjectService: GenService<{
     output: typeof ProjectSchema;
   },
   /**
-   * UpdateProject updates mutable fields on an existing project.
+   * Updates the editable fields of an existing project.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.UpdateProject
    */
@@ -309,7 +309,7 @@ export declare const ProjectService: GenService<{
     output: typeof ProjectSchema;
   },
   /**
-   * DeleteProject soft-deletes a project by ID.
+   * Archives a project without deleting it permanently.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.DeleteProject
    */
@@ -319,7 +319,7 @@ export declare const ProjectService: GenService<{
     output: typeof EmptySchema;
   },
   /**
-   * UndeleteProject restores a previously soft-deleted project.
+   * Restores a project that was previously archived.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.ProjectService.UndeleteProject
    */

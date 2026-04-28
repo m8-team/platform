@@ -13,7 +13,7 @@ import type { EmptySchema, FieldMask } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_resourcemanager_v1_organization_service: GenFile;
 
 /**
- * GetOrganizationRequest fetches a single organization by ID.
+ * Request to read one organization by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.GetOrganizationRequest
  */
@@ -34,7 +34,7 @@ export declare type GetOrganizationRequest = Message<"m8.platform.resourcemanage
 export declare const GetOrganizationRequestSchema: GenMessage<GetOrganizationRequest>;
 
 /**
- * ListOrganizationsRequest lists organizations visible to the caller.
+ * Request to list organizations with pagination and optional filtering.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListOrganizationsRequest
  */
@@ -92,7 +92,7 @@ export declare type ListOrganizationsRequest = Message<"m8.platform.resourcemana
 export declare const ListOrganizationsRequestSchema: GenMessage<ListOrganizationsRequest>;
 
 /**
- * ListOrganizationsResponse returns a single page of organizations.
+ * One page of organizations returned by ListOrganizations.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListOrganizationsResponse
  */
@@ -127,7 +127,7 @@ export declare type ListOrganizationsResponse = Message<"m8.platform.resourceman
 export declare const ListOrganizationsResponseSchema: GenMessage<ListOrganizationsResponse>;
 
 /**
- * CreateOrganizationRequest creates a new organization.
+ * Request to create a new organization.
  *
  * @generated from message m8.platform.resourcemanager.v1.CreateOrganizationRequest
  */
@@ -152,7 +152,7 @@ export declare type CreateOrganizationRequest = Message<"m8.platform.resourceman
 export declare const CreateOrganizationRequestSchema: GenMessage<CreateOrganizationRequest>;
 
 /**
- * UpdateOrganizationRequest updates mutable fields on an existing organization.
+ * Request to update an existing organization.
  *
  * @generated from message m8.platform.resourcemanager.v1.UpdateOrganizationRequest
  */
@@ -185,7 +185,7 @@ export declare type UpdateOrganizationRequest = Message<"m8.platform.resourceman
 export declare const UpdateOrganizationRequestSchema: GenMessage<UpdateOrganizationRequest>;
 
 /**
- * DeleteOrganizationRequest soft-deletes an organization by ID.
+ * Request to archive an organization by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.DeleteOrganizationRequest
  */
@@ -222,7 +222,7 @@ export declare type DeleteOrganizationRequest = Message<"m8.platform.resourceman
 export declare const DeleteOrganizationRequestSchema: GenMessage<DeleteOrganizationRequest>;
 
 /**
- * UndeleteOrganizationRequest restores a soft-deleted organization.
+ * Request to restore an archived organization.
  *
  * @generated from message m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
  */
@@ -243,14 +243,14 @@ export declare type UndeleteOrganizationRequest = Message<"m8.platform.resourcem
 export declare const UndeleteOrganizationRequestSchema: GenMessage<UndeleteOrganizationRequest>;
 
 /**
- * OrganizationService provides standard create, read, list, update,
- * soft-delete, and undelete operations for organizations.
+ * OrganizationService manages organizations: it lets clients create, read,
+ * list, update, archive, and restore them.
  *
  * @generated from service m8.platform.resourcemanager.v1.OrganizationService
  */
 export declare const OrganizationService: GenService<{
   /**
-   * GetOrganization returns a single organization by ID.
+   * Returns one organization by its UUID.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.GetOrganization
    */
@@ -260,7 +260,7 @@ export declare const OrganizationService: GenService<{
     output: typeof OrganizationSchema;
   },
   /**
-   * ListOrganizations returns a paginated list of organizations.
+   * Returns a page of organizations available to the caller.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations
    */
@@ -270,7 +270,7 @@ export declare const OrganizationService: GenService<{
     output: typeof ListOrganizationsResponseSchema;
   },
   /**
-   * CreateOrganization creates a new organization.
+   * Creates a new organization from the provided payload.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization
    */
@@ -280,7 +280,7 @@ export declare const OrganizationService: GenService<{
     output: typeof OrganizationSchema;
   },
   /**
-   * UpdateOrganization updates mutable organization fields.
+   * Updates the editable fields of an existing organization.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization
    */
@@ -290,7 +290,7 @@ export declare const OrganizationService: GenService<{
     output: typeof OrganizationSchema;
   },
   /**
-   * DeleteOrganization soft-deletes an organization by ID.
+   * Archives an organization without deleting it permanently.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization
    */
@@ -300,7 +300,7 @@ export declare const OrganizationService: GenService<{
     output: typeof EmptySchema;
   },
   /**
-   * UndeleteOrganization restores a previously soft-deleted organization.
+   * Restores an organization that was previously archived.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization
    */

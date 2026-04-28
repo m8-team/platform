@@ -230,7 +230,7 @@ components:
                     type: integer
                     description: The total number of workspaces that match the request.
                     format: int32
-            description: ListWorkspacesResponse returns a single page of workspaces.
+            description: One page of workspaces returned by ListWorkspaces.
         Workspace:
             type: object
             properties:

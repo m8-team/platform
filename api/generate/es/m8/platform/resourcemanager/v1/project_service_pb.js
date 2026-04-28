@@ -68,8 +68,8 @@ export const UndeleteProjectRequestSchema = /*@__PURE__*/
   messageDesc(file_m8_platform_resourcemanager_v1_project_service, 6);
 
 /**
- * ProjectService provides standard create, read, list, update, soft-delete,
- * and undelete operations for projects.
+ * ProjectService manages projects inside workspaces: it lets clients create,
+ * read, list, update, archive, and restore them.
  *
  * @generated from service m8.platform.resourcemanager.v1.ProjectService
  */

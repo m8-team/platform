@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetProjectRequest fetches a single project by ID.
+// Request to read one project by UUID.
 type GetProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the project to retrieve.
@@ -74,7 +74,7 @@ func (x *GetProjectRequest) GetId() string {
 	return ""
 }
 
-// ListProjectsRequest lists projects visible under a workspace ID.
+// Request to list projects in a workspace with pagination and optional filtering.
 type ListProjectsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent workspace.
@@ -177,7 +177,7 @@ func (x *ListProjectsRequest) GetShowDeleted() bool {
 	return false
 }
 
-// ListProjectsResponse returns a single page of projects.
+// One page of projects returned by ListProjects.
 type ListProjectsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Projects returned for the current page.
@@ -242,7 +242,7 @@ func (x *ListProjectsResponse) GetTotalSize() int32 {
 	return 0
 }
 
-// CreateProjectRequest creates a new project.
+// Request to create a new project in a workspace.
 type CreateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the parent workspace.
@@ -303,7 +303,7 @@ func (x *CreateProjectRequest) GetProject() *Project {
 	return nil
 }
 
-// UpdateProjectRequest updates mutable fields on an existing project.
+// Request to update an existing project.
 type UpdateProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The project to update.
@@ -364,7 +364,7 @@ func (x *UpdateProjectRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteProjectRequest soft-deletes a project by ID.
+// Request to archive a project by UUID.
 type DeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the project to delete.
@@ -431,7 +431,7 @@ func (x *DeleteProjectRequest) GetAllowMissing() bool {
 	return false
 }
 
-// UndeleteProjectRequest restores a soft-deleted project.
+// Request to restore an archived project.
 type UndeleteProjectRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the project to restore.

@@ -68,8 +68,8 @@ export const UndeleteOrganizationRequestSchema = /*@__PURE__*/
   messageDesc(file_m8_platform_resourcemanager_v1_organization_service, 6);
 
 /**
- * OrganizationService provides standard create, read, list, update,
- * soft-delete, and undelete operations for organizations.
+ * OrganizationService manages organizations: it lets clients create, read,
+ * list, update, archive, and restore them.
  *
  * @generated from service m8.platform.resourcemanager.v1.OrganizationService
  */

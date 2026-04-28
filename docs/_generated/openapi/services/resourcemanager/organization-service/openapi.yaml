@@ -198,7 +198,7 @@ components:
           type: integer
           description: The total number of organizations that match the request.
           format: int32
-      description: ListOrganizationsResponse returns a single page of organizations.
+      description: One page of organizations returned by ListOrganizations.
     Organization:
       type: object
       properties:

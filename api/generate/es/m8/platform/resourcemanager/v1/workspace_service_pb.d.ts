@@ -13,7 +13,7 @@ import type { EmptySchema, FieldMask } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_resourcemanager_v1_workspace_service: GenFile;
 
 /**
- * GetWorkspaceRequest fetches a single workspace by ID.
+ * Request to read one workspace by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.GetWorkspaceRequest
  */
@@ -34,7 +34,7 @@ export declare type GetWorkspaceRequest = Message<"m8.platform.resourcemanager.v
 export declare const GetWorkspaceRequestSchema: GenMessage<GetWorkspaceRequest>;
 
 /**
- * ListWorkspacesRequest lists workspaces visible under an organization ID.
+ * Request to list workspaces in an organization with pagination and optional filtering.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListWorkspacesRequest
  */
@@ -101,7 +101,7 @@ export declare type ListWorkspacesRequest = Message<"m8.platform.resourcemanager
 export declare const ListWorkspacesRequestSchema: GenMessage<ListWorkspacesRequest>;
 
 /**
- * ListWorkspacesResponse returns a single page of workspaces.
+ * One page of workspaces returned by ListWorkspaces.
  *
  * @generated from message m8.platform.resourcemanager.v1.ListWorkspacesResponse
  */
@@ -136,7 +136,7 @@ export declare type ListWorkspacesResponse = Message<"m8.platform.resourcemanage
 export declare const ListWorkspacesResponseSchema: GenMessage<ListWorkspacesResponse>;
 
 /**
- * CreateWorkspaceRequest creates a new workspace.
+ * Request to create a new workspace in an organization.
  *
  * @generated from message m8.platform.resourcemanager.v1.CreateWorkspaceRequest
  */
@@ -169,7 +169,7 @@ export declare type CreateWorkspaceRequest = Message<"m8.platform.resourcemanage
 export declare const CreateWorkspaceRequestSchema: GenMessage<CreateWorkspaceRequest>;
 
 /**
- * UpdateWorkspaceRequest updates mutable fields on an existing workspace.
+ * Request to update an existing workspace.
  *
  * @generated from message m8.platform.resourcemanager.v1.UpdateWorkspaceRequest
  */
@@ -202,7 +202,7 @@ export declare type UpdateWorkspaceRequest = Message<"m8.platform.resourcemanage
 export declare const UpdateWorkspaceRequestSchema: GenMessage<UpdateWorkspaceRequest>;
 
 /**
- * DeleteWorkspaceRequest soft-deletes a workspace by ID.
+ * Request to archive a workspace by UUID.
  *
  * @generated from message m8.platform.resourcemanager.v1.DeleteWorkspaceRequest
  */
@@ -239,7 +239,7 @@ export declare type DeleteWorkspaceRequest = Message<"m8.platform.resourcemanage
 export declare const DeleteWorkspaceRequestSchema: GenMessage<DeleteWorkspaceRequest>;
 
 /**
- * UndeleteWorkspaceRequest restores a soft-deleted workspace.
+ * Request to restore an archived workspace.
  *
  * @generated from message m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest
  */
@@ -260,14 +260,14 @@ export declare type UndeleteWorkspaceRequest = Message<"m8.platform.resourcemana
 export declare const UndeleteWorkspaceRequestSchema: GenMessage<UndeleteWorkspaceRequest>;
 
 /**
- * WorkspaceService provides standard create, read, list, update, soft-delete,
- * and undelete operations for workspaces.
+ * WorkspaceService manages workspaces inside organizations: it lets clients
+ * create, read, list, update, archive, and restore them.
  *
  * @generated from service m8.platform.resourcemanager.v1.WorkspaceService
  */
 export declare const WorkspaceService: GenService<{
   /**
-   * GetWorkspace returns a single workspace by ID.
+   * Returns one workspace by its UUID.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace
    */
@@ -277,9 +277,8 @@ export declare const WorkspaceService: GenService<{
     output: typeof WorkspaceSchema;
   },
   /**
-   * ListWorkspaces returns a paginated list of workspaces under an organization
-   * ID. In the HTTP API, the parent organization UUID is provided as a query
-   * parameter.
+   * Returns a page of workspaces for the specified organization.
+   * In the HTTP API, the organization UUID is passed in the query string.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces
    */
@@ -289,8 +288,8 @@ export declare const WorkspaceService: GenService<{
     output: typeof ListWorkspacesResponseSchema;
   },
   /**
-   * CreateWorkspace creates a new workspace under an organization ID.
-   * In the HTTP API, the parent organization UUID is provided as a query parameter.
+   * Creates a new workspace inside the specified organization.
+   * In the HTTP API, the organization UUID is passed in the query string.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace
    */
@@ -300,7 +299,7 @@ export declare const WorkspaceService: GenService<{
     output: typeof WorkspaceSchema;
   },
   /**
-   * UpdateWorkspace updates mutable fields on an existing workspace.
+   * Updates the editable fields of an existing workspace.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace
    */
@@ -310,7 +309,7 @@ export declare const WorkspaceService: GenService<{
     output: typeof WorkspaceSchema;
   },
   /**
-   * DeleteWorkspace soft-deletes a workspace by ID.
+   * Archives a workspace without deleting it permanently.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace
    */
@@ -320,7 +319,7 @@ export declare const WorkspaceService: GenService<{
     output: typeof EmptySchema;
   },
   /**
-   * UndeleteWorkspace restores a previously soft-deleted workspace.
+   * Restores a workspace that was previously archived.
    *
    * @generated from rpc m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace
    */

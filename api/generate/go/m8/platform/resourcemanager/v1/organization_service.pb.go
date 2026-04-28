@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GetOrganizationRequest fetches a single organization by ID.
+// Request to read one organization by UUID.
 type GetOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to retrieve.
@@ -74,7 +74,7 @@ func (x *GetOrganizationRequest) GetId() string {
 	return ""
 }
 
-// ListOrganizationsRequest lists organizations visible to the caller.
+// Request to list organizations with pagination and optional filtering.
 type ListOrganizationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. The maximum number of organizations to return.
@@ -166,7 +166,7 @@ func (x *ListOrganizationsRequest) GetShowDeleted() bool {
 	return false
 }
 
-// ListOrganizationsResponse returns a single page of organizations.
+// One page of organizations returned by ListOrganizations.
 type ListOrganizationsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Organizations returned for the current page.
@@ -231,7 +231,7 @@ func (x *ListOrganizationsResponse) GetTotalSize() int32 {
 	return 0
 }
 
-// CreateOrganizationRequest creates a new organization.
+// Request to create a new organization.
 type CreateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The organization to create.
@@ -282,7 +282,7 @@ func (x *CreateOrganizationRequest) GetOrganization() *Organization {
 	return nil
 }
 
-// UpdateOrganizationRequest updates mutable fields on an existing organization.
+// Request to update an existing organization.
 type UpdateOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. The organization to update.
@@ -343,7 +343,7 @@ func (x *UpdateOrganizationRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	return nil
 }
 
-// DeleteOrganizationRequest soft-deletes an organization by ID.
+// Request to archive an organization by UUID.
 type DeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to delete.
@@ -410,7 +410,7 @@ func (x *DeleteOrganizationRequest) GetAllowMissing() bool {
 	return false
 }
 
-// UndeleteOrganizationRequest restores a soft-deleted organization.
+// Request to restore an archived organization.
 type UndeleteOrganizationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. Stable unique identifier of the organization to restore.
