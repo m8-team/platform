@@ -6,9 +6,7 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
-import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_state.proto";
-import "m8/platform/iam/v1/authentication_assurance_level.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -22,7 +20,107 @@ message Authentication {
   // Kafka topic that receives authentication aggregate change events.
   option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
 
-  // Identifier. Stable unique identifier of the authentication operation.
+  // Challenge type required to continue or complete authentication.
+  enum Challenge {
+    // Authentication challenge is not specified.
+    CHALLENGE_UNSPECIFIED = 0;
+
+    // User must enter a one-time password delivered through a configured channel.
+    //
+    // Example:
+    // - OTP sent via SMS/email/Telegram/VK
+    // - OTP sent in a push notification
+    // - OTP generated and validated by an external provider
+    OTP = 1;
+
+    // User must explicitly approve authentication without entering a one-time password.
+    //
+    // Example:
+    // - push approval in a mobile application
+    // - approve/deny prompt on a trusted device
+    // - transaction confirmation without manual code entry
+    APPROVAL = 2;
+
+    // User must complete authentication through a mobile network operator's Mobile ID flow.
+    //
+    // Example:
+    // - Mobile ID request is sent to the operator
+    // - user confirms authentication on the operator side
+    // - provider callback returns the Mobile ID result
+    MOBILE_ID = 3;
+
+    // User must complete a WebAuthn-compatible credential challenge.
+    //
+    // Example:
+    // - passkey authentication in a browser
+    // - platform authenticator assertion
+    // - roaming security key assertion
+    WEBAUTHN = 4;
+
+    // User must authenticate through an external OpenID Connect identity provider.
+    //
+    // Example:
+    // - redirect to an external OIDC provider
+    // - login_hint is passed to the provider
+    // - authorization callback returns an authorization code or error
+    OIDC = 5;
+
+    // User must authenticate through an external SAML identity provider.
+    //
+    // Example:
+    // - redirect to an external SAML identity provider
+    // - SAML authentication request is created
+    // - SAML response is returned to the assertion consumer endpoint
+    SAML = 6;
+
+    // User must enter a static secret known by the user.
+    //
+    // Example:
+    // - password verification during primary authentication
+    // - password re-entry for a sensitive operation
+    // - password check before issuing a stronger challenge
+    PASSWORD = 7;
+  }
+
+  // Authentication assurance level required or achieved by an authentication flow.
+  enum AssuranceLevel {
+    // Authentication assurance level is not specified.
+    ASSURANCE_LEVEL_UNSPECIFIED = 0;
+
+    // AAL0 means no authenticated user assurance has been established.
+    //
+    // Example:
+    // - anonymous request before primary authentication
+    // - public client flow before user interaction
+    // - no authentication requirement has been selected yet
+    AAL0 = 1;
+
+    // AAL1 provides basic assurance that the claimant controls an authenticator.
+    //
+    // Example:
+    // - single-factor password authentication
+    // - one-time password sent to a registered email address
+    // - low-sensitivity access where basic authentication is sufficient
+    AAL1 = 2;
+
+    // AAL2 provides high confidence through multi-factor authentication.
+    //
+    // Example:
+    // - password plus one-time password
+    // - password plus push approval
+    // - passkey or WebAuthn authentication used as a phishing-resistant factor
+    AAL2 = 3;
+
+    // AAL3 provides very high confidence with phishing-resistant authentication.
+    //
+    // Example:
+    // - hardware-backed WebAuthn credential with verifier impersonation resistance
+    // - high-sensitivity operation requiring the strongest available authenticator
+    // - privileged access requiring proof of possession of a strong authenticator
+    AAL3 = 4;
+  }
+
+  // Required. Identifier. Stable unique identifier of the authentication operation.
   //
   // Example:
   // - generated when the authentication operation is created
@@ -34,7 +132,7 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Temporal workflow identifier that executes this authentication operation.
+  // Required. Temporal workflow identifier that executes this authentication operation.
   //
   // Example:
   // - assigned when the authentication workflow is started
@@ -45,7 +143,7 @@ message Authentication {
     (buf.validate.field).required = true
   ];
 
-  // Temporal run identifier for the concrete workflow execution.
+  // Optional. Temporal run identifier for the concrete workflow execution.
   // May be empty when the authentication operation has just been created.
   //
   // Example:
@@ -53,6 +151,7 @@ message Authentication {
   // - used with workflow_id to correlate worker logs and callbacks
   // - identifies the run that produced the current authentication state
   string run_id = 3 [
+    (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
@@ -76,10 +175,10 @@ message Authentication {
   // The value is always one of the defined non-zero enum values.
   //
   // Example:
-  // - AUTHENTICATION_CHALLENGE_OTP for one-time password authentication
-  // - AUTHENTICATION_CHALLENGE_WEBAUTHN for passkey or security key authentication
-  // - AUTHENTICATION_CHALLENGE_PASSWORD for password-based authentication
-  AuthenticationChallenge challenge = 5 [
+  // - OTP for one-time password authentication
+  // - WEBAUTHN for passkey or security key authentication
+  // - PASSWORD for password-based authentication
+  Challenge challenge = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
@@ -154,10 +253,10 @@ message Authentication {
   // The value must be a defined assurance level stronger than AAL0.
   //
   // Example:
-  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL1 for normal login
-  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL2 for sensitive operation
-  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL3 for privileged operation
-  AuthenticationAssuranceLevel requested_assurance_level = 15 [
+  // - AAL1 for normal login
+  // - AAL2 for sensitive operation
+  // - AAL3 for privileged operation
+  AssuranceLevel requested_assurance_level = 15 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
@@ -166,14 +265,14 @@ message Authentication {
   ];
 
   // Output only. Authentication assurance level actually achieved by this operation.
-  // Defaults to AUTHENTICATION_ASSURANCE_LEVEL_AAL0 when no user assurance has been established.
+  // Defaults to AAL0 when no user assurance has been established.
   // The value is always one of the defined non-zero enum values.
   //
   // Example:
-  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL0 when the operation has just been created
+  // - AAL0 when the operation has just been created
   // - requested AAL2, achieved AAL2 after OTP + password
   // - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
-  AuthenticationAssuranceLevel achieved_assurance_level = 16 [
+  AssuranceLevel achieved_assurance_level = 16 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
