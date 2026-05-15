@@ -1,0 +1,1020 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_assurance_level.proto";
+import "m8/platform/iam/v1/authentication_challenge.proto";
+import "m8/platform/iam/v1/authentication_common.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// AuthenticationDecisionContext is an immutable normalized snapshot used for authentication decisions.
+//
+// Example:
+// - M8 Authentication builds the context before selecting a challenge
+// - M8 Risk Decision enriches it with risk signals
+// - Policy Engine and Challenge Selector evaluate the same safe audit snapshot
+message AuthenticationDecisionContext {
+  // Stable unique identifier of this decision context snapshot.
+  string id = 1;
+
+  // Request metadata observed at the authentication boundary.
+  RequestMetadata request = 2;
+
+  // Business intent for the authentication operation.
+  AuthenticationIntent intent = 3;
+
+  // Tenant and realm information used for isolation and policy lookup.
+  TenantContext tenant = 4;
+
+  // OAuth or platform client information.
+  ClientContext client = 5;
+
+  // Subject information without raw sensitive PII.
+  SubjectContext subject = 6;
+
+  // Existing session information used for max_age and step-up decisions.
+  SessionContext session = 7;
+
+  // Requested and achieved assurance information.
+  AssuranceContext assurance = 8;
+
+  // Protected transaction or operation information.
+  TransactionContext transaction = 9;
+
+  // Device information represented with identifiers, hashes, or references.
+  DeviceContext device = 10;
+
+  // Network information represented with coarse or hashed values where needed.
+  NetworkContext network = 11;
+
+  // Runtime and workflow information for tracing and operational decisions.
+  RuntimeContext runtime = 12;
+
+  // OAuth, OpenID Connect, SAML, and CIBA request context.
+  OAuthContext oauth = 13;
+
+  // DPoP token-binding context; this is not a user challenge.
+  DpopContext dpop = 14;
+
+  // Challenge selection state and fallback options.
+  ChallengeDecisionContext challenge = 15;
+
+  // Provider selection, health, and provider transaction state.
+  ProviderDecisionContext provider = 16;
+
+  // Risk score, risk signals, and risk recommendations.
+  RiskSignalContext risk = 17;
+
+  // Policy rules and policy evaluation mode.
+  PolicyContext policy = 18;
+
+  // Authentication evidence that can be safely reused for audit or policy.
+  EvidenceContext evidence = 19;
+
+  // Additional non-sensitive attributes for tenant-specific policy extensions.
+  map<string, string> attributes = 20;
+}
+
+// AuthenticationDecision is the decision output produced for an authentication context.
+//
+// Example:
+// - allow a low-risk request without another challenge
+// - require WebAuthn step-up for a high-value transaction
+// - fall back from Mobile ID SIM-push to Mobile ID SMS OTP
+message AuthenticationDecision {
+  // Stable unique identifier of the decision result.
+  string decision_id = 1;
+
+  // Action selected by the decision pipeline.
+  AuthenticationDecisionAction action = 2;
+
+  // Primary challenge selected for the authentication operation.
+  AuthenticationChallenge selected_challenge = 3;
+
+  // Challenge that must be completed now.
+  AuthenticationChallenge current_challenge = 4;
+
+  // Delivery channel used for the current challenge.
+  ChallengeDeliveryChannel delivery_channel = 5;
+
+  // Required OIDC-compatible acr value.
+  string required_acr = 6;
+
+  // Expected OIDC-compatible amr values.
+  repeated string expected_amr = 7;
+
+  // Expected normalized method references.
+  repeated AuthenticationMethodReference expected_method_references = 8;
+
+  // Challenges that may be used if the selected challenge cannot complete.
+  repeated AuthenticationChallenge fallback_challenges = 9;
+
+  // Human-readable reason codes or short explanations for audit.
+  repeated string reasons = 10;
+
+  // Normalized risk score used by the decision.
+  double risk_score = 11;
+
+  // Coarse risk level used by the decision.
+  RiskLevel risk_level = 12;
+
+  // Policy identifier that produced or contributed to the decision.
+  string policy_id = 13;
+
+  // Policy version that produced or contributed to the decision.
+  string policy_version = 14;
+
+  // Time when the decision was produced.
+  google.protobuf.Timestamp decision_time = 15;
+
+  // Additional non-sensitive decision attributes.
+  map<string, string> attributes = 16;
+}
+
+// RequestMetadata describes how the authentication request entered the platform.
+//
+// Example:
+// - browser login request from web
+// - backchannel CIBA request from an OAuth client
+// - internal retry from an authentication workflow
+message RequestMetadata {
+  // Request identifier used for idempotency and correlation.
+  string request_id = 1;
+
+  // Source channel that submitted the request.
+  RequestSource source = 2;
+
+  // Source-specific identifier such as storefront, mobile app, or integration id.
+  string source_id = 3;
+
+  // Client-provided idempotency key if available.
+  string idempotency_key = 4;
+
+  // Correlation identifier propagated across services.
+  string correlation_id = 5;
+
+  // Time when the request was received.
+  google.protobuf.Timestamp request_time = 6;
+
+  // Requested locale or language tag.
+  string locale = 7;
+
+  // Hash of the user agent string; raw user agent may be stored outside this context.
+  string user_agent_hash = 8;
+
+  // Additional non-sensitive request attributes.
+  map<string, string> attributes = 9;
+}
+
+// AuthenticationIntent captures why authentication is being requested.
+//
+// Example:
+// - primary sign-in
+// - step-up before changing payment details
+// - delegated authentication for a CIBA transaction
+message AuthenticationIntent {
+  // Business purpose of the authentication operation.
+  string purpose = 1;
+
+  // Operation or workflow name that requires authentication.
+  string operation = 2;
+
+  // Challenges requested or preferred by the caller.
+  repeated AuthenticationChallenge requested_challenges = 3;
+
+  // Requested OIDC-compatible acr values from the caller.
+  repeated string requested_acr_values = 4;
+
+  // Scopes requested by the client or operation.
+  repeated string requested_scopes = 5;
+
+  // Whether the requested flow should avoid password entry when possible.
+  bool passwordless = 6;
+
+  // Whether authentication is delegated to an external provider.
+  bool delegated = 7;
+
+  // Whether the caller explicitly requested step-up authentication.
+  bool step_up_requested = 8;
+
+  // Additional non-sensitive intent attributes.
+  map<string, string> attributes = 9;
+}
+
+// TenantContext identifies the tenant boundary for policy, risk, and audit.
+//
+// Example:
+// - tenant id used to load policy
+// - realm used by an authorization server
+// - region used for data residency routing
+message TenantContext {
+  // Stable tenant identifier.
+  string tenant_id = 1;
+
+  // Stable organization identifier when different from tenant id.
+  string organization_id = 2;
+
+  // Authorization realm or tenant realm.
+  string realm = 3;
+
+  // Region where tenant policy and data should be evaluated.
+  string region = 4;
+
+  // Isolation domain for multi-tenant routing.
+  string isolation_domain = 5;
+
+  // Runtime environment such as prod, stage, or dev.
+  string environment = 6;
+
+  // Additional non-sensitive tenant attributes.
+  map<string, string> attributes = 7;
+}
+
+// ClientContext describes the client requesting authentication.
+//
+// Example:
+// - public mobile application
+// - confidential server-side web application
+// - first-party back-office client
+message ClientContext {
+  // OAuth or platform client identifier.
+  string client_id = 1;
+
+  // Client type used for policy and risk decisions.
+  ClientType type = 2;
+
+  // Trust level assigned to the client.
+  ClientTrustLevel trust_level = 3;
+
+  // Display name safe for audit and decision explanations.
+  string display_name = 4;
+
+  // Application identifier when separate from client id.
+  string application_id = 5;
+
+  // Redirect URI requested by the client.
+  string redirect_uri = 6;
+
+  // Whether the client is first-party.
+  bool first_party = 7;
+
+  // Whether the client authenticates as a confidential client.
+  bool confidential = 8;
+
+  // Challenges allowed for this client.
+  repeated AuthenticationChallenge allowed_challenges = 9;
+
+  // Additional non-sensitive client attributes.
+  map<string, string> attributes = 10;
+}
+
+// SubjectContext describes the user or workload being authenticated without raw sensitive PII.
+//
+// Example:
+// - internal subject id
+// - masked email and masked phone for audit display
+// - hash or reference values instead of raw identifiers
+message SubjectContext {
+  // Stable platform subject identifier.
+  string subject_id = 1;
+
+  // External subject reference or pairwise subject identifier.
+  string external_subject_ref = 2;
+
+  // Hash of the login hint when raw login hint must not be stored.
+  string login_hint_hash = 3;
+
+  // Masked email address for safe audit display.
+  string email_masked = 4;
+
+  // Masked phone number for safe audit display.
+  string phone_masked = 5;
+
+  // Subject status from the identity system.
+  UserStatus status = 6;
+
+  // Risk group or segment assigned to the subject.
+  string risk_group = 7;
+
+  // Reference to a tenant-local user record.
+  string tenant_user_ref = 8;
+
+  // Additional non-sensitive subject attributes.
+  map<string, string> attributes = 9;
+}
+
+// SessionContext describes an existing session that may satisfy or constrain authentication.
+//
+// Example:
+// - previous authentication is fresh enough for max_age
+// - current session has AAL1 and needs AAL3 step-up
+// - remembered device participates in assurance evaluation
+message SessionContext {
+  // Current session identifier or reference.
+  string session_id = 1;
+
+  // Previous session identifier or reference if session rotation occurred.
+  string previous_session_id = 2;
+
+  // Time when the current session was authenticated.
+  google.protobuf.Timestamp auth_time = 3;
+
+  // Last authentication operation that established the session.
+  string last_authentication_id = 4;
+
+  // Current OIDC-compatible acr value of the session.
+  string current_acr = 5;
+
+  // Current OIDC-compatible amr values of the session.
+  repeated string current_amr = 6;
+
+  // Normalized method references used by the session.
+  repeated AuthenticationMethodReference current_method_references = 7;
+
+  // Whether the session is already authenticated.
+  bool authenticated = 8;
+
+  // Whether the device was remembered for this session.
+  bool remember_device = 9;
+
+  // Session age in seconds at decision time.
+  int64 age_seconds = 10;
+
+  // Additional non-sensitive session attributes.
+  map<string, string> attributes = 11;
+}
+
+// AssuranceContext captures requested and achieved authentication assurance.
+//
+// Example:
+// - requested acr_values include m8:aal3
+// - current session has password authentication only
+// - policy requires phishing-resistant MFA for step-up
+message AssuranceContext {
+  // Requested OIDC-compatible acr values.
+  repeated string requested_acr_values = 1;
+
+  // Required OIDC-compatible acr value after policy evaluation.
+  string required_acr = 2;
+
+  // Current OIDC-compatible acr value.
+  string current_acr = 3;
+
+  // Target OIDC-compatible acr value the flow should achieve.
+  string target_acr = 4;
+
+  // Current OIDC-compatible amr values.
+  repeated string current_amr = 5;
+
+  // Preferred OIDC-compatible amr values for the next challenge.
+  repeated string preferred_amr = 6;
+
+  // Current normalized method references.
+  repeated AuthenticationMethodReference current_method_references = 7;
+
+  // Current normalized assurance level.
+  AuthenticationAssuranceLevel current_level = 8;
+
+  // Target normalized assurance level.
+  AuthenticationAssuranceLevel target_level = 9;
+
+  // Whether this decision is a step-up from an existing session.
+  bool step_up = 10;
+
+  // Maximum accepted age of the existing authentication in seconds.
+  int64 max_age_seconds = 11;
+
+  // Whether phishing-resistant authentication is required.
+  bool phishing_resistant_required = 12;
+
+  // Whether multi-factor authentication is required.
+  bool mfa_required = 13;
+}
+
+// TransactionContext describes the protected operation for transaction-aware decisions.
+//
+// Example:
+// - transfer money to a counterparty
+// - update a privileged security setting
+// - access a sensitive resource
+message TransactionContext {
+  // Operation name or category.
+  string operation = 1;
+
+  // Resource affected by the operation.
+  ResourceRef resource = 2;
+
+  // Action being performed on the resource.
+  string action = 3;
+
+  // Sensitivity of the operation.
+  OperationSensitivity sensitivity = 4;
+
+  // Human-readable transaction binding message shown to the user.
+  string binding_message = 5;
+
+  // Short transaction binding code shown to the user.
+  string binding_code = 6;
+
+  // Monetary amount involved in the operation.
+  MoneyAmount amount = 7;
+
+  // Counterparty identifier or reference.
+  string counterparty_id = 8;
+
+  // Counterparty display name safe for audit and user confirmation.
+  string counterparty_display_name = 9;
+
+  // Whether the operation changes security posture.
+  bool security_sensitive = 10;
+
+  // Whether the operation changes privileges or roles.
+  bool privilege_sensitive = 11;
+
+  // Whether the operation accesses or changes sensitive data.
+  bool data_sensitive = 12;
+
+  // Additional non-sensitive transaction attributes.
+  map<string, string> attributes = 13;
+}
+
+// ResourceRef identifies a resource without embedding the full resource payload.
+message ResourceRef {
+  // Resource type, such as account, project, or credential.
+  string type = 1;
+
+  // Resource identifier or opaque reference.
+  string id = 2;
+
+  // Tenant or namespace that owns the resource.
+  string owner_id = 3;
+
+  // Display name safe for audit.
+  string display_name = 4;
+}
+
+// MoneyAmount represents a monetary amount used for transaction risk.
+message MoneyAmount {
+  // ISO 4217 currency code.
+  string currency = 1;
+
+  // Decimal amount as a string to avoid floating-point loss.
+  string value = 2;
+}
+
+// DeviceContext describes the device involved in authentication.
+//
+// Example:
+// - known managed laptop
+// - new mobile device with a hashed fingerprint
+// - browser context with a device key reference
+message DeviceContext {
+  // Stable device identifier or opaque device reference.
+  string device_id = 1;
+
+  // Device type.
+  DeviceType type = 2;
+
+  // Trust level assigned to the device.
+  DeviceTrustLevel trust_level = 3;
+
+  // Hash of the device fingerprint.
+  string fingerprint_hash = 4;
+
+  // Hash of the user agent.
+  string user_agent_hash = 5;
+
+  // Platform name such as iOS, Android, macOS, Windows, or Linux.
+  string platform = 6;
+
+  // Operating system family.
+  string os_family = 7;
+
+  // Browser family.
+  string browser_family = 8;
+
+  // Whether the device is enterprise-managed.
+  bool managed = 9;
+
+  // Whether the device is trusted.
+  bool trusted = 10;
+
+  // Whether the device is suspected or confirmed compromised.
+  bool compromised = 11;
+
+  // Additional non-sensitive device attributes.
+  map<string, string> attributes = 12;
+}
+
+// NetworkContext describes network signals relevant to authentication risk.
+//
+// Example:
+// - hashed IP address with country and ASN
+// - proxy or VPN detection
+// - network reputation score
+message NetworkContext {
+  // Hash of the client IP address.
+  string ip_hash = 1;
+
+  // Coarse network prefix when it is safe to store.
+  string ip_prefix = 2;
+
+  // ISO 3166 country code inferred from the network.
+  string country_code = 3;
+
+  // Autonomous system number.
+  int64 asn = 4;
+
+  // Autonomous system organization name.
+  string autonomous_system = 5;
+
+  // Whether the request appears to use a VPN.
+  bool vpn = 6;
+
+  // Whether the request appears to use a proxy.
+  bool proxy = 7;
+
+  // Whether the request appears to use Tor.
+  bool tor = 8;
+
+  // Network reputation score.
+  double reputation_score = 9;
+
+  // Additional non-sensitive network attributes.
+  map<string, string> attributes = 10;
+}
+
+// RuntimeContext describes workflow and service execution metadata.
+//
+// Example:
+// - Temporal workflow and run identifiers
+// - tracing identifiers for cross-service debugging
+// - deadline used by provider calls
+message RuntimeContext {
+  // Workflow identifier.
+  string workflow_id = 1;
+
+  // Workflow run identifier.
+  string run_id = 2;
+
+  // Distributed trace identifier.
+  string trace_id = 3;
+
+  // Distributed tracing span identifier.
+  string span_id = 4;
+
+  // Service that produced the context.
+  string service_name = 5;
+
+  // Service version that produced the context.
+  string service_version = 6;
+
+  // Runtime region.
+  string region = 7;
+
+  // Runtime environment such as prod, stage, or dev.
+  string environment = 8;
+
+  // Time when processing started.
+  google.protobuf.Timestamp started_at = 9;
+
+  // Processing deadline for the operation.
+  google.protobuf.Timestamp deadline_at = 10;
+
+  // Additional non-sensitive runtime attributes.
+  map<string, string> attributes = 11;
+}
+
+// OAuthContext captures OAuth, OpenID Connect, SAML, and CIBA request state.
+//
+// Example:
+// - authorization code flow with acr_values
+// - CIBA request with binding message
+// - delegated authentication through an external identity provider
+message OAuthContext {
+  // OAuth or delegated authentication flow.
+  OAuthFlow flow = 1;
+
+  // Issuer or authorization server identifier.
+  string issuer = 2;
+
+  // Realm used by the authorization server.
+  string realm = 3;
+
+  // OAuth client identifier.
+  string client_id = 4;
+
+  // Requested OAuth scopes.
+  repeated string scopes = 5;
+
+  // Requested token audiences.
+  repeated string audiences = 6;
+
+  // Requested OIDC-compatible acr values.
+  repeated string acr_values = 7;
+
+  // OIDC prompt parameter.
+  string prompt = 8;
+
+  // OIDC max_age parameter in seconds.
+  int64 max_age_seconds = 9;
+
+  // Masked, hashed, or opaque login hint reference used to identify the subject.
+  // Raw email, phone, username, or other full PII must not be stored here.
+  string login_hint = 10;
+
+  // Client-Initiated Backchannel Authentication context.
+  CibaContext ciba = 11;
+}
+
+// CibaContext captures delegated backchannel authentication state.
+//
+// Example:
+// - Keycloak-compatible CIBA auth_req_id
+// - binding message displayed to the user
+// - callback token reference instead of raw callback token
+message CibaContext {
+  // CIBA authentication request identifier.
+  string auth_req_id = 1;
+
+  // Binding message shown to the user or authenticator.
+  string binding_message = 2;
+
+  // Masked, hashed, or opaque user code reference when the flow requires one.
+  // Raw user code must not be stored here.
+  string user_code = 3;
+
+  // CIBA delivery mode.
+  CibaDeliveryMode delivery_mode = 4;
+
+  // Reference to a stored callback token; raw token must not be stored here.
+  string callback_token_ref = 5;
+
+  // Time when auth_req_id expires.
+  google.protobuf.Timestamp expires_at = 6;
+
+  // Polling interval in seconds for poll mode.
+  int64 polling_interval_seconds = 7;
+}
+
+// DpopContext captures DPoP token-binding state.
+//
+// Example:
+// - DPoP proof thumbprint binds a token to a key
+// - proof is verified independently from user challenge selection
+// - nonce is tracked for replay protection
+message DpopContext {
+  // Whether DPoP proof is required.
+  bool required = 1;
+
+  // JWK thumbprint used for token binding.
+  string jkt = 2;
+
+  // Whether the DPoP proof has been verified.
+  bool proof_verified = 3;
+
+  // DPoP nonce used for replay protection.
+  string nonce = 4;
+
+  // DPoP proof JWT identifier.
+  string proof_jti = 5;
+
+  // DPoP proof issued-at time.
+  google.protobuf.Timestamp proof_iat = 6;
+}
+
+// ChallengeDecisionContext captures selected, current, and fallback challenges.
+//
+// Example:
+// - selected challenge is Mobile ID
+// - current challenge is OTP
+// - delivery channel is Mobile ID SMS fallback
+message ChallengeDecisionContext {
+  // Primary challenge selected for the authentication operation.
+  AuthenticationChallenge selected_challenge = 1;
+
+  // Challenge that must be completed now.
+  AuthenticationChallenge current_challenge = 2;
+
+  // Preferred challenges before policy and provider filtering.
+  repeated AuthenticationChallenge preferred_challenges = 3;
+
+  // Challenges allowed by policy and client capability.
+  repeated AuthenticationChallenge allowed_challenges = 4;
+
+  // Fallback challenges that may be used if the current path fails.
+  repeated AuthenticationChallenge fallback_challenges = 5;
+
+  // Delivery channel for the current challenge.
+  ChallengeDeliveryChannel delivery_channel = 6;
+
+  // Number of attempts already used for the current challenge.
+  int32 attempts_used = 7;
+
+  // Number of attempts remaining for the current challenge.
+  int32 attempts_remaining = 8;
+
+  // Time-to-live for the current challenge in seconds.
+  int64 ttl_seconds = 9;
+
+  // Whether a fallback challenge or provider has already been used.
+  bool fallback_used = 10;
+
+  // Reason codes explaining challenge selection.
+  repeated string selection_reasons = 11;
+}
+
+// ProviderDecisionContext captures provider selection and execution health.
+//
+// Example:
+// - Mobile ID provider selected in SIM-push mode
+// - SMS OTP fallback selected after Mobile ID degradation
+// - provider transaction id is stored for correlation
+message ProviderDecisionContext {
+  // Channel identifier used by the authentication configuration.
+  string channel_id = 1;
+
+  // Provider identifier selected for the current challenge.
+  string provider_id = 2;
+
+  // Type of selected provider.
+  ProviderType provider_type = 3;
+
+  // Current provider health.
+  ProviderHealth health = 4;
+
+  // Provider transaction identifier for correlation; not a secret.
+  string provider_transaction_id = 5;
+
+  // Mobile ID execution mode when provider_type is Mobile ID.
+  MobileIdMode mobile_id_mode = 6;
+
+  // Mobile network context for Mobile ID decisions.
+  MobileNetworkContext mobile_network = 7;
+
+  // Provider metrics used during selection.
+  ProviderMetrics metrics = 8;
+
+  // Additional non-sensitive provider attributes.
+  map<string, string> attributes = 9;
+}
+
+// MobileNetworkContext captures operator-level Mobile ID signals without raw PII.
+message MobileNetworkContext {
+  // Mobile country code.
+  string mcc = 1;
+
+  // Mobile network code.
+  string mnc = 2;
+
+  // Operator display name.
+  string operator_name = 3;
+
+  // ISO 3166 country code for the mobile network.
+  string country_code = 4;
+
+  // Hash of MSISDN or phone number; raw number must not be stored here.
+  string msisdn_hash = 5;
+
+  // Whether the subscriber appears to be roaming.
+  bool roaming = 6;
+
+  // Age of SIM swap signal in seconds when known.
+  int64 sim_swap_age_seconds = 7;
+
+  // Additional non-sensitive mobile network attributes.
+  map<string, string> attributes = 8;
+}
+
+// ProviderMetrics captures operational signals used for provider selection.
+message ProviderMetrics {
+  // Last observed provider latency in milliseconds.
+  int64 latency_ms = 1;
+
+  // Recent provider error rate.
+  double error_rate = 2;
+
+  // Recent provider success rate.
+  double success_rate = 3;
+
+  // Time of last successful provider interaction.
+  google.protobuf.Timestamp last_success_at = 4;
+
+  // Time of last failed provider interaction.
+  google.protobuf.Timestamp last_failure_at = 5;
+
+  // Consecutive provider failures observed before decision.
+  int32 consecutive_failures = 6;
+}
+
+// RiskSignalContext captures risk output and recommendations.
+//
+// Example:
+// - high velocity from a new device
+// - impossible travel detected
+// - risk recommends WebAuthn step-up
+message RiskSignalContext {
+  // Normalized risk score.
+  double score = 1;
+
+  // Coarse risk level.
+  RiskLevel level = 2;
+
+  // Individual risk signals that contributed to the score.
+  repeated RiskSignal signals = 3;
+
+  // Velocity-related risk signals.
+  VelocityContext velocity = 4;
+
+  // Behavior-related risk signals.
+  BehaviorContext behavior = 5;
+
+  // Whether risk recommends step-up authentication.
+  bool step_up_recommended = 6;
+
+  // Recommended OIDC-compatible acr value.
+  string recommended_acr = 7;
+
+  // Recommended challenges from risk evaluation.
+  repeated AuthenticationChallenge recommended_challenges = 8;
+}
+
+// RiskSignal describes one risk signal used by the decision.
+message RiskSignal {
+  // Stable signal name or code.
+  string name = 1;
+
+  // Signal score contribution.
+  double score = 2;
+
+  // Coarse risk level for the signal.
+  RiskLevel level = 3;
+
+  // Action recommended by this signal.
+  RiskAction action = 4;
+
+  // Reason code or short explanation.
+  string reason = 5;
+
+  // Time when the signal was observed.
+  google.protobuf.Timestamp observed_at = 6;
+
+  // Additional non-sensitive signal attributes.
+  map<string, string> attributes = 7;
+}
+
+// VelocityContext captures request and failure rates relevant to risk.
+message VelocityContext {
+  // Authentication attempts in the last minute.
+  int32 attempts_1m = 1;
+
+  // Authentication attempts in the last five minutes.
+  int32 attempts_5m = 2;
+
+  // Authentication attempts in the last hour.
+  int32 attempts_1h = 3;
+
+  // Authentication attempts in the last day.
+  int32 attempts_24h = 4;
+
+  // Failed authentication attempts in the active risk window.
+  int32 failed_attempts = 5;
+
+  // Distinct devices observed in the active risk window.
+  int32 distinct_devices = 6;
+
+  // Distinct networks observed in the active risk window.
+  int32 distinct_networks = 7;
+}
+
+// BehaviorContext captures behavior anomalies relevant to risk.
+message BehaviorContext {
+  // Whether the subject is known to the platform.
+  bool known_subject = 1;
+
+  // Whether the device is new for the subject.
+  bool new_device = 2;
+
+  // Whether the location is new for the subject.
+  bool new_location = 3;
+
+  // Whether impossible travel was detected.
+  bool impossible_travel = 4;
+
+  // Whether request timing is unusual for the subject.
+  bool abnormal_time = 5;
+
+  // Whether user behavior differs from baseline.
+  bool behavior_anomaly = 6;
+
+  // Additional non-sensitive behavior attributes.
+  map<string, string> attributes = 7;
+}
+
+// PolicyContext captures policy requirements applied to the decision.
+//
+// Example:
+// - policy requires m8:aal3
+// - policy denies password for privileged operations
+// - policy allows Mobile ID SMS fallback
+message PolicyContext {
+  // Policy identifier.
+  string policy_id = 1;
+
+  // Policy version.
+  string policy_version = 2;
+
+  // Policy execution mode.
+  PolicyMode mode = 3;
+
+  // Strategy used to combine policy rules.
+  DecisionStrategy strategy = 4;
+
+  // Required OIDC-compatible acr value.
+  string required_acr = 5;
+
+  // Challenges allowed by policy.
+  repeated AuthenticationChallenge allowed_challenges = 6;
+
+  // Challenges denied by policy.
+  repeated AuthenticationChallenge denied_challenges = 7;
+
+  // Whether fallback is allowed.
+  bool fallback_allowed = 8;
+
+  // Whether anti-enumeration behavior is required.
+  bool anti_enumeration_required = 9;
+
+  // Whether transaction binding is required.
+  bool transaction_binding_required = 10;
+
+  // Whether phishing-resistant authentication is required.
+  bool phishing_resistant_required = 11;
+
+  // Additional non-sensitive policy attributes.
+  map<string, string> attributes = 12;
+}
+
+// EvidenceContext captures reusable authentication evidence for audit and policy.
+//
+// Example:
+// - previous authentication id used for max_age
+// - achieved acr/amr after successful challenge
+// - external provider evidence stored by reference
+message EvidenceContext {
+  // Previous authentication identifiers relevant to this decision.
+  repeated string previous_authentication_ids = 1;
+
+  // Authentication operation identifier that produced this evidence.
+  string authentication_id = 2;
+
+  // Achieved OIDC-compatible acr value.
+  string achieved_acr = 3;
+
+  // Achieved OIDC-compatible amr values.
+  repeated string achieved_amr = 4;
+
+  // Achieved normalized method references.
+  repeated AuthenticationMethodReference achieved_method_references = 5;
+
+  // Time when authentication occurred.
+  google.protobuf.Timestamp auth_time = 6;
+
+  // External evidence represented by safe references.
+  ExternalEvidence external = 7;
+
+  // Whether this evidence may be reused for future decisions.
+  bool reusable = 8;
+}
+
+// ExternalEvidence represents evidence from a provider without storing raw tokens or secrets.
+message ExternalEvidence {
+  // External provider identifier.
+  string provider_id = 1;
+
+  // External provider type.
+  ProviderType provider_type = 2;
+
+  // Provider evidence identifier.
+  string evidence_id = 3;
+
+  // Opaque reference to stored evidence.
+  string evidence_ref = 4;
+
+  // Time when the evidence was issued.
+  google.protobuf.Timestamp issued_at = 5;
+
+  // Time when the evidence expires.
+  google.protobuf.Timestamp expires_at = 6;
+
+  // Assurance level asserted by the provider.
+  AuthenticationAssuranceLevel assurance_level = 7;
+
+  // OIDC-compatible amr values asserted by the provider.
+  repeated string amr = 8;
+
+  // Additional non-sensitive evidence attributes.
+  map<string, string> attributes = 9;
+}

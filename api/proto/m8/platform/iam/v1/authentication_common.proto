@@ -1,0 +1,500 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Source from which an authentication request entered the platform.
+enum RequestSource {
+  // Request source is not specified.
+  REQUEST_SOURCE_UNSPECIFIED = 0;
+
+  // Request originated from a browser-based web application.
+  REQUEST_SOURCE_WEB = 1;
+
+  // Request originated from a native mobile application.
+  REQUEST_SOURCE_MOBILE_APP = 2;
+
+  // Request originated from a backend API integration.
+  REQUEST_SOURCE_API = 3;
+
+  // Request originated from an internal back-office system.
+  REQUEST_SOURCE_BACKOFFICE = 4;
+
+  // Request originated from a retail or point-of-sale channel.
+  REQUEST_SOURCE_RETAIL = 5;
+
+  // Request originated from a partner integration.
+  REQUEST_SOURCE_PARTNER = 6;
+
+  // Request originated from an internal system workflow.
+  REQUEST_SOURCE_SYSTEM = 7;
+}
+
+// Delivery channel used to expose a challenge to the user or client.
+enum ChallengeDeliveryChannel {
+  // Challenge delivery channel is not specified.
+  CHALLENGE_DELIVERY_CHANNEL_UNSPECIFIED = 0;
+
+  // One-time password is delivered by SMS.
+  CHALLENGE_DELIVERY_CHANNEL_SMS = 1;
+
+  // One-time password or link is delivered by email.
+  CHALLENGE_DELIVERY_CHANNEL_EMAIL = 2;
+
+  // Challenge is delivered through a push notification.
+  CHALLENGE_DELIVERY_CHANNEL_PUSH = 3;
+
+  // Challenge is delivered through Telegram.
+  CHALLENGE_DELIVERY_CHANNEL_TELEGRAM = 4;
+
+  // Challenge is delivered through VK.
+  CHALLENGE_DELIVERY_CHANNEL_VK = 5;
+
+  // Mobile ID challenge uses operator SIM-push approval.
+  CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SIM_PUSH = 6;
+
+  // Mobile ID challenge falls back to SMS OTP delivery.
+  CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SMS = 7;
+
+  // Challenge is delivered through a WebAuthn browser or client ceremony.
+  CHALLENGE_DELIVERY_CHANNEL_WEBAUTHN = 8;
+
+  // Challenge is delivered through an OpenID Connect redirect.
+  CHALLENGE_DELIVERY_CHANNEL_OIDC_REDIRECT = 9;
+
+  // Challenge is delivered through a SAML redirect.
+  CHALLENGE_DELIVERY_CHANNEL_SAML_REDIRECT = 10;
+}
+
+// Action selected by the decision pipeline for an authentication operation.
+enum AuthenticationDecisionAction {
+  // Decision action is not specified.
+  AUTHENTICATION_DECISION_ACTION_UNSPECIFIED = 0;
+
+  // Authentication may continue without an additional challenge.
+  AUTHENTICATION_DECISION_ACTION_ALLOW = 1;
+
+  // Authentication must be denied.
+  AUTHENTICATION_DECISION_ACTION_DENY = 2;
+
+  // A challenge must be presented to the user.
+  AUTHENTICATION_DECISION_ACTION_CHALLENGE = 3;
+
+  // A stronger challenge is required to raise assurance.
+  AUTHENTICATION_DECISION_ACTION_STEP_UP = 4;
+
+  // A fallback challenge or provider must be used.
+  AUTHENTICATION_DECISION_ACTION_FALLBACK = 5;
+
+  // Authentication requires manual or asynchronous review.
+  AUTHENTICATION_DECISION_ACTION_REVIEW = 6;
+}
+
+// Normalized authentication method reference used alongside OIDC-compatible amr strings.
+enum AuthenticationMethodReference {
+  // Authentication method reference is not specified.
+  AUTHENTICATION_METHOD_REFERENCE_UNSPECIFIED = 0;
+
+  // User authenticated with a password.
+  AUTHENTICATION_METHOD_REFERENCE_PASSWORD = 1;
+
+  // User authenticated with a one-time password.
+  AUTHENTICATION_METHOD_REFERENCE_OTP = 2;
+
+  // SMS participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SMS = 3;
+
+  // Email participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_EMAIL = 4;
+
+  // Multi-factor authentication was performed.
+  AUTHENTICATION_METHOD_REFERENCE_MFA = 5;
+
+  // Risk-based decisioning participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_RISK_BASED = 6;
+
+  // User approved authentication without entering a one-time password.
+  AUTHENTICATION_METHOD_REFERENCE_APPROVAL = 7;
+
+  // Push notification participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_PUSH = 8;
+
+  // Trusted device participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_TRUSTED_DEVICE = 9;
+
+  // Device-bound key participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_DEVICE_KEY = 10;
+
+  // Mobile ID participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_MOBILE_ID = 11;
+
+  // Operator SIM-push participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SIM_PUSH = 12;
+
+  // Mobile network operator verification participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_OPERATOR_VERIFIED = 13;
+
+  // WebAuthn participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_WEBAUTHN = 14;
+
+  // Passkey participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_PASSKEY = 15;
+
+  // Roaming security key participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SECURITY_KEY = 16;
+
+  // Authenticator user presence was verified.
+  AUTHENTICATION_METHOD_REFERENCE_USER_PRESENCE = 17;
+
+  // Authenticator user verification was performed.
+  AUTHENTICATION_METHOD_REFERENCE_USER_VERIFICATION = 18;
+
+  // OpenID Connect provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_OIDC = 19;
+
+  // SAML identity provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SAML = 20;
+
+  // Federated identity provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_FEDERATED = 21;
+
+  // Telegram participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_TELEGRAM = 22;
+
+  // VK participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_VK = 23;
+}
+
+// Coarse risk level produced by risk and policy evaluation.
+enum RiskLevel {
+  // Risk level is not specified.
+  RISK_LEVEL_UNSPECIFIED = 0;
+
+  // Risk is low and normal authentication can proceed.
+  RISK_LEVEL_LOW = 1;
+
+  // Risk is elevated but usually acceptable with normal controls.
+  RISK_LEVEL_MEDIUM = 2;
+
+  // Risk is high and usually requires step-up or review.
+  RISK_LEVEL_HIGH = 3;
+
+  // Risk is critical and usually requires deny or manual review.
+  RISK_LEVEL_CRITICAL = 4;
+}
+
+// Recommended action produced by risk evaluation.
+enum RiskAction {
+  // Risk action is not specified.
+  RISK_ACTION_UNSPECIFIED = 0;
+
+  // Risk engine recommends allowing authentication to continue.
+  RISK_ACTION_ALLOW = 1;
+
+  // Risk engine recommends presenting a challenge.
+  RISK_ACTION_CHALLENGE = 2;
+
+  // Risk engine recommends stronger authentication.
+  RISK_ACTION_STEP_UP = 3;
+
+  // Risk engine recommends denying authentication.
+  RISK_ACTION_DENY = 4;
+
+  // Risk engine recommends manual or asynchronous review.
+  RISK_ACTION_REVIEW = 5;
+}
+
+// Provider type selected to execute or delegate authentication.
+enum ProviderType {
+  // Provider type is not specified.
+  PROVIDER_TYPE_UNSPECIFIED = 0;
+
+  // Provider sends or validates one-time passwords.
+  PROVIDER_TYPE_OTP = 1;
+
+  // Provider handles explicit approval challenges.
+  PROVIDER_TYPE_APPROVAL = 2;
+
+  // Provider delegates authentication to Mobile ID.
+  PROVIDER_TYPE_MOBILE_ID = 3;
+
+  // Provider handles WebAuthn ceremonies.
+  PROVIDER_TYPE_WEBAUTHN = 4;
+
+  // Provider delegates authentication to OpenID Connect.
+  PROVIDER_TYPE_OIDC = 5;
+
+  // Provider delegates authentication to SAML.
+  PROVIDER_TYPE_SAML = 6;
+
+  // Provider validates passwords.
+  PROVIDER_TYPE_PASSWORD = 7;
+
+  // Provider handles notification delivery.
+  PROVIDER_TYPE_NOTIFICATION = 8;
+}
+
+// Runtime health of an authentication provider.
+enum ProviderHealth {
+  // Provider health is not specified.
+  PROVIDER_HEALTH_UNSPECIFIED = 0;
+
+  // Provider health is unknown.
+  PROVIDER_HEALTH_UNKNOWN = 1;
+
+  // Provider is healthy.
+  PROVIDER_HEALTH_HEALTHY = 2;
+
+  // Provider is degraded but may still be used.
+  PROVIDER_HEALTH_DEGRADED = 3;
+
+  // Provider is unavailable.
+  PROVIDER_HEALTH_UNAVAILABLE = 4;
+
+  // Provider is disabled by configuration or policy.
+  PROVIDER_HEALTH_DISABLED = 5;
+}
+
+// Mobile ID execution mode selected for the provider.
+enum MobileIdMode {
+  // Mobile ID mode is not specified.
+  MOBILE_ID_MODE_UNSPECIFIED = 0;
+
+  // Provider may choose the best supported Mobile ID mode.
+  MOBILE_ID_MODE_AUTO = 1;
+
+  // Mobile ID uses operator SIM-push approval.
+  MOBILE_ID_MODE_SIM_PUSH = 2;
+
+  // Mobile ID uses SMS OTP fallback.
+  MOBILE_ID_MODE_SMS_OTP = 3;
+
+  // Mobile ID uses silent operator verification when supported.
+  MOBILE_ID_MODE_SILENT = 4;
+
+  // Mobile ID is not supported for the current subject or operator.
+  MOBILE_ID_MODE_UNSUPPORTED = 5;
+}
+
+// Type of OAuth or platform client that initiated authentication.
+enum ClientType {
+  // Client type is not specified.
+  CLIENT_TYPE_UNSPECIFIED = 0;
+
+  // Browser-based web application.
+  CLIENT_TYPE_WEB = 1;
+
+  // Native mobile application.
+  CLIENT_TYPE_MOBILE = 2;
+
+  // Single-page application.
+  CLIENT_TYPE_SPA = 3;
+
+  // Server-side confidential application.
+  CLIENT_TYPE_SERVER_SIDE = 4;
+
+  // Machine-to-machine service client.
+  CLIENT_TYPE_SERVICE = 5;
+
+  // Command-line client.
+  CLIENT_TYPE_CLI = 6;
+
+  // Device or embedded client.
+  CLIENT_TYPE_DEVICE = 7;
+}
+
+// Trust level assigned to the requesting client.
+enum ClientTrustLevel {
+  // Client trust level is not specified.
+  CLIENT_TRUST_LEVEL_UNSPECIFIED = 0;
+
+  // Public client without strong client authentication.
+  CLIENT_TRUST_LEVEL_PUBLIC = 1;
+
+  // Confidential client with client authentication.
+  CLIENT_TRUST_LEVEL_CONFIDENTIAL = 2;
+
+  // Trusted client approved by the platform.
+  CLIENT_TRUST_LEVEL_TRUSTED = 3;
+
+  // First-party client owned by the tenant or platform.
+  CLIENT_TRUST_LEVEL_FIRST_PARTY = 4;
+
+  // Third-party client outside direct platform control.
+  CLIENT_TRUST_LEVEL_THIRD_PARTY = 5;
+
+  // Client is considered high risk by policy or history.
+  CLIENT_TRUST_LEVEL_HIGH_RISK = 6;
+}
+
+// Status of the subject in the identity system.
+enum UserStatus {
+  // User status is not specified.
+  USER_STATUS_UNSPECIFIED = 0;
+
+  // User is active.
+  USER_STATUS_ACTIVE = 1;
+
+  // User is locked.
+  USER_STATUS_LOCKED = 2;
+
+  // User is disabled.
+  USER_STATUS_DISABLED = 3;
+
+  // User is pending activation or enrollment.
+  USER_STATUS_PENDING = 4;
+
+  // User is suspended by policy or administration.
+  USER_STATUS_SUSPENDED = 5;
+
+  // User has been deleted.
+  USER_STATUS_DELETED = 6;
+}
+
+// Type of device observed during authentication.
+enum DeviceType {
+  // Device type is not specified.
+  DEVICE_TYPE_UNSPECIFIED = 0;
+
+  // Device type is unknown.
+  DEVICE_TYPE_UNKNOWN = 1;
+
+  // Desktop or laptop device.
+  DEVICE_TYPE_DESKTOP = 2;
+
+  // Mobile phone device.
+  DEVICE_TYPE_MOBILE = 3;
+
+  // Tablet device.
+  DEVICE_TYPE_TABLET = 4;
+
+  // Server-side device or workload.
+  DEVICE_TYPE_SERVER = 5;
+
+  // Browser-only device context.
+  DEVICE_TYPE_BROWSER = 6;
+
+  // Embedded or IoT device.
+  DEVICE_TYPE_IOT = 7;
+}
+
+// Trust level assigned to the device.
+enum DeviceTrustLevel {
+  // Device trust level is not specified.
+  DEVICE_TRUST_LEVEL_UNSPECIFIED = 0;
+
+  // Device trust is unknown.
+  DEVICE_TRUST_LEVEL_UNKNOWN = 1;
+
+  // Device is not trusted.
+  DEVICE_TRUST_LEVEL_UNTRUSTED = 2;
+
+  // Device is known but not fully trusted.
+  DEVICE_TRUST_LEVEL_KNOWN = 3;
+
+  // Device is trusted by the tenant or platform.
+  DEVICE_TRUST_LEVEL_TRUSTED = 4;
+
+  // Device is managed by an enterprise control plane.
+  DEVICE_TRUST_LEVEL_MANAGED = 5;
+
+  // Device is suspected or confirmed compromised.
+  DEVICE_TRUST_LEVEL_COMPROMISED = 6;
+}
+
+// Sensitivity of the operation protected by authentication.
+enum OperationSensitivity {
+  // Operation sensitivity is not specified.
+  OPERATION_SENSITIVITY_UNSPECIFIED = 0;
+
+  // Low-sensitivity operation.
+  OPERATION_SENSITIVITY_LOW = 1;
+
+  // Medium-sensitivity operation.
+  OPERATION_SENSITIVITY_MEDIUM = 2;
+
+  // High-sensitivity operation.
+  OPERATION_SENSITIVITY_HIGH = 3;
+
+  // Critical operation with the strongest controls.
+  OPERATION_SENSITIVITY_CRITICAL = 4;
+}
+
+// Policy execution mode used for a decision.
+enum PolicyMode {
+  // Policy mode is not specified.
+  POLICY_MODE_UNSPECIFIED = 0;
+
+  // Policy is enforced.
+  POLICY_MODE_ENFORCE = 1;
+
+  // Policy is evaluated but not enforced.
+  POLICY_MODE_SHADOW = 2;
+
+  // Policy is evaluated as a dry run.
+  POLICY_MODE_DRY_RUN = 3;
+
+  // Policy is disabled.
+  POLICY_MODE_DISABLED = 4;
+}
+
+// Strategy used to combine policy and risk decisions.
+enum DecisionStrategy {
+  // Decision strategy is not specified.
+  DECISION_STRATEGY_UNSPECIFIED = 0;
+
+  // First matching policy rule wins.
+  DECISION_STRATEGY_FIRST_MATCH = 1;
+
+  // Highest risk result wins.
+  DECISION_STRATEGY_HIGHEST_RISK = 2;
+
+  // Most restrictive result wins.
+  DECISION_STRATEGY_MOST_RESTRICTIVE = 3;
+
+  // Weighted scoring decides the result.
+  DECISION_STRATEGY_WEIGHTED = 4;
+
+  // Rule tree decides the result.
+  DECISION_STRATEGY_RULE_TREE = 5;
+}
+
+// OAuth or delegated authentication flow associated with the request.
+enum OAuthFlow {
+  // OAuth flow is not specified.
+  OAUTH_FLOW_UNSPECIFIED = 0;
+
+  // Authorization code flow.
+  OAUTH_FLOW_AUTHORIZATION_CODE = 1;
+
+  // Device authorization flow.
+  OAUTH_FLOW_DEVICE_CODE = 2;
+
+  // Client credentials flow.
+  OAUTH_FLOW_CLIENT_CREDENTIALS = 3;
+
+  // Client-initiated backchannel authentication flow.
+  OAUTH_FLOW_CIBA = 4;
+
+  // Token exchange flow.
+  OAUTH_FLOW_TOKEN_EXCHANGE = 5;
+
+  // Refresh token flow.
+  OAUTH_FLOW_REFRESH_TOKEN = 6;
+}
+
+// Delivery mode for Client-Initiated Backchannel Authentication.
+enum CibaDeliveryMode {
+  // CIBA delivery mode is not specified.
+  CIBA_DELIVERY_MODE_UNSPECIFIED = 0;
+
+  // Client polls the authorization server for completion.
+  CIBA_DELIVERY_MODE_POLL = 1;
+
+  // Authorization server pings the client after completion.
+  CIBA_DELIVERY_MODE_PING = 2;
+
+  // Authorization server pushes the final result to the client.
+  CIBA_DELIVERY_MODE_PUSH = 3;
+}
