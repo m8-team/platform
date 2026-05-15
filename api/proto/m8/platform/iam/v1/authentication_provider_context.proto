@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Provider type selected to execute or delegate authentication.
+enum ProviderType {
+  // Provider type is not specified.
+  PROVIDER_TYPE_UNSPECIFIED = 0;
+
+  // Provider sends or validates one-time passwords.
+  PROVIDER_TYPE_OTP = 1;
+
+  // Provider handles explicit approval challenges.
+  PROVIDER_TYPE_APPROVAL = 2;
+
+  // Provider delegates authentication to Mobile ID.
+  PROVIDER_TYPE_MOBILE_ID = 3;
+
+  // Provider handles WebAuthn ceremonies.
+  PROVIDER_TYPE_WEBAUTHN = 4;
+
+  // Provider delegates authentication to OpenID Connect.
+  PROVIDER_TYPE_OIDC = 5;
+
+  // Provider delegates authentication to SAML.
+  PROVIDER_TYPE_SAML = 6;
+
+  // Provider validates passwords.
+  PROVIDER_TYPE_PASSWORD = 7;
+
+  // Provider handles notification delivery.
+  PROVIDER_TYPE_NOTIFICATION = 8;
+}
+
+// Runtime health of an authentication provider.
+enum ProviderHealth {
+  // Provider health is not specified.
+  PROVIDER_HEALTH_UNSPECIFIED = 0;
+
+  // Provider health is unknown.
+  PROVIDER_HEALTH_UNKNOWN = 1;
+
+  // Provider is healthy.
+  PROVIDER_HEALTH_HEALTHY = 2;
+
+  // Provider is degraded but may still be used.
+  PROVIDER_HEALTH_DEGRADED = 3;
+
+  // Provider is unavailable.
+  PROVIDER_HEALTH_UNAVAILABLE = 4;
+
+  // Provider is disabled by configuration or policy.
+  PROVIDER_HEALTH_DISABLED = 5;
+}
+
+// Mobile ID execution mode selected for the provider.
+enum MobileIdMode {
+  // Mobile ID mode is not specified.
+  MOBILE_ID_MODE_UNSPECIFIED = 0;
+
+  // Provider may choose the best supported Mobile ID mode.
+  MOBILE_ID_MODE_AUTO = 1;
+
+  // Mobile ID uses operator SIM-push approval.
+  MOBILE_ID_MODE_SIM_PUSH = 2;
+
+  // Mobile ID uses SMS OTP fallback.
+  MOBILE_ID_MODE_SMS_OTP = 3;
+
+  // Mobile ID uses silent operator verification when supported.
+  MOBILE_ID_MODE_SILENT = 4;
+
+  // Mobile ID is not supported for the current subject or operator.
+  MOBILE_ID_MODE_UNSUPPORTED = 5;
+}
+
+// ProviderDecisionContext captures provider selection and execution health.
+//
+// Example:
+// - Mobile ID provider selected in SIM-push mode
+// - SMS OTP fallback selected after Mobile ID degradation
+// - provider transaction id is stored for correlation
+message ProviderDecisionContext {
+  // Channel identifier used by the authentication configuration.
+  string channel_id = 1;
+
+  // Provider identifier selected for the current challenge.
+  string provider_id = 2;
+
+  // Type of selected provider.
+  ProviderType provider_type = 3;
+
+  // Current provider health.
+  ProviderHealth health = 4;
+
+  // Provider transaction identifier for correlation; not a secret.
+  string provider_transaction_id = 5;
+
+  // Mobile ID execution mode when provider_type is Mobile ID.
+  MobileIdMode mobile_id_mode = 6;
+
+  // Mobile network context for Mobile ID decisions.
+  MobileNetworkContext mobile_network = 7;
+
+  // Provider metrics used during selection.
+  ProviderMetrics metrics = 8;
+
+  // Additional non-sensitive provider attributes.
+  map<string, string> attributes = 9;
+}
+
+// MobileNetworkContext captures operator-level Mobile ID signals without raw PII.
+message MobileNetworkContext {
+  // Mobile country code.
+  string mcc = 1;
+
+  // Mobile network code.
+  string mnc = 2;
+
+  // Operator display name.
+  string operator_name = 3;
+
+  // ISO 3166 country code for the mobile network.
+  string country_code = 4;
+
+  // Hash of MSISDN or phone number; raw number must not be stored here.
+  string msisdn_hash = 5;
+
+  // Whether the subscriber appears to be roaming.
+  bool roaming = 6;
+
+  // Age of SIM swap signal in seconds when known.
+  int64 sim_swap_age_seconds = 7;
+
+  // Additional non-sensitive mobile network attributes.
+  map<string, string> attributes = 8;
+}
+
+// ProviderMetrics captures operational signals used for provider selection.
+message ProviderMetrics {
+  // Last observed provider latency in milliseconds.
+  int64 latency_ms = 1;
+
+  // Recent provider error rate.
+  double error_rate = 2;
+
+  // Recent provider success rate.
+  double success_rate = 3;
+
+  // Time of last successful provider interaction.
+  google.protobuf.Timestamp last_success_at = 4;
+
+  // Time of last failed provider interaction.
+  google.protobuf.Timestamp last_failure_at = 5;
+
+  // Consecutive provider failures observed before decision.
+  int32 consecutive_failures = 6;
+}

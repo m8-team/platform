@@ -72,6 +72,7 @@ func NewMobileIDSMSFallbackDecision(decisionID string, decisionTime time.Time) *
 		SelectedChallenge: iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
 		CurrentChallenge:  iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_OTP,
 		DeliveryChannel:   iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SMS,
+		RequiredAcr:       "m8:aal2",
 		ExpectedAmr:       []string{"mobile_id", "otp", "sms"},
 		ExpectedMethodReferences: []iam.AuthenticationMethodReference{
 			iam.AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_MOBILE_ID,
@@ -80,6 +81,38 @@ func NewMobileIDSMSFallbackDecision(decisionID string, decisionTime time.Time) *
 		},
 		Reasons:      []string{"mobile_id_sms_fallback"},
 		DecisionTime: timestamppb.New(decisionTime),
+	}
+}
+
+// NewMobileIDSIMPushDecision builds the canonical Mobile ID SIM-push approval decision.
+func NewMobileIDSIMPushDecision(decisionID string, decisionTime time.Time) *iam.AuthenticationDecision {
+	return &iam.AuthenticationDecision{
+		DecisionId:        decisionID,
+		Action:            iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE,
+		SelectedChallenge: iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
+		CurrentChallenge:  iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
+		DeliveryChannel:   iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SIM_PUSH,
+		RequiredAcr:       "m8:aal2+",
+		ExpectedAmr:       []string{"mobile_id", "sim_push", "approval"},
+		ExpectedMethodReferences: []iam.AuthenticationMethodReference{
+			iam.AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_MOBILE_ID,
+			iam.AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_SIM_PUSH,
+			iam.AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_APPROVAL,
+		},
+		Reasons:      []string{"mobile_id_sim_push"},
+		DecisionTime: timestamppb.New(decisionTime),
+	}
+}
+
+// NewMobileIDProviderContext builds provider context for a Mobile ID provider mode.
+func NewMobileIDProviderContext(channelID, providerID, providerTransactionID string, mode iam.MobileIdMode) *iam.ProviderDecisionContext {
+	return &iam.ProviderDecisionContext{
+		ChannelId:             channelID,
+		ProviderId:            providerID,
+		ProviderType:          iam.ProviderType_PROVIDER_TYPE_MOBILE_ID,
+		Health:                iam.ProviderHealth_PROVIDER_HEALTH_HEALTHY,
+		ProviderTransactionId: providerTransactionID,
+		MobileIdMode:          mode,
 	}
 }
 

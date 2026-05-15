@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// OAuth or delegated authentication flow associated with the request.
+enum OAuthFlow {
+  // OAuth flow is not specified.
+  OAUTH_FLOW_UNSPECIFIED = 0;
+
+  // Authorization code flow.
+  OAUTH_FLOW_AUTHORIZATION_CODE = 1;
+
+  // Device authorization flow.
+  OAUTH_FLOW_DEVICE_CODE = 2;
+
+  // Client credentials flow.
+  OAUTH_FLOW_CLIENT_CREDENTIALS = 3;
+
+  // Client-initiated backchannel authentication flow.
+  OAUTH_FLOW_CIBA = 4;
+
+  // Token exchange flow.
+  OAUTH_FLOW_TOKEN_EXCHANGE = 5;
+
+  // Refresh token flow.
+  OAUTH_FLOW_REFRESH_TOKEN = 6;
+}
+
+// Delivery mode for Client-Initiated Backchannel Authentication.
+enum CibaDeliveryMode {
+  // CIBA delivery mode is not specified.
+  CIBA_DELIVERY_MODE_UNSPECIFIED = 0;
+
+  // Client polls the authorization server for completion.
+  CIBA_DELIVERY_MODE_POLL = 1;
+
+  // Authorization server pings the client after completion.
+  CIBA_DELIVERY_MODE_PING = 2;
+
+  // Authorization server pushes the final result to the client.
+  CIBA_DELIVERY_MODE_PUSH = 3;
+}
+
+// OAuthContext captures OAuth, OpenID Connect, SAML, and CIBA request state.
+//
+// Example:
+// - authorization code flow with acr_values
+// - CIBA request with binding message
+// - delegated authentication through an external identity provider
+message OAuthContext {
+  // OAuth or delegated authentication flow.
+  OAuthFlow flow = 1;
+
+  // Issuer or authorization server identifier.
+  string issuer = 2;
+
+  // Realm used by the authorization server.
+  string realm = 3;
+
+  // OAuth client identifier.
+  string client_id = 4;
+
+  // Requested OAuth scopes.
+  repeated string scopes = 5;
+
+  // Requested token audiences.
+  repeated string audiences = 6;
+
+  // Requested OIDC-compatible acr values.
+  repeated string acr_values = 7;
+
+  // OIDC prompt parameter.
+  string prompt = 8;
+
+  // OIDC max_age parameter in seconds.
+  int64 max_age_seconds = 9;
+
+  // Masked, hashed, or opaque login hint reference used to identify the subject.
+  // Raw email, phone, username, or other full PII must not be stored here.
+  string login_hint = 10;
+
+  // Client-Initiated Backchannel Authentication context.
+  CibaContext ciba = 11;
+}
+
+// CibaContext captures delegated backchannel authentication state.
+//
+// Example:
+// - Keycloak-compatible CIBA auth_req_id
+// - binding message displayed to the user
+// - callback token reference instead of raw callback token
+message CibaContext {
+  // CIBA authentication request identifier.
+  string auth_req_id = 1;
+
+  // Binding message shown to the user or authenticator.
+  string binding_message = 2;
+
+  // Masked, hashed, or opaque user code reference when the flow requires one.
+  // Raw user code must not be stored here.
+  string user_code = 3;
+
+  // CIBA delivery mode.
+  CibaDeliveryMode delivery_mode = 4;
+
+  // Reference to a stored callback token; raw token must not be stored here.
+  string callback_token_ref = 5;
+
+  // Time when auth_req_id expires.
+  google.protobuf.Timestamp expires_at = 6;
+
+  // Polling interval in seconds for poll mode.
+  int64 polling_interval_seconds = 7;
+}
+
+// DpopContext captures DPoP token-binding state.
+//
+// Example:
+// - DPoP proof thumbprint binds a token to a key
+// - proof is verified independently from user challenge selection
+// - nonce is tracked for replay protection
+message DpopContext {
+  // Whether DPoP proof is required.
+  bool required = 1;
+
+  // JWK thumbprint used for token binding.
+  string jkt = 2;
+
+  // Whether the DPoP proof has been verified.
+  bool proof_verified = 3;
+
+  // DPoP nonce used for replay protection.
+  string nonce = 4;
+
+  // DPoP proof JWT identifier.
+  string proof_jti = 5;
+
+  // DPoP proof issued-at time.
+  google.protobuf.Timestamp proof_iat = 6;
+}

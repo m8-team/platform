@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "m8/platform/iam/v1/authentication_assurance_level.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Normalized authentication method reference used alongside OIDC-compatible amr strings.
+enum AuthenticationMethodReference {
+  // Authentication method reference is not specified.
+  AUTHENTICATION_METHOD_REFERENCE_UNSPECIFIED = 0;
+
+  // User authenticated with a password.
+  AUTHENTICATION_METHOD_REFERENCE_PASSWORD = 1;
+
+  // User authenticated with a one-time password.
+  AUTHENTICATION_METHOD_REFERENCE_OTP = 2;
+
+  // SMS participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SMS = 3;
+
+  // Email participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_EMAIL = 4;
+
+  // Multi-factor authentication was performed.
+  AUTHENTICATION_METHOD_REFERENCE_MFA = 5;
+
+  // Risk-based decisioning participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_RISK_BASED = 6;
+
+  // User approved authentication without entering a one-time password.
+  AUTHENTICATION_METHOD_REFERENCE_APPROVAL = 7;
+
+  // Push notification participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_PUSH = 8;
+
+  // Trusted device participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_TRUSTED_DEVICE = 9;
+
+  // Device-bound key participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_DEVICE_KEY = 10;
+
+  // Mobile ID participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_MOBILE_ID = 11;
+
+  // Operator SIM-push participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SIM_PUSH = 12;
+
+  // Mobile network operator verification participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_OPERATOR_VERIFIED = 13;
+
+  // WebAuthn participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_WEBAUTHN = 14;
+
+  // Passkey participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_PASSKEY = 15;
+
+  // Roaming security key participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SECURITY_KEY = 16;
+
+  // Authenticator user presence was verified.
+  AUTHENTICATION_METHOD_REFERENCE_USER_PRESENCE = 17;
+
+  // Authenticator user verification was performed.
+  AUTHENTICATION_METHOD_REFERENCE_USER_VERIFICATION = 18;
+
+  // OpenID Connect provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_OIDC = 19;
+
+  // SAML identity provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_SAML = 20;
+
+  // Federated identity provider participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_FEDERATED = 21;
+
+  // Telegram participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_TELEGRAM = 22;
+
+  // VK participated in authentication.
+  AUTHENTICATION_METHOD_REFERENCE_VK = 23;
+}
+
+// AssuranceContext captures requested and achieved authentication assurance.
+//
+// Example:
+// - requested acr_values include m8:aal3
+// - current session has password authentication only
+// - policy requires phishing-resistant MFA for step-up
+message AssuranceContext {
+  // Requested OIDC-compatible acr values.
+  repeated string requested_acr_values = 1;
+
+  // Required OIDC-compatible acr value after policy evaluation.
+  string required_acr = 2;
+
+  // Current OIDC-compatible acr value.
+  string current_acr = 3;
+
+  // Target OIDC-compatible acr value the flow should achieve.
+  string target_acr = 4;
+
+  // Current OIDC-compatible amr values.
+  repeated string current_amr = 5;
+
+  // Preferred OIDC-compatible amr values for the next challenge.
+  repeated string preferred_amr = 6;
+
+  // Current normalized method references.
+  repeated AuthenticationMethodReference current_method_references = 7;
+
+  // Current normalized assurance level.
+  AuthenticationAssuranceLevel current_level = 8;
+
+  // Target normalized assurance level.
+  AuthenticationAssuranceLevel target_level = 9;
+
+  // Whether this decision is a step-up from an existing session.
+  bool step_up = 10;
+
+  // Maximum accepted age of the existing authentication in seconds.
+  int64 max_age_seconds = 11;
+
+  // Whether phishing-resistant authentication is required.
+  bool phishing_resistant_required = 12;
+
+  // Whether multi-factor authentication is required.
+  bool mfa_required = 13;
+}

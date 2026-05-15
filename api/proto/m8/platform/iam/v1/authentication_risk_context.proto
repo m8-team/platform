@@ -1,0 +1,152 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_challenge.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Coarse risk level produced by risk and policy evaluation.
+enum RiskLevel {
+  // Risk level is not specified.
+  RISK_LEVEL_UNSPECIFIED = 0;
+
+  // Risk is low and normal authentication can proceed.
+  RISK_LEVEL_LOW = 1;
+
+  // Risk is elevated but usually acceptable with normal controls.
+  RISK_LEVEL_MEDIUM = 2;
+
+  // Risk is high and usually requires step-up or review.
+  RISK_LEVEL_HIGH = 3;
+
+  // Risk is critical and usually requires deny or manual review.
+  RISK_LEVEL_CRITICAL = 4;
+}
+
+// Recommended action produced by risk evaluation.
+enum RiskAction {
+  // Risk action is not specified.
+  RISK_ACTION_UNSPECIFIED = 0;
+
+  // Risk engine recommends allowing authentication to continue.
+  RISK_ACTION_ALLOW = 1;
+
+  // Risk engine recommends presenting a challenge.
+  RISK_ACTION_CHALLENGE = 2;
+
+  // Risk engine recommends stronger authentication.
+  RISK_ACTION_STEP_UP = 3;
+
+  // Risk engine recommends denying authentication.
+  RISK_ACTION_DENY = 4;
+
+  // Risk engine recommends manual or asynchronous review.
+  RISK_ACTION_REVIEW = 5;
+}
+
+// RiskSignalContext captures risk output and recommendations.
+// M8 Risk Decision owns adaptive security rules and produces these values.
+//
+// Example:
+// - high velocity from a new device
+// - impossible travel detected
+// - risk recommends WebAuthn step-up
+message RiskSignalContext {
+  // Normalized risk score.
+  double score = 1;
+
+  // Coarse risk level.
+  RiskLevel level = 2;
+
+  // Individual risk signals that contributed to the score.
+  repeated RiskSignal signals = 3;
+
+  // Velocity-related risk signals.
+  VelocityContext velocity = 4;
+
+  // Behavior-related risk signals.
+  BehaviorContext behavior = 5;
+
+  // Whether risk recommends step-up authentication.
+  bool step_up_recommended = 6;
+
+  // Recommended OIDC-compatible acr value.
+  string recommended_acr = 7;
+
+  // Recommended challenges from risk evaluation.
+  repeated AuthenticationChallenge recommended_challenges = 8;
+}
+
+// RiskSignal describes one risk signal used by the decision.
+message RiskSignal {
+  // Stable signal name or code.
+  string name = 1;
+
+  // Signal score contribution.
+  double score = 2;
+
+  // Coarse risk level for the signal.
+  RiskLevel level = 3;
+
+  // Action recommended by this signal.
+  RiskAction action = 4;
+
+  // Reason code or short explanation.
+  string reason = 5;
+
+  // Time when the signal was observed.
+  google.protobuf.Timestamp observed_at = 6;
+
+  // Additional non-sensitive signal attributes.
+  map<string, string> attributes = 7;
+}
+
+// VelocityContext captures request and failure rates relevant to risk.
+message VelocityContext {
+  // Authentication attempts in the last minute.
+  int32 attempts_1m = 1;
+
+  // Authentication attempts in the last five minutes.
+  int32 attempts_5m = 2;
+
+  // Authentication attempts in the last hour.
+  int32 attempts_1h = 3;
+
+  // Authentication attempts in the last day.
+  int32 attempts_24h = 4;
+
+  // Failed authentication attempts in the active risk window.
+  int32 failed_attempts = 5;
+
+  // Distinct devices observed in the active risk window.
+  int32 distinct_devices = 6;
+
+  // Distinct networks observed in the active risk window.
+  int32 distinct_networks = 7;
+}
+
+// BehaviorContext captures behavior anomalies relevant to risk.
+message BehaviorContext {
+  // Whether the subject is known to the platform.
+  bool known_subject = 1;
+
+  // Whether the device is new for the subject.
+  bool new_device = 2;
+
+  // Whether the location is new for the subject.
+  bool new_location = 3;
+
+  // Whether impossible travel was detected.
+  bool impossible_travel = 4;
+
+  // Whether request timing is unusual for the subject.
+  bool abnormal_time = 5;
+
+  // Whether user behavior differs from baseline.
+  bool behavior_anomaly = 6;
+
+  // Additional non-sensitive behavior attributes.
+  map<string, string> attributes = 7;
+}

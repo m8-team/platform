@@ -49,6 +49,45 @@ func TestNewMobileIDSMSFallbackDecision(t *testing.T) {
 	if decision.GetDeliveryChannel() != iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SMS {
 		t.Fatalf("unexpected delivery channel: %v", decision.GetDeliveryChannel())
 	}
+	if decision.GetRequiredAcr() != "m8:aal2" {
+		t.Fatalf("unexpected required acr: %q", decision.GetRequiredAcr())
+	}
+}
+
+func TestNewMobileIDSIMPushDecision(t *testing.T) {
+	decision := NewMobileIDSIMPushDecision("decision-1", time.Unix(1700000000, 0).UTC())
+
+	if decision.GetAction() != iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE {
+		t.Fatalf("unexpected action: %v", decision.GetAction())
+	}
+	if decision.GetSelectedChallenge() != iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID {
+		t.Fatalf("unexpected selected challenge: %v", decision.GetSelectedChallenge())
+	}
+	if decision.GetCurrentChallenge() != iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID {
+		t.Fatalf("unexpected current challenge: %v", decision.GetCurrentChallenge())
+	}
+	if decision.GetDeliveryChannel() != iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SIM_PUSH {
+		t.Fatalf("unexpected delivery channel: %v", decision.GetDeliveryChannel())
+	}
+	if decision.GetRequiredAcr() != "m8:aal2+" {
+		t.Fatalf("unexpected required acr: %q", decision.GetRequiredAcr())
+	}
+}
+
+func TestNewMobileIDProviderContext(t *testing.T) {
+	provider := NewMobileIDProviderContext(
+		"channel-1",
+		"provider-1",
+		"provider-transaction-1",
+		iam.MobileIdMode_MOBILE_ID_MODE_SMS_OTP,
+	)
+
+	if provider.GetProviderType() != iam.ProviderType_PROVIDER_TYPE_MOBILE_ID {
+		t.Fatalf("unexpected provider type: %v", provider.GetProviderType())
+	}
+	if provider.GetMobileIdMode() != iam.MobileIdMode_MOBILE_ID_MODE_SMS_OTP {
+		t.Fatalf("unexpected mobile id mode: %v", provider.GetMobileIdMode())
+	}
 }
 
 func TestNewWebAuthnStepUpDecision(t *testing.T) {

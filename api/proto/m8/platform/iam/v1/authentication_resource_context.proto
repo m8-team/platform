@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "m8/platform/iam/v1/authentication_challenge.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Type of OAuth or platform client that initiated authentication.
+enum ClientType {
+  // Client type is not specified.
+  CLIENT_TYPE_UNSPECIFIED = 0;
+
+  // Browser-based web application.
+  CLIENT_TYPE_WEB = 1;
+
+  // Native mobile application.
+  CLIENT_TYPE_MOBILE = 2;
+
+  // Single-page application.
+  CLIENT_TYPE_SPA = 3;
+
+  // Server-side confidential application.
+  CLIENT_TYPE_SERVER_SIDE = 4;
+
+  // Machine-to-machine service client.
+  CLIENT_TYPE_SERVICE = 5;
+
+  // Command-line client.
+  CLIENT_TYPE_CLI = 6;
+
+  // Device or embedded client.
+  CLIENT_TYPE_DEVICE = 7;
+}
+
+// Trust level assigned to the requesting client.
+enum ClientTrustLevel {
+  // Client trust level is not specified.
+  CLIENT_TRUST_LEVEL_UNSPECIFIED = 0;
+
+  // Public client without strong client authentication.
+  CLIENT_TRUST_LEVEL_PUBLIC = 1;
+
+  // Confidential client with client authentication.
+  CLIENT_TRUST_LEVEL_CONFIDENTIAL = 2;
+
+  // Trusted client approved by the platform.
+  CLIENT_TRUST_LEVEL_TRUSTED = 3;
+
+  // First-party client owned by the tenant or platform.
+  CLIENT_TRUST_LEVEL_FIRST_PARTY = 4;
+
+  // Third-party client outside direct platform control.
+  CLIENT_TRUST_LEVEL_THIRD_PARTY = 5;
+
+  // Client is considered high risk by policy or history.
+  CLIENT_TRUST_LEVEL_HIGH_RISK = 6;
+}
+
+// Sensitivity of the operation protected by authentication.
+enum OperationSensitivity {
+  // Operation sensitivity is not specified.
+  OPERATION_SENSITIVITY_UNSPECIFIED = 0;
+
+  // Low-sensitivity operation.
+  OPERATION_SENSITIVITY_LOW = 1;
+
+  // Medium-sensitivity operation.
+  OPERATION_SENSITIVITY_MEDIUM = 2;
+
+  // High-sensitivity operation.
+  OPERATION_SENSITIVITY_HIGH = 3;
+
+  // Critical operation with the strongest controls.
+  OPERATION_SENSITIVITY_CRITICAL = 4;
+}
+
+// TenantContext identifies tenant boundary references for policy, risk, and audit.
+// Resource Manager remains the source of truth for tenant and resource hierarchy.
+//
+// Example:
+// - tenant id used to load policy
+// - realm used by an authorization server
+// - region used for data residency routing
+message TenantContext {
+  // Stable tenant identifier.
+  string tenant_id = 1;
+
+  // Stable organization identifier when different from tenant id.
+  string organization_id = 2;
+
+  // Authorization realm or tenant realm.
+  string realm = 3;
+
+  // Region where tenant policy and data should be evaluated.
+  string region = 4;
+
+  // Isolation domain for multi-tenant routing.
+  string isolation_domain = 5;
+
+  // Runtime environment such as prod, stage, or dev.
+  string environment = 6;
+
+  // Additional non-sensitive tenant attributes.
+  map<string, string> attributes = 7;
+}
+
+// ClientContext describes the client requesting authentication.
+// Resource Manager remains the source of truth for client configuration and lifecycle.
+//
+// Example:
+// - public mobile application
+// - confidential server-side web application
+// - first-party back-office client
+message ClientContext {
+  // OAuth or platform client identifier.
+  string client_id = 1;
+
+  // Client type used for policy and risk decisions.
+  ClientType type = 2;
+
+  // Trust level assigned to the client.
+  ClientTrustLevel trust_level = 3;
+
+  // Display name safe for audit and decision explanations.
+  string display_name = 4;
+
+  // Application identifier when separate from client id.
+  string application_id = 5;
+
+  // Redirect URI requested by the client.
+  string redirect_uri = 6;
+
+  // Whether the client is first-party.
+  bool first_party = 7;
+
+  // Whether the client authenticates as a confidential client.
+  bool confidential = 8;
+
+  // Challenges allowed for this client.
+  repeated AuthenticationChallenge allowed_challenges = 9;
+
+  // Additional non-sensitive client attributes.
+  map<string, string> attributes = 10;
+}
+
+// TransactionContext describes the protected operation for transaction-aware authentication decisions.
+// M8 Access remains responsible for deciding whether the subject may perform the operation.
+//
+// Example:
+// - transfer money to a counterparty
+// - update a privileged security setting
+// - access a sensitive resource
+message TransactionContext {
+  // Operation name or category.
+  string operation = 1;
+
+  // Resource affected by the operation.
+  ResourceRef resource = 2;
+
+  // Action being performed on the resource.
+  string action = 3;
+
+  // Sensitivity of the operation.
+  OperationSensitivity sensitivity = 4;
+
+  // Human-readable transaction binding message shown to the user.
+  string binding_message = 5;
+
+  // Short transaction binding code shown to the user.
+  string binding_code = 6;
+
+  // Monetary amount involved in the operation.
+  MoneyAmount amount = 7;
+
+  // Counterparty identifier or reference.
+  string counterparty_id = 8;
+
+  // Counterparty display name safe for audit and user confirmation.
+  string counterparty_display_name = 9;
+
+  // Whether the operation changes security posture.
+  bool security_sensitive = 10;
+
+  // Whether the operation changes privileges or roles.
+  bool privilege_sensitive = 11;
+
+  // Whether the operation accesses or changes sensitive data.
+  bool data_sensitive = 12;
+
+  // Additional non-sensitive transaction attributes.
+  map<string, string> attributes = 13;
+}
+
+// ResourceRef identifies a resource without embedding the full resource payload.
+// Resource Manager remains the source of truth for resource metadata and lifecycle.
+message ResourceRef {
+  // Resource type, such as account, project, or credential.
+  string type = 1;
+
+  // Resource identifier or opaque reference.
+  string id = 2;
+
+  // Tenant or namespace that owns the resource.
+  string owner_id = 3;
+
+  // Display name safe for audit.
+  string display_name = 4;
+}
+
+// MoneyAmount represents a monetary amount used for transaction risk.
+message MoneyAmount {
+  // ISO 4217 currency code.
+  string currency = 1;
+
+  // Decimal amount as a string to avoid floating-point loss.
+  string value = 2;
+}
