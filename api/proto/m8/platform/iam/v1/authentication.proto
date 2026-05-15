@@ -180,4 +180,15 @@ message Authentication {
       not_in: [0]
     }
   ];
+
+  // Output only. Monotonic version of the authentication operation.
+  // New authentication operations start with version 1.
+  //
+  // Example:
+  // - incremented after each persisted state transition
+  // - used to build etag and detect stale aggregate snapshots
+  int64 version = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int64.gte = 1
+  ];
 }
