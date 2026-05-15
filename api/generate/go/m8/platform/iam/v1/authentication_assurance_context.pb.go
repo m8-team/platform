@@ -37,7 +37,7 @@ const (
 	AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_EMAIL AuthenticationMethodReference = 4
 	// Multi-factor authentication was performed.
 	AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_MFA AuthenticationMethodReference = 5
-	// Risk-based decisioning participated in authentication.
+	// Adaptive decisioning participated in authentication.
 	AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_RISK_BASED AuthenticationMethodReference = 6
 	// User approved authentication without entering a one-time password.
 	AuthenticationMethodReference_AUTHENTICATION_METHOD_REFERENCE_APPROVAL AuthenticationMethodReference = 7
@@ -163,12 +163,12 @@ func (AuthenticationMethodReference) EnumDescriptor() ([]byte, []int) {
 // Example:
 // - requested acr_values include m8:aal3
 // - current session has password authentication only
-// - policy requires phishing-resistant MFA for step-up
+// - assurance requirements select phishing-resistant MFA for step-up
 type AssuranceContext struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Requested OIDC-compatible acr values.
 	RequestedAcrValues []string `protobuf:"bytes,1,rep,name=requested_acr_values,json=requestedAcrValues,proto3" json:"requested_acr_values,omitempty"`
-	// Required OIDC-compatible acr value after policy evaluation.
+	// Required OIDC-compatible acr value after assurance evaluation.
 	RequiredAcr string `protobuf:"bytes,2,opt,name=required_acr,json=requiredAcr,proto3" json:"required_acr,omitempty"`
 	// Current OIDC-compatible acr value.
 	CurrentAcr string `protobuf:"bytes,3,opt,name=current_acr,json=currentAcr,proto3" json:"current_acr,omitempty"`

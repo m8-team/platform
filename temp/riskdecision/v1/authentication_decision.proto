@@ -1,14 +1,14 @@
 syntax = "proto3";
 
-package m8.platform.iam.v1;
+package m8.platform.riskdecision.v1;
 
 import "google/protobuf/timestamp.proto";
 import "m8/platform/iam/v1/authentication_assurance_context.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_challenge_decision_context.proto";
-import "m8/platform/iam/v1/authentication_risk_context.proto";
+import "m8/platform/riskdecision/v1/authentication_risk_context.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
 
 // Action selected by the decision pipeline for an authentication operation.
 enum AuthenticationDecisionAction {
@@ -34,7 +34,8 @@ enum AuthenticationDecisionAction {
   AUTHENTICATION_DECISION_ACTION_REVIEW = 6;
 }
 
-// AuthenticationDecision is the decision output produced for an authentication context.
+// AuthenticationDecision is the Risk Decision output produced for an authentication context.
+// M8 Authentication executes this result but does not own adaptive decision rules.
 //
 // Example:
 // - allow a low-risk request without another challenge
@@ -48,13 +49,13 @@ message AuthenticationDecision {
   AuthenticationDecisionAction action = 2;
 
   // Primary challenge selected for the authentication operation.
-  AuthenticationChallenge selected_challenge = 3;
+  m8.platform.iam.v1.AuthenticationChallenge selected_challenge = 3;
 
   // Challenge that must be completed now.
-  AuthenticationChallenge current_challenge = 4;
+  m8.platform.iam.v1.AuthenticationChallenge current_challenge = 4;
 
   // Delivery channel used for the current challenge.
-  ChallengeDeliveryChannel delivery_channel = 5;
+  m8.platform.iam.v1.ChallengeDeliveryChannel delivery_channel = 5;
 
   // Required OIDC-compatible acr value.
   string required_acr = 6;
@@ -63,10 +64,10 @@ message AuthenticationDecision {
   repeated string expected_amr = 7;
 
   // Expected normalized method references.
-  repeated AuthenticationMethodReference expected_method_references = 8;
+  repeated m8.platform.iam.v1.AuthenticationMethodReference expected_method_references = 8;
 
   // Challenges that may be used if the selected challenge cannot complete.
-  repeated AuthenticationChallenge fallback_challenges = 9;
+  repeated m8.platform.iam.v1.AuthenticationChallenge fallback_challenges = 9;
 
   // Human-readable reason codes or short explanations for audit.
   repeated string reasons = 10;

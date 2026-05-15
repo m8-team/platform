@@ -113,7 +113,7 @@ const (
 	ProviderHealth_PROVIDER_HEALTH_DEGRADED ProviderHealth = 3
 	// Provider is unavailable.
 	ProviderHealth_PROVIDER_HEALTH_UNAVAILABLE ProviderHealth = 4
-	// Provider is disabled by configuration or policy.
+	// Provider is disabled by configuration.
 	ProviderHealth_PROVIDER_HEALTH_DISABLED ProviderHealth = 5
 )
 

@@ -24,7 +24,7 @@ enum UserStatus {
   // User is pending activation or enrollment.
   USER_STATUS_PENDING = 4;
 
-  // User is suspended by policy or administration.
+  // User is suspended by identity configuration or administration.
   USER_STATUS_SUSPENDED = 5;
 
   // User has been deleted.
@@ -57,8 +57,8 @@ message SubjectContext {
   // Subject status from the identity system.
   UserStatus status = 6;
 
-  // Risk group or segment assigned to the subject.
-  string risk_group = 7;
+  // Identity-owned subject segment or reference used as safe decision input.
+  string identity_segment_ref = 7;
 
   // Reference to a tenant-local user record.
   string tenant_user_ref = 8;

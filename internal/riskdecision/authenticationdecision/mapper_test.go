@@ -6,6 +6,7 @@ import (
 	"time"
 
 	iam "github.com/m8-team/go-genproto/m8/platform/iam/v1"
+	riskdecision "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1"
 )
 
 func TestCloneContextRejectsNil(t *testing.T) {
@@ -37,7 +38,7 @@ func TestCloneContextReturnsDetachedCopy(t *testing.T) {
 func TestNewMobileIDSMSFallbackDecision(t *testing.T) {
 	decision := NewMobileIDSMSFallbackDecision("decision-1", time.Unix(1700000000, 0).UTC())
 
-	if decision.GetAction() != iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_FALLBACK {
+	if decision.GetAction() != riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_FALLBACK {
 		t.Fatalf("unexpected action: %v", decision.GetAction())
 	}
 	if decision.GetSelectedChallenge() != iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID {
@@ -57,7 +58,7 @@ func TestNewMobileIDSMSFallbackDecision(t *testing.T) {
 func TestNewMobileIDSIMPushDecision(t *testing.T) {
 	decision := NewMobileIDSIMPushDecision("decision-1", time.Unix(1700000000, 0).UTC())
 
-	if decision.GetAction() != iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE {
+	if decision.GetAction() != riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE {
 		t.Fatalf("unexpected action: %v", decision.GetAction())
 	}
 	if decision.GetSelectedChallenge() != iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID {
@@ -93,7 +94,7 @@ func TestNewMobileIDProviderContext(t *testing.T) {
 func TestNewWebAuthnStepUpDecision(t *testing.T) {
 	decision := NewWebAuthnStepUpDecision("decision-1", time.Unix(1700000000, 0).UTC())
 
-	if decision.GetAction() != iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_STEP_UP {
+	if decision.GetAction() != riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_STEP_UP {
 		t.Fatalf("unexpected action: %v", decision.GetAction())
 	}
 	if decision.GetSelectedChallenge() != iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_WEBAUTHN {

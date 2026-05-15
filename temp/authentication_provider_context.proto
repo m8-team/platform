@@ -53,7 +53,7 @@ enum ProviderHealth {
   // Provider is unavailable.
   PROVIDER_HEALTH_UNAVAILABLE = 4;
 
-  // Provider is disabled by configuration or policy.
+  // Provider is disabled by configuration.
   PROVIDER_HEALTH_DISABLED = 5;
 }
 

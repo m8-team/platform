@@ -40,7 +40,7 @@ export enum AuthenticationState {
    * Example:
    * - Temporal workflow started
    * - tenant/user pool/client context is being prepared
-   * - authentication policy is being loaded
+   * - authentication requirements are being loaded
    *
    * @generated from enum value: AUTHENTICATION_STATE_INITIALIZING = 2;
    */
@@ -59,11 +59,11 @@ export enum AuthenticationState {
   IDENTIFYING = 3,
 
   /**
-   * Authentication risk and policy are being evaluated.
+   * Authentication decision inputs are being evaluated.
    *
    * Example:
-   * - device reputation check
-   * - velocity/rate-limit check
+   * - device and network inputs are being prepared
+   * - rate-limit check is being performed
    * - channel selection
    * - decision whether step-up is required
    *
@@ -142,7 +142,7 @@ export enum AuthenticationState {
    * Additional authentication factor is required.
    *
    * Example:
-   * - risk engine requires passkey step-up
+   * - external decision requires passkey step-up
    * - requested acr_values require stronger authentication
    * - sensitive operation requires fresh authentication
    *
@@ -238,11 +238,11 @@ export enum AuthenticationState {
   ATTEMPTS_EXCEEDED = 24,
 
   /**
-   * Authentication was blocked by policy or risk decision.
+   * Authentication was blocked by an external decision or assurance requirement.
    *
    * Example:
-   * - fraud risk is too high
-   * - user/device/channel is blocked
+   * - external decision denied the authentication
+   * - user, device, or channel is blocked
    * - rate limit exceeded
    *
    * Terminal state.

@@ -14,20 +14,7 @@ option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zend
 
 // Аутентификация
 message Authentication {
-  // Топик в Kafka
-  option (zenden.cloud.extension.v1.topic) = "auth.authentication.authentications";
 
-  // Версия сообщения
-  option (zenden.cloud.extension.v1.version) = "1";
-
-  // UUID запроса на аутентификацию (используется как correlation_id в случае МТС внутри)
-  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
-
-  // ID бизнес-процесса
-  string workflow_id = 2 [(google.api.field_behavior) = REQUIRED];
-
-  // Run ID бизнес-процесса
-  string run_id = 3 [(validate.rules).string = {uuid: true, ignore_empty: true}];
 
   // UUID соединения
   string channel_id = 4 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
@@ -68,14 +55,6 @@ message Authentication {
   // Метаданные
   map<string, string> metadata = 13 [(validate.rules).map = {ignore_empty: true, max_pairs: 32, keys: {string: {max_len: 64}}, values: {string: {max_len: 256}}}];
 
-  // Дата создания
-  google.protobuf.Timestamp create_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Дата обновления
-  google.protobuf.Timestamp update_time = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
-  
-  // Дата истечения сессии аутентификации
-  google.protobuf.Timestamp expire_time = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Был ли использован fallback
   bool fallback_used = 17;

@@ -15,7 +15,7 @@ import type { AuthenticationAssuranceLevel } from "./authentication_assurance_le
 export declare const file_m8_platform_iam_v1_authentication_evidence_context: GenFile;
 
 /**
- * EvidenceContext captures reusable authentication evidence for audit and policy.
+ * EvidenceContext captures reusable authentication evidence for audit and downstream evaluation.
  *
  * Example:
  * - previous authentication id used for max_age

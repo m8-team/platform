@@ -12,8 +12,6 @@ import type { DeviceContext, NetworkContext, RuntimeContext } from "./authentica
 import type { DpopContext, OAuthContext } from "./authentication_oauth_context_pb";
 import type { ChallengeDecisionContext } from "./authentication_challenge_decision_context_pb";
 import type { ProviderDecisionContext } from "./authentication_provider_context_pb";
-import type { RiskSignalContext } from "./authentication_risk_context_pb";
-import type { PolicyContext } from "./authentication_policy_context_pb";
 import type { EvidenceContext } from "./authentication_evidence_context_pb";
 
 /**
@@ -22,17 +20,17 @@ import type { EvidenceContext } from "./authentication_evidence_context_pb";
 export declare const file_m8_platform_iam_v1_authentication_context: GenFile;
 
 /**
- * AuthenticationDecisionContext is a normalized immutable decision snapshot created by M8 Authentication
- * and consumed by M8 Risk Decision and Policy Engine.
+ * AuthenticationDecisionContext is a normalized immutable decision snapshot created by M8 Authentication.
  *
  * It may include references and summarized signals from M8 Identity, Resource Manager, Access,
- * Risk Decision, and Audit, but it does not own their data or become their source of truth.
- * Authentication owns the workflow and challenge execution only.
+ * and Audit, but it does not own their data or become their source of truth.
+ * Authentication owns the workflow and challenge execution only. Risk Decision owns adaptive
+ * risk signals, policy evaluation, and decision results in m8.platform.riskdecision.v1.
  *
  * Example:
  * - M8 Authentication builds the context before selecting a challenge
- * - M8 Risk Decision enriches it with risk signals
- * - Policy Engine and Challenge Selector evaluate the same safe decision snapshot
+ * - M8 Risk Decision consumes it as input
+ * - Challenge Selector uses auth-owned challenge and provider context to execute the result
  *
  * @generated from message m8.platform.iam.v1.AuthenticationDecisionContext
  */
@@ -59,7 +57,7 @@ export declare type AuthenticationDecisionContext = Message<"m8.platform.iam.v1.
   intent?: AuthenticationIntent;
 
   /**
-   * Tenant and realm references used for isolation and policy lookup.
+   * Tenant and realm references used for isolation and requirement lookup.
    * Resource Manager remains the source of truth for tenant and resource hierarchy.
    *
    * @generated from field: m8.platform.iam.v1.TenantContext tenant = 4;
@@ -154,23 +152,7 @@ export declare type AuthenticationDecisionContext = Message<"m8.platform.iam.v1.
   provider?: ProviderDecisionContext;
 
   /**
-   * Risk score, risk signals, and risk recommendations.
-   * M8 Risk Decision owns adaptive risk rules and decision logic.
-   *
-   * @generated from field: m8.platform.iam.v1.RiskSignalContext risk = 17;
-   */
-  risk?: RiskSignalContext;
-
-  /**
-   * Authentication assurance policy inputs and evaluation mode.
-   * This must not be used to model business permissions owned by M8 Access.
-   *
-   * @generated from field: m8.platform.iam.v1.PolicyContext policy = 18;
-   */
-  policy?: PolicyContext;
-
-  /**
-   * Authentication evidence that can be safely reused for audit or policy.
+   * Authentication evidence that can be safely reused for audit or downstream evaluation.
    * M8 Audit owns immutable long-term audit history.
    *
    * @generated from field: m8.platform.iam.v1.EvidenceContext evidence = 19;
@@ -178,7 +160,7 @@ export declare type AuthenticationDecisionContext = Message<"m8.platform.iam.v1.
   evidence?: EvidenceContext;
 
   /**
-   * Additional non-sensitive attributes for tenant-specific policy extensions.
+   * Additional non-sensitive attributes for tenant-specific authentication extensions.
    *
    * @generated from field: map<string, string> attributes = 20;
    */

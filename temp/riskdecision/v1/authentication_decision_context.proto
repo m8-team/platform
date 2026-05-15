@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package m8.platform.riskdecision.v1;
+
+import "m8/platform/iam/v1/authentication_context.proto";
+import "m8/platform/riskdecision/v1/authentication_policy_context.proto";
+import "m8/platform/riskdecision/v1/authentication_risk_context.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
+
+// AuthenticationRiskDecisionContext is the Risk Decision view of an authentication decision.
+//
+// M8 Authentication owns the immutable authentication snapshot and passes it to M8 Risk Decision.
+// M8 Risk Decision owns adaptive risk signals, policy evaluation, and the final decision result.
+// This wrapper keeps risk-owned evaluation data out of the authentication protobuf package.
+message AuthenticationRiskDecisionContext {
+  // Authentication-owned immutable snapshot used as input for evaluation.
+  m8.platform.iam.v1.AuthenticationDecisionContext authentication = 1;
+
+  // Risk signals and recommendations produced by M8 Risk Decision.
+  RiskSignalContext risk = 2;
+
+  // Risk Decision policy requirements used for authentication assurance selection.
+  PolicyContext policy = 3;
+
+  // Additional non-sensitive Risk Decision attributes.
+  map<string, string> attributes = 4;
+}

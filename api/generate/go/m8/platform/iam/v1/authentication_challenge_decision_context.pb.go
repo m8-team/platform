@@ -118,9 +118,9 @@ type ChallengeDecisionContext struct {
 	SelectedChallenge AuthenticationChallenge `protobuf:"varint,1,opt,name=selected_challenge,json=selectedChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"selected_challenge,omitempty"`
 	// Challenge that must be completed now.
 	CurrentChallenge AuthenticationChallenge `protobuf:"varint,2,opt,name=current_challenge,json=currentChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"current_challenge,omitempty"`
-	// Preferred challenges before policy and provider filtering.
+	// Preferred challenges before requirement and provider filtering.
 	PreferredChallenges []AuthenticationChallenge `protobuf:"varint,3,rep,packed,name=preferred_challenges,json=preferredChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"preferred_challenges,omitempty"`
-	// Challenges allowed by policy and client capability.
+	// Challenges allowed by authentication requirements and client capability.
 	AllowedChallenges []AuthenticationChallenge `protobuf:"varint,4,rep,packed,name=allowed_challenges,json=allowedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"allowed_challenges,omitempty"`
 	// Fallback challenges that may be used if the current path fails.
 	FallbackChallenges []AuthenticationChallenge `protobuf:"varint,5,rep,packed,name=fallback_challenges,json=fallbackChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"fallback_challenges,omitempty"`

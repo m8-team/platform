@@ -32,14 +32,14 @@ const (
 	// Example:
 	// - anonymous request before primary authentication
 	// - public client flow before user interaction
-	// - policy evaluation that has not yet selected an authentication requirement
+	// - no authentication requirement has been selected yet
 	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL0 AuthenticationAssuranceLevel = 1
 	// AAL1 provides basic assurance that the claimant controls an authenticator.
 	//
 	// Example:
 	// - single-factor password authentication
 	// - one-time password sent to a registered email address
-	// - low-risk access where basic authentication is sufficient
+	// - low-sensitivity access where basic authentication is sufficient
 	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL1 AuthenticationAssuranceLevel = 2
 	// AAL2 provides high confidence through multi-factor authentication.
 	//
@@ -51,7 +51,7 @@ const (
 	// AAL2_PLUS provides AAL2 assurance with additional local requirements.
 	//
 	// Example:
-	// - AAL2 with a phishing-resistant factor preferred by policy
+	// - AAL2 with a phishing-resistant factor preferred by assurance requirements
 	// - AAL2 with transaction binding for a sensitive operation
 	// - AAL2 with a trusted managed device requirement
 	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL2_PLUS AuthenticationAssuranceLevel = 4
@@ -59,7 +59,7 @@ const (
 	//
 	// Example:
 	// - hardware-backed WebAuthn credential with verifier impersonation resistance
-	// - high-risk operation requiring the strongest available authenticator
+	// - high-sensitivity operation requiring the strongest available authenticator
 	// - privileged access requiring proof of possession of a strong authenticator
 	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL3 AuthenticationAssuranceLevel = 5
 )

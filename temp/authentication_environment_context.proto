@@ -101,12 +101,12 @@ message DeviceContext {
   map<string, string> attributes = 12;
 }
 
-// NetworkContext describes network signals relevant to authentication risk.
+// NetworkContext describes network observations relevant to authentication evaluation.
 //
 // Example:
 // - hashed IP address with country and ASN
 // - proxy or VPN detection
-// - network reputation score
+// - network reputation score from an external source
 message NetworkContext {
   // Hash of the client IP address.
   string ip_hash = 1;

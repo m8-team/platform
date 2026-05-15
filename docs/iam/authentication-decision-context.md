@@ -1,6 +1,8 @@
 # Authentication Decision Context
 
-`AuthenticationDecisionContext` is a normalized, immutable decision snapshot created by M8 Authentication and consumed by M8 Risk Decision, Policy Engine, and Challenge Selector. It may include references and summarized signals from Identity, Resource Manager, Access, Risk, and Audit, but it does not own their data.
+`AuthenticationDecisionContext` is a normalized, immutable decision snapshot created by M8 Authentication and consumed by M8 Risk Decision, Policy Engine, and Challenge Selector.
+
+The authentication protobuf package owns only authentication workflow data: lifecycle, challenges, assurance, provider execution context, CIBA callback context, DPoP token-binding context, and safe references to Identity, Resource Manager, Access, and Audit data. Risk scores, risk signals, policy evaluation, and `AuthenticationDecision` results are owned by the separate `m8.platform.riskdecision.v1` package.
 
 The context is safe for policy evaluation and audit because it carries normalized values, masks, hashes, and references instead of raw OTPs, raw passwords, OAuth tokens, private keys, or unnecessary full PII.
 
@@ -14,7 +16,7 @@ M8 Resource Manager owns resource hierarchy and configuration references: organi
 
 M8 Access owns permissions, roles, relationships, and business authorization checks. Authentication can ask Access whether a sensitive auth-related operation may start, but Access decides what the user can do.
 
-M8 Risk Decision owns adaptive security decisions. Authentication builds the context and executes the selected challenge; Risk Decision owns adaptive risk and policy logic.
+M8 Risk Decision owns adaptive security decisions, risk signals, authentication policy evaluation, and `AuthenticationDecision` results. Authentication builds the context and executes the selected challenge; Risk Decision owns adaptive risk and policy logic.
 
 M8 Audit owns immutable audit history. Authentication emits audit events, but it does not own long-term audit storage.
 
@@ -40,9 +42,9 @@ These concepts must not be mixed with permissions or risk. For example, `Authent
 
 ## Risk Decision Role
 
-Risk Decision evaluates device, network, velocity, behavior, provider health, operation sensitivity, and risk signals. It returns actions such as `ALLOW`, `DENY`, `CHALLENGE`, `STEP_UP`, `FALLBACK`, or `REVIEW`.
+Risk Decision evaluates device, network, velocity, behavior, provider health, operation sensitivity, and risk signals. Its contracts live in `m8.platform.riskdecision.v1`, not in the authentication package. It returns actions such as `ALLOW`, `DENY`, `CHALLENGE`, `STEP_UP`, `FALLBACK`, or `REVIEW`.
 
-Authentication does not embed adaptive risk rules. It sends `AuthenticationDecisionContext` to Risk Decision and then executes the returned decision.
+Authentication does not embed adaptive risk rules or store risk-owned fields in `AuthenticationDecisionContext`. It sends the authentication snapshot to Risk Decision and then executes the returned decision.
 
 ## Audit Role
 

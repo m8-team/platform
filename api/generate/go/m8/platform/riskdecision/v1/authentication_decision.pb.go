@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: m8/platform/iam/v1/authentication_decision.proto
+// source: m8/platform/riskdecision/v1/authentication_decision.proto
 
-package iam
+package riskdecision
 
 import (
+	v1 "github.com/m8-team/go-genproto/m8/platform/iam/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -75,11 +76,11 @@ func (x AuthenticationDecisionAction) String() string {
 }
 
 func (AuthenticationDecisionAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_decision_proto_enumTypes[0].Descriptor()
+	return file_m8_platform_riskdecision_v1_authentication_decision_proto_enumTypes[0].Descriptor()
 }
 
 func (AuthenticationDecisionAction) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_decision_proto_enumTypes[0]
+	return &file_m8_platform_riskdecision_v1_authentication_decision_proto_enumTypes[0]
 }
 
 func (x AuthenticationDecisionAction) Number() protoreflect.EnumNumber {
@@ -88,10 +89,11 @@ func (x AuthenticationDecisionAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AuthenticationDecisionAction.Descriptor instead.
 func (AuthenticationDecisionAction) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_decision_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescGZIP(), []int{0}
 }
 
-// AuthenticationDecision is the decision output produced for an authentication context.
+// AuthenticationDecision is the Risk Decision output produced for an authentication context.
+// M8 Authentication executes this result but does not own adaptive decision rules.
 //
 // Example:
 // - allow a low-risk request without another challenge
@@ -102,27 +104,27 @@ type AuthenticationDecision struct {
 	// Stable unique identifier of the decision result.
 	DecisionId string `protobuf:"bytes,1,opt,name=decision_id,json=decisionId,proto3" json:"decision_id,omitempty"`
 	// Action selected by the decision pipeline.
-	Action AuthenticationDecisionAction `protobuf:"varint,2,opt,name=action,proto3,enum=m8.platform.iam.v1.AuthenticationDecisionAction" json:"action,omitempty"`
+	Action AuthenticationDecisionAction `protobuf:"varint,2,opt,name=action,proto3,enum=m8.platform.riskdecision.v1.AuthenticationDecisionAction" json:"action,omitempty"`
 	// Primary challenge selected for the authentication operation.
-	SelectedChallenge AuthenticationChallenge `protobuf:"varint,3,opt,name=selected_challenge,json=selectedChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"selected_challenge,omitempty"`
+	SelectedChallenge v1.AuthenticationChallenge `protobuf:"varint,3,opt,name=selected_challenge,json=selectedChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"selected_challenge,omitempty"`
 	// Challenge that must be completed now.
-	CurrentChallenge AuthenticationChallenge `protobuf:"varint,4,opt,name=current_challenge,json=currentChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"current_challenge,omitempty"`
+	CurrentChallenge v1.AuthenticationChallenge `protobuf:"varint,4,opt,name=current_challenge,json=currentChallenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"current_challenge,omitempty"`
 	// Delivery channel used for the current challenge.
-	DeliveryChannel ChallengeDeliveryChannel `protobuf:"varint,5,opt,name=delivery_channel,json=deliveryChannel,proto3,enum=m8.platform.iam.v1.ChallengeDeliveryChannel" json:"delivery_channel,omitempty"`
+	DeliveryChannel v1.ChallengeDeliveryChannel `protobuf:"varint,5,opt,name=delivery_channel,json=deliveryChannel,proto3,enum=m8.platform.iam.v1.ChallengeDeliveryChannel" json:"delivery_channel,omitempty"`
 	// Required OIDC-compatible acr value.
 	RequiredAcr string `protobuf:"bytes,6,opt,name=required_acr,json=requiredAcr,proto3" json:"required_acr,omitempty"`
 	// Expected OIDC-compatible amr values.
 	ExpectedAmr []string `protobuf:"bytes,7,rep,name=expected_amr,json=expectedAmr,proto3" json:"expected_amr,omitempty"`
 	// Expected normalized method references.
-	ExpectedMethodReferences []AuthenticationMethodReference `protobuf:"varint,8,rep,packed,name=expected_method_references,json=expectedMethodReferences,proto3,enum=m8.platform.iam.v1.AuthenticationMethodReference" json:"expected_method_references,omitempty"`
+	ExpectedMethodReferences []v1.AuthenticationMethodReference `protobuf:"varint,8,rep,packed,name=expected_method_references,json=expectedMethodReferences,proto3,enum=m8.platform.iam.v1.AuthenticationMethodReference" json:"expected_method_references,omitempty"`
 	// Challenges that may be used if the selected challenge cannot complete.
-	FallbackChallenges []AuthenticationChallenge `protobuf:"varint,9,rep,packed,name=fallback_challenges,json=fallbackChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"fallback_challenges,omitempty"`
+	FallbackChallenges []v1.AuthenticationChallenge `protobuf:"varint,9,rep,packed,name=fallback_challenges,json=fallbackChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"fallback_challenges,omitempty"`
 	// Human-readable reason codes or short explanations for audit.
 	Reasons []string `protobuf:"bytes,10,rep,name=reasons,proto3" json:"reasons,omitempty"`
 	// Normalized risk score used by the decision.
 	RiskScore float64 `protobuf:"fixed64,11,opt,name=risk_score,json=riskScore,proto3" json:"risk_score,omitempty"`
 	// Coarse risk level used by the decision.
-	RiskLevel RiskLevel `protobuf:"varint,12,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.RiskLevel" json:"risk_level,omitempty"`
+	RiskLevel RiskLevel `protobuf:"varint,12,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.riskdecision.v1.RiskLevel" json:"risk_level,omitempty"`
 	// Policy identifier that produced or contributed to the decision.
 	PolicyId string `protobuf:"bytes,13,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`
 	// Policy version that produced or contributed to the decision.
@@ -137,7 +139,7 @@ type AuthenticationDecision struct {
 
 func (x *AuthenticationDecision) Reset() {
 	*x = AuthenticationDecision{}
-	mi := &file_m8_platform_iam_v1_authentication_decision_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_decision_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +151,7 @@ func (x *AuthenticationDecision) String() string {
 func (*AuthenticationDecision) ProtoMessage() {}
 
 func (x *AuthenticationDecision) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_decision_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_decision_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +164,7 @@ func (x *AuthenticationDecision) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthenticationDecision.ProtoReflect.Descriptor instead.
 func (*AuthenticationDecision) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_decision_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *AuthenticationDecision) GetDecisionId() string {
@@ -179,25 +181,25 @@ func (x *AuthenticationDecision) GetAction() AuthenticationDecisionAction {
 	return AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_UNSPECIFIED
 }
 
-func (x *AuthenticationDecision) GetSelectedChallenge() AuthenticationChallenge {
+func (x *AuthenticationDecision) GetSelectedChallenge() v1.AuthenticationChallenge {
 	if x != nil {
 		return x.SelectedChallenge
 	}
-	return AuthenticationChallenge_AUTHENTICATION_CHALLENGE_UNSPECIFIED
+	return v1.AuthenticationChallenge(0)
 }
 
-func (x *AuthenticationDecision) GetCurrentChallenge() AuthenticationChallenge {
+func (x *AuthenticationDecision) GetCurrentChallenge() v1.AuthenticationChallenge {
 	if x != nil {
 		return x.CurrentChallenge
 	}
-	return AuthenticationChallenge_AUTHENTICATION_CHALLENGE_UNSPECIFIED
+	return v1.AuthenticationChallenge(0)
 }
 
-func (x *AuthenticationDecision) GetDeliveryChannel() ChallengeDeliveryChannel {
+func (x *AuthenticationDecision) GetDeliveryChannel() v1.ChallengeDeliveryChannel {
 	if x != nil {
 		return x.DeliveryChannel
 	}
-	return ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_UNSPECIFIED
+	return v1.ChallengeDeliveryChannel(0)
 }
 
 func (x *AuthenticationDecision) GetRequiredAcr() string {
@@ -214,14 +216,14 @@ func (x *AuthenticationDecision) GetExpectedAmr() []string {
 	return nil
 }
 
-func (x *AuthenticationDecision) GetExpectedMethodReferences() []AuthenticationMethodReference {
+func (x *AuthenticationDecision) GetExpectedMethodReferences() []v1.AuthenticationMethodReference {
 	if x != nil {
 		return x.ExpectedMethodReferences
 	}
 	return nil
 }
 
-func (x *AuthenticationDecision) GetFallbackChallenges() []AuthenticationChallenge {
+func (x *AuthenticationDecision) GetFallbackChallenges() []v1.AuthenticationChallenge {
 	if x != nil {
 		return x.FallbackChallenges
 	}
@@ -277,15 +279,15 @@ func (x *AuthenticationDecision) GetAttributes() map[string]string {
 	return nil
 }
 
-var File_m8_platform_iam_v1_authentication_decision_proto protoreflect.FileDescriptor
+var File_m8_platform_riskdecision_v1_authentication_decision_proto protoreflect.FileDescriptor
 
-const file_m8_platform_iam_v1_authentication_decision_proto_rawDesc = "" +
+const file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDesc = "" +
 	"\n" +
-	"0m8/platform/iam/v1/authentication_decision.proto\x12\x12m8.platform.iam.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a9m8/platform/iam/v1/authentication_assurance_context.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1aBm8/platform/iam/v1/authentication_challenge_decision_context.proto\x1a4m8/platform/iam/v1/authentication_risk_context.proto\"\xbe\b\n" +
+	"9m8/platform/riskdecision/v1/authentication_decision.proto\x12\x1bm8.platform.riskdecision.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a9m8/platform/iam/v1/authentication_assurance_context.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1aBm8/platform/iam/v1/authentication_challenge_decision_context.proto\x1a=m8/platform/riskdecision/v1/authentication_risk_context.proto\"\xd9\b\n" +
 	"\x16AuthenticationDecision\x12\x1f\n" +
 	"\vdecision_id\x18\x01 \x01(\tR\n" +
-	"decisionId\x12H\n" +
-	"\x06action\x18\x02 \x01(\x0e20.m8.platform.iam.v1.AuthenticationDecisionActionR\x06action\x12Z\n" +
+	"decisionId\x12Q\n" +
+	"\x06action\x18\x02 \x01(\x0e29.m8.platform.riskdecision.v1.AuthenticationDecisionActionR\x06action\x12Z\n" +
 	"\x12selected_challenge\x18\x03 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x11selectedChallenge\x12X\n" +
 	"\x11current_challenge\x18\x04 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x10currentChallenge\x12W\n" +
 	"\x10delivery_channel\x18\x05 \x01(\x0e2,.m8.platform.iam.v1.ChallengeDeliveryChannelR\x0fdeliveryChannel\x12!\n" +
@@ -296,14 +298,14 @@ const file_m8_platform_iam_v1_authentication_decision_proto_rawDesc = "" +
 	"\areasons\x18\n" +
 	" \x03(\tR\areasons\x12\x1d\n" +
 	"\n" +
-	"risk_score\x18\v \x01(\x01R\triskScore\x12<\n" +
+	"risk_score\x18\v \x01(\x01R\triskScore\x12E\n" +
 	"\n" +
-	"risk_level\x18\f \x01(\x0e2\x1d.m8.platform.iam.v1.RiskLevelR\triskLevel\x12\x1b\n" +
+	"risk_level\x18\f \x01(\x0e2&.m8.platform.riskdecision.v1.RiskLevelR\triskLevel\x12\x1b\n" +
 	"\tpolicy_id\x18\r \x01(\tR\bpolicyId\x12%\n" +
 	"\x0epolicy_version\x18\x0e \x01(\tR\rpolicyVersion\x12?\n" +
-	"\rdecision_time\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\fdecisionTime\x12Z\n" +
+	"\rdecision_time\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\fdecisionTime\x12c\n" +
 	"\n" +
-	"attributes\x18\x10 \x03(\v2:.m8.platform.iam.v1.AuthenticationDecision.AttributesEntryR\n" +
+	"attributes\x18\x10 \x03(\v2C.m8.platform.riskdecision.v1.AuthenticationDecision.AttributesEntryR\n" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -315,42 +317,42 @@ const file_m8_platform_iam_v1_authentication_decision_proto_rawDesc = "" +
 	"(AUTHENTICATION_DECISION_ACTION_CHALLENGE\x10\x03\x12*\n" +
 	"&AUTHENTICATION_DECISION_ACTION_STEP_UP\x10\x04\x12+\n" +
 	"'AUTHENTICATION_DECISION_ACTION_FALLBACK\x10\x05\x12)\n" +
-	"%AUTHENTICATION_DECISION_ACTION_REVIEW\x10\x06B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"%AUTHENTICATION_DECISION_ACTION_REVIEW\x10\x06BIZGgithub.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecisionb\x06proto3"
 
 var (
-	file_m8_platform_iam_v1_authentication_decision_proto_rawDescOnce sync.Once
-	file_m8_platform_iam_v1_authentication_decision_proto_rawDescData []byte
+	file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescOnce sync.Once
+	file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescData []byte
 )
 
-func file_m8_platform_iam_v1_authentication_decision_proto_rawDescGZIP() []byte {
-	file_m8_platform_iam_v1_authentication_decision_proto_rawDescOnce.Do(func() {
-		file_m8_platform_iam_v1_authentication_decision_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_decision_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_decision_proto_rawDesc)))
+func file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescGZIP() []byte {
+	file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescOnce.Do(func() {
+		file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDesc)))
 	})
-	return file_m8_platform_iam_v1_authentication_decision_proto_rawDescData
+	return file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_decision_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_m8_platform_iam_v1_authentication_decision_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_m8_platform_iam_v1_authentication_decision_proto_goTypes = []any{
-	(AuthenticationDecisionAction)(0),  // 0: m8.platform.iam.v1.AuthenticationDecisionAction
-	(*AuthenticationDecision)(nil),     // 1: m8.platform.iam.v1.AuthenticationDecision
-	nil,                                // 2: m8.platform.iam.v1.AuthenticationDecision.AttributesEntry
-	(AuthenticationChallenge)(0),       // 3: m8.platform.iam.v1.AuthenticationChallenge
-	(ChallengeDeliveryChannel)(0),      // 4: m8.platform.iam.v1.ChallengeDeliveryChannel
-	(AuthenticationMethodReference)(0), // 5: m8.platform.iam.v1.AuthenticationMethodReference
-	(RiskLevel)(0),                     // 6: m8.platform.iam.v1.RiskLevel
-	(*timestamppb.Timestamp)(nil),      // 7: google.protobuf.Timestamp
+var file_m8_platform_riskdecision_v1_authentication_decision_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_m8_platform_riskdecision_v1_authentication_decision_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_m8_platform_riskdecision_v1_authentication_decision_proto_goTypes = []any{
+	(AuthenticationDecisionAction)(0),     // 0: m8.platform.riskdecision.v1.AuthenticationDecisionAction
+	(*AuthenticationDecision)(nil),        // 1: m8.platform.riskdecision.v1.AuthenticationDecision
+	nil,                                   // 2: m8.platform.riskdecision.v1.AuthenticationDecision.AttributesEntry
+	(v1.AuthenticationChallenge)(0),       // 3: m8.platform.iam.v1.AuthenticationChallenge
+	(v1.ChallengeDeliveryChannel)(0),      // 4: m8.platform.iam.v1.ChallengeDeliveryChannel
+	(v1.AuthenticationMethodReference)(0), // 5: m8.platform.iam.v1.AuthenticationMethodReference
+	(RiskLevel)(0),                        // 6: m8.platform.riskdecision.v1.RiskLevel
+	(*timestamppb.Timestamp)(nil),         // 7: google.protobuf.Timestamp
 }
-var file_m8_platform_iam_v1_authentication_decision_proto_depIdxs = []int32{
-	0, // 0: m8.platform.iam.v1.AuthenticationDecision.action:type_name -> m8.platform.iam.v1.AuthenticationDecisionAction
-	3, // 1: m8.platform.iam.v1.AuthenticationDecision.selected_challenge:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	3, // 2: m8.platform.iam.v1.AuthenticationDecision.current_challenge:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	4, // 3: m8.platform.iam.v1.AuthenticationDecision.delivery_channel:type_name -> m8.platform.iam.v1.ChallengeDeliveryChannel
-	5, // 4: m8.platform.iam.v1.AuthenticationDecision.expected_method_references:type_name -> m8.platform.iam.v1.AuthenticationMethodReference
-	3, // 5: m8.platform.iam.v1.AuthenticationDecision.fallback_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	6, // 6: m8.platform.iam.v1.AuthenticationDecision.risk_level:type_name -> m8.platform.iam.v1.RiskLevel
-	7, // 7: m8.platform.iam.v1.AuthenticationDecision.decision_time:type_name -> google.protobuf.Timestamp
-	2, // 8: m8.platform.iam.v1.AuthenticationDecision.attributes:type_name -> m8.platform.iam.v1.AuthenticationDecision.AttributesEntry
+var file_m8_platform_riskdecision_v1_authentication_decision_proto_depIdxs = []int32{
+	0, // 0: m8.platform.riskdecision.v1.AuthenticationDecision.action:type_name -> m8.platform.riskdecision.v1.AuthenticationDecisionAction
+	3, // 1: m8.platform.riskdecision.v1.AuthenticationDecision.selected_challenge:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	3, // 2: m8.platform.riskdecision.v1.AuthenticationDecision.current_challenge:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	4, // 3: m8.platform.riskdecision.v1.AuthenticationDecision.delivery_channel:type_name -> m8.platform.iam.v1.ChallengeDeliveryChannel
+	5, // 4: m8.platform.riskdecision.v1.AuthenticationDecision.expected_method_references:type_name -> m8.platform.iam.v1.AuthenticationMethodReference
+	3, // 5: m8.platform.riskdecision.v1.AuthenticationDecision.fallback_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	6, // 6: m8.platform.riskdecision.v1.AuthenticationDecision.risk_level:type_name -> m8.platform.riskdecision.v1.RiskLevel
+	7, // 7: m8.platform.riskdecision.v1.AuthenticationDecision.decision_time:type_name -> google.protobuf.Timestamp
+	2, // 8: m8.platform.riskdecision.v1.AuthenticationDecision.attributes:type_name -> m8.platform.riskdecision.v1.AuthenticationDecision.AttributesEntry
 	9, // [9:9] is the sub-list for method output_type
 	9, // [9:9] is the sub-list for method input_type
 	9, // [9:9] is the sub-list for extension type_name
@@ -358,31 +360,28 @@ var file_m8_platform_iam_v1_authentication_decision_proto_depIdxs = []int32{
 	0, // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_m8_platform_iam_v1_authentication_decision_proto_init() }
-func file_m8_platform_iam_v1_authentication_decision_proto_init() {
-	if File_m8_platform_iam_v1_authentication_decision_proto != nil {
+func init() { file_m8_platform_riskdecision_v1_authentication_decision_proto_init() }
+func file_m8_platform_riskdecision_v1_authentication_decision_proto_init() {
+	if File_m8_platform_riskdecision_v1_authentication_decision_proto != nil {
 		return
 	}
-	file_m8_platform_iam_v1_authentication_assurance_context_proto_init()
-	file_m8_platform_iam_v1_authentication_challenge_proto_init()
-	file_m8_platform_iam_v1_authentication_challenge_decision_context_proto_init()
-	file_m8_platform_iam_v1_authentication_risk_context_proto_init()
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_decision_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_decision_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_decision_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_m8_platform_iam_v1_authentication_decision_proto_goTypes,
-		DependencyIndexes: file_m8_platform_iam_v1_authentication_decision_proto_depIdxs,
-		EnumInfos:         file_m8_platform_iam_v1_authentication_decision_proto_enumTypes,
-		MessageInfos:      file_m8_platform_iam_v1_authentication_decision_proto_msgTypes,
+		GoTypes:           file_m8_platform_riskdecision_v1_authentication_decision_proto_goTypes,
+		DependencyIndexes: file_m8_platform_riskdecision_v1_authentication_decision_proto_depIdxs,
+		EnumInfos:         file_m8_platform_riskdecision_v1_authentication_decision_proto_enumTypes,
+		MessageInfos:      file_m8_platform_riskdecision_v1_authentication_decision_proto_msgTypes,
 	}.Build()
-	File_m8_platform_iam_v1_authentication_decision_proto = out.File
-	file_m8_platform_iam_v1_authentication_decision_proto_goTypes = nil
-	file_m8_platform_iam_v1_authentication_decision_proto_depIdxs = nil
+	File_m8_platform_riskdecision_v1_authentication_decision_proto = out.File
+	file_m8_platform_riskdecision_v1_authentication_decision_proto_goTypes = nil
+	file_m8_platform_riskdecision_v1_authentication_decision_proto_depIdxs = nil
 }

@@ -114,12 +114,12 @@ export declare type DeviceContext = Message<"m8.platform.iam.v1.DeviceContext"> 
 export declare const DeviceContextSchema: GenMessage<DeviceContext>;
 
 /**
- * NetworkContext describes network signals relevant to authentication risk.
+ * NetworkContext describes network observations relevant to authentication evaluation.
  *
  * Example:
  * - hashed IP address with country and ASN
  * - proxy or VPN detection
- * - network reputation score
+ * - network reputation score from an external source
  *
  * @generated from message m8.platform.iam.v1.NetworkContext
  */

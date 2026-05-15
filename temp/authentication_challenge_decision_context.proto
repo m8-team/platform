@@ -55,10 +55,10 @@ message ChallengeDecisionContext {
   // Challenge that must be completed now.
   AuthenticationChallenge current_challenge = 2;
 
-  // Preferred challenges before policy and provider filtering.
+  // Preferred challenges before requirement and provider filtering.
   repeated AuthenticationChallenge preferred_challenges = 3;
 
-  // Challenges allowed by policy and client capability.
+  // Challenges allowed by authentication requirements and client capability.
   repeated AuthenticationChallenge allowed_challenges = 4;
 
   // Fallback challenges that may be used if the current path fails.

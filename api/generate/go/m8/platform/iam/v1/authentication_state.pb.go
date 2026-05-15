@@ -39,7 +39,7 @@ const (
 	// Example:
 	// - Temporal workflow started
 	// - tenant/user pool/client context is being prepared
-	// - authentication policy is being loaded
+	// - authentication requirements are being loaded
 	AuthenticationState_AUTHENTICATION_STATE_INITIALIZING AuthenticationState = 2
 	// User identity is being resolved.
 	//
@@ -48,11 +48,11 @@ const (
 	// - external identity provider user is being resolved
 	// - external identity link is being checked
 	AuthenticationState_AUTHENTICATION_STATE_IDENTIFYING AuthenticationState = 3
-	// Authentication risk and policy are being evaluated.
+	// Authentication decision inputs are being evaluated.
 	//
 	// Example:
-	// - device reputation check
-	// - velocity/rate-limit check
+	// - device and network inputs are being prepared
+	// - rate-limit check is being performed
 	// - channel selection
 	// - decision whether step-up is required
 	AuthenticationState_AUTHENTICATION_STATE_EVALUATING AuthenticationState = 4
@@ -101,7 +101,7 @@ const (
 	// Additional authentication factor is required.
 	//
 	// Example:
-	// - risk engine requires passkey step-up
+	// - external decision requires passkey step-up
 	// - requested acr_values require stronger authentication
 	// - sensitive operation requires fresh authentication
 	AuthenticationState_AUTHENTICATION_STATE_STEP_UP_REQUIRED AuthenticationState = 10
@@ -157,11 +157,11 @@ const (
 	//
 	// Terminal state.
 	AuthenticationState_AUTHENTICATION_STATE_ATTEMPTS_EXCEEDED AuthenticationState = 24
-	// Authentication was blocked by policy or risk decision.
+	// Authentication was blocked by an external decision or assurance requirement.
 	//
 	// Example:
-	// - fraud risk is too high
-	// - user/device/channel is blocked
+	// - external decision denied the authentication
+	// - user, device, or channel is blocked
 	// - rate limit exceeded
 	//
 	// Terminal state.

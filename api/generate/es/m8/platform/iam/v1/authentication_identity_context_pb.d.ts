@@ -67,11 +67,11 @@ export declare type SubjectContext = Message<"m8.platform.iam.v1.SubjectContext"
   status: UserStatus;
 
   /**
-   * Risk group or segment assigned to the subject.
+   * Identity-owned subject segment or reference used as safe decision input.
    *
-   * @generated from field: string risk_group = 7;
+   * @generated from field: string identity_segment_ref = 7;
    */
-  riskGroup: string;
+  identitySegmentRef: string;
 
   /**
    * Reference to a tenant-local user record.
@@ -231,7 +231,7 @@ export enum UserStatus {
   PENDING = 4,
 
   /**
-   * User is suspended by policy or administration.
+   * User is suspended by identity configuration or administration.
    *
    * @generated from enum value: USER_STATUS_SUSPENDED = 5;
    */

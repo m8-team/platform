@@ -28,7 +28,7 @@ export enum AuthenticationAssuranceLevel {
    * Example:
    * - anonymous request before primary authentication
    * - public client flow before user interaction
-   * - policy evaluation that has not yet selected an authentication requirement
+   * - no authentication requirement has been selected yet
    *
    * @generated from enum value: AUTHENTICATION_ASSURANCE_LEVEL_AAL0 = 1;
    */
@@ -40,7 +40,7 @@ export enum AuthenticationAssuranceLevel {
    * Example:
    * - single-factor password authentication
    * - one-time password sent to a registered email address
-   * - low-risk access where basic authentication is sufficient
+   * - low-sensitivity access where basic authentication is sufficient
    *
    * @generated from enum value: AUTHENTICATION_ASSURANCE_LEVEL_AAL1 = 2;
    */
@@ -62,7 +62,7 @@ export enum AuthenticationAssuranceLevel {
    * AAL2_PLUS provides AAL2 assurance with additional local requirements.
    *
    * Example:
-   * - AAL2 with a phishing-resistant factor preferred by policy
+   * - AAL2 with a phishing-resistant factor preferred by assurance requirements
    * - AAL2 with transaction binding for a sensitive operation
    * - AAL2 with a trusted managed device requirement
    *
@@ -75,7 +75,7 @@ export enum AuthenticationAssuranceLevel {
    *
    * Example:
    * - hardware-backed WebAuthn credential with verifier impersonation resistance
-   * - high-risk operation requiring the strongest available authenticator
+   * - high-sensitivity operation requiring the strongest available authenticator
    * - privileged access requiring proof of possession of a strong authenticator
    *
    * @generated from enum value: AUTHENTICATION_ASSURANCE_LEVEL_AAL3 = 5;

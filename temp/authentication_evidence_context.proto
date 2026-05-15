@@ -9,7 +9,7 @@ import "m8/platform/iam/v1/authentication_provider_context.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
-// EvidenceContext captures reusable authentication evidence for audit and policy.
+// EvidenceContext captures reusable authentication evidence for audit and downstream evaluation.
 //
 // Example:
 // - previous authentication id used for max_age

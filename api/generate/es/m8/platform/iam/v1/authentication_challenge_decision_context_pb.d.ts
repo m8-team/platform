@@ -37,14 +37,14 @@ export declare type ChallengeDecisionContext = Message<"m8.platform.iam.v1.Chall
   currentChallenge: AuthenticationChallenge;
 
   /**
-   * Preferred challenges before policy and provider filtering.
+   * Preferred challenges before requirement and provider filtering.
    *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallenge preferred_challenges = 3;
    */
   preferredChallenges: AuthenticationChallenge[];
 
   /**
-   * Challenges allowed by policy and client capability.
+   * Challenges allowed by authentication requirements and client capability.
    *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallenge allowed_challenges = 4;
    */

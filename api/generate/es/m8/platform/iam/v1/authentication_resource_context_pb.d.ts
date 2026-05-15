@@ -12,11 +12,11 @@ import type { AuthenticationChallenge } from "./authentication_challenge_pb";
 export declare const file_m8_platform_iam_v1_authentication_resource_context: GenFile;
 
 /**
- * TenantContext identifies tenant boundary references for policy, risk, and audit.
+ * TenantContext identifies tenant boundary references for assurance evaluation and audit.
  * Resource Manager remains the source of truth for tenant and resource hierarchy.
  *
  * Example:
- * - tenant id used to load policy
+ * - tenant id used to load authentication requirements
  * - realm used by an authorization server
  * - region used for data residency routing
  *
@@ -45,7 +45,7 @@ export declare type TenantContext = Message<"m8.platform.iam.v1.TenantContext"> 
   realm: string;
 
   /**
-   * Region where tenant policy and data should be evaluated.
+   * Region where tenant requirements and data residency should be evaluated.
    *
    * @generated from field: string region = 4;
    */
@@ -99,7 +99,7 @@ export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> 
   clientId: string;
 
   /**
-   * Client type used for policy and risk decisions.
+   * Client type used for authentication assurance selection.
    *
    * @generated from field: m8.platform.iam.v1.ClientType type = 2;
    */
@@ -321,7 +321,7 @@ export declare type ResourceRef = Message<"m8.platform.iam.v1.ResourceRef"> & {
 export declare const ResourceRefSchema: GenMessage<ResourceRef>;
 
 /**
- * MoneyAmount represents a monetary amount used for transaction risk.
+ * MoneyAmount represents a monetary amount used for transaction confirmation.
  *
  * @generated from message m8.platform.iam.v1.MoneyAmount
  */
@@ -464,11 +464,11 @@ export enum ClientTrustLevel {
   THIRD_PARTY = 5,
 
   /**
-   * Client is considered high risk by policy or history.
+   * Client has restricted trust by Resource Manager configuration.
    *
-   * @generated from enum value: CLIENT_TRUST_LEVEL_HIGH_RISK = 6;
+   * @generated from enum value: CLIENT_TRUST_LEVEL_RESTRICTED = 6;
    */
-  HIGH_RISK = 6,
+  RESTRICTED = 6,
 }
 
 /**

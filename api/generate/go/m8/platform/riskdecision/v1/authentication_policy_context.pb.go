@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: m8/platform/iam/v1/authentication_policy_context.proto
+// source: m8/platform/riskdecision/v1/authentication_policy_context.proto
 
-package iam
+package riskdecision
 
 import (
+	v1 "github.com/m8-team/go-genproto/m8/platform/iam/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -66,11 +67,11 @@ func (x PolicyMode) String() string {
 }
 
 func (PolicyMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes[0].Descriptor()
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes[0].Descriptor()
 }
 
 func (PolicyMode) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes[0]
+	return &file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes[0]
 }
 
 func (x PolicyMode) Number() protoreflect.EnumNumber {
@@ -79,7 +80,7 @@ func (x PolicyMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PolicyMode.Descriptor instead.
 func (PolicyMode) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescGZIP(), []int{0}
 }
 
 // Strategy used to combine policy and risk decisions.
@@ -131,11 +132,11 @@ func (x DecisionStrategy) String() string {
 }
 
 func (DecisionStrategy) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes[1].Descriptor()
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes[1].Descriptor()
 }
 
 func (DecisionStrategy) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes[1]
+	return &file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes[1]
 }
 
 func (x DecisionStrategy) Number() protoreflect.EnumNumber {
@@ -144,10 +145,10 @@ func (x DecisionStrategy) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DecisionStrategy.Descriptor instead.
 func (DecisionStrategy) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescGZIP(), []int{1}
 }
 
-// PolicyContext captures authentication assurance policy requirements applied to the decision.
+// PolicyContext captures Risk Decision policy requirements applied to an authentication decision.
 // It must not model business authorization permissions, roles, or relationships owned by M8 Access.
 //
 // Example:
@@ -161,15 +162,15 @@ type PolicyContext struct {
 	// Policy version.
 	PolicyVersion string `protobuf:"bytes,2,opt,name=policy_version,json=policyVersion,proto3" json:"policy_version,omitempty"`
 	// Policy execution mode.
-	Mode PolicyMode `protobuf:"varint,3,opt,name=mode,proto3,enum=m8.platform.iam.v1.PolicyMode" json:"mode,omitempty"`
+	Mode PolicyMode `protobuf:"varint,3,opt,name=mode,proto3,enum=m8.platform.riskdecision.v1.PolicyMode" json:"mode,omitempty"`
 	// Strategy used to combine policy rules.
-	Strategy DecisionStrategy `protobuf:"varint,4,opt,name=strategy,proto3,enum=m8.platform.iam.v1.DecisionStrategy" json:"strategy,omitempty"`
+	Strategy DecisionStrategy `protobuf:"varint,4,opt,name=strategy,proto3,enum=m8.platform.riskdecision.v1.DecisionStrategy" json:"strategy,omitempty"`
 	// Required OIDC-compatible acr value.
 	RequiredAcr string `protobuf:"bytes,5,opt,name=required_acr,json=requiredAcr,proto3" json:"required_acr,omitempty"`
 	// Challenges allowed by policy.
-	AllowedChallenges []AuthenticationChallenge `protobuf:"varint,6,rep,packed,name=allowed_challenges,json=allowedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"allowed_challenges,omitempty"`
+	AllowedChallenges []v1.AuthenticationChallenge `protobuf:"varint,6,rep,packed,name=allowed_challenges,json=allowedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"allowed_challenges,omitempty"`
 	// Challenges denied by policy.
-	DeniedChallenges []AuthenticationChallenge `protobuf:"varint,7,rep,packed,name=denied_challenges,json=deniedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"denied_challenges,omitempty"`
+	DeniedChallenges []v1.AuthenticationChallenge `protobuf:"varint,7,rep,packed,name=denied_challenges,json=deniedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"denied_challenges,omitempty"`
 	// Whether fallback is allowed.
 	FallbackAllowed bool `protobuf:"varint,8,opt,name=fallback_allowed,json=fallbackAllowed,proto3" json:"fallback_allowed,omitempty"`
 	// Whether anti-enumeration behavior is required.
@@ -186,7 +187,7 @@ type PolicyContext struct {
 
 func (x *PolicyContext) Reset() {
 	*x = PolicyContext{}
-	mi := &file_m8_platform_iam_v1_authentication_policy_context_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_policy_context_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +199,7 @@ func (x *PolicyContext) String() string {
 func (*PolicyContext) ProtoMessage() {}
 
 func (x *PolicyContext) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_policy_context_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_policy_context_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +212,7 @@ func (x *PolicyContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolicyContext.ProtoReflect.Descriptor instead.
 func (*PolicyContext) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PolicyContext) GetPolicyId() string {
@@ -249,14 +250,14 @@ func (x *PolicyContext) GetRequiredAcr() string {
 	return ""
 }
 
-func (x *PolicyContext) GetAllowedChallenges() []AuthenticationChallenge {
+func (x *PolicyContext) GetAllowedChallenges() []v1.AuthenticationChallenge {
 	if x != nil {
 		return x.AllowedChallenges
 	}
 	return nil
 }
 
-func (x *PolicyContext) GetDeniedChallenges() []AuthenticationChallenge {
+func (x *PolicyContext) GetDeniedChallenges() []v1.AuthenticationChallenge {
 	if x != nil {
 		return x.DeniedChallenges
 	}
@@ -298,16 +299,16 @@ func (x *PolicyContext) GetAttributes() map[string]string {
 	return nil
 }
 
-var File_m8_platform_iam_v1_authentication_policy_context_proto protoreflect.FileDescriptor
+var File_m8_platform_riskdecision_v1_authentication_policy_context_proto protoreflect.FileDescriptor
 
-const file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc = "" +
+const file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/iam/v1/authentication_policy_context.proto\x12\x12m8.platform.iam.v1\x1a1m8/platform/iam/v1/authentication_challenge.proto\"\x9d\x06\n" +
+	"?m8/platform/riskdecision/v1/authentication_policy_context.proto\x12\x1bm8.platform.riskdecision.v1\x1a1m8/platform/iam/v1/authentication_challenge.proto\"\xb8\x06\n" +
 	"\rPolicyContext\x12\x1b\n" +
 	"\tpolicy_id\x18\x01 \x01(\tR\bpolicyId\x12%\n" +
-	"\x0epolicy_version\x18\x02 \x01(\tR\rpolicyVersion\x122\n" +
-	"\x04mode\x18\x03 \x01(\x0e2\x1e.m8.platform.iam.v1.PolicyModeR\x04mode\x12@\n" +
-	"\bstrategy\x18\x04 \x01(\x0e2$.m8.platform.iam.v1.DecisionStrategyR\bstrategy\x12!\n" +
+	"\x0epolicy_version\x18\x02 \x01(\tR\rpolicyVersion\x12;\n" +
+	"\x04mode\x18\x03 \x01(\x0e2'.m8.platform.riskdecision.v1.PolicyModeR\x04mode\x12I\n" +
+	"\bstrategy\x18\x04 \x01(\x0e2-.m8.platform.riskdecision.v1.DecisionStrategyR\bstrategy\x12!\n" +
 	"\frequired_acr\x18\x05 \x01(\tR\vrequiredAcr\x12Z\n" +
 	"\x12allowed_challenges\x18\x06 \x03(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x11allowedChallenges\x12X\n" +
 	"\x11denied_challenges\x18\a \x03(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x10deniedChallenges\x12)\n" +
@@ -315,9 +316,9 @@ const file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc = "" +
 	"\x19anti_enumeration_required\x18\t \x01(\bR\x17antiEnumerationRequired\x12@\n" +
 	"\x1ctransaction_binding_required\x18\n" +
 	" \x01(\bR\x1atransactionBindingRequired\x12>\n" +
-	"\x1bphishing_resistant_required\x18\v \x01(\bR\x19phishingResistantRequired\x12Q\n" +
+	"\x1bphishing_resistant_required\x18\v \x01(\bR\x19phishingResistantRequired\x12Z\n" +
 	"\n" +
-	"attributes\x18\f \x03(\v21.m8.platform.iam.v1.PolicyContext.AttributesEntryR\n" +
+	"attributes\x18\f \x03(\v2:.m8.platform.riskdecision.v1.PolicyContext.AttributesEntryR\n" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -335,35 +336,35 @@ const file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc = "" +
 	"\x1eDECISION_STRATEGY_HIGHEST_RISK\x10\x02\x12&\n" +
 	"\"DECISION_STRATEGY_MOST_RESTRICTIVE\x10\x03\x12\x1e\n" +
 	"\x1aDECISION_STRATEGY_WEIGHTED\x10\x04\x12\x1f\n" +
-	"\x1bDECISION_STRATEGY_RULE_TREE\x10\x05B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x1bDECISION_STRATEGY_RULE_TREE\x10\x05BIZGgithub.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecisionb\x06proto3"
 
 var (
-	file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescOnce sync.Once
-	file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescData []byte
+	file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescOnce sync.Once
+	file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescData []byte
 )
 
-func file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescGZIP() []byte {
-	file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescOnce.Do(func() {
-		file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc)))
+func file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescGZIP() []byte {
+	file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescOnce.Do(func() {
+		file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDesc)))
 	})
-	return file_m8_platform_iam_v1_authentication_policy_context_proto_rawDescData
+	return file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_m8_platform_iam_v1_authentication_policy_context_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_m8_platform_iam_v1_authentication_policy_context_proto_goTypes = []any{
-	(PolicyMode)(0),              // 0: m8.platform.iam.v1.PolicyMode
-	(DecisionStrategy)(0),        // 1: m8.platform.iam.v1.DecisionStrategy
-	(*PolicyContext)(nil),        // 2: m8.platform.iam.v1.PolicyContext
-	nil,                          // 3: m8.platform.iam.v1.PolicyContext.AttributesEntry
-	(AuthenticationChallenge)(0), // 4: m8.platform.iam.v1.AuthenticationChallenge
+var file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_m8_platform_riskdecision_v1_authentication_policy_context_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_m8_platform_riskdecision_v1_authentication_policy_context_proto_goTypes = []any{
+	(PolicyMode)(0),                 // 0: m8.platform.riskdecision.v1.PolicyMode
+	(DecisionStrategy)(0),           // 1: m8.platform.riskdecision.v1.DecisionStrategy
+	(*PolicyContext)(nil),           // 2: m8.platform.riskdecision.v1.PolicyContext
+	nil,                             // 3: m8.platform.riskdecision.v1.PolicyContext.AttributesEntry
+	(v1.AuthenticationChallenge)(0), // 4: m8.platform.iam.v1.AuthenticationChallenge
 }
-var file_m8_platform_iam_v1_authentication_policy_context_proto_depIdxs = []int32{
-	0, // 0: m8.platform.iam.v1.PolicyContext.mode:type_name -> m8.platform.iam.v1.PolicyMode
-	1, // 1: m8.platform.iam.v1.PolicyContext.strategy:type_name -> m8.platform.iam.v1.DecisionStrategy
-	4, // 2: m8.platform.iam.v1.PolicyContext.allowed_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	4, // 3: m8.platform.iam.v1.PolicyContext.denied_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	3, // 4: m8.platform.iam.v1.PolicyContext.attributes:type_name -> m8.platform.iam.v1.PolicyContext.AttributesEntry
+var file_m8_platform_riskdecision_v1_authentication_policy_context_proto_depIdxs = []int32{
+	0, // 0: m8.platform.riskdecision.v1.PolicyContext.mode:type_name -> m8.platform.riskdecision.v1.PolicyMode
+	1, // 1: m8.platform.riskdecision.v1.PolicyContext.strategy:type_name -> m8.platform.riskdecision.v1.DecisionStrategy
+	4, // 2: m8.platform.riskdecision.v1.PolicyContext.allowed_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	4, // 3: m8.platform.riskdecision.v1.PolicyContext.denied_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	3, // 4: m8.platform.riskdecision.v1.PolicyContext.attributes:type_name -> m8.platform.riskdecision.v1.PolicyContext.AttributesEntry
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -371,28 +372,27 @@ var file_m8_platform_iam_v1_authentication_policy_context_proto_depIdxs = []int3
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_m8_platform_iam_v1_authentication_policy_context_proto_init() }
-func file_m8_platform_iam_v1_authentication_policy_context_proto_init() {
-	if File_m8_platform_iam_v1_authentication_policy_context_proto != nil {
+func init() { file_m8_platform_riskdecision_v1_authentication_policy_context_proto_init() }
+func file_m8_platform_riskdecision_v1_authentication_policy_context_proto_init() {
+	if File_m8_platform_riskdecision_v1_authentication_policy_context_proto != nil {
 		return
 	}
-	file_m8_platform_iam_v1_authentication_challenge_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_policy_context_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_policy_context_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_m8_platform_iam_v1_authentication_policy_context_proto_goTypes,
-		DependencyIndexes: file_m8_platform_iam_v1_authentication_policy_context_proto_depIdxs,
-		EnumInfos:         file_m8_platform_iam_v1_authentication_policy_context_proto_enumTypes,
-		MessageInfos:      file_m8_platform_iam_v1_authentication_policy_context_proto_msgTypes,
+		GoTypes:           file_m8_platform_riskdecision_v1_authentication_policy_context_proto_goTypes,
+		DependencyIndexes: file_m8_platform_riskdecision_v1_authentication_policy_context_proto_depIdxs,
+		EnumInfos:         file_m8_platform_riskdecision_v1_authentication_policy_context_proto_enumTypes,
+		MessageInfos:      file_m8_platform_riskdecision_v1_authentication_policy_context_proto_msgTypes,
 	}.Build()
-	File_m8_platform_iam_v1_authentication_policy_context_proto = out.File
-	file_m8_platform_iam_v1_authentication_policy_context_proto_goTypes = nil
-	file_m8_platform_iam_v1_authentication_policy_context_proto_depIdxs = nil
+	File_m8_platform_riskdecision_v1_authentication_policy_context_proto = out.File
+	file_m8_platform_riskdecision_v1_authentication_policy_context_proto_goTypes = nil
+	file_m8_platform_riskdecision_v1_authentication_policy_context_proto_depIdxs = nil
 }

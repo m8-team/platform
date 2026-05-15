@@ -17,7 +17,7 @@ export declare const file_m8_platform_iam_v1_authentication_assurance_context: G
  * Example:
  * - requested acr_values include m8:aal3
  * - current session has password authentication only
- * - policy requires phishing-resistant MFA for step-up
+ * - assurance requirements select phishing-resistant MFA for step-up
  *
  * @generated from message m8.platform.iam.v1.AssuranceContext
  */
@@ -30,7 +30,7 @@ export declare type AssuranceContext = Message<"m8.platform.iam.v1.AssuranceCont
   requestedAcrValues: string[];
 
   /**
-   * Required OIDC-compatible acr value after policy evaluation.
+   * Required OIDC-compatible acr value after assurance evaluation.
    *
    * @generated from field: string required_acr = 2;
    */
@@ -169,7 +169,7 @@ export enum AuthenticationMethodReference {
   MFA = 5,
 
   /**
-   * Risk-based decisioning participated in authentication.
+   * Adaptive decisioning participated in authentication.
    *
    * @generated from enum value: AUTHENTICATION_METHOD_REFERENCE_RISK_BASED = 6;
    */

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	iam "github.com/m8-team/go-genproto/m8/platform/iam/v1"
+	riskdecision "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -17,10 +18,10 @@ var (
 	ErrNilDecision = errors.New("authentication decision is nil")
 )
 
-// Mapper is the boundary for converting decision context and decision values.
+// Mapper is the boundary for converting authentication snapshots and risk decision values.
 //
 // The current scaffold clones generated protobuf messages so callers do not
-// share mutable decision snapshots across risk, policy, provider, and audit code.
+// share mutable snapshots across authentication, risk, provider, and audit code.
 type Mapper struct{}
 
 // NewMapper returns a mapper for authentication decision context values.
@@ -38,13 +39,13 @@ func (Mapper) ToProtoContext(in *iam.AuthenticationDecisionContext) (*iam.Authen
 	return CloneContext(in)
 }
 
-// FromProtoDecision returns a detached copy of a generated authentication decision.
-func (Mapper) FromProtoDecision(in *iam.AuthenticationDecision) (*iam.AuthenticationDecision, error) {
+// FromProtoDecision returns a detached copy of a generated Risk Decision result.
+func (Mapper) FromProtoDecision(in *riskdecision.AuthenticationDecision) (*riskdecision.AuthenticationDecision, error) {
 	return CloneDecision(in)
 }
 
 // ToProtoDecision returns a detached copy ready to pass to generated protobuf APIs.
-func (Mapper) ToProtoDecision(in *iam.AuthenticationDecision) (*iam.AuthenticationDecision, error) {
+func (Mapper) ToProtoDecision(in *riskdecision.AuthenticationDecision) (*riskdecision.AuthenticationDecision, error) {
 	return CloneDecision(in)
 }
 
@@ -56,19 +57,19 @@ func CloneContext(in *iam.AuthenticationDecisionContext) (*iam.AuthenticationDec
 	return proto.Clone(in).(*iam.AuthenticationDecisionContext), nil
 }
 
-// CloneDecision returns a deep copy of an authentication decision.
-func CloneDecision(in *iam.AuthenticationDecision) (*iam.AuthenticationDecision, error) {
+// CloneDecision returns a deep copy of a Risk Decision authentication result.
+func CloneDecision(in *riskdecision.AuthenticationDecision) (*riskdecision.AuthenticationDecision, error) {
 	if in == nil {
 		return nil, ErrNilDecision
 	}
-	return proto.Clone(in).(*iam.AuthenticationDecision), nil
+	return proto.Clone(in).(*riskdecision.AuthenticationDecision), nil
 }
 
 // NewMobileIDSMSFallbackDecision builds the canonical Mobile ID SMS OTP fallback decision.
-func NewMobileIDSMSFallbackDecision(decisionID string, decisionTime time.Time) *iam.AuthenticationDecision {
-	return &iam.AuthenticationDecision{
+func NewMobileIDSMSFallbackDecision(decisionID string, decisionTime time.Time) *riskdecision.AuthenticationDecision {
+	return &riskdecision.AuthenticationDecision{
 		DecisionId:        decisionID,
-		Action:            iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_FALLBACK,
+		Action:            riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_FALLBACK,
 		SelectedChallenge: iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
 		CurrentChallenge:  iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_OTP,
 		DeliveryChannel:   iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SMS,
@@ -85,10 +86,10 @@ func NewMobileIDSMSFallbackDecision(decisionID string, decisionTime time.Time) *
 }
 
 // NewMobileIDSIMPushDecision builds the canonical Mobile ID SIM-push approval decision.
-func NewMobileIDSIMPushDecision(decisionID string, decisionTime time.Time) *iam.AuthenticationDecision {
-	return &iam.AuthenticationDecision{
+func NewMobileIDSIMPushDecision(decisionID string, decisionTime time.Time) *riskdecision.AuthenticationDecision {
+	return &riskdecision.AuthenticationDecision{
 		DecisionId:        decisionID,
-		Action:            iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE,
+		Action:            riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_CHALLENGE,
 		SelectedChallenge: iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
 		CurrentChallenge:  iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_MOBILE_ID,
 		DeliveryChannel:   iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SIM_PUSH,
@@ -117,10 +118,10 @@ func NewMobileIDProviderContext(channelID, providerID, providerTransactionID str
 }
 
 // NewWebAuthnStepUpDecision builds the canonical WebAuthn/passkey step-up decision.
-func NewWebAuthnStepUpDecision(decisionID string, decisionTime time.Time) *iam.AuthenticationDecision {
-	return &iam.AuthenticationDecision{
+func NewWebAuthnStepUpDecision(decisionID string, decisionTime time.Time) *riskdecision.AuthenticationDecision {
+	return &riskdecision.AuthenticationDecision{
 		DecisionId:        decisionID,
-		Action:            iam.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_STEP_UP,
+		Action:            riskdecision.AuthenticationDecisionAction_AUTHENTICATION_DECISION_ACTION_STEP_UP,
 		SelectedChallenge: iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_WEBAUTHN,
 		CurrentChallenge:  iam.AuthenticationChallenge_AUTHENTICATION_CHALLENGE_WEBAUTHN,
 		DeliveryChannel:   iam.ChallengeDeliveryChannel_CHALLENGE_DELIVERY_CHANNEL_WEBAUTHN,

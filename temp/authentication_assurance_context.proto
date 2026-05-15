@@ -26,7 +26,7 @@ enum AuthenticationMethodReference {
   // Multi-factor authentication was performed.
   AUTHENTICATION_METHOD_REFERENCE_MFA = 5;
 
-  // Risk-based decisioning participated in authentication.
+  // Adaptive decisioning participated in authentication.
   AUTHENTICATION_METHOD_REFERENCE_RISK_BASED = 6;
 
   // User approved authentication without entering a one-time password.
@@ -86,12 +86,12 @@ enum AuthenticationMethodReference {
 // Example:
 // - requested acr_values include m8:aal3
 // - current session has password authentication only
-// - policy requires phishing-resistant MFA for step-up
+// - assurance requirements select phishing-resistant MFA for step-up
 message AssuranceContext {
   // Requested OIDC-compatible acr values.
   repeated string requested_acr_values = 1;
 
-  // Required OIDC-compatible acr value after policy evaluation.
+  // Required OIDC-compatible acr value after assurance evaluation.
   string required_acr = 2;
 
   // Current OIDC-compatible acr value.

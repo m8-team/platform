@@ -2,11 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: m8/platform/iam/v1/authentication_risk_context.proto
+// source: m8/platform/riskdecision/v1/authentication_risk_context.proto
 
-package iam
+package riskdecision
 
 import (
+	v1 "github.com/m8-team/go-genproto/m8/platform/iam/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -22,7 +23,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Coarse risk level produced by risk and policy evaluation.
+// Coarse risk level produced by M8 Risk Decision.
 type RiskLevel int32
 
 const (
@@ -67,11 +68,11 @@ func (x RiskLevel) String() string {
 }
 
 func (RiskLevel) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes[0].Descriptor()
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes[0].Descriptor()
 }
 
 func (RiskLevel) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes[0]
+	return &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes[0]
 }
 
 func (x RiskLevel) Number() protoreflect.EnumNumber {
@@ -80,7 +81,7 @@ func (x RiskLevel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RiskLevel.Descriptor instead.
 func (RiskLevel) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{0}
 }
 
 // Recommended action produced by risk evaluation.
@@ -132,11 +133,11 @@ func (x RiskAction) String() string {
 }
 
 func (RiskAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes[1].Descriptor()
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes[1].Descriptor()
 }
 
 func (RiskAction) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes[1]
+	return &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes[1]
 }
 
 func (x RiskAction) Number() protoreflect.EnumNumber {
@@ -145,7 +146,7 @@ func (x RiskAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RiskAction.Descriptor instead.
 func (RiskAction) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{1}
 }
 
 // RiskSignalContext captures risk output and recommendations.
@@ -160,7 +161,7 @@ type RiskSignalContext struct {
 	// Normalized risk score.
 	Score float64 `protobuf:"fixed64,1,opt,name=score,proto3" json:"score,omitempty"`
 	// Coarse risk level.
-	Level RiskLevel `protobuf:"varint,2,opt,name=level,proto3,enum=m8.platform.iam.v1.RiskLevel" json:"level,omitempty"`
+	Level RiskLevel `protobuf:"varint,2,opt,name=level,proto3,enum=m8.platform.riskdecision.v1.RiskLevel" json:"level,omitempty"`
 	// Individual risk signals that contributed to the score.
 	Signals []*RiskSignal `protobuf:"bytes,3,rep,name=signals,proto3" json:"signals,omitempty"`
 	// Velocity-related risk signals.
@@ -172,14 +173,14 @@ type RiskSignalContext struct {
 	// Recommended OIDC-compatible acr value.
 	RecommendedAcr string `protobuf:"bytes,7,opt,name=recommended_acr,json=recommendedAcr,proto3" json:"recommended_acr,omitempty"`
 	// Recommended challenges from risk evaluation.
-	RecommendedChallenges []AuthenticationChallenge `protobuf:"varint,8,rep,packed,name=recommended_challenges,json=recommendedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"recommended_challenges,omitempty"`
+	RecommendedChallenges []v1.AuthenticationChallenge `protobuf:"varint,8,rep,packed,name=recommended_challenges,json=recommendedChallenges,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"recommended_challenges,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
 
 func (x *RiskSignalContext) Reset() {
 	*x = RiskSignalContext{}
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -191,7 +192,7 @@ func (x *RiskSignalContext) String() string {
 func (*RiskSignalContext) ProtoMessage() {}
 
 func (x *RiskSignalContext) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[0]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,7 +205,7 @@ func (x *RiskSignalContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RiskSignalContext.ProtoReflect.Descriptor instead.
 func (*RiskSignalContext) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{0}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *RiskSignalContext) GetScore() float64 {
@@ -256,7 +257,7 @@ func (x *RiskSignalContext) GetRecommendedAcr() string {
 	return ""
 }
 
-func (x *RiskSignalContext) GetRecommendedChallenges() []AuthenticationChallenge {
+func (x *RiskSignalContext) GetRecommendedChallenges() []v1.AuthenticationChallenge {
 	if x != nil {
 		return x.RecommendedChallenges
 	}
@@ -271,9 +272,9 @@ type RiskSignal struct {
 	// Signal score contribution.
 	Score float64 `protobuf:"fixed64,2,opt,name=score,proto3" json:"score,omitempty"`
 	// Coarse risk level for the signal.
-	Level RiskLevel `protobuf:"varint,3,opt,name=level,proto3,enum=m8.platform.iam.v1.RiskLevel" json:"level,omitempty"`
+	Level RiskLevel `protobuf:"varint,3,opt,name=level,proto3,enum=m8.platform.riskdecision.v1.RiskLevel" json:"level,omitempty"`
 	// Action recommended by this signal.
-	Action RiskAction `protobuf:"varint,4,opt,name=action,proto3,enum=m8.platform.iam.v1.RiskAction" json:"action,omitempty"`
+	Action RiskAction `protobuf:"varint,4,opt,name=action,proto3,enum=m8.platform.riskdecision.v1.RiskAction" json:"action,omitempty"`
 	// Reason code or short explanation.
 	Reason string `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
 	// Time when the signal was observed.
@@ -286,7 +287,7 @@ type RiskSignal struct {
 
 func (x *RiskSignal) Reset() {
 	*x = RiskSignal{}
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[1]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +299,7 @@ func (x *RiskSignal) String() string {
 func (*RiskSignal) ProtoMessage() {}
 
 func (x *RiskSignal) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[1]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +312,7 @@ func (x *RiskSignal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RiskSignal.ProtoReflect.Descriptor instead.
 func (*RiskSignal) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RiskSignal) GetName() string {
@@ -386,7 +387,7 @@ type VelocityContext struct {
 
 func (x *VelocityContext) Reset() {
 	*x = VelocityContext{}
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[2]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -398,7 +399,7 @@ func (x *VelocityContext) String() string {
 func (*VelocityContext) ProtoMessage() {}
 
 func (x *VelocityContext) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[2]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -411,7 +412,7 @@ func (x *VelocityContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VelocityContext.ProtoReflect.Descriptor instead.
 func (*VelocityContext) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *VelocityContext) GetAttempts_1M() int32 {
@@ -486,7 +487,7 @@ type BehaviorContext struct {
 
 func (x *BehaviorContext) Reset() {
 	*x = BehaviorContext{}
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[3]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -498,7 +499,7 @@ func (x *BehaviorContext) String() string {
 func (*BehaviorContext) ProtoMessage() {}
 
 func (x *BehaviorContext) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes[3]
+	mi := &file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -511,7 +512,7 @@ func (x *BehaviorContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BehaviorContext.ProtoReflect.Descriptor instead.
 func (*BehaviorContext) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP(), []int{3}
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *BehaviorContext) GetKnownSubject() bool {
@@ -563,31 +564,31 @@ func (x *BehaviorContext) GetAttributes() map[string]string {
 	return nil
 }
 
-var File_m8_platform_iam_v1_authentication_risk_context_proto protoreflect.FileDescriptor
+var File_m8_platform_riskdecision_v1_authentication_risk_context_proto protoreflect.FileDescriptor
 
-const file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc = "" +
+const file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDesc = "" +
 	"\n" +
-	"4m8/platform/iam/v1/authentication_risk_context.proto\x12\x12m8.platform.iam.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\"\xd7\x03\n" +
+	"=m8/platform/riskdecision/v1/authentication_risk_context.proto\x12\x1bm8.platform.riskdecision.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\"\xfb\x03\n" +
 	"\x11RiskSignalContext\x12\x14\n" +
-	"\x05score\x18\x01 \x01(\x01R\x05score\x123\n" +
-	"\x05level\x18\x02 \x01(\x0e2\x1d.m8.platform.iam.v1.RiskLevelR\x05level\x128\n" +
-	"\asignals\x18\x03 \x03(\v2\x1e.m8.platform.iam.v1.RiskSignalR\asignals\x12?\n" +
-	"\bvelocity\x18\x04 \x01(\v2#.m8.platform.iam.v1.VelocityContextR\bvelocity\x12?\n" +
-	"\bbehavior\x18\x05 \x01(\v2#.m8.platform.iam.v1.BehaviorContextR\bbehavior\x12.\n" +
+	"\x05score\x18\x01 \x01(\x01R\x05score\x12<\n" +
+	"\x05level\x18\x02 \x01(\x0e2&.m8.platform.riskdecision.v1.RiskLevelR\x05level\x12A\n" +
+	"\asignals\x18\x03 \x03(\v2'.m8.platform.riskdecision.v1.RiskSignalR\asignals\x12H\n" +
+	"\bvelocity\x18\x04 \x01(\v2,.m8.platform.riskdecision.v1.VelocityContextR\bvelocity\x12H\n" +
+	"\bbehavior\x18\x05 \x01(\v2,.m8.platform.riskdecision.v1.BehaviorContextR\bbehavior\x12.\n" +
 	"\x13step_up_recommended\x18\x06 \x01(\bR\x11stepUpRecommended\x12'\n" +
 	"\x0frecommended_acr\x18\a \x01(\tR\x0erecommendedAcr\x12b\n" +
-	"\x16recommended_challenges\x18\b \x03(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x15recommendedChallenges\"\x87\x03\n" +
+	"\x16recommended_challenges\x18\b \x03(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeR\x15recommendedChallenges\"\xa2\x03\n" +
 	"\n" +
 	"RiskSignal\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05score\x18\x02 \x01(\x01R\x05score\x123\n" +
-	"\x05level\x18\x03 \x01(\x0e2\x1d.m8.platform.iam.v1.RiskLevelR\x05level\x126\n" +
-	"\x06action\x18\x04 \x01(\x0e2\x1e.m8.platform.iam.v1.RiskActionR\x06action\x12\x16\n" +
+	"\x05score\x18\x02 \x01(\x01R\x05score\x12<\n" +
+	"\x05level\x18\x03 \x01(\x0e2&.m8.platform.riskdecision.v1.RiskLevelR\x05level\x12?\n" +
+	"\x06action\x18\x04 \x01(\x0e2'.m8.platform.riskdecision.v1.RiskActionR\x06action\x12\x16\n" +
 	"\x06reason\x18\x05 \x01(\tR\x06reason\x12;\n" +
 	"\vobserved_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"observedAt\x12N\n" +
+	"observedAt\x12W\n" +
 	"\n" +
-	"attributes\x18\a \x03(\v2..m8.platform.iam.v1.RiskSignal.AttributesEntryR\n" +
+	"attributes\x18\a \x03(\v27.m8.platform.riskdecision.v1.RiskSignal.AttributesEntryR\n" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -602,7 +603,7 @@ const file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc = "" +
 	"\fattempts_24h\x18\x04 \x01(\x05R\vattempts24h\x12'\n" +
 	"\x0ffailed_attempts\x18\x05 \x01(\x05R\x0efailedAttempts\x12)\n" +
 	"\x10distinct_devices\x18\x06 \x01(\x05R\x0fdistinctDevices\x12+\n" +
-	"\x11distinct_networks\x18\a \x01(\x05R\x10distinctNetworks\"\x89\x03\n" +
+	"\x11distinct_networks\x18\a \x01(\x05R\x10distinctNetworks\"\x92\x03\n" +
 	"\x0fBehaviorContext\x12#\n" +
 	"\rknown_subject\x18\x01 \x01(\bR\fknownSubject\x12\x1d\n" +
 	"\n" +
@@ -610,9 +611,9 @@ const file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc = "" +
 	"\fnew_location\x18\x03 \x01(\bR\vnewLocation\x12+\n" +
 	"\x11impossible_travel\x18\x04 \x01(\bR\x10impossibleTravel\x12#\n" +
 	"\rabnormal_time\x18\x05 \x01(\bR\fabnormalTime\x12)\n" +
-	"\x10behavior_anomaly\x18\x06 \x01(\bR\x0fbehaviorAnomaly\x12S\n" +
+	"\x10behavior_anomaly\x18\x06 \x01(\bR\x0fbehaviorAnomaly\x12\\\n" +
 	"\n" +
-	"attributes\x18\a \x03(\v23.m8.platform.iam.v1.BehaviorContext.AttributesEntryR\n" +
+	"attributes\x18\a \x03(\v2<.m8.platform.riskdecision.v1.BehaviorContext.AttributesEntryR\n" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -630,45 +631,45 @@ const file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc = "" +
 	"\x15RISK_ACTION_CHALLENGE\x10\x02\x12\x17\n" +
 	"\x13RISK_ACTION_STEP_UP\x10\x03\x12\x14\n" +
 	"\x10RISK_ACTION_DENY\x10\x04\x12\x16\n" +
-	"\x12RISK_ACTION_REVIEW\x10\x05B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x12RISK_ACTION_REVIEW\x10\x05BIZGgithub.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecisionb\x06proto3"
 
 var (
-	file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescOnce sync.Once
-	file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescData []byte
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescOnce sync.Once
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescData []byte
 )
 
-func file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescGZIP() []byte {
-	file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescOnce.Do(func() {
-		file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc)))
+func file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescGZIP() []byte {
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescOnce.Do(func() {
+		file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDesc)))
 	})
-	return file_m8_platform_iam_v1_authentication_risk_context_proto_rawDescData
+	return file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_m8_platform_iam_v1_authentication_risk_context_proto_goTypes = []any{
-	(RiskLevel)(0),                // 0: m8.platform.iam.v1.RiskLevel
-	(RiskAction)(0),               // 1: m8.platform.iam.v1.RiskAction
-	(*RiskSignalContext)(nil),     // 2: m8.platform.iam.v1.RiskSignalContext
-	(*RiskSignal)(nil),            // 3: m8.platform.iam.v1.RiskSignal
-	(*VelocityContext)(nil),       // 4: m8.platform.iam.v1.VelocityContext
-	(*BehaviorContext)(nil),       // 5: m8.platform.iam.v1.BehaviorContext
-	nil,                           // 6: m8.platform.iam.v1.RiskSignal.AttributesEntry
-	nil,                           // 7: m8.platform.iam.v1.BehaviorContext.AttributesEntry
-	(AuthenticationChallenge)(0),  // 8: m8.platform.iam.v1.AuthenticationChallenge
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+var file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_m8_platform_riskdecision_v1_authentication_risk_context_proto_goTypes = []any{
+	(RiskLevel)(0),                  // 0: m8.platform.riskdecision.v1.RiskLevel
+	(RiskAction)(0),                 // 1: m8.platform.riskdecision.v1.RiskAction
+	(*RiskSignalContext)(nil),       // 2: m8.platform.riskdecision.v1.RiskSignalContext
+	(*RiskSignal)(nil),              // 3: m8.platform.riskdecision.v1.RiskSignal
+	(*VelocityContext)(nil),         // 4: m8.platform.riskdecision.v1.VelocityContext
+	(*BehaviorContext)(nil),         // 5: m8.platform.riskdecision.v1.BehaviorContext
+	nil,                             // 6: m8.platform.riskdecision.v1.RiskSignal.AttributesEntry
+	nil,                             // 7: m8.platform.riskdecision.v1.BehaviorContext.AttributesEntry
+	(v1.AuthenticationChallenge)(0), // 8: m8.platform.iam.v1.AuthenticationChallenge
+	(*timestamppb.Timestamp)(nil),   // 9: google.protobuf.Timestamp
 }
-var file_m8_platform_iam_v1_authentication_risk_context_proto_depIdxs = []int32{
-	0,  // 0: m8.platform.iam.v1.RiskSignalContext.level:type_name -> m8.platform.iam.v1.RiskLevel
-	3,  // 1: m8.platform.iam.v1.RiskSignalContext.signals:type_name -> m8.platform.iam.v1.RiskSignal
-	4,  // 2: m8.platform.iam.v1.RiskSignalContext.velocity:type_name -> m8.platform.iam.v1.VelocityContext
-	5,  // 3: m8.platform.iam.v1.RiskSignalContext.behavior:type_name -> m8.platform.iam.v1.BehaviorContext
-	8,  // 4: m8.platform.iam.v1.RiskSignalContext.recommended_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	0,  // 5: m8.platform.iam.v1.RiskSignal.level:type_name -> m8.platform.iam.v1.RiskLevel
-	1,  // 6: m8.platform.iam.v1.RiskSignal.action:type_name -> m8.platform.iam.v1.RiskAction
-	9,  // 7: m8.platform.iam.v1.RiskSignal.observed_at:type_name -> google.protobuf.Timestamp
-	6,  // 8: m8.platform.iam.v1.RiskSignal.attributes:type_name -> m8.platform.iam.v1.RiskSignal.AttributesEntry
-	7,  // 9: m8.platform.iam.v1.BehaviorContext.attributes:type_name -> m8.platform.iam.v1.BehaviorContext.AttributesEntry
+var file_m8_platform_riskdecision_v1_authentication_risk_context_proto_depIdxs = []int32{
+	0,  // 0: m8.platform.riskdecision.v1.RiskSignalContext.level:type_name -> m8.platform.riskdecision.v1.RiskLevel
+	3,  // 1: m8.platform.riskdecision.v1.RiskSignalContext.signals:type_name -> m8.platform.riskdecision.v1.RiskSignal
+	4,  // 2: m8.platform.riskdecision.v1.RiskSignalContext.velocity:type_name -> m8.platform.riskdecision.v1.VelocityContext
+	5,  // 3: m8.platform.riskdecision.v1.RiskSignalContext.behavior:type_name -> m8.platform.riskdecision.v1.BehaviorContext
+	8,  // 4: m8.platform.riskdecision.v1.RiskSignalContext.recommended_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallenge
+	0,  // 5: m8.platform.riskdecision.v1.RiskSignal.level:type_name -> m8.platform.riskdecision.v1.RiskLevel
+	1,  // 6: m8.platform.riskdecision.v1.RiskSignal.action:type_name -> m8.platform.riskdecision.v1.RiskAction
+	9,  // 7: m8.platform.riskdecision.v1.RiskSignal.observed_at:type_name -> google.protobuf.Timestamp
+	6,  // 8: m8.platform.riskdecision.v1.RiskSignal.attributes:type_name -> m8.platform.riskdecision.v1.RiskSignal.AttributesEntry
+	7,  // 9: m8.platform.riskdecision.v1.BehaviorContext.attributes:type_name -> m8.platform.riskdecision.v1.BehaviorContext.AttributesEntry
 	10, // [10:10] is the sub-list for method output_type
 	10, // [10:10] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
@@ -676,28 +677,27 @@ var file_m8_platform_iam_v1_authentication_risk_context_proto_depIdxs = []int32{
 	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_m8_platform_iam_v1_authentication_risk_context_proto_init() }
-func file_m8_platform_iam_v1_authentication_risk_context_proto_init() {
-	if File_m8_platform_iam_v1_authentication_risk_context_proto != nil {
+func init() { file_m8_platform_riskdecision_v1_authentication_risk_context_proto_init() }
+func file_m8_platform_riskdecision_v1_authentication_risk_context_proto_init() {
+	if File_m8_platform_riskdecision_v1_authentication_risk_context_proto != nil {
 		return
 	}
-	file_m8_platform_iam_v1_authentication_challenge_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_risk_context_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDesc), len(file_m8_platform_riskdecision_v1_authentication_risk_context_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_m8_platform_iam_v1_authentication_risk_context_proto_goTypes,
-		DependencyIndexes: file_m8_platform_iam_v1_authentication_risk_context_proto_depIdxs,
-		EnumInfos:         file_m8_platform_iam_v1_authentication_risk_context_proto_enumTypes,
-		MessageInfos:      file_m8_platform_iam_v1_authentication_risk_context_proto_msgTypes,
+		GoTypes:           file_m8_platform_riskdecision_v1_authentication_risk_context_proto_goTypes,
+		DependencyIndexes: file_m8_platform_riskdecision_v1_authentication_risk_context_proto_depIdxs,
+		EnumInfos:         file_m8_platform_riskdecision_v1_authentication_risk_context_proto_enumTypes,
+		MessageInfos:      file_m8_platform_riskdecision_v1_authentication_risk_context_proto_msgTypes,
 	}.Build()
-	File_m8_platform_iam_v1_authentication_risk_context_proto = out.File
-	file_m8_platform_iam_v1_authentication_risk_context_proto_goTypes = nil
-	file_m8_platform_iam_v1_authentication_risk_context_proto_depIdxs = nil
+	File_m8_platform_riskdecision_v1_authentication_risk_context_proto = out.File
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_goTypes = nil
+	file_m8_platform_riskdecision_v1_authentication_risk_context_proto_depIdxs = nil
 }

@@ -22,7 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// EvidenceContext captures reusable authentication evidence for audit and policy.
+// EvidenceContext captures reusable authentication evidence for audit and downstream evaluation.
 //
 // Example:
 // - previous authentication id used for max_age

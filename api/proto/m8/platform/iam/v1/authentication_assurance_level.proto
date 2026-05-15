@@ -14,7 +14,7 @@ enum AuthenticationAssuranceLevel {
   // Example:
   // - anonymous request before primary authentication
   // - public client flow before user interaction
-  // - policy evaluation that has not yet selected an authentication requirement
+  // - no authentication requirement has been selected yet
   AUTHENTICATION_ASSURANCE_LEVEL_AAL0 = 1;
 
   // AAL1 provides basic assurance that the claimant controls an authenticator.
@@ -22,7 +22,7 @@ enum AuthenticationAssuranceLevel {
   // Example:
   // - single-factor password authentication
   // - one-time password sent to a registered email address
-  // - low-risk access where basic authentication is sufficient
+  // - low-sensitivity access where basic authentication is sufficient
   AUTHENTICATION_ASSURANCE_LEVEL_AAL1 = 2;
 
   // AAL2 provides high confidence through multi-factor authentication.
@@ -33,19 +33,11 @@ enum AuthenticationAssuranceLevel {
   // - passkey or WebAuthn authentication used as a phishing-resistant factor
   AUTHENTICATION_ASSURANCE_LEVEL_AAL2 = 3;
 
-  // AAL2_PLUS provides AAL2 assurance with additional local requirements.
-  //
-  // Example:
-  // - AAL2 with a phishing-resistant factor preferred by policy
-  // - AAL2 with transaction binding for a sensitive operation
-  // - AAL2 with a trusted managed device requirement
-  AUTHENTICATION_ASSURANCE_LEVEL_AAL2_PLUS = 4;
-
   // AAL3 provides very high confidence with phishing-resistant authentication.
   //
   // Example:
   // - hardware-backed WebAuthn credential with verifier impersonation resistance
-  // - high-risk operation requiring the strongest available authenticator
+  // - high-sensitivity operation requiring the strongest available authenticator
   // - privileged access requiring proof of possession of a strong authenticator
-  AUTHENTICATION_ASSURANCE_LEVEL_AAL3 = 5;
+  AUTHENTICATION_ASSURANCE_LEVEL_AAL3 = 4;
 }

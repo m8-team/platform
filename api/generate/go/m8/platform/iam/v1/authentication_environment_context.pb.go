@@ -314,12 +314,12 @@ func (x *DeviceContext) GetAttributes() map[string]string {
 	return nil
 }
 
-// NetworkContext describes network signals relevant to authentication risk.
+// NetworkContext describes network observations relevant to authentication evaluation.
 //
 // Example:
 // - hashed IP address with country and ASN
 // - proxy or VPN detection
-// - network reputation score
+// - network reputation score from an external source
 type NetworkContext struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Hash of the client IP address.

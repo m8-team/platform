@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package m8.platform.iam.v1;
+package m8.platform.riskdecision.v1;
 
 import "google/protobuf/timestamp.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
 
-// Coarse risk level produced by risk and policy evaluation.
+// Coarse risk level produced by M8 Risk Decision.
 enum RiskLevel {
   // Risk level is not specified.
   RISK_LEVEL_UNSPECIFIED = 0;
@@ -76,7 +76,7 @@ message RiskSignalContext {
   string recommended_acr = 7;
 
   // Recommended challenges from risk evaluation.
-  repeated AuthenticationChallenge recommended_challenges = 8;
+  repeated m8.platform.iam.v1.AuthenticationChallenge recommended_challenges = 8;
 }
 
 // RiskSignal describes one risk signal used by the decision.

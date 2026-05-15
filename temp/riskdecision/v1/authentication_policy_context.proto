@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package m8.platform.iam.v1;
+package m8.platform.riskdecision.v1;
 
 import "m8/platform/iam/v1/authentication_challenge.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
 
 // Policy execution mode used for a decision.
 enum PolicyMode {
@@ -45,7 +45,7 @@ enum DecisionStrategy {
   DECISION_STRATEGY_RULE_TREE = 5;
 }
 
-// PolicyContext captures authentication assurance policy requirements applied to the decision.
+// PolicyContext captures Risk Decision policy requirements applied to an authentication decision.
 // It must not model business authorization permissions, roles, or relationships owned by M8 Access.
 //
 // Example:
@@ -69,10 +69,10 @@ message PolicyContext {
   string required_acr = 5;
 
   // Challenges allowed by policy.
-  repeated AuthenticationChallenge allowed_challenges = 6;
+  repeated m8.platform.iam.v1.AuthenticationChallenge allowed_challenges = 6;
 
   // Challenges denied by policy.
-  repeated AuthenticationChallenge denied_challenges = 7;
+  repeated m8.platform.iam.v1.AuthenticationChallenge denied_challenges = 7;
 
   // Whether fallback is allowed.
   bool fallback_allowed = 8;

@@ -36,7 +36,7 @@ const (
 	UserStatus_USER_STATUS_DISABLED UserStatus = 3
 	// User is pending activation or enrollment.
 	UserStatus_USER_STATUS_PENDING UserStatus = 4
-	// User is suspended by policy or administration.
+	// User is suspended by identity configuration or administration.
 	UserStatus_USER_STATUS_SUSPENDED UserStatus = 5
 	// User has been deleted.
 	UserStatus_USER_STATUS_DELETED UserStatus = 6
@@ -112,8 +112,8 @@ type SubjectContext struct {
 	PhoneMasked string `protobuf:"bytes,5,opt,name=phone_masked,json=phoneMasked,proto3" json:"phone_masked,omitempty"`
 	// Subject status from the identity system.
 	Status UserStatus `protobuf:"varint,6,opt,name=status,proto3,enum=m8.platform.iam.v1.UserStatus" json:"status,omitempty"`
-	// Risk group or segment assigned to the subject.
-	RiskGroup string `protobuf:"bytes,7,opt,name=risk_group,json=riskGroup,proto3" json:"risk_group,omitempty"`
+	// Identity-owned subject segment or reference used as safe decision input.
+	IdentitySegmentRef string `protobuf:"bytes,7,opt,name=identity_segment_ref,json=identitySegmentRef,proto3" json:"identity_segment_ref,omitempty"`
 	// Reference to a tenant-local user record.
 	TenantUserRef string `protobuf:"bytes,8,opt,name=tenant_user_ref,json=tenantUserRef,proto3" json:"tenant_user_ref,omitempty"`
 	// Additional non-sensitive subject attributes.
@@ -194,9 +194,9 @@ func (x *SubjectContext) GetStatus() UserStatus {
 	return UserStatus_USER_STATUS_UNSPECIFIED
 }
 
-func (x *SubjectContext) GetRiskGroup() string {
+func (x *SubjectContext) GetIdentitySegmentRef() string {
 	if x != nil {
-		return x.RiskGroup
+		return x.IdentitySegmentRef
 	}
 	return ""
 }
@@ -360,7 +360,7 @@ var File_m8_platform_iam_v1_authentication_identity_context_proto protoreflect.F
 
 const file_m8_platform_iam_v1_authentication_identity_context_proto_rawDesc = "" +
 	"\n" +
-	"8m8/platform/iam/v1/authentication_identity_context.proto\x12\x12m8.platform.iam.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a9m8/platform/iam/v1/authentication_assurance_context.proto\"\xe1\x03\n" +
+	"8m8/platform/iam/v1/authentication_identity_context.proto\x12\x12m8.platform.iam.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a9m8/platform/iam/v1/authentication_assurance_context.proto\"\xf4\x03\n" +
 	"\x0eSubjectContext\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x01 \x01(\tR\tsubjectId\x120\n" +
@@ -368,9 +368,8 @@ const file_m8_platform_iam_v1_authentication_identity_context_proto_rawDesc = ""
 	"\x0flogin_hint_hash\x18\x03 \x01(\tR\rloginHintHash\x12!\n" +
 	"\femail_masked\x18\x04 \x01(\tR\vemailMasked\x12!\n" +
 	"\fphone_masked\x18\x05 \x01(\tR\vphoneMasked\x126\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x1e.m8.platform.iam.v1.UserStatusR\x06status\x12\x1d\n" +
-	"\n" +
-	"risk_group\x18\a \x01(\tR\triskGroup\x12&\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x1e.m8.platform.iam.v1.UserStatusR\x06status\x120\n" +
+	"\x14identity_segment_ref\x18\a \x01(\tR\x12identitySegmentRef\x12&\n" +
 	"\x0ftenant_user_ref\x18\b \x01(\tR\rtenantUserRef\x12R\n" +
 	"\n" +
 	"attributes\x18\t \x03(\v22.m8.platform.iam.v1.SubjectContext.AttributesEntryR\n" +

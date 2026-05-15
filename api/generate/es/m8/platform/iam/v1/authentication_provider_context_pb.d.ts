@@ -333,7 +333,7 @@ export enum ProviderHealth {
   UNAVAILABLE = 4,
 
   /**
-   * Provider is disabled by configuration or policy.
+   * Provider is disabled by configuration.
    *
    * @generated from enum value: PROVIDER_HEALTH_DISABLED = 5;
    */

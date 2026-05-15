@@ -110,8 +110,8 @@ const (
 	ClientTrustLevel_CLIENT_TRUST_LEVEL_FIRST_PARTY ClientTrustLevel = 4
 	// Third-party client outside direct platform control.
 	ClientTrustLevel_CLIENT_TRUST_LEVEL_THIRD_PARTY ClientTrustLevel = 5
-	// Client is considered high risk by policy or history.
-	ClientTrustLevel_CLIENT_TRUST_LEVEL_HIGH_RISK ClientTrustLevel = 6
+	// Client has restricted trust by Resource Manager configuration.
+	ClientTrustLevel_CLIENT_TRUST_LEVEL_RESTRICTED ClientTrustLevel = 6
 )
 
 // Enum value maps for ClientTrustLevel.
@@ -123,7 +123,7 @@ var (
 		3: "CLIENT_TRUST_LEVEL_TRUSTED",
 		4: "CLIENT_TRUST_LEVEL_FIRST_PARTY",
 		5: "CLIENT_TRUST_LEVEL_THIRD_PARTY",
-		6: "CLIENT_TRUST_LEVEL_HIGH_RISK",
+		6: "CLIENT_TRUST_LEVEL_RESTRICTED",
 	}
 	ClientTrustLevel_value = map[string]int32{
 		"CLIENT_TRUST_LEVEL_UNSPECIFIED":  0,
@@ -132,7 +132,7 @@ var (
 		"CLIENT_TRUST_LEVEL_TRUSTED":      3,
 		"CLIENT_TRUST_LEVEL_FIRST_PARTY":  4,
 		"CLIENT_TRUST_LEVEL_THIRD_PARTY":  5,
-		"CLIENT_TRUST_LEVEL_HIGH_RISK":    6,
+		"CLIENT_TRUST_LEVEL_RESTRICTED":   6,
 	}
 )
 
@@ -224,11 +224,11 @@ func (OperationSensitivity) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_resource_context_proto_rawDescGZIP(), []int{2}
 }
 
-// TenantContext identifies tenant boundary references for policy, risk, and audit.
+// TenantContext identifies tenant boundary references for assurance evaluation and audit.
 // Resource Manager remains the source of truth for tenant and resource hierarchy.
 //
 // Example:
-// - tenant id used to load policy
+// - tenant id used to load authentication requirements
 // - realm used by an authorization server
 // - region used for data residency routing
 type TenantContext struct {
@@ -239,7 +239,7 @@ type TenantContext struct {
 	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	// Authorization realm or tenant realm.
 	Realm string `protobuf:"bytes,3,opt,name=realm,proto3" json:"realm,omitempty"`
-	// Region where tenant policy and data should be evaluated.
+	// Region where tenant requirements and data residency should be evaluated.
 	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
 	// Isolation domain for multi-tenant routing.
 	IsolationDomain string `protobuf:"bytes,5,opt,name=isolation_domain,json=isolationDomain,proto3" json:"isolation_domain,omitempty"`
@@ -341,7 +341,7 @@ type ClientContext struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// OAuth or platform client identifier.
 	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Client type used for policy and risk decisions.
+	// Client type used for authentication assurance selection.
 	Type ClientType `protobuf:"varint,2,opt,name=type,proto3,enum=m8.platform.iam.v1.ClientType" json:"type,omitempty"`
 	// Trust level assigned to the client.
 	TrustLevel ClientTrustLevel `protobuf:"varint,3,opt,name=trust_level,json=trustLevel,proto3,enum=m8.platform.iam.v1.ClientTrustLevel" json:"trust_level,omitempty"`
@@ -697,7 +697,7 @@ func (x *ResourceRef) GetDisplayName() string {
 	return ""
 }
 
-// MoneyAmount represents a monetary amount used for transaction risk.
+// MoneyAmount represents a monetary amount used for transaction confirmation.
 type MoneyAmount struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ISO 4217 currency code.
@@ -826,15 +826,15 @@ const file_m8_platform_iam_v1_authentication_resource_context_proto_rawDesc = ""
 	"\x17CLIENT_TYPE_SERVER_SIDE\x10\x04\x12\x17\n" +
 	"\x13CLIENT_TYPE_SERVICE\x10\x05\x12\x13\n" +
 	"\x0fCLIENT_TYPE_CLI\x10\x06\x12\x16\n" +
-	"\x12CLIENT_TYPE_DEVICE\x10\a*\x84\x02\n" +
+	"\x12CLIENT_TYPE_DEVICE\x10\a*\x85\x02\n" +
 	"\x10ClientTrustLevel\x12\"\n" +
 	"\x1eCLIENT_TRUST_LEVEL_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19CLIENT_TRUST_LEVEL_PUBLIC\x10\x01\x12#\n" +
 	"\x1fCLIENT_TRUST_LEVEL_CONFIDENTIAL\x10\x02\x12\x1e\n" +
 	"\x1aCLIENT_TRUST_LEVEL_TRUSTED\x10\x03\x12\"\n" +
 	"\x1eCLIENT_TRUST_LEVEL_FIRST_PARTY\x10\x04\x12\"\n" +
-	"\x1eCLIENT_TRUST_LEVEL_THIRD_PARTY\x10\x05\x12 \n" +
-	"\x1cCLIENT_TRUST_LEVEL_HIGH_RISK\x10\x06*\xc2\x01\n" +
+	"\x1eCLIENT_TRUST_LEVEL_THIRD_PARTY\x10\x05\x12!\n" +
+	"\x1dCLIENT_TRUST_LEVEL_RESTRICTED\x10\x06*\xc2\x01\n" +
 	"\x14OperationSensitivity\x12%\n" +
 	"!OPERATION_SENSITIVITY_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19OPERATION_SENSITIVITY_LOW\x10\x01\x12 \n" +
