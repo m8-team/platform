@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+import "zenden/cloud/auth/authentication/v1/identity.proto";
+import "zenden/cloud/auth/authentication/v1/authentication_state.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+// Аутентификация
+message Authentication {
+  // Топик в Kafka
+  option (zenden.cloud.extension.v1.topic) = "auth.authentication.authentications";
+
+  // Версия сообщения
+  option (zenden.cloud.extension.v1.version) = "1";
+
+  // UUID запроса на аутентификацию (используется как correlation_id в случае МТС внутри)
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // ID бизнес-процесса
+  string workflow_id = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Run ID бизнес-процесса
+  string run_id = 3 [(validate.rules).string = {uuid: true, ignore_empty: true}];
+
+  // UUID соединения
+  string channel_id = 4 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+  
+  // UUID провайдера
+  string provider_id = 5 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // Способ идентификации пользователя
+  Identity identity = 6 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+ 
+  // IP адрес клиента
+  string client_ip = 7 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.ip = true];
+
+  // Источник (web / mobile / retail)
+  string source_type = 8 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}];
+
+  // Источник
+  string source_id = 9 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}]; // zenden.ru|zenden_mobile|corp|uuid
+
+  // Статус аутентификации
+  AuthenticationState state = 10 [
+    (google.api.field_behavior) = REQUIRED, 
+    (validate.rules).enum = { defined_only: true, not_in: [0] }
+  ];
+
+  // Оставшееся кол-во попыток ввода OTP
+  // Может быть null, если количество попыток ещё не устанавливалось.
+  google.protobuf.Int32Value remaining_attempts = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (validate.rules).int32 = { gte: 0 }
+  ];
+
+  // Информация о причине сбоя, если state = ERROR
+  FailReason fail_reason = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Метаданные
+  map<string, string> metadata = 13 [(validate.rules).map = {ignore_empty: true, max_pairs: 32, keys: {string: {max_len: 64}}, values: {string: {max_len: 256}}}];
+
+  // Дата создания
+  google.protobuf.Timestamp create_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Дата обновления
+  google.protobuf.Timestamp update_time = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+  
+  // Дата истечения сессии аутентификации
+  google.protobuf.Timestamp expire_time = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Был ли использован fallback
+  bool fallback_used = 17;
+
+  // Детальная информация о причине ошибки аутентификации
+  message FailReason {
+    // Код ошибки
+    ErrorCode code = 1 [
+      (validate.rules).enum = { defined_only: true, not_in: [0] }
+    ];
+    
+    // Описание ошибки (опционально, для подробного разъяснения)
+    string description = 2;
+    
+    // Коды ошибок аутентификации
+    enum ErrorCode {
+      // Неопределенная ошибка
+      ERROR_CODE_UNSPECIFIED = 0;
+      
+      // Неверный OTP код
+      OTP_INVALID = 1;
+      
+      // Код OTP истек
+      OTP_EXPIRED = 2;
+      
+      // Невозможно отправить OTP
+      OTP_DELIVERY_FAILED = 3;
+      
+      // Технический сбой системы
+      UNKNOWN = 4;
+    }
+  }
+}

@@ -1,0 +1,182 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+message Provider {
+  // Топик в Kafka
+  option (zenden.cloud.extension.v1.topic) = "auth.authentication.providers";
+
+  // Версия сообщения
+  option (zenden.cloud.extension.v1.version) = "1";
+
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // Тип провайдера
+  Type type = 2 [
+    (google.api.field_behavior) = REQUIRED, 
+    (validate.rules).enum = { defined_only: true, not_in: [0] }
+  ];
+
+  // Название провайдера
+  string name = 3 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 3, max_len: 63}];
+
+  // Описание провайдера
+  string description = 4 [(validate.rules).string = {ignore_empty: true, min_len: 1, max_len: 255}];
+
+  // Статус провайдера
+  State state = 5 [
+    (google.api.field_behavior) = REQUIRED, 
+    (validate.rules).enum = { defined_only: true, not_in: [0] }
+  ];
+
+  oneof settings {
+    // Настройки MobileID (МТС)
+    MobileIdSettings mobile_id_settings = 6;
+    
+    // Настройки для сервиса нотификаций
+    NotificationServiceSettings notification_service_settings = 7;
+    
+    // Настройки для Zagruzka
+    ZagruzkaSettings zagruzka_settings = 8;
+  }
+
+  // Дата создания
+  google.protobuf.Timestamp create_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Дата обновления
+  google.protobuf.Timestamp update_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Дата удаления
+  google.protobuf.Timestamp delete_time = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Список возможных типов провайдера
+  enum Type {
+    // Неопределен, по умолчанию
+    TYPE_UNSPECIFIED = 0;
+
+    // MobileID (МТС)
+    MOBILE_ID = 1;
+
+    // Приложение покупателя
+    OTP_PUSH = 2;
+
+    // СМС
+    OTP_SMS = 3;
+
+    // Telegram
+    OTP_TELEGRAM = 4;
+
+    // Vk
+    OTP_VK = 5;
+
+    // Email
+    OTP_EMAIL = 6;
+  }
+
+  // Список возможных статусов канала
+  enum State {
+      // Неопределен, по умолчанию
+      STATE_UNSPECIFIED = 0;
+
+      // Активен
+      ACTIVE = 1;
+
+      // Неактивен
+      INACTIVE = 2;
+
+      // Удален
+      DELETED = 3;
+  }
+
+  // Секреты скрыты
+  message MobileIdSettings {
+    // Базовый URL для Mobile ID провайдера (например, http://test-mno:8013)
+    string base_url = 1 [
+      (google.api.field_behavior) = REQUIRED,
+      (validate.rules).string = {
+        min_len: 3,
+        max_len: 255,
+        uri: true,
+        pattern: "^https?://"
+      }
+    ];
+    
+    // Идентификатор клиента (например, zenden_ru_client)
+    // Также используется как issuer для JWT токенов
+    string client_id = 2 [
+      (google.api.field_behavior) = REQUIRED,
+      (validate.rules).string.min_len = 3,
+      (validate.rules).string.max_len = 255
+    ];
+    
+    // Секрет клиента
+    string client_secret = 3 [
+      (google.api.field_behavior) = OPTIONAL,
+      (validate.rules).string = { ignore_empty: true, min_len: 3, max_len: 255 }
+    ];
+    
+    // Приватный ключ для подписи JWT (PEM формат)
+    string private_key = 4 [
+      (google.api.field_behavior) = OPTIONAL,
+      (validate.rules).string = { ignore_empty: true, min_len: 10, max_len: 10000 }
+    ];
+  }
+
+  // Секреты скрыты
+  message NotificationServiceSettings {
+    // Идентификатор клиента в сервисе нотификаций
+    string client_id = 1 [(validate.rules).string.min_len = 3, (validate.rules).string.max_len = 63];
+
+    // Секрет клиента в сервисе нотификаций
+    string client_secret = 2 [(validate.rules).string.min_len = 3, (validate.rules).string.max_len = 63];
+  }
+
+  // Секреты скрыты
+  message ZagruzkaSettings {
+    // Идентификатор клиента
+    string client_id = 1 [(validate.rules).string.min_len = 3, (validate.rules).string.max_len = 63];
+  }
+}
+
+message ProviderJWKS {
+  // Массив ключей в формате JWK (стандартный JWKS)
+  repeated JWK keys = 1;
+}
+
+// JSON Web Key (JWK) структура согласно RFC 7517
+message JWK {
+  // Key Type (например, "RSA")
+  string kty = 1 [(google.api.field_behavior) = REQUIRED];
+  
+  // Key ID - уникальный идентификатор ключа
+  string kid = 2 [(google.api.field_behavior) = REQUIRED];
+  
+  // Public Key Use ("sig" для подписи, "enc" для шифрования)
+  string use = 3 [(google.api.field_behavior) = OPTIONAL];
+  
+  // Algorithm (например, "RS256")
+  string alg = 4 [(google.api.field_behavior) = OPTIONAL];
+  
+  // RSA modulus (для RSA ключей)
+  string n = 5 [(google.api.field_behavior) = OPTIONAL];
+  
+  // RSA exponent (для RSA ключей, обычно "AQAB")
+  string e = 6 [(google.api.field_behavior) = OPTIONAL];
+  
+  // X.509 Certificate Chain (опционально)
+  repeated string x5c = 7 [(google.api.field_behavior) = OPTIONAL];
+  
+  // X.509 Certificate SHA-1 Thumbprint (опционально)
+  string x5t = 8 [(google.api.field_behavior) = OPTIONAL];
+  
+  // X.509 Certificate SHA-256 Thumbprint (опционально)
+  string x5t_s256 = 9 [(google.api.field_behavior) = OPTIONAL];
+}

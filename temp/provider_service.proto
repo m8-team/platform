@@ -1,0 +1,403 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+import "google/rpc/status.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "zenden/cloud/auth/authentication/v1/provider.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+service ProviderService {
+  // Получение провайдера
+  rpc GetProvider(GetProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/providers/{id}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.read";
+  }
+
+  // Получение JWKS провайдера
+  rpc GetProviderJWKS(GetProviderJWKSRequest) returns (ProviderJWKS) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/providers/{id}/jwks"
+    };
+  }
+
+  // Нотификация от провайдера
+  rpc Notify(NotifyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers/{id}:notify",
+      body: "*"
+    };
+  }
+
+  // Нотификация об SMS OTP от провайдера
+  rpc NotifySmsOtp(NotifySmsOtpRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers/{id}:notifySmsOtp",
+      body: "*"
+    };
+  }
+
+  // Список провайдеров
+  rpc ListProviders(ListProvidersRequest) returns (ListProvidersResponse) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/providers"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.read";
+  }
+
+  // Создание провайдера
+  rpc CreateProvider(CreateProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers",
+      body: "provider"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.create";
+  }
+
+  // Обновление провайдера
+  rpc UpdateProvider(UpdateProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      patch: "/auth/authentication/v1/providers/{provider.id}",
+      body: "provider"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.update";
+  }
+
+  // Удаление провайдера
+  rpc DeleteProvider(DeleteProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      delete: "/auth/authentication/v1/providers/{id}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.delete";
+  }
+
+  // Восстановление провайдера
+  rpc UndeleteProvider(UndeleteProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers/{id}:undelete"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.undelete";
+  }
+
+  // Активация провайдера
+  rpc ActivateProvider(ActivateProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers/{id}:activate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.activate";
+  }
+
+  // Деактивация провайдера
+  rpc DeactivateProvider(DeactivateProviderRequest) returns (Provider) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers/{id}:deactivate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.deactivate";
+  }
+
+
+  // Получение списка провайдеров по id
+  rpc BatchGetProviders(BatchGetProvidersRequest) returns (BatchGetProvidersResponse) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/providers:batchGet"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.read";
+  }
+
+  // Создание списка провайдеров
+  rpc BatchCreateProviders(BatchCreateProvidersRequest) returns (BatchCreateProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchCreate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.create";
+  }
+
+  // Изменение списка провайдеров
+  rpc BatchUpdateProviders(BatchUpdateProvidersRequest) returns (BatchUpdateProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchUpdate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.update";
+  }
+
+  // Удаление списка провайдеров
+  rpc BatchDeleteProviders(BatchDeleteProvidersRequest) returns (BatchDeleteProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchDelete",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.delete";
+  }
+
+  // Восстановление списка провайдеров
+  rpc BatchUndeleteProviders(BatchUndeleteProvidersRequest) returns (BatchUndeleteProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchUndelete",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.undelete";
+  }
+
+  // Активация списка провайдеров
+  rpc BatchActivateProviders(BatchActivateProvidersRequest) returns (BatchActivateProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchActivate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.activate";
+  }
+
+  // Деактивация списка провайдеров
+  rpc BatchDeactivateProviders(BatchDeactivateProvidersRequest) returns (BatchDeactivateProvidersResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/providers:batchDeactivate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.provider.deactivate";
+  }
+}
+
+// Запрос на получение провайдера по id
+message GetProviderRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на получение списка провайдеров
+message ListProvidersRequest {
+  // UUID канала
+  string channel_id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // Размер страницы
+  int32 page_size = 2 [(google.api.field_behavior) = OPTIONAL, (validate.rules).int32 = { gte: 0,  lte: 1000 }];
+
+  // Токен пагинации
+  string page_token = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Учитывать (возвращать) ли записи со статусам Deleted
+  bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Ответ на запрос получения списка провайдеров
+message ListProvidersResponse {
+  // Список провайдеров
+  repeated Provider providers = 1;
+
+  // Токен следующей страницы
+  string next_page_token = 2;
+}
+
+// Запрос на создание провайдера
+message CreateProviderRequest {
+  // Провайдер
+  Provider provider = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+}
+
+// Запрос на изменение провайдера
+message UpdateProviderRequest {
+  // Провайдер
+  Provider provider = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+
+  // Список полей для частичного изменения, по умолчанию будут изменены все поля. Не реализовано.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // В случае если сущность не найдена она будет создана (update_mask в таком случае игнорируется)
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Запрос на удаление провайдера
+message DeleteProviderRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // В случае если сущность не найдена запрос выполнится успешно (без ошибки)
+  bool allow_missing = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Запрос на восстановление провайдера
+message UndeleteProviderRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на активацию провайдера
+message  ActivateProviderRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на деактивацию провайдера
+message DeactivateProviderRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на получение списка провайдеров по id
+message BatchGetProvidersRequest {
+  // Список запросов на получение провайдера по id
+  repeated GetProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ по провайдеру для batch-операций
+message ProviderResponse {
+  // Статус операции по провайдеру
+  google.rpc.Status status = 1;
+
+  // Склад, если статус успешный
+  Provider provider = 2;
+}
+
+// Ответ на запрос получения списка провайдеров по id
+message BatchGetProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на создание списка провайдеров
+message BatchCreateProvidersRequest {
+  // Список запросов на создание провайдеров
+  repeated CreateProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос создания списка провайдеров
+message BatchCreateProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на изменение списка провайдеров
+message BatchUpdateProvidersRequest {
+  // Список запросов на изменение провайдеров
+  repeated UpdateProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос изменения списка провайдеров
+message BatchUpdateProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на удаление списка провайдеров
+message BatchDeleteProvidersRequest {
+  // Список запросов на удаление провайдеров
+  repeated DeleteProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос удаления списка провайдеров
+message BatchDeleteProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на восстановление списка провайдеров
+message BatchUndeleteProvidersRequest {
+  // Список запросов на восстановление провайдеров
+  repeated UndeleteProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос восстановления списка провайдеров
+message BatchUndeleteProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на активацию списка провайдеров
+message BatchActivateProvidersRequest {
+  // Список запросов на активацию провайдеров
+  repeated ActivateProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос активации списка провайдеров
+message BatchActivateProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на деактивацию списка провайдеров
+message BatchDeactivateProvidersRequest {
+  // Список запросов на деактивацию провайдеров
+  repeated DeactivateProviderRequest requests = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).repeated = {min_items: 1, max_items: 1000}];
+}
+
+// Ответ на запрос деактивации списка провайдеров
+message BatchDeactivateProvidersResponse {
+  // Список ответов по каждому провайдеру
+  repeated ProviderResponse results = 1;
+}
+
+// Запрос на получение JWKS провайдера по id
+message GetProviderJWKSRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Нотификация от МТС
+message NotifyRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+  
+  // Идентификатор запроса аутентификации. Значение совпадает со значением, переданным в синхронном ответе на исходный запрос.
+  string auth_req_id = 2 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+  
+  // Токен доступа к ресурсным эндпоинтам (premiuminfo / kyc-match-split). Не передается в уведомлениях об ошибках.
+  string access_token = 3;
+  
+  // Тип токена. Единственное допустимое значение — "Bearer". Не передается в уведомлениях об ошибках.
+  string token_type = 4;
+  
+  // ID Token – объект, закодированный как JWT (JSON Web Token), содержащий идентификатор владельца номера (sub) и информацию о контексте аутентификации конечного пользователя. Не передается в уведомлениях об ошибках.
+  string id_token = 5;
+  
+  // Целое число, показывающее время "жизни" accessToken в секундах. Не передается в уведомлениях об ошибках.
+  uint32 expires_in = 6;
+  
+  // Динамический HTTPS URL, где хранится ключ оператора для шифрования тела запроса на верификацию. Передаётся, если сценарий предусматривает возможность верификации данных пользователя. Не передается в уведомлениях об ошибках.
+  string jwks_uri = 7;
+  
+  // Флаг со значением true указывает на необходимость получения положительного ответа на запрос верификации данных пользователя перед обращением к /premiumInfo. Не передается в уведомлениях об ошибках.
+  bool leading_kyc_match = 8;
+  
+  // Уникальный сквозной идентификатор для всех запросов в рамках одной транзакции. Возвращается в случае, если одноименный параметр был использован в исходном запросе. Значение совпадает со значением, переданным в исходном запросе.
+  string correlation_id = 9 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+  
+  // Код ошибки (например, "access_denied"). Передается только в случае ошибки аутентификации.
+  string error = 10;
+  
+  // Описание ошибки (например, "the client canceled the authentication"). Передается только в случае ошибки аутентификации.
+  string error_description = 11;
+}
+
+// Нотификация о факте отправки СМС от провайдера
+message NotifySmsOtpRequest {
+  // UUID провайдера
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+  
+  // Идентификатор запроса аутентификации. Значение совпадает со значением, переданным в синхронном ответе на исходный запрос.
+  string auth_req_id = 2 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // Динамический HTTPS URL, для отправки запроса на проверку кода из SMS
+  string smsotp_endpoint = 3 [(google.api.field_behavior) = REQUIRED];
+
+  // Произвольная json-структура, регламентирующая тело запроса на проверку кода из SMS.
+  // Может отличаться в зависимости от принадлежности номера телефона к оператору.
+  // Обязательно содержит параметр со значением "enter_otp_code", которое используется для подстановки в запрос кода из SMS, введенного пользователем.
+  google.protobuf.Struct send = 4 [(google.api.field_behavior) = REQUIRED];
+  
+  // Уникальный сквозной идентификатор для всех запросов в рамках одной транзакции.
+  // Возвращается в случае, если одноименный параметр был использован в исходном запросе (а мы всегда его передаем).
+  // Значение совпадает со значением, переданным в исходном запросе.
+  string correlation_id = 5 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}

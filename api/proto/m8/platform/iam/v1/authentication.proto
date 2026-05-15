@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/iam/v1/authentication_challenge.proto";
+import "m8/platform/iam/v1/authentication_state.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Authentication stores the current state of a single authentication operation.
+//
+// Example:
+// - authentication was started by an API request
+// - lifecycle state is updated while the operation is processed
+// - selected challenge stays attached to the operation until completion
+message Authentication {
+  // Kafka topic that receives authentication aggregate change events.
+  option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
+
+  // Identifier. Stable unique identifier of the authentication operation.
+  //
+  // Example:
+  // - generated when the authentication operation is created
+  // - used to query or correlate authentication progress
+  // - remains unchanged for the lifetime of the operation
+  string id = 1 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Current lifecycle state of the authentication operation.
+  // The value is always one of the defined non-zero enum values.
+  //
+  // Example:
+  // - AUTHENTICATION_STATE_CHALLENGE_DELIVERED after the challenge is exposed
+  // - AUTHENTICATION_STATE_WAITING_FOR_USER while user action is pending
+  // - AUTHENTICATION_STATE_AUTHENTICATED after successful completion
+  AuthenticationState state = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Challenge selected for this authentication operation.
+  // The value is always one of the defined non-zero enum values.
+  //
+  // Example:
+  // - AUTHENTICATION_CHALLENGE_OTP for one-time password authentication
+  // - AUTHENTICATION_CHALLENGE_WEBAUTHN for passkey or security key authentication
+  // - AUTHENTICATION_CHALLENGE_PASSWORD for password-based authentication
+  AuthenticationChallenge challenge = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+}

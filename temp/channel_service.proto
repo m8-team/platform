@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "zenden/cloud/auth/authentication/v1/channel.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+service ChannelService {
+  // Получение канала
+  rpc GetChannel(GetChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/channels/{id}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.read";
+  }
+
+  // Список каналов
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/channels"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.read";
+  }
+
+  // Создание канала
+  rpc CreateChannel(CreateChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/channels",
+      body: "channel"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.create";
+  }
+
+  // Обновление канала
+  rpc UpdateChannel(UpdateChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      patch: "/auth/authentication/v1/channels/{channel.id}",
+      body: "channel"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.update";
+  }
+
+  // Удаление канала
+  rpc DeleteChannel(DeleteChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      delete: "/auth/authentication/v1/channels/{id}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.delete";
+  }
+
+  // Восстановление канала
+  rpc UndeleteChannel(UndeleteChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/channels/{id}:undelete"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.undelete";
+  }
+
+  // Активация канала
+  rpc ActivateChannel(ActivateChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/channels/{id}:activate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.edit";
+  }
+
+  // Деактивация канала
+  rpc DeactivateChannel(DeactivateChannelRequest) returns (Channel) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/channels/{id}:deactivate",
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.channel.edit";
+  }
+}
+
+// Запрос на получение канала по id
+message GetChannelRequest {
+  // UUID канала
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на получение списка каналов
+message ListChannelsRequest {
+  // Размер страницы
+  int32 page_size = 1 [(google.api.field_behavior) = OPTIONAL, (validate.rules).int32 = { gte: 0,  lte: 1000 }];
+
+  // Токен пагинации
+  string page_token = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Ответ на запрос получения списка каналов
+message ListChannelsResponse {
+  // Список каналов
+  repeated Channel channels = 1;
+
+  // Токен следующей страницы
+  string next_page_token = 2;
+}
+
+// Запрос на создание канала
+message CreateChannelRequest {
+  // Соединение
+  Channel channel = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+}
+
+// Запрос на изменение канала
+message UpdateChannelRequest {
+  // Соединение
+  Channel channel = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+
+  // Список полей для частичного изменения, по умолчанию будут изменены все поля. Не реализовано.
+  google.protobuf.FieldMask update_mask = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // В случае если сущность не найдена она будет создана (update_mask в таком случае игнорируется)
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Запрос на удаление канала
+message DeleteChannelRequest {
+  // UUID канала
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // В случае если сущность не найдена запрос выполнится успешно (без ошибки)
+  bool allow_missing = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Запрос на восстановление канала
+message UndeleteChannelRequest {
+  // UUID канала
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на активацию канала
+message  ActivateChannelRequest {
+  // UUID канала
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Запрос на деактивацию канала
+message DeactivateChannelRequest {
+  // UUID канала
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
