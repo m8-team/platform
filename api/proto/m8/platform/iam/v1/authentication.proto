@@ -151,30 +151,33 @@ message Authentication {
   ];
 
   // Required. Minimum authentication assurance level requested for this operation.
-  // The value is always one of the defined non-zero enum values.
+  // The value must be a defined assurance level stronger than AAL0.
   //
   // Example:
-  // - AAL1 for normal login
-  // - AAL2 for sensitive operation
-  // - AAL3 for privileged operation
+  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL1 for normal login
+  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL2 for sensitive operation
+  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL3 for privileged operation
   AuthenticationAssuranceLevel requested_assurance_level = 15 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
-      not_in: [0]
+      not_in: [0, 1]
     }
   ];
 
   // Output only. Authentication assurance level actually achieved by this operation.
-  // May remain unspecified until authentication reaches a terminal successful state.
+  // Defaults to AUTHENTICATION_ASSURANCE_LEVEL_AAL0 when no user assurance has been established.
+  // The value is always one of the defined non-zero enum values.
   //
   // Example:
+  // - AUTHENTICATION_ASSURANCE_LEVEL_AAL0 when the operation has just been created
   // - requested AAL2, achieved AAL2 after OTP + password
   // - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
   AuthenticationAssuranceLevel achieved_assurance_level = 16 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
+      not_in: [0]
     }
   ];
 }
