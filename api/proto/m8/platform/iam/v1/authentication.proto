@@ -6,7 +6,6 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
-import "m8/platform/iam/v1/authentication_state.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -19,6 +18,180 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 message Authentication {
   // Kafka topic that receives authentication aggregate change events.
   option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
+
+  // Current lifecycle state of an authentication operation.
+  enum State {
+    // Authentication state is not specified.
+    STATE_UNSPECIFIED = 0;
+
+    // Authentication operation has been created but processing has not started yet.
+    //
+    // Example:
+    // - API accepted StartAuthentication request
+    // - record created in storage
+    // - workflow is not yet started or not yet acknowledged
+    CREATED = 1;
+
+    // Authentication operation is being initialized.
+    //
+    // Example:
+    // - Temporal workflow started
+    // - tenant/user pool/client context is being prepared
+    // - authentication requirements are being loaded
+    INITIALIZING = 2;
+
+    // User identity is being resolved.
+    //
+    // Example:
+    // - phone/email/login_hint is mapped to M8 Identity user
+    // - external identity provider user is being resolved
+    // - external identity link is being checked
+    IDENTIFYING = 3;
+
+    // Authentication decision inputs are being evaluated.
+    //
+    // Example:
+    // - device and network inputs are being prepared
+    // - rate-limit check is being performed
+    // - channel selection
+    // - decision whether step-up is required
+    EVALUATING = 4;
+
+    // A challenge has been selected and is being prepared.
+    //
+    // Example:
+    // - OTP is being generated
+    // - WebAuthn challenge is being created
+    // - Mobile ID request is being prepared
+    // - OIDC/SAML redirect/request is being prepared
+    CHALLENGE_PREPARING = 5;
+
+    // Challenge has been delivered or exposed to the user/client.
+    //
+    // Example:
+    // - OTP sent via SMS/email/Telegram/VK
+    // - Push approval sent
+    // - Mobile ID transaction started
+    // - WebAuthn challenge returned to browser
+    // - OIDC/SAML redirect URL returned
+    CHALLENGE_DELIVERED = 6;
+
+    // Authentication is waiting for user action or external provider callback.
+    //
+    // Example:
+    // - waiting for OTP input
+    // - waiting for push approval
+    // - waiting for Mobile ID callback
+    // - waiting for WebAuthn assertion
+    // - waiting for OIDC/SAML callback
+    WAITING_FOR_USER = 7;
+
+    // User response or external provider response is being verified.
+    //
+    // Example:
+    // - OTP verification
+    // - password verification
+    // - WebAuthn assertion verification
+    // - Mobile ID id_token verification
+    // - OIDC/SAML response validation
+    VERIFYING = 8;
+
+    // Provided challenge response was invalid, but authentication can continue.
+    //
+    // Example:
+    // - wrong OTP, but attempts remain
+    // - wrong password, but attempts remain
+    // - WebAuthn assertion failed and retry is allowed
+    CHALLENGE_RETRY_REQUIRED = 9;
+
+    // Additional authentication factor is required.
+    //
+    // Example:
+    // - external decision requires passkey step-up
+    // - requested acr_values require stronger authentication
+    // - sensitive operation requires fresh authentication
+    STEP_UP_REQUIRED = 10;
+
+    // Authentication succeeded locally, but external authorization server callback
+    // or finalization is still pending.
+    //
+    // Example:
+    // - M8 Authentication has verified the user
+    // - external authorization callback is not yet sent or not yet acknowledged
+    CALLBACK_PENDING = 11;
+
+    // Authentication finalization is in progress.
+    //
+    // Example:
+    // - auth evidence is being stored
+    // - audit event is being written
+    // - session/token handoff is being finalized
+    FINALIZING = 12;
+
+    // Authentication successfully completed.
+    //
+    // Terminal state.
+    AUTHENTICATED = 20;
+
+    // Authentication was explicitly denied by the user.
+    //
+    // Example:
+    // - user pressed Deny in push approval
+    // - user rejected Mobile ID request
+    //
+    // Terminal state.
+    DENIED = 21;
+
+    // Authentication was canceled.
+    //
+    // Example:
+    // - user canceled login
+    // - client canceled operation
+    // - workflow was canceled
+    //
+    // Terminal state.
+    CANCELED = 22;
+
+    // Authentication expired.
+    //
+    // Example:
+    // - OTP TTL expired
+    // - external provider authentication request expired
+    // - user did not approve push in time
+    //
+    // Terminal state.
+    EXPIRED = 23;
+
+    // Authentication failed because retry limit was exceeded.
+    //
+    // Example:
+    // - too many wrong OTP attempts
+    // - too many wrong password attempts
+    //
+    // Terminal state.
+    ATTEMPTS_EXCEEDED = 24;
+
+    // Authentication was blocked by an external decision or assurance requirement.
+    //
+    // Example:
+    // - external decision denied the authentication
+    // - user, device, or channel is blocked
+    // - rate limit exceeded
+    //
+    // Terminal state.
+    BLOCKED = 25;
+
+    // Authentication failed due to technical or provider error.
+    //
+    // Example:
+    // - provider unavailable
+    // - invalid external callback
+    // - external authorization callback failed permanently
+    // - unexpected internal error
+    //
+    // Terminal state.
+    FAILED = 26;
+  }
 
   // Challenge type required to continue or complete authentication.
   enum Challenge {
@@ -160,10 +333,10 @@ message Authentication {
   // The value is always one of the defined non-zero enum values.
   //
   // Example:
-  // - AUTHENTICATION_STATE_CHALLENGE_DELIVERED after the challenge is exposed
-  // - AUTHENTICATION_STATE_WAITING_FOR_USER while user action is pending
-  // - AUTHENTICATION_STATE_AUTHENTICATED after successful completion
-  AuthenticationState state = 4 [
+  // - CHALLENGE_DELIVERED after the challenge is exposed
+  // - WAITING_FOR_USER while user action is pending
+  // - AUTHENTICATED after successful completion
+  State state = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
