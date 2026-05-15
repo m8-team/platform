@@ -120,7 +120,7 @@ message Authentication {
     AAL3 = 4;
   }
 
-  // Required. Identifier. Stable unique identifier of the authentication operation.
+  // Identifier. Stable unique identifier of the authentication operation.
   //
   // Example:
   // - generated when the authentication operation is created
