@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_state.proto";
+import "m8/platform/iam/v1/authentication_assurance_level.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -110,5 +111,70 @@ message Authentication {
   // - stale authentication operations can be failed after this time
   google.protobuf.Timestamp expire_time = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Required. Immutable project identifier that owns this authentication operation.
+  //
+  // Example:
+  // - used to isolate authentication data by project
+  // - used to load project-scoped authentication configuration
+  // - remains unchanged for the lifetime of the operation
+  string project_id = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Immutable user pool identifier where the identity must be resolved.
+  //
+  // Example:
+  // - selects the identity namespace for the authentication operation
+  // - scopes user lookup, authenticators, and provider links
+  // - remains unchanged for the lifetime of the operation
+  string user_pool_id = 10 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Immutable client application identifier that initiated authentication.
+  // The value is an opaque client identifier and is not required to be a UUID.
+  //
+  // Example:
+  // - first-party web application
+  // - first-party mobile application
+  // - backend service acting as an authentication client
+  // - external OIDC client
+  string client_id = 11 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // Required. Minimum authentication assurance level requested for this operation.
+  // The value is always one of the defined non-zero enum values.
+  //
+  // Example:
+  // - AAL1 for normal login
+  // - AAL2 for sensitive operation
+  // - AAL3 for privileged operation
+  AuthenticationAssuranceLevel requested_assurance_level = 15 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Authentication assurance level actually achieved by this operation.
+  // May remain unspecified until authentication reaches a terminal successful state.
+  //
+  // Example:
+  // - requested AAL2, achieved AAL2 after OTP + password
+  // - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
+  AuthenticationAssuranceLevel achieved_assurance_level = 16 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+    }
   ];
 }
