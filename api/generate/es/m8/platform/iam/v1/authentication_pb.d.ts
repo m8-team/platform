@@ -5,7 +5,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import type { AuthenticationChallengeInfo } from "./authentication_challenge_pb";
+import type { AuthenticationChallengeInfo, AuthenticationChallengeOption } from "./authentication_challenge_pb";
 import type { AuthenticationError, AuthenticationStateReason } from "./authentication_error_pb";
 
 /**
@@ -39,6 +39,7 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   /**
    * Output only. Immutable project identifier that owns this authentication operation.
    * The server resolves this value from client_id and client configuration.
+   * Public clients must not send this value in StartAuthenticationRequest.
    *
    * Example:
    * - used to isolate authentication data by project
@@ -52,6 +53,7 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   /**
    * Output only. Immutable user pool identifier where the identity must be resolved.
    * The server resolves this value from client_id and client configuration.
+   * Public clients must not send this value in StartAuthenticationRequest.
    *
    * Example:
    * - selects the identity namespace for the authentication operation
@@ -77,7 +79,12 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   clientId: string;
 
   /**
-   * Required. Temporal workflow identifier that executes this authentication operation.
+   * Output only. Immutable Temporal workflow identifier that executes this
+   * authentication operation.
+   *
+   * This is server-assigned internal workflow correlation metadata. It should
+   * not be exposed to untrusted public clients unless the API surface is
+   * internal or administrative.
    *
    * Example:
    * - assigned when the authentication workflow is started
@@ -89,8 +96,9 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   workflowId: string;
 
   /**
-   * Optional. Temporal run identifier for the concrete workflow execution.
-   * May be empty when the authentication operation has just been created.
+   * Output only. Temporal run identifier for the concrete workflow execution.
+   * This is internal workflow correlation metadata and may be empty when the
+   * authentication operation has just been created.
    *
    * Example:
    * - assigned when the workflow run is started
@@ -206,7 +214,9 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
    * Output only. Stable unique identifier of the resolved M8 Identity user.
    *
    * Empty until the authentication operation resolves the claimant
-   * to a user inside user_pool_id.
+   * to a user inside user_pool_id. Public clients must not use this value as
+   * proof of authentication before the operation reaches terminal
+   * AUTHENTICATED state.
    *
    * Once set, this value must not change for the lifetime of the operation.
    *
@@ -224,9 +234,15 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
    * This field may be empty while the operation is in CREATED, INITIALIZING,
    * IDENTIFYING, or EVALUATING.
    *
+   * Provider callback waiting is represented as a provider challenge through
+   * AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK or
+   * AUTHENTICATION_CHALLENGE_KIND_REDIRECT. Authorization, session, or token
+   * handoff after local authentication success is represented by
+   * AUTHORIZATION_HANDOFF_PENDING, not by provider callback state.
+   *
    * This field should be filled after the flow reaches CHALLENGE_PREPARING,
    * CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
-   * STEP_UP_REQUIRED, or CALLBACK_PENDING.
+   * STEP_UP_REQUIRED, or a provider callback waiting challenge.
    *
    * For terminal states, this field may remain filled as the last known
    * challenge summary, but it must still contain only public-safe data.
@@ -245,6 +261,19 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
    * @generated from field: m8.platform.iam.v1.AuthenticationStateReason state_reason = 18;
    */
   stateReason: AuthenticationStateReason;
+
+  /**
+   * Output only. Public-safe challenge options used by dynamic login UI.
+   *
+   * This list contains only public-safe options and may include disabled or
+   * unavailable methods with unavailable_reason. It must not reveal whether a
+   * specific user has a sensitive authenticator unless server-side policy
+   * allows it. For passkey-first UI, WebAuthn or passkey can be marked
+   * recommended only after a server-side policy decision.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeOption available_challenges = 19;
+   */
+  availableChallenges: AuthenticationChallengeOption[];
 
   /**
    * Output only. Error details for failed, denied, blocked, expired, or
@@ -273,15 +302,20 @@ export declare const AuthenticationSchema: GenMessage<Authentication>;
 /**
  * Current lifecycle state of an authentication operation.
  *
- * Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
- * CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
- * CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+ * Fully cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+ * CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER,
+ * CHALLENGE_RETRY_REQUIRED, and STEP_UP_REQUIRED.
  *
- * Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+ * Best-effort cancel states are VERIFYING, AUTHORIZATION_HANDOFF_PENDING, and
+ * FINALIZING. Cancel may return the unchanged snapshot if verification or
+ * finalization already passed the safe cancellation point.
+ *
+ * Terminal immutable states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
  * ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
  *
  * Cancel transition rule:
- * - cancelable state -> CANCELED
+ * - fully cancelable state -> CANCELED
+ * - best-effort cancel state -> CANCELED or unchanged snapshot
  * - terminal states are immutable
  *
  * On a successful transition to CANCELED, update_time is updated and version is
@@ -428,14 +462,19 @@ export enum Authentication_State {
   STEP_UP_REQUIRED = 10,
 
   /**
-   * Authentication succeeded locally, but external authorization server callback
-   * or finalization is still pending.
+   * Deprecated. Use AUTHORIZATION_HANDOFF_PENDING for local authentication
+   * success that is waiting for authorization, session, or token handoff.
+   *
+   * Provider callback waiting is represented by WAITING_FOR_USER with
+   * current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+   * or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
    *
    * Example:
    * - M8 Authentication has verified the user
    * - external authorization callback is not yet sent or not yet acknowledged
    *
-   * @generated from enum value: CALLBACK_PENDING = 11;
+   * @generated from enum value: CALLBACK_PENDING = 11 [deprecated = true];
+   * @deprecated
    */
   CALLBACK_PENDING = 11,
 
@@ -450,6 +489,19 @@ export enum Authentication_State {
    * @generated from enum value: FINALIZING = 12;
    */
   FINALIZING = 12,
+
+  /**
+   * Authentication succeeded locally and waits for session, token, or
+   * authorization handoff.
+   *
+   * Do not confuse this state with provider callback processing. Provider
+   * callback waiting is represented by WAITING_FOR_USER with
+   * current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+   * or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
+   *
+   * @generated from enum value: AUTHORIZATION_HANDOFF_PENDING = 13;
+   */
+  AUTHORIZATION_HANDOFF_PENDING = 13,
 
   /**
    * Authentication successfully completed.

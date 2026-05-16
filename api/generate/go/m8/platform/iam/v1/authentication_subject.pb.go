@@ -150,6 +150,7 @@ type AuthenticationSubject struct {
 	//
 	// This field does not select the authentication provider for the workflow.
 	// Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+	// AuthenticationSubject.provider_id must not be used to select the login provider.
 	//
 	// This field should normally be set only when type is EXTERNAL_IDENTITY,
 	// or when LOGIN_HINT is explicitly provider-scoped.
@@ -237,13 +238,14 @@ var File_m8_platform_iam_v1_authentication_subject_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xc4\x02\n" +
+	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xb8\n" +
+	"\n" +
 	"\x15AuthenticationSubject\x12Q\n" +
-	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04type\x12\x1f\n" +
-	"\x05value\x18\x02 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05value\x12$\n" +
-	"\vprovider_id\x18\x03 \x01(\tB\x03\xe0A\x01R\n" +
-	"providerId\x12\x1b\n" +
-	"\x06issuer\x18\x04 \x01(\tB\x03\xe0A\x01R\x06issuer\"t\n" +
+	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04type\x12$\n" +
+	"\x05value\x18\x02 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\x18\x80 R\x05value\x12B\n" +
+	"\vprovider_id\x18\x03 \x01(\tB!\xe0A\x01\xbaH\x1b\xd8\x01\x01r\x16\x18\xff\x012\x11^[A-Za-z0-9._-]+$R\n" +
+	"providerId\x12#\n" +
+	"\x06issuer\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x10R\x06issuer\"t\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aUSER_ID\x10\x01\x12\x0e\n" +
@@ -252,7 +254,12 @@ const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\x05EMAIL\x10\x03\x12\t\n" +
 	"\x05PHONE\x10\x04\x12\f\n" +
 	"\bUSERNAME\x10\x05\x12\x15\n" +
-	"\x11EXTERNAL_IDENTITY\x10\x06B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x11EXTERNAL_IDENTITY\x10\x06:\xc6\a\xbaH\xc2\a\x1a\xc2\x01\n" +
+	"#authentication_subject.user_id_uuid\x12$USER_ID subject value must be a UUID\x1authis.type != 1 || this.value.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')\x1a\xbd\x01\n" +
+	"\"authentication_subject.email_value\x12,EMAIL subject value must be an email address\x1aithis.type != 3 || this.value.matches('^[A-Za-z0-9.!#$%&*+/=?^_{|}~-]+@[A-Za-z0-9-]+([.][A-Za-z0-9-]+)+$')\x1a\x95\x01\n" +
+	"!authentication_subject.phone_e164\x121PHONE subject value must be an E.164 phone number\x1a=this.type != 4 || this.value.matches('^[+][1-9][0-9]{1,14}$')\x1a\x89\x02\n" +
+	"%authentication_subject.username_value\x12nUSERNAME subject value must be 3 to 64 characters and contain only letters, digits, dot, underscore, or hyphen\x1apthis.type != 5 || (this.value.size() >= 3 && this.value.size() <= 64 && this.value.matches('^[A-Za-z0-9._-]+$'))\x1a\x96\x01\n" +
+	":authentication_subject.external_identity_provider_required\x12.EXTERNAL_IDENTITY subject requires provider_id\x1a(this.type != 6 || this.provider_id != ''B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_subject_proto_rawDescOnce sync.Once

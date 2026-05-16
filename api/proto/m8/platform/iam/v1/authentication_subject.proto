@@ -62,6 +62,32 @@ message AuthenticationSubject {
     EXTERNAL_IDENTITY = 6;
   }
 
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.user_id_uuid"
+    message: "USER_ID subject value must be a UUID"
+    expression: "this.type != 1 || this.value.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.email_value"
+    message: "EMAIL subject value must be an email address"
+    expression: "this.type != 3 || this.value.matches('^[A-Za-z0-9.!#$%&*+/=?^_{|}~-]+@[A-Za-z0-9-]+([.][A-Za-z0-9-]+)+$')"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.phone_e164"
+    message: "PHONE subject value must be an E.164 phone number"
+    expression: "this.type != 4 || this.value.matches('^[+][1-9][0-9]{1,14}$')"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.username_value"
+    message: "USERNAME subject value must be 3 to 64 characters and contain only letters, digits, dot, underscore, or hyphen"
+    expression: "this.type != 5 || (this.value.size() >= 3 && this.value.size() <= 64 && this.value.matches('^[A-Za-z0-9._-]+$'))"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.external_identity_provider_required"
+    message: "EXTERNAL_IDENTITY subject requires provider_id"
+    expression: "this.type != 6 || this.provider_id != ''"
+  };
+
   // Required. Type of identifier represented by value.
   // The value is always one of the defined non-zero enum values.
   //
@@ -92,13 +118,15 @@ message AuthenticationSubject {
   // - external subject when type is EXTERNAL_IDENTITY
   string value = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 4096
   ];
 
   // Optional. Provider identifier that scopes provider-specific subject values.
   //
   // This field does not select the authentication provider for the workflow.
   // Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+  // AuthenticationSubject.provider_id must not be used to select the login provider.
   //
   // This field should normally be set only when type is EXTERNAL_IDENTITY,
   // or when LOGIN_HINT is explicitly provider-scoped.
@@ -109,7 +137,12 @@ message AuthenticationSubject {
   // - "azure-ad" for an Entra ID external subject
   // - "saml-corp" for a SAML NameID
   string provider_id = 3 [
-    (google.api.field_behavior) = OPTIONAL
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 255
+      pattern: "^[A-Za-z0-9._-]+$"
+    }
   ];
 
   // Optional. Issuer that scopes external identity values.
@@ -123,6 +156,7 @@ message AuthenticationSubject {
   // The server must validate this value against the configured provider.
   // Clients should not be allowed to freely choose arbitrary issuers.
   string issuer = 4 [
-    (google.api.field_behavior) = OPTIONAL
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 2048
   ];
 }

@@ -921,9 +921,13 @@ type ClientContext struct {
 	// it for UI policy, CORS-related checks, and audit, after validating it
 	// against the registered client configuration.
 	Origin string `protobuf:"bytes,4,opt,name=origin,proto3" json:"origin,omitempty"`
-	// Output only. Authentication methods allowed by the resolved client policy.
-	// TODO: Replace strings with AuthenticationMethod when the method enum is
-	// introduced in the public IAM authentication contract.
+	// Output only. Deprecated. Use allowed_authentication_methods instead.
+	//
+	// Legacy string method identifiers allowed by the resolved client policy.
+	// The typed allowed_authentication_methods field is the canonical contract for
+	// standard methods.
+	//
+	// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_context.proto.
 	AllowedMethods []string `protobuf:"bytes,5,rep,name=allowed_methods,json=allowedMethods,proto3" json:"allowed_methods,omitempty"`
 	// Output only. Provider identifiers allowed by the resolved client policy.
 	// These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
@@ -934,9 +938,13 @@ type ClientContext struct {
 	LoginExperience ClientContext_LoginExperience `protobuf:"varint,7,opt,name=login_experience,json=loginExperience,proto3,enum=m8.platform.iam.v1.ClientContext_LoginExperience" json:"login_experience,omitempty"`
 	// Output only. Indicates whether the resolved client is public and cannot keep
 	// a client secret. It is used by policy and protocol handling.
-	PublicClient  bool `protobuf:"varint,8,opt,name=public_client,json=publicClient,proto3" json:"public_client,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PublicClient bool `protobuf:"varint,8,opt,name=public_client,json=publicClient,proto3" json:"public_client,omitempty"`
+	// Output only. Typed authentication methods allowed by the resolved client
+	// policy and server-side risk decision. Dynamic login UI should prefer this
+	// field over the deprecated allowed_methods strings.
+	AllowedAuthenticationMethods []AuthenticationMethod `protobuf:"varint,9,rep,packed,name=allowed_authentication_methods,json=allowedAuthenticationMethods,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"allowed_authentication_methods,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *ClientContext) Reset() {
@@ -997,6 +1005,7 @@ func (x *ClientContext) GetOrigin() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_context.proto.
 func (x *ClientContext) GetAllowedMethods() []string {
 	if x != nil {
 		return x.AllowedMethods
@@ -1023,6 +1032,13 @@ func (x *ClientContext) GetPublicClient() bool {
 		return x.PublicClient
 	}
 	return false
+}
+
+func (x *ClientContext) GetAllowedAuthenticationMethods() []AuthenticationMethod {
+	if x != nil {
+		return x.AllowedAuthenticationMethods
+	}
+	return nil
 }
 
 // SessionContext describes the existing authentication session used for
@@ -1923,7 +1939,7 @@ var File_m8_platform_iam_v1_authentication_context_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'm8/platform/iam/v1/authentication.proto\"\xa3\x06\n" +
+	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\"\xa3\x06\n" +
 	"\x15AuthenticationContext\x12A\n" +
 	"\arequest\x18\x01 \x01(\v2\".m8.platform.iam.v1.RequestContextB\x03\xe0A\x01R\arequest\x12>\n" +
 	"\x06client\x18\x02 \x01(\v2!.m8.platform.iam.v1.ClientContextB\x03\xe0A\x01R\x06client\x12A\n" +
@@ -1953,17 +1969,18 @@ const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04r\x02\x18@R\btimezone\x124\n" +
 	"\x0faccept_language\x18\t \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x0eacceptLanguage\x12D\n" +
 	"\rreceived_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\freceivedTime\"\xec\a\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\freceivedTime\"\xf5\b\n" +
 	"\rClientContext\x12+\n" +
 	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12i\n" +
 	"\x10application_type\x18\x02 \x01(\x0e21.m8.platform.iam.v1.ClientContext.ApplicationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fapplicationType\x124\n" +
 	"\fredirect_uri\x18\x03 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x10\x90\x01\x01R\vredirectUri\x12)\n" +
-	"\x06origin\x18\x04 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x04\x88\x01\x01R\x06origin\x12<\n" +
-	"\x0fallowed_methods\x18\x05 \x03(\tB\x13\xe0A\x03\xbaH\r\x92\x01\n" +
-	"\x10 \"\x06r\x04\x10\x01\x18@R\x0eallowedMethods\x12F\n" +
+	"\x06origin\x18\x04 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x04\x88\x01\x01R\x06origin\x12>\n" +
+	"\x0fallowed_methods\x18\x05 \x03(\tB\x15\xe0A\x03\xbaH\r\x92\x01\n" +
+	"\x10 \"\x06r\x04\x10\x01\x18@\x18\x01R\x0eallowedMethods\x12F\n" +
 	"\x14allowed_provider_ids\x18\x06 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\x12allowedProviderIds\x12i\n" +
 	"\x10login_experience\x18\a \x01(\x0e21.m8.platform.iam.v1.ClientContext.LoginExperienceB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0floginExperience\x12(\n" +
-	"\rpublic_client\x18\b \x01(\bB\x03\xe0A\x03R\fpublicClient\"\xd9\x01\n" +
+	"\rpublic_client\x18\b \x01(\bB\x03\xe0A\x03R\fpublicClient\x12\x84\x01\n" +
+	"\x1eallowed_authentication_methods\x18\t \x03(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\a\x82\x01\x04\x10\x01 \x00R\x1callowedAuthenticationMethods\"\xd9\x01\n" +
 	"\x0fApplicationType\x12 \n" +
 	"\x1cAPPLICATION_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14APPLICATION_TYPE_WEB\x10\x01\x12\x18\n" +
@@ -2163,8 +2180,9 @@ var file_m8_platform_iam_v1_authentication_context_proto_goTypes = []any{
 	(*RiskContext)(nil),                     // 18: m8.platform.iam.v1.RiskContext
 	nil,                                     // 19: m8.platform.iam.v1.AuthenticationContext.LabelsEntry
 	(*timestamppb.Timestamp)(nil),           // 20: google.protobuf.Timestamp
-	(Authentication_AssuranceLevel)(0),      // 21: m8.platform.iam.v1.Authentication.AssuranceLevel
-	(*durationpb.Duration)(nil),             // 22: google.protobuf.Duration
+	(AuthenticationMethod)(0),               // 21: m8.platform.iam.v1.AuthenticationMethod
+	(Authentication_AssuranceLevel)(0),      // 22: m8.platform.iam.v1.Authentication.AssuranceLevel
+	(*durationpb.Duration)(nil),             // 23: google.protobuf.Duration
 }
 var file_m8_platform_iam_v1_authentication_context_proto_depIdxs = []int32{
 	10, // 0: m8.platform.iam.v1.AuthenticationContext.request:type_name -> m8.platform.iam.v1.RequestContext
@@ -2180,22 +2198,23 @@ var file_m8_platform_iam_v1_authentication_context_proto_depIdxs = []int32{
 	20, // 10: m8.platform.iam.v1.RequestContext.received_time:type_name -> google.protobuf.Timestamp
 	0,  // 11: m8.platform.iam.v1.ClientContext.application_type:type_name -> m8.platform.iam.v1.ClientContext.ApplicationType
 	1,  // 12: m8.platform.iam.v1.ClientContext.login_experience:type_name -> m8.platform.iam.v1.ClientContext.LoginExperience
-	21, // 13: m8.platform.iam.v1.SessionContext.previous_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
-	20, // 14: m8.platform.iam.v1.SessionContext.auth_time:type_name -> google.protobuf.Timestamp
-	22, // 15: m8.platform.iam.v1.SessionContext.max_age:type_name -> google.protobuf.Duration
-	2,  // 16: m8.platform.iam.v1.SessionContext.step_up_reason:type_name -> m8.platform.iam.v1.SessionContext.StepUpReason
-	3,  // 17: m8.platform.iam.v1.InteractionContext.ui_mode:type_name -> m8.platform.iam.v1.InteractionContext.UiMode
-	4,  // 18: m8.platform.iam.v1.InteractionContext.login_hint_source:type_name -> m8.platform.iam.v1.InteractionContext.LoginHintSource
-	5,  // 19: m8.platform.iam.v1.InteractionContext.display:type_name -> m8.platform.iam.v1.InteractionContext.DisplayMode
-	6,  // 20: m8.platform.iam.v1.NetworkContext.risk_level:type_name -> m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
-	22, // 21: m8.platform.iam.v1.OidcContext.max_age:type_name -> google.protobuf.Duration
-	7,  // 22: m8.platform.iam.v1.RiskContext.risk_level:type_name -> m8.platform.iam.v1.RiskContext.RiskLevel
-	8,  // 23: m8.platform.iam.v1.RiskContext.recommended_action:type_name -> m8.platform.iam.v1.RiskContext.RiskAction
-	24, // [24:24] is the sub-list for method output_type
-	24, // [24:24] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	21, // 13: m8.platform.iam.v1.ClientContext.allowed_authentication_methods:type_name -> m8.platform.iam.v1.AuthenticationMethod
+	22, // 14: m8.platform.iam.v1.SessionContext.previous_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
+	20, // 15: m8.platform.iam.v1.SessionContext.auth_time:type_name -> google.protobuf.Timestamp
+	23, // 16: m8.platform.iam.v1.SessionContext.max_age:type_name -> google.protobuf.Duration
+	2,  // 17: m8.platform.iam.v1.SessionContext.step_up_reason:type_name -> m8.platform.iam.v1.SessionContext.StepUpReason
+	3,  // 18: m8.platform.iam.v1.InteractionContext.ui_mode:type_name -> m8.platform.iam.v1.InteractionContext.UiMode
+	4,  // 19: m8.platform.iam.v1.InteractionContext.login_hint_source:type_name -> m8.platform.iam.v1.InteractionContext.LoginHintSource
+	5,  // 20: m8.platform.iam.v1.InteractionContext.display:type_name -> m8.platform.iam.v1.InteractionContext.DisplayMode
+	6,  // 21: m8.platform.iam.v1.NetworkContext.risk_level:type_name -> m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
+	23, // 22: m8.platform.iam.v1.OidcContext.max_age:type_name -> google.protobuf.Duration
+	7,  // 23: m8.platform.iam.v1.RiskContext.risk_level:type_name -> m8.platform.iam.v1.RiskContext.RiskLevel
+	8,  // 24: m8.platform.iam.v1.RiskContext.recommended_action:type_name -> m8.platform.iam.v1.RiskContext.RiskAction
+	25, // [25:25] is the sub-list for method output_type
+	25, // [25:25] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_context_proto_init() }
@@ -2204,6 +2223,7 @@ func file_m8_platform_iam_v1_authentication_context_proto_init() {
 		return
 	}
 	file_m8_platform_iam_v1_authentication_proto_init()
+	file_m8_platform_iam_v1_authentication_challenge_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

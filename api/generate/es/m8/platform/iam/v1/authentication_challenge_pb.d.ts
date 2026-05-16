@@ -12,6 +12,87 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_iam_v1_authentication_challenge: GenFile;
 
 /**
+ * AuthenticationChallengeOption describes a public-safe method/provider option
+ * that can be rendered by a dynamic login UI.
+ *
+ * The server may include disabled or unavailable options with
+ * unavailable_reason so clients can render policy-aware UI. The option list must
+ * not reveal whether a specific user has a sensitive authenticator unless
+ * server-side policy allows that disclosure. For passkey-first UI, WebAuthn or
+ * passkey can be marked recommended only after a server-side policy decision.
+ *
+ * @generated from message m8.platform.iam.v1.AuthenticationChallengeOption
+ */
+export declare type AuthenticationChallengeOption = Message<"m8.platform.iam.v1.AuthenticationChallengeOption"> & {
+  /**
+   * Output only. Authentication method represented by this option.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 1;
+   */
+  method: AuthenticationMethod;
+
+  /**
+   * Output only. Challenge kind the client should expect for this option.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationChallengeKind kind = 2;
+   */
+  kind: AuthenticationChallengeKind;
+
+  /**
+   * Output only. Provider, channel, or integration identifier for this option.
+   *
+   * @generated from field: string provider_id = 3;
+   */
+  providerId: string;
+
+  /**
+   * Output only. Human-readable provider or channel display name.
+   *
+   * @generated from field: string provider_display_name = 4;
+   */
+  providerDisplayName: string;
+
+  /**
+   * Output only. Masked destination for this option, if policy allows exposing it.
+   *
+   * Example:
+   * - "+43******4567"
+   * - "s***@example.com"
+   * - "iPhone 15 Pro"
+   *
+   * @generated from field: string masked_destination = 5;
+   */
+  maskedDestination: string;
+
+  /**
+   * Output only. Indicates that this option should be highlighted by the UI.
+   *
+   * @generated from field: bool recommended = 6;
+   */
+  recommended: boolean;
+
+  /**
+   * Output only. Indicates whether this option can currently be selected.
+   *
+   * @generated from field: bool available = 7;
+   */
+  available: boolean;
+
+  /**
+   * Output only. Safe explanation shown when available is false.
+   *
+   * @generated from field: string unavailable_reason = 8;
+   */
+  unavailableReason: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationChallengeOption.
+ * Use `create(AuthenticationChallengeOptionSchema)` to create a new message.
+ */
+export declare const AuthenticationChallengeOptionSchema: GenMessage<AuthenticationChallengeOption>;
+
+/**
  * AuthenticationChallengeInfo contains public-safe details of the current
  * authentication challenge.
  *
@@ -96,17 +177,33 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
   maskedDestination: string;
 
   /**
-   * Output only. Actions currently available for this challenge.
+   * Output only. Deprecated. Use actions instead.
    *
-   * Example:
+   * Legacy string actions currently available for this challenge.
+   *
+   * Deprecated examples:
    * - "submit"
    * - "resend"
    * - "cancel"
    * - "select_another_method"
    *
-   * @generated from field: repeated string available_actions = 9;
+   * @generated from field: repeated string available_actions = 9 [deprecated = true];
+   * @deprecated
    */
   availableActions: string[];
+
+  /**
+   * Output only. Typed list of actions currently available for this challenge.
+   *
+   * Examples:
+   * - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+   * - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+   * - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+   * - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 10;
+   */
+  actions: AuthenticationChallengeAction[];
 
   /**
    * @generated from oneof m8.platform.iam.v1.AuthenticationChallengeInfo.public_parameters
@@ -207,6 +304,41 @@ export declare type OtpChallenge = Message<"m8.platform.iam.v1.OtpChallenge"> & 
 export declare const OtpChallengeSchema: GenMessage<OtpChallenge>;
 
 /**
+ * WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry for
+ * browser WebAuthn APIs. It contains only public credential descriptor data.
+ *
+ * @generated from message m8.platform.iam.v1.WebAuthnAllowedCredential
+ */
+export declare type WebAuthnAllowedCredential = Message<"m8.platform.iam.v1.WebAuthnAllowedCredential"> & {
+  /**
+   * Output only. Credential descriptor type, usually "public-key".
+   *
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * Output only. Base64url-encoded credential identifier.
+   *
+   * @generated from field: string id = 2;
+   */
+  id: string;
+
+  /**
+   * Output only. Allowed authenticator transports for this credential.
+   *
+   * @generated from field: repeated string transports = 3;
+   */
+  transports: string[];
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.WebAuthnAllowedCredential.
+ * Use `create(WebAuthnAllowedCredentialSchema)` to create a new message.
+ */
+export declare const WebAuthnAllowedCredentialSchema: GenMessage<WebAuthnAllowedCredential>;
+
+/**
  * WebAuthnChallenge contains public parameters for a WebAuthn/passkey assertion
  * ceremony.
  *
@@ -245,13 +377,24 @@ export declare type WebAuthnChallenge = Message<"m8.platform.iam.v1.WebAuthnChal
   userVerification: UserVerificationRequirement;
 
   /**
-   * Output only. Base64url-encoded credential IDs allowed for this assertion.
+   * Output only. Deprecated legacy browser SDK shortcut. Use allow_credentials
+   * for typed WebAuthn PublicKeyCredentialDescriptor data.
    *
    * Empty list means discoverable credentials or resident keys may be used.
    *
-   * @generated from field: repeated string allowed_credential_ids = 5;
+   * @generated from field: repeated string allowed_credential_ids = 5 [deprecated = true];
+   * @deprecated
    */
   allowedCredentialIds: string[];
+
+  /**
+   * Output only. Public credential descriptors allowed for this assertion.
+   *
+   * Empty list means discoverable credentials or resident keys may be used.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.WebAuthnAllowedCredential allow_credentials = 6;
+   */
+  allowCredentials: WebAuthnAllowedCredential[];
 };
 
 /**
@@ -545,6 +688,55 @@ export enum AuthenticationChallengeKind {
  * Describes the enum m8.platform.iam.v1.AuthenticationChallengeKind.
  */
 export declare const AuthenticationChallengeKindSchema: GenEnum<AuthenticationChallengeKind>;
+
+/**
+ * AuthenticationChallengeAction identifies actions currently available for the
+ * current challenge. It is safe for clients to use for dynamic login UI
+ * branching.
+ *
+ * @generated from enum m8.platform.iam.v1.AuthenticationChallengeAction
+ */
+export enum AuthenticationChallengeAction {
+  /**
+   * Authentication challenge action is not specified.
+   *
+   * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Client can submit a user or client proof for the current challenge.
+   *
+   * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_SUBMIT = 1;
+   */
+  SUBMIT = 1,
+
+  /**
+   * Client can request redelivery of an OTP-like challenge.
+   *
+   * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_RESEND = 2;
+   */
+  RESEND = 2,
+
+  /**
+   * Client can cancel the authentication operation.
+   *
+   * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_CANCEL = 3;
+   */
+  CANCEL = 3,
+
+  /**
+   * Client can select another allowed authentication method.
+   *
+   * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
+   */
+  SELECT_ANOTHER_METHOD = 4,
+}
+
+/**
+ * Describes the enum m8.platform.iam.v1.AuthenticationChallengeAction.
+ */
+export declare const AuthenticationChallengeActionSchema: GenEnum<AuthenticationChallengeAction>;
 
 /**
  * OtpDestinationType describes where or how an OTP challenge was delivered.

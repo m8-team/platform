@@ -243,6 +243,198 @@ export declare type SelectAuthenticationChallengeRequest = Message<"m8.platform.
 export declare const SelectAuthenticationChallengeRequestSchema: GenMessage<SelectAuthenticationChallengeRequest>;
 
 /**
+ * Request to submit the current authentication challenge response.
+ *
+ * @generated from message m8.platform.iam.v1.SubmitAuthenticationChallengeRequest
+ */
+export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.SubmitAuthenticationChallengeRequest"> & {
+  /**
+   * Required. Stable unique identifier of the authentication operation.
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+
+  /**
+   * Required. Identifier of the current challenge being answered.
+   *
+   * The value must match Authentication.current_challenge.challenge_id.
+   *
+   * @generated from field: string challenge_id = 2;
+   */
+  challengeId: string;
+
+  /**
+   * Required. Response or proof for the current challenge. Raw passwords and
+   * OTP codes are accepted only in this request and must never be returned in
+   * Authentication, AuthenticationContext, AuthenticationChallengeInfo, or
+   * AuthenticationError.
+   *
+   * @generated from oneof m8.platform.iam.v1.SubmitAuthenticationChallengeRequest.response
+   */
+  response: {
+    /**
+     * OTP code submitted by the user.
+     *
+     * @generated from field: m8.platform.iam.v1.OtpChallengeResponse otp = 10;
+     */
+    value: OtpChallengeResponse;
+    case: "otp";
+  } | {
+    /**
+     * Password submitted by the user.
+     *
+     * @generated from field: m8.platform.iam.v1.PasswordChallengeResponse password = 11;
+     */
+    value: PasswordChallengeResponse;
+    case: "password";
+  } | {
+    /**
+     * WebAuthn assertion produced by the browser or platform authenticator.
+     *
+     * @generated from field: m8.platform.iam.v1.WebAuthnAssertionResponse webauthn = 12;
+     */
+    value: WebAuthnAssertionResponse;
+    case: "webauthn";
+  } | {
+    /**
+     * Approval result submitted by an approval-capable client.
+     *
+     * @generated from field: m8.platform.iam.v1.ApprovalChallengeResponse approval = 13;
+     */
+    value: ApprovalChallengeResponse;
+    case: "approval";
+  } | { case: undefined; value?: undefined };
+
+  /**
+   * Optional. Idempotency key for retrying challenge submission safely.
+   *
+   * @generated from field: string request_id = 100;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.SubmitAuthenticationChallengeRequest.
+ * Use `create(SubmitAuthenticationChallengeRequestSchema)` to create a new message.
+ */
+export declare const SubmitAuthenticationChallengeRequestSchema: GenMessage<SubmitAuthenticationChallengeRequest>;
+
+/**
+ * OtpChallengeResponse contains an OTP code submitted by the user.
+ *
+ * It is request-only data and must never be returned in public snapshots.
+ *
+ * @generated from message m8.platform.iam.v1.OtpChallengeResponse
+ */
+export declare type OtpChallengeResponse = Message<"m8.platform.iam.v1.OtpChallengeResponse"> & {
+  /**
+   * Required. One-time password code submitted for verification.
+   *
+   * @generated from field: string code = 1;
+   */
+  code: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.OtpChallengeResponse.
+ * Use `create(OtpChallengeResponseSchema)` to create a new message.
+ */
+export declare const OtpChallengeResponseSchema: GenMessage<OtpChallengeResponse>;
+
+/**
+ * PasswordChallengeResponse contains a password submitted by the user.
+ *
+ * It is request-only data and must never be returned, logged, or stored in the
+ * public authentication snapshot.
+ *
+ * @generated from message m8.platform.iam.v1.PasswordChallengeResponse
+ */
+export declare type PasswordChallengeResponse = Message<"m8.platform.iam.v1.PasswordChallengeResponse"> & {
+  /**
+   * Required. Password submitted for verification.
+   *
+   * @generated from field: string password = 1;
+   */
+  password: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.PasswordChallengeResponse.
+ * Use `create(PasswordChallengeResponseSchema)` to create a new message.
+ */
+export declare const PasswordChallengeResponseSchema: GenMessage<PasswordChallengeResponse>;
+
+/**
+ * WebAuthnAssertionResponse contains the browser assertion response for a
+ * WebAuthn/passkey challenge.
+ *
+ * @generated from message m8.platform.iam.v1.WebAuthnAssertionResponse
+ */
+export declare type WebAuthnAssertionResponse = Message<"m8.platform.iam.v1.WebAuthnAssertionResponse"> & {
+  /**
+   * Required. Base64url-encoded credential identifier.
+   *
+   * @generated from field: string credential_id = 1;
+   */
+  credentialId: string;
+
+  /**
+   * Required. Base64url-encoded clientDataJSON.
+   *
+   * @generated from field: string client_data_json = 2;
+   */
+  clientDataJson: string;
+
+  /**
+   * Required. Base64url-encoded authenticatorData.
+   *
+   * @generated from field: string authenticator_data = 3;
+   */
+  authenticatorData: string;
+
+  /**
+   * Required. Base64url-encoded assertion signature.
+   *
+   * @generated from field: string signature = 4;
+   */
+  signature: string;
+
+  /**
+   * Optional. Base64url-encoded WebAuthn user handle, when supplied by the authenticator.
+   *
+   * @generated from field: string user_handle = 5;
+   */
+  userHandle: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.WebAuthnAssertionResponse.
+ * Use `create(WebAuthnAssertionResponseSchema)` to create a new message.
+ */
+export declare const WebAuthnAssertionResponseSchema: GenMessage<WebAuthnAssertionResponse>;
+
+/**
+ * ApprovalChallengeResponse contains an approval or denial result.
+ *
+ * @generated from message m8.platform.iam.v1.ApprovalChallengeResponse
+ */
+export declare type ApprovalChallengeResponse = Message<"m8.platform.iam.v1.ApprovalChallengeResponse"> & {
+  /**
+   * Required. True when the user approved the challenge, false when denied.
+   *
+   * @generated from field: bool approved = 1;
+   */
+  approved: boolean;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.ApprovalChallengeResponse.
+ * Use `create(ApprovalChallengeResponseSchema)` to create a new message.
+ */
+export declare const ApprovalChallengeResponseSchema: GenMessage<ApprovalChallengeResponse>;
+
+/**
  * Request to process a callback from an external identity provider.
  *
  * @generated from message m8.platform.iam.v1.HandleAuthenticationCallbackRequest
@@ -418,7 +610,8 @@ export declare const StartAuthenticationOperationMetadataSchema: GenMessage<Star
  * preferences.
  *
  * Example:
- * - passkey-first login requests `requested_method` = "passkey"
+ * - passkey-first login requests requested_authentication_method =
+ *   AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
  * - tenant-specific UI flow sends `login_experience_version`
  * - OIDC request passes acr_values requested by the relying party
  *
@@ -439,6 +632,9 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
 
   /**
    * Optional. Preferred authentication provider identifier.
+   * This selects a provider, channel, or provider integration for the requested
+   * method. AuthenticationSubject.provider_id scopes subject identifiers and
+   * must not be used to select the login provider.
    *
    * Example:
    * - WebAuthn provider id for passkey authentication
@@ -450,15 +646,17 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
   requestedProviderId: string;
 
   /**
-   * Optional. Preferred authentication method requested by the client.
+   * Optional. Deprecated. Use requested_authentication_method for standard
+   * methods and requested_method_id for custom, provider, or plugin methods.
    *
-   * Example:
+   * Deprecated examples:
    * - "passkey"
    * - "password"
    * - "otp"
    * - "mobile_id"
    *
-   * @generated from field: string requested_method = 3;
+   * @generated from field: string requested_method = 3 [deprecated = true];
+   * @deprecated
    */
   requestedMethod: string;
 
@@ -473,6 +671,26 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * @generated from field: repeated string acr_values = 4;
    */
   acrValues: string[];
+
+  /**
+   * Optional. Preferred standard authentication method requested by the client.
+   *
+   * Use requested_method_id for custom, provider, or plugin methods not modeled
+   * by AuthenticationMethod.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod requested_authentication_method = 5;
+   */
+  requestedAuthenticationMethod: AuthenticationMethod;
+
+  /**
+   * Optional. Preferred custom, provider, or plugin method identifier.
+   *
+   * This complements requested_authentication_method and must be interpreted
+   * against server-side client, provider, and policy configuration.
+   *
+   * @generated from field: string requested_method_id = 6;
+   */
+  requestedMethodId: string;
 };
 
 /**
@@ -483,6 +701,18 @@ export declare const AuthenticationStartOptionsSchema: GenMessage<Authentication
 
 /**
  * Service that starts and drives authentication operations.
+ *
+ * General flow:
+ * - StartAuthentication creates an authentication operation.
+ * - GetAuthentication polls the public-safe operation snapshot.
+ * - Authentication.available_challenges builds dynamic login UI.
+ * - SelectAuthenticationChallenge selects an allowed method, provider, channel,
+ *   or integration.
+ * - ResendAuthenticationChallenge redelivers an OTP-like current challenge.
+ * - SubmitAuthenticationChallenge submits the user or client proof for the
+ *   current challenge.
+ * - HandleAuthenticationCallback accepts external provider callbacks.
+ * - CancelAuthentication cancels an active operation.
  *
  * @generated from service m8.platform.iam.v1.AuthenticationService
  */
@@ -526,7 +756,10 @@ export declare const AuthenticationService: GenService<{
    * returns the current snapshot without changing its state.
    *
    * Cancel transition:
-   * - active states transition to CANCELED
+   * - fully cancelable active states transition to CANCELED
+   * - cancel during VERIFYING, AUTHORIZATION_HANDOFF_PENDING, or FINALIZING may
+   *   return an unchanged snapshot if verification or finalization already
+   *   passed the safe cancellation point
    * - terminal states are returned unchanged
    * - a successful transition updates update_time and increments version
    * - terminal snapshots keep their existing update_time and version
@@ -634,12 +867,56 @@ export declare const AuthenticationService: GenService<{
     output: typeof AuthenticationSchema;
   },
   /**
+   * Submits a user or client response to the current authentication challenge.
+   *
+   * This method accepts the proof or response required by current_challenge and
+   * returns an updated public-safe Authentication snapshot. The response must
+   * never contain passwords, OTP codes, provider tokens, raw callback secrets,
+   * private WebAuthn server-side session secrets, or raw provider responses.
+   *
+   * Allowed states:
+   * - CHALLENGE_DELIVERED
+   * - WAITING_FOR_USER
+   * - CHALLENGE_RETRY_REQUIRED
+   * - STEP_UP_REQUIRED
+   *
+   * State transition:
+   * - WAITING_FOR_USER -> VERIFYING
+   * - VERIFYING -> AUTHENTICATED | CHALLENGE_RETRY_REQUIRED | DENIED | BLOCKED
+   *   | ATTEMPTS_EXCEEDED | EXPIRED | FAILED
+   *
+   * Idempotency:
+   * - same authentication_id, challenge_id, and request_id returns the same
+   *   submission result
+   *
+   * Implementation TODO:
+   * - signal Temporal workflow with SubmitChallengeSignal
+   * - workflow verifies proof or response
+   * - workflow updates attempts, state_reason, current_challenge, and error
+   * - workflow never stores raw passwords or OTP codes in the public snapshot
+   *
+   * Authorization:
+   * - caller must be allowed to operate on this authentication operation
+   * - public clients may submit only their own current challenge
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge
+   */
+  submitAuthenticationChallenge: {
+    methodKind: "unary";
+    input: typeof SubmitAuthenticationChallengeRequestSchema;
+    output: typeof AuthenticationSchema;
+  },
+  /**
    * Processes callbacks from external identity providers.
    *
    * Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
    * providers. The method validates provider state internally and must not
    * expose provider tokens, raw assertions, client secrets, or internal callback
    * secrets in the response.
+   *
+   * HTTP bindings:
+   * - GET is used by OIDC/OAuth authorization code callbacks.
+   * - POST is used by SAML POST binding and provider-specific callbacks.
    *
    * Callback behavior:
    * - validate provider_id

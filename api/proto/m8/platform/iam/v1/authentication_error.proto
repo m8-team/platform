@@ -95,13 +95,52 @@ enum AuthenticationStateReason {
   AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED = 26;
 }
 
+// AuthenticationErrorCode provides stable typed error codes for SDK branching.
+//
+// Values are safe to expose to clients. Provider-specific error details belong
+// in AuthenticationError.provider_error_code only when the code is safe and does
+// not include raw provider responses or secrets.
+enum AuthenticationErrorCode {
+  // Authentication error code is not specified.
+  AUTHENTICATION_ERROR_CODE_UNSPECIFIED = 0;
+
+  // Subject could not be found or resolved.
+  AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND = 1;
+
+  // Requested authentication method is not allowed.
+  AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED = 2;
+
+  // Requested provider is not allowed.
+  AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED = 3;
+
+  // Provider callback was invalid or failed validation.
+  AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID = 4;
+
+  // Retry attempts were exceeded.
+  AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED = 5;
+
+  // Authentication expired.
+  AUTHENTICATION_ERROR_CODE_EXPIRED = 6;
+
+  // Authentication was blocked by policy or risk decision.
+  AUTHENTICATION_ERROR_CODE_BLOCKED = 7;
+
+  // Authentication was denied by the user or provider.
+  AUTHENTICATION_ERROR_CODE_DENIED = 8;
+
+  // Internal or technical error.
+  AUTHENTICATION_ERROR_CODE_INTERNAL = 9;
+}
+
 // AuthenticationError contains safe error details for terminal or problem
 // states.
 //
 // It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
 // provider responses, or private risk model details.
 message AuthenticationError {
-  // Output only. Stable machine-readable error code.
+  // Output only. Deprecated. Use typed_code for SDK branching.
+  //
+  // Legacy stable machine-readable error code.
   //
   // Example:
   // - "subject_not_found"
@@ -109,6 +148,7 @@ message AuthenticationError {
   // - "provider_callback_invalid"
   // - "attempts_exceeded"
   string code = 1 [
+    deprecated = true,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 128
   ];
@@ -141,4 +181,19 @@ message AuthenticationError {
 
   // Output only. Indicates whether retrying the same operation may succeed.
   bool retryable = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Typed error code for SDK branching.
+  AuthenticationErrorCode typed_code = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Safe provider-level error code, if a provider returned one.
+  //
+  // This must not contain raw provider responses, tokens, assertions, callback
+  // secrets, stack traces, or user-entered secrets.
+  string provider_error_code = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
 }

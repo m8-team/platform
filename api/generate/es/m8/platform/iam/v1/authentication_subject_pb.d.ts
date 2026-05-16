@@ -58,6 +58,7 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
    *
    * This field does not select the authentication provider for the workflow.
    * Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+   * AuthenticationSubject.provider_id must not be used to select the login provider.
    *
    * This field should normally be set only when type is EXTERNAL_IDENTITY,
    * or when LOGIN_HINT is explicitly provider-scoped.

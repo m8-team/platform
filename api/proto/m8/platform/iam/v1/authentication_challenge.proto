@@ -73,6 +73,26 @@ enum AuthenticationChallengeKind {
   AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK = 6;
 }
 
+// AuthenticationChallengeAction identifies actions currently available for the
+// current challenge. It is safe for clients to use for dynamic login UI
+// branching.
+enum AuthenticationChallengeAction {
+  // Authentication challenge action is not specified.
+  AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED = 0;
+
+  // Client can submit a user or client proof for the current challenge.
+  AUTHENTICATION_CHALLENGE_ACTION_SUBMIT = 1;
+
+  // Client can request redelivery of an OTP-like challenge.
+  AUTHENTICATION_CHALLENGE_ACTION_RESEND = 2;
+
+  // Client can cancel the authentication operation.
+  AUTHENTICATION_CHALLENGE_ACTION_CANCEL = 3;
+
+  // Client can select another allowed authentication method.
+  AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
+}
+
 // OtpDestinationType describes where or how an OTP challenge was delivered.
 enum OtpDestinationType {
   // OTP destination type is not specified.
@@ -123,6 +143,69 @@ enum ApprovalChannel {
 
   // Approval is delivered through a bank identity provider.
   APPROVAL_CHANNEL_BANK_ID = 4;
+}
+
+// AuthenticationChallengeOption describes a public-safe method/provider option
+// that can be rendered by a dynamic login UI.
+//
+// The server may include disabled or unavailable options with
+// unavailable_reason so clients can render policy-aware UI. The option list must
+// not reveal whether a specific user has a sensitive authenticator unless
+// server-side policy allows that disclosure. For passkey-first UI, WebAuthn or
+// passkey can be marked recommended only after a server-side policy decision.
+message AuthenticationChallengeOption {
+  // Output only. Authentication method represented by this option.
+  AuthenticationMethod method = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Challenge kind the client should expect for this option.
+  AuthenticationChallengeKind kind = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Provider, channel, or integration identifier for this option.
+  string provider_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Human-readable provider or channel display name.
+  string provider_display_name = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Masked destination for this option, if policy allows exposing it.
+  //
+  // Example:
+  // - "+43******4567"
+  // - "s***@example.com"
+  // - "iPhone 15 Pro"
+  string masked_destination = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Indicates that this option should be highlighted by the UI.
+  bool recommended = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Indicates whether this option can currently be selected.
+  bool available = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Safe explanation shown when available is false.
+  string unavailable_reason = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
 }
 
 // AuthenticationChallengeInfo contains public-safe details of the current
@@ -191,14 +274,17 @@ message AuthenticationChallengeInfo {
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Actions currently available for this challenge.
+  // Output only. Deprecated. Use actions instead.
   //
-  // Example:
+  // Legacy string actions currently available for this challenge.
+  //
+  // Deprecated examples:
   // - "submit"
   // - "resend"
   // - "cancel"
   // - "select_another_method"
   repeated string available_actions = 9 [
+    deprecated = true,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 20
@@ -206,6 +292,26 @@ message AuthenticationChallengeInfo {
         string: {
           min_len: 1
           max_len: 64
+        }
+      }
+    }
+  ];
+
+  // Output only. Typed list of actions currently available for this challenge.
+  //
+  // Examples:
+  // - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+  // - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+  // - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+  // - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+  repeated AuthenticationChallengeAction actions = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 20
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
         }
       }
     }
@@ -261,6 +367,33 @@ message OtpChallenge {
   ];
 }
 
+// WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry for
+// browser WebAuthn APIs. It contains only public credential descriptor data.
+message WebAuthnAllowedCredential {
+  // Output only. Credential descriptor type, usually "public-key".
+  string type = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Output only. Base64url-encoded credential identifier.
+  string id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  // Output only. Allowed authenticator transports for this credential.
+  repeated string transports = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {max_len: 64}
+      }
+    }
+  ];
+}
+
 // WebAuthnChallenge contains public parameters for a WebAuthn/passkey assertion
 // ceremony.
 //
@@ -291,10 +424,12 @@ message WebAuthnChallenge {
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Base64url-encoded credential IDs allowed for this assertion.
+  // Output only. Deprecated legacy browser SDK shortcut. Use allow_credentials
+  // for typed WebAuthn PublicKeyCredentialDescriptor data.
   //
   // Empty list means discoverable credentials or resident keys may be used.
   repeated string allowed_credential_ids = 5 [
+    deprecated = true,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 100
@@ -305,6 +440,14 @@ message WebAuthnChallenge {
         }
       }
     }
+  ];
+
+  // Output only. Public credential descriptors allowed for this assertion.
+  //
+  // Empty list means discoverable credentials or resident keys may be used.
+  repeated WebAuthnAllowedCredential allow_credentials = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 100}
   ];
 }
 

@@ -21,7 +21,9 @@ export declare const file_m8_platform_iam_v1_authentication_error: GenFile;
  */
 export declare type AuthenticationError = Message<"m8.platform.iam.v1.AuthenticationError"> & {
   /**
-   * Output only. Stable machine-readable error code.
+   * Output only. Deprecated. Use typed_code for SDK branching.
+   *
+   * Legacy stable machine-readable error code.
    *
    * Example:
    * - "subject_not_found"
@@ -29,7 +31,8 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
    * - "provider_callback_invalid"
    * - "attempts_exceeded"
    *
-   * @generated from field: string code = 1;
+   * @generated from field: string code = 1 [deprecated = true];
+   * @deprecated
    */
   code: string;
 
@@ -68,6 +71,23 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
    * @generated from field: bool retryable = 5;
    */
   retryable: boolean;
+
+  /**
+   * Output only. Typed error code for SDK branching.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode typed_code = 6;
+   */
+  typedCode: AuthenticationErrorCode;
+
+  /**
+   * Output only. Safe provider-level error code, if a provider returned one.
+   *
+   * This must not contain raw provider responses, tokens, assertions, callback
+   * secrets, stack traces, or user-entered secrets.
+   *
+   * @generated from field: string provider_error_code = 7;
+   */
+  providerErrorCode: string;
 };
 
 /**
@@ -280,4 +300,90 @@ export enum AuthenticationStateReason {
  * Describes the enum m8.platform.iam.v1.AuthenticationStateReason.
  */
 export declare const AuthenticationStateReasonSchema: GenEnum<AuthenticationStateReason>;
+
+/**
+ * AuthenticationErrorCode provides stable typed error codes for SDK branching.
+ *
+ * Values are safe to expose to clients. Provider-specific error details belong
+ * in AuthenticationError.provider_error_code only when the code is safe and does
+ * not include raw provider responses or secrets.
+ *
+ * @generated from enum m8.platform.iam.v1.AuthenticationErrorCode
+ */
+export enum AuthenticationErrorCode {
+  /**
+   * Authentication error code is not specified.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Subject could not be found or resolved.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND = 1;
+   */
+  SUBJECT_NOT_FOUND = 1,
+
+  /**
+   * Requested authentication method is not allowed.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED = 2;
+   */
+  METHOD_NOT_ALLOWED = 2,
+
+  /**
+   * Requested provider is not allowed.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED = 3;
+   */
+  PROVIDER_NOT_ALLOWED = 3,
+
+  /**
+   * Provider callback was invalid or failed validation.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID = 4;
+   */
+  PROVIDER_CALLBACK_INVALID = 4,
+
+  /**
+   * Retry attempts were exceeded.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED = 5;
+   */
+  ATTEMPTS_EXCEEDED = 5,
+
+  /**
+   * Authentication expired.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_EXPIRED = 6;
+   */
+  EXPIRED = 6,
+
+  /**
+   * Authentication was blocked by policy or risk decision.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_BLOCKED = 7;
+   */
+  BLOCKED = 7,
+
+  /**
+   * Authentication was denied by the user or provider.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_DENIED = 8;
+   */
+  DENIED = 8,
+
+  /**
+   * Internal or technical error.
+   *
+   * @generated from enum value: AUTHENTICATION_ERROR_CODE_INTERNAL = 9;
+   */
+  INTERNAL = 9,
+}
+
+/**
+ * Describes the enum m8.platform.iam.v1.AuthenticationErrorCode.
+ */
+export declare const AuthenticationErrorCodeSchema: GenEnum<AuthenticationErrorCode>;
 

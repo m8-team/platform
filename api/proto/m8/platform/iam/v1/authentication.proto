@@ -23,15 +23,20 @@ message Authentication {
 
   // Current lifecycle state of an authentication operation.
   //
-  // Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
-  // CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
-  // CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+  // Fully cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+  // CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER,
+  // CHALLENGE_RETRY_REQUIRED, and STEP_UP_REQUIRED.
   //
-  // Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+  // Best-effort cancel states are VERIFYING, AUTHORIZATION_HANDOFF_PENDING, and
+  // FINALIZING. Cancel may return the unchanged snapshot if verification or
+  // finalization already passed the safe cancellation point.
+  //
+  // Terminal immutable states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
   // ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
   //
   // Cancel transition rule:
-  // - cancelable state -> CANCELED
+  // - fully cancelable state -> CANCELED
+  // - best-effort cancel state -> CANCELED or unchanged snapshot
   // - terminal states are immutable
   //
   // On a successful transition to CANCELED, update_time is updated and version is
@@ -130,13 +135,17 @@ message Authentication {
     // - sensitive operation requires fresh authentication
     STEP_UP_REQUIRED = 10;
 
-    // Authentication succeeded locally, but external authorization server callback
-    // or finalization is still pending.
+    // Deprecated. Use AUTHORIZATION_HANDOFF_PENDING for local authentication
+    // success that is waiting for authorization, session, or token handoff.
+    //
+    // Provider callback waiting is represented by WAITING_FOR_USER with
+    // current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+    // or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
     //
     // Example:
     // - M8 Authentication has verified the user
     // - external authorization callback is not yet sent or not yet acknowledged
-    CALLBACK_PENDING = 11;
+    CALLBACK_PENDING = 11 [deprecated = true];
 
     // Authentication finalization is in progress.
     //
@@ -145,6 +154,15 @@ message Authentication {
     // - audit event is being written
     // - session/token handoff is being finalized
     FINALIZING = 12;
+
+    // Authentication succeeded locally and waits for session, token, or
+    // authorization handoff.
+    //
+    // Do not confuse this state with provider callback processing. Provider
+    // callback waiting is represented by WAITING_FOR_USER with
+    // current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+    // or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
+    AUTHORIZATION_HANDOFF_PENDING = 13;
 
     // Authentication successfully completed.
     //
@@ -325,6 +343,7 @@ message Authentication {
 
   // Output only. Immutable project identifier that owns this authentication operation.
   // The server resolves this value from client_id and client configuration.
+  // Public clients must not send this value in StartAuthenticationRequest.
   //
   // Example:
   // - used to isolate authentication data by project
@@ -338,6 +357,7 @@ message Authentication {
 
   // Output only. Immutable user pool identifier where the identity must be resolved.
   // The server resolves this value from client_id and client configuration.
+  // Public clients must not send this value in StartAuthenticationRequest.
   //
   // Example:
   // - selects the identity namespace for the authentication operation
@@ -363,26 +383,32 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Required. Temporal workflow identifier that executes this authentication operation.
+  // Output only. Immutable Temporal workflow identifier that executes this
+  // authentication operation.
+  //
+  // This is server-assigned internal workflow correlation metadata. It should
+  // not be exposed to untrusted public clients unless the API surface is
+  // internal or administrative.
   //
   // Example:
   // - assigned when the authentication workflow is started
   // - used to signal or query the workflow execution
   // - remains stable for the lifetime of the workflow
   string workflow_id = 5 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IMMUTABLE
   ];
 
-  // Optional. Temporal run identifier for the concrete workflow execution.
-  // May be empty when the authentication operation has just been created.
+  // Output only. Temporal run identifier for the concrete workflow execution.
+  // This is internal workflow correlation metadata and may be empty when the
+  // authentication operation has just been created.
   //
   // Example:
   // - assigned when the workflow run is started
   // - used with workflow_id to correlate worker logs and callbacks
   // - identifies the run that produced the current authentication state
   string run_id = 6 [
-    (google.api.field_behavior) = OPTIONAL,
+    (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
@@ -489,7 +515,9 @@ message Authentication {
   // Output only. Stable unique identifier of the resolved M8 Identity user.
   //
   // Empty until the authentication operation resolves the claimant
-  // to a user inside user_pool_id.
+  // to a user inside user_pool_id. Public clients must not use this value as
+  // proof of authentication before the operation reaches terminal
+  // AUTHENTICATED state.
   //
   // Once set, this value must not change for the lifetime of the operation.
   string user_id = 15 [
@@ -507,9 +535,15 @@ message Authentication {
   // This field may be empty while the operation is in CREATED, INITIALIZING,
   // IDENTIFYING, or EVALUATING.
   //
+  // Provider callback waiting is represented as a provider challenge through
+  // AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK or
+  // AUTHENTICATION_CHALLENGE_KIND_REDIRECT. Authorization, session, or token
+  // handoff after local authentication success is represented by
+  // AUTHORIZATION_HANDOFF_PENDING, not by provider callback state.
+  //
   // This field should be filled after the flow reaches CHALLENGE_PREPARING,
   // CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
-  // STEP_UP_REQUIRED, or CALLBACK_PENDING.
+  // STEP_UP_REQUIRED, or a provider callback waiting challenge.
   //
   // For terminal states, this field may remain filled as the last known
   // challenge summary, but it must still contain only public-safe data.
@@ -523,6 +557,18 @@ message Authentication {
   AuthenticationStateReason state_reason = 18 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Public-safe challenge options used by dynamic login UI.
+  //
+  // This list contains only public-safe options and may include disabled or
+  // unavailable methods with unavailable_reason. It must not reveal whether a
+  // specific user has a sensitive authenticator unless server-side policy
+  // allows it. For passkey-first UI, WebAuthn or passkey can be marked
+  // recommended only after a server-side policy decision.
+  repeated AuthenticationChallengeOption available_challenges = 19 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 32}
   ];
 
   // Output only. Error details for failed, denied, blocked, expired, or

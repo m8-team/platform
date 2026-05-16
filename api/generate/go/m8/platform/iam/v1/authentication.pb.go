@@ -27,15 +27,20 @@ const (
 
 // Current lifecycle state of an authentication operation.
 //
-// Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
-// CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
-// CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+// Fully cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+// CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER,
+// CHALLENGE_RETRY_REQUIRED, and STEP_UP_REQUIRED.
 //
-// Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+// Best-effort cancel states are VERIFYING, AUTHORIZATION_HANDOFF_PENDING, and
+// FINALIZING. Cancel may return the unchanged snapshot if verification or
+// finalization already passed the safe cancellation point.
+//
+// Terminal immutable states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
 // ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
 //
 // Cancel transition rule:
-// - cancelable state -> CANCELED
+// - fully cancelable state -> CANCELED
+// - best-effort cancel state -> CANCELED or unchanged snapshot
 // - terminal states are immutable
 //
 // On a successful transition to CANCELED, update_time is updated and version is
@@ -124,12 +129,18 @@ const (
 	// - requested acr_values require stronger authentication
 	// - sensitive operation requires fresh authentication
 	Authentication_STEP_UP_REQUIRED Authentication_State = 10
-	// Authentication succeeded locally, but external authorization server callback
-	// or finalization is still pending.
+	// Deprecated. Use AUTHORIZATION_HANDOFF_PENDING for local authentication
+	// success that is waiting for authorization, session, or token handoff.
+	//
+	// Provider callback waiting is represented by WAITING_FOR_USER with
+	// current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+	// or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
 	//
 	// Example:
 	// - M8 Authentication has verified the user
 	// - external authorization callback is not yet sent or not yet acknowledged
+	//
+	// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication.proto.
 	Authentication_CALLBACK_PENDING Authentication_State = 11
 	// Authentication finalization is in progress.
 	//
@@ -138,6 +149,14 @@ const (
 	// - audit event is being written
 	// - session/token handoff is being finalized
 	Authentication_FINALIZING Authentication_State = 12
+	// Authentication succeeded locally and waits for session, token, or
+	// authorization handoff.
+	//
+	// Do not confuse this state with provider callback processing. Provider
+	// callback waiting is represented by WAITING_FOR_USER with
+	// current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+	// or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
+	Authentication_AUTHORIZATION_HANDOFF_PENDING Authentication_State = 13
 	// Authentication successfully completed.
 	//
 	// Terminal state.
@@ -213,6 +232,7 @@ var (
 		10: "STEP_UP_REQUIRED",
 		11: "CALLBACK_PENDING",
 		12: "FINALIZING",
+		13: "AUTHORIZATION_HANDOFF_PENDING",
 		20: "AUTHENTICATED",
 		21: "DENIED",
 		22: "CANCELED",
@@ -222,26 +242,27 @@ var (
 		26: "FAILED",
 	}
 	Authentication_State_value = map[string]int32{
-		"STATE_UNSPECIFIED":        0,
-		"CREATED":                  1,
-		"INITIALIZING":             2,
-		"IDENTIFYING":              3,
-		"EVALUATING":               4,
-		"CHALLENGE_PREPARING":      5,
-		"CHALLENGE_DELIVERED":      6,
-		"WAITING_FOR_USER":         7,
-		"VERIFYING":                8,
-		"CHALLENGE_RETRY_REQUIRED": 9,
-		"STEP_UP_REQUIRED":         10,
-		"CALLBACK_PENDING":         11,
-		"FINALIZING":               12,
-		"AUTHENTICATED":            20,
-		"DENIED":                   21,
-		"CANCELED":                 22,
-		"EXPIRED":                  23,
-		"ATTEMPTS_EXCEEDED":        24,
-		"BLOCKED":                  25,
-		"FAILED":                   26,
+		"STATE_UNSPECIFIED":             0,
+		"CREATED":                       1,
+		"INITIALIZING":                  2,
+		"IDENTIFYING":                   3,
+		"EVALUATING":                    4,
+		"CHALLENGE_PREPARING":           5,
+		"CHALLENGE_DELIVERED":           6,
+		"WAITING_FOR_USER":              7,
+		"VERIFYING":                     8,
+		"CHALLENGE_RETRY_REQUIRED":      9,
+		"STEP_UP_REQUIRED":              10,
+		"CALLBACK_PENDING":              11,
+		"FINALIZING":                    12,
+		"AUTHORIZATION_HANDOFF_PENDING": 13,
+		"AUTHENTICATED":                 20,
+		"DENIED":                        21,
+		"CANCELED":                      22,
+		"EXPIRED":                       23,
+		"ATTEMPTS_EXCEEDED":             24,
+		"BLOCKED":                       25,
+		"FAILED":                        26,
 	}
 )
 
@@ -478,6 +499,7 @@ type Authentication struct {
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Output only. Immutable project identifier that owns this authentication operation.
 	// The server resolves this value from client_id and client configuration.
+	// Public clients must not send this value in StartAuthenticationRequest.
 	//
 	// Example:
 	// - used to isolate authentication data by project
@@ -486,6 +508,7 @@ type Authentication struct {
 	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
 	// Output only. Immutable user pool identifier where the identity must be resolved.
 	// The server resolves this value from client_id and client configuration.
+	// Public clients must not send this value in StartAuthenticationRequest.
 	//
 	// Example:
 	// - selects the identity namespace for the authentication operation
@@ -501,15 +524,21 @@ type Authentication struct {
 	// - backend service acting as an authentication client
 	// - external OIDC client
 	ClientId string `protobuf:"bytes,4,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Required. Temporal workflow identifier that executes this authentication operation.
+	// Output only. Immutable Temporal workflow identifier that executes this
+	// authentication operation.
+	//
+	// This is server-assigned internal workflow correlation metadata. It should
+	// not be exposed to untrusted public clients unless the API surface is
+	// internal or administrative.
 	//
 	// Example:
 	// - assigned when the authentication workflow is started
 	// - used to signal or query the workflow execution
 	// - remains stable for the lifetime of the workflow
 	WorkflowId string `protobuf:"bytes,5,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
-	// Optional. Temporal run identifier for the concrete workflow execution.
-	// May be empty when the authentication operation has just been created.
+	// Output only. Temporal run identifier for the concrete workflow execution.
+	// This is internal workflow correlation metadata and may be empty when the
+	// authentication operation has just been created.
 	//
 	// Example:
 	// - assigned when the workflow run is started
@@ -580,7 +609,9 @@ type Authentication struct {
 	// Output only. Stable unique identifier of the resolved M8 Identity user.
 	//
 	// Empty until the authentication operation resolves the claimant
-	// to a user inside user_pool_id.
+	// to a user inside user_pool_id. Public clients must not use this value as
+	// proof of authentication before the operation reaches terminal
+	// AUTHENTICATED state.
 	//
 	// Once set, this value must not change for the lifetime of the operation.
 	UserId string `protobuf:"bytes,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -593,9 +624,15 @@ type Authentication struct {
 	// This field may be empty while the operation is in CREATED, INITIALIZING,
 	// IDENTIFYING, or EVALUATING.
 	//
+	// Provider callback waiting is represented as a provider challenge through
+	// AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK or
+	// AUTHENTICATION_CHALLENGE_KIND_REDIRECT. Authorization, session, or token
+	// handoff after local authentication success is represented by
+	// AUTHORIZATION_HANDOFF_PENDING, not by provider callback state.
+	//
 	// This field should be filled after the flow reaches CHALLENGE_PREPARING,
 	// CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
-	// STEP_UP_REQUIRED, or CALLBACK_PENDING.
+	// STEP_UP_REQUIRED, or a provider callback waiting challenge.
 	//
 	// For terminal states, this field may remain filled as the last known
 	// challenge summary, but it must still contain only public-safe data.
@@ -606,6 +643,14 @@ type Authentication struct {
 	// normal transitions, such as START_ACCEPTED or OTP_SENT, and problem
 	// transitions, such as PROVIDER_CALLBACK_INVALID.
 	StateReason AuthenticationStateReason `protobuf:"varint,18,opt,name=state_reason,json=stateReason,proto3,enum=m8.platform.iam.v1.AuthenticationStateReason" json:"state_reason,omitempty"`
+	// Output only. Public-safe challenge options used by dynamic login UI.
+	//
+	// This list contains only public-safe options and may include disabled or
+	// unavailable methods with unavailable_reason. It must not reveal whether a
+	// specific user has a sensitive authenticator unless server-side policy
+	// allows it. For passkey-first UI, WebAuthn or passkey can be marked
+	// recommended only after a server-side policy decision.
+	AvailableChallenges []*AuthenticationChallengeOption `protobuf:"bytes,19,rep,name=available_challenges,json=availableChallenges,proto3" json:"available_challenges,omitempty"`
 	// Output only. Error details for failed, denied, blocked, expired, or
 	// attempts-exceeded states.
 	//
@@ -767,6 +812,13 @@ func (x *Authentication) GetStateReason() AuthenticationStateReason {
 	return AuthenticationStateReason_AUTHENTICATION_STATE_REASON_UNSPECIFIED
 }
 
+func (x *Authentication) GetAvailableChallenges() []*AuthenticationChallengeOption {
+	if x != nil {
+		return x.AvailableChallenges
+	}
+	return nil
+}
+
 func (x *Authentication) GetError() *AuthenticationError {
 	if x != nil {
 		return x.Error
@@ -785,17 +837,17 @@ var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\xe9\x0e\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\x80\x10\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12-\n" +
 	"\n" +
 	"project_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\tprojectId\x120\n" +
 	"\fuser_pool_id\x18\x03 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\n" +
 	"userPoolId\x12+\n" +
-	"\tclient_id\x18\x04 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12*\n" +
-	"\vworkflow_id\x18\x05 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
+	"\tclient_id\x18\x04 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12'\n" +
+	"\vworkflow_id\x18\x05 \x01(\tB\x06\xe0A\x03\xe0A\x05R\n" +
 	"workflowId\x12%\n" +
-	"\x06run_id\x18\x06 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x05runId\x12M\n" +
+	"\x06run_id\x18\x06 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x05runId\x12M\n" +
 	"\x05state\x18\a \x01(\x0e2(.m8.platform.iam.v1.Authentication.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12W\n" +
 	"\tchallenge\x18\b \x01(\x0e2,.m8.platform.iam.v1.Authentication.ChallengeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\tchallenge\x12~\n" +
 	"\x19requested_assurance_level\x18\t \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\x0f\xe0A\x02\xbaH\t\x82\x01\x06\x10\x01 \x00 \x01R\x17requestedAssuranceLevel\x12z\n" +
@@ -811,9 +863,10 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\xe0A\x03\xbaH\x04\"\x02(\x01R\aversion\x12'\n" +
 	"\auser_id\x18\x0f \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\x12a\n" +
 	"\x11current_challenge\x18\x10 \x01(\v2/.m8.platform.iam.v1.AuthenticationChallengeInfoB\x03\xe0A\x03R\x10currentChallenge\x12]\n" +
-	"\fstate_reason\x18\x12 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\vstateReason\x12B\n" +
+	"\fstate_reason\x18\x12 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\vstateReason\x12q\n" +
+	"\x14available_challenges\x18\x13 \x03(\v21.m8.platform.iam.v1.AuthenticationChallengeOptionB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10 R\x13availableChallenges\x12B\n" +
 	"\x05error\x18\x11 \x01(\v2'.m8.platform.iam.v1.AuthenticationErrorB\x03\xe0A\x03R\x05error\x12\x17\n" +
-	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\xf9\x02\n" +
+	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\xa0\x03\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aCREATED\x10\x01\x12\x10\n" +
@@ -827,10 +880,11 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\tVERIFYING\x10\b\x12\x1c\n" +
 	"\x18CHALLENGE_RETRY_REQUIRED\x10\t\x12\x14\n" +
 	"\x10STEP_UP_REQUIRED\x10\n" +
-	"\x12\x14\n" +
-	"\x10CALLBACK_PENDING\x10\v\x12\x0e\n" +
+	"\x12\x18\n" +
+	"\x10CALLBACK_PENDING\x10\v\x1a\x02\b\x01\x12\x0e\n" +
 	"\n" +
-	"FINALIZING\x10\f\x12\x11\n" +
+	"FINALIZING\x10\f\x12!\n" +
+	"\x1dAUTHORIZATION_HANDOFF_PENDING\x10\r\x12\x11\n" +
 	"\rAUTHENTICATED\x10\x14\x12\n" +
 	"\n" +
 	"\x06DENIED\x10\x15\x12\f\n" +
@@ -871,14 +925,15 @@ func file_m8_platform_iam_v1_authentication_proto_rawDescGZIP() []byte {
 var file_m8_platform_iam_v1_authentication_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_m8_platform_iam_v1_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_m8_platform_iam_v1_authentication_proto_goTypes = []any{
-	(Authentication_State)(0),           // 0: m8.platform.iam.v1.Authentication.State
-	(Authentication_Challenge)(0),       // 1: m8.platform.iam.v1.Authentication.Challenge
-	(Authentication_AssuranceLevel)(0),  // 2: m8.platform.iam.v1.Authentication.AssuranceLevel
-	(*Authentication)(nil),              // 3: m8.platform.iam.v1.Authentication
-	(*timestamppb.Timestamp)(nil),       // 4: google.protobuf.Timestamp
-	(*AuthenticationChallengeInfo)(nil), // 5: m8.platform.iam.v1.AuthenticationChallengeInfo
-	(AuthenticationStateReason)(0),      // 6: m8.platform.iam.v1.AuthenticationStateReason
-	(*AuthenticationError)(nil),         // 7: m8.platform.iam.v1.AuthenticationError
+	(Authentication_State)(0),             // 0: m8.platform.iam.v1.Authentication.State
+	(Authentication_Challenge)(0),         // 1: m8.platform.iam.v1.Authentication.Challenge
+	(Authentication_AssuranceLevel)(0),    // 2: m8.platform.iam.v1.Authentication.AssuranceLevel
+	(*Authentication)(nil),                // 3: m8.platform.iam.v1.Authentication
+	(*timestamppb.Timestamp)(nil),         // 4: google.protobuf.Timestamp
+	(*AuthenticationChallengeInfo)(nil),   // 5: m8.platform.iam.v1.AuthenticationChallengeInfo
+	(AuthenticationStateReason)(0),        // 6: m8.platform.iam.v1.AuthenticationStateReason
+	(*AuthenticationChallengeOption)(nil), // 7: m8.platform.iam.v1.AuthenticationChallengeOption
+	(*AuthenticationError)(nil),           // 8: m8.platform.iam.v1.AuthenticationError
 }
 var file_m8_platform_iam_v1_authentication_proto_depIdxs = []int32{
 	0,  // 0: m8.platform.iam.v1.Authentication.state:type_name -> m8.platform.iam.v1.Authentication.State
@@ -890,12 +945,13 @@ var file_m8_platform_iam_v1_authentication_proto_depIdxs = []int32{
 	4,  // 6: m8.platform.iam.v1.Authentication.expire_time:type_name -> google.protobuf.Timestamp
 	5,  // 7: m8.platform.iam.v1.Authentication.current_challenge:type_name -> m8.platform.iam.v1.AuthenticationChallengeInfo
 	6,  // 8: m8.platform.iam.v1.Authentication.state_reason:type_name -> m8.platform.iam.v1.AuthenticationStateReason
-	7,  // 9: m8.platform.iam.v1.Authentication.error:type_name -> m8.platform.iam.v1.AuthenticationError
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	7,  // 9: m8.platform.iam.v1.Authentication.available_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallengeOption
+	8,  // 10: m8.platform.iam.v1.Authentication.error:type_name -> m8.platform.iam.v1.AuthenticationError
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_proto_init() }

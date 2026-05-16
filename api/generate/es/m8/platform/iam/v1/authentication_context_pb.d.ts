@@ -5,6 +5,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { Duration, Timestamp } from "@bufbuild/protobuf/wkt";
+import type { AuthenticationMethod } from "./authentication_challenge_pb";
 import type { Authentication_AssuranceLevel } from "./authentication_pb";
 
 /**
@@ -262,11 +263,14 @@ export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> 
   origin: string;
 
   /**
-   * Output only. Authentication methods allowed by the resolved client policy.
-   * TODO: Replace strings with AuthenticationMethod when the method enum is
-   * introduced in the public IAM authentication contract.
+   * Output only. Deprecated. Use allowed_authentication_methods instead.
    *
-   * @generated from field: repeated string allowed_methods = 5;
+   * Legacy string method identifiers allowed by the resolved client policy.
+   * The typed allowed_authentication_methods field is the canonical contract for
+   * standard methods.
+   *
+   * @generated from field: repeated string allowed_methods = 5 [deprecated = true];
+   * @deprecated
    */
   allowedMethods: string[];
 
@@ -294,6 +298,15 @@ export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> 
    * @generated from field: bool public_client = 8;
    */
   publicClient: boolean;
+
+  /**
+   * Output only. Typed authentication methods allowed by the resolved client
+   * policy and server-side risk decision. Dynamic login UI should prefer this
+   * field over the deprecated allowed_methods strings.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationMethod allowed_authentication_methods = 9;
+   */
+  allowedAuthenticationMethods: AuthenticationMethod[];
 };
 
 /**

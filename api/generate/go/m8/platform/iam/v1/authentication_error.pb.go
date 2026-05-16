@@ -176,6 +176,91 @@ func (AuthenticationStateReason) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{0}
 }
 
+// AuthenticationErrorCode provides stable typed error codes for SDK branching.
+//
+// Values are safe to expose to clients. Provider-specific error details belong
+// in AuthenticationError.provider_error_code only when the code is safe and does
+// not include raw provider responses or secrets.
+type AuthenticationErrorCode int32
+
+const (
+	// Authentication error code is not specified.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_UNSPECIFIED AuthenticationErrorCode = 0
+	// Subject could not be found or resolved.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND AuthenticationErrorCode = 1
+	// Requested authentication method is not allowed.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED AuthenticationErrorCode = 2
+	// Requested provider is not allowed.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED AuthenticationErrorCode = 3
+	// Provider callback was invalid or failed validation.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID AuthenticationErrorCode = 4
+	// Retry attempts were exceeded.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED AuthenticationErrorCode = 5
+	// Authentication expired.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_EXPIRED AuthenticationErrorCode = 6
+	// Authentication was blocked by policy or risk decision.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_BLOCKED AuthenticationErrorCode = 7
+	// Authentication was denied by the user or provider.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_DENIED AuthenticationErrorCode = 8
+	// Internal or technical error.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INTERNAL AuthenticationErrorCode = 9
+)
+
+// Enum value maps for AuthenticationErrorCode.
+var (
+	AuthenticationErrorCode_name = map[int32]string{
+		0: "AUTHENTICATION_ERROR_CODE_UNSPECIFIED",
+		1: "AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND",
+		2: "AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED",
+		3: "AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED",
+		4: "AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID",
+		5: "AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED",
+		6: "AUTHENTICATION_ERROR_CODE_EXPIRED",
+		7: "AUTHENTICATION_ERROR_CODE_BLOCKED",
+		8: "AUTHENTICATION_ERROR_CODE_DENIED",
+		9: "AUTHENTICATION_ERROR_CODE_INTERNAL",
+	}
+	AuthenticationErrorCode_value = map[string]int32{
+		"AUTHENTICATION_ERROR_CODE_UNSPECIFIED":               0,
+		"AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND":         1,
+		"AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED":        2,
+		"AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED":      3,
+		"AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID": 4,
+		"AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED":         5,
+		"AUTHENTICATION_ERROR_CODE_EXPIRED":                   6,
+		"AUTHENTICATION_ERROR_CODE_BLOCKED":                   7,
+		"AUTHENTICATION_ERROR_CODE_DENIED":                    8,
+		"AUTHENTICATION_ERROR_CODE_INTERNAL":                  9,
+	}
+)
+
+func (x AuthenticationErrorCode) Enum() *AuthenticationErrorCode {
+	p := new(AuthenticationErrorCode)
+	*p = x
+	return p
+}
+
+func (x AuthenticationErrorCode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AuthenticationErrorCode) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_error_proto_enumTypes[1].Descriptor()
+}
+
+func (AuthenticationErrorCode) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_error_proto_enumTypes[1]
+}
+
+func (x AuthenticationErrorCode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AuthenticationErrorCode.Descriptor instead.
+func (AuthenticationErrorCode) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{1}
+}
+
 // AuthenticationError contains safe error details for terminal or problem
 // states.
 //
@@ -183,13 +268,17 @@ func (AuthenticationStateReason) EnumDescriptor() ([]byte, []int) {
 // provider responses, or private risk model details.
 type AuthenticationError struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Stable machine-readable error code.
+	// Output only. Deprecated. Use typed_code for SDK branching.
+	//
+	// Legacy stable machine-readable error code.
 	//
 	// Example:
 	// - "subject_not_found"
 	// - "method_not_allowed"
 	// - "provider_callback_invalid"
 	// - "attempts_exceeded"
+	//
+	// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_error.proto.
 	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
 	// Output only. Safe human-readable error message.
 	//
@@ -206,9 +295,16 @@ type AuthenticationError struct {
 	// - "mobile-id-at"
 	ProviderId string `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
 	// Output only. Indicates whether retrying the same operation may succeed.
-	Retryable     bool `protobuf:"varint,5,opt,name=retryable,proto3" json:"retryable,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Retryable bool `protobuf:"varint,5,opt,name=retryable,proto3" json:"retryable,omitempty"`
+	// Output only. Typed error code for SDK branching.
+	TypedCode AuthenticationErrorCode `protobuf:"varint,6,opt,name=typed_code,json=typedCode,proto3,enum=m8.platform.iam.v1.AuthenticationErrorCode" json:"typed_code,omitempty"`
+	// Output only. Safe provider-level error code, if a provider returned one.
+	//
+	// This must not contain raw provider responses, tokens, assertions, callback
+	// secrets, stack traces, or user-entered secrets.
+	ProviderErrorCode string `protobuf:"bytes,7,opt,name=provider_error_code,json=providerErrorCode,proto3" json:"provider_error_code,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AuthenticationError) Reset() {
@@ -241,6 +337,7 @@ func (*AuthenticationError) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{0}
 }
 
+// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_error.proto.
 func (x *AuthenticationError) GetCode() string {
 	if x != nil {
 		return x.Code
@@ -276,18 +373,35 @@ func (x *AuthenticationError) GetRetryable() bool {
 	return false
 }
 
+func (x *AuthenticationError) GetTypedCode() AuthenticationErrorCode {
+	if x != nil {
+		return x.TypedCode
+	}
+	return AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_UNSPECIFIED
+}
+
+func (x *AuthenticationError) GetProviderErrorCode() string {
+	if x != nil {
+		return x.ProviderErrorCode
+	}
+	return ""
+}
+
 var File_m8_platform_iam_v1_authentication_error_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_error_proto_rawDesc = "" +
 	"\n" +
-	"-m8/platform/iam/v1/authentication_error.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x82\x02\n" +
-	"\x13AuthenticationError\x12\x1f\n" +
-	"\x04code\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\x04code\x12%\n" +
+	"-m8/platform/iam/v1/authentication_error.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9a\x03\n" +
+	"\x13AuthenticationError\x12!\n" +
+	"\x04code\x18\x01 \x01(\tB\r\xe0A\x03\xbaH\x05r\x03\x18\x80\x01\x18\x01R\x04code\x12%\n" +
 	"\amessage\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\bR\amessage\x12R\n" +
 	"\x06reason\x18\x03 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x06reason\x12,\n" +
 	"\vprovider_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
 	"providerId\x12!\n" +
-	"\tretryable\x18\x05 \x01(\bB\x03\xe0A\x03R\tretryable*\xe1\n" +
+	"\tretryable\x18\x05 \x01(\bB\x03\xe0A\x03R\tretryable\x12W\n" +
+	"\n" +
+	"typed_code\x18\x06 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationErrorCodeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\ttypedCode\x12;\n" +
+	"\x13provider_error_code\x18\a \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11providerErrorCode*\xe1\n" +
 	"\n" +
 	"\x19AuthenticationStateReason\x12+\n" +
 	"'AUTHENTICATION_STATE_REASON_UNSPECIFIED\x10\x00\x12.\n" +
@@ -317,7 +431,18 @@ const file_m8_platform_iam_v1_authentication_error_proto_rawDesc = "" +
 	"0AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED\x10\x17\x124\n" +
 	"0AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE\x10\x18\x122\n" +
 	".AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED\x10\x19\x124\n" +
-	"0AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED\x10\x1aB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"0AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED\x10\x1a*\xe1\x03\n" +
+	"\x17AuthenticationErrorCode\x12)\n" +
+	"%AUTHENTICATION_ERROR_CODE_UNSPECIFIED\x10\x00\x12/\n" +
+	"+AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND\x10\x01\x120\n" +
+	",AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED\x10\x02\x122\n" +
+	".AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED\x10\x03\x127\n" +
+	"3AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID\x10\x04\x12/\n" +
+	"+AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED\x10\x05\x12%\n" +
+	"!AUTHENTICATION_ERROR_CODE_EXPIRED\x10\x06\x12%\n" +
+	"!AUTHENTICATION_ERROR_CODE_BLOCKED\x10\a\x12$\n" +
+	" AUTHENTICATION_ERROR_CODE_DENIED\x10\b\x12&\n" +
+	"\"AUTHENTICATION_ERROR_CODE_INTERNAL\x10\tB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_error_proto_rawDescOnce sync.Once
@@ -331,19 +456,21 @@ func file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_error_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_m8_platform_iam_v1_authentication_error_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_m8_platform_iam_v1_authentication_error_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_m8_platform_iam_v1_authentication_error_proto_goTypes = []any{
 	(AuthenticationStateReason)(0), // 0: m8.platform.iam.v1.AuthenticationStateReason
-	(*AuthenticationError)(nil),    // 1: m8.platform.iam.v1.AuthenticationError
+	(AuthenticationErrorCode)(0),   // 1: m8.platform.iam.v1.AuthenticationErrorCode
+	(*AuthenticationError)(nil),    // 2: m8.platform.iam.v1.AuthenticationError
 }
 var file_m8_platform_iam_v1_authentication_error_proto_depIdxs = []int32{
 	0, // 0: m8.platform.iam.v1.AuthenticationError.reason:type_name -> m8.platform.iam.v1.AuthenticationStateReason
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 1: m8.platform.iam.v1.AuthenticationError.typed_code:type_name -> m8.platform.iam.v1.AuthenticationErrorCode
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_error_proto_init() }
@@ -356,7 +483,7 @@ func file_m8_platform_iam_v1_authentication_error_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_error_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_error_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
