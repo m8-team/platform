@@ -45,6 +45,7 @@ service AuthenticationService {
 // Request to start an authentication operation.
 message StartAuthenticationRequest {
   // Required. Public client application identifier that initiates authentication.
+  // The value must be a UUID.
   //
   // The server resolves this value to ClientConfig, project_id, user_pool_id,
   // allowed providers, allowed methods, and authentication policies.
@@ -52,7 +53,7 @@ message StartAuthenticationRequest {
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 128
+    (buf.validate.field).string.uuid = true
   ];
 
   // Optional. Subject identifier or hint used to resolve the authenticating user.

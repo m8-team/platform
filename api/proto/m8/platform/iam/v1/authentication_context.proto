@@ -99,10 +99,11 @@ message RequestContext {
   ];
 
   // Optional. Correlation identifier propagated across services and logs.
-  // It is an opaque value and must not be treated as a security proof.
+  // When present, it must be a UUID and must not be treated as a security proof.
   string correlation_id = 2 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
   ];
 
   // Optional. Distributed tracing identifier propagated by the gateway or
@@ -113,10 +114,12 @@ message RequestContext {
   ];
 
   // Optional. Idempotency key supplied by the caller or BFF for retry safety.
-  // Authentication Service validates idempotency against the effective client.
+  // When present, it must be a UUID. Authentication Service validates
+  // idempotency against the effective client.
   string idempotency_key = 4 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
   ];
 
   // Optional. Name of the service, gateway, adapter, or BFF that submitted the
@@ -210,11 +213,13 @@ message ClientContext {
   }
 
   // Output only. Effective client identifier resolved from
-  // StartAuthenticationRequest.client_id. It must match the client configuration
-  // used to resolve project, user pool, providers, methods, and policies.
+  // StartAuthenticationRequest.client_id. When present, it must be a UUID and
+  // must match the client configuration used to resolve project, user pool,
+  // providers, methods, and policies.
   string client_id = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
   ];
 
   // Output only. Application class resolved from the client configuration.
