@@ -60,13 +60,6 @@ message AuthenticationSubject {
     // - OIDC subject from provider_id and issuer
     // - SAML NameID scoped by issuer
     EXTERNAL_IDENTITY = 6;
-
-    // Value contains a WebAuthn credential identifier.
-    //
-    // Example:
-    // - passkey credential id selected by the browser
-    // - roaming security key credential id
-    WEBAUTHN_CREDENTIAL = 7;
   }
 
   // Required. Type of identifier represented by value.

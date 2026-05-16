@@ -8,7 +8,4 @@ Use this API to start authentication workflows and track their long-running oper
 
 | Method | Description |
 | --- | --- |
-| [AuthenticationService_StartAuthentication](./AuthenticationService_StartAuthentication.md) | Starts a new authentication operation.
-
- The returned long-running operation resolves to Authentication when the
- authentication workflow reaches a terminal state. |
+| [Start](./StartAuthentication.md) | Starts a new authentication workflow and returns a long-running operation for tracking progress. |

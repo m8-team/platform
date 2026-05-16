@@ -312,7 +312,7 @@ message Authentication {
   // - used to load project-scoped authentication configuration
   // - remains unchanged for the lifetime of the operation
   string project_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
@@ -324,7 +324,7 @@ message Authentication {
   // - scopes user lookup, authenticators, and provider links
   // - remains unchanged for the lifetime of the operation
   string user_pool_id = 3 [
-    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
@@ -392,7 +392,6 @@ message Authentication {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
-      not_in: [0]
     }
   ];
 
