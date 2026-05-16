@@ -14,46 +14,28 @@ import "m8/platform/iam/v1/authentication_subject.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
-// Authentication is the public-safe snapshot of a single authentication flow.
-//
-// It is suitable for public SDKs, mobile and web login UI, backend integration,
-// Keycloak/OIDC/CIBA handoff, and polling while an operation is in progress.
-// This message must not expose internal execution identifiers, provider raw
-// payloads, OTP codes, passwords, bearer tokens, raw fingerprints, or private
-// risk features.
 message Authentication {
   option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
 
-  // Identifier. Stable server-generated authentication identifier.
   string id = 1 [
     (google.api.field_behavior) = IDENTIFIER,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. M8 application client UUID that started the authentication.
-  //
-  // This is not the OAuth public client_id string used by external relying
-  // parties unless that OAuth client is represented by an M8 application client.
   string client_id = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. Public-safe subject projection.
-  //
-  // Raw email, phone, username, login_hint, external provider subject, and
-  // issuer-scoped identifiers must not be returned in this snapshot.
   AuthenticationSubjectSnapshot subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Resolved purpose of this authentication flow.
   AuthenticationPurpose purpose = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Public lifecycle state.
   AuthenticationState state = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
@@ -62,87 +44,55 @@ message Authentication {
     }
   ];
 
-  // Output only. Machine-readable reason for the latest state transition.
   AuthenticationStateReason state_reason = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Current challenge that the UI or client must complete.
-  //
-  // This is the source of truth for submit flow and dynamic login UI. It must
-  // never contain OTP codes, passwords, provider tokens, raw callback payloads,
-  // private WebAuthn session secrets, or private risk data.
   AuthenticationChallengeInfo current_challenge = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Challenge options that the UI may render or allow selecting.
-  //
-  // The server may include unavailable options with safe reasons. The list must
-  // not reveal sensitive authenticator existence unless policy allows it.
   repeated AuthenticationChallengeOption available_challenges = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {max_items: 32}
   ];
 
-  // Output only. Terminal or actionable error details.
-  //
-  // Public clients may receive a generic message and code even when internal
-  // admin or audit views retain a more precise reason to prevent enumeration.
   AuthenticationError error = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Result of a successful authentication.
   AuthenticationResult result = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Server-normalized context used for policy, audit, risk, UI,
-  // and protocol handoff decisions.
   AuthenticationContext context = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Time when authentication was created.
   google.protobuf.Timestamp create_time = 12 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IMMUTABLE
   ];
 
-  // Output only. Time when authentication was last updated.
   google.protobuf.Timestamp update_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Time when authentication expires.
   google.protobuf.Timestamp expire_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Entity tag for optimistic concurrency on mutating commands.
   string etag = 15 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 128
   ];
 
-  // Output only. Assurance level the server resolved for this authentication.
   AuthenticationAssuranceLevel requested_assurance_level = 16 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Monotonic aggregate version for event ordering, outbox
-  // publishing, replay diagnostics, and admin/debug projections.
   int64 version = 17 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int64.gte = 0
   ];
 }
 
-// AuthenticationInteraction is returned to public clients after start.
-//
-// Public unauthenticated clients must use interaction_token together with
-// authentication_id for polling and mutating commands. The token is an opaque
-// one-time or bounded-use interaction secret and must not be stored in the
-// public Authentication snapshot.
 message AuthenticationInteraction {
-  // Output only. Authentication identifier.
   string authentication_id = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. Opaque interaction token for public polling and commands.
   string interaction_token = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string = {
@@ -151,22 +101,17 @@ message AuthenticationInteraction {
     }
   ];
 
-  // Output only. Time when the interaction token expires.
   google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// AuthenticationResult is populated only after successful authentication.
 message AuthenticationResult {
-  // Output only. Time when the user authentication was established.
   google.protobuf.Timestamp auth_time = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Final normalized assurance level achieved by the flow.
   AuthenticationAssuranceLevel achieved_assurance_level = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Normalized authentication methods that participated.
   repeated AuthenticationMethod authentication_methods = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
@@ -180,7 +125,6 @@ message AuthenticationResult {
     }
   ];
 
-  // Output only. Configured method or plugin ids that participated.
   repeated string method_ids = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
@@ -194,10 +138,6 @@ message AuthenticationResult {
     }
   ];
 
-  // Output only. OIDC-compatible Authentication Methods References.
-  //
-  // Examples include pwd, otp, sms, email, mfa, hwk, user, pin, face, fpt, swk,
-  // pop, webauthn, passkey, and federated provider-specific values.
   repeated string amr = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
@@ -211,57 +151,38 @@ message AuthenticationResult {
     }
   ];
 
-  // Output only. Final Authentication Context Class Reference value for token
-  // issuance or session creation.
   string acr = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Handoff data for OIDC, CIBA, session, Keycloak, or backend
-  // integration after successful authentication.
   AuthenticationHandoff handoff = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// AuthenticationHandoff carries a public-safe opaque handoff reference.
-//
-// It must not contain authorization codes, JWTs, refresh tokens, raw provider
-// tokens, SAML assertions, or session bearer secrets. The handoff_id is an
-// opaque reference that the appropriate protocol adapter can redeem.
 message AuthenticationHandoff {
-  // Type of handoff produced by the authentication flow.
   enum Type {
-    // Handoff type is not specified.
     TYPE_UNSPECIFIED = 0;
 
-    // OIDC authorization code handoff.
     AUTHORIZATION_CODE = 1;
 
-    // CIBA auth_req_id handoff.
     CIBA_AUTH_REQ_ID = 2;
 
-    // Server-side session handoff.
     SESSION_HANDOFF = 3;
 
-    // JWT bearer assertion handoff reference.
     JWT_BEARER_ASSERTION = 4;
 
-    // Keycloak login action handoff.
     KEYCLOAK_LOGIN_ACTION = 5;
   }
 
-  // Output only. Handoff type.
   Type type = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Opaque handoff identifier redeemable by the protocol adapter.
   string handoff_id = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 512
   ];
 
-  // Output only. Time when the handoff reference expires.
   google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

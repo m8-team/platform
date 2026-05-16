@@ -4,139 +4,88 @@ package m8.platform.iam.v1;
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
-// AuthenticationState is the public lifecycle state of an authentication.
-//
-// It intentionally describes workflow progress without exposing the underlying
-// execution engine or provider internals.
 enum AuthenticationState {
-  // Authentication state is not specified.
   AUTHENTICATION_STATE_UNSPECIFIED = 0;
 
-  // Authentication has been accepted and server-side processing has started.
   AUTHENTICATION_STATE_STARTING = 1;
 
-  // The server needs the user or client to select or complete a challenge.
   AUTHENTICATION_STATE_CHALLENGE_REQUIRED = 2;
 
-  // A challenge has been delivered, exposed, or dispatched to the user.
   AUTHENTICATION_STATE_CHALLENGE_SENT = 3;
 
-  // A submitted challenge response or provider callback is being verified.
   AUTHENTICATION_STATE_VERIFYING = 4;
 
-  // Authentication completed successfully.
   AUTHENTICATION_STATE_AUTHENTICATED = 5;
 
-  // Authentication reached a terminal failure state.
   AUTHENTICATION_STATE_FAILED = 6;
 
-  // Authentication was cancelled by the user, client, provider, or server.
   AUTHENTICATION_STATE_CANCELLED = 7;
 
-  // Authentication expired before completion.
   AUTHENTICATION_STATE_EXPIRED = 8;
 }
 
-// AuthenticationAssuranceLevel is the normalized assurance level requested or
-// achieved by an authentication flow.
 enum AuthenticationAssuranceLevel {
-  // Authentication assurance level is not specified.
   AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED = 0;
 
-  // AAL0 means no authenticated user assurance has been established.
   AUTHENTICATION_ASSURANCE_LEVEL_AAL0 = 1;
 
-  // AAL1 provides basic assurance that the claimant controls an authenticator.
   AUTHENTICATION_ASSURANCE_LEVEL_AAL1 = 2;
 
-  // AAL2 provides high confidence through multi-factor authentication.
   AUTHENTICATION_ASSURANCE_LEVEL_AAL2 = 3;
 
-  // AAL3 provides very high confidence with phishing-resistant authentication.
   AUTHENTICATION_ASSURANCE_LEVEL_AAL3 = 4;
 }
 
-// AuthenticationPurpose explains why the authentication is being performed.
 enum AuthenticationPurpose {
-  // Authentication purpose is not specified.
   AUTHENTICATION_PURPOSE_UNSPECIFIED = 0;
 
-  // Primary user login.
   AUTHENTICATION_PURPOSE_PRIMARY_LOGIN = 1;
 
-  // Fresh authentication for an existing user session.
   AUTHENTICATION_PURPOSE_REAUTHENTICATION = 2;
 
-  // Stronger authentication for an existing session or sensitive action.
   AUTHENTICATION_PURPOSE_STEP_UP = 3;
 
-  // Account recovery or credential recovery flow.
   AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY = 4;
 
-  // Linking a local account with an external identity.
   AUTHENTICATION_PURPOSE_IDENTITY_LINKING = 5;
 
-  // Confirmation of a transaction or business action.
   AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION = 6;
 }
 
-// AuthenticationOperationType identifies the asynchronous command represented
-// by a google.longrunning.Operation.
-//
-// The operation tracks processing of one command, not the entire authentication
-// lifecycle. Authentication.state is the source of truth for lifecycle state.
 enum AuthenticationOperationType {
-  // Authentication operation type is not specified.
   AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED = 0;
 
-  // StartAuthentication command processing.
   AUTHENTICATION_OPERATION_TYPE_START = 1;
 
-  // SelectAuthenticationChallenge command processing.
   AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE = 2;
 
-  // ResendAuthenticationChallenge command processing.
   AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE = 3;
 
-  // SubmitAuthenticationChallenge command processing.
   AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE = 4;
 
-  // CancelAuthentication command processing.
   AUTHENTICATION_OPERATION_TYPE_CANCEL = 5;
 
-  // Provider callback command processing.
   AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK = 6;
 }
 
-// AuthenticationView controls how much information is projected by read APIs.
 enum AuthenticationView {
-  // Defaults to public-safe projection.
   AUTHENTICATION_VIEW_UNSPECIFIED = 0;
 
-  // Public-safe projection for mobile, web, and public SDK clients.
   AUTHENTICATION_VIEW_PUBLIC = 1;
 
-  // Admin projection with additional diagnostic information where authorized.
   AUTHENTICATION_VIEW_ADMIN = 2;
 
-  // Internal projection for trusted services and provider adapters.
   AUTHENTICATION_VIEW_INTERNAL = 3;
 }
 
-// LoginExperienceMode describes the dynamic login UI mode selected by policy.
 enum LoginExperienceMode {
-  // Login experience mode is not specified.
   LOGIN_EXPERIENCE_MODE_UNSPECIFIED = 0;
 
-  // Ask for an identifier before method selection.
   LOGIN_EXPERIENCE_MODE_IDENTIFIER_FIRST = 1;
 
-  // Prefer passwordless method selection.
   LOGIN_EXPERIENCE_MODE_PASSWORDLESS_FIRST = 2;
 
-  // Prefer passkey or WebAuthn conditional UI.
   LOGIN_EXPERIENCE_MODE_PASSKEY_FIRST = 3;
 
-  // Prefer external identity provider selection.
   LOGIN_EXPERIENCE_MODE_PROVIDER_FIRST = 4;
 }
