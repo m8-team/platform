@@ -48,6 +48,11 @@ message StartAuthenticationRequest {
   AuthenticationContext context = 3 [
     (google.api.field_behavior) = OPTIONAL
   ];
+
+  // Optional. Client preferences that influence authentication workflow selection.
+  AuthenticationStartOptions options = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
 }
 
 // Metadata for the StartAuthentication long-running operation.
@@ -58,5 +63,58 @@ message StartAuthenticationOperationMetadata {
   // can be used by clients to poll progress before the operation completes.
   Authentication authentication = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// AuthenticationStartOptions contains optional client preferences for starting authentication.
+//
+// The server may use these values to select login experience, provider, method,
+// and assurance requirements, but policy can override unsupported or disallowed
+// preferences.
+//
+// Example:
+// - passkey-first login requests `requested_method` = "passkey"
+// - tenant-specific UI flow sends `login_experience_version`
+// - OIDC request passes acr_values requested by the relying party
+message AuthenticationStartOptions {
+  // Optional. Login experience version requested by the client.
+  //
+  // Example:
+  // - "default"
+  // - "passkey-first"
+  // - "passwordless-v2"
+  string login_experience_version = 1 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Optional. Preferred authentication provider identifier.
+  //
+  // Example:
+  // - WebAuthn provider id for passkey authentication
+  // - OIDC provider id for external identity provider login
+  // - Mobile ID provider id for mobile operator authentication
+  string requested_provider_id = 2 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Optional. Preferred authentication method requested by the client.
+  //
+  // Example:
+  // - "passkey"
+  // - "password"
+  // - "otp"
+  // - "mobile_id"
+  string requested_method = 3 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Optional. Requested Authentication Context Class Reference values.
+  //
+  // Example:
+  // - "AAL1" for normal login
+  // - "AAL2" for multi-factor authentication
+  // - "AAL3" for hardware-backed phishing-resistant authentication
+  repeated string acr_values = 4 [
+    (google.api.field_behavior) = OPTIONAL
   ];
 }
