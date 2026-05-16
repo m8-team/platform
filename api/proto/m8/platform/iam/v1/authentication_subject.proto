@@ -10,55 +10,13 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 message AuthenticationSubject {
   enum Type {
     TYPE_UNSPECIFIED = 0;
-
     USER_ID = 1;
-
     LOGIN_HINT = 2;
-
     EMAIL = 3;
-
     PHONE = 4;
-
     USERNAME = 5;
-
     EXTERNAL_IDENTITY = 6;
   }
-
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.user_id_uuid"
-    message: "USER_ID subject value must be a UUID"
-    expression: "this.type != 1 || this.value.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.email_value"
-    message: "EMAIL subject value must be an email address"
-    expression: "this.type != 3 || this.value.matches('^[A-Za-z0-9.!#$%&*+/=?^_{|}~-]+@[A-Za-z0-9-]+([.][A-Za-z0-9-]+)+$')"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.phone_e164"
-    message: "PHONE subject value must be an E.164 phone number"
-    expression: "this.type != 4 || this.value.matches('^[+][1-9][0-9]{1,14}$')"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.username_value"
-    message: "USERNAME subject value must be 3 to 64 characters and contain only letters, digits, dot, underscore, or hyphen"
-    expression: "this.type != 5 || (this.value.size() >= 3 && this.value.size() <= 64 && this.value.matches('^[A-Za-z0-9._-]+$'))"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.external_identity_provider_required"
-    message: "EXTERNAL_IDENTITY subject requires provider_id"
-    expression: "this.type != 6 || this.provider_id != ''"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.provider_id_scope"
-    message: "provider_id is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT"
-    expression: "this.provider_id == '' || this.type == 6 || this.type == 2"
-  };
-  option (buf.validate.message).cel = {
-    id: "authentication_subject.issuer_scope"
-    message: "issuer is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT"
-    expression: "this.issuer == '' || this.type == 6 || this.type == 2"
-  };
 
   Type type = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -71,48 +29,16 @@ message AuthenticationSubject {
   string value = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 4096
-    }
+    (buf.validate.field).string.max_len = 50
   ];
 
   string provider_id = 3 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string = {
-      max_len: 255
-      pattern: "^[A-Za-z0-9._-]+$"
-    }
+    (buf.validate.field).string.max_len = 50
   ];
 
   string issuer = 4 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 2048
+    (buf.validate.field).string.max_len = 50
   ];
-}
-
-message AuthenticationSubjectSnapshot {
-  AuthenticationSubject.Type type = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
-
-  string user_id = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  string masked_value = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 512
-  ];
-
-  string provider_id = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
-
-  bool resolved = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
