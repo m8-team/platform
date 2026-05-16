@@ -10,8 +10,8 @@ import "google/api/field_behavior.proto";
 import "google/longrunning/operations.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication.proto";
-import "m8/platform/iam/v1/authentication_subject.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
+import "m8/platform/iam/v1/authentication_subject.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -33,7 +33,7 @@ service AuthenticationService {
       response_type: "Authentication"
       metadata_type: "StartAuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "client_id,subject,options";
+    option (google.api.method_signature) = "client_id,subject,request_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Start"
       description: "Starts a new authentication workflow and returns a long-running operation for tracking progress."
@@ -44,28 +44,30 @@ service AuthenticationService {
 
 // Request to start an authentication operation.
 message StartAuthenticationRequest {
-  // Required. Immutable client application identifier that initiates authentication.
+  // Required. Public client application identifier that initiates authentication.
+  //
+  // The server resolves this value to ClientConfig, project_id, user_pool_id,
+  // allowed providers, allowed methods, and authentication policies.
+  // Clients must not send project_id or user_pool_id in StartAuthenticationRequest.
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string.uuid = true
+    (buf.validate.field).string.max_len = 128
   ];
 
   // Optional. Subject identifier or hint used to resolve the authenticating user.
-  AuthenticationSubject subject = 2 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  AuthenticationSubject subject = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Additional authentication context used for policy and challenge selection.
-  AuthenticationContext context = 3 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  AuthenticationContext context = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Client preferences that influence authentication workflow selection.
-  AuthenticationStartOptions options = 4 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  AuthenticationStartOptions options = 4 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Idempotency key for StartAuthentication retries.
+  //
+  // The same client_id and request_id must resolve to the same Authentication
+  // operation. When omitted, retries are not guaranteed to be idempotent.
   string request_id = 5 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
@@ -79,9 +81,7 @@ message StartAuthenticationOperationMetadata {
   //
   // The value is updated as the workflow advances through state transitions and
   // can be used by clients to poll progress before the operation completes.
-  Authentication authentication = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  Authentication authentication = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AuthenticationStartOptions contains optional client preferences for starting authentication.
@@ -101,9 +101,7 @@ message AuthenticationStartOptions {
   // - "default"
   // - "passkey-first"
   // - "passwordless-v2"
-  string login_experience_version = 1 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  string login_experience_version = 1 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Preferred authentication provider identifier.
   //
@@ -111,9 +109,7 @@ message AuthenticationStartOptions {
   // - WebAuthn provider id for passkey authentication
   // - OIDC provider id for external identity provider login
   // - Mobile ID provider id for mobile operator authentication
-  string requested_provider_id = 2 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  string requested_provider_id = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Preferred authentication method requested by the client.
   //
@@ -122,9 +118,7 @@ message AuthenticationStartOptions {
   // - "password"
   // - "otp"
   // - "mobile_id"
-  string requested_method = 3 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  string requested_method = 3 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Requested Authentication Context Class Reference values.
   //
@@ -132,7 +126,5 @@ message AuthenticationStartOptions {
   // - "AAL1" for normal login
   // - "AAL2" for multi-factor authentication
   // - "AAL3" for hardware-backed phishing-resistant authentication
-  repeated string acr_values = 4 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  repeated string acr_values = 4 [(google.api.field_behavior) = OPTIONAL];
 }

@@ -2,8 +2,950 @@ syntax = "proto3";
 
 package m8.platform.iam.v1;
 
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication.proto";
+
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
+// AuthenticationContext contains decision input for an authentication operation.
+//
+// It combines request, client, session, device, network, protocol, resource,
+// and risk signals used by Authentication Service, Risk Decision, dynamic login
+// UI, step-up policy, rate limiting, audit, and workflow orchestration.
+//
+// The context is intentionally partial: different callers and server-side
+// enrichment stages can fill different sections. It must not contain passwords,
+// OTP codes, raw provider tokens, callback secrets, raw fingerprint payloads, or
+// private risk model features.
 message AuthenticationContext {
+  // Optional. Request-level metadata supplied by the client, gateway, or BFF.
+  // It is used for idempotency, tracing, rate limiting, audit correlation, and
+  // workflow orchestration.
+  RequestContext request = 1 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Client application context resolved from StartAuthenticationRequest.client_id.
+  // Server-resolved fields in this message describe the effective client
+  // configuration used to select login UI, providers, methods, and policies.
+  ClientContext client = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Session context used for re-authentication, max_age checks, and
+  // step-up decisions. Caller-provided session hints must be verified by the
+  // server before they are used as security signals.
+  SessionContext session = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Tenant, resource, and audience context for the operation that
+  // requires authentication. It is used by risk policy, authorization handoff,
+  // and audit.
+  ResourceContext resource = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Interaction and UI hints used to choose the login experience and
+  // protocol presentation mode. These hints must not be used as proof of user or
+  // authenticator state.
+  InteractionContext interaction = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Device, browser, SDK, and app hints used for UX, risk scoring, and
+  // audit. This message stores identifiers and normalized hints, not raw device
+  // fingerprint payloads.
+  DeviceContext device = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Network and geolocation hints used for fraud detection, adaptive
+  // MFA, rate limiting, and audit. Gateway-provided values must be normalized
+  // and verified against the trusted proxy chain.
+  NetworkContext network = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. OIDC/OAuth protocol parameters that influenced the authentication
+  // request. The server maps acr_values to normalized assurance requirements.
+  OidcContext oidc = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Safe summary of the risk decision associated with this
+  // authentication. Raw model features and private scoring data must remain in
+  // M8 Risk Decision.
+  RiskContext risk = 9 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Non-sensitive labels for filtering, routing, analytics, and audit.
+  // Labels must not contain passwords, OTP codes, raw tokens, or private risk
+  // model features.
+  map<string, string> labels = 100 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).map = {
+      max_pairs: 50
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 64
+          pattern: "^[A-Za-z0-9._/-]+$"
+        }
+      }
+      values: {
+        string: {max_len: 256}
+      }
+    }
+  ];
+}
+
+// RequestContext describes request-level metadata used for idempotency,
+// tracing, localization, rate limiting, audit, and workflow correlation.
+message RequestContext {
+  // Optional. External request identifier supplied by a client, gateway, or BFF.
+  // When present, it must be a UUID and can be used to correlate retries and
+  // audit records.
+  string request_id = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Correlation identifier propagated across services and logs.
+  // It is an opaque value and must not be treated as a security proof.
+  string correlation_id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Distributed tracing identifier propagated by the gateway or
+  // service mesh. It is used for diagnostics and audit correlation.
+  string trace_id = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Idempotency key supplied by the caller or BFF for retry safety.
+  // Authentication Service validates idempotency against the effective client.
+  string idempotency_key = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Name of the service, gateway, adapter, or BFF that submitted the
+  // authentication request. It is used for audit and routing diagnostics.
+  string source_service = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. User-Agent header or normalized agent string supplied by the
+  // client or gateway. It is useful for UX and audit but must not be trusted as
+  // a device proof.
+  string user_agent = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. Requested locale supplied by the client, gateway, or BFF. The
+  // server may use it for challenge text, dynamic login UI, and audit display.
+  string locale = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 35
+  ];
+
+  // Optional. IANA time zone name supplied by the client or BFF. It is used for
+  // UX and audit display and must not be treated as trusted location evidence.
+  string timezone = 8 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Accept-Language header supplied by the client or gateway. The
+  // server may use it as a localization hint when locale is absent.
+  string accept_language = 9 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Output only. Server-side time when the authentication request was received
+  // or normalized for processing. It is used by audit and workflow orchestration.
+  google.protobuf.Timestamp received_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ClientContext describes the resolved OAuth, OIDC, or application client
+// configuration used to drive authentication policy and login UI selection.
+message ClientContext {
+  // ApplicationType identifies the broad class of client application.
+  enum ApplicationType {
+    // Application type is not specified.
+    APPLICATION_TYPE_UNSPECIFIED = 0;
+
+    // Server-rendered or traditional web application.
+    APPLICATION_TYPE_WEB = 1;
+
+    // Browser-based single-page application.
+    APPLICATION_TYPE_SPA = 2;
+
+    // Native mobile application.
+    APPLICATION_TYPE_MOBILE = 3;
+
+    // Backend or confidential service client.
+    APPLICATION_TYPE_BACKEND = 4;
+
+    // Command-line client.
+    APPLICATION_TYPE_CLI = 5;
+
+    // Device or embedded client, including constrained-input devices.
+    APPLICATION_TYPE_DEVICE = 6;
+  }
+
+  // LoginExperience describes the server-selected login experience for this
+  // client and request.
+  enum LoginExperience {
+    // Login experience is not specified.
+    LOGIN_EXPERIENCE_UNSPECIFIED = 0;
+
+    // User identifies themselves before the authentication method is selected.
+    LOGIN_EXPERIENCE_IDENTIFIER_FIRST = 1;
+
+    // Passwordless method selection is preferred before password entry.
+    LOGIN_EXPERIENCE_PASSWORDLESS_FIRST = 2;
+
+    // Passkey or WebAuthn authentication is preferred first.
+    LOGIN_EXPERIENCE_PASSKEY_FIRST = 3;
+
+    // External provider selection is preferred first.
+    LOGIN_EXPERIENCE_PROVIDER_FIRST = 4;
+
+    // Step-up experience is selected for an existing session or sensitive action.
+    LOGIN_EXPERIENCE_STEP_UP = 5;
+  }
+
+  // Output only. Effective client identifier resolved from
+  // StartAuthenticationRequest.client_id. It must match the client configuration
+  // used to resolve project, user pool, providers, methods, and policies.
+  string client_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. Application class resolved from the client configuration.
+  ApplicationType application_type = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Redirect URI supplied by the client or OIDC authorization request.
+  // The server validates it against the registered client configuration.
+  string redirect_uri = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 2048
+      uri_ref: true
+    }
+  ];
+
+  // Optional. Browser origin supplied by the client or gateway. The server uses
+  // it for UI policy, CORS-related checks, and audit, after validating it
+  // against the registered client configuration.
+  string origin = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 512
+      uri: true
+    }
+  ];
+
+  // Output only. Authentication methods allowed by the resolved client policy.
+  // TODO: Replace strings with AuthenticationMethod when the method enum is
+  // introduced in the public IAM authentication contract.
+  repeated string allowed_methods = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+    }
+  ];
+
+  // Output only. Provider identifiers allowed by the resolved client policy.
+  // These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
+  // providers and must not be confused with a requested provider selector.
+  repeated string allowed_provider_ids = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 64
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  // Output only. Server-selected login experience resolved from client policy,
+  // request options, risk decision, and interaction constraints.
+  LoginExperience login_experience = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Indicates whether the resolved client is public and cannot keep
+  // a client secret. It is used by policy and protocol handling.
+  bool public_client = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SessionContext describes the existing authentication session used for
+// re-authentication, OIDC max_age checks, and step-up decisions.
+message SessionContext {
+  // StepUpReason describes why stronger or fresher authentication is requested.
+  enum StepUpReason {
+    // Step-up reason is not specified.
+    STEP_UP_REASON_UNSPECIFIED = 0;
+
+    // Authentication is required for a sensitive operation.
+    STEP_UP_REASON_SENSITIVE_OPERATION = 1;
+
+    // Risk policy requires additional authentication.
+    STEP_UP_REASON_RISK_POLICY = 2;
+
+    // Existing session is older than the accepted max age.
+    STEP_UP_REASON_SESSION_TOO_OLD = 3;
+
+    // Existing session assurance is lower than the requested assurance level.
+    STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW = 4;
+
+    // User explicitly requested re-authentication or stronger authentication.
+    STEP_UP_REASON_USER_REQUESTED = 5;
+
+    // Administrative or tenant policy requires step-up.
+    STEP_UP_REASON_ADMIN_POLICY = 6;
+  }
+
+  // Optional. Identifier of an existing session supplied by a client, BFF, or
+  // session service. It must reference a session record and must not be a bearer
+  // secret or raw session token.
+  string existing_session_id = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Previous authentication operation identifier associated with the
+  // existing session. It can be supplied by a BFF or resolved by the server for
+  // audit and step-up correlation.
+  string previous_authentication_id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Stable M8 Identity user identifier resolved from the existing
+  // session. Caller-provided values must not be trusted for user binding.
+  string previous_user_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Assurance level established by the previous authentication
+  // session. It is used to decide whether step-up is required.
+  Authentication.AssuranceLevel previous_assurance_level = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Time when the existing session was originally authenticated. It is
+  // used for OIDC max_age checks and freshness-based step-up.
+  google.protobuf.Timestamp auth_time = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Maximum acceptable age for the existing authentication. It is
+  // commonly derived from OIDC max_age or resource policy.
+  google.protobuf.Duration max_age = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Reason stronger or fresher authentication is being requested. The
+  // server verifies caller-provided reasons against policy and risk decisions.
+  StepUpReason step_up_reason = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
+  ];
+}
+
+// ResourceContext describes the tenant, resource, operation, and audience for
+// which authentication is requested.
+message ResourceContext {
+  // Output only. Organization identifier resolved from the client, project, or
+  // resource context. It is used for tenant isolation, policy, and audit.
+  string organization_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Workspace identifier resolved from the client, project, or
+  // resource context. It is used for policy, routing, and audit.
+  string workspace_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Project identifier resolved from client_id. Clients must not
+  // provide this value in StartAuthenticationRequest.
+  string project_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. User pool identifier resolved from client_id and client
+  // configuration. Clients must not provide this value in StartAuthenticationRequest.
+  string user_pool_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Resource name, URL, or opaque resource indicator supplied by a
+  // client or BFF for step-up and risk decisions. The server validates it against
+  // resource and tenant policy before use.
+  string requested_resource = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. Operation or action that requires authentication, such as
+  // transfer.confirm or admin.user.disable. It is used by risk policy and audit.
+  string requested_operation = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. OAuth/OIDC audiences or resource indicators requested by the
+  // client or relying party. The server validates them against client policy.
+  repeated string audience = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 256
+        }
+      }
+    }
+  ];
+}
+
+// InteractionContext describes how the user and client are expected to interact
+// with the authentication flow.
+message InteractionContext {
+  // UiMode describes the protocol or UI channel used for interaction.
+  enum UiMode {
+    // UI mode is not specified.
+    UI_MODE_UNSPECIFIED = 0;
+
+    // Browser redirect-based authentication.
+    UI_MODE_REDIRECT = 1;
+
+    // Embedded login UI inside an application shell.
+    UI_MODE_EMBEDDED = 2;
+
+    // API-driven interaction without a hosted UI.
+    UI_MODE_API = 3;
+
+    // OAuth device code or constrained device interaction.
+    UI_MODE_DEVICE_CODE = 4;
+
+    // Client-initiated backchannel authentication.
+    UI_MODE_CIBA = 5;
+  }
+
+  // LoginHintSource identifies where the login hint or subject hint came from.
+  enum LoginHintSource {
+    // Login hint source is not specified.
+    LOGIN_HINT_SOURCE_UNSPECIFIED = 0;
+
+    // Login hint was entered by the user.
+    LOGIN_HINT_SOURCE_USER_INPUT = 1;
+
+    // Login hint came from an OIDC login_hint parameter.
+    LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT = 2;
+
+    // Login hint was inferred from an existing session.
+    LOGIN_HINT_SOURCE_SESSION = 3;
+
+    // Login hint came from an invitation flow.
+    LOGIN_HINT_SOURCE_INVITATION = 4;
+
+    // Login hint was selected by an administrator or operator.
+    LOGIN_HINT_SOURCE_ADMIN_SELECTED = 5;
+
+    // Login hint came from an external identity provider callback.
+    LOGIN_HINT_SOURCE_IDP_CALLBACK = 6;
+  }
+
+  // DisplayMode mirrors OIDC display values that influence presentation.
+  enum DisplayMode {
+    // Display mode is not specified.
+    DISPLAY_MODE_UNSPECIFIED = 0;
+
+    // Full-page authentication UI.
+    DISPLAY_MODE_PAGE = 1;
+
+    // Popup authentication UI.
+    DISPLAY_MODE_POPUP = 2;
+
+    // Touch-optimized authentication UI.
+    DISPLAY_MODE_TOUCH = 3;
+
+    // WAP/mobile constrained authentication UI.
+    DISPLAY_MODE_WAP = 4;
+  }
+
+  // Optional. Requested interaction mode supplied by the client, gateway, or
+  // protocol adapter. The server may override it based on client policy.
+  UiMode ui_mode = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Source of the login hint or subject hint. It is used for UX,
+  // audit, and risk context but must not be treated as proof of identity.
+  LoginHintSource login_hint_source = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Preferred locale for the login UI and challenge messages.
+  string preferred_locale = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 35
+  ];
+
+  // Optional. OIDC display mode requested by the client or relying party.
+  DisplayMode display = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. OIDC prompt values such as login, consent, select_account, or none.
+  // The server interprets these values against client and session policy.
+  repeated string prompts = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 8
+      items: {
+        string: {
+          min_len: 1
+          max_len: 32
+        }
+      }
+    }
+  ];
+
+  // Optional. Client-provided UX hint indicating that the current browser or
+  // platform may support passkeys. It must not be used as proof that a passkey
+  // authenticator is registered or available for the user.
+  bool passkey_capable_client = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Client-provided UX hint indicating that WebAuthn user verification
+  // may be supported. It must not be used as proof that verification occurred.
+  bool user_verification_supported = 7 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// DeviceContext describes normalized device, browser, SDK, and application
+// hints used for UX, risk scoring, fraud detection, and audit.
+message DeviceContext {
+  // Optional. Stable device identifier supplied by a trusted SDK, BFF, or device
+  // service. It must not be a raw device fingerprint payload or bearer secret.
+  string device_id = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Reference to a trusted-device record. It must be a lookup
+  // identifier, not a trusted-device secret or token.
+  string trusted_device_id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Reference to a stored device fingerprint record. Raw fingerprint
+  // payloads must be stored outside AuthenticationContext.
+  string device_fingerprint_id = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Platform hint such as web, ios, android, desktop, or device.
+  string platform = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Operating system name reported by the client, SDK, or parser.
+  string os = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Operating system version reported by the client, SDK, or parser.
+  string os_version = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Browser name reported by the client, SDK, or User-Agent parser.
+  string browser = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Browser version reported by the client, SDK, or User-Agent parser.
+  string browser_version = 8 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Application version reported by the first-party client or SDK.
+  string app_version = 9 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. SDK name that submitted or enriched the authentication request.
+  string sdk_name = 10 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. SDK version that submitted or enriched the authentication request.
+  string sdk_version = 11 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. Client-provided UX hint indicating that WebAuthn APIs may be
+  // available. It must not be used as proof of authenticator registration.
+  bool webauthn_available = 12 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Client-provided UX hint indicating that passkey authentication may
+  // be available on the current platform. Risk and challenge selection must
+  // verify real authenticator state separately.
+  bool passkey_available_hint = 13 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// NetworkContext describes normalized IP, proxy, network, geolocation, and
+// network-risk hints used by Risk Decision, rate limiting, fraud detection, and
+// audit.
+message NetworkContext {
+  // NetworkRiskLevel summarizes network-only risk enrichment.
+  enum NetworkRiskLevel {
+    // Network risk level is not specified.
+    NETWORK_RISK_LEVEL_UNSPECIFIED = 0;
+
+    // Network signals indicate low risk.
+    NETWORK_RISK_LEVEL_LOW = 1;
+
+    // Network signals indicate medium risk.
+    NETWORK_RISK_LEVEL_MEDIUM = 2;
+
+    // Network signals indicate high risk.
+    NETWORK_RISK_LEVEL_HIGH = 3;
+
+    // Network signals indicate critical risk.
+    NETWORK_RISK_LEVEL_CRITICAL = 4;
+  }
+
+  // Optional. Client IP address as normalized by the gateway or server. It may
+  // be supplied by a BFF, but Authentication Service must validate trusted proxy
+  // boundaries before relying on it.
+  string ip = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.ip = true
+  ];
+
+  // Optional. Forwarded client IP chain parsed from trusted forwarding headers.
+  // Values from untrusted proxy chains must not be used for security decisions.
+  repeated string forwarded_for = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {ip: true}
+      }
+    }
+  ];
+
+  // Output only. ISO 3166-1 alpha-2 country code produced by server-side network
+  // enrichment.
+  string country_code = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      len: 2
+      pattern: "^[A-Z]{2}$"
+    }
+  ];
+
+  // Output only. Region or subdivision produced by server-side geolocation
+  // enrichment.
+  string region = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. City produced by server-side geolocation enrichment.
+  string city = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. Autonomous system number produced by server-side network
+  // enrichment.
+  uint32 asn = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Internet service provider or organization name produced by
+  // server-side network enrichment.
+  string isp = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Output only. Indicates server-side enrichment classified the IP as a proxy.
+  bool is_proxy = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Indicates server-side enrichment classified the IP as a VPN.
+  bool is_vpn = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Indicates server-side enrichment classified the IP as Tor.
+  bool is_tor = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Network-only risk level produced by server-side enrichment or
+  // M8 Risk Decision.
+  NetworkRiskLevel risk_level = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+}
+
+// OidcContext describes OAuth and OpenID Connect request parameters that
+// influence authentication requirements and protocol handling.
+message OidcContext {
+  // Optional. OAuth scopes requested by the relying party.
+  repeated string scope = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 64
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  // Optional. Authentication Context Class Reference values requested by the
+  // relying party. The server maps these protocol values to normalized assurance
+  // requirements such as requested_assurance_level.
+  repeated string acr_values = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  // Optional. OIDC prompt values such as login, consent, select_account, or none.
+  repeated string prompt = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 8
+      items: {
+        string: {
+          min_len: 1
+          max_len: 32
+        }
+      }
+    }
+  ];
+
+  // Optional. OIDC max_age requirement used to determine whether the existing
+  // session is fresh enough or step-up is required.
+  google.protobuf.Duration max_age = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. OIDC nonce value. It is protocol state and must not be treated as
+  // proof of authentication by itself.
+  string nonce = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. OAuth/OIDC state value. It is protocol correlation state and must
+  // not be logged if deployment policy treats it as sensitive.
+  string state = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. PKCE code challenge supplied by the client.
+  string code_challenge = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Optional. PKCE code challenge method, typically plain or S256.
+  string code_challenge_method = 8 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 32
+  ];
+
+  // Optional. OAuth/OIDC response type requested by the client.
+  string response_type = 9 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. OAuth/OIDC response mode requested by the client.
+  string response_mode = 10 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Optional. OIDC login_hint value supplied by the relying party. It is a hint
+  // only and must not be treated as proof of user identity.
+  string login_hint = 11 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. OAuth resource indicators requested by the client.
+  repeated string resource = 12 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 512
+        }
+      }
+    }
+  ];
+
+  // Optional. OAuth/OIDC audience values requested by the client.
+  repeated string audience = 13 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 256
+        }
+      }
+    }
+  ];
+}
+
+// RiskContext contains a safe summary of risk decision state associated with
+// an authentication operation.
+//
+// It must not contain raw risk model features, raw device fingerprints, private
+// scoring data, provider tokens, or secrets. Full risk evidence lives in M8 Risk
+// Decision and is linked by decision_id or risk_session_id.
+message RiskContext {
+  // RiskLevel summarizes the overall risk level for this authentication.
+  enum RiskLevel {
+    // Risk level is not specified.
+    RISK_LEVEL_UNSPECIFIED = 0;
+
+    // Risk decision indicates low risk.
+    RISK_LEVEL_LOW = 1;
+
+    // Risk decision indicates medium risk.
+    RISK_LEVEL_MEDIUM = 2;
+
+    // Risk decision indicates high risk.
+    RISK_LEVEL_HIGH = 3;
+
+    // Risk decision indicates critical risk.
+    RISK_LEVEL_CRITICAL = 4;
+  }
+
+  // RiskAction describes the action recommended by Risk Decision.
+  enum RiskAction {
+    // Risk action is not specified.
+    RISK_ACTION_UNSPECIFIED = 0;
+
+    // Risk Decision recommends allowing the current authentication path.
+    RISK_ACTION_ALLOW = 1;
+
+    // Risk Decision recommends adding or selecting a challenge.
+    RISK_ACTION_CHALLENGE = 2;
+
+    // Risk Decision recommends stronger or fresher authentication.
+    RISK_ACTION_STEP_UP = 3;
+
+    // Risk Decision recommends denying authentication.
+    RISK_ACTION_DENY = 4;
+  }
+
+  // Output only. Identifier of the risk session linked to this authentication
+  // operation. It is used to correlate events with M8 Risk Decision and Audit.
+  string risk_session_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. Identifier of the risk decision linked to this authentication
+  // operation. Audit can use it to resolve full risk evidence in M8 Risk Decision.
+  string decision_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. Safe summary risk level returned by M8 Risk Decision.
+  RiskLevel risk_level = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Recommended action returned by M8 Risk Decision.
+  RiskAction recommended_action = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Safe reason codes or short reason labels produced by M8 Risk
+  // Decision. They must be suitable for audit and internal admin UI.
+  repeated string reasons = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 256
+        }
+      }
+    }
+  ];
+
+  // Output only. Risk or authentication policy identifiers that influenced the
+  // decision. They are used for audit, explainability, and troubleshooting.
+  repeated string policy_ids = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
 }

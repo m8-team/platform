@@ -305,7 +305,8 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Required. Immutable project identifier that owns this authentication operation.
+  // Output only. Immutable project identifier that owns this authentication operation.
+  // The server resolves this value from client_id and client configuration.
   //
   // Example:
   // - used to isolate authentication data by project
@@ -317,7 +318,8 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Required. Immutable user pool identifier where the identity must be resolved.
+  // Output only. Immutable user pool identifier where the identity must be resolved.
+  // The server resolves this value from client_id and client configuration.
   //
   // Example:
   // - selects the identity namespace for the authentication operation
@@ -390,9 +392,7 @@ message Authentication {
   // - PASSWORD for password-based authentication
   Challenge challenge = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum = {
-      defined_only: true
-    }
+    (buf.validate.field).enum = {defined_only: true}
   ];
 
   // Required. Minimum authentication assurance level requested for this operation.
@@ -406,7 +406,10 @@ message Authentication {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
-      not_in: [0, 1]
+      not_in: [
+        0,
+        1
+      ]
     }
   ];
 
@@ -439,18 +442,14 @@ message Authentication {
   // - state transition was persisted
   // - challenge delivery result was recorded
   // - authentication completion or failure was recorded
-  google.protobuf.Timestamp update_time = 12 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the authentication operation expires.
   //
   // Example:
   // - user action must be completed before this time
   // - stale authentication operations can be failed after this time
-  google.protobuf.Timestamp expire_time = 13 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  google.protobuf.Timestamp expire_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Monotonic version of the authentication operation.
   // New authentication operations start with version 1.
@@ -475,13 +474,9 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  AuthenticationError error = 17 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  AuthenticationError error = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  string etag = 20 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  string etag = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message AuthenticationError {
