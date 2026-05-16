@@ -8,4 +8,4 @@
 
 | Service | Description |
 | --- | --- |
-| [Authentication](./authentication/index.md) | Service that starts and drives authentication operations. |
+| [Authentication](./authentication/index.md) | Use this API to start authentication workflows and track their long-running operation state. |

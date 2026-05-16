@@ -48,12 +48,18 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
   value: string;
 
   /**
-   * Optional. Identity provider identifier that scopes provider-specific values.
+   * Optional. Provider identifier that scopes provider-specific subject values.
+   *
+   * This field does not select the authentication provider for the workflow.
+   * Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+   *
+   * This field should normally be set only when type is EXTERNAL_IDENTITY,
+   * or when LOGIN_HINT is explicitly provider-scoped.
    *
    * Example:
-   * - OIDC provider id for EXTERNAL_IDENTITY
-   * - SAML provider id for EXTERNAL_IDENTITY
-   * - Mobile ID provider id for MOBILE_ID
+   * - "google" for an OIDC external subject
+   * - "azure-ad" for an Entra ID external subject
+   * - "saml-corp" for a SAML NameID
    *
    * @generated from field: string provider_id = 3;
    */
@@ -62,10 +68,12 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
   /**
    * Optional. Issuer that scopes external identity values.
    *
-   * Example:
-   * - OIDC issuer URL
-   * - SAML entity ID
-   * - mobile operator issuer identifier
+   * This field should normally be set only when type is EXTERNAL_IDENTITY.
+   * For OIDC it should match the issuer claim. For SAML it should match the
+   * IdP entity ID.
+   *
+   * The server must validate this value against the configured provider.
+   * Clients should not be allowed to freely choose arbitrary issuers.
    *
    * @generated from field: string issuer = 4;
    */

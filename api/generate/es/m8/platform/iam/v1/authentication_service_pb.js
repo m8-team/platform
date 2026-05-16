@@ -4,9 +4,12 @@
 
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_buf_validate_validate } from "../../../../buf/validate/validate_pb";
+import { file_gnostic_openapi_v3_annotations } from "../../../../gnostic/openapi/v3/annotations_pb";
 import { file_google_api_annotations } from "../../../../google/api/annotations_pb";
+import { file_google_api_client } from "../../../../google/api/client_pb";
 import { file_google_api_field_behavior } from "../../../../google/api/field_behavior_pb";
 import { file_google_longrunning_operations } from "../../../../google/longrunning/operations_pb";
+import { file_m8_platform_extension_v1_extension } from "../../extension/v1/extension_pb";
 import { file_m8_platform_iam_v1_authentication } from "./authentication_pb";
 import { file_m8_platform_iam_v1_authentication_subject } from "./authentication_subject_pb";
 import { file_m8_platform_iam_v1_authentication_context } from "./authentication_context_pb";
@@ -15,7 +18,7 @@ import { file_m8_platform_iam_v1_authentication_context } from "./authentication
  * Describes the file m8/platform/iam/v1/authentication_service.proto.
  */
 export const file_m8_platform_iam_v1_authentication_service = /*@__PURE__*/
-  fileDesc("Ci9tOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb25fc2VydmljZS5wcm90bxISbTgucGxhdGZvcm0uaWFtLnYxIuABChpTdGFydEF1dGhlbnRpY2F0aW9uUmVxdWVzdBIcCgljbGllbnRfaWQYASABKAlCCeBBArpIA8gBARI/CgdzdWJqZWN0GAIgASgLMikubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uU3ViamVjdEID4EEBEj8KB2NvbnRleHQYAyABKAsyKS5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25Db250ZXh0QgPgQQESIgoKcmVxdWVzdF9pZBgEIAEoCUIO4EECukgIyAEBcgOwAQEiZwokU3RhcnRBdXRoZW50aWNhdGlvbk9wZXJhdGlvbk1ldGFkYXRhEj8KDmF1dGhlbnRpY2F0aW9uGAEgASgLMiIubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uQgPgQQMy5AEKFUF1dGhlbnRpY2F0aW9uU2VydmljZRLKAQoTU3RhcnRBdXRoZW50aWNhdGlvbhIuLm04LnBsYXRmb3JtLmlhbS52MS5TdGFydEF1dGhlbnRpY2F0aW9uUmVxdWVzdBodLmdvb2dsZS5sb25ncnVubmluZy5PcGVyYXRpb24iZJACAspBNgoOQXV0aGVudGljYXRpb24SJFN0YXJ0QXV0aGVudGljYXRpb25PcGVyYXRpb25NZXRhZGF0YYLT5JMCIjoBKiIdL3YxL2lhbS9hdXRoZW50aWNhdGlvbnM6c3RhcnRCN1o1Z2l0aHViLmNvbS9tOC10ZWFtL2dvLWdlbnByb3RvL204L3BsYXRmb3JtL2lhbS92MTtpYW1iBnByb3RvMw", [file_buf_validate_validate, file_google_api_annotations, file_google_api_field_behavior, file_google_longrunning_operations, file_m8_platform_iam_v1_authentication, file_m8_platform_iam_v1_authentication_subject, file_m8_platform_iam_v1_authentication_context]);
+  fileDesc("Ci9tOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb25fc2VydmljZS5wcm90bxISbTgucGxhdGZvcm0uaWFtLnYxIoICChpTdGFydEF1dGhlbnRpY2F0aW9uUmVxdWVzdBIcCgljbGllbnRfaWQYASABKAlCCeBBArpIA8gBARI/CgdzdWJqZWN0GAIgASgLMikubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uU3ViamVjdEID4EEBEj8KB2NvbnRleHQYAyABKAsyKS5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25Db250ZXh0QgPgQQESRAoHb3B0aW9ucxgEIAEoCzIuLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblN0YXJ0T3B0aW9uc0ID4EEBImcKJFN0YXJ0QXV0aGVudGljYXRpb25PcGVyYXRpb25NZXRhZGF0YRI/Cg5hdXRoZW50aWNhdGlvbhgBIAEoCzIiLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkID4EEDIp8BChpBdXRoZW50aWNhdGlvblN0YXJ0T3B0aW9ucxIlChhsb2dpbl9leHBlcmllbmNlX3ZlcnNpb24YASABKAlCA+BBARIiChVyZXF1ZXN0ZWRfcHJvdmlkZXJfaWQYAiABKAlCA+BBARIdChByZXF1ZXN0ZWRfbWV0aG9kGAMgASgJQgPgQQESFwoKYWNyX3ZhbHVlcxgEIAMoCUID4EEBMuQDChVBdXRoZW50aWNhdGlvblNlcnZpY2US6AIKE1N0YXJ0QXV0aGVudGljYXRpb24SLi5tOC5wbGF0Zm9ybS5pYW0udjEuU3RhcnRBdXRoZW50aWNhdGlvblJlcXVlc3QaHS5nb29nbGUubG9uZ3J1bm5pbmcuT3BlcmF0aW9uIoECkAICykE2Cg5BdXRoZW50aWNhdGlvbhIkU3RhcnRBdXRoZW50aWNhdGlvbk9wZXJhdGlvbk1ldGFkYXRh2kEZY2xpZW50X2lkLHN1YmplY3Qsb3B0aW9uc7pHfhIFU3RhcnQaYFN0YXJ0cyBhIG5ldyBhdXRoZW50aWNhdGlvbiB3b3JrZmxvdyBhbmQgcmV0dXJucyBhIGxvbmctcnVubmluZyBvcGVyYXRpb24gZm9yIHRyYWNraW5nIHByb2dyZXNzLioTU3RhcnRBdXRoZW50aWNhdGlvboLT5JMCIjoBKiIdL3YxL2lhbS9hdXRoZW50aWNhdGlvbnM6c3RhcnQaYJK1GFxVc2UgdGhpcyBBUEkgdG8gc3RhcnQgYXV0aGVudGljYXRpb24gd29ya2Zsb3dzIGFuZCB0cmFjayB0aGVpciBsb25nLXJ1bm5pbmcgb3BlcmF0aW9uIHN0YXRlLkI3WjVnaXRodWIuY29tL204LXRlYW0vZ28tZ2VucHJvdG8vbTgvcGxhdGZvcm0vaWFtL3YxO2lhbWIGcHJvdG8z", [file_buf_validate_validate, file_gnostic_openapi_v3_annotations, file_google_api_annotations, file_google_api_client, file_google_api_field_behavior, file_google_longrunning_operations, file_m8_platform_extension_v1_extension, file_m8_platform_iam_v1_authentication, file_m8_platform_iam_v1_authentication_subject, file_m8_platform_iam_v1_authentication_context]);
 
 /**
  * Describes the message m8.platform.iam.v1.StartAuthenticationRequest.
@@ -30,6 +33,13 @@ export const StartAuthenticationRequestSchema = /*@__PURE__*/
  */
 export const StartAuthenticationOperationMetadataSchema = /*@__PURE__*/
   messageDesc(file_m8_platform_iam_v1_authentication_service, 1);
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationStartOptions.
+ * Use `create(AuthenticationStartOptionsSchema)` to create a new message.
+ */
+export const AuthenticationStartOptionsSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_service, 2);
 
 /**
  * Service that starts and drives authentication operations.

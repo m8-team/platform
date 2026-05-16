@@ -3,9 +3,12 @@ syntax = "proto3";
 package m8.platform.iam.v1;
 
 import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/longrunning/operations.proto";
+import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
@@ -14,6 +17,8 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
 // Service that starts and drives authentication operations.
 service AuthenticationService {
+  option (m8.platform.extension.v1.description) = "Use this API to start authentication workflows and track their long-running operation state.";
+
   // Starts a new authentication operation.
   //
   // The returned long-running operation resolves to Authentication when the
@@ -27,6 +32,12 @@ service AuthenticationService {
     option (google.longrunning.operation_info) = {
       response_type: "Authentication"
       metadata_type: "StartAuthenticationOperationMetadata"
+    };
+    option (google.api.method_signature) = "client_id,subject,options";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Start"
+      description: "Starts a new authentication workflow and returns a long-running operation for tracking progress."
+      operation_id: "StartAuthentication"
     };
   }
 }

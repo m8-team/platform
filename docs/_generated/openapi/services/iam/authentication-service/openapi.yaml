@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Authentication API
-  description: Service that starts and drives authentication operations.
+  description: Use this API to start authentication workflows and track their long-running operation state.
   version: v1
 paths:
   /v1/iam/authentications:start:

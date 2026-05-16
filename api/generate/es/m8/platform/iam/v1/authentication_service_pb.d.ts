@@ -42,15 +42,11 @@ export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.Sta
   context?: AuthenticationContext;
 
   /**
-   * Required. Client-generated idempotency key for this start request.
+   * Optional. Client preferences that influence authentication workflow selection.
    *
-   * Retrying StartAuthentication with the same request_id must not create a
-   * second authentication operation. The value must be unique for each logical
-   * start request and should be reused only for retries of that same request.
-   *
-   * @generated from field: string request_id = 4;
+   * @generated from field: m8.platform.iam.v1.AuthenticationStartOptions options = 4;
    */
-  requestId: string;
+  options?: AuthenticationStartOptions;
 };
 
 /**
@@ -81,6 +77,77 @@ export declare type StartAuthenticationOperationMetadata = Message<"m8.platform.
  * Use `create(StartAuthenticationOperationMetadataSchema)` to create a new message.
  */
 export declare const StartAuthenticationOperationMetadataSchema: GenMessage<StartAuthenticationOperationMetadata>;
+
+/**
+ * AuthenticationStartOptions contains optional client preferences for starting authentication.
+ *
+ * The server may use these values to select login experience, provider, method,
+ * and assurance requirements, but policy can override unsupported or disallowed
+ * preferences.
+ *
+ * Example:
+ * - passkey-first login requests `requested_method` = "passkey"
+ * - tenant-specific UI flow sends `login_experience_version`
+ * - OIDC request passes acr_values requested by the relying party
+ *
+ * @generated from message m8.platform.iam.v1.AuthenticationStartOptions
+ */
+export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.AuthenticationStartOptions"> & {
+  /**
+   * Optional. Login experience version requested by the client.
+   *
+   * Example:
+   * - "default"
+   * - "passkey-first"
+   * - "passwordless-v2"
+   *
+   * @generated from field: string login_experience_version = 1;
+   */
+  loginExperienceVersion: string;
+
+  /**
+   * Optional. Preferred authentication provider identifier.
+   *
+   * Example:
+   * - WebAuthn provider id for passkey authentication
+   * - OIDC provider id for external identity provider login
+   * - Mobile ID provider id for mobile operator authentication
+   *
+   * @generated from field: string requested_provider_id = 2;
+   */
+  requestedProviderId: string;
+
+  /**
+   * Optional. Preferred authentication method requested by the client.
+   *
+   * Example:
+   * - "passkey"
+   * - "password"
+   * - "otp"
+   * - "mobile_id"
+   *
+   * @generated from field: string requested_method = 3;
+   */
+  requestedMethod: string;
+
+  /**
+   * Optional. Requested Authentication Context Class Reference values.
+   *
+   * Example:
+   * - "AAL1" for normal login
+   * - "AAL2" for multi-factor authentication
+   * - "AAL3" for hardware-backed phishing-resistant authentication
+   *
+   * @generated from field: repeated string acr_values = 4;
+   */
+  acrValues: string[];
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationStartOptions.
+ * Use `create(AuthenticationStartOptionsSchema)` to create a new message.
+ */
+export declare const AuthenticationStartOptionsSchema: GenMessage<AuthenticationStartOptions>;
 
 /**
  * Service that starts and drives authentication operations.

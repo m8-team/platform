@@ -148,19 +148,27 @@ type AuthenticationSubject struct {
 	// - phone number when type is PHONE
 	// - external subject when type is EXTERNAL_IDENTITY
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	// Optional. Identity provider identifier that scopes provider-specific values.
+	// Optional. Provider identifier that scopes provider-specific subject values.
+	//
+	// This field does not select the authentication provider for the workflow.
+	// Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+	//
+	// This field should normally be set only when type is EXTERNAL_IDENTITY,
+	// or when LOGIN_HINT is explicitly provider-scoped.
 	//
 	// Example:
-	// - OIDC provider id for EXTERNAL_IDENTITY
-	// - SAML provider id for EXTERNAL_IDENTITY
-	// - Mobile ID provider id for MOBILE_ID
+	// - "google" for an OIDC external subject
+	// - "azure-ad" for an Entra ID external subject
+	// - "saml-corp" for a SAML NameID
 	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
 	// Optional. Issuer that scopes external identity values.
 	//
-	// Example:
-	// - OIDC issuer URL
-	// - SAML entity ID
-	// - mobile operator issuer identifier
+	// This field should normally be set only when type is EXTERNAL_IDENTITY.
+	// For OIDC it should match the issuer claim. For SAML it should match the
+	// IdP entity ID.
+	//
+	// The server must validate this value against the configured provider.
+	// Clients should not be allowed to freely choose arbitrary issuers.
 	Issuer        string `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

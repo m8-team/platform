@@ -2,7 +2,7 @@
 
 # Authentication API: REST reference
 
-Service that starts and drives authentication operations.
+Use this API to start authentication workflows and track their long-running operation state.
 
 ## Methods
 

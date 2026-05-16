@@ -9,6 +9,8 @@ package iam
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
+	_ "github.com/google/gnostic/openapiv3"
+	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -33,12 +35,8 @@ type StartAuthenticationRequest struct {
 	Subject *AuthenticationSubject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	// Optional. Additional authentication context used for policy and challenge selection.
 	Context *AuthenticationContext `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
-	// Required. Client-generated idempotency key for this start request.
-	//
-	// Retrying StartAuthentication with the same request_id must not create a
-	// second authentication operation. The value must be unique for each logical
-	// start request and should be reused only for retries of that same request.
-	RequestId     string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Optional. Client preferences that influence authentication workflow selection.
+	Options       *AuthenticationStartOptions `protobuf:"bytes,4,opt,name=options,proto3" json:"options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,11 +92,11 @@ func (x *StartAuthenticationRequest) GetContext() *AuthenticationContext {
 	return nil
 }
 
-func (x *StartAuthenticationRequest) GetRequestId() string {
+func (x *StartAuthenticationRequest) GetOptions() *AuthenticationStartOptions {
 	if x != nil {
-		return x.RequestId
+		return x.Options
 	}
-	return ""
+	return nil
 }
 
 // Metadata for the StartAuthentication long-running operation.
@@ -150,22 +148,130 @@ func (x *StartAuthenticationOperationMetadata) GetAuthentication() *Authenticati
 	return nil
 }
 
+// AuthenticationStartOptions contains optional client preferences for starting authentication.
+//
+// The server may use these values to select login experience, provider, method,
+// and assurance requirements, but policy can override unsupported or disallowed
+// preferences.
+//
+// Example:
+// - passkey-first login requests `requested_method` = "passkey"
+// - tenant-specific UI flow sends `login_experience_version`
+// - OIDC request passes acr_values requested by the relying party
+type AuthenticationStartOptions struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Login experience version requested by the client.
+	//
+	// Example:
+	// - "default"
+	// - "passkey-first"
+	// - "passwordless-v2"
+	LoginExperienceVersion string `protobuf:"bytes,1,opt,name=login_experience_version,json=loginExperienceVersion,proto3" json:"login_experience_version,omitempty"`
+	// Optional. Preferred authentication provider identifier.
+	//
+	// Example:
+	// - WebAuthn provider id for passkey authentication
+	// - OIDC provider id for external identity provider login
+	// - Mobile ID provider id for mobile operator authentication
+	RequestedProviderId string `protobuf:"bytes,2,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
+	// Optional. Preferred authentication method requested by the client.
+	//
+	// Example:
+	// - "passkey"
+	// - "password"
+	// - "otp"
+	// - "mobile_id"
+	RequestedMethod string `protobuf:"bytes,3,opt,name=requested_method,json=requestedMethod,proto3" json:"requested_method,omitempty"`
+	// Optional. Requested Authentication Context Class Reference values.
+	//
+	// Example:
+	// - "AAL1" for normal login
+	// - "AAL2" for multi-factor authentication
+	// - "AAL3" for hardware-backed phishing-resistant authentication
+	AcrValues     []string `protobuf:"bytes,4,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthenticationStartOptions) Reset() {
+	*x = AuthenticationStartOptions{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthenticationStartOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthenticationStartOptions) ProtoMessage() {}
+
+func (x *AuthenticationStartOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthenticationStartOptions.ProtoReflect.Descriptor instead.
+func (*AuthenticationStartOptions) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *AuthenticationStartOptions) GetLoginExperienceVersion() string {
+	if x != nil {
+		return x.LoginExperienceVersion
+	}
+	return ""
+}
+
+func (x *AuthenticationStartOptions) GetRequestedProviderId() string {
+	if x != nil {
+		return x.RequestedProviderId
+	}
+	return ""
+}
+
+func (x *AuthenticationStartOptions) GetRequestedMethod() string {
+	if x != nil {
+		return x.RequestedMethod
+	}
+	return ""
+}
+
+func (x *AuthenticationStartOptions) GetAcrValues() []string {
+	if x != nil {
+		return x.AcrValues
+	}
+	return nil
+}
+
 var File_m8_platform_iam_v1_authentication_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\x1a/m8/platform/iam/v1/authentication_context.proto\"\x87\x02\n" +
+	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a(m8/platform/extension/v1/extension.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\x1a/m8/platform/iam/v1/authentication_context.proto\"\xa7\x02\n" +
 	"\x1aStartAuthenticationRequest\x12&\n" +
 	"\tclient_id\x18\x01 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bclientId\x12H\n" +
 	"\asubject\x18\x02 \x01(\v2).m8.platform.iam.v1.AuthenticationSubjectB\x03\xe0A\x01R\asubject\x12H\n" +
-	"\acontext\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationContextB\x03\xe0A\x01R\acontext\x12-\n" +
-	"\n" +
-	"request_id\x18\x04 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\trequestId\"w\n" +
+	"\acontext\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationContextB\x03\xe0A\x01R\acontext\x12M\n" +
+	"\aoptions\x18\x04 \x01(\v2..m8.platform.iam.v1.AuthenticationStartOptionsB\x03\xe0A\x01R\aoptions\"w\n" +
 	"$StartAuthenticationOperationMetadata\x12O\n" +
-	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication2\xe4\x01\n" +
-	"\x15AuthenticationService\x12\xca\x01\n" +
-	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"d\xcaA6\n" +
-	"\x0eAuthentication\x12$StartAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"\xe8\x01\n" +
+	"\x1aAuthenticationStartOptions\x12=\n" +
+	"\x18login_experience_version\x18\x01 \x01(\tB\x03\xe0A\x01R\x16loginExperienceVersion\x127\n" +
+	"\x15requested_provider_id\x18\x02 \x01(\tB\x03\xe0A\x01R\x13requestedProviderId\x12.\n" +
+	"\x10requested_method\x18\x03 \x01(\tB\x03\xe0A\x01R\x0frequestedMethod\x12\"\n" +
+	"\n" +
+	"acr_values\x18\x04 \x03(\tB\x03\xe0A\x01R\tacrValues2\xe4\x03\n" +
+	"\x15AuthenticationService\x12\xe8\x02\n" +
+	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\x81\x02\xcaA6\n" +
+	"\x0eAuthentication\x12$StartAuthenticationOperationMetadata\xdaA\x19client_id,subject,options\xbaG~\x12\x05Start\x1a`Starts a new authentication workflow and returns a long-running operation for tracking progress.*\x13StartAuthentication\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02\x1a`\x92\xb5\x18\\Use this API to start authentication workflows and track their long-running operation state.B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_service_proto_rawDescOnce sync.Once
@@ -179,26 +285,28 @@ func file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_service_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_m8_platform_iam_v1_authentication_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_m8_platform_iam_v1_authentication_service_proto_goTypes = []any{
 	(*StartAuthenticationRequest)(nil),           // 0: m8.platform.iam.v1.StartAuthenticationRequest
 	(*StartAuthenticationOperationMetadata)(nil), // 1: m8.platform.iam.v1.StartAuthenticationOperationMetadata
-	(*AuthenticationSubject)(nil),                // 2: m8.platform.iam.v1.AuthenticationSubject
-	(*AuthenticationContext)(nil),                // 3: m8.platform.iam.v1.AuthenticationContext
-	(*Authentication)(nil),                       // 4: m8.platform.iam.v1.Authentication
-	(*longrunningpb.Operation)(nil),              // 5: google.longrunning.Operation
+	(*AuthenticationStartOptions)(nil),           // 2: m8.platform.iam.v1.AuthenticationStartOptions
+	(*AuthenticationSubject)(nil),                // 3: m8.platform.iam.v1.AuthenticationSubject
+	(*AuthenticationContext)(nil),                // 4: m8.platform.iam.v1.AuthenticationContext
+	(*Authentication)(nil),                       // 5: m8.platform.iam.v1.Authentication
+	(*longrunningpb.Operation)(nil),              // 6: google.longrunning.Operation
 }
 var file_m8_platform_iam_v1_authentication_service_proto_depIdxs = []int32{
-	2, // 0: m8.platform.iam.v1.StartAuthenticationRequest.subject:type_name -> m8.platform.iam.v1.AuthenticationSubject
-	3, // 1: m8.platform.iam.v1.StartAuthenticationRequest.context:type_name -> m8.platform.iam.v1.AuthenticationContext
-	4, // 2: m8.platform.iam.v1.StartAuthenticationOperationMetadata.authentication:type_name -> m8.platform.iam.v1.Authentication
-	0, // 3: m8.platform.iam.v1.AuthenticationService.StartAuthentication:input_type -> m8.platform.iam.v1.StartAuthenticationRequest
-	5, // 4: m8.platform.iam.v1.AuthenticationService.StartAuthentication:output_type -> google.longrunning.Operation
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 0: m8.platform.iam.v1.StartAuthenticationRequest.subject:type_name -> m8.platform.iam.v1.AuthenticationSubject
+	4, // 1: m8.platform.iam.v1.StartAuthenticationRequest.context:type_name -> m8.platform.iam.v1.AuthenticationContext
+	2, // 2: m8.platform.iam.v1.StartAuthenticationRequest.options:type_name -> m8.platform.iam.v1.AuthenticationStartOptions
+	5, // 3: m8.platform.iam.v1.StartAuthenticationOperationMetadata.authentication:type_name -> m8.platform.iam.v1.Authentication
+	0, // 4: m8.platform.iam.v1.AuthenticationService.StartAuthentication:input_type -> m8.platform.iam.v1.StartAuthenticationRequest
+	6, // 5: m8.platform.iam.v1.AuthenticationService.StartAuthentication:output_type -> google.longrunning.Operation
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_service_proto_init() }
@@ -215,7 +323,7 @@ func file_m8_platform_iam_v1_authentication_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_service_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
