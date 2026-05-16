@@ -48,8 +48,8 @@ enum AuthenticationMethod {
   AUTHENTICATION_METHOD_SAML = 11;
 }
 
-// AuthenticationChallengeKind identifies the client or user action required to
-// continue the authentication flow.
+// AuthenticationChallengeKind identifies the action required to continue the
+// authentication flow.
 enum AuthenticationChallengeKind {
   // Authentication challenge kind is not specified.
   AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED = 0;
@@ -73,42 +73,60 @@ enum AuthenticationChallengeKind {
   AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK = 6;
 }
 
+// AuthenticationDeliveryChannel describes where the challenge is presented or
+// delivered.
+enum AuthenticationDeliveryChannel {
+  // Authentication delivery channel is not specified.
+  AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED = 0;
+
+  // Challenge is handled directly by the current API client.
+  AUTHENTICATION_DELIVERY_CHANNEL_CLIENT = 1;
+
+  // Challenge is delivered to a phone number by SMS.
+  AUTHENTICATION_DELIVERY_CHANNEL_SMS = 2;
+
+  // Challenge is delivered to an email address.
+  AUTHENTICATION_DELIVERY_CHANNEL_EMAIL = 3;
+
+  // Challenge is expected from an authenticator application.
+  AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP = 4;
+
+  // Challenge is delivered through push notification.
+  AUTHENTICATION_DELIVERY_CHANNEL_PUSH = 5;
+
+  // Challenge is delivered through SIM push.
+  AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH = 6;
+
+  // Challenge is handled by a Mobile ID provider.
+  AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID = 7;
+
+  // Challenge is handled by a browser WebAuthn ceremony.
+  AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN = 8;
+
+  // Challenge is handled by an OIDC redirect.
+  AUTHENTICATION_DELIVERY_CHANNEL_OIDC = 9;
+
+  // Challenge is handled by a SAML redirect or POST binding.
+  AUTHENTICATION_DELIVERY_CHANNEL_SAML = 10;
+}
+
 // AuthenticationChallengeAction identifies actions currently available for the
-// current challenge. It is safe for clients to use for dynamic login UI
-// branching.
+// current challenge.
 enum AuthenticationChallengeAction {
   // Authentication challenge action is not specified.
   AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED = 0;
 
-  // Client can submit a user or client proof for the current challenge.
+  // Client can submit a response for the current challenge.
   AUTHENTICATION_CHALLENGE_ACTION_SUBMIT = 1;
 
   // Client can request redelivery of an OTP-like challenge.
   AUTHENTICATION_CHALLENGE_ACTION_RESEND = 2;
 
-  // Client can cancel the authentication operation.
+  // Client can cancel the authentication.
   AUTHENTICATION_CHALLENGE_ACTION_CANCEL = 3;
 
   // Client can select another allowed authentication method.
   AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
-}
-
-// OtpDestinationType describes where or how an OTP challenge was delivered.
-enum OtpDestinationType {
-  // OTP destination type is not specified.
-  OTP_DESTINATION_TYPE_UNSPECIFIED = 0;
-
-  // OTP was delivered to a phone number.
-  OTP_DESTINATION_TYPE_PHONE = 1;
-
-  // OTP was delivered to an email address.
-  OTP_DESTINATION_TYPE_EMAIL = 2;
-
-  // OTP is expected from an authenticator application.
-  OTP_DESTINATION_TYPE_AUTHENTICATOR_APP = 3;
-
-  // OTP was generated or delivered through a push channel.
-  OTP_DESTINATION_TYPE_PUSH = 4;
 }
 
 // UserVerificationRequirement mirrors the WebAuthn user verification
@@ -146,14 +164,14 @@ enum ApprovalChannel {
 }
 
 // AuthenticationChallengeOption describes a public-safe method/provider option
-// that can be rendered by a dynamic login UI.
-//
-// The server may include disabled or unavailable options with
-// unavailable_reason so clients can render policy-aware UI. The option list must
-// not reveal whether a specific user has a sensitive authenticator unless
-// server-side policy allows that disclosure. For passkey-first UI, WebAuthn or
-// passkey can be marked recommended only after a server-side policy decision.
+// for dynamic login UI.
 message AuthenticationChallengeOption {
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_option.provider_required"
+    message: "external provider methods require provider_id"
+    expression: "!(this.method in [7, 8, 10, 11]) || this.provider_id != ''"
+  };
+
   // Output only. Authentication method represented by this option.
   AuthenticationMethod method = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
@@ -163,7 +181,132 @@ message AuthenticationChallengeOption {
     }
   ];
 
+  // Output only. Provider, channel, or integration identifier.
+  string provider_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
   // Output only. Challenge kind the client should expect for this option.
+  AuthenticationChallengeKind kind = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Human-readable method or provider display name.
+  string display_name = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. UI ordering priority. Lower values should be rendered first.
+  int32 priority = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Whether this option can currently be selected.
+  bool available = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Safe explanation shown when available is false.
+  string unavailable_reason = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Output only. Masked destination if policy allows exposing it.
+  string masked_destination = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Delivery channel used by this option.
+  AuthenticationDeliveryChannel delivery_channel = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Public UI capability labels such as resend, autofill, or passkey.
+  repeated string capabilities = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+    }
+  ];
+
+  // Output only. Additional public-safe UI hints.
+  map<string, string> hints = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).map = {
+      max_pairs: 32
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+      values: {
+        string: {max_len: 256}
+      }
+    }
+  ];
+
+  // Output only. Whether the UI should highlight this option.
+  bool recommended = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// AuthenticationChallengeInfo is the source of truth for current challenge UI
+// and submit flow.
+//
+// It must not contain OTP codes, passwords, provider secrets, private tokens,
+// internal callback secrets, raw risk features, raw device fingerprints, or
+// private WebAuthn server-side session secrets.
+message AuthenticationChallengeInfo {
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.otp_parameters_required"
+    message: "OTP_INPUT challenges require otp parameters"
+    expression: "this.kind != 2 || has(this.otp)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.redirect_parameters_required"
+    message: "REDIRECT challenges require redirect parameters"
+    expression: "this.kind != 4 || has(this.redirect)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.webauthn_parameters_required"
+    message: "WEBAUTHN_ASSERTION challenges require webauthn parameters"
+    expression: "this.kind != 5 || has(this.webauthn)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.approval_parameters_required"
+    message: "APPROVAL challenges require approval parameters"
+    expression: "this.kind != 3 || has(this.approval) || has(this.mobile_id)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.password_parameters_required"
+    message: "PASSWORD_INPUT challenges require password parameters"
+    expression: "this.kind != 1 || has(this.password)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.provider_required"
+    message: "external provider methods require provider_id"
+    expression: "!(this.method in [7, 8, 10, 11]) || this.provider_id != ''"
+  };
+
+  // Output only. Server-generated challenge identifier.
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Kind of client or user action required.
   AuthenticationChallengeKind kind = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
@@ -172,102 +315,53 @@ message AuthenticationChallengeOption {
     }
   ];
 
-  // Output only. Provider, channel, or integration identifier for this option.
-  string provider_id = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
-
-  // Output only. Human-readable provider or channel display name.
-  string provider_display_name = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
-
-  // Output only. Masked destination for this option, if policy allows exposing it.
-  //
-  // Example:
-  // - "+43******4567"
-  // - "s***@example.com"
-  // - "iPhone 15 Pro"
-  string masked_destination = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
-
-  // Output only. Indicates that this option should be highlighted by the UI.
-  bool recommended = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Indicates whether this option can currently be selected.
-  bool available = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Safe explanation shown when available is false.
-  string unavailable_reason = 8 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 512
-  ];
-}
-
-// AuthenticationChallengeInfo contains public-safe details of the current
-// authentication challenge.
-//
-// It is intended for clients, BFFs, and SDKs to understand what action is
-// required next. It must not contain OTP codes, passwords, provider secrets,
-// private tokens, internal callback secrets, raw risk features, raw device
-// fingerprints, or private WebAuthn server-side session secrets.
-message AuthenticationChallengeInfo {
-  // Output only. Server-generated identifier of this challenge.
-  //
-  // The client must send this identifier back when submitting a challenge
-  // response in a later API call.
-  string challenge_id = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
-
-  // Output only. Kind of client or user action required by this challenge.
-  AuthenticationChallengeKind kind = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
-
   // Output only. Authentication method selected for this challenge.
   AuthenticationMethod method = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
   ];
 
-  // Output only. Identifier of the identity provider or channel provider used
-  // by this challenge.
-  //
-  // Example:
-  // - "google"
-  // - "m8-sms"
-  // - "mobile-id-at"
+  // Output only. Provider, channel, or integration identifier.
   string provider_id = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Masked destination where the challenge was delivered.
-  //
-  // Example:
-  // - "+43******4567"
-  // - "s***@example.com"
-  // - "iPhone 15 Pro"
-  string masked_destination = 5 [
+  // Output only. Delivery channel for this challenge.
+  AuthenticationDeliveryChannel delivery_channel = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Masked destination where safe to expose.
+  string masked_destination = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Typed list of actions currently available for this challenge.
-  //
-  // Examples:
-  // - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-  // - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-  // - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-  // - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-  repeated AuthenticationChallengeAction actions = 6 [
+  // Output only. Time when this challenge expires.
+  google.protobuf.Timestamp expire_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when resend becomes available.
+  google.protobuf.Timestamp resend_available_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Number of attempts already submitted for this challenge.
+  int32 attempt_count = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  // Output only. Number of attempts remaining for this challenge.
+  int32 remaining_attempts = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  // Output only. Actions currently available for this challenge.
+  repeated AuthenticationChallengeAction actions = 11 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 20
@@ -280,41 +374,40 @@ message AuthenticationChallengeInfo {
     }
   ];
 
-  // Output only. Number of attempts remaining for this challenge.
-  //
-  // For challenges that do not support attempts, this value may be zero.
-  int32 attempts_remaining = 7 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int32.gte = 0
-  ];
-
-  // Output only. Time when this challenge was created.
-  google.protobuf.Timestamp create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Time when this challenge expires.
-  google.protobuf.Timestamp expire_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   oneof public_parameters {
-    // Output only. Public parameters for OTP challenges.
-    OtpChallenge otp = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Output only. Public parameters for password input.
+    PasswordChallenge password = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-    // Output only. Public parameters for WebAuthn/passkey assertion challenges.
-    WebAuthnChallenge webauthn = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+    // Output only. Public parameters for OTP input.
+    OtpChallenge otp = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Output only. Public parameters for WebAuthn/passkey assertion.
+    WebAuthnChallenge webauthn = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
 
     // Output only. Public parameters for redirect-based provider challenges.
-    RedirectChallenge redirect = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+    RedirectChallenge redirect = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
 
     // Output only. Public parameters for push approval challenges.
-    ApprovalChallenge approval = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+    ApprovalChallenge approval = 24 [(google.api.field_behavior) = OUTPUT_ONLY];
 
     // Output only. Public parameters for Mobile ID challenges.
-    MobileIdChallenge mobile_id = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+    MobileIdChallenge mobile_id = 25 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Output only. Public parameters for provider callback waits.
+    ProviderCallbackChallenge provider_callback = 26 [(google.api.field_behavior) = OUTPUT_ONLY];
   }
 }
 
+// PasswordChallenge contains public-safe parameters for password input.
+message PasswordChallenge {
+  // Output only. Password policy hint safe for UI display.
+  string policy_hint = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
 // OtpChallenge contains public-safe parameters for an OTP challenge.
-//
-// It never contains the OTP code.
 message OtpChallenge {
   // Output only. Expected OTP length.
   int32 length = 1 [
@@ -325,29 +418,22 @@ message OtpChallenge {
     }
   ];
 
-  // Output only. Time when OTP resend becomes available.
-  google.protobuf.Timestamp resend_available_at = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // Output only. Destination type used for OTP delivery.
-  OtpDestinationType destination_type = 3 [
+  AuthenticationDeliveryChannel delivery_channel = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
   // Output only. Masked destination where the OTP was delivered.
-  //
-  // This duplicates AuthenticationChallengeInfo.masked_destination for clients
-  // that render method-specific UI blocks.
-  string masked_destination = 4 [
+  string masked_destination = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 }
 
-// WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry for
-// browser WebAuthn APIs. It contains only public credential descriptor data.
+// WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry.
 message WebAuthnAllowedCredential {
-  // Output only. Credential descriptor type, usually "public-key".
+  // Output only. Credential descriptor type, usually public-key.
   string type = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 64
@@ -359,7 +445,7 @@ message WebAuthnAllowedCredential {
     (buf.validate.field).string.max_len = 4096
   ];
 
-  // Output only. Allowed authenticator transports for this credential.
+  // Output only. Allowed authenticator transports.
   repeated string transports = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
@@ -371,13 +457,9 @@ message WebAuthnAllowedCredential {
   ];
 }
 
-// WebAuthnChallenge contains public parameters for a WebAuthn/passkey assertion
-// ceremony.
-//
-// It contains public challenge data and does not contain a server-side session
-// secret.
+// WebAuthnChallenge contains public parameters for a WebAuthn assertion.
 message WebAuthnChallenge {
-  // Output only. Base64url-encoded WebAuthn challenge generated by the server.
+  // Output only. Base64url-encoded WebAuthn challenge.
   string challenge = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 4096
@@ -402,8 +484,6 @@ message WebAuthnChallenge {
   ];
 
   // Output only. Public credential descriptors allowed for this assertion.
-  //
-  // Empty list means discoverable credentials or resident keys may be used.
   repeated WebAuthnAllowedCredential allow_credentials = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {max_items: 100}
@@ -414,9 +494,6 @@ message WebAuthnChallenge {
 // authentication.
 message RedirectChallenge {
   // Output only. Authorization URL where the client should redirect the user.
-  //
-  // The URL must not contain provider client secrets or internal callback
-  // secrets. OIDC state can be opaque, but must not reveal sensitive data.
   string authorization_url = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 4096
@@ -434,17 +511,13 @@ message RedirectChallenge {
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Indicates whether the authentication operation expects an
-  // external provider callback.
+  // Output only. Whether an external provider callback is expected.
   bool callback_expected = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ApprovalChallenge contains public parameters for approval-style challenges.
 message ApprovalChallenge {
-  // Output only. Human-readable binding message shown to the user.
-  //
-  // Example:
-  // "Confirm login to M8 Console: 493-118"
+  // Output only. Binding message shown to the user.
   string binding_message = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 512
@@ -457,9 +530,6 @@ message ApprovalChallenge {
   ];
 
   // Output only. Masked device or destination hint.
-  //
-  // Example:
-  // "iPhone 15 Pro"
   string approval_device_hint = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
@@ -480,7 +550,7 @@ message MobileIdChallenge {
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Human-readable binding message shown to the user.
+  // Output only. Binding message shown to the user.
   string binding_message = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 512
@@ -490,5 +560,146 @@ message MobileIdChallenge {
   string phone_hint = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
+  ];
+}
+
+// ProviderCallbackChallenge indicates the flow is waiting for a provider
+// callback through the provider/internal callback API.
+message ProviderCallbackChallenge {
+  // Output only. Provider identifier expected to send the callback.
+  string provider_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Callback state or transaction hint safe to expose if policy allows it.
+  string state_hint = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
+// AuthenticationChallengeResponse contains request-only response data for the
+// current challenge.
+//
+// The selected oneof must match Authentication.current_challenge.kind and
+// Authentication.current_challenge.method. The server enforces that relation
+// against the current authentication state and challenge id.
+message AuthenticationChallengeResponse {
+  oneof response {
+    option (buf.validate.oneof).required = true;
+
+    // OTP code submitted by the user.
+    OtpChallengeResponse otp = 1;
+
+    // Password submitted by the user.
+    PasswordChallengeResponse password = 2;
+
+    // WebAuthn assertion produced by the browser or platform authenticator.
+    WebAuthnAssertionResponse webauthn = 3;
+
+    // Approval result submitted by a trusted device, provider, or app.
+    ApprovalChallengeResponse approval = 4;
+  }
+}
+
+// OtpChallengeResponse contains an OTP code submitted by the user.
+message OtpChallengeResponse {
+  // Required. One-time password code submitted for verification.
+  string code = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 4
+      max_len: 12
+    }
+  ];
+}
+
+// PasswordChallengeResponse contains a password submitted by the user.
+//
+// It is request-only data and must never be returned, logged, or stored in the
+// public authentication snapshot.
+message PasswordChallengeResponse {
+  // Required. Password submitted for verification.
+  string password = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 4096
+    }
+  ];
+}
+
+// WebAuthnAssertionResponse contains a browser assertion response.
+message WebAuthnAssertionResponse {
+  // Required. Base64url-encoded credential identifier.
+  string credential_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  // Required. Base64url-encoded clientDataJSON.
+  string client_data_json = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  // Required. Base64url-encoded authenticatorData.
+  string authenticator_data = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  // Required. Base64url-encoded assertion signature.
+  string signature = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  // Optional. Base64url-encoded WebAuthn user handle.
+  string user_handle = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
+  ];
+}
+
+// ApprovalChallengeResponse contains an approval or denial result.
+//
+// Never accept approved=true as sufficient proof. The server must verify
+// approval_token or proof against a trusted provider, device binding, or signed
+// approval channel. SIM Push, Mobile ID, and push approval results should arrive
+// through trusted provider callbacks or contain signed proof.
+message ApprovalChallengeResponse {
+  option (buf.validate.message).cel = {
+    id: "approval_challenge_response.proof_required"
+    message: "approved approval responses require approval_token or proof"
+    expression: "!this.approved || this.approval_token != '' || this.proof != ''"
+  };
+
+  // Required. True when the user approved the challenge, false when denied.
+  bool approved = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Opaque approval token issued to a trusted device or provider.
+  string approval_token = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  // Optional. Signed proof produced by a trusted device, app, or provider.
+  string proof = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  // Optional. Safe denial reason when approved is false.
+  string denial_reason = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
   ];
 }

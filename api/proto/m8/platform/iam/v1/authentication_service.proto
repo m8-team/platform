@@ -8,34 +8,33 @@ import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/longrunning/operations.proto";
+import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
+import "m8/platform/iam/v1/authentication_common.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
+import "m8/platform/iam/v1/authentication_error.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
-// Service that starts and drives authentication operations.
+// AuthenticationService starts and drives authentication flows.
 //
-// General flow:
-// - StartAuthentication creates an authentication operation.
-// - GetAuthentication polls the public-safe operation snapshot.
-// - Authentication.available_challenges builds dynamic login UI.
-// - SelectAuthenticationChallenge selects an allowed method, provider, channel,
-//   or integration.
-// - ResendAuthenticationChallenge redelivers an OTP-like current challenge.
-// - SubmitAuthenticationChallenge submits the user or client proof for the
-//   current challenge.
-// - HandleAuthenticationCallback accepts external provider callbacks.
-// - CancelAuthentication cancels an active operation.
+// Public SDK and login UI calls use StartAuthentication, GetAuthentication,
+// SelectAuthenticationChallenge, ResendAuthenticationChallenge,
+// SubmitAuthenticationChallenge, and CancelAuthentication. Provider callbacks
+// use HandleAuthenticationCallback and should be exposed only through trusted
+// provider/internal adapter surfaces.
 service AuthenticationService {
-  option (m8.platform.extension.v1.description) = "Use this API to start authentication workflows and track their long-running operation state.";
+  option (m8.platform.extension.v1.description) = "Use this API to start authentication workflows, drive challenges, and process provider callbacks.";
 
-  // Starts a new authentication operation.
+  // Starts a new authentication flow.
   //
-  // The returned long-running operation resolves to Authentication when the
-  // authentication workflow reaches a terminal state.
+  // This method starts asynchronous execution. Operation.metadata contains
+  // AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after successful completion. Operation.error
+  // contains google.rpc.Status for terminal failure.
   rpc StartAuthentication(StartAuthenticationRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -43,416 +42,283 @@ service AuthenticationService {
       body: "*"
     };
     option (google.longrunning.operation_info) = {
-      response_type: "Authentication"
-      metadata_type: "StartAuthenticationOperationMetadata"
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "client_id,subject,request_id";
+    option (google.api.method_signature) = "client_id,subject,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
-      summary: "Start"
-      description: "Starts a new authentication workflow and returns a long-running operation for tracking progress."
+      summary: "Start authentication"
+      description: "Starts a new authentication workflow and returns a long-running operation with typed authentication metadata and response."
       operation_id: "StartAuthentication"
     };
   }
 
-  // Returns the latest snapshot of an authentication operation.
+  // Returns the latest public-safe authentication snapshot.
   //
-  // It is safe to call this method repeatedly for polling. The response must not
-  // contain sensitive challenge secrets such as OTP codes, passwords, provider
-  // tokens, or internal callback secrets.
-  //
-  // Authorization:
-  // - caller must be allowed to read the operation in the resolved project and
-  //   user pool
-  // - public clients may only read operations they started or are allowed to poll
+  // This read-only method is safe for polling and returns Authentication
+  // directly. It never returns challenge secrets, provider tokens, raw callback
+  // payloads, raw device fingerprints, or internal execution details.
   rpc GetAuthentication(GetAuthenticationRequest) returns (Authentication) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (google.api.http) = {get: "/v1/iam/authentications/{authentication_id}"};
     option (google.api.method_signature) = "authentication_id";
     option (gnostic.openapi.v3.operation) = {
-      summary: "Get"
-      description: "Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets."
+      summary: "Get authentication"
+      description: "Returns the latest public-safe authentication snapshot for polling."
       operation_id: "GetAuthentication"
     };
   }
 
-  // Cancels an active authentication operation.
+  // Selects an allowed challenge method or provider.
   //
-  // The method is idempotent. Canceling an already terminal authentication
-  // returns the current snapshot without changing its state.
-  //
-  // Cancel transition:
-  // - fully cancelable active states transition to CANCELED
-  // - cancel during VERIFYING, AUTHORIZATION_HANDOFF_PENDING, or FINALIZING may
-  //   return an unchanged snapshot if verification or finalization already
-  //   passed the safe cancellation point
-  // - terminal states are returned unchanged
-  // - a successful transition updates update_time and increments version
-  // - terminal snapshots keep their existing update_time and version
-  //
-  // Implementation TODO:
-  // - load Authentication by authentication_id
-  // - return terminal snapshots unchanged
-  // - persist state = CANCELED with optimistic version check
-  // - emit audit or outbox event when the event model exists
-  // - signal or cancel the underlying Temporal workflow
-  //
-  // Authorization:
-  // - caller must be allowed to cancel the authentication operation
-  // - public clients may cancel only their own active operation
-  // - admin and service callers may cancel according to policy
-  rpc CancelAuthentication(CancelAuthenticationRequest) returns (Authentication) {
-    option idempotency_level = IDEMPOTENT;
-    option (google.api.http) = {
-      post: "/v1/iam/authentications/{authentication_id}:cancel"
-      body: "*"
-    };
-    option (google.api.method_signature) = "authentication_id,request_id";
-    option (gnostic.openapi.v3.operation) = {
-      summary: "Cancel"
-      description: "Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged."
-      operation_id: "CancelAuthentication"
-    };
-  }
-
-  // Resends the current challenge when the selected method supports resend,
-  // such as SMS OTP or email OTP.
-  //
-  // The method does not create a new authentication operation and must not
-  // expose OTP codes or other challenge secrets. It is intended for active
-  // operations whose current_challenge allows resend.
-  //
-  // Allowed states:
-  // - CHALLENGE_DELIVERED
-  // - WAITING_FOR_USER
-  // - CHALLENGE_RETRY_REQUIRED
-  // - STEP_UP_REQUIRED
-  //
-  // State transition:
-  // - WAITING_FOR_USER -> CHALLENGE_DELIVERED or WAITING_FOR_USER
-  // - state_reason becomes AUTHENTICATION_STATE_REASON_OTP_RESENT
-  // - current_challenge resend metadata may be updated
-  // - update_time is updated and version is incremented
-  //
-  // Idempotency:
-  // - same authentication_id, challenge_id, and request_id returns the same
-  //   resend result
-  //
-  // Implementation TODO:
-  // - signal Temporal workflow with ResendChallengeSignal
-  // - let workflow enforce cooldown, rate limit, and provider policy
-  // - update current_challenge without exposing OTP codes or provider secrets
-  //
-  // Authorization:
-  // - caller must be allowed to operate on this authentication operation
-  // - public clients may resend only their own current challenge
-  rpc ResendAuthenticationChallenge(ResendAuthenticationChallengeRequest) returns (Authentication) {
-    option idempotency_level = IDEMPOTENT;
-    option (google.api.http) = {
-      post: "/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:resend"
-      body: "*"
-    };
-    option (google.api.method_signature) = "authentication_id,challenge_id,request_id";
-    option (gnostic.openapi.v3.operation) = {
-      summary: "Resend challenge"
-      description: "Resends the current challenge when the selected method supports resend. It does not create a new authentication operation or expose challenge secrets."
-      operation_id: "ResendAuthenticationChallenge"
-    };
-  }
-
-  // Selects an allowed authentication method or provider for an existing
-  // authentication operation.
-  //
-  // This method prepares a new public-safe current_challenge but does not verify
-  // user identity by itself. It does not accept passwords, OTP codes, WebAuthn
-  // assertions, provider authorization codes, or provider tokens.
-  //
-  // Allowed states:
-  // - IDENTIFYING, when the subject is already sufficiently resolved
-  // - EVALUATING, when policy has already resolved allowed options
-  // - CHALLENGE_DELIVERED
-  // - WAITING_FOR_USER
-  // - CHALLENGE_RETRY_REQUIRED
-  // - STEP_UP_REQUIRED
-  //
-  // State transition:
-  // - current_challenge is replaced with a newly prepared challenge
-  // - state usually becomes CHALLENGE_PREPARING, CHALLENGE_DELIVERED, or
-  //   WAITING_FOR_USER
-  // - state_reason becomes AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
-  // - update_time is updated and version is incremented
-  //
-  // If the requested method or provider is not allowed, the operation is not
-  // changed and the server should return a command error or a safe
-  // Authentication.error with METHOD_NOT_ALLOWED or PROVIDER_NOT_ALLOWED.
-  //
-  // Implementation TODO:
-  // - signal Temporal workflow with SelectChallengeSignal
-  // - let workflow enforce allowed methods, providers, risk decision, and policy
-  // - prepare a new current_challenge without exposing secrets
-  //
-  // Authorization:
-  // - caller can select only methods and providers allowed by client policy,
-  //   user pool policy, risk decision, and current authentication state
-  rpc SelectAuthenticationChallenge(SelectAuthenticationChallengeRequest) returns (Authentication) {
+  // This method may signal asynchronous execution. Operation.metadata contains
+  // AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after successful completion. Operation.error
+  // contains google.rpc.Status for terminal failure.
+  rpc SelectAuthenticationChallenge(SelectAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
       post: "/v1/iam/authentications/{authentication_id}:selectChallenge"
       body: "*"
     };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
+    };
     option (google.api.method_signature) = "authentication_id,method,provider_id,request_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Select challenge"
-      description: "Selects an allowed authentication method or provider and prepares a new public-safe current challenge without verifying user identity."
+      description: "Selects an allowed authentication method or provider and returns a long-running operation for tracking challenge preparation."
       operation_id: "SelectAuthenticationChallenge"
     };
   }
 
-  // Submits a user or client response to the current authentication challenge.
+  // Resends or redelivers the current challenge when the method supports it.
   //
-  // This method accepts the proof or response required by current_challenge and
-  // returns an updated public-safe Authentication snapshot. The response must
-  // never contain passwords, OTP codes, provider tokens, raw callback secrets,
-  // private WebAuthn server-side session secrets, or raw provider responses.
-  //
-  // Allowed states:
-  // - CHALLENGE_DELIVERED
-  // - WAITING_FOR_USER
-  // - CHALLENGE_RETRY_REQUIRED
-  // - STEP_UP_REQUIRED
-  //
-  // State transition:
-  // - WAITING_FOR_USER -> VERIFYING
-  // - VERIFYING -> AUTHENTICATED | CHALLENGE_RETRY_REQUIRED | DENIED | BLOCKED
-  //   | ATTEMPTS_EXCEEDED | EXPIRED | FAILED
-  //
-  // Idempotency:
-  // - same authentication_id, challenge_id, and request_id returns the same
-  //   submission result
-  //
-  // Implementation TODO:
-  // - signal Temporal workflow with SubmitChallengeSignal
-  // - workflow verifies proof or response
-  // - workflow updates attempts, state_reason, current_challenge, and error
-  // - workflow never stores raw passwords or OTP codes in the public snapshot
-  //
-  // Authorization:
-  // - caller must be allowed to operate on this authentication operation
-  // - public clients may submit only their own current challenge
-  rpc SubmitAuthenticationChallenge(SubmitAuthenticationChallengeRequest) returns (Authentication) {
+  // This method may dispatch through an external provider. Operation.metadata
+  // contains AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after successful completion. Operation.error
+  // contains google.rpc.Status for terminal failure.
+  rpc ResendAuthenticationChallenge(ResendAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
-      post: "/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:submit"
+      post: "/v1/iam/authentications/{authentication_id}:resendChallenge"
       body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
+    };
+    option (google.api.method_signature) = "authentication_id,challenge_id,request_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Resend challenge"
+      description: "Resends the current challenge when supported and returns a long-running operation for tracking dispatch."
+      operation_id: "ResendAuthenticationChallenge"
+    };
+  }
+
+  // Submits a response to the current challenge.
+  //
+  // This method may verify locally, signal asynchronous execution, or wait for
+  // external verification. Operation.metadata contains
+  // AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after successful completion. Operation.error
+  // contains google.rpc.Status for terminal failure.
+  rpc SubmitAuthenticationChallenge(SubmitAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
+    option idempotency_level = IDEMPOTENT;
+    option (google.api.http) = {
+      post: "/v1/iam/authentications/{authentication_id}:submitChallenge"
+      body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
     };
     option (google.api.method_signature) = "authentication_id,challenge_id,request_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Submit challenge"
-      description: "Accepts the user or client response to the current challenge and returns a public-safe authentication snapshot without exposing challenge secrets."
+      description: "Submits a response to the current challenge and returns a long-running operation for tracking verification."
       operation_id: "SubmitAuthenticationChallenge"
     };
   }
 
-  // Processes callbacks from external identity providers.
+  // Cancels an active authentication flow.
   //
-  // Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
-  // providers. The method validates provider state internally and must not
-  // expose provider tokens, raw assertions, client secrets, or internal callback
-  // secrets in the response.
-  //
-  // HTTP bindings:
-  // - GET is used by OIDC/OAuth authorization code callbacks.
-  // - POST is used by SAML POST binding and provider-specific callbacks.
-  //
-  // Callback behavior:
-  // - validate provider_id
-  // - resolve Authentication by authentication_id, state, relay_state, or
-  //   provider transaction identifiers
-  // - validate state, relay state, nonce, anti-CSRF data, signatures, tokens, or
-  //   provider-specific proof internally
-  // - update state_reason to PROVIDER_CALLBACK_RECEIVED or
-  //   PROVIDER_CALLBACK_INVALID
-  // - transition through VERIFYING, FINALIZING, AUTHENTICATED, DENIED, BLOCKED,
-  //   or FAILED according to validation and policy
-  //
-  // Idempotency:
-  // - same provider_id, callback state, code, relay_state, and request_id returns
-  //   the same callback result
-  //
-  // Implementation TODO:
-  // - signal Temporal workflow with ProviderCallbackSignal
-  // - let workflow validate callback data and finish the provider step
-  //
-  // Authorization:
-  // - provider callbacks must be authenticated or validated through state,
-  //   signature, SAML validation, OIDC token validation, or provider-specific
-  //   verification
-  // - public clients must not be trusted to assert callback success
-  rpc HandleAuthenticationCallback(HandleAuthenticationCallbackRequest) returns (HandleAuthenticationCallbackResponse) {
+  // This method may signal asynchronous cancellation. Operation.metadata
+  // contains AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after successful completion. Operation.error
+  // contains google.rpc.Status for terminal failure.
+  rpc CancelAuthentication(CancelAuthenticationRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
-      post: "/v1/iam/authenticationCallbacks/{provider_id}"
+      post: "/v1/iam/authentications/{authentication_id}:cancel"
       body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
+    };
+    option (google.api.method_signature) = "authentication_id,request_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Cancel authentication"
+      description: "Cancels an active authentication flow and returns a long-running operation for tracking cancellation."
+      operation_id: "CancelAuthentication"
+    };
+  }
+
+  // Provider/Internal API. Processes callbacks from external providers.
+  //
+  // This is not a normal public login SDK method. Provider adapters may pass
+  // raw query or form values for processing, but secrets, tokens, SAMLResponse,
+  // and raw provider payloads must not be logged or persisted into public
+  // Authentication snapshots.
+  //
+  // Operation.metadata contains AuthenticationOperationMetadata.
+  // Operation.response contains AuthenticationOperationResponse after successful
+  // completion. Operation.error contains google.rpc.Status for terminal failure.
+  rpc HandleAuthenticationCallback(HandleAuthenticationCallbackRequest) returns (google.longrunning.Operation) {
+    option idempotency_level = IDEMPOTENT;
+    option (google.api.http) = {
+      post: "/v1/iam/authentications/{authentication_id}:callback"
+      body: "*"
+      additional_bindings: {
+        post: "/v1/iam/authenticationCallbacks/{provider_id}"
+        body: "*"
+      }
       additional_bindings: {get: "/v1/iam/authenticationCallbacks/{provider_id}"}
     };
-    option (google.api.method_signature) = "provider_id,request_id";
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticationOperationResponse"
+      metadata_type: "AuthenticationOperationMetadata"
+    };
+    option (google.api.method_signature) = "provider_id,authentication_id,request_id";
     option (gnostic.openapi.v3.operation) = {
-      summary: "Handle callback"
-      description: "Processes callbacks from external identity providers and returns an updated authentication snapshot without exposing provider secrets or tokens."
+      summary: "Handle provider callback"
+      description: "Provider/internal API that processes external provider callbacks without exposing provider secrets in public snapshots."
       operation_id: "HandleAuthenticationCallback"
     };
   }
 }
 
-// Request to start an authentication operation.
+// AuthenticationOperationMetadata is stored in google.longrunning.Operation.metadata.
+message AuthenticationOperationMetadata {
+  // Output only. Authentication identifier.
+  string authentication_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Current authentication lifecycle state.
+  AuthenticationState state = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Current state reason.
+  AuthenticationStateReason state_reason = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Current challenge snapshot.
+  AuthenticationChallengeInfo current_challenge = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Available challenge options.
+  repeated AuthenticationChallengeOption available_challenges = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 32}
+  ];
+
+  // Output only. Safe error details when available.
+  AuthenticationError error = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the authentication was created.
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the authentication was last updated.
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the authentication expires.
+  google.protobuf.Timestamp expire_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Business correlation id.
+  string correlation_id = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. External request, gateway, or audit id.
+  string request_id = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+// AuthenticationOperationResponse is stored in google.longrunning.Operation.response.
+message AuthenticationOperationResponse {
+  // Output only. Final or current public-safe authentication snapshot.
+  Authentication authentication = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Successful authentication result when the flow authenticated.
+  AuthenticationResult result = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// Request to start authentication.
 message StartAuthenticationRequest {
-  // Required. Public client application identifier that initiates authentication.
-  // The value must be a UUID.
+  // Required. Public client application identifier.
   //
-  // The server resolves this value to ClientConfig, project_id, user_pool_id,
-  // allowed providers, allowed methods, and authentication policies.
-  // Clients must not send project_id or user_pool_id in StartAuthenticationRequest.
+  // The server resolves this value to client configuration, project, user pool,
+  // provider policy, allowed methods, and authentication policy. Public clients
+  // must not send project_id or user_pool_id directly.
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. Subject identifier or hint used to resolve the authenticating user.
+  // Optional. Subject identifier or login hint.
   AuthenticationSubject subject = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. Additional authentication context used for policy and challenge selection.
-  AuthenticationContext context = 3 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. Client-provided safe hints for starting authentication.
+  AuthenticationStartContext context = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. Client preferences that influence authentication workflow selection.
+  // Optional. Client preferences and requested purpose.
   AuthenticationStartOptions options = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. Idempotency key for StartAuthentication retries.
+  // Optional. Deduplication key for retrying StartAuthentication.
   //
-  // The same client_id and request_id must resolve to the same Authentication
-  // operation. When omitted, retries are not guaranteed to be idempotent.
-  string request_id = 5 [
+  // This is not RequestContext.request_id. request_id, correlation_id, and
+  // trace_id live in AuthenticationStartContext.request.
+  string idempotency_key = 5 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
+    (buf.validate.field).string.max_len = 255
   ];
 }
 
-// Request to read the latest authentication operation snapshot.
+// Request to read the latest authentication snapshot.
 message GetAuthenticationRequest {
-  // Required. Stable unique identifier of the authentication operation to read.
-  // The value must be a valid UUID string.
-  //
-  // The server returns the latest known aggregate snapshot. This request does
-  // not change authentication state and is safe for client or BFF polling.
-  //
-  // Example:
-  // {
-  //   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34"
-  // }
+  // Required. Authentication identifier to read.
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-      uuid: true
-    }
-  ];
-}
-
-// Request to cancel an active authentication operation.
-message CancelAuthenticationRequest {
-  // Required. Stable unique identifier of the authentication operation to cancel.
-  // The value must be a valid UUID string.
-  string authentication_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-      uuid: true
-    }
-  ];
-
-  // Optional. Human-readable or machine-readable reason for cancellation.
-  //
-  // Example:
-  // - "user_closed_login_window"
-  // - "client_restarted_flow"
-  // - "session_replaced"
-  // - "admin_requested"
-  string reason = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 512
-  ];
-
-  // Optional. Idempotency key for retrying cancellation.
-  //
-  // CancelAuthentication is naturally idempotent for terminal states, but
-  // request_id allows the server to deduplicate concurrent cancellation attempts.
-  // The same authentication_id and request_id must resolve to the same
-  // cancellation result.
-  //
-  // Example:
-  // {
-  //   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34",
-  //   "reason": "user_closed_login_window",
-  //   "request_id": "0d8b7e3e-7e1c-4b7e-8a8f-1f3c2c4f9d11"
-  // }
-  string request_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
-}
-
-// Request to resend the current authentication challenge.
-message ResendAuthenticationChallengeRequest {
-  // Required. Identifier of the authentication operation.
-  string authentication_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-      uuid: true
-    }
-  ];
-
-  // Required. Identifier of the challenge to resend.
-  //
-  // The value must match Authentication.current_challenge.challenge_id.
-  string challenge_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-    }
-  ];
-
-  // Optional. Idempotency key for retrying resend safely.
-  //
-  // The same authentication_id, challenge_id, and request_id must resolve to the
-  // same resend result.
-  string request_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
 }
 
 // Request to select another authentication method or provider.
 message SelectAuthenticationChallengeRequest {
-  // Required. Identifier of the authentication operation.
+  option (buf.validate.message).cel = {
+    id: "select_authentication_challenge.provider_required"
+    message: "external provider methods require provider_id"
+    expression: "!(this.method in [7, 8, 10, 11]) || this.provider_id != ''"
+  };
+
+  // Required. Authentication identifier.
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-      uuid: true
-    }
+    (buf.validate.field).string.uuid = true
   ];
 
   // Required. Authentication method selected by the client or user.
@@ -465,45 +331,140 @@ message SelectAuthenticationChallengeRequest {
   ];
 
   // Optional. Provider identifier for provider-based methods.
-  //
-  // Example:
-  // - "google"
-  // - "saml-corp"
-  // - "mobile-id-at"
-  // - "m8-sms"
   string provider_id = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Optional. Idempotency key for retrying selection safely.
-  //
-  // The same authentication_id, method, provider_id, and request_id must resolve
-  // to the same selection result.
+  // Optional. External request, gateway, or audit id for this command.
   string request_id = 4 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. ETag precondition for optimistic concurrency.
+  string if_match = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+// Request to resend the current authentication challenge.
+message ResendAuthenticationChallengeRequest {
+  // Required. Authentication identifier.
+  string authentication_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
     (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Current challenge identifier.
+  string challenge_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. External request, gateway, or audit id for this command.
+  string request_id = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. ETag precondition for optimistic concurrency.
+  string if_match = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
   ];
 }
 
 // Request to submit the current authentication challenge response.
 message SubmitAuthenticationChallengeRequest {
-  // Required. Stable unique identifier of the authentication operation.
+  // Required. Authentication identifier.
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-      uuid: true
-    }
+    (buf.validate.field).string.uuid = true
   ];
 
-  // Required. Identifier of the current challenge being answered.
-  //
-  // The value must match Authentication.current_challenge.challenge_id.
+  // Required. Current challenge identifier.
   string challenge_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Request-only response or proof for the current challenge.
+  //
+  // The server must verify that this response matches the current challenge
+  // kind and method. Secrets in this message must not be returned in public
+  // Authentication, AuthenticationContext, AuthenticationChallengeInfo, or
+  // AuthenticationError snapshots.
+  AuthenticationChallengeResponse response = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Optional. External request, gateway, or audit id for this command.
+  string request_id = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. ETag precondition for optimistic concurrency.
+  string if_match = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+// Request to cancel an active authentication.
+message CancelAuthenticationRequest {
+  // Required. Authentication identifier.
+  string authentication_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Human-readable or machine-readable cancellation reason.
+  string reason = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. External request, gateway, or audit id for this command.
+  string request_id = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. ETag precondition for optimistic concurrency.
+  string if_match = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+}
+
+// Provider/Internal request to process an external provider callback.
+//
+// Raw query and form data may be accepted only for adapter processing. Do not
+// log or persist secrets, tokens, authorization codes, SAMLResponse, raw
+// assertions, or provider payloads into public Authentication snapshots.
+message HandleAuthenticationCallbackRequest {
+  option (buf.validate.message).cel = {
+    id: "handle_authentication_callback.oidc_state_required"
+    message: "OIDC callbacks require state either at the top level or inside oidc"
+    expression: "!has(this.oidc) || this.state != '' || this.oidc.state != ''"
+  };
+  option (buf.validate.message).cel = {
+    id: "handle_authentication_callback.saml_state_required"
+    message: "SAML callbacks require relay_state or top-level state"
+    expression: "!has(this.saml) || this.state != '' || this.saml.relay_state != ''"
+  };
+
+  // Required. Provider identifier that produced the callback.
+  string provider_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
     (buf.validate.field).string = {
@@ -512,173 +473,104 @@ message SubmitAuthenticationChallengeRequest {
     }
   ];
 
-  // Required. Response or proof for the current challenge. Raw passwords and
-  // OTP codes are accepted only in this request and must never be returned in
-  // Authentication, AuthenticationContext, AuthenticationChallengeInfo, or
-  // AuthenticationError.
-  oneof response {
-    option (buf.validate.oneof).required = true;
-
-    // OTP code submitted by the user.
-    OtpChallengeResponse otp = 3;
-
-    // Password submitted by the user.
-    PasswordChallengeResponse password = 4;
-
-    // WebAuthn assertion produced by the browser or platform authenticator.
-    WebAuthnAssertionResponse webauthn = 5;
-
-    // Approval result submitted by an approval-capable client.
-    ApprovalChallengeResponse approval = 6;
-  }
-
-  // Optional. Idempotency key for retrying challenge submission safely.
-  string request_id = 7 [
+  // Optional. Authentication identifier, when resolved by URL or adapter state.
+  string authentication_id = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
-}
 
-// OtpChallengeResponse contains an OTP code submitted by the user.
-//
-// It is request-only data and must never be returned in public snapshots.
-message OtpChallengeResponse {
-  // Required. One-time password code submitted for verification.
-  string code = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 4
-      max_len: 12
-    }
-  ];
-}
-
-// PasswordChallengeResponse contains a password submitted by the user.
-//
-// It is request-only data and must never be returned, logged, or stored in the
-// public authentication snapshot.
-message PasswordChallengeResponse {
-  // Required. Password submitted for verification.
-  string password = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 4096
-    }
-  ];
-}
-
-// WebAuthnAssertionResponse contains the browser assertion response for a
-// WebAuthn/passkey challenge.
-message WebAuthnAssertionResponse {
-  // Required. Base64url-encoded credential identifier.
-  string credential_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 4096
-  ];
-
-  // Required. Base64url-encoded clientDataJSON.
-  string client_data_json = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 65536
-  ];
-
-  // Required. Base64url-encoded authenticatorData.
-  string authenticator_data = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 65536
-  ];
-
-  // Required. Base64url-encoded assertion signature.
-  string signature = 4 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 65536
-  ];
-
-  // Optional. Base64url-encoded WebAuthn user handle, when supplied by the authenticator.
-  string user_handle = 5 [
+  // Optional. Top-level callback state for adapter routing.
+  string state = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
+
+  oneof callback {
+    option (buf.validate.oneof).required = true;
+
+    // OIDC/OAuth callback payload.
+    OidcAuthenticationCallback oidc = 10;
+
+    // SAML callback payload.
+    SamlAuthenticationCallback saml = 11;
+
+    // Provider-specific callback payload.
+    GenericProviderCallback generic = 12;
+  }
+
+  // Optional. External request, gateway, or audit id for this callback.
+  string request_id = 20 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
 }
 
-// ApprovalChallengeResponse contains an approval or denial result.
-message ApprovalChallengeResponse {
-  // Required. True when the user approved the challenge, false when denied.
-  bool approved = 1 [(google.api.field_behavior) = REQUIRED];
-}
+// OidcAuthenticationCallback contains OIDC/OAuth callback values.
+//
+// Authorization codes and errors are request-only adapter inputs. They must not
+// be logged or persisted into public Authentication snapshots.
+message OidcAuthenticationCallback {
+  option (buf.validate.message).cel = {
+    id: "oidc_authentication_callback.code_or_error"
+    message: "OIDC callback requires code or error"
+    expression: "this.code != '' || this.error != ''"
+  };
 
-// Request to process a callback from an external identity provider.
-message HandleAuthenticationCallbackRequest {
-  // Required. Provider identifier that produced the callback.
-  //
-  // Example:
-  // - "google"
-  // - "saml-corp"
-  // - "mobile-id-at"
-  string provider_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string = {
-      min_len: 1
-      max_len: 255
-    }
+  // Optional. OIDC/OAuth authorization code.
+  string code = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
   ];
 
-  // Optional. Authentication operation identifier.
-  //
-  // Some providers allow resolving the authentication operation from state,
-  // RelayState, or provider-specific transaction identifiers instead.
-  string authentication_id = 2 [
+  // Optional. OIDC/OAuth state.
+  string state = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  // Optional. OIDC/OAuth error code.
+  string error = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Optional. OIDC or OAuth authorization code.
-  //
-  // The server exchanges this value internally if needed. It must not be
-  // returned in public responses.
-  string code = 3 [
+  // Optional. OIDC/OAuth error description.
+  string error_description = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
+}
 
-  // Optional. OIDC or OAuth state value.
-  //
-  // The server validates this value internally for callback correlation and
-  // anti-CSRF protection. It must not expose secrets.
-  string state = 4 [
+// SamlAuthenticationCallback contains SAML callback values.
+//
+// SAMLResponse can contain sensitive assertions. It is request-only adapter
+// input and must not be logged or persisted into public snapshots.
+message SamlAuthenticationCallback {
+  // Required. Base64-encoded SAMLResponse.
+  string saml_response = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 262144
+    }
+  ];
+
+  // Optional. SAML RelayState.
+  string relay_state = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
+}
 
-  // Optional. SAML response payload.
-  //
-  // This field may contain a large base64-encoded SAMLResponse. The server must
-  // validate the assertion internally and must not return raw assertions in
-  // public responses.
-  string saml_response = 5 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 262144
-  ];
-
-  // Optional. SAML RelayState value.
-  string relay_state = 6 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
-  ];
-
+// GenericProviderCallback contains provider-specific callback parameters.
+//
+// These maps are request-only adapter inputs. Do not log or persist values that
+// may contain secrets, tokens, SAMLResponse, passwords, or raw provider payloads.
+message GenericProviderCallback {
   // Optional. Raw query parameters received from the provider callback.
-  //
-  // This is useful for provider-specific integrations. Do not store or expose
-  // secrets from this map in public responses.
-  map<string, string> raw_query = 7 [
+  map<string, string> query = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).map = {
       max_pairs: 100
@@ -695,10 +587,7 @@ message HandleAuthenticationCallbackRequest {
   ];
 
   // Optional. Raw form parameters received from the provider callback.
-  //
-  // This is useful for SAML POST binding and provider-specific callbacks. Do not
-  // store or expose secrets from this map in public responses.
-  map<string, string> raw_form = 8 [
+  map<string, string> form = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).map = {
       max_pairs: 100
@@ -713,107 +602,62 @@ message HandleAuthenticationCallbackRequest {
       }
     }
   ];
-
-  // Optional. Idempotency key for retrying callback handling safely.
-  //
-  // The same provider_id, callback state, code, relay_state, and request_id must
-  // resolve to the same callback result.
-  string request_id = 9 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
 }
 
-// Response returned after processing an external provider callback.
-message HandleAuthenticationCallbackResponse {
-  // Output only. Updated authentication snapshot.
-  //
-  // The snapshot must not contain provider tokens, raw assertions, client
-  // secrets, internal callback secrets, OTP codes, or passwords.
-  Authentication authentication = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Optional redirect URI where the browser should be redirected
-  // after callback handling.
-  //
-  // This URI must be validated by the server against the original client
-  // configuration and callback state.
-  string redirect_uri = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 4096
-  ];
-
-  // Output only. Indicates whether the provider callback completed the
-  // authentication operation.
-  bool completed = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// Metadata for the StartAuthentication long-running operation.
-message StartAuthenticationOperationMetadata {
-  // Output only. Current snapshot of the authentication operation.
-  //
-  // The value is updated as the workflow advances through state transitions and
-  // can be used by clients to poll progress before the operation completes.
-  Authentication authentication = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// AuthenticationStartOptions contains optional client preferences for starting authentication.
-//
-// The server may use these values to select login experience, provider, method,
-// and assurance requirements, but policy can override unsupported or disallowed
-// preferences.
-//
-// Example:
-// - passkey-first login requests requested_authentication_method =
-//   AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
-// - tenant-specific UI flow sends `login_experience_version`
-// - OIDC request passes acr_values requested by the relying party
+// AuthenticationStartOptions contains optional preferences for starting
+// authentication.
 message AuthenticationStartOptions {
-  // Optional. Login experience version requested by the client.
-  //
-  // Example:
-  // - "default"
-  // - "passkey-first"
-  // - "passwordless-v2"
-  string login_experience_version = 1 [(google.api.field_behavior) = OPTIONAL];
-
-  // Optional. Preferred standard authentication method requested by the client.
-  //
-  // Use requested_method_id for custom, provider, or plugin methods not modeled
-  // by AuthenticationMethod.
-  AuthenticationMethod requested_authentication_method = 2 [
+  // Optional. Purpose requested by the client.
+  AuthenticationPurpose purpose = 1 [
     (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).enum = {defined_only: true}
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Requested assurance level.
+  AuthenticationAssuranceLevel requested_assurance_level = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Optional. Login experience version requested by the client.
+  string login_experience_version = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. Preferred standard authentication method.
+  AuthenticationMethod requested_authentication_method = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).enum.defined_only = true
   ];
 
   // Optional. Preferred custom, provider, or plugin method identifier.
-  //
-  // This complements requested_authentication_method and must be interpreted
-  // against server-side client, provider, and policy configuration.
-  string requested_method_id = 3 [
+  string requested_method_id = 5 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Optional. Preferred authentication provider identifier.
-  // This selects a provider, channel, or provider integration for the requested
-  // method. AuthenticationSubject.provider_id scopes subject identifiers and
-  // must not be used to select the login provider.
   //
-  // Example:
-  // - WebAuthn provider id for passkey authentication
-  // - OIDC provider id for external identity provider login
-  // - Mobile ID provider id for mobile operator authentication
-  string requested_provider_id = 4 [
+  // This selects a provider, channel, or integration for the requested method.
+  // AuthenticationSubject.provider_id scopes subject identifiers and must not
+  // be used to select the login provider.
+  string requested_provider_id = 6 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Optional. Requested Authentication Context Class Reference values.
-  //
-  // Example:
-  // - "AAL1" for normal login
-  // - "AAL2" for multi-factor authentication
-  // - "AAL3" for hardware-backed phishing-resistant authentication
-  repeated string acr_values = 5 [(google.api.field_behavior) = OPTIONAL];
+  repeated string acr_values = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
 }

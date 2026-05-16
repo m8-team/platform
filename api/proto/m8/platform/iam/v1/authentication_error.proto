@@ -9,20 +9,19 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
 // AuthenticationStateReason explains the latest authentication state transition.
 //
-// Values are safe to expose to clients and internal admin UI. They must not
-// encode secrets, provider tokens, raw provider responses, stack traces, or
-// private risk model details.
+// Reasons are machine-readable transition labels. They are not a replacement
+// for AuthenticationError and should not duplicate every possible error code.
 enum AuthenticationStateReason {
   // Authentication state reason is not specified.
   AUTHENTICATION_STATE_REASON_UNSPECIFIED = 0;
 
-  // Authentication operation was accepted by the server.
+  // Authentication request was accepted.
   AUTHENTICATION_STATE_REASON_START_ACCEPTED = 1;
 
-  // Subject was successfully resolved.
+  // Subject was successfully resolved or accepted as a hint.
   AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED = 2;
 
-  // Subject could not be found or resolved.
+  // Subject could not be resolved. Public clients may receive a generic state.
   AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND = 3;
 
   // Risk decision allowed authentication to continue.
@@ -37,22 +36,22 @@ enum AuthenticationStateReason {
   // Challenge was selected.
   AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED = 7;
 
-  // OTP was sent.
-  AUTHENTICATION_STATE_REASON_OTP_SENT = 8;
+  // Challenge was sent, exposed, or dispatched.
+  AUTHENTICATION_STATE_REASON_CHALLENGE_SENT = 8;
 
-  // OTP resend was requested and accepted.
-  AUTHENTICATION_STATE_REASON_OTP_RESENT = 9;
+  // Challenge resend was accepted.
+  AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT = 9;
 
-  // Submitted OTP was invalid.
-  AUTHENTICATION_STATE_REASON_OTP_INVALID = 10;
+  // Submitted challenge response was invalid but retry may be possible.
+  AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID = 10;
 
   // Attempts limit was exceeded.
   AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED = 11;
 
-  // User approved authentication in another channel.
+  // User or trusted provider approved authentication.
   AUTHENTICATION_STATE_REASON_USER_APPROVED = 12;
 
-  // User denied authentication in another channel.
+  // User or trusted provider denied authentication.
   AUTHENTICATION_STATE_REASON_USER_DENIED = 13;
 
   // External provider redirect is required.
@@ -76,109 +75,149 @@ enum AuthenticationStateReason {
   // Authentication expired.
   AUTHENTICATION_STATE_REASON_EXPIRED = 20;
 
-  // Authentication was canceled.
-  AUTHENTICATION_STATE_REASON_CANCELED = 21;
+  // Authentication was cancelled.
+  AUTHENTICATION_STATE_REASON_CANCELLED = 21;
 
-  // Authentication failed because of an internal error.
-  AUTHENTICATION_STATE_REASON_INTERNAL_ERROR = 22;
+  // Authentication failed because of an internal or provider error.
+  AUTHENTICATION_STATE_REASON_FAILED = 22;
 
-  // Client selected a different authentication challenge.
+  // Client selected a different challenge.
   AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED = 23;
 
   // Challenge resend is not allowed yet.
   AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE = 24;
 
-  // Requested method is not allowed for this client, user, or context.
+  // Requested method is not allowed.
   AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED = 25;
 
-  // Requested provider is not allowed for this client, user, or context.
+  // Requested provider is not allowed.
   AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED = 26;
 }
 
 // AuthenticationErrorCode provides stable typed error codes for SDK branching.
 //
-// Values are safe to expose to clients. Provider-specific error details belong
-// in AuthenticationError.provider_error_code only when the code is safe and does
-// not include raw provider responses or secrets.
+// Precise existence-related codes are for admin, audit, and internal visibility.
+// Public login clients should receive neutral public-safe errors to prevent
+// account, phone, email, or provider-account enumeration.
 enum AuthenticationErrorCode {
   // Authentication error code is not specified.
   AUTHENTICATION_ERROR_CODE_UNSPECIFIED = 0;
 
-  // Subject could not be found or resolved.
-  AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND = 1;
+  // Generic public-safe authentication failure.
+  AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED = 1;
+
+  // Generic public-safe invalid credentials or challenge response.
+  AUTHENTICATION_ERROR_CODE_INVALID_CREDENTIALS = 2;
 
   // Requested authentication method is not allowed.
-  AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED = 2;
+  AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED = 3;
 
   // Requested provider is not allowed.
-  AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED = 3;
+  AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED = 4;
 
   // Provider callback was invalid or failed validation.
-  AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID = 4;
+  AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID = 5;
 
   // Retry attempts were exceeded.
-  AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED = 5;
+  AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED = 6;
 
   // Authentication expired.
-  AUTHENTICATION_ERROR_CODE_EXPIRED = 6;
+  AUTHENTICATION_ERROR_CODE_EXPIRED = 7;
 
   // Authentication was blocked by policy or risk decision.
-  AUTHENTICATION_ERROR_CODE_BLOCKED = 7;
+  AUTHENTICATION_ERROR_CODE_BLOCKED = 8;
 
   // Authentication was denied by the user or provider.
-  AUTHENTICATION_ERROR_CODE_DENIED = 8;
+  AUTHENTICATION_ERROR_CODE_DENIED = 9;
 
   // Internal or technical error.
-  AUTHENTICATION_ERROR_CODE_INTERNAL = 9;
+  AUTHENTICATION_ERROR_CODE_INTERNAL = 10;
+
+  // Subject could not be found or resolved. Do not expose to public login UI.
+  AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND = 11;
+
+  // User could not be found. Do not expose to public login UI.
+  AUTHENTICATION_ERROR_CODE_USER_NOT_FOUND = 12;
+
+  // Phone could not be found. Do not expose to public login UI.
+  AUTHENTICATION_ERROR_CODE_PHONE_NOT_FOUND = 13;
+
+  // Email could not be found. Do not expose to public login UI.
+  AUTHENTICATION_ERROR_CODE_EMAIL_NOT_FOUND = 14;
+
+  // Provider account could not be found. Do not expose to public login UI.
+  AUTHENTICATION_ERROR_CODE_PROVIDER_ACCOUNT_NOT_FOUND = 15;
 }
 
-// AuthenticationError contains safe error details for terminal or problem
-// states.
+// AuthenticationErrorVisibility describes who may receive precise error details.
+enum AuthenticationErrorVisibility {
+  // Authentication error visibility is not specified.
+  AUTHENTICATION_ERROR_VISIBILITY_UNSPECIFIED = 0;
+
+  // Error is safe for public clients.
+  AUTHENTICATION_ERROR_VISIBILITY_PUBLIC = 1;
+
+  // Error is intended for admin or support UI.
+  AUTHENTICATION_ERROR_VISIBILITY_ADMIN = 2;
+
+  // Error is intended only for internal services, logs, or audit.
+  AUTHENTICATION_ERROR_VISIBILITY_INTERNAL = 3;
+}
+
+// AuthenticationError contains safe terminal or actionable error details.
 //
 // It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
-// provider responses, or private risk model details.
+// provider responses, SAML assertions, or private risk model details. Public
+// clients may receive generic messages even when admin/internal views retain a
+// precise code and details.
 message AuthenticationError {
   // Output only. Typed error code for SDK branching.
-  AuthenticationErrorCode typed_code = 1 [
+  AuthenticationErrorCode code = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
   // Output only. Safe human-readable error message.
-  //
-  // This message must not contain stack traces, secrets, tokens, OTP codes,
-  // passwords, or raw provider responses.
   string message = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 1024
   ];
 
-  // Output only. State reason associated with this error.
-  AuthenticationStateReason reason = 3 [
+  // Output only. Indicates whether retrying may succeed.
+  bool retryable = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Visibility scope for the error details.
+  AuthenticationErrorVisibility visibility = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
   // Output only. Provider related to the error, if any.
-  //
-  // Example:
-  // - "google"
-  // - "saml-corp"
-  // - "mobile-id-at"
-  string provider_id = 4 [
+  string provider_id = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Safe provider-level error code, if a provider returned one.
-  //
-  // This must not contain raw provider responses, tokens, assertions, callback
-  // secrets, stack traces, or user-entered secrets.
-  string provider_error_code = 5 [
+  // Output only. Safe provider-level error code.
+  string provider_error_code = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Indicates whether retrying the same operation may succeed.
-  bool retryable = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Output only. Additional public-safe structured details.
+  map<string, string> details = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).map = {
+      max_pairs: 32
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+      values: {
+        string: {max_len: 512}
+      }
+    }
+  ];
 }

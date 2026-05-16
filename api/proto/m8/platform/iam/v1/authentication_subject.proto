@@ -87,6 +87,16 @@ message AuthenticationSubject {
     message: "EXTERNAL_IDENTITY subject requires provider_id"
     expression: "this.type != 6 || this.provider_id != ''"
   };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.provider_id_scope"
+    message: "provider_id is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT"
+    expression: "this.provider_id == '' || this.type == 6 || this.type == 2"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_subject.issuer_scope"
+    message: "issuer is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT"
+    expression: "this.issuer == '' || this.type == 6 || this.type == 2"
+  };
 
   // Required. Type of identifier represented by value.
   // The value is always one of the defined non-zero enum values.
@@ -119,7 +129,10 @@ message AuthenticationSubject {
   string value = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 4096
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 4096
+    }
   ];
 
   // Optional. Provider identifier that scopes provider-specific subject values.
@@ -128,8 +141,8 @@ message AuthenticationSubject {
   // Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
   // AuthenticationSubject.provider_id must not be used to select the login provider.
   //
-  // This field should normally be set only when type is EXTERNAL_IDENTITY,
-  // or when LOGIN_HINT is explicitly provider-scoped.
+  // This field is allowed only when type is EXTERNAL_IDENTITY, or when
+  // LOGIN_HINT is explicitly provider-scoped.
   // This field is required when type is EXTERNAL_IDENTITY.
   //
   // Example:
