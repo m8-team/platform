@@ -138,19 +138,12 @@ enum AuthenticationErrorCode {
 // It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
 // provider responses, or private risk model details.
 message AuthenticationError {
-  // Output only. Deprecated. Use typed_code for SDK branching.
-  //
-  // Legacy stable machine-readable error code.
-  //
-  // Example:
-  // - "subject_not_found"
-  // - "method_not_allowed"
-  // - "provider_callback_invalid"
-  // - "attempts_exceeded"
-  string code = 1 [
-    deprecated = true,
+  reserved 1;
+
+  // Output only. Typed error code for SDK branching.
+  AuthenticationErrorCode typed_code = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
+    (buf.validate.field).enum.defined_only = true
   ];
 
   // Output only. Safe human-readable error message.
@@ -179,15 +172,6 @@ message AuthenticationError {
     (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Indicates whether retrying the same operation may succeed.
-  bool retryable = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Typed error code for SDK branching.
-  AuthenticationErrorCode typed_code = 6 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
-
   // Output only. Safe provider-level error code, if a provider returned one.
   //
   // This must not contain raw provider responses, tokens, assertions, callback
@@ -196,4 +180,7 @@ message AuthenticationError {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
+
+  // Output only. Indicates whether retrying the same operation may succeed.
+  bool retryable = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

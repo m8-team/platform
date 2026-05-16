@@ -167,6 +167,8 @@ message RequestContext {
 // ClientContext describes the resolved OAuth, OIDC, or application client
 // configuration used to drive authentication policy and login UI selection.
 message ClientContext {
+  reserved 5;
+
   // ApplicationType identifies the broad class of client application.
   enum ApplicationType {
     // Application type is not specified.
@@ -252,20 +254,17 @@ message ClientContext {
     }
   ];
 
-  // Output only. Deprecated. Use allowed_authentication_methods instead.
-  //
-  // Legacy string method identifiers allowed by the resolved client policy.
-  // The typed allowed_authentication_methods field is the canonical contract for
-  // standard methods.
-  repeated string allowed_methods = 5 [
-    deprecated = true,
+  // Output only. Typed authentication methods allowed by the resolved client
+  // policy and server-side risk decision. Dynamic login UI should prefer this
+  // field for standard method selection.
+  repeated AuthenticationMethod allowed_authentication_methods = 9 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 32
       items: {
-        string: {
-          min_len: 1
-          max_len: 64
+        enum: {
+          defined_only: true
+          not_in: [0]
         }
       }
     }
@@ -297,22 +296,6 @@ message ClientContext {
   // Output only. Indicates whether the resolved client is public and cannot keep
   // a client secret. It is used by policy and protocol handling.
   bool public_client = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Typed authentication methods allowed by the resolved client
-  // policy and server-side risk decision. Dynamic login UI should prefer this
-  // field over the deprecated allowed_methods strings.
-  repeated AuthenticationMethod allowed_authentication_methods = 9 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {
-      max_items: 32
-      items: {
-        enum: {
-          defined_only: true
-          not_in: [0]
-        }
-      }
-    }
-  ];
 }
 
 // SessionContext describes the existing authentication session used for

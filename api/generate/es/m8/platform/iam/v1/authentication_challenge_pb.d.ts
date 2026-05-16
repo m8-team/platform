@@ -129,6 +129,19 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
   method: AuthenticationMethod;
 
   /**
+   * Output only. Typed list of actions currently available for this challenge.
+   *
+   * Examples:
+   * - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+   * - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+   * - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+   * - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 10;
+   */
+  actions: AuthenticationChallengeAction[];
+
+  /**
    * Output only. Identifier of the identity provider or channel provider used
    * by this challenge.
    *
@@ -175,35 +188,6 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
    * @generated from field: string masked_destination = 8;
    */
   maskedDestination: string;
-
-  /**
-   * Output only. Deprecated. Use actions instead.
-   *
-   * Legacy string actions currently available for this challenge.
-   *
-   * Deprecated examples:
-   * - "submit"
-   * - "resend"
-   * - "cancel"
-   * - "select_another_method"
-   *
-   * @generated from field: repeated string available_actions = 9 [deprecated = true];
-   * @deprecated
-   */
-  availableActions: string[];
-
-  /**
-   * Output only. Typed list of actions currently available for this challenge.
-   *
-   * Examples:
-   * - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-   * - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-   * - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-   * - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-   *
-   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 10;
-   */
-  actions: AuthenticationChallengeAction[];
 
   /**
    * @generated from oneof m8.platform.iam.v1.AuthenticationChallengeInfo.public_parameters
@@ -375,17 +359,6 @@ export declare type WebAuthnChallenge = Message<"m8.platform.iam.v1.WebAuthnChal
    * @generated from field: m8.platform.iam.v1.UserVerificationRequirement user_verification = 4;
    */
   userVerification: UserVerificationRequirement;
-
-  /**
-   * Output only. Deprecated legacy browser SDK shortcut. Use allow_credentials
-   * for typed WebAuthn PublicKeyCredentialDescriptor data.
-   *
-   * Empty list means discoverable credentials or resident keys may be used.
-   *
-   * @generated from field: repeated string allowed_credential_ids = 5 [deprecated = true];
-   * @deprecated
-   */
-  allowedCredentialIds: string[];
 
   /**
    * Output only. Public credential descriptors allowed for this assertion.

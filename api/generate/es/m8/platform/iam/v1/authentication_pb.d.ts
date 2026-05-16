@@ -462,23 +462,6 @@ export enum Authentication_State {
   STEP_UP_REQUIRED = 10,
 
   /**
-   * Deprecated. Use AUTHORIZATION_HANDOFF_PENDING for local authentication
-   * success that is waiting for authorization, session, or token handoff.
-   *
-   * Provider callback waiting is represented by WAITING_FOR_USER with
-   * current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
-   * or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
-   *
-   * Example:
-   * - M8 Authentication has verified the user
-   * - external authorization callback is not yet sent or not yet acknowledged
-   *
-   * @generated from enum value: CALLBACK_PENDING = 11 [deprecated = true];
-   * @deprecated
-   */
-  CALLBACK_PENDING = 11,
-
-  /**
    * Authentication finalization is in progress.
    *
    * Example:

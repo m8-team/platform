@@ -631,48 +631,6 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
   loginExperienceVersion: string;
 
   /**
-   * Optional. Preferred authentication provider identifier.
-   * This selects a provider, channel, or provider integration for the requested
-   * method. AuthenticationSubject.provider_id scopes subject identifiers and
-   * must not be used to select the login provider.
-   *
-   * Example:
-   * - WebAuthn provider id for passkey authentication
-   * - OIDC provider id for external identity provider login
-   * - Mobile ID provider id for mobile operator authentication
-   *
-   * @generated from field: string requested_provider_id = 2;
-   */
-  requestedProviderId: string;
-
-  /**
-   * Optional. Deprecated. Use requested_authentication_method for standard
-   * methods and requested_method_id for custom, provider, or plugin methods.
-   *
-   * Deprecated examples:
-   * - "passkey"
-   * - "password"
-   * - "otp"
-   * - "mobile_id"
-   *
-   * @generated from field: string requested_method = 3 [deprecated = true];
-   * @deprecated
-   */
-  requestedMethod: string;
-
-  /**
-   * Optional. Requested Authentication Context Class Reference values.
-   *
-   * Example:
-   * - "AAL1" for normal login
-   * - "AAL2" for multi-factor authentication
-   * - "AAL3" for hardware-backed phishing-resistant authentication
-   *
-   * @generated from field: repeated string acr_values = 4;
-   */
-  acrValues: string[];
-
-  /**
    * Optional. Preferred standard authentication method requested by the client.
    *
    * Use requested_method_id for custom, provider, or plugin methods not modeled
@@ -691,6 +649,33 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * @generated from field: string requested_method_id = 6;
    */
   requestedMethodId: string;
+
+  /**
+   * Optional. Preferred authentication provider identifier.
+   * This selects a provider, channel, or provider integration for the requested
+   * method. AuthenticationSubject.provider_id scopes subject identifiers and
+   * must not be used to select the login provider.
+   *
+   * Example:
+   * - WebAuthn provider id for passkey authentication
+   * - OIDC provider id for external identity provider login
+   * - Mobile ID provider id for mobile operator authentication
+   *
+   * @generated from field: string requested_provider_id = 2;
+   */
+  requestedProviderId: string;
+
+  /**
+   * Optional. Requested Authentication Context Class Reference values.
+   *
+   * Example:
+   * - "AAL1" for normal login
+   * - "AAL2" for multi-factor authentication
+   * - "AAL3" for hardware-backed phishing-resistant authentication
+   *
+   * @generated from field: repeated string acr_values = 4;
+   */
+  acrValues: string[];
 };
 
 /**

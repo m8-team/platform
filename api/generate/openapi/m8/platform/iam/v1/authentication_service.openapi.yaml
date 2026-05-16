@@ -455,7 +455,6 @@ components:
                         - VERIFYING
                         - CHALLENGE_RETRY_REQUIRED
                         - STEP_UP_REQUIRED
-                        - CALLBACK_PENDING
                         - FINALIZING
                         - AUTHORIZATION_HANDOFF_PENDING
                         - AUTHENTICATED
@@ -727,6 +726,26 @@ components:
                     type: string
                     description: Output only. Authentication method selected for this challenge.
                     format: enum
+                actions:
+                    readOnly: true
+                    type: array
+                    items:
+                        enum:
+                            - AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED
+                            - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+                            - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+                            - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+                            - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+                        type: string
+                        format: enum
+                    description: |-
+                        Output only. Typed list of actions currently available for this challenge.
+
+                         Examples:
+                         - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+                         - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+                         - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+                         - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
                 providerId:
                     readOnly: true
                     type: string
@@ -766,41 +785,6 @@ components:
                          - "+43******4567"
                          - "s***@example.com"
                          - "iPhone 15 Pro"
-                availableActions:
-                    readOnly: true
-                    type: array
-                    items:
-                        type: string
-                    description: |-
-                        Output only. Deprecated. Use actions instead.
-
-                         Legacy string actions currently available for this challenge.
-
-                         Deprecated examples:
-                         - "submit"
-                         - "resend"
-                         - "cancel"
-                         - "select_another_method"
-                actions:
-                    readOnly: true
-                    type: array
-                    items:
-                        enum:
-                            - AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED
-                            - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-                            - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-                            - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-                            - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-                        type: string
-                        format: enum
-                    description: |-
-                        Output only. Typed list of actions currently available for this challenge.
-
-                         Examples:
-                         - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-                         - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-                         - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-                         - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
                 otp:
                     readOnly: true
                     allOf:
@@ -994,19 +978,22 @@ components:
         AuthenticationError:
             type: object
             properties:
-                code:
+                typedCode:
                     readOnly: true
+                    enum:
+                        - AUTHENTICATION_ERROR_CODE_UNSPECIFIED
+                        - AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND
+                        - AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED
+                        - AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED
+                        - AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID
+                        - AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED
+                        - AUTHENTICATION_ERROR_CODE_EXPIRED
+                        - AUTHENTICATION_ERROR_CODE_BLOCKED
+                        - AUTHENTICATION_ERROR_CODE_DENIED
+                        - AUTHENTICATION_ERROR_CODE_INTERNAL
                     type: string
-                    description: |-
-                        Output only. Deprecated. Use typed_code for SDK branching.
-
-                         Legacy stable machine-readable error code.
-
-                         Example:
-                         - "subject_not_found"
-                         - "method_not_allowed"
-                         - "provider_callback_invalid"
-                         - "attempts_exceeded"
+                    description: Output only. Typed error code for SDK branching.
+                    format: enum
                 message:
                     readOnly: true
                     type: string
@@ -1058,26 +1045,6 @@ components:
                          - "google"
                          - "saml-corp"
                          - "mobile-id-at"
-                retryable:
-                    readOnly: true
-                    type: boolean
-                    description: Output only. Indicates whether retrying the same operation may succeed.
-                typedCode:
-                    readOnly: true
-                    enum:
-                        - AUTHENTICATION_ERROR_CODE_UNSPECIFIED
-                        - AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND
-                        - AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED
-                        - AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED
-                        - AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID
-                        - AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED
-                        - AUTHENTICATION_ERROR_CODE_EXPIRED
-                        - AUTHENTICATION_ERROR_CODE_BLOCKED
-                        - AUTHENTICATION_ERROR_CODE_DENIED
-                        - AUTHENTICATION_ERROR_CODE_INTERNAL
-                    type: string
-                    description: Output only. Typed error code for SDK branching.
-                    format: enum
                 providerErrorCode:
                     readOnly: true
                     type: string
@@ -1086,6 +1053,10 @@ components:
 
                          This must not contain raw provider responses, tokens, assertions, callback
                          secrets, stack traces, or user-entered secrets.
+                retryable:
+                    readOnly: true
+                    type: boolean
+                    description: Output only. Indicates whether retrying the same operation may succeed.
             description: |-
                 AuthenticationError contains safe error details for terminal or problem
                  states.
@@ -1104,40 +1075,6 @@ components:
                          - "default"
                          - "passkey-first"
                          - "passwordless-v2"
-                requestedProviderId:
-                    type: string
-                    description: |-
-                        Optional. Preferred authentication provider identifier.
-                         This selects a provider, channel, or provider integration for the requested
-                         method. AuthenticationSubject.provider_id scopes subject identifiers and
-                         must not be used to select the login provider.
-
-                         Example:
-                         - WebAuthn provider id for passkey authentication
-                         - OIDC provider id for external identity provider login
-                         - Mobile ID provider id for mobile operator authentication
-                requestedMethod:
-                    type: string
-                    description: |-
-                        Optional. Deprecated. Use requested_authentication_method for standard
-                         methods and requested_method_id for custom, provider, or plugin methods.
-
-                         Deprecated examples:
-                         - "passkey"
-                         - "password"
-                         - "otp"
-                         - "mobile_id"
-                acrValues:
-                    type: array
-                    items:
-                        type: string
-                    description: |-
-                        Optional. Requested Authentication Context Class Reference values.
-
-                         Example:
-                         - "AAL1" for normal login
-                         - "AAL2" for multi-factor authentication
-                         - "AAL3" for hardware-backed phishing-resistant authentication
                 requestedAuthenticationMethod:
                     enum:
                         - AUTHENTICATION_METHOD_UNSPECIFIED
@@ -1166,6 +1103,29 @@ components:
 
                          This complements requested_authentication_method and must be interpreted
                          against server-side client, provider, and policy configuration.
+                requestedProviderId:
+                    type: string
+                    description: |-
+                        Optional. Preferred authentication provider identifier.
+                         This selects a provider, channel, or provider integration for the requested
+                         method. AuthenticationSubject.provider_id scopes subject identifiers and
+                         must not be used to select the login provider.
+
+                         Example:
+                         - WebAuthn provider id for passkey authentication
+                         - OIDC provider id for external identity provider login
+                         - Mobile ID provider id for mobile operator authentication
+                acrValues:
+                    type: array
+                    items:
+                        type: string
+                    description: |-
+                        Optional. Requested Authentication Context Class Reference values.
+
+                         Example:
+                         - "AAL1" for normal login
+                         - "AAL2" for multi-factor authentication
+                         - "AAL3" for hardware-backed phishing-resistant authentication
             description: |-
                 AuthenticationStartOptions contains optional client preferences for starting authentication.
 
@@ -1354,17 +1314,29 @@ components:
                         Optional. Browser origin supplied by the client or gateway. The server uses
                          it for UI policy, CORS-related checks, and audit, after validating it
                          against the registered client configuration.
-                allowedMethods:
+                allowedAuthenticationMethods:
                     readOnly: true
                     type: array
                     items:
+                        enum:
+                            - AUTHENTICATION_METHOD_UNSPECIFIED
+                            - AUTHENTICATION_METHOD_PASSWORD
+                            - AUTHENTICATION_METHOD_SMS_OTP
+                            - AUTHENTICATION_METHOD_EMAIL_OTP
+                            - AUTHENTICATION_METHOD_TOTP
+                            - AUTHENTICATION_METHOD_PUSH_APPROVAL
+                            - AUTHENTICATION_METHOD_PUSH_OTP
+                            - AUTHENTICATION_METHOD_SIM_PUSH
+                            - AUTHENTICATION_METHOD_MOBILE_ID
+                            - AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
+                            - AUTHENTICATION_METHOD_OIDC
+                            - AUTHENTICATION_METHOD_SAML
                         type: string
+                        format: enum
                     description: |-
-                        Output only. Deprecated. Use allowed_authentication_methods instead.
-
-                         Legacy string method identifiers allowed by the resolved client policy.
-                         The typed allowed_authentication_methods field is the canonical contract for
-                         standard methods.
+                        Output only. Typed authentication methods allowed by the resolved client
+                         policy and server-side risk decision. Dynamic login UI should prefer this
+                         field for standard method selection.
                 allowedProviderIds:
                     readOnly: true
                     type: array
@@ -1394,29 +1366,6 @@ components:
                     description: |-
                         Output only. Indicates whether the resolved client is public and cannot keep
                          a client secret. It is used by policy and protocol handling.
-                allowedAuthenticationMethods:
-                    readOnly: true
-                    type: array
-                    items:
-                        enum:
-                            - AUTHENTICATION_METHOD_UNSPECIFIED
-                            - AUTHENTICATION_METHOD_PASSWORD
-                            - AUTHENTICATION_METHOD_SMS_OTP
-                            - AUTHENTICATION_METHOD_EMAIL_OTP
-                            - AUTHENTICATION_METHOD_TOTP
-                            - AUTHENTICATION_METHOD_PUSH_APPROVAL
-                            - AUTHENTICATION_METHOD_PUSH_OTP
-                            - AUTHENTICATION_METHOD_SIM_PUSH
-                            - AUTHENTICATION_METHOD_MOBILE_ID
-                            - AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
-                            - AUTHENTICATION_METHOD_OIDC
-                            - AUTHENTICATION_METHOD_SAML
-                        type: string
-                        format: enum
-                    description: |-
-                        Output only. Typed authentication methods allowed by the resolved client
-                         policy and server-side risk decision. Dynamic login UI should prefer this
-                         field over the deprecated allowed_methods strings.
             description: |-
                 ClientContext describes the resolved OAuth, OIDC, or application client
                  configuration used to drive authentication policy and login UI selection.
@@ -3030,16 +2979,6 @@ components:
                     type: string
                     description: Output only. WebAuthn user verification requirement.
                     format: enum
-                allowedCredentialIds:
-                    readOnly: true
-                    type: array
-                    items:
-                        type: string
-                    description: |-
-                        Output only. Deprecated legacy browser SDK shortcut. Use allow_credentials
-                         for typed WebAuthn PublicKeyCredentialDescriptor data.
-
-                         Empty list means discoverable credentials or resident keys may be used.
                 allowCredentials:
                     readOnly: true
                     type: array

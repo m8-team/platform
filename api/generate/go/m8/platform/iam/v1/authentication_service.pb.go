@@ -1075,34 +1075,6 @@ type AuthenticationStartOptions struct {
 	// - "passkey-first"
 	// - "passwordless-v2"
 	LoginExperienceVersion string `protobuf:"bytes,1,opt,name=login_experience_version,json=loginExperienceVersion,proto3" json:"login_experience_version,omitempty"`
-	// Optional. Preferred authentication provider identifier.
-	// This selects a provider, channel, or provider integration for the requested
-	// method. AuthenticationSubject.provider_id scopes subject identifiers and
-	// must not be used to select the login provider.
-	//
-	// Example:
-	// - WebAuthn provider id for passkey authentication
-	// - OIDC provider id for external identity provider login
-	// - Mobile ID provider id for mobile operator authentication
-	RequestedProviderId string `protobuf:"bytes,2,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
-	// Optional. Deprecated. Use requested_authentication_method for standard
-	// methods and requested_method_id for custom, provider, or plugin methods.
-	//
-	// Deprecated examples:
-	// - "passkey"
-	// - "password"
-	// - "otp"
-	// - "mobile_id"
-	//
-	// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_service.proto.
-	RequestedMethod string `protobuf:"bytes,3,opt,name=requested_method,json=requestedMethod,proto3" json:"requested_method,omitempty"`
-	// Optional. Requested Authentication Context Class Reference values.
-	//
-	// Example:
-	// - "AAL1" for normal login
-	// - "AAL2" for multi-factor authentication
-	// - "AAL3" for hardware-backed phishing-resistant authentication
-	AcrValues []string `protobuf:"bytes,4,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
 	// Optional. Preferred standard authentication method requested by the client.
 	//
 	// Use requested_method_id for custom, provider, or plugin methods not modeled
@@ -1113,8 +1085,25 @@ type AuthenticationStartOptions struct {
 	// This complements requested_authentication_method and must be interpreted
 	// against server-side client, provider, and policy configuration.
 	RequestedMethodId string `protobuf:"bytes,6,opt,name=requested_method_id,json=requestedMethodId,proto3" json:"requested_method_id,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Optional. Preferred authentication provider identifier.
+	// This selects a provider, channel, or provider integration for the requested
+	// method. AuthenticationSubject.provider_id scopes subject identifiers and
+	// must not be used to select the login provider.
+	//
+	// Example:
+	// - WebAuthn provider id for passkey authentication
+	// - OIDC provider id for external identity provider login
+	// - Mobile ID provider id for mobile operator authentication
+	RequestedProviderId string `protobuf:"bytes,2,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
+	// Optional. Requested Authentication Context Class Reference values.
+	//
+	// Example:
+	// - "AAL1" for normal login
+	// - "AAL2" for multi-factor authentication
+	// - "AAL3" for hardware-backed phishing-resistant authentication
+	AcrValues     []string `protobuf:"bytes,4,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AuthenticationStartOptions) Reset() {
@@ -1154,28 +1143,6 @@ func (x *AuthenticationStartOptions) GetLoginExperienceVersion() string {
 	return ""
 }
 
-func (x *AuthenticationStartOptions) GetRequestedProviderId() string {
-	if x != nil {
-		return x.RequestedProviderId
-	}
-	return ""
-}
-
-// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication_service.proto.
-func (x *AuthenticationStartOptions) GetRequestedMethod() string {
-	if x != nil {
-		return x.RequestedMethod
-	}
-	return ""
-}
-
-func (x *AuthenticationStartOptions) GetAcrValues() []string {
-	if x != nil {
-		return x.AcrValues
-	}
-	return nil
-}
-
 func (x *AuthenticationStartOptions) GetRequestedAuthenticationMethod() AuthenticationMethod {
 	if x != nil {
 		return x.RequestedAuthenticationMethod
@@ -1188,6 +1155,20 @@ func (x *AuthenticationStartOptions) GetRequestedMethodId() string {
 		return x.RequestedMethodId
 	}
 	return ""
+}
+
+func (x *AuthenticationStartOptions) GetRequestedProviderId() string {
+	if x != nil {
+		return x.RequestedProviderId
+	}
+	return ""
+}
+
+func (x *AuthenticationStartOptions) GetAcrValues() []string {
+	if x != nil {
+		return x.AcrValues
+	}
+	return nil
 }
 
 var File_m8_platform_iam_v1_authentication_service_proto protoreflect.FileDescriptor
@@ -1272,15 +1253,14 @@ const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\fredirect_uri\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\vredirectUri\x12!\n" +
 	"\tcompleted\x18\x03 \x01(\bB\x03\xe0A\x03R\tcompleted\"w\n" +
 	"$StartAuthenticationOperationMetadata\x12O\n" +
-	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"\xb6\x03\n" +
+	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"\x82\x03\n" +
 	"\x1aAuthenticationStartOptions\x12=\n" +
-	"\x18login_experience_version\x18\x01 \x01(\tB\x03\xe0A\x01R\x16loginExperienceVersion\x12?\n" +
-	"\x15requested_provider_id\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x13requestedProviderId\x128\n" +
-	"\x10requested_method\x18\x03 \x01(\tB\r\xe0A\x01\xbaH\x05r\x03\x18\xff\x01\x18\x01R\x0frequestedMethod\x12\"\n" +
-	"\n" +
-	"acr_values\x18\x04 \x03(\tB\x03\xe0A\x01R\tacrValues\x12}\n" +
+	"\x18login_experience_version\x18\x01 \x01(\tB\x03\xe0A\x01R\x16loginExperienceVersion\x12}\n" +
 	"\x1frequested_authentication_method\x18\x05 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\x1drequestedAuthenticationMethod\x12;\n" +
-	"\x13requested_method_id\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x11requestedMethodId2\xea\x17\n" +
+	"\x13requested_method_id\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x11requestedMethodId\x12?\n" +
+	"\x15requested_provider_id\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x13requestedProviderId\x12\"\n" +
+	"\n" +
+	"acr_values\x18\x04 \x03(\tB\x03\xe0A\x01R\tacrValuesJ\x04\b\x03\x10\x042\xea\x17\n" +
 	"\x15AuthenticationService\x12\xeb\x02\n" +
 	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\x84\x02\xcaA6\n" +
 	"\x0eAuthentication\x12$StartAuthenticationOperationMetadata\xdaA\x1cclient_id,subject,request_id\xbaG~\x12\x05Start\x1a`Starts a new authentication workflow and returns a long-running operation for tracking progress.*\x13StartAuthentication\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02\x12\xcc\x02\n" +

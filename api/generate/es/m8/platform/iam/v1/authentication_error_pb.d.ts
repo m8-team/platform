@@ -21,20 +21,11 @@ export declare const file_m8_platform_iam_v1_authentication_error: GenFile;
  */
 export declare type AuthenticationError = Message<"m8.platform.iam.v1.AuthenticationError"> & {
   /**
-   * Output only. Deprecated. Use typed_code for SDK branching.
+   * Output only. Typed error code for SDK branching.
    *
-   * Legacy stable machine-readable error code.
-   *
-   * Example:
-   * - "subject_not_found"
-   * - "method_not_allowed"
-   * - "provider_callback_invalid"
-   * - "attempts_exceeded"
-   *
-   * @generated from field: string code = 1 [deprecated = true];
-   * @deprecated
+   * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode typed_code = 6;
    */
-  code: string;
+  typedCode: AuthenticationErrorCode;
 
   /**
    * Output only. Safe human-readable error message.
@@ -66,20 +57,6 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
   providerId: string;
 
   /**
-   * Output only. Indicates whether retrying the same operation may succeed.
-   *
-   * @generated from field: bool retryable = 5;
-   */
-  retryable: boolean;
-
-  /**
-   * Output only. Typed error code for SDK branching.
-   *
-   * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode typed_code = 6;
-   */
-  typedCode: AuthenticationErrorCode;
-
-  /**
    * Output only. Safe provider-level error code, if a provider returned one.
    *
    * This must not contain raw provider responses, tokens, assertions, callback
@@ -88,6 +65,13 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
    * @generated from field: string provider_error_code = 7;
    */
   providerErrorCode: string;
+
+  /**
+   * Output only. Indicates whether retrying the same operation may succeed.
+   *
+   * @generated from field: bool retryable = 5;
+   */
+  retryable: boolean;
 };
 
 /**

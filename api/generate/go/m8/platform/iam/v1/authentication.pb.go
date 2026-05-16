@@ -129,19 +129,6 @@ const (
 	// - requested acr_values require stronger authentication
 	// - sensitive operation requires fresh authentication
 	Authentication_STEP_UP_REQUIRED Authentication_State = 10
-	// Deprecated. Use AUTHORIZATION_HANDOFF_PENDING for local authentication
-	// success that is waiting for authorization, session, or token handoff.
-	//
-	// Provider callback waiting is represented by WAITING_FOR_USER with
-	// current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
-	// or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
-	//
-	// Example:
-	// - M8 Authentication has verified the user
-	// - external authorization callback is not yet sent or not yet acknowledged
-	//
-	// Deprecated: Marked as deprecated in m8/platform/iam/v1/authentication.proto.
-	Authentication_CALLBACK_PENDING Authentication_State = 11
 	// Authentication finalization is in progress.
 	//
 	// Example:
@@ -230,7 +217,6 @@ var (
 		8:  "VERIFYING",
 		9:  "CHALLENGE_RETRY_REQUIRED",
 		10: "STEP_UP_REQUIRED",
-		11: "CALLBACK_PENDING",
 		12: "FINALIZING",
 		13: "AUTHORIZATION_HANDOFF_PENDING",
 		20: "AUTHENTICATED",
@@ -253,7 +239,6 @@ var (
 		"VERIFYING":                     8,
 		"CHALLENGE_RETRY_REQUIRED":      9,
 		"STEP_UP_REQUIRED":              10,
-		"CALLBACK_PENDING":              11,
 		"FINALIZING":                    12,
 		"AUTHORIZATION_HANDOFF_PENDING": 13,
 		"AUTHENTICATED":                 20,
@@ -837,7 +822,7 @@ var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\x80\x10\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\xec\x0f\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12-\n" +
 	"\n" +
@@ -866,7 +851,7 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\fstate_reason\x18\x12 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\vstateReason\x12q\n" +
 	"\x14available_challenges\x18\x13 \x03(\v21.m8.platform.iam.v1.AuthenticationChallengeOptionB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10 R\x13availableChallenges\x12B\n" +
 	"\x05error\x18\x11 \x01(\v2'.m8.platform.iam.v1.AuthenticationErrorB\x03\xe0A\x03R\x05error\x12\x17\n" +
-	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\xa0\x03\n" +
+	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\x8c\x03\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aCREATED\x10\x01\x12\x10\n" +
@@ -880,8 +865,7 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\tVERIFYING\x10\b\x12\x1c\n" +
 	"\x18CHALLENGE_RETRY_REQUIRED\x10\t\x12\x14\n" +
 	"\x10STEP_UP_REQUIRED\x10\n" +
-	"\x12\x18\n" +
-	"\x10CALLBACK_PENDING\x10\v\x1a\x02\b\x01\x12\x0e\n" +
+	"\x12\x0e\n" +
 	"\n" +
 	"FINALIZING\x10\f\x12!\n" +
 	"\x1dAUTHORIZATION_HANDOFF_PENDING\x10\r\x12\x11\n" +
@@ -893,7 +877,7 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\x11ATTEMPTS_EXCEEDED\x10\x18\x12\v\n" +
 	"\aBLOCKED\x10\x19\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x1a\"|\n" +
+	"\x06FAILED\x10\x1a\"\x04\b\v\x10\v\"|\n" +
 	"\tChallenge\x12\x19\n" +
 	"\x15CHALLENGE_UNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03OTP\x10\x01\x12\f\n" +
