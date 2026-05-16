@@ -474,4 +474,19 @@ message Authentication {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
+
+  AuthenticationError error = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string etag = 20 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message AuthenticationError {
+  string code = 1;
+  string message = 2;
+  string provider_id = 3;
+  string reason = 4;
 }

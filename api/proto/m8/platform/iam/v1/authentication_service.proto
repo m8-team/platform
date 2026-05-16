@@ -47,7 +47,8 @@ message StartAuthenticationRequest {
   // Required. Immutable client application identifier that initiates authentication.
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
   ];
 
   // Optional. Subject identifier or hint used to resolve the authenticating user.
@@ -63,6 +64,12 @@ message StartAuthenticationRequest {
   // Optional. Client preferences that influence authentication workflow selection.
   AuthenticationStartOptions options = 4 [
     (google.api.field_behavior) = OPTIONAL
+  ];
+
+  string request_id = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
   ];
 }
 
