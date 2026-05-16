@@ -6,6 +6,7 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/iam/v1/authentication_challenge.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -403,8 +404,13 @@ message Authentication {
     }
   ];
 
-  // Output only. Challenge selected for this authentication operation.
-  // The value is always one of the defined non-zero enum values.
+  // Output only. Summary challenge type selected for this authentication operation.
+  //
+  // For detailed public-safe challenge parameters, use current_challenge. This
+  // field is kept for backward-compatible clients that only need the coarse
+  // challenge type.
+  //
+  // The value may be CHALLENGE_UNSPECIFIED before challenge selection.
   //
   // Example:
   // - OTP for one-time password authentication
@@ -493,6 +499,23 @@ message Authentication {
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
+
+  // Output only. Current challenge that the client or user must complete.
+  //
+  // This field contains only public-safe challenge parameters. It must not
+  // contain OTP codes, passwords, provider secrets, private tokens, or internal
+  // callback secrets.
+  //
+  // This field may be empty while the operation is in CREATED, INITIALIZING,
+  // IDENTIFYING, or EVALUATING.
+  //
+  // This field should be filled after the flow reaches CHALLENGE_PREPARING,
+  // CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
+  // STEP_UP_REQUIRED, or CALLBACK_PENDING.
+  //
+  // For terminal states, this field may remain filled as the last known
+  // challenge summary, but it must still contain only public-safe data.
+  AuthenticationChallengeInfo current_challenge = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   AuthenticationError error = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
 
