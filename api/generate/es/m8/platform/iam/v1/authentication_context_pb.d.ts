@@ -5,8 +5,7 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { Duration, Timestamp } from "@bufbuild/protobuf/wkt";
-import type { AuthenticationMethod } from "./authentication_challenge_pb";
-import type { Authentication_AssuranceLevel } from "./authentication_pb";
+import type { AuthenticationAssuranceLevel } from "./authentication_common_pb";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication_context.proto.
@@ -14,108 +13,158 @@ import type { Authentication_AssuranceLevel } from "./authentication_pb";
 export declare const file_m8_platform_iam_v1_authentication_context: GenFile;
 
 /**
- * AuthenticationContext contains decision input for an authentication operation.
+ * AuthenticationStartContext contains client-provided safe hints for starting
+ * authentication.
  *
- * It combines request, client, session, device, network, protocol, resource,
- * and risk signals used by Authentication Service, Risk Decision, dynamic login
- * UI, step-up policy, rate limiting, audit, and workflow orchestration.
+ * Hints are not authoritative security facts. Clients must not send resolved
+ * tenant ids, risk decisions, geolocation enrichment, raw device fingerprints,
+ * provider trust decisions, passwords, OTP codes, callback payloads, or tokens.
  *
- * The context is intentionally partial: different callers and server-side
- * enrichment stages can fill different sections. It must not contain passwords,
- * OTP codes, raw provider tokens, callback secrets, raw fingerprint payloads, or
- * private risk model features.
+ * @generated from message m8.platform.iam.v1.AuthenticationStartContext
+ */
+export declare type AuthenticationStartContext = Message<"m8.platform.iam.v1.AuthenticationStartContext"> & {
+  /**
+   * Optional. Request-level hints from a client, gateway, or BFF.
+   *
+   * @generated from field: m8.platform.iam.v1.RequestHint request = 1;
+   */
+  request?: RequestHint;
+
+  /**
+   * Optional. Existing-session hints for reauthentication or step-up.
+   *
+   * @generated from field: m8.platform.iam.v1.SessionHint session = 2;
+   */
+  session?: SessionHint;
+
+  /**
+   * Optional. Resource or business-operation hints.
+   *
+   * @generated from field: m8.platform.iam.v1.ResourceHint resource = 3;
+   */
+  resource?: ResourceHint;
+
+  /**
+   * Optional. UI and interaction hints.
+   *
+   * @generated from field: m8.platform.iam.v1.InteractionHint interaction = 4;
+   */
+  interaction?: InteractionHint;
+
+  /**
+   * Optional. Device, browser, app, or SDK hints.
+   *
+   * @generated from field: m8.platform.iam.v1.DeviceHint device = 5;
+   */
+  device?: DeviceHint;
+
+  /**
+   * Optional. Network hints supplied by a trusted gateway or BFF.
+   *
+   * @generated from field: m8.platform.iam.v1.NetworkHint network = 6;
+   */
+  network?: NetworkHint;
+
+  /**
+   * Optional. OIDC/OAuth request hints.
+   *
+   * @generated from field: m8.platform.iam.v1.OidcRequestHint oidc = 7;
+   */
+  oidc?: OidcRequestHint;
+
+  /**
+   * Optional. CIBA request hints.
+   *
+   * @generated from field: m8.platform.iam.v1.CibaRequestHint ciba = 8;
+   */
+  ciba?: CibaRequestHint;
+
+  /**
+   * Optional. Transaction confirmation hints.
+   *
+   * @generated from field: m8.platform.iam.v1.TransactionHint transaction = 9;
+   */
+  transaction?: TransactionHint;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationStartContext.
+ * Use `create(AuthenticationStartContextSchema)` to create a new message.
+ */
+export declare const AuthenticationStartContextSchema: GenMessage<AuthenticationStartContext>;
+
+/**
+ * AuthenticationContext is the public-safe server-normalized output context.
+ *
+ * It must not blindly echo raw client input and must not contain risk/debug
+ * fields, raw provider tokens, raw callback payloads, raw device fingerprints,
+ * passwords, OTP codes, or bearer session secrets.
  *
  * @generated from message m8.platform.iam.v1.AuthenticationContext
  */
 export declare type AuthenticationContext = Message<"m8.platform.iam.v1.AuthenticationContext"> & {
   /**
-   * Optional. Request-level metadata supplied by the client, gateway, or BFF.
-   * It is used for idempotency, tracing, rate limiting, audit correlation, and
-   * workflow orchestration.
+   * Output only. Normalized request context.
    *
    * @generated from field: m8.platform.iam.v1.RequestContext request = 1;
    */
   request?: RequestContext;
 
   /**
-   * Optional. Client application context resolved from StartAuthenticationRequest.client_id.
-   * Server-resolved fields in this message describe the effective client
-   * configuration used to select login UI, providers, methods, and policies.
+   * Output only. Normalized session context.
    *
-   * @generated from field: m8.platform.iam.v1.ClientContext client = 2;
-   */
-  client?: ClientContext;
-
-  /**
-   * Optional. Session context used for re-authentication, max_age checks, and
-   * step-up decisions. Caller-provided session hints must be verified by the
-   * server before they are used as security signals.
-   *
-   * @generated from field: m8.platform.iam.v1.SessionContext session = 3;
+   * @generated from field: m8.platform.iam.v1.SessionContext session = 2;
    */
   session?: SessionContext;
 
   /**
-   * Optional. Tenant, resource, and audience context for the operation that
-   * requires authentication. It is used by risk policy, authorization handoff,
-   * and audit.
+   * Output only. Normalized resource and tenant context.
    *
-   * @generated from field: m8.platform.iam.v1.ResourceContext resource = 4;
+   * @generated from field: m8.platform.iam.v1.ResourceContext resource = 3;
    */
   resource?: ResourceContext;
 
   /**
-   * Optional. Interaction and UI hints used to choose the login experience and
-   * protocol presentation mode. These hints must not be used as proof of user or
-   * authenticator state.
+   * Output only. Normalized UI and interaction context.
    *
-   * @generated from field: m8.platform.iam.v1.InteractionContext interaction = 5;
+   * @generated from field: m8.platform.iam.v1.InteractionContext interaction = 4;
    */
   interaction?: InteractionContext;
 
   /**
-   * Optional. Device, browser, SDK, and app hints used for UX, risk scoring, and
-   * audit. This message stores identifiers and normalized hints, not raw device
-   * fingerprint payloads.
+   * Output only. Normalized device, browser, app, and SDK context.
    *
-   * @generated from field: m8.platform.iam.v1.DeviceContext device = 6;
+   * @generated from field: m8.platform.iam.v1.DeviceContext device = 5;
    */
   device?: DeviceContext;
 
   /**
-   * Optional. Network and geolocation hints used for fraud detection, adaptive
-   * MFA, rate limiting, and audit. Gateway-provided values must be normalized
-   * and verified against the trusted proxy chain.
+   * Output only. Normalized network and geolocation context.
    *
-   * @generated from field: m8.platform.iam.v1.NetworkContext network = 7;
+   * @generated from field: m8.platform.iam.v1.NetworkContext network = 6;
    */
   network?: NetworkContext;
 
   /**
-   * Optional. OIDC/OAuth protocol parameters that influenced the authentication
-   * request. The server maps acr_values to normalized assurance requirements.
+   * Output only. Normalized OIDC/OAuth context.
    *
-   * @generated from field: m8.platform.iam.v1.OidcContext oidc = 8;
+   * @generated from field: m8.platform.iam.v1.OidcContext oidc = 7;
    */
   oidc?: OidcContext;
 
   /**
-   * Optional. Safe summary of the risk decision associated with this
-   * authentication. Raw model features and private scoring data must remain in
-   * M8 Risk Decision.
+   * Output only. Normalized CIBA context.
    *
-   * @generated from field: m8.platform.iam.v1.RiskContext risk = 9;
+   * @generated from field: m8.platform.iam.v1.CibaContext ciba = 8;
    */
-  risk?: RiskContext;
+  ciba?: CibaContext;
 
   /**
-   * Optional. Non-sensitive labels for filtering, routing, analytics, and audit.
-   * Labels must not contain passwords, OTP codes, raw tokens, or private risk
-   * model features.
+   * Output only. Normalized transaction confirmation context.
    *
-   * @generated from field: map<string, string> labels = 100;
+   * @generated from field: m8.platform.iam.v1.TransactionContext transaction = 9;
    */
-  labels: { [key: string]: string };
+  transaction?: TransactionContext;
 };
 
 /**
@@ -125,92 +174,180 @@ export declare type AuthenticationContext = Message<"m8.platform.iam.v1.Authenti
 export declare const AuthenticationContextSchema: GenMessage<AuthenticationContext>;
 
 /**
- * RequestContext describes request-level metadata used for idempotency,
- * tracing, localization, rate limiting, audit, and workflow correlation.
+ * InternalAuthenticationContext is for admin/internal projections only.
  *
- * @generated from message m8.platform.iam.v1.RequestContext
+ * Public Authentication snapshots use AuthenticationContext and must not include
+ * this message unless the caller is explicitly authorized for admin/internal
+ * projection.
+ *
+ * @generated from message m8.platform.iam.v1.InternalAuthenticationContext
  */
-export declare type RequestContext = Message<"m8.platform.iam.v1.RequestContext"> & {
+export declare type InternalAuthenticationContext = Message<"m8.platform.iam.v1.InternalAuthenticationContext"> & {
   /**
-   * Optional. External request identifier supplied by a client, gateway, or BFF.
-   * When present, it must be a UUID and can be used to correlate retries and
-   * audit records.
+   * Output only. Public-safe context.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationContext public_context = 1;
+   */
+  publicContext?: AuthenticationContext;
+
+  /**
+   * Output only. Safe risk summary for admin/internal diagnostics.
+   *
+   * @generated from field: m8.platform.iam.v1.RiskContext risk = 2;
+   */
+  risk?: RiskContext;
+
+  /**
+   * Output only. Policy ids that influenced the authentication.
+   *
+   * @generated from field: repeated string policy_ids = 3;
+   */
+  policyIds: string[];
+
+  /**
+   * Output only. Risk reason codes for admin/internal diagnostics.
+   *
+   * @generated from field: repeated string risk_reason_codes = 4;
+   */
+  riskReasonCodes: string[];
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.InternalAuthenticationContext.
+ * Use `create(InternalAuthenticationContextSchema)` to create a new message.
+ */
+export declare const InternalAuthenticationContextSchema: GenMessage<InternalAuthenticationContext>;
+
+/**
+ * RequestHint contains client-provided request metadata.
+ *
+ * @generated from message m8.platform.iam.v1.RequestHint
+ */
+export declare type RequestHint = Message<"m8.platform.iam.v1.RequestHint"> & {
+  /**
+   * Optional. Technical id of the API request for audit/logging/tracing.
+   *
+   * This is not a command idempotency key.
    *
    * @generated from field: string request_id = 1;
    */
   requestId: string;
 
   /**
-   * Optional. Correlation identifier propagated across services and logs.
-   * When present, it must be a UUID and must not be treated as a security proof.
+   * Optional. Business correlation id for the login flow.
    *
    * @generated from field: string correlation_id = 2;
    */
   correlationId: string;
 
   /**
-   * Optional. Distributed tracing identifier propagated by the gateway or
-   * service mesh. It is used for diagnostics and audit correlation.
+   * Optional. Observability trace id.
    *
    * @generated from field: string trace_id = 3;
    */
   traceId: string;
 
   /**
-   * Optional. Idempotency key supplied by the caller or BFF for retry safety.
-   * When present, it must be a UUID. Authentication Service validates
-   * idempotency against the effective client.
+   * Optional. Service, gateway, adapter, or BFF that submitted the request.
    *
-   * @generated from field: string idempotency_key = 4;
-   */
-  idempotencyKey: string;
-
-  /**
-   * Optional. Name of the service, gateway, adapter, or BFF that submitted the
-   * authentication request. It is used for audit and routing diagnostics.
-   *
-   * @generated from field: string source_service = 5;
+   * @generated from field: string source_service = 4;
    */
   sourceService: string;
 
   /**
-   * Optional. User-Agent header or normalized agent string supplied by the
-   * client or gateway. It is useful for UX and audit but must not be trusted as
-   * a device proof.
+   * Optional. User-Agent header or normalized user agent string.
    *
-   * @generated from field: string user_agent = 6;
+   * @generated from field: string user_agent = 5;
    */
   userAgent: string;
 
   /**
-   * Optional. Requested locale supplied by the client, gateway, or BFF. The
-   * server may use it for challenge text, dynamic login UI, and audit display.
+   * Optional. Requested locale.
    *
-   * @generated from field: string locale = 7;
+   * @generated from field: string locale = 6;
    */
   locale: string;
 
   /**
-   * Optional. IANA time zone name supplied by the client or BFF. It is used for
-   * UX and audit display and must not be treated as trusted location evidence.
+   * Optional. IANA time zone name.
    *
-   * @generated from field: string timezone = 8;
+   * @generated from field: string timezone = 7;
    */
   timezone: string;
 
   /**
-   * Optional. Accept-Language header supplied by the client or gateway. The
-   * server may use it as a localization hint when locale is absent.
+   * Optional. Accept-Language header.
    *
-   * @generated from field: string accept_language = 9;
+   * @generated from field: string accept_language = 8;
    */
   acceptLanguage: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.RequestHint.
+ * Use `create(RequestHintSchema)` to create a new message.
+ */
+export declare const RequestHintSchema: GenMessage<RequestHint>;
+
+/**
+ * RequestContext is the server-normalized request metadata.
+ *
+ * @generated from message m8.platform.iam.v1.RequestContext
+ */
+export declare type RequestContext = Message<"m8.platform.iam.v1.RequestContext"> & {
+  /**
+   * Output only. Technical API request id selected by the server.
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
 
   /**
-   * Output only. Server-side time when the authentication request was received
-   * or normalized for processing. It is used by audit and workflow orchestration.
+   * Output only. Business correlation id for the login flow.
    *
-   * @generated from field: google.protobuf.Timestamp received_time = 10;
+   * @generated from field: string correlation_id = 2;
+   */
+  correlationId: string;
+
+  /**
+   * Output only. Observability trace id.
+   *
+   * @generated from field: string trace_id = 3;
+   */
+  traceId: string;
+
+  /**
+   * Output only. Request source service.
+   *
+   * @generated from field: string source_service = 4;
+   */
+  sourceService: string;
+
+  /**
+   * Output only. Normalized user agent.
+   *
+   * @generated from field: string user_agent = 5;
+   */
+  userAgent: string;
+
+  /**
+   * Output only. Effective locale.
+   *
+   * @generated from field: string locale = 6;
+   */
+  locale: string;
+
+  /**
+   * Output only. Effective time zone.
+   *
+   * @generated from field: string timezone = 7;
+   */
+  timezone: string;
+
+  /**
+   * Output only. Server-side receive time.
+   *
+   * @generated from field: google.protobuf.Timestamp received_time = 8;
    */
   receivedTime?: Timestamp;
 };
@@ -222,267 +359,107 @@ export declare type RequestContext = Message<"m8.platform.iam.v1.RequestContext"
 export declare const RequestContextSchema: GenMessage<RequestContext>;
 
 /**
- * ClientContext describes the resolved OAuth, OIDC, or application client
- * configuration used to drive authentication policy and login UI selection.
+ * SessionHint contains client-provided safe hints about an existing session.
  *
- * @generated from message m8.platform.iam.v1.ClientContext
+ * @generated from message m8.platform.iam.v1.SessionHint
  */
-export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> & {
+export declare type SessionHint = Message<"m8.platform.iam.v1.SessionHint"> & {
   /**
-   * Output only. Effective client identifier resolved from
-   * StartAuthenticationRequest.client_id. When present, it must be a UUID and
-   * must match the client configuration used to resolve project, user pool,
-   * providers, methods, and policies.
-   *
-   * @generated from field: string client_id = 1;
-   */
-  clientId: string;
-
-  /**
-   * Output only. Application class resolved from the client configuration.
-   *
-   * @generated from field: m8.platform.iam.v1.ClientContext.ApplicationType application_type = 2;
-   */
-  applicationType: ClientContext_ApplicationType;
-
-  /**
-   * Output only. Server-selected login experience resolved from client policy,
-   * request options, risk decision, and interaction constraints.
-   *
-   * @generated from field: m8.platform.iam.v1.ClientContext.LoginExperience login_experience = 3;
-   */
-  loginExperience: ClientContext_LoginExperience;
-
-  /**
-   * Output only. Indicates whether the resolved client is public and cannot keep
-   * a client secret. It is used by policy and protocol handling.
-   *
-   * @generated from field: bool public_client = 4;
-   */
-  publicClient: boolean;
-
-  /**
-   * Output only. Typed authentication methods allowed by the resolved client
-   * policy and server-side risk decision. Dynamic login UI should prefer this
-   * field for standard method selection.
-   *
-   * @generated from field: repeated m8.platform.iam.v1.AuthenticationMethod allowed_authentication_methods = 5;
-   */
-  allowedAuthenticationMethods: AuthenticationMethod[];
-
-  /**
-   * Output only. Provider identifiers allowed by the resolved client policy.
-   * These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
-   * providers and must not be confused with a requested provider selector.
-   *
-   * @generated from field: repeated string allowed_provider_ids = 6;
-   */
-  allowedProviderIds: string[];
-
-  /**
-   * Optional. Redirect URI supplied by the client or OIDC authorization request.
-   * The server validates it against the registered client configuration.
-   *
-   * @generated from field: string redirect_uri = 7;
-   */
-  redirectUri: string;
-
-  /**
-   * Optional. Browser origin supplied by the client or gateway. The server uses
-   * it for UI policy, CORS-related checks, and audit, after validating it
-   * against the registered client configuration.
-   *
-   * @generated from field: string origin = 8;
-   */
-  origin: string;
-};
-
-/**
- * Describes the message m8.platform.iam.v1.ClientContext.
- * Use `create(ClientContextSchema)` to create a new message.
- */
-export declare const ClientContextSchema: GenMessage<ClientContext>;
-
-/**
- * ApplicationType identifies the broad class of client application.
- *
- * @generated from enum m8.platform.iam.v1.ClientContext.ApplicationType
- */
-export enum ClientContext_ApplicationType {
-  /**
-   * Application type is not specified.
-   *
-   * @generated from enum value: APPLICATION_TYPE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * Server-rendered or traditional web application.
-   *
-   * @generated from enum value: APPLICATION_TYPE_WEB = 1;
-   */
-  WEB = 1,
-
-  /**
-   * Browser-based single-page application.
-   *
-   * @generated from enum value: APPLICATION_TYPE_SPA = 2;
-   */
-  SPA = 2,
-
-  /**
-   * Native mobile application.
-   *
-   * @generated from enum value: APPLICATION_TYPE_MOBILE = 3;
-   */
-  MOBILE = 3,
-
-  /**
-   * Backend or confidential service client.
-   *
-   * @generated from enum value: APPLICATION_TYPE_BACKEND = 4;
-   */
-  BACKEND = 4,
-
-  /**
-   * Command-line client.
-   *
-   * @generated from enum value: APPLICATION_TYPE_CLI = 5;
-   */
-  CLI = 5,
-
-  /**
-   * Device or embedded client, including constrained-input devices.
-   *
-   * @generated from enum value: APPLICATION_TYPE_DEVICE = 6;
-   */
-  DEVICE = 6,
-}
-
-/**
- * Describes the enum m8.platform.iam.v1.ClientContext.ApplicationType.
- */
-export declare const ClientContext_ApplicationTypeSchema: GenEnum<ClientContext_ApplicationType>;
-
-/**
- * LoginExperience describes the server-selected login experience for this
- * client and request.
- *
- * @generated from enum m8.platform.iam.v1.ClientContext.LoginExperience
- */
-export enum ClientContext_LoginExperience {
-  /**
-   * Login experience is not specified.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * User identifies themselves before the authentication method is selected.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_IDENTIFIER_FIRST = 1;
-   */
-  IDENTIFIER_FIRST = 1,
-
-  /**
-   * Passwordless method selection is preferred before password entry.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_PASSWORDLESS_FIRST = 2;
-   */
-  PASSWORDLESS_FIRST = 2,
-
-  /**
-   * Passkey or WebAuthn authentication is preferred first.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_PASSKEY_FIRST = 3;
-   */
-  PASSKEY_FIRST = 3,
-
-  /**
-   * External provider selection is preferred first.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_PROVIDER_FIRST = 4;
-   */
-  PROVIDER_FIRST = 4,
-
-  /**
-   * Step-up experience is selected for an existing session or sensitive action.
-   *
-   * @generated from enum value: LOGIN_EXPERIENCE_STEP_UP = 5;
-   */
-  STEP_UP = 5,
-}
-
-/**
- * Describes the enum m8.platform.iam.v1.ClientContext.LoginExperience.
- */
-export declare const ClientContext_LoginExperienceSchema: GenEnum<ClientContext_LoginExperience>;
-
-/**
- * SessionContext describes the existing authentication session used for
- * re-authentication, OIDC max_age checks, and step-up decisions.
- *
- * @generated from message m8.platform.iam.v1.SessionContext
- */
-export declare type SessionContext = Message<"m8.platform.iam.v1.SessionContext"> & {
-  /**
-   * Optional. Identifier of an existing session supplied by a client, BFF, or
-   * session service. It must reference a session record and must not be a bearer
-   * secret or raw session token.
+   * Optional. Existing session lookup id. It must not be a bearer token.
    *
    * @generated from field: string existing_session_id = 1;
    */
   existingSessionId: string;
 
   /**
-   * Optional. Previous authentication operation identifier associated with the
-   * existing session. It can be supplied by a BFF or resolved by the server for
-   * audit and step-up correlation.
+   * Optional. Previous authentication id associated with the existing session.
    *
    * @generated from field: string previous_authentication_id = 2;
    */
   previousAuthenticationId: string;
 
   /**
-   * Output only. Stable M8 Identity user identifier resolved from the existing
-   * session. Caller-provided values must not be trusted for user binding.
+   * Optional. Caller-observed previous authentication time.
    *
-   * @generated from field: string previous_user_id = 3;
-   */
-  previousUserId: string;
-
-  /**
-   * Output only. Assurance level established by the previous authentication
-   * session. It is used to decide whether step-up is required.
-   *
-   * @generated from field: m8.platform.iam.v1.Authentication.AssuranceLevel previous_assurance_level = 4;
-   */
-  previousAssuranceLevel: Authentication_AssuranceLevel;
-
-  /**
-   * Optional. Time when the existing session was originally authenticated. It is
-   * used for OIDC max_age checks and freshness-based step-up.
-   *
-   * @generated from field: google.protobuf.Timestamp auth_time = 5;
+   * @generated from field: google.protobuf.Timestamp auth_time = 3;
    */
   authTime?: Timestamp;
 
   /**
-   * Optional. Maximum acceptable age for the existing authentication. It is
-   * commonly derived from OIDC max_age or resource policy.
+   * Optional. Maximum acceptable age for the existing authentication.
    *
-   * @generated from field: google.protobuf.Duration max_age = 6;
+   * @generated from field: google.protobuf.Duration max_age = 4;
    */
   maxAge?: Duration;
 
   /**
-   * Optional. Reason stronger or fresher authentication is being requested. The
-   * server verifies caller-provided reasons against policy and risk decisions.
+   * Optional. Hint about the desired assurance level.
    *
-   * @generated from field: m8.platform.iam.v1.SessionContext.StepUpReason step_up_reason = 7;
+   * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel requested_assurance_level = 5;
+   */
+  requestedAssuranceLevel: AuthenticationAssuranceLevel;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.SessionHint.
+ * Use `create(SessionHintSchema)` to create a new message.
+ */
+export declare const SessionHintSchema: GenMessage<SessionHint>;
+
+/**
+ * SessionContext describes normalized session and step-up context.
+ *
+ * @generated from message m8.platform.iam.v1.SessionContext
+ */
+export declare type SessionContext = Message<"m8.platform.iam.v1.SessionContext"> & {
+  /**
+   * Output only. Existing session lookup id.
+   *
+   * @generated from field: string existing_session_id = 1;
+   */
+  existingSessionId: string;
+
+  /**
+   * Output only. Previous authentication id associated with the session.
+   *
+   * @generated from field: string previous_authentication_id = 2;
+   */
+  previousAuthenticationId: string;
+
+  /**
+   * Output only. Assurance level established by the previous session.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel previous_assurance_level = 3;
+   */
+  previousAssuranceLevel: AuthenticationAssuranceLevel;
+
+  /**
+   * Output only. Previous authentication time.
+   *
+   * @generated from field: google.protobuf.Timestamp auth_time = 4;
+   */
+  authTime?: Timestamp;
+
+  /**
+   * Output only. Effective max age requirement.
+   *
+   * @generated from field: google.protobuf.Duration max_age = 5;
+   */
+  maxAge?: Duration;
+
+  /**
+   * Output only. Reason step-up or reauthentication is required.
+   *
+   * @generated from field: m8.platform.iam.v1.SessionContext.StepUpReason step_up_reason = 6;
    */
   stepUpReason: SessionContext_StepUpReason;
+
+  /**
+   * Output only. Assurance level requested for the current authentication.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel requested_assurance_level = 7;
+   */
+  requestedAssuranceLevel: AuthenticationAssuranceLevel;
 };
 
 /**
@@ -533,7 +510,7 @@ export enum SessionContext_StepUpReason {
   ASSURANCE_LEVEL_TOO_LOW = 4,
 
   /**
-   * User explicitly requested re-authentication or stronger authentication.
+   * User explicitly requested reauthentication.
    *
    * @generated from enum value: STEP_UP_REASON_USER_REQUESTED = 5;
    */
@@ -553,64 +530,89 @@ export enum SessionContext_StepUpReason {
 export declare const SessionContext_StepUpReasonSchema: GenEnum<SessionContext_StepUpReason>;
 
 /**
- * ResourceContext describes the tenant, resource, operation, and audience for
- * which authentication is requested.
+ * ResourceHint contains client-provided resource and operation hints.
+ *
+ * @generated from message m8.platform.iam.v1.ResourceHint
+ */
+export declare type ResourceHint = Message<"m8.platform.iam.v1.ResourceHint"> & {
+  /**
+   * Optional. Resource indicator, URL, or opaque resource name.
+   *
+   * @generated from field: string requested_resource = 1;
+   */
+  requestedResource: string;
+
+  /**
+   * Optional. Operation requiring authentication.
+   *
+   * @generated from field: string requested_operation = 2;
+   */
+  requestedOperation: string;
+
+  /**
+   * Optional. OAuth/OIDC audiences or resource indicators.
+   *
+   * @generated from field: repeated string audience = 3;
+   */
+  audience: string[];
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.ResourceHint.
+ * Use `create(ResourceHintSchema)` to create a new message.
+ */
+export declare const ResourceHintSchema: GenMessage<ResourceHint>;
+
+/**
+ * ResourceContext describes normalized tenant, resource, operation, and audience.
  *
  * @generated from message m8.platform.iam.v1.ResourceContext
  */
 export declare type ResourceContext = Message<"m8.platform.iam.v1.ResourceContext"> & {
   /**
-   * Output only. Organization identifier resolved from the client, project, or
-   * resource context. It is used for tenant isolation, policy, and audit.
+   * Output only. Organization identifier resolved by the server.
    *
    * @generated from field: string organization_id = 1;
    */
   organizationId: string;
 
   /**
-   * Output only. Workspace identifier resolved from the client, project, or
-   * resource context. It is used for policy, routing, and audit.
+   * Output only. Workspace identifier resolved by the server.
    *
    * @generated from field: string workspace_id = 2;
    */
   workspaceId: string;
 
   /**
-   * Output only. Project identifier resolved from client_id. Clients must not
-   * provide this value in StartAuthenticationRequest.
+   * Output only. Project identifier resolved from client_id and policy.
    *
    * @generated from field: string project_id = 3;
    */
   projectId: string;
 
   /**
-   * Output only. User pool identifier resolved from client_id and client
-   * configuration. Clients must not provide this value in StartAuthenticationRequest.
+   * Output only. User pool identifier resolved from client_id and policy.
    *
    * @generated from field: string user_pool_id = 4;
    */
   userPoolId: string;
 
   /**
-   * Optional. Resource name, URL, or opaque resource indicator supplied by a
-   * client or BFF for step-up and risk decisions. The server validates it against
-   * resource and tenant policy before use.
+   * Output only. Validated requested resource.
    *
    * @generated from field: string requested_resource = 5;
    */
   requestedResource: string;
 
   /**
-   * Optional. Operation or action that requires authentication, such as
-   * transfer.confirm or admin.user.disable. It is used by risk policy and audit.
+   * Output only. Validated requested operation.
    *
    * @generated from field: string requested_operation = 6;
    */
   requestedOperation: string;
 
   /**
-   * Optional. OAuth/OIDC audiences or resource indicators requested by the
-   * client or relying party. The server validates them against client policy.
+   * Output only. Validated OAuth/OIDC audiences or resource indicators.
    *
    * @generated from field: repeated string audience = 7;
    */
@@ -624,62 +626,117 @@ export declare type ResourceContext = Message<"m8.platform.iam.v1.ResourceContex
 export declare const ResourceContextSchema: GenMessage<ResourceContext>;
 
 /**
- * InteractionContext describes how the user and client are expected to interact
- * with the authentication flow.
+ * InteractionHint contains client-provided UI and protocol hints.
  *
- * @generated from message m8.platform.iam.v1.InteractionContext
+ * @generated from message m8.platform.iam.v1.InteractionHint
  */
-export declare type InteractionContext = Message<"m8.platform.iam.v1.InteractionContext"> & {
+export declare type InteractionHint = Message<"m8.platform.iam.v1.InteractionHint"> & {
   /**
-   * Optional. Requested interaction mode supplied by the client, gateway, or
-   * protocol adapter. The server may override it based on client policy.
+   * UI mode requested by the client.
    *
    * @generated from field: m8.platform.iam.v1.InteractionContext.UiMode ui_mode = 1;
    */
   uiMode: InteractionContext_UiMode;
 
   /**
-   * Optional. Source of the login hint or subject hint. It is used for UX,
-   * audit, and risk context but must not be treated as proof of identity.
+   * Source of the login hint or subject hint.
    *
    * @generated from field: m8.platform.iam.v1.InteractionContext.LoginHintSource login_hint_source = 2;
    */
   loginHintSource: InteractionContext_LoginHintSource;
 
   /**
-   * Optional. Preferred locale for the login UI and challenge messages.
+   * Optional. Preferred UI locale.
    *
    * @generated from field: string preferred_locale = 3;
    */
   preferredLocale: string;
 
   /**
-   * Optional. OIDC display mode requested by the client or relying party.
+   * Optional. OIDC display mode.
    *
    * @generated from field: m8.platform.iam.v1.InteractionContext.DisplayMode display = 4;
    */
   display: InteractionContext_DisplayMode;
 
   /**
-   * Optional. OIDC prompt values such as login, consent, select_account, or none.
-   * The server interprets these values against client and session policy.
+   * Optional. OIDC prompt values.
    *
    * @generated from field: repeated string prompts = 5;
    */
   prompts: string[];
 
   /**
-   * Optional. Client-provided UX hint indicating that the current browser or
-   * platform may support passkeys. It must not be used as proof that a passkey
-   * authenticator is registered or available for the user.
+   * Optional. UX hint that the client may support passkeys.
    *
    * @generated from field: bool passkey_capable_client = 6;
    */
   passkeyCapableClient: boolean;
 
   /**
-   * Optional. Client-provided UX hint indicating that WebAuthn user verification
-   * may be supported. It must not be used as proof that verification occurred.
+   * Optional. UX hint that WebAuthn user verification may be supported.
+   *
+   * @generated from field: bool user_verification_supported = 7;
+   */
+  userVerificationSupported: boolean;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.InteractionHint.
+ * Use `create(InteractionHintSchema)` to create a new message.
+ */
+export declare const InteractionHintSchema: GenMessage<InteractionHint>;
+
+/**
+ * InteractionContext describes normalized UI and protocol interaction context.
+ *
+ * @generated from message m8.platform.iam.v1.InteractionContext
+ */
+export declare type InteractionContext = Message<"m8.platform.iam.v1.InteractionContext"> & {
+  /**
+   * Output only. Effective UI mode.
+   *
+   * @generated from field: m8.platform.iam.v1.InteractionContext.UiMode ui_mode = 1;
+   */
+  uiMode: InteractionContext_UiMode;
+
+  /**
+   * Output only. Normalized login hint source.
+   *
+   * @generated from field: m8.platform.iam.v1.InteractionContext.LoginHintSource login_hint_source = 2;
+   */
+  loginHintSource: InteractionContext_LoginHintSource;
+
+  /**
+   * Output only. Effective UI locale.
+   *
+   * @generated from field: string preferred_locale = 3;
+   */
+  preferredLocale: string;
+
+  /**
+   * Output only. Effective OIDC display mode.
+   *
+   * @generated from field: m8.platform.iam.v1.InteractionContext.DisplayMode display = 4;
+   */
+  display: InteractionContext_DisplayMode;
+
+  /**
+   * Output only. Effective OIDC prompt values.
+   *
+   * @generated from field: repeated string prompts = 5;
+   */
+  prompts: string[];
+
+  /**
+   * Output only. Whether the client is believed to support passkeys.
+   *
+   * @generated from field: bool passkey_capable_client = 6;
+   */
+  passkeyCapableClient: boolean;
+
+  /**
+   * Output only. Whether WebAuthn user verification may be supported.
    *
    * @generated from field: bool user_verification_supported = 7;
    */
@@ -693,7 +750,7 @@ export declare type InteractionContext = Message<"m8.platform.iam.v1.Interaction
 export declare const InteractionContextSchema: GenMessage<InteractionContext>;
 
 /**
- * UiMode describes the protocol or UI channel used for interaction.
+ * UiMode describes the protocol or UI channel.
  *
  * @generated from enum m8.platform.iam.v1.InteractionContext.UiMode
  */
@@ -713,14 +770,14 @@ export enum InteractionContext_UiMode {
   REDIRECT = 1,
 
   /**
-   * Embedded login UI inside an application shell.
+   * Embedded login UI.
    *
    * @generated from enum value: UI_MODE_EMBEDDED = 2;
    */
   EMBEDDED = 2,
 
   /**
-   * API-driven interaction without a hosted UI.
+   * API-driven interaction.
    *
    * @generated from enum value: UI_MODE_API = 3;
    */
@@ -747,7 +804,7 @@ export enum InteractionContext_UiMode {
 export declare const InteractionContext_UiModeSchema: GenEnum<InteractionContext_UiMode>;
 
 /**
- * LoginHintSource identifies where the login hint or subject hint came from.
+ * LoginHintSource identifies where a login hint came from.
  *
  * @generated from enum m8.platform.iam.v1.InteractionContext.LoginHintSource
  */
@@ -767,14 +824,14 @@ export enum InteractionContext_LoginHintSource {
   USER_INPUT = 1,
 
   /**
-   * Login hint came from an OIDC login_hint parameter.
+   * Login hint came from OIDC login_hint.
    *
    * @generated from enum value: LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT = 2;
    */
   OIDC_LOGIN_HINT = 2,
 
   /**
-   * Login hint was inferred from an existing session.
+   * Login hint came from an existing session.
    *
    * @generated from enum value: LOGIN_HINT_SOURCE_SESSION = 3;
    */
@@ -788,14 +845,14 @@ export enum InteractionContext_LoginHintSource {
   INVITATION = 4,
 
   /**
-   * Login hint was selected by an administrator or operator.
+   * Login hint was selected by an administrator.
    *
    * @generated from enum value: LOGIN_HINT_SOURCE_ADMIN_SELECTED = 5;
    */
   ADMIN_SELECTED = 5,
 
   /**
-   * Login hint came from an external identity provider callback.
+   * Login hint came from an external provider callback.
    *
    * @generated from enum value: LOGIN_HINT_SOURCE_IDP_CALLBACK = 6;
    */
@@ -808,7 +865,7 @@ export enum InteractionContext_LoginHintSource {
 export declare const InteractionContext_LoginHintSourceSchema: GenEnum<InteractionContext_LoginHintSource>;
 
 /**
- * DisplayMode mirrors OIDC display values that influence presentation.
+ * DisplayMode mirrors OIDC display values.
  *
  * @generated from enum m8.platform.iam.v1.InteractionContext.DisplayMode
  */
@@ -855,104 +912,201 @@ export enum InteractionContext_DisplayMode {
 export declare const InteractionContext_DisplayModeSchema: GenEnum<InteractionContext_DisplayMode>;
 
 /**
- * DeviceContext describes normalized device, browser, SDK, and application
- * hints used for UX, risk scoring, fraud detection, and audit.
+ * DeviceHint contains client-provided device, browser, app, and SDK hints.
  *
- * @generated from message m8.platform.iam.v1.DeviceContext
+ * @generated from message m8.platform.iam.v1.DeviceHint
  */
-export declare type DeviceContext = Message<"m8.platform.iam.v1.DeviceContext"> & {
+export declare type DeviceHint = Message<"m8.platform.iam.v1.DeviceHint"> & {
   /**
-   * Optional. Stable device identifier supplied by a trusted SDK, BFF, or device
-   * service. It must not be a raw device fingerprint payload or bearer secret.
+   * Optional. Stable device lookup id. It must not be a raw fingerprint.
    *
    * @generated from field: string device_id = 1;
    */
   deviceId: string;
 
   /**
-   * Optional. Reference to a trusted-device record. It must be a lookup
-   * identifier, not a trusted-device secret or token.
+   * Optional. Trusted-device lookup id. It must not be a bearer secret.
    *
    * @generated from field: string trusted_device_id = 2;
    */
   trustedDeviceId: string;
 
   /**
-   * Optional. Reference to a stored device fingerprint record. Raw fingerprint
-   * payloads must be stored outside AuthenticationContext.
+   * Optional. Stored fingerprint reference, not raw fingerprint data.
    *
    * @generated from field: string device_fingerprint_id = 3;
    */
   deviceFingerprintId: string;
 
   /**
-   * Optional. Platform hint such as web, ios, android, desktop, or device.
+   * Optional. Platform hint.
    *
    * @generated from field: string platform = 4;
    */
   platform: string;
 
   /**
-   * Optional. Operating system name reported by the client, SDK, or parser.
+   * Optional. Operating system name.
    *
    * @generated from field: string os = 5;
    */
   os: string;
 
   /**
-   * Optional. Operating system version reported by the client, SDK, or parser.
+   * Optional. Operating system version.
    *
    * @generated from field: string os_version = 6;
    */
   osVersion: string;
 
   /**
-   * Optional. Browser name reported by the client, SDK, or User-Agent parser.
+   * Optional. Browser name.
    *
    * @generated from field: string browser = 7;
    */
   browser: string;
 
   /**
-   * Optional. Browser version reported by the client, SDK, or User-Agent parser.
+   * Optional. Browser version.
    *
    * @generated from field: string browser_version = 8;
    */
   browserVersion: string;
 
   /**
-   * Optional. Application version reported by the first-party client or SDK.
+   * Optional. Application version.
    *
    * @generated from field: string app_version = 9;
    */
   appVersion: string;
 
   /**
-   * Optional. SDK name that submitted or enriched the authentication request.
+   * Optional. SDK name.
    *
    * @generated from field: string sdk_name = 10;
    */
   sdkName: string;
 
   /**
-   * Optional. SDK version that submitted or enriched the authentication request.
+   * Optional. SDK version.
    *
    * @generated from field: string sdk_version = 11;
    */
   sdkVersion: string;
 
   /**
-   * Optional. Client-provided UX hint indicating that WebAuthn APIs may be
-   * available. It must not be used as proof of authenticator registration.
+   * Optional. UX hint that WebAuthn APIs may be available.
    *
    * @generated from field: bool webauthn_available = 12;
    */
   webauthnAvailable: boolean;
 
   /**
-   * Optional. Client-provided UX hint indicating that passkey authentication may
-   * be available on the current platform. Risk and challenge selection must
-   * verify real authenticator state separately.
+   * Optional. UX hint that passkeys may be available.
+   *
+   * @generated from field: bool passkey_available_hint = 13;
+   */
+  passkeyAvailableHint: boolean;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.DeviceHint.
+ * Use `create(DeviceHintSchema)` to create a new message.
+ */
+export declare const DeviceHintSchema: GenMessage<DeviceHint>;
+
+/**
+ * DeviceContext describes normalized device, browser, app, and SDK context.
+ *
+ * @generated from message m8.platform.iam.v1.DeviceContext
+ */
+export declare type DeviceContext = Message<"m8.platform.iam.v1.DeviceContext"> & {
+  /**
+   * Output only. Stable device lookup id.
+   *
+   * @generated from field: string device_id = 1;
+   */
+  deviceId: string;
+
+  /**
+   * Output only. Trusted-device lookup id.
+   *
+   * @generated from field: string trusted_device_id = 2;
+   */
+  trustedDeviceId: string;
+
+  /**
+   * Output only. Stored fingerprint reference, not raw fingerprint data.
+   *
+   * @generated from field: string device_fingerprint_id = 3;
+   */
+  deviceFingerprintId: string;
+
+  /**
+   * Output only. Platform.
+   *
+   * @generated from field: string platform = 4;
+   */
+  platform: string;
+
+  /**
+   * Output only. Operating system name.
+   *
+   * @generated from field: string os = 5;
+   */
+  os: string;
+
+  /**
+   * Output only. Operating system version.
+   *
+   * @generated from field: string os_version = 6;
+   */
+  osVersion: string;
+
+  /**
+   * Output only. Browser name.
+   *
+   * @generated from field: string browser = 7;
+   */
+  browser: string;
+
+  /**
+   * Output only. Browser version.
+   *
+   * @generated from field: string browser_version = 8;
+   */
+  browserVersion: string;
+
+  /**
+   * Output only. Application version.
+   *
+   * @generated from field: string app_version = 9;
+   */
+  appVersion: string;
+
+  /**
+   * Output only. SDK name.
+   *
+   * @generated from field: string sdk_name = 10;
+   */
+  sdkName: string;
+
+  /**
+   * Output only. SDK version.
+   *
+   * @generated from field: string sdk_version = 11;
+   */
+  sdkVersion: string;
+
+  /**
+   * Output only. Whether WebAuthn APIs may be available.
+   *
+   * @generated from field: bool webauthn_available = 12;
+   */
+  webauthnAvailable: boolean;
+
+  /**
+   * Output only. Whether passkeys may be available on the platform.
    *
    * @generated from field: bool passkey_available_hint = 13;
    */
@@ -966,93 +1120,110 @@ export declare type DeviceContext = Message<"m8.platform.iam.v1.DeviceContext"> 
 export declare const DeviceContextSchema: GenMessage<DeviceContext>;
 
 /**
- * NetworkContext describes normalized IP, proxy, network, geolocation, and
- * network-risk hints used by Risk Decision, rate limiting, fraud detection, and
- * audit.
+ * NetworkHint contains client or gateway provided network hints.
  *
- * @generated from message m8.platform.iam.v1.NetworkContext
+ * @generated from message m8.platform.iam.v1.NetworkHint
  */
-export declare type NetworkContext = Message<"m8.platform.iam.v1.NetworkContext"> & {
+export declare type NetworkHint = Message<"m8.platform.iam.v1.NetworkHint"> & {
   /**
-   * Optional. Client IP address as normalized by the gateway or server. It may
-   * be supplied by a BFF, but Authentication Service must validate trusted proxy
-   * boundaries before relying on it.
+   * Optional. Client IP as observed by a trusted gateway or BFF.
    *
    * @generated from field: string ip = 1;
    */
   ip: string;
 
   /**
-   * Optional. Forwarded client IP chain parsed from trusted forwarding headers.
-   * Values from untrusted proxy chains must not be used for security decisions.
+   * Optional. Forwarded client IP chain from trusted forwarding headers.
+   *
+   * @generated from field: repeated string forwarded_for = 2;
+   */
+  forwardedFor: string[];
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.NetworkHint.
+ * Use `create(NetworkHintSchema)` to create a new message.
+ */
+export declare const NetworkHintSchema: GenMessage<NetworkHint>;
+
+/**
+ * NetworkContext describes server-normalized network and geolocation context.
+ *
+ * @generated from message m8.platform.iam.v1.NetworkContext
+ */
+export declare type NetworkContext = Message<"m8.platform.iam.v1.NetworkContext"> & {
+  /**
+   * Output only. Client IP normalized through trusted proxy boundaries.
+   *
+   * @generated from field: string ip = 1;
+   */
+  ip: string;
+
+  /**
+   * Output only. Trusted forwarded client IP chain.
    *
    * @generated from field: repeated string forwarded_for = 2;
    */
   forwardedFor: string[];
 
   /**
-   * Output only. ISO 3166-1 alpha-2 country code produced by server-side network
-   * enrichment.
+   * Output only. ISO 3166-1 alpha-2 country code from server enrichment.
    *
    * @generated from field: string country_code = 3;
    */
   countryCode: string;
 
   /**
-   * Output only. Region or subdivision produced by server-side geolocation
-   * enrichment.
+   * Output only. Region from server-side geolocation.
    *
    * @generated from field: string region = 4;
    */
   region: string;
 
   /**
-   * Output only. City produced by server-side geolocation enrichment.
+   * Output only. City from server-side geolocation.
    *
    * @generated from field: string city = 5;
    */
   city: string;
 
   /**
-   * Output only. Autonomous system number produced by server-side network
-   * enrichment.
+   * Output only. Autonomous system number from server enrichment.
    *
    * @generated from field: uint32 asn = 6;
    */
   asn: number;
 
   /**
-   * Output only. Internet service provider or organization name produced by
-   * server-side network enrichment.
+   * Output only. ISP or organization from server enrichment.
    *
    * @generated from field: string isp = 7;
    */
   isp: string;
 
   /**
-   * Output only. Indicates server-side enrichment classified the IP as a proxy.
+   * Output only. Whether server enrichment classified the IP as a proxy.
    *
    * @generated from field: bool is_proxy = 8;
    */
   isProxy: boolean;
 
   /**
-   * Output only. Indicates server-side enrichment classified the IP as a VPN.
+   * Output only. Whether server enrichment classified the IP as a VPN.
    *
    * @generated from field: bool is_vpn = 9;
    */
   isVpn: boolean;
 
   /**
-   * Output only. Indicates server-side enrichment classified the IP as Tor.
+   * Output only. Whether server enrichment classified the IP as Tor.
    *
    * @generated from field: bool is_tor = 10;
    */
   isTor: boolean;
 
   /**
-   * Output only. Network-only risk level produced by server-side enrichment or
-   * M8 Risk Decision.
+   * Output only. Network-only risk level from enrichment or Risk Decision.
    *
    * @generated from field: m8.platform.iam.v1.NetworkContext.NetworkRiskLevel risk_level = 11;
    */
@@ -1113,12 +1284,11 @@ export enum NetworkContext_NetworkRiskLevel {
 export declare const NetworkContext_NetworkRiskLevelSchema: GenEnum<NetworkContext_NetworkRiskLevel>;
 
 /**
- * OidcContext describes OAuth and OpenID Connect request parameters that
- * influence authentication requirements and protocol handling.
+ * OidcRequestHint describes OAuth and OIDC request hints.
  *
- * @generated from message m8.platform.iam.v1.OidcContext
+ * @generated from message m8.platform.iam.v1.OidcRequestHint
  */
-export declare type OidcContext = Message<"m8.platform.iam.v1.OidcContext"> & {
+export declare type OidcRequestHint = Message<"m8.platform.iam.v1.OidcRequestHint"> & {
   /**
    * Optional. OAuth scopes requested by the relying party.
    *
@@ -1127,94 +1297,150 @@ export declare type OidcContext = Message<"m8.platform.iam.v1.OidcContext"> & {
   scope: string[];
 
   /**
-   * Optional. Authentication Context Class Reference values requested by the
-   * relying party. The server maps these protocol values to normalized assurance
-   * requirements such as requested_assurance_level.
+   * Optional. Requested ACR values.
    *
    * @generated from field: repeated string acr_values = 2;
    */
   acrValues: string[];
 
   /**
-   * Optional. OIDC prompt values such as login, consent, select_account, or none.
+   * Optional. OIDC prompt values.
    *
    * @generated from field: repeated string prompt = 3;
    */
   prompt: string[];
 
   /**
-   * Optional. OIDC max_age requirement used to determine whether the existing
-   * session is fresh enough or step-up is required.
+   * Optional. OIDC max_age requirement.
    *
    * @generated from field: google.protobuf.Duration max_age = 4;
    */
   maxAge?: Duration;
 
   /**
-   * Optional. OIDC nonce value. It is protocol state and must not be treated as
-   * proof of authentication by itself.
+   * Optional. OIDC nonce. Do not treat it as proof of authentication.
    *
    * @generated from field: string nonce = 5;
    */
   nonce: string;
 
   /**
-   * Optional. OAuth/OIDC state value. It is protocol correlation state and must
-   * not be logged if deployment policy treats it as sensitive.
+   * Optional. OAuth/OIDC state. Deployments may treat it as sensitive.
    *
    * @generated from field: string state = 6;
    */
   state: string;
 
   /**
-   * Optional. PKCE code challenge supplied by the client.
+   * Optional. PKCE code challenge.
    *
    * @generated from field: string code_challenge = 7;
    */
   codeChallenge: string;
 
   /**
-   * Optional. PKCE code challenge method, typically plain or S256.
+   * Optional. PKCE code challenge method.
    *
    * @generated from field: string code_challenge_method = 8;
    */
   codeChallengeMethod: string;
 
   /**
-   * Optional. OAuth/OIDC response type requested by the client.
+   * Optional. OAuth/OIDC response type.
    *
    * @generated from field: string response_type = 9;
    */
   responseType: string;
 
   /**
-   * Optional. OAuth/OIDC response mode requested by the client.
+   * Optional. OAuth/OIDC response mode.
    *
    * @generated from field: string response_mode = 10;
    */
   responseMode: string;
 
   /**
-   * Optional. OIDC login_hint value supplied by the relying party. It is a hint
-   * only and must not be treated as proof of user identity.
+   * Optional. OIDC login_hint. It is only a hint.
    *
    * @generated from field: string login_hint = 11;
    */
   loginHint: string;
 
   /**
-   * Optional. OAuth resource indicators requested by the client.
+   * Optional. OAuth resource indicators.
    *
    * @generated from field: repeated string resource = 12;
    */
   resource: string[];
 
   /**
-   * Optional. OAuth/OIDC audience values requested by the client.
+   * Optional. OAuth/OIDC audience values.
    *
    * @generated from field: repeated string audience = 13;
    */
   audience: string[];
+
+  /**
+   * Optional. Redirect URI requested by the client or protocol adapter.
+   *
+   * @generated from field: string redirect_uri = 14;
+   */
+  redirectUri: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.OidcRequestHint.
+ * Use `create(OidcRequestHintSchema)` to create a new message.
+ */
+export declare const OidcRequestHintSchema: GenMessage<OidcRequestHint>;
+
+/**
+ * OidcContext describes server-normalized OAuth and OIDC context.
+ *
+ * @generated from message m8.platform.iam.v1.OidcContext
+ */
+export declare type OidcContext = Message<"m8.platform.iam.v1.OidcContext"> & {
+  /**
+   * Output only. Validated OAuth scopes.
+   *
+   * @generated from field: repeated string scope = 1;
+   */
+  scope: string[];
+
+  /**
+   * Output only. Effective ACR values.
+   *
+   * @generated from field: repeated string acr_values = 2;
+   */
+  acrValues: string[];
+
+  /**
+   * Output only. Effective prompt values.
+   *
+   * @generated from field: repeated string prompt = 3;
+   */
+  prompt: string[];
+
+  /**
+   * Output only. Effective max_age.
+   *
+   * @generated from field: google.protobuf.Duration max_age = 4;
+   */
+  maxAge?: Duration;
+
+  /**
+   * Output only. Validated redirect URI.
+   *
+   * @generated from field: string redirect_uri = 5;
+   */
+  redirectUri: string;
+
+  /**
+   * Output only. Token id or hash for sensitive protocol state.
+   *
+   * @generated from field: string state_id = 6;
+   */
+  stateId: string;
 };
 
 /**
@@ -1224,61 +1450,230 @@ export declare type OidcContext = Message<"m8.platform.iam.v1.OidcContext"> & {
 export declare const OidcContextSchema: GenMessage<OidcContext>;
 
 /**
- * RiskContext contains a safe summary of risk decision state associated with
- * an authentication operation.
+ * CibaRequestHint contains CIBA-specific start hints.
  *
- * It must not contain raw risk model features, raw device fingerprints, private
- * scoring data, provider tokens, or secrets. Full risk evidence lives in M8 Risk
- * Decision and is linked by decision_id or risk_session_id.
+ * @generated from message m8.platform.iam.v1.CibaRequestHint
+ */
+export declare type CibaRequestHint = Message<"m8.platform.iam.v1.CibaRequestHint"> & {
+  /**
+   * Optional. Opaque login_hint_token received by the protocol adapter.
+   *
+   * @generated from field: string login_hint_token = 1;
+   */
+  loginHintToken: string;
+
+  /**
+   * Optional. OIDC id_token_hint received by the protocol adapter.
+   *
+   * @generated from field: string id_token_hint = 2;
+   */
+  idTokenHint: string;
+
+  /**
+   * Optional. User-visible binding message.
+   *
+   * @generated from field: string binding_message = 3;
+   */
+  bindingMessage: string;
+
+  /**
+   * Optional. Requested expiry for the CIBA authentication request.
+   *
+   * @generated from field: google.protobuf.Duration requested_expiry = 4;
+   */
+  requestedExpiry?: Duration;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.CibaRequestHint.
+ * Use `create(CibaRequestHintSchema)` to create a new message.
+ */
+export declare const CibaRequestHintSchema: GenMessage<CibaRequestHint>;
+
+/**
+ * CibaContext contains public-safe CIBA output context.
+ *
+ * @generated from message m8.platform.iam.v1.CibaContext
+ */
+export declare type CibaContext = Message<"m8.platform.iam.v1.CibaContext"> & {
+  /**
+   * Output only. User-visible binding message.
+   *
+   * @generated from field: string binding_message = 1;
+   */
+  bindingMessage: string;
+
+  /**
+   * Output only. Authentication request expiry.
+   *
+   * @generated from field: google.protobuf.Timestamp expire_time = 2;
+   */
+  expireTime?: Timestamp;
+
+  /**
+   * Output only. Polling interval for CIBA token polling or status checks.
+   *
+   * @generated from field: google.protobuf.Duration interval = 3;
+   */
+  interval?: Duration;
+
+  /**
+   * Output only. Reference or hash for client_notification_token, if used.
+   *
+   * @generated from field: string client_notification_token_id = 4;
+   */
+  clientNotificationTokenId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.CibaContext.
+ * Use `create(CibaContextSchema)` to create a new message.
+ */
+export declare const CibaContextSchema: GenMessage<CibaContext>;
+
+/**
+ * TransactionHint contains client-provided transaction confirmation hints.
+ *
+ * @generated from message m8.platform.iam.v1.TransactionHint
+ */
+export declare type TransactionHint = Message<"m8.platform.iam.v1.TransactionHint"> & {
+  /**
+   * Optional. Transaction identifier.
+   *
+   * @generated from field: string transaction_id = 1;
+   */
+  transactionId: string;
+
+  /**
+   * Optional. Transaction type.
+   *
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * Optional. Amount string as provided by the business domain.
+   *
+   * @generated from field: string amount = 3;
+   */
+  amount: string;
+
+  /**
+   * Optional. ISO 4217 currency code.
+   *
+   * @generated from field: string currency = 4;
+   */
+  currency: string;
+
+  /**
+   * Optional. Counterparty display hint. Server must mask before returning.
+   *
+   * @generated from field: string counterparty = 5;
+   */
+  counterparty: string;
+
+  /**
+   * Optional. Binding message shown to the user.
+   *
+   * @generated from field: string binding_message = 6;
+   */
+  bindingMessage: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.TransactionHint.
+ * Use `create(TransactionHintSchema)` to create a new message.
+ */
+export declare const TransactionHintSchema: GenMessage<TransactionHint>;
+
+/**
+ * TransactionContext contains public-safe transaction confirmation context.
+ *
+ * @generated from message m8.platform.iam.v1.TransactionContext
+ */
+export declare type TransactionContext = Message<"m8.platform.iam.v1.TransactionContext"> & {
+  /**
+   * Output only. Transaction identifier.
+   *
+   * @generated from field: string transaction_id = 1;
+   */
+  transactionId: string;
+
+  /**
+   * Output only. Transaction type.
+   *
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * Output only. Amount string as normalized by the business domain.
+   *
+   * @generated from field: string amount = 3;
+   */
+  amount: string;
+
+  /**
+   * Output only. ISO 4217 currency code.
+   *
+   * @generated from field: string currency = 4;
+   */
+  currency: string;
+
+  /**
+   * Output only. Masked counterparty display value.
+   *
+   * @generated from field: string counterparty_masked = 5;
+   */
+  counterpartyMasked: string;
+
+  /**
+   * Output only. Binding message shown to the user.
+   *
+   * @generated from field: string binding_message = 6;
+   */
+  bindingMessage: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.TransactionContext.
+ * Use `create(TransactionContextSchema)` to create a new message.
+ */
+export declare const TransactionContextSchema: GenMessage<TransactionContext>;
+
+/**
+ * RiskContext contains internal/admin risk decision state.
  *
  * @generated from message m8.platform.iam.v1.RiskContext
  */
 export declare type RiskContext = Message<"m8.platform.iam.v1.RiskContext"> & {
   /**
-   * Output only. Identifier of the risk session linked to this authentication
-   * operation. It is used to correlate events with M8 Risk Decision and Audit.
+   * Output only. Risk session identifier.
    *
    * @generated from field: string risk_session_id = 1;
    */
   riskSessionId: string;
 
   /**
-   * Output only. Identifier of the risk decision linked to this authentication
-   * operation. Audit can use it to resolve full risk evidence in M8 Risk Decision.
+   * Output only. Risk decision identifier.
    *
    * @generated from field: string decision_id = 2;
    */
   decisionId: string;
 
   /**
-   * Output only. Safe summary risk level returned by M8 Risk Decision.
+   * Output only. Safe risk level summary.
    *
    * @generated from field: m8.platform.iam.v1.RiskContext.RiskLevel risk_level = 3;
    */
   riskLevel: RiskContext_RiskLevel;
 
   /**
-   * Output only. Recommended action returned by M8 Risk Decision.
+   * Output only. Recommended risk action.
    *
    * @generated from field: m8.platform.iam.v1.RiskContext.RiskAction recommended_action = 4;
    */
   recommendedAction: RiskContext_RiskAction;
-
-  /**
-   * Output only. Safe reason codes or short reason labels produced by M8 Risk
-   * Decision. They must be suitable for audit and internal admin UI.
-   *
-   * @generated from field: repeated string reasons = 5;
-   */
-  reasons: string[];
-
-  /**
-   * Output only. Risk or authentication policy identifiers that influenced the
-   * decision. They are used for audit, explainability, and troubleshooting.
-   *
-   * @generated from field: repeated string policy_ids = 6;
-   */
-  policyIds: string[];
 };
 
 /**
@@ -1288,7 +1683,7 @@ export declare type RiskContext = Message<"m8.platform.iam.v1.RiskContext"> & {
 export declare const RiskContextSchema: GenMessage<RiskContext>;
 
 /**
- * RiskLevel summarizes the overall risk level for this authentication.
+ * RiskLevel summarizes the overall risk level.
  *
  * @generated from enum m8.platform.iam.v1.RiskContext.RiskLevel
  */
@@ -1348,28 +1743,28 @@ export enum RiskContext_RiskAction {
   UNSPECIFIED = 0,
 
   /**
-   * Risk Decision recommends allowing the current authentication path.
+   * Allow the current path.
    *
    * @generated from enum value: RISK_ACTION_ALLOW = 1;
    */
   ALLOW = 1,
 
   /**
-   * Risk Decision recommends adding or selecting a challenge.
+   * Add or select a challenge.
    *
    * @generated from enum value: RISK_ACTION_CHALLENGE = 2;
    */
   CHALLENGE = 2,
 
   /**
-   * Risk Decision recommends stronger or fresher authentication.
+   * Require stronger or fresher authentication.
    *
    * @generated from enum value: RISK_ACTION_STEP_UP = 3;
    */
   STEP_UP = 3,
 
   /**
-   * Risk Decision recommends denying authentication.
+   * Deny authentication.
    *
    * @generated from enum value: RISK_ACTION_DENY = 4;
    */

@@ -8,13 +8,16 @@ import { file_google_api_field_behavior } from "../../../../google/api/field_beh
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import { file_m8_platform_extension_v1_extension } from "../../extension/v1/extension_pb";
 import { file_m8_platform_iam_v1_authentication_challenge } from "./authentication_challenge_pb";
+import { file_m8_platform_iam_v1_authentication_common } from "./authentication_common_pb";
+import { file_m8_platform_iam_v1_authentication_context } from "./authentication_context_pb";
 import { file_m8_platform_iam_v1_authentication_error } from "./authentication_error_pb";
+import { file_m8_platform_iam_v1_authentication_subject } from "./authentication_subject_pb";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication.proto.
  */
 export const file_m8_platform_iam_v1_authentication = /*@__PURE__*/
-  fileDesc("CidtOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb24ucHJvdG8SEm04LnBsYXRmb3JtLmlhbS52MSL1DQoOQXV0aGVudGljYXRpb24SGgoCaWQYASABKAlCDuBBCOBBBbpIBXIDsAEBEiIKCnByb2plY3RfaWQYAiABKAlCDuBBA+BBBbpIBXIDsAEBEiQKDHVzZXJfcG9vbF9pZBgDIAEoCUIO4EED4EEFukgFcgOwAQESIQoJY2xpZW50X2lkGAQgASgJQg7gQQLgQQW6SAVyA7ABARIbCgt3b3JrZmxvd19pZBgFIAEoCUIG4EED4EEFEh4KBnJ1bl9pZBgGIAEoCUIO4EEDukgI2AEBcgOwAQESRgoFc3RhdGUYByABKA4yKC5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb24uU3RhdGVCDeBBA7pIB4IBBBABIAASTAoJY2hhbGxlbmdlGAggASgOMiwubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uLkNoYWxsZW5nZUIL4EEDukgFggECEAESZQoZcmVxdWVzdGVkX2Fzc3VyYW5jZV9sZXZlbBgJIAEoDjIxLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbi5Bc3N1cmFuY2VMZXZlbEIP4EECukgJggEGEAEgACABEmIKGGFjaGlldmVkX2Fzc3VyYW5jZV9sZXZlbBgKIAEoDjIxLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbi5Bc3N1cmFuY2VMZXZlbEIN4EEDukgHggEEEAEgABI3CgtjcmVhdGVfdGltZRgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuBBA+BBBRI0Cgt1cGRhdGVfdGltZRgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxI0CgtleHBpcmVfdGltZRgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxIbCgd2ZXJzaW9uGA4gASgDQgrgQQO6SAQiAigBEh8KB3VzZXJfaWQYDyABKAlCDuBBA7pICNgBAXIDsAEBEk8KEWN1cnJlbnRfY2hhbGxlbmdlGBAgASgLMi8ubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uQ2hhbGxlbmdlSW5mb0ID4EEDElAKDHN0YXRlX3JlYXNvbhgSIAEoDjItLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblN0YXRlUmVhc29uQgvgQQO6SAWCAQIQARJcChRhdmFpbGFibGVfY2hhbGxlbmdlcxgTIAMoCzIxLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkNoYWxsZW5nZU9wdGlvbkIL4EEDukgFkgECECASOwoFZXJyb3IYESABKAsyJy5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25FcnJvckID4EEDEhEKBGV0YWcYFCABKAlCA+BBAyKGAwoFU3RhdGUSFQoRU1RBVEVfVU5TUEVDSUZJRUQQABILCgdDUkVBVEVEEAESEAoMSU5JVElBTElaSU5HEAISDwoLSURFTlRJRllJTkcQAxIOCgpFVkFMVUFUSU5HEAQSFwoTQ0hBTExFTkdFX1BSRVBBUklORxAFEhcKE0NIQUxMRU5HRV9ERUxJVkVSRUQQBhIUChBXQUlUSU5HX0ZPUl9VU0VSEAcSDQoJVkVSSUZZSU5HEAgSHAoYQ0hBTExFTkdFX1JFVFJZX1JFUVVJUkVEEAkSFAoQU1RFUF9VUF9SRVFVSVJFRBAKEg4KCkZJTkFMSVpJTkcQCxIhCh1BVVRIT1JJWkFUSU9OX0hBTkRPRkZfUEVORElORxAMEhEKDUFVVEhFTlRJQ0FURUQQDRIKCgZERU5JRUQQDhIMCghDQU5DRUxFRBAPEgsKB0VYUElSRUQQEBIVChFBVFRFTVBUU19FWENFRURFRBAREgsKB0JMT0NLRUQQEhIKCgZGQUlMRUQQEyJ8CglDaGFsbGVuZ2USGQoVQ0hBTExFTkdFX1VOU1BFQ0lGSUVEEAASBwoDT1RQEAESDAoIQVBQUk9WQUwQAhINCglNT0JJTEVfSUQQAxIMCghXRUJBVVRIThAEEggKBE9JREMQBRIICgRTQU1MEAYSDAoIUEFTU1dPUkQQByJZCg5Bc3N1cmFuY2VMZXZlbBIfChtBU1NVUkFOQ0VfTEVWRUxfVU5TUEVDSUZJRUQQABIICgRBQUwwEAESCAoEQUFMMRACEggKBEFBTDIQAxIICgRBQUwzEAQ6Joq1GCJtOC5wbGF0Zm9ybS5pYW0uYXV0aGVudGljYXRpb25zLnYxQjdaNWdpdGh1Yi5jb20vbTgtdGVhbS9nby1nZW5wcm90by9tOC9wbGF0Zm9ybS9pYW0vdjE7aWFtYgZwcm90bzM", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_m8_platform_extension_v1_extension, file_m8_platform_iam_v1_authentication_challenge, file_m8_platform_iam_v1_authentication_error]);
+  fileDesc("CidtOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb24ucHJvdG8SEm04LnBsYXRmb3JtLmlhbS52MSLNCAoOQXV0aGVudGljYXRpb24SGgoCaWQYASABKAlCDuBBCOBBA7pIBXIDsAEBEiEKCWNsaWVudF9pZBgCIAEoCUIO4EED4EEFukgFcgOwAQESRwoHc3ViamVjdBgDIAEoCzIxLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblN1YmplY3RTbmFwc2hvdEID4EEDEkcKB3B1cnBvc2UYBCABKA4yKS5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25QdXJwb3NlQgvgQQO6SAWCAQIQARJFCgVzdGF0ZRgFIAEoDjInLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblN0YXRlQg3gQQO6SAeCAQQQASAAElAKDHN0YXRlX3JlYXNvbhgGIAEoDjItLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblN0YXRlUmVhc29uQgvgQQO6SAWCAQIQARJPChFjdXJyZW50X2NoYWxsZW5nZRgHIAEoCzIvLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkNoYWxsZW5nZUluZm9CA+BBAxJcChRhdmFpbGFibGVfY2hhbGxlbmdlcxgIIAMoCzIxLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkNoYWxsZW5nZU9wdGlvbkIL4EEDukgFkgECECASOwoFZXJyb3IYCSABKAsyJy5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25FcnJvckID4EEDEj0KBnJlc3VsdBgKIAEoCzIoLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvblJlc3VsdEID4EEDEj8KB2NvbnRleHQYCyABKAsyKS5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25Db250ZXh0QgPgQQMSNwoLY3JlYXRlX3RpbWUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbgQQPgQQUSNAoLdXBkYXRlX3RpbWUYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSNAoLZXhwaXJlX3RpbWUYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMSGQoEZXRhZxgPIAEoCUIL4EEDukgFcgMYgAESYAoZcmVxdWVzdGVkX2Fzc3VyYW5jZV9sZXZlbBgQIAEoDjIwLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkFzc3VyYW5jZUxldmVsQgvgQQO6SAWCAQIQARIbCgd2ZXJzaW9uGBEgASgDQgrgQQO6SAQiAigAOiaKtRgibTgucGxhdGZvcm0uaWFtLmF1dGhlbnRpY2F0aW9ucy52MSKjAQoZQXV0aGVudGljYXRpb25JbnRlcmFjdGlvbhImChFhdXRoZW50aWNhdGlvbl9pZBgBIAEoCUIL4EEDukgFcgOwAQESKAoRaW50ZXJhY3Rpb25fdG9rZW4YAiABKAlCDeBBA7pIB3IFEAgYgCASNAoLZXhwaXJlX3RpbWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMisgMKFEF1dGhlbnRpY2F0aW9uUmVzdWx0EjIKCWF1dGhfdGltZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCA+BBAxJfChhhY2hpZXZlZF9hc3N1cmFuY2VfbGV2ZWwYAiABKA4yMC5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25Bc3N1cmFuY2VMZXZlbEIL4EEDukgFggECEAESXgoWYXV0aGVudGljYXRpb25fbWV0aG9kcxgDIAMoDjIoLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbk1ldGhvZEIU4EEDukgOkgELECAiB4IBBBABIAASKAoKbWV0aG9kX2lkcxgEIAMoCUIU4EEDukgOkgELECAiB3IFEAEY/wESIAoDYW1yGAUgAygJQhPgQQO6SA2SAQoQICIGcgQQARhAEhgKA2FjchgGIAEoCUIL4EEDukgFcgMY/wESPwoHaGFuZG9mZhgHIAEoCzIpLm04LnBsYXRmb3JtLmlhbS52MS5BdXRoZW50aWNhdGlvbkhhbmRvZmZCA+BBAyLQAgoVQXV0aGVudGljYXRpb25IYW5kb2ZmEkkKBHR5cGUYASABKA4yLi5tOC5wbGF0Zm9ybS5pYW0udjEuQXV0aGVudGljYXRpb25IYW5kb2ZmLlR5cGVCC+BBA7pIBYIBAhABEh8KCmhhbmRvZmZfaWQYAiABKAlCC+BBA7pIBXIDGIAEEjQKC2V4cGlyZV90aW1lGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEID4EEDIpQBCgRUeXBlEhQKEFRZUEVfVU5TUEVDSUZJRUQQABIWChJBVVRIT1JJWkFUSU9OX0NPREUQARIUChBDSUJBX0FVVEhfUkVRX0lEEAISEwoPU0VTU0lPTl9IQU5ET0ZGEAMSGAoUSldUX0JFQVJFUl9BU1NFUlRJT04QBBIZChVLRVlDTE9BS19MT0dJTl9BQ1RJT04QBUI3WjVnaXRodWIuY29tL204LXRlYW0vZ28tZ2VucHJvdG8vbTgvcGxhdGZvcm0vaWFtL3YxO2lhbWIGcHJvdG8z", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_timestamp, file_m8_platform_extension_v1_extension, file_m8_platform_iam_v1_authentication_challenge, file_m8_platform_iam_v1_authentication_common, file_m8_platform_iam_v1_authentication_context, file_m8_platform_iam_v1_authentication_error, file_m8_platform_iam_v1_authentication_subject]);
 
 /**
  * Describes the message m8.platform.iam.v1.Authentication.
@@ -24,65 +27,37 @@ export const AuthenticationSchema = /*@__PURE__*/
   messageDesc(file_m8_platform_iam_v1_authentication, 0);
 
 /**
- * Describes the enum m8.platform.iam.v1.Authentication.State.
+ * Describes the message m8.platform.iam.v1.AuthenticationInteraction.
+ * Use `create(AuthenticationInteractionSchema)` to create a new message.
  */
-export const Authentication_StateSchema = /*@__PURE__*/
-  enumDesc(file_m8_platform_iam_v1_authentication, 0, 0);
+export const AuthenticationInteractionSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication, 1);
 
 /**
- * Current lifecycle state of an authentication operation.
- *
- * Fully cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
- * CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER,
- * CHALLENGE_RETRY_REQUIRED, and STEP_UP_REQUIRED.
- *
- * Best-effort cancel states are VERIFYING, AUTHORIZATION_HANDOFF_PENDING, and
- * FINALIZING. Cancel may return the unchanged snapshot if verification or
- * finalization already passed the safe cancellation point.
- *
- * Terminal immutable states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
- * ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
- *
- * Cancel transition rule:
- * - fully cancelable state -> CANCELED
- * - best-effort cancel state -> CANCELED or unchanged snapshot
- * - terminal states are immutable
- *
- * On a successful transition to CANCELED, update_time is updated and version is
- * incremented. If the operation is already terminal, update_time and version
- * are not changed.
- *
- *
- * @generated from enum m8.platform.iam.v1.Authentication.State
+ * Describes the message m8.platform.iam.v1.AuthenticationResult.
+ * Use `create(AuthenticationResultSchema)` to create a new message.
  */
-export const Authentication_State = /*@__PURE__*/
-  tsEnum(Authentication_StateSchema);
+export const AuthenticationResultSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication, 2);
 
 /**
- * Describes the enum m8.platform.iam.v1.Authentication.Challenge.
+ * Describes the message m8.platform.iam.v1.AuthenticationHandoff.
+ * Use `create(AuthenticationHandoffSchema)` to create a new message.
  */
-export const Authentication_ChallengeSchema = /*@__PURE__*/
-  enumDesc(file_m8_platform_iam_v1_authentication, 0, 1);
+export const AuthenticationHandoffSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication, 3);
 
 /**
- * Challenge type required to continue or complete authentication.
+ * Describes the enum m8.platform.iam.v1.AuthenticationHandoff.Type.
+ */
+export const AuthenticationHandoff_TypeSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication, 3, 0);
+
+/**
+ * Type of handoff produced by the authentication flow.
  *
- * @generated from enum m8.platform.iam.v1.Authentication.Challenge
+ * @generated from enum m8.platform.iam.v1.AuthenticationHandoff.Type
  */
-export const Authentication_Challenge = /*@__PURE__*/
-  tsEnum(Authentication_ChallengeSchema);
-
-/**
- * Describes the enum m8.platform.iam.v1.Authentication.AssuranceLevel.
- */
-export const Authentication_AssuranceLevelSchema = /*@__PURE__*/
-  enumDesc(file_m8_platform_iam_v1_authentication, 0, 2);
-
-/**
- * Authentication assurance level required or achieved by an authentication flow.
- *
- * @generated from enum m8.platform.iam.v1.Authentication.AssuranceLevel
- */
-export const Authentication_AssuranceLevel = /*@__PURE__*/
-  tsEnum(Authentication_AssuranceLevelSchema);
+export const AuthenticationHandoff_Type = /*@__PURE__*/
+  tsEnum(AuthenticationHandoff_TypeSchema);
 

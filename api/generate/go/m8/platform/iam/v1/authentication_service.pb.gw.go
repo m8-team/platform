@@ -62,6 +62,8 @@ func local_request_AuthenticationService_StartAuthentication_0(ctx context.Conte
 	return msg, metadata, err
 }
 
+var filter_AuthenticationService_GetAuthentication_0 = &utilities.DoubleArray{Encoding: map[string]int{"authentication_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
 func request_AuthenticationService_GetAuthentication_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetAuthenticationRequest
@@ -78,6 +80,12 @@ func request_AuthenticationService_GetAuthentication_0(ctx context.Context, mars
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AuthenticationService_GetAuthentication_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.GetAuthentication(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -97,15 +105,20 @@ func local_request_AuthenticationService_GetAuthentication_0(ctx context.Context
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AuthenticationService_GetAuthentication_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	msg, err := server.GetAuthentication(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_AuthenticationService_CancelAuthentication_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AuthenticationService_GetAuthenticationExperience_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CancelAuthenticationRequest
+		protoReq GetAuthenticationExperienceRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -113,97 +126,19 @@ func request_AuthenticationService_CancelAuthentication_0(ctx context.Context, m
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["authentication_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
-	}
-	protoReq.AuthenticationId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
-	}
-	msg, err := client.CancelAuthentication(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetAuthenticationExperience(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AuthenticationService_CancelAuthentication_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AuthenticationService_GetAuthenticationExperience_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CancelAuthenticationRequest
+		protoReq GetAuthenticationExperienceRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["authentication_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
-	}
-	protoReq.AuthenticationId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
-	}
-	msg, err := server.CancelAuthentication(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_AuthenticationService_ResendAuthenticationChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ResendAuthenticationChallengeRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["authentication_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
-	}
-	protoReq.AuthenticationId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
-	}
-	val, ok = pathParams["challenge_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
-	}
-	protoReq.ChallengeId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
-	}
-	msg, err := client.ResendAuthenticationChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AuthenticationService_ResendAuthenticationChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ResendAuthenticationChallengeRequest
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	val, ok := pathParams["authentication_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
-	}
-	protoReq.AuthenticationId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
-	}
-	val, ok = pathParams["challenge_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
-	}
-	protoReq.ChallengeId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
-	}
-	msg, err := server.ResendAuthenticationChallenge(ctx, &protoReq)
+	msg, err := server.GetAuthenticationExperience(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -252,6 +187,51 @@ func local_request_AuthenticationService_SelectAuthenticationChallenge_0(ctx con
 	return msg, metadata, err
 }
 
+func request_AuthenticationService_ResendAuthenticationChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ResendAuthenticationChallengeRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	val, ok := pathParams["authentication_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
+	}
+	protoReq.AuthenticationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	msg, err := client.ResendAuthenticationChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_AuthenticationService_ResendAuthenticationChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ResendAuthenticationChallengeRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	val, ok := pathParams["authentication_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
+	}
+	protoReq.AuthenticationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	msg, err := server.ResendAuthenticationChallenge(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_AuthenticationService_SubmitAuthenticationChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq SubmitAuthenticationChallengeRequest
@@ -271,14 +251,6 @@ func request_AuthenticationService_SubmitAuthenticationChallenge_0(ctx context.C
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
-	}
-	val, ok = pathParams["challenge_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
-	}
-	protoReq.ChallengeId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
 	}
 	msg, err := client.SubmitAuthenticationChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -301,21 +273,13 @@ func local_request_AuthenticationService_SubmitAuthenticationChallenge_0(ctx con
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
-	val, ok = pathParams["challenge_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
-	}
-	protoReq.ChallengeId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
-	}
 	msg, err := server.SubmitAuthenticationChallenge(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_AuthenticationService_HandleAuthenticationCallback_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AuthenticationService_CancelAuthentication_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq HandleAuthenticationCallbackRequest
+		protoReq CancelAuthenticationRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -325,86 +289,60 @@ func request_AuthenticationService_HandleAuthenticationCallback_0(ctx context.Co
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	val, ok := pathParams["provider_id"]
+	val, ok := pathParams["authentication_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
 	}
-	protoReq.ProviderId, err = runtime.String(val)
+	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
-	msg, err := client.HandleAuthenticationCallback(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CancelAuthentication(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AuthenticationService_HandleAuthenticationCallback_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AuthenticationService_CancelAuthentication_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq HandleAuthenticationCallbackRequest
+		protoReq CancelAuthenticationRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	val, ok := pathParams["provider_id"]
+	val, ok := pathParams["authentication_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider_id")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "authentication_id")
 	}
-	protoReq.ProviderId, err = runtime.String(val)
+	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider_id", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
-	msg, err := server.HandleAuthenticationCallback(ctx, &protoReq)
+	msg, err := server.CancelAuthentication(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_AuthenticationService_HandleAuthenticationCallback_1 = &utilities.DoubleArray{Encoding: map[string]int{"provider_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-
-func request_AuthenticationService_HandleAuthenticationCallback_1(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationProviderCallbackServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq HandleAuthenticationCallbackRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["provider_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider_id")
-	}
-	protoReq.ProviderId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AuthenticationService_HandleAuthenticationCallback_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.HandleAuthenticationCallback(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AuthenticationService_HandleAuthenticationCallback_1(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationProviderCallbackServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq HandleAuthenticationCallbackRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["provider_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider_id")
-	}
-	protoReq.ProviderId, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider_id", err)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AuthenticationService_HandleAuthenticationCallback_1); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.HandleAuthenticationCallback(ctx, &protoReq)
@@ -457,45 +395,25 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_GetAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_CancelAuthentication_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_GetAuthenticationExperience_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:cancel"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/GetAuthenticationExperience", runtime.WithHTTPPathPattern("/v1/iam/authenticationExperience:get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AuthenticationService_CancelAuthentication_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AuthenticationService_GetAuthenticationExperience_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AuthenticationService_CancelAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_ResendAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:resend"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AuthenticationService_GetAuthenticationExperience_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_AuthenticationService_SelectAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -517,13 +435,33 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_SelectAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_ResendAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:resendChallenge"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_AuthenticationService_SubmitAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SubmitAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:submit"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SubmitAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:submitChallenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -537,45 +475,55 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_SubmitAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_HandleAuthenticationCallback_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_CancelAuthentication_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks/{provider_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AuthenticationService_HandleAuthenticationCallback_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AuthenticationService_CancelAuthentication_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AuthenticationService_HandleAuthenticationCallback_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AuthenticationService_CancelAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_AuthenticationService_HandleAuthenticationCallback_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	return nil
+}
+
+// RegisterAuthenticationProviderCallbackServiceHandlerServer registers the http handlers for service AuthenticationProviderCallbackService to "mux".
+// UnaryRPC     :call AuthenticationProviderCallbackServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAuthenticationProviderCallbackServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterAuthenticationProviderCallbackServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AuthenticationProviderCallbackServiceServer) error {
+	mux.Handle(http.MethodPost, pattern_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks/{provider_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationProviderCallbackService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks:handle"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AuthenticationService_HandleAuthenticationCallback_1(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AuthenticationService_HandleAuthenticationCallback_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -651,39 +599,22 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_GetAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_CancelAuthentication_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_GetAuthenticationExperience_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:cancel"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/GetAuthenticationExperience", runtime.WithHTTPPathPattern("/v1/iam/authenticationExperience:get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AuthenticationService_CancelAuthentication_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AuthenticationService_GetAuthenticationExperience_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AuthenticationService_CancelAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_ResendAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:resend"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AuthenticationService_GetAuthenticationExperience_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_AuthenticationService_SelectAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -702,11 +633,28 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_SelectAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_ResendAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:resendChallenge"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AuthenticationService_ResendAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_AuthenticationService_SubmitAuthenticationChallenge_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SubmitAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}/challenges/{challenge_id}:submit"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SubmitAuthenticationChallenge", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:submitChallenge"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -719,39 +667,22 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		}
 		forward_AuthenticationService_SubmitAuthenticationChallenge_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AuthenticationService_HandleAuthenticationCallback_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AuthenticationService_CancelAuthentication_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks/{provider_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication", runtime.WithHTTPPathPattern("/v1/iam/authentications/{authentication_id}:cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AuthenticationService_HandleAuthenticationCallback_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AuthenticationService_CancelAuthentication_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AuthenticationService_HandleAuthenticationCallback_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-	mux.Handle(http.MethodGet, pattern_AuthenticationService_HandleAuthenticationCallback_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks/{provider_id}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AuthenticationService_HandleAuthenticationCallback_1(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_AuthenticationService_HandleAuthenticationCallback_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AuthenticationService_CancelAuthentication_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
@@ -759,21 +690,83 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 var (
 	pattern_AuthenticationService_StartAuthentication_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "iam", "authentications"}, "start"))
 	pattern_AuthenticationService_GetAuthentication_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, ""))
-	pattern_AuthenticationService_CancelAuthentication_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, "cancel"))
-	pattern_AuthenticationService_ResendAuthenticationChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "authentications", "authentication_id", "challenges", "challenge_id"}, "resend"))
+	pattern_AuthenticationService_GetAuthenticationExperience_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "iam", "authenticationExperience"}, "get"))
 	pattern_AuthenticationService_SelectAuthenticationChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, "selectChallenge"))
-	pattern_AuthenticationService_SubmitAuthenticationChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "iam", "authentications", "authentication_id", "challenges", "challenge_id"}, "submit"))
-	pattern_AuthenticationService_HandleAuthenticationCallback_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authenticationCallbacks", "provider_id"}, ""))
-	pattern_AuthenticationService_HandleAuthenticationCallback_1  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authenticationCallbacks", "provider_id"}, ""))
+	pattern_AuthenticationService_ResendAuthenticationChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, "resendChallenge"))
+	pattern_AuthenticationService_SubmitAuthenticationChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, "submitChallenge"))
+	pattern_AuthenticationService_CancelAuthentication_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "iam", "authentications", "authentication_id"}, "cancel"))
 )
 
 var (
 	forward_AuthenticationService_StartAuthentication_0           = runtime.ForwardResponseMessage
 	forward_AuthenticationService_GetAuthentication_0             = runtime.ForwardResponseMessage
-	forward_AuthenticationService_CancelAuthentication_0          = runtime.ForwardResponseMessage
-	forward_AuthenticationService_ResendAuthenticationChallenge_0 = runtime.ForwardResponseMessage
+	forward_AuthenticationService_GetAuthenticationExperience_0   = runtime.ForwardResponseMessage
 	forward_AuthenticationService_SelectAuthenticationChallenge_0 = runtime.ForwardResponseMessage
+	forward_AuthenticationService_ResendAuthenticationChallenge_0 = runtime.ForwardResponseMessage
 	forward_AuthenticationService_SubmitAuthenticationChallenge_0 = runtime.ForwardResponseMessage
-	forward_AuthenticationService_HandleAuthenticationCallback_0  = runtime.ForwardResponseMessage
-	forward_AuthenticationService_HandleAuthenticationCallback_1  = runtime.ForwardResponseMessage
+	forward_AuthenticationService_CancelAuthentication_0          = runtime.ForwardResponseMessage
+)
+
+// RegisterAuthenticationProviderCallbackServiceHandlerFromEndpoint is same as RegisterAuthenticationProviderCallbackServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterAuthenticationProviderCallbackServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+	return RegisterAuthenticationProviderCallbackServiceHandler(ctx, mux, conn)
+}
+
+// RegisterAuthenticationProviderCallbackServiceHandler registers the http handlers for service AuthenticationProviderCallbackService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterAuthenticationProviderCallbackServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAuthenticationProviderCallbackServiceHandlerClient(ctx, mux, NewAuthenticationProviderCallbackServiceClient(conn))
+}
+
+// RegisterAuthenticationProviderCallbackServiceHandlerClient registers the http handlers for service AuthenticationProviderCallbackService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AuthenticationProviderCallbackServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AuthenticationProviderCallbackServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "AuthenticationProviderCallbackServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterAuthenticationProviderCallbackServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AuthenticationProviderCallbackServiceClient) error {
+	mux.Handle(http.MethodPost, pattern_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationProviderCallbackService/HandleAuthenticationCallback", runtime.WithHTTPPathPattern("/v1/iam/authenticationCallbacks:handle"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	return nil
+}
+
+var (
+	pattern_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "iam", "authenticationCallbacks"}, "handle"))
+)
+
+var (
+	forward_AuthenticationProviderCallbackService_HandleAuthenticationCallback_0 = runtime.ForwardResponseMessage
 )

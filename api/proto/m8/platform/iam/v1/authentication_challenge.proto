@@ -129,6 +129,40 @@ enum AuthenticationChallengeAction {
   AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
 }
 
+// AuthenticationChallengeCapability describes typed UI and command capabilities
+// exposed by a challenge or challenge option.
+enum AuthenticationChallengeCapability {
+  // Authentication challenge capability is not specified.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED = 0;
+
+  // A response can be submitted for this challenge.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT = 1;
+
+  // The challenge can be resent or redelivered.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND = 2;
+
+  // The UI can use platform autofill.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL = 3;
+
+  // The UI can use passkey conditional mediation.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI = 4;
+
+  // The user can select another allowed method.
+  AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD = 5;
+}
+
+// WebAuthnDiscoveryMode controls whether credential ids may be returned.
+enum WebAuthnDiscoveryMode {
+  // WebAuthn discovery mode is not specified.
+  WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED = 0;
+
+  // Use discoverable credentials or conditional UI without returning allow-list.
+  WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS = 1;
+
+  // Use a known-user allow-list when subject/session is safely resolved.
+  WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST = 2;
+}
+
 // UserVerificationRequirement mirrors the WebAuthn user verification
 // requirement used for an assertion ceremony.
 enum UserVerificationRequirement {
@@ -166,6 +200,8 @@ enum ApprovalChannel {
 // AuthenticationChallengeOption describes a public-safe method/provider option
 // for dynamic login UI.
 message AuthenticationChallengeOption {
+  // CEL uses numeric enum values because protovalidate CEL currently evaluates
+  // enum fields as their numeric value in these generated descriptors.
   option (buf.validate.message).cel = {
     id: "authentication_challenge_option.provider_required"
     message: "external provider methods require provider_id"
@@ -181,14 +217,26 @@ message AuthenticationChallengeOption {
     }
   ];
 
+  // Output only. Configured method or plugin identifier.
+  //
+  // Examples:
+  // - "exolve_sms"
+  // - "mts_simpush"
+  // - "company_passkey"
+  // - "google_oidc"
+  string method_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
   // Output only. Provider, channel, or integration identifier.
-  string provider_id = 2 [
+  string provider_id = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Challenge kind the client should expect for this option.
-  AuthenticationChallengeKind kind = 3 [
+  AuthenticationChallengeKind kind = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
@@ -197,37 +245,51 @@ message AuthenticationChallengeOption {
   ];
 
   // Output only. Human-readable method or provider display name.
-  string display_name = 4 [
+  string display_name = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. UI ordering priority. Lower values should be rendered first.
-  int32 priority = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int32 priority = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Whether this option can currently be selected.
-  bool available = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool available = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Safe explanation shown when available is false.
-  string unavailable_reason = 7 [
+  string unavailable_reason = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 512
   ];
 
   // Output only. Masked destination if policy allows exposing it.
-  string masked_destination = 8 [
+  string masked_destination = 9 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Delivery channel used by this option.
-  AuthenticationDeliveryChannel delivery_channel = 9 [
+  AuthenticationDeliveryChannel delivery_channel = 10 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Output only. Public UI capability labels such as resend, autofill, or passkey.
-  repeated string capabilities = 10 [
+  // Output only. Typed UI and command capabilities.
+  repeated AuthenticationChallengeCapability capabilities = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  // Output only. Custom extension capability labels for plugin methods.
+  repeated string custom_capabilities = 12 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 32
@@ -241,7 +303,7 @@ message AuthenticationChallengeOption {
   ];
 
   // Output only. Additional public-safe UI hints.
-  map<string, string> hints = 11 [
+  map<string, string> hints = 13 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).map = {
       max_pairs: 32
@@ -258,7 +320,7 @@ message AuthenticationChallengeOption {
   ];
 
   // Output only. Whether the UI should highlight this option.
-  bool recommended = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool recommended = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AuthenticationChallengeInfo is the source of truth for current challenge UI
@@ -268,6 +330,8 @@ message AuthenticationChallengeOption {
 // internal callback secrets, raw risk features, raw device fingerprints, or
 // private WebAuthn server-side session secrets.
 message AuthenticationChallengeInfo {
+  // CEL uses numeric enum values because protovalidate CEL currently evaluates
+  // enum fields as their numeric value in these generated descriptors.
   option (buf.validate.message).cel = {
     id: "authentication_challenge_info.otp_parameters_required"
     message: "OTP_INPUT challenges require otp parameters"
@@ -324,44 +388,50 @@ message AuthenticationChallengeInfo {
     }
   ];
 
+  // Output only. Configured method or plugin identifier.
+  string method_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
   // Output only. Provider, channel, or integration identifier.
-  string provider_id = 4 [
+  string provider_id = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Delivery channel for this challenge.
-  AuthenticationDeliveryChannel delivery_channel = 5 [
+  AuthenticationDeliveryChannel delivery_channel = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
   // Output only. Masked destination where safe to expose.
-  string masked_destination = 6 [
+  string masked_destination = 7 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Time when this challenge expires.
-  google.protobuf.Timestamp expire_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp expire_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when resend becomes available.
-  google.protobuf.Timestamp resend_available_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp resend_available_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Number of attempts already submitted for this challenge.
-  int32 attempt_count = 9 [
+  int32 attempt_count = 10 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
 
   // Output only. Number of attempts remaining for this challenge.
-  int32 remaining_attempts = 10 [
+  int32 remaining_attempts = 11 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
 
   // Output only. Actions currently available for this challenge.
-  repeated AuthenticationChallengeAction actions = 11 [
+  repeated AuthenticationChallengeAction actions = 12 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 20
@@ -369,6 +439,34 @@ message AuthenticationChallengeInfo {
         enum: {
           defined_only: true
           not_in: [0]
+        }
+      }
+    }
+  ];
+
+  // Output only. Typed UI and command capabilities for this challenge.
+  repeated AuthenticationChallengeCapability capabilities = 13 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  // Output only. Custom extension capability labels for plugin methods.
+  repeated string custom_capabilities = 14 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 64
         }
       }
     }
@@ -483,8 +581,19 @@ message WebAuthnChallenge {
     (buf.validate.field).enum.defined_only = true
   ];
 
+  // Output only. WebAuthn discovery mode selected by policy.
+  //
+  // Before a subject or session is reliably resolved, passkey-first UI should
+  // use discoverable credentials and must not return allow_credentials. For
+  // known-user or step-up flows, allow_credentials may be returned only when
+  // policy allows exposing credential descriptors.
+  WebAuthnDiscoveryMode discovery_mode = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
   // Output only. Public credential descriptors allowed for this assertion.
-  repeated WebAuthnAllowedCredential allow_credentials = 5 [
+  repeated WebAuthnAllowedCredential allow_credentials = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {max_items: 100}
   ];

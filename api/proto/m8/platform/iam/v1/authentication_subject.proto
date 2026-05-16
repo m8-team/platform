@@ -173,3 +173,45 @@ message AuthenticationSubject {
     (buf.validate.field).string.max_len = 2048
   ];
 }
+
+// AuthenticationSubjectSnapshot is the public-safe subject projection returned
+// in Authentication snapshots.
+//
+// It must not contain raw email addresses, phone numbers, usernames, login
+// hints, external provider subjects, or issuer-scoped identifiers. Use
+// masked_value for UI display and return user_id only after the subject is
+// safely resolved and policy allows exposing it.
+message AuthenticationSubjectSnapshot {
+  // Output only. Subject type accepted or resolved by the server.
+  AuthenticationSubject.Type type = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Resolved M8 Identity user id, when policy allows exposing it.
+  string user_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Masked value safe for UI display.
+  //
+  // Examples:
+  // - "s***@example.com"
+  // - "+43******4567"
+  // - "j***e"
+  string masked_value = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Output only. Provider id for provider-scoped hints, when safe to expose.
+  string provider_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Whether the server resolved the subject.
+  bool resolved = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

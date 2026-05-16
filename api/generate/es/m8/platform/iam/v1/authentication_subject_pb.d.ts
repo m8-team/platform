@@ -60,8 +60,8 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
    * Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
    * AuthenticationSubject.provider_id must not be used to select the login provider.
    *
-   * This field should normally be set only when type is EXTERNAL_IDENTITY,
-   * or when LOGIN_HINT is explicitly provider-scoped.
+   * This field is allowed only when type is EXTERNAL_IDENTITY, or when
+   * LOGIN_HINT is explicitly provider-scoped.
    * This field is required when type is EXTERNAL_IDENTITY.
    *
    * Example:
@@ -180,4 +180,63 @@ export enum AuthenticationSubject_Type {
  * Describes the enum m8.platform.iam.v1.AuthenticationSubject.Type.
  */
 export declare const AuthenticationSubject_TypeSchema: GenEnum<AuthenticationSubject_Type>;
+
+/**
+ * AuthenticationSubjectSnapshot is the public-safe subject projection returned
+ * in Authentication snapshots.
+ *
+ * It must not contain raw email addresses, phone numbers, usernames, login
+ * hints, external provider subjects, or issuer-scoped identifiers. Use
+ * masked_value for UI display and return user_id only after the subject is
+ * safely resolved and policy allows exposing it.
+ *
+ * @generated from message m8.platform.iam.v1.AuthenticationSubjectSnapshot
+ */
+export declare type AuthenticationSubjectSnapshot = Message<"m8.platform.iam.v1.AuthenticationSubjectSnapshot"> & {
+  /**
+   * Output only. Subject type accepted or resolved by the server.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationSubject.Type type = 1;
+   */
+  type: AuthenticationSubject_Type;
+
+  /**
+   * Output only. Resolved M8 Identity user id, when policy allows exposing it.
+   *
+   * @generated from field: string user_id = 2;
+   */
+  userId: string;
+
+  /**
+   * Output only. Masked value safe for UI display.
+   *
+   * Examples:
+   * - "s***@example.com"
+   * - "+43******4567"
+   * - "j***e"
+   *
+   * @generated from field: string masked_value = 3;
+   */
+  maskedValue: string;
+
+  /**
+   * Output only. Provider id for provider-scoped hints, when safe to expose.
+   *
+   * @generated from field: string provider_id = 4;
+   */
+  providerId: string;
+
+  /**
+   * Output only. Whether the server resolved the subject.
+   *
+   * @generated from field: bool resolved = 5;
+   */
+  resolved: boolean;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationSubjectSnapshot.
+ * Use `create(AuthenticationSubjectSnapshotSchema)` to create a new message.
+ */
+export declare const AuthenticationSubjectSnapshotSchema: GenMessage<AuthenticationSubjectSnapshot>;
 

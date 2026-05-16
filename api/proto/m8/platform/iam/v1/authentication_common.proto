@@ -79,3 +79,64 @@ enum AuthenticationPurpose {
   // Confirmation of a transaction or business action.
   AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION = 6;
 }
+
+// AuthenticationOperationType identifies the asynchronous command represented
+// by a google.longrunning.Operation.
+//
+// The operation tracks processing of one command, not the entire authentication
+// lifecycle. Authentication.state is the source of truth for lifecycle state.
+enum AuthenticationOperationType {
+  // Authentication operation type is not specified.
+  AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED = 0;
+
+  // StartAuthentication command processing.
+  AUTHENTICATION_OPERATION_TYPE_START = 1;
+
+  // SelectAuthenticationChallenge command processing.
+  AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE = 2;
+
+  // ResendAuthenticationChallenge command processing.
+  AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE = 3;
+
+  // SubmitAuthenticationChallenge command processing.
+  AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE = 4;
+
+  // CancelAuthentication command processing.
+  AUTHENTICATION_OPERATION_TYPE_CANCEL = 5;
+
+  // Provider callback command processing.
+  AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK = 6;
+}
+
+// AuthenticationView controls how much information is projected by read APIs.
+enum AuthenticationView {
+  // Defaults to public-safe projection.
+  AUTHENTICATION_VIEW_UNSPECIFIED = 0;
+
+  // Public-safe projection for mobile, web, and public SDK clients.
+  AUTHENTICATION_VIEW_PUBLIC = 1;
+
+  // Admin projection with additional diagnostic information where authorized.
+  AUTHENTICATION_VIEW_ADMIN = 2;
+
+  // Internal projection for trusted services and provider adapters.
+  AUTHENTICATION_VIEW_INTERNAL = 3;
+}
+
+// LoginExperienceMode describes the dynamic login UI mode selected by policy.
+enum LoginExperienceMode {
+  // Login experience mode is not specified.
+  LOGIN_EXPERIENCE_MODE_UNSPECIFIED = 0;
+
+  // Ask for an identifier before method selection.
+  LOGIN_EXPERIENCE_MODE_IDENTIFIER_FIRST = 1;
+
+  // Prefer passwordless method selection.
+  LOGIN_EXPERIENCE_MODE_PASSWORDLESS_FIRST = 2;
+
+  // Prefer passkey or WebAuthn conditional UI.
+  LOGIN_EXPERIENCE_MODE_PASSKEY_FIRST = 3;
+
+  // Prefer external identity provider selection.
+  LOGIN_EXPERIENCE_MODE_PROVIDER_FIRST = 4;
+}

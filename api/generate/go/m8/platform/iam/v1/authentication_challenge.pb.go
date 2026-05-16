@@ -114,8 +114,8 @@ func (AuthenticationMethod) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{0}
 }
 
-// AuthenticationChallengeKind identifies the client or user action required to
-// continue the authentication flow.
+// AuthenticationChallengeKind identifies the action required to continue the
+// authentication flow.
 type AuthenticationChallengeKind int32
 
 const (
@@ -184,19 +184,104 @@ func (AuthenticationChallengeKind) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{1}
 }
 
+// AuthenticationDeliveryChannel describes where the challenge is presented or
+// delivered.
+type AuthenticationDeliveryChannel int32
+
+const (
+	// Authentication delivery channel is not specified.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED AuthenticationDeliveryChannel = 0
+	// Challenge is handled directly by the current API client.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_CLIENT AuthenticationDeliveryChannel = 1
+	// Challenge is delivered to a phone number by SMS.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_SMS AuthenticationDeliveryChannel = 2
+	// Challenge is delivered to an email address.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_EMAIL AuthenticationDeliveryChannel = 3
+	// Challenge is expected from an authenticator application.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP AuthenticationDeliveryChannel = 4
+	// Challenge is delivered through push notification.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_PUSH AuthenticationDeliveryChannel = 5
+	// Challenge is delivered through SIM push.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH AuthenticationDeliveryChannel = 6
+	// Challenge is handled by a Mobile ID provider.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID AuthenticationDeliveryChannel = 7
+	// Challenge is handled by a browser WebAuthn ceremony.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN AuthenticationDeliveryChannel = 8
+	// Challenge is handled by an OIDC redirect.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_OIDC AuthenticationDeliveryChannel = 9
+	// Challenge is handled by a SAML redirect or POST binding.
+	AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_SAML AuthenticationDeliveryChannel = 10
+)
+
+// Enum value maps for AuthenticationDeliveryChannel.
+var (
+	AuthenticationDeliveryChannel_name = map[int32]string{
+		0:  "AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED",
+		1:  "AUTHENTICATION_DELIVERY_CHANNEL_CLIENT",
+		2:  "AUTHENTICATION_DELIVERY_CHANNEL_SMS",
+		3:  "AUTHENTICATION_DELIVERY_CHANNEL_EMAIL",
+		4:  "AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP",
+		5:  "AUTHENTICATION_DELIVERY_CHANNEL_PUSH",
+		6:  "AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH",
+		7:  "AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID",
+		8:  "AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN",
+		9:  "AUTHENTICATION_DELIVERY_CHANNEL_OIDC",
+		10: "AUTHENTICATION_DELIVERY_CHANNEL_SAML",
+	}
+	AuthenticationDeliveryChannel_value = map[string]int32{
+		"AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED":       0,
+		"AUTHENTICATION_DELIVERY_CHANNEL_CLIENT":            1,
+		"AUTHENTICATION_DELIVERY_CHANNEL_SMS":               2,
+		"AUTHENTICATION_DELIVERY_CHANNEL_EMAIL":             3,
+		"AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP": 4,
+		"AUTHENTICATION_DELIVERY_CHANNEL_PUSH":              5,
+		"AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH":          6,
+		"AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID":         7,
+		"AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN":          8,
+		"AUTHENTICATION_DELIVERY_CHANNEL_OIDC":              9,
+		"AUTHENTICATION_DELIVERY_CHANNEL_SAML":              10,
+	}
+)
+
+func (x AuthenticationDeliveryChannel) Enum() *AuthenticationDeliveryChannel {
+	p := new(AuthenticationDeliveryChannel)
+	*p = x
+	return p
+}
+
+func (x AuthenticationDeliveryChannel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AuthenticationDeliveryChannel) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[2].Descriptor()
+}
+
+func (AuthenticationDeliveryChannel) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[2]
+}
+
+func (x AuthenticationDeliveryChannel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AuthenticationDeliveryChannel.Descriptor instead.
+func (AuthenticationDeliveryChannel) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{2}
+}
+
 // AuthenticationChallengeAction identifies actions currently available for the
-// current challenge. It is safe for clients to use for dynamic login UI
-// branching.
+// current challenge.
 type AuthenticationChallengeAction int32
 
 const (
 	// Authentication challenge action is not specified.
 	AuthenticationChallengeAction_AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED AuthenticationChallengeAction = 0
-	// Client can submit a user or client proof for the current challenge.
+	// Client can submit a response for the current challenge.
 	AuthenticationChallengeAction_AUTHENTICATION_CHALLENGE_ACTION_SUBMIT AuthenticationChallengeAction = 1
 	// Client can request redelivery of an OTP-like challenge.
 	AuthenticationChallengeAction_AUTHENTICATION_CHALLENGE_ACTION_RESEND AuthenticationChallengeAction = 2
-	// Client can cancel the authentication operation.
+	// Client can cancel the authentication.
 	AuthenticationChallengeAction_AUTHENTICATION_CHALLENGE_ACTION_CANCEL AuthenticationChallengeAction = 3
 	// Client can select another allowed authentication method.
 	AuthenticationChallengeAction_AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD AuthenticationChallengeAction = 4
@@ -231,11 +316,11 @@ func (x AuthenticationChallengeAction) String() string {
 }
 
 func (AuthenticationChallengeAction) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[2].Descriptor()
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[3].Descriptor()
 }
 
 func (AuthenticationChallengeAction) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[2]
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[3]
 }
 
 func (x AuthenticationChallengeAction) Number() protoreflect.EnumNumber {
@@ -244,68 +329,126 @@ func (x AuthenticationChallengeAction) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AuthenticationChallengeAction.Descriptor instead.
 func (AuthenticationChallengeAction) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{3}
 }
 
-// OtpDestinationType describes where or how an OTP challenge was delivered.
-type OtpDestinationType int32
+// AuthenticationChallengeCapability describes typed UI and command capabilities
+// exposed by a challenge or challenge option.
+type AuthenticationChallengeCapability int32
 
 const (
-	// OTP destination type is not specified.
-	OtpDestinationType_OTP_DESTINATION_TYPE_UNSPECIFIED OtpDestinationType = 0
-	// OTP was delivered to a phone number.
-	OtpDestinationType_OTP_DESTINATION_TYPE_PHONE OtpDestinationType = 1
-	// OTP was delivered to an email address.
-	OtpDestinationType_OTP_DESTINATION_TYPE_EMAIL OtpDestinationType = 2
-	// OTP is expected from an authenticator application.
-	OtpDestinationType_OTP_DESTINATION_TYPE_AUTHENTICATOR_APP OtpDestinationType = 3
-	// OTP was generated or delivered through a push channel.
-	OtpDestinationType_OTP_DESTINATION_TYPE_PUSH OtpDestinationType = 4
+	// Authentication challenge capability is not specified.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED AuthenticationChallengeCapability = 0
+	// A response can be submitted for this challenge.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT AuthenticationChallengeCapability = 1
+	// The challenge can be resent or redelivered.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND AuthenticationChallengeCapability = 2
+	// The UI can use platform autofill.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL AuthenticationChallengeCapability = 3
+	// The UI can use passkey conditional mediation.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI AuthenticationChallengeCapability = 4
+	// The user can select another allowed method.
+	AuthenticationChallengeCapability_AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD AuthenticationChallengeCapability = 5
 )
 
-// Enum value maps for OtpDestinationType.
+// Enum value maps for AuthenticationChallengeCapability.
 var (
-	OtpDestinationType_name = map[int32]string{
-		0: "OTP_DESTINATION_TYPE_UNSPECIFIED",
-		1: "OTP_DESTINATION_TYPE_PHONE",
-		2: "OTP_DESTINATION_TYPE_EMAIL",
-		3: "OTP_DESTINATION_TYPE_AUTHENTICATOR_APP",
-		4: "OTP_DESTINATION_TYPE_PUSH",
+	AuthenticationChallengeCapability_name = map[int32]string{
+		0: "AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED",
+		1: "AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT",
+		2: "AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND",
+		3: "AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL",
+		4: "AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI",
+		5: "AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD",
 	}
-	OtpDestinationType_value = map[string]int32{
-		"OTP_DESTINATION_TYPE_UNSPECIFIED":       0,
-		"OTP_DESTINATION_TYPE_PHONE":             1,
-		"OTP_DESTINATION_TYPE_EMAIL":             2,
-		"OTP_DESTINATION_TYPE_AUTHENTICATOR_APP": 3,
-		"OTP_DESTINATION_TYPE_PUSH":              4,
+	AuthenticationChallengeCapability_value = map[string]int32{
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED":            0,
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT":                 1,
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND":                 2,
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL":               3,
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI": 4,
+		"AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD":  5,
 	}
 )
 
-func (x OtpDestinationType) Enum() *OtpDestinationType {
-	p := new(OtpDestinationType)
+func (x AuthenticationChallengeCapability) Enum() *AuthenticationChallengeCapability {
+	p := new(AuthenticationChallengeCapability)
 	*p = x
 	return p
 }
 
-func (x OtpDestinationType) String() string {
+func (x AuthenticationChallengeCapability) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (OtpDestinationType) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[3].Descriptor()
+func (AuthenticationChallengeCapability) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[4].Descriptor()
 }
 
-func (OtpDestinationType) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[3]
+func (AuthenticationChallengeCapability) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[4]
 }
 
-func (x OtpDestinationType) Number() protoreflect.EnumNumber {
+func (x AuthenticationChallengeCapability) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use OtpDestinationType.Descriptor instead.
-func (OtpDestinationType) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use AuthenticationChallengeCapability.Descriptor instead.
+func (AuthenticationChallengeCapability) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{4}
+}
+
+// WebAuthnDiscoveryMode controls whether credential ids may be returned.
+type WebAuthnDiscoveryMode int32
+
+const (
+	// WebAuthn discovery mode is not specified.
+	WebAuthnDiscoveryMode_WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED WebAuthnDiscoveryMode = 0
+	// Use discoverable credentials or conditional UI without returning allow-list.
+	WebAuthnDiscoveryMode_WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS WebAuthnDiscoveryMode = 1
+	// Use a known-user allow-list when subject/session is safely resolved.
+	WebAuthnDiscoveryMode_WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST WebAuthnDiscoveryMode = 2
+)
+
+// Enum value maps for WebAuthnDiscoveryMode.
+var (
+	WebAuthnDiscoveryMode_name = map[int32]string{
+		0: "WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED",
+		1: "WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS",
+		2: "WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST",
+	}
+	WebAuthnDiscoveryMode_value = map[string]int32{
+		"WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED":              0,
+		"WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS": 1,
+		"WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST":    2,
+	}
+)
+
+func (x WebAuthnDiscoveryMode) Enum() *WebAuthnDiscoveryMode {
+	p := new(WebAuthnDiscoveryMode)
+	*p = x
+	return p
+}
+
+func (x WebAuthnDiscoveryMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WebAuthnDiscoveryMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[5].Descriptor()
+}
+
+func (WebAuthnDiscoveryMode) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[5]
+}
+
+func (x WebAuthnDiscoveryMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WebAuthnDiscoveryMode.Descriptor instead.
+func (WebAuthnDiscoveryMode) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{5}
 }
 
 // UserVerificationRequirement mirrors the WebAuthn user verification
@@ -350,11 +493,11 @@ func (x UserVerificationRequirement) String() string {
 }
 
 func (UserVerificationRequirement) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[4].Descriptor()
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[6].Descriptor()
 }
 
 func (UserVerificationRequirement) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[4]
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[6]
 }
 
 func (x UserVerificationRequirement) Number() protoreflect.EnumNumber {
@@ -363,7 +506,7 @@ func (x UserVerificationRequirement) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use UserVerificationRequirement.Descriptor instead.
 func (UserVerificationRequirement) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{6}
 }
 
 // ApprovalChannel identifies the out-of-band channel used for approval.
@@ -411,11 +554,11 @@ func (x ApprovalChannel) String() string {
 }
 
 func (ApprovalChannel) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[5].Descriptor()
+	return file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[7].Descriptor()
 }
 
 func (ApprovalChannel) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[5]
+	return &file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes[7]
 }
 
 func (x ApprovalChannel) Number() protoreflect.EnumNumber {
@@ -424,42 +567,49 @@ func (x ApprovalChannel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ApprovalChannel.Descriptor instead.
 func (ApprovalChannel) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{5}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{7}
 }
 
 // AuthenticationChallengeOption describes a public-safe method/provider option
-// that can be rendered by a dynamic login UI.
-//
-// The server may include disabled or unavailable options with
-// unavailable_reason so clients can render policy-aware UI. The option list must
-// not reveal whether a specific user has a sensitive authenticator unless
-// server-side policy allows that disclosure. For passkey-first UI, WebAuthn or
-// passkey can be marked recommended only after a server-side policy decision.
+// for dynamic login UI.
 type AuthenticationChallengeOption struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Authentication method represented by this option.
 	Method AuthenticationMethod `protobuf:"varint,1,opt,name=method,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"method,omitempty"`
-	// Output only. Challenge kind the client should expect for this option.
-	Kind AuthenticationChallengeKind `protobuf:"varint,2,opt,name=kind,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeKind" json:"kind,omitempty"`
-	// Output only. Provider, channel, or integration identifier for this option.
-	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Output only. Human-readable provider or channel display name.
-	ProviderDisplayName string `protobuf:"bytes,4,opt,name=provider_display_name,json=providerDisplayName,proto3" json:"provider_display_name,omitempty"`
-	// Output only. Masked destination for this option, if policy allows exposing it.
+	// Output only. Configured method or plugin identifier.
 	//
-	// Example:
-	// - "+43******4567"
-	// - "s***@example.com"
-	// - "iPhone 15 Pro"
-	MaskedDestination string `protobuf:"bytes,5,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
-	// Output only. Indicates that this option should be highlighted by the UI.
-	Recommended bool `protobuf:"varint,6,opt,name=recommended,proto3" json:"recommended,omitempty"`
-	// Output only. Indicates whether this option can currently be selected.
+	// Examples:
+	// - "exolve_sms"
+	// - "mts_simpush"
+	// - "company_passkey"
+	// - "google_oidc"
+	MethodId string `protobuf:"bytes,2,opt,name=method_id,json=methodId,proto3" json:"method_id,omitempty"`
+	// Output only. Provider, channel, or integration identifier.
+	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	// Output only. Challenge kind the client should expect for this option.
+	Kind AuthenticationChallengeKind `protobuf:"varint,4,opt,name=kind,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeKind" json:"kind,omitempty"`
+	// Output only. Human-readable method or provider display name.
+	DisplayName string `protobuf:"bytes,5,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	// Output only. UI ordering priority. Lower values should be rendered first.
+	Priority int32 `protobuf:"varint,6,opt,name=priority,proto3" json:"priority,omitempty"`
+	// Output only. Whether this option can currently be selected.
 	Available bool `protobuf:"varint,7,opt,name=available,proto3" json:"available,omitempty"`
 	// Output only. Safe explanation shown when available is false.
 	UnavailableReason string `protobuf:"bytes,8,opt,name=unavailable_reason,json=unavailableReason,proto3" json:"unavailable_reason,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Output only. Masked destination if policy allows exposing it.
+	MaskedDestination string `protobuf:"bytes,9,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
+	// Output only. Delivery channel used by this option.
+	DeliveryChannel AuthenticationDeliveryChannel `protobuf:"varint,10,opt,name=delivery_channel,json=deliveryChannel,proto3,enum=m8.platform.iam.v1.AuthenticationDeliveryChannel" json:"delivery_channel,omitempty"`
+	// Output only. Typed UI and command capabilities.
+	Capabilities []AuthenticationChallengeCapability `protobuf:"varint,11,rep,packed,name=capabilities,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeCapability" json:"capabilities,omitempty"`
+	// Output only. Custom extension capability labels for plugin methods.
+	CustomCapabilities []string `protobuf:"bytes,12,rep,name=custom_capabilities,json=customCapabilities,proto3" json:"custom_capabilities,omitempty"`
+	// Output only. Additional public-safe UI hints.
+	Hints map[string]string `protobuf:"bytes,13,rep,name=hints,proto3" json:"hints,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Output only. Whether the UI should highlight this option.
+	Recommended   bool `protobuf:"varint,14,opt,name=recommended,proto3" json:"recommended,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AuthenticationChallengeOption) Reset() {
@@ -499,11 +649,11 @@ func (x *AuthenticationChallengeOption) GetMethod() AuthenticationMethod {
 	return AuthenticationMethod_AUTHENTICATION_METHOD_UNSPECIFIED
 }
 
-func (x *AuthenticationChallengeOption) GetKind() AuthenticationChallengeKind {
+func (x *AuthenticationChallengeOption) GetMethodId() string {
 	if x != nil {
-		return x.Kind
+		return x.MethodId
 	}
-	return AuthenticationChallengeKind_AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED
+	return ""
 }
 
 func (x *AuthenticationChallengeOption) GetProviderId() string {
@@ -513,25 +663,25 @@ func (x *AuthenticationChallengeOption) GetProviderId() string {
 	return ""
 }
 
-func (x *AuthenticationChallengeOption) GetProviderDisplayName() string {
+func (x *AuthenticationChallengeOption) GetKind() AuthenticationChallengeKind {
 	if x != nil {
-		return x.ProviderDisplayName
+		return x.Kind
+	}
+	return AuthenticationChallengeKind_AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED
+}
+
+func (x *AuthenticationChallengeOption) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
 	}
 	return ""
 }
 
-func (x *AuthenticationChallengeOption) GetMaskedDestination() string {
+func (x *AuthenticationChallengeOption) GetPriority() int32 {
 	if x != nil {
-		return x.MaskedDestination
+		return x.Priority
 	}
-	return ""
-}
-
-func (x *AuthenticationChallengeOption) GetRecommended() bool {
-	if x != nil {
-		return x.Recommended
-	}
-	return false
+	return 0
 }
 
 func (x *AuthenticationChallengeOption) GetAvailable() bool {
@@ -548,62 +698,93 @@ func (x *AuthenticationChallengeOption) GetUnavailableReason() string {
 	return ""
 }
 
-// AuthenticationChallengeInfo contains public-safe details of the current
-// authentication challenge.
+func (x *AuthenticationChallengeOption) GetMaskedDestination() string {
+	if x != nil {
+		return x.MaskedDestination
+	}
+	return ""
+}
+
+func (x *AuthenticationChallengeOption) GetDeliveryChannel() AuthenticationDeliveryChannel {
+	if x != nil {
+		return x.DeliveryChannel
+	}
+	return AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
+}
+
+func (x *AuthenticationChallengeOption) GetCapabilities() []AuthenticationChallengeCapability {
+	if x != nil {
+		return x.Capabilities
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeOption) GetCustomCapabilities() []string {
+	if x != nil {
+		return x.CustomCapabilities
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeOption) GetHints() map[string]string {
+	if x != nil {
+		return x.Hints
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeOption) GetRecommended() bool {
+	if x != nil {
+		return x.Recommended
+	}
+	return false
+}
+
+// AuthenticationChallengeInfo is the source of truth for current challenge UI
+// and submit flow.
 //
-// It is intended for clients, BFFs, and SDKs to understand what action is
-// required next. It must not contain OTP codes, passwords, provider secrets,
-// private tokens, internal callback secrets, raw risk features, raw device
-// fingerprints, or private WebAuthn server-side session secrets.
+// It must not contain OTP codes, passwords, provider secrets, private tokens,
+// internal callback secrets, raw risk features, raw device fingerprints, or
+// private WebAuthn server-side session secrets.
 type AuthenticationChallengeInfo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Server-generated identifier of this challenge.
-	//
-	// The client must send this identifier back when submitting a challenge
-	// response in a later API call.
-	ChallengeId string `protobuf:"bytes,1,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
-	// Output only. Kind of client or user action required by this challenge.
+	// Output only. Server-generated challenge identifier.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Output only. Kind of client or user action required.
 	Kind AuthenticationChallengeKind `protobuf:"varint,2,opt,name=kind,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeKind" json:"kind,omitempty"`
 	// Output only. Authentication method selected for this challenge.
 	Method AuthenticationMethod `protobuf:"varint,3,opt,name=method,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"method,omitempty"`
-	// Output only. Identifier of the identity provider or channel provider used
-	// by this challenge.
-	//
-	// Example:
-	// - "google"
-	// - "m8-sms"
-	// - "mobile-id-at"
-	ProviderId string `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Output only. Masked destination where the challenge was delivered.
-	//
-	// Example:
-	// - "+43******4567"
-	// - "s***@example.com"
-	// - "iPhone 15 Pro"
-	MaskedDestination string `protobuf:"bytes,5,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
-	// Output only. Typed list of actions currently available for this challenge.
-	//
-	// Examples:
-	// - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-	// - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-	// - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-	// - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-	Actions []AuthenticationChallengeAction `protobuf:"varint,6,rep,packed,name=actions,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeAction" json:"actions,omitempty"`
-	// Output only. Number of attempts remaining for this challenge.
-	//
-	// For challenges that do not support attempts, this value may be zero.
-	AttemptsRemaining int32 `protobuf:"varint,7,opt,name=attempts_remaining,json=attemptsRemaining,proto3" json:"attempts_remaining,omitempty"`
-	// Output only. Time when this challenge was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// Output only. Configured method or plugin identifier.
+	MethodId string `protobuf:"bytes,4,opt,name=method_id,json=methodId,proto3" json:"method_id,omitempty"`
+	// Output only. Provider, channel, or integration identifier.
+	ProviderId string `protobuf:"bytes,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	// Output only. Delivery channel for this challenge.
+	DeliveryChannel AuthenticationDeliveryChannel `protobuf:"varint,6,opt,name=delivery_channel,json=deliveryChannel,proto3,enum=m8.platform.iam.v1.AuthenticationDeliveryChannel" json:"delivery_channel,omitempty"`
+	// Output only. Masked destination where safe to expose.
+	MaskedDestination string `protobuf:"bytes,7,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
 	// Output only. Time when this challenge expires.
-	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// Output only. Time when resend becomes available.
+	ResendAvailableTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=resend_available_time,json=resendAvailableTime,proto3" json:"resend_available_time,omitempty"`
+	// Output only. Number of attempts already submitted for this challenge.
+	AttemptCount int32 `protobuf:"varint,10,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`
+	// Output only. Number of attempts remaining for this challenge.
+	RemainingAttempts int32 `protobuf:"varint,11,opt,name=remaining_attempts,json=remainingAttempts,proto3" json:"remaining_attempts,omitempty"`
+	// Output only. Actions currently available for this challenge.
+	Actions []AuthenticationChallengeAction `protobuf:"varint,12,rep,packed,name=actions,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeAction" json:"actions,omitempty"`
+	// Output only. Typed UI and command capabilities for this challenge.
+	Capabilities []AuthenticationChallengeCapability `protobuf:"varint,13,rep,packed,name=capabilities,proto3,enum=m8.platform.iam.v1.AuthenticationChallengeCapability" json:"capabilities,omitempty"`
+	// Output only. Custom extension capability labels for plugin methods.
+	CustomCapabilities []string `protobuf:"bytes,14,rep,name=custom_capabilities,json=customCapabilities,proto3" json:"custom_capabilities,omitempty"`
 	// Types that are valid to be assigned to PublicParameters:
 	//
+	//	*AuthenticationChallengeInfo_Password
 	//	*AuthenticationChallengeInfo_Otp
 	//	*AuthenticationChallengeInfo_Webauthn
 	//	*AuthenticationChallengeInfo_Redirect
 	//	*AuthenticationChallengeInfo_Approval
 	//	*AuthenticationChallengeInfo_MobileId
+	//	*AuthenticationChallengeInfo_ProviderCallback
 	PublicParameters isAuthenticationChallengeInfo_PublicParameters `protobuf_oneof:"public_parameters"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -639,9 +820,9 @@ func (*AuthenticationChallengeInfo) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AuthenticationChallengeInfo) GetChallengeId() string {
+func (x *AuthenticationChallengeInfo) GetId() string {
 	if x != nil {
-		return x.ChallengeId
+		return x.Id
 	}
 	return ""
 }
@@ -660,11 +841,25 @@ func (x *AuthenticationChallengeInfo) GetMethod() AuthenticationMethod {
 	return AuthenticationMethod_AUTHENTICATION_METHOD_UNSPECIFIED
 }
 
+func (x *AuthenticationChallengeInfo) GetMethodId() string {
+	if x != nil {
+		return x.MethodId
+	}
+	return ""
+}
+
 func (x *AuthenticationChallengeInfo) GetProviderId() string {
 	if x != nil {
 		return x.ProviderId
 	}
 	return ""
+}
+
+func (x *AuthenticationChallengeInfo) GetDeliveryChannel() AuthenticationDeliveryChannel {
+	if x != nil {
+		return x.DeliveryChannel
+	}
+	return AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
 }
 
 func (x *AuthenticationChallengeInfo) GetMaskedDestination() string {
@@ -674,27 +869,6 @@ func (x *AuthenticationChallengeInfo) GetMaskedDestination() string {
 	return ""
 }
 
-func (x *AuthenticationChallengeInfo) GetActions() []AuthenticationChallengeAction {
-	if x != nil {
-		return x.Actions
-	}
-	return nil
-}
-
-func (x *AuthenticationChallengeInfo) GetAttemptsRemaining() int32 {
-	if x != nil {
-		return x.AttemptsRemaining
-	}
-	return 0
-}
-
-func (x *AuthenticationChallengeInfo) GetCreateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreateTime
-	}
-	return nil
-}
-
 func (x *AuthenticationChallengeInfo) GetExpireTime() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ExpireTime
@@ -702,9 +876,60 @@ func (x *AuthenticationChallengeInfo) GetExpireTime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *AuthenticationChallengeInfo) GetResendAvailableTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ResendAvailableTime
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeInfo) GetAttemptCount() int32 {
+	if x != nil {
+		return x.AttemptCount
+	}
+	return 0
+}
+
+func (x *AuthenticationChallengeInfo) GetRemainingAttempts() int32 {
+	if x != nil {
+		return x.RemainingAttempts
+	}
+	return 0
+}
+
+func (x *AuthenticationChallengeInfo) GetActions() []AuthenticationChallengeAction {
+	if x != nil {
+		return x.Actions
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeInfo) GetCapabilities() []AuthenticationChallengeCapability {
+	if x != nil {
+		return x.Capabilities
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeInfo) GetCustomCapabilities() []string {
+	if x != nil {
+		return x.CustomCapabilities
+	}
+	return nil
+}
+
 func (x *AuthenticationChallengeInfo) GetPublicParameters() isAuthenticationChallengeInfo_PublicParameters {
 	if x != nil {
 		return x.PublicParameters
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeInfo) GetPassword() *PasswordChallenge {
+	if x != nil {
+		if x, ok := x.PublicParameters.(*AuthenticationChallengeInfo_Password); ok {
+			return x.Password
+		}
 	}
 	return nil
 }
@@ -754,34 +979,55 @@ func (x *AuthenticationChallengeInfo) GetMobileId() *MobileIdChallenge {
 	return nil
 }
 
+func (x *AuthenticationChallengeInfo) GetProviderCallback() *ProviderCallbackChallenge {
+	if x != nil {
+		if x, ok := x.PublicParameters.(*AuthenticationChallengeInfo_ProviderCallback); ok {
+			return x.ProviderCallback
+		}
+	}
+	return nil
+}
+
 type isAuthenticationChallengeInfo_PublicParameters interface {
 	isAuthenticationChallengeInfo_PublicParameters()
 }
 
+type AuthenticationChallengeInfo_Password struct {
+	// Output only. Public parameters for password input.
+	Password *PasswordChallenge `protobuf:"bytes,20,opt,name=password,proto3,oneof"`
+}
+
 type AuthenticationChallengeInfo_Otp struct {
-	// Output only. Public parameters for OTP challenges.
-	Otp *OtpChallenge `protobuf:"bytes,10,opt,name=otp,proto3,oneof"`
+	// Output only. Public parameters for OTP input.
+	Otp *OtpChallenge `protobuf:"bytes,21,opt,name=otp,proto3,oneof"`
 }
 
 type AuthenticationChallengeInfo_Webauthn struct {
-	// Output only. Public parameters for WebAuthn/passkey assertion challenges.
-	Webauthn *WebAuthnChallenge `protobuf:"bytes,11,opt,name=webauthn,proto3,oneof"`
+	// Output only. Public parameters for WebAuthn/passkey assertion.
+	Webauthn *WebAuthnChallenge `protobuf:"bytes,22,opt,name=webauthn,proto3,oneof"`
 }
 
 type AuthenticationChallengeInfo_Redirect struct {
 	// Output only. Public parameters for redirect-based provider challenges.
-	Redirect *RedirectChallenge `protobuf:"bytes,12,opt,name=redirect,proto3,oneof"`
+	Redirect *RedirectChallenge `protobuf:"bytes,23,opt,name=redirect,proto3,oneof"`
 }
 
 type AuthenticationChallengeInfo_Approval struct {
 	// Output only. Public parameters for push approval challenges.
-	Approval *ApprovalChallenge `protobuf:"bytes,13,opt,name=approval,proto3,oneof"`
+	Approval *ApprovalChallenge `protobuf:"bytes,24,opt,name=approval,proto3,oneof"`
 }
 
 type AuthenticationChallengeInfo_MobileId struct {
 	// Output only. Public parameters for Mobile ID challenges.
-	MobileId *MobileIdChallenge `protobuf:"bytes,14,opt,name=mobile_id,json=mobileId,proto3,oneof"`
+	MobileId *MobileIdChallenge `protobuf:"bytes,25,opt,name=mobile_id,json=mobileId,proto3,oneof"`
 }
+
+type AuthenticationChallengeInfo_ProviderCallback struct {
+	// Output only. Public parameters for provider callback waits.
+	ProviderCallback *ProviderCallbackChallenge `protobuf:"bytes,26,opt,name=provider_callback,json=providerCallback,proto3,oneof"`
+}
+
+func (*AuthenticationChallengeInfo_Password) isAuthenticationChallengeInfo_PublicParameters() {}
 
 func (*AuthenticationChallengeInfo_Otp) isAuthenticationChallengeInfo_PublicParameters() {}
 
@@ -793,29 +1039,71 @@ func (*AuthenticationChallengeInfo_Approval) isAuthenticationChallengeInfo_Publi
 
 func (*AuthenticationChallengeInfo_MobileId) isAuthenticationChallengeInfo_PublicParameters() {}
 
+func (*AuthenticationChallengeInfo_ProviderCallback) isAuthenticationChallengeInfo_PublicParameters() {
+}
+
+// PasswordChallenge contains public-safe parameters for password input.
+type PasswordChallenge struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Password policy hint safe for UI display.
+	PolicyHint    string `protobuf:"bytes,1,opt,name=policy_hint,json=policyHint,proto3" json:"policy_hint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PasswordChallenge) Reset() {
+	*x = PasswordChallenge{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasswordChallenge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasswordChallenge) ProtoMessage() {}
+
+func (x *PasswordChallenge) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PasswordChallenge.ProtoReflect.Descriptor instead.
+func (*PasswordChallenge) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PasswordChallenge) GetPolicyHint() string {
+	if x != nil {
+		return x.PolicyHint
+	}
+	return ""
+}
+
 // OtpChallenge contains public-safe parameters for an OTP challenge.
-//
-// It never contains the OTP code.
 type OtpChallenge struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Expected OTP length.
 	Length int32 `protobuf:"varint,1,opt,name=length,proto3" json:"length,omitempty"`
-	// Output only. Time when OTP resend becomes available.
-	ResendAvailableAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=resend_available_at,json=resendAvailableAt,proto3" json:"resend_available_at,omitempty"`
 	// Output only. Destination type used for OTP delivery.
-	DestinationType OtpDestinationType `protobuf:"varint,3,opt,name=destination_type,json=destinationType,proto3,enum=m8.platform.iam.v1.OtpDestinationType" json:"destination_type,omitempty"`
+	DeliveryChannel AuthenticationDeliveryChannel `protobuf:"varint,2,opt,name=delivery_channel,json=deliveryChannel,proto3,enum=m8.platform.iam.v1.AuthenticationDeliveryChannel" json:"delivery_channel,omitempty"`
 	// Output only. Masked destination where the OTP was delivered.
-	//
-	// This duplicates AuthenticationChallengeInfo.masked_destination for clients
-	// that render method-specific UI blocks.
-	MaskedDestination string `protobuf:"bytes,4,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
+	MaskedDestination string `protobuf:"bytes,3,opt,name=masked_destination,json=maskedDestination,proto3" json:"masked_destination,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
 func (x *OtpChallenge) Reset() {
 	*x = OtpChallenge{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[2]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +1115,7 @@ func (x *OtpChallenge) String() string {
 func (*OtpChallenge) ProtoMessage() {}
 
 func (x *OtpChallenge) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[2]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +1128,7 @@ func (x *OtpChallenge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OtpChallenge.ProtoReflect.Descriptor instead.
 func (*OtpChallenge) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *OtpChallenge) GetLength() int32 {
@@ -850,18 +1138,11 @@ func (x *OtpChallenge) GetLength() int32 {
 	return 0
 }
 
-func (x *OtpChallenge) GetResendAvailableAt() *timestamppb.Timestamp {
+func (x *OtpChallenge) GetDeliveryChannel() AuthenticationDeliveryChannel {
 	if x != nil {
-		return x.ResendAvailableAt
+		return x.DeliveryChannel
 	}
-	return nil
-}
-
-func (x *OtpChallenge) GetDestinationType() OtpDestinationType {
-	if x != nil {
-		return x.DestinationType
-	}
-	return OtpDestinationType_OTP_DESTINATION_TYPE_UNSPECIFIED
+	return AuthenticationDeliveryChannel_AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
 }
 
 func (x *OtpChallenge) GetMaskedDestination() string {
@@ -871,15 +1152,14 @@ func (x *OtpChallenge) GetMaskedDestination() string {
 	return ""
 }
 
-// WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry for
-// browser WebAuthn APIs. It contains only public credential descriptor data.
+// WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry.
 type WebAuthnAllowedCredential struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Credential descriptor type, usually "public-key".
+	// Output only. Credential descriptor type, usually public-key.
 	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	// Output only. Base64url-encoded credential identifier.
 	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	// Output only. Allowed authenticator transports for this credential.
+	// Output only. Allowed authenticator transports.
 	Transports    []string `protobuf:"bytes,3,rep,name=transports,proto3" json:"transports,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -887,7 +1167,7 @@ type WebAuthnAllowedCredential struct {
 
 func (x *WebAuthnAllowedCredential) Reset() {
 	*x = WebAuthnAllowedCredential{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[3]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -899,7 +1179,7 @@ func (x *WebAuthnAllowedCredential) String() string {
 func (*WebAuthnAllowedCredential) ProtoMessage() {}
 
 func (x *WebAuthnAllowedCredential) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[3]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -912,7 +1192,7 @@ func (x *WebAuthnAllowedCredential) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebAuthnAllowedCredential.ProtoReflect.Descriptor instead.
 func (*WebAuthnAllowedCredential) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{3}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *WebAuthnAllowedCredential) GetType() string {
@@ -936,14 +1216,10 @@ func (x *WebAuthnAllowedCredential) GetTransports() []string {
 	return nil
 }
 
-// WebAuthnChallenge contains public parameters for a WebAuthn/passkey assertion
-// ceremony.
-//
-// It contains public challenge data and does not contain a server-side session
-// secret.
+// WebAuthnChallenge contains public parameters for a WebAuthn assertion.
 type WebAuthnChallenge struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Base64url-encoded WebAuthn challenge generated by the server.
+	// Output only. Base64url-encoded WebAuthn challenge.
 	Challenge string `protobuf:"bytes,1,opt,name=challenge,proto3" json:"challenge,omitempty"`
 	// Output only. Relying Party ID.
 	RpId string `protobuf:"bytes,2,opt,name=rp_id,json=rpId,proto3" json:"rp_id,omitempty"`
@@ -951,17 +1227,22 @@ type WebAuthnChallenge struct {
 	TimeoutMs int32 `protobuf:"varint,3,opt,name=timeout_ms,json=timeoutMs,proto3" json:"timeout_ms,omitempty"`
 	// Output only. WebAuthn user verification requirement.
 	UserVerification UserVerificationRequirement `protobuf:"varint,4,opt,name=user_verification,json=userVerification,proto3,enum=m8.platform.iam.v1.UserVerificationRequirement" json:"user_verification,omitempty"`
-	// Output only. Public credential descriptors allowed for this assertion.
+	// Output only. WebAuthn discovery mode selected by policy.
 	//
-	// Empty list means discoverable credentials or resident keys may be used.
-	AllowCredentials []*WebAuthnAllowedCredential `protobuf:"bytes,5,rep,name=allow_credentials,json=allowCredentials,proto3" json:"allow_credentials,omitempty"`
+	// Before a subject or session is reliably resolved, passkey-first UI should
+	// use discoverable credentials and must not return allow_credentials. For
+	// known-user or step-up flows, allow_credentials may be returned only when
+	// policy allows exposing credential descriptors.
+	DiscoveryMode WebAuthnDiscoveryMode `protobuf:"varint,5,opt,name=discovery_mode,json=discoveryMode,proto3,enum=m8.platform.iam.v1.WebAuthnDiscoveryMode" json:"discovery_mode,omitempty"`
+	// Output only. Public credential descriptors allowed for this assertion.
+	AllowCredentials []*WebAuthnAllowedCredential `protobuf:"bytes,6,rep,name=allow_credentials,json=allowCredentials,proto3" json:"allow_credentials,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
 func (x *WebAuthnChallenge) Reset() {
 	*x = WebAuthnChallenge{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[4]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +1254,7 @@ func (x *WebAuthnChallenge) String() string {
 func (*WebAuthnChallenge) ProtoMessage() {}
 
 func (x *WebAuthnChallenge) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[4]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,7 +1267,7 @@ func (x *WebAuthnChallenge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebAuthnChallenge.ProtoReflect.Descriptor instead.
 func (*WebAuthnChallenge) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *WebAuthnChallenge) GetChallenge() string {
@@ -1017,6 +1298,13 @@ func (x *WebAuthnChallenge) GetUserVerification() UserVerificationRequirement {
 	return UserVerificationRequirement_USER_VERIFICATION_REQUIREMENT_UNSPECIFIED
 }
 
+func (x *WebAuthnChallenge) GetDiscoveryMode() WebAuthnDiscoveryMode {
+	if x != nil {
+		return x.DiscoveryMode
+	}
+	return WebAuthnDiscoveryMode_WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED
+}
+
 func (x *WebAuthnChallenge) GetAllowCredentials() []*WebAuthnAllowedCredential {
 	if x != nil {
 		return x.AllowCredentials
@@ -1029,16 +1317,12 @@ func (x *WebAuthnChallenge) GetAllowCredentials() []*WebAuthnAllowedCredential {
 type RedirectChallenge struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Authorization URL where the client should redirect the user.
-	//
-	// The URL must not contain provider client secrets or internal callback
-	// secrets. OIDC state can be opaque, but must not reveal sensitive data.
 	AuthorizationUrl string `protobuf:"bytes,1,opt,name=authorization_url,json=authorizationUrl,proto3" json:"authorization_url,omitempty"`
 	// Output only. Provider identifier.
 	ProviderId string `protobuf:"bytes,2,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
 	// Output only. Human-readable provider display name.
 	ProviderDisplayName string `protobuf:"bytes,3,opt,name=provider_display_name,json=providerDisplayName,proto3" json:"provider_display_name,omitempty"`
-	// Output only. Indicates whether the authentication operation expects an
-	// external provider callback.
+	// Output only. Whether an external provider callback is expected.
 	CallbackExpected bool `protobuf:"varint,4,opt,name=callback_expected,json=callbackExpected,proto3" json:"callback_expected,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -1046,7 +1330,7 @@ type RedirectChallenge struct {
 
 func (x *RedirectChallenge) Reset() {
 	*x = RedirectChallenge{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[5]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1058,7 +1342,7 @@ func (x *RedirectChallenge) String() string {
 func (*RedirectChallenge) ProtoMessage() {}
 
 func (x *RedirectChallenge) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[5]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1071,7 +1355,7 @@ func (x *RedirectChallenge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedirectChallenge.ProtoReflect.Descriptor instead.
 func (*RedirectChallenge) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{5}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RedirectChallenge) GetAuthorizationUrl() string {
@@ -1105,17 +1389,11 @@ func (x *RedirectChallenge) GetCallbackExpected() bool {
 // ApprovalChallenge contains public parameters for approval-style challenges.
 type ApprovalChallenge struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Human-readable binding message shown to the user.
-	//
-	// Example:
-	// "Confirm login to M8 Console: 493-118"
+	// Output only. Binding message shown to the user.
 	BindingMessage string `protobuf:"bytes,1,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
 	// Output only. Channel used for approval.
 	ApprovalChannel ApprovalChannel `protobuf:"varint,2,opt,name=approval_channel,json=approvalChannel,proto3,enum=m8.platform.iam.v1.ApprovalChannel" json:"approval_channel,omitempty"`
 	// Output only. Masked device or destination hint.
-	//
-	// Example:
-	// "iPhone 15 Pro"
 	ApprovalDeviceHint string `protobuf:"bytes,3,opt,name=approval_device_hint,json=approvalDeviceHint,proto3" json:"approval_device_hint,omitempty"`
 	// Output only. Number of seconds until the approval challenge expires.
 	ExpiresInSeconds int32 `protobuf:"varint,4,opt,name=expires_in_seconds,json=expiresInSeconds,proto3" json:"expires_in_seconds,omitempty"`
@@ -1125,7 +1403,7 @@ type ApprovalChallenge struct {
 
 func (x *ApprovalChallenge) Reset() {
 	*x = ApprovalChallenge{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[6]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1137,7 +1415,7 @@ func (x *ApprovalChallenge) String() string {
 func (*ApprovalChallenge) ProtoMessage() {}
 
 func (x *ApprovalChallenge) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[6]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1150,7 +1428,7 @@ func (x *ApprovalChallenge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApprovalChallenge.ProtoReflect.Descriptor instead.
 func (*ApprovalChallenge) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{6}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ApprovalChallenge) GetBindingMessage() string {
@@ -1186,7 +1464,7 @@ type MobileIdChallenge struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Provider transaction identifier safe to expose to the client.
 	TransactionId string `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	// Output only. Human-readable binding message shown to the user.
+	// Output only. Binding message shown to the user.
 	BindingMessage string `protobuf:"bytes,2,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
 	// Output only. Masked phone or subscriber hint.
 	PhoneHint     string `protobuf:"bytes,3,opt,name=phone_hint,json=phoneHint,proto3" json:"phone_hint,omitempty"`
@@ -1196,7 +1474,7 @@ type MobileIdChallenge struct {
 
 func (x *MobileIdChallenge) Reset() {
 	*x = MobileIdChallenge{}
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[7]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1208,7 +1486,7 @@ func (x *MobileIdChallenge) String() string {
 func (*MobileIdChallenge) ProtoMessage() {}
 
 func (x *MobileIdChallenge) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[7]
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1221,7 +1499,7 @@ func (x *MobileIdChallenge) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MobileIdChallenge.ProtoReflect.Descriptor instead.
 func (*MobileIdChallenge) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{7}
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MobileIdChallenge) GetTransactionId() string {
@@ -1245,62 +1523,527 @@ func (x *MobileIdChallenge) GetPhoneHint() string {
 	return ""
 }
 
+// ProviderCallbackChallenge indicates the flow is waiting for a provider
+// callback through the provider/internal callback API.
+type ProviderCallbackChallenge struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Provider identifier expected to send the callback.
+	ProviderId string `protobuf:"bytes,1,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	// Output only. Callback state or transaction hint safe to expose if policy allows it.
+	StateHint     string `protobuf:"bytes,2,opt,name=state_hint,json=stateHint,proto3" json:"state_hint,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProviderCallbackChallenge) Reset() {
+	*x = ProviderCallbackChallenge{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProviderCallbackChallenge) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProviderCallbackChallenge) ProtoMessage() {}
+
+func (x *ProviderCallbackChallenge) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProviderCallbackChallenge.ProtoReflect.Descriptor instead.
+func (*ProviderCallbackChallenge) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ProviderCallbackChallenge) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
+}
+
+func (x *ProviderCallbackChallenge) GetStateHint() string {
+	if x != nil {
+		return x.StateHint
+	}
+	return ""
+}
+
+// AuthenticationChallengeResponse contains request-only response data for the
+// current challenge.
+//
+// The selected oneof must match Authentication.current_challenge.kind and
+// Authentication.current_challenge.method. The server enforces that relation
+// against the current authentication state and challenge id.
+type AuthenticationChallengeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Response:
+	//
+	//	*AuthenticationChallengeResponse_Otp
+	//	*AuthenticationChallengeResponse_Password
+	//	*AuthenticationChallengeResponse_Webauthn
+	//	*AuthenticationChallengeResponse_Approval
+	Response      isAuthenticationChallengeResponse_Response `protobuf_oneof:"response"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthenticationChallengeResponse) Reset() {
+	*x = AuthenticationChallengeResponse{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthenticationChallengeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthenticationChallengeResponse) ProtoMessage() {}
+
+func (x *AuthenticationChallengeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthenticationChallengeResponse.ProtoReflect.Descriptor instead.
+func (*AuthenticationChallengeResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AuthenticationChallengeResponse) GetResponse() isAuthenticationChallengeResponse_Response {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeResponse) GetOtp() *OtpChallengeResponse {
+	if x != nil {
+		if x, ok := x.Response.(*AuthenticationChallengeResponse_Otp); ok {
+			return x.Otp
+		}
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeResponse) GetPassword() *PasswordChallengeResponse {
+	if x != nil {
+		if x, ok := x.Response.(*AuthenticationChallengeResponse_Password); ok {
+			return x.Password
+		}
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeResponse) GetWebauthn() *WebAuthnAssertionResponse {
+	if x != nil {
+		if x, ok := x.Response.(*AuthenticationChallengeResponse_Webauthn); ok {
+			return x.Webauthn
+		}
+	}
+	return nil
+}
+
+func (x *AuthenticationChallengeResponse) GetApproval() *ApprovalChallengeResponse {
+	if x != nil {
+		if x, ok := x.Response.(*AuthenticationChallengeResponse_Approval); ok {
+			return x.Approval
+		}
+	}
+	return nil
+}
+
+type isAuthenticationChallengeResponse_Response interface {
+	isAuthenticationChallengeResponse_Response()
+}
+
+type AuthenticationChallengeResponse_Otp struct {
+	// OTP code submitted by the user.
+	Otp *OtpChallengeResponse `protobuf:"bytes,1,opt,name=otp,proto3,oneof"`
+}
+
+type AuthenticationChallengeResponse_Password struct {
+	// Password submitted by the user.
+	Password *PasswordChallengeResponse `protobuf:"bytes,2,opt,name=password,proto3,oneof"`
+}
+
+type AuthenticationChallengeResponse_Webauthn struct {
+	// WebAuthn assertion produced by the browser or platform authenticator.
+	Webauthn *WebAuthnAssertionResponse `protobuf:"bytes,3,opt,name=webauthn,proto3,oneof"`
+}
+
+type AuthenticationChallengeResponse_Approval struct {
+	// Approval result submitted by a trusted device, provider, or app.
+	Approval *ApprovalChallengeResponse `protobuf:"bytes,4,opt,name=approval,proto3,oneof"`
+}
+
+func (*AuthenticationChallengeResponse_Otp) isAuthenticationChallengeResponse_Response() {}
+
+func (*AuthenticationChallengeResponse_Password) isAuthenticationChallengeResponse_Response() {}
+
+func (*AuthenticationChallengeResponse_Webauthn) isAuthenticationChallengeResponse_Response() {}
+
+func (*AuthenticationChallengeResponse_Approval) isAuthenticationChallengeResponse_Response() {}
+
+// OtpChallengeResponse contains an OTP code submitted by the user.
+type OtpChallengeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. One-time password code submitted for verification.
+	Code          string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OtpChallengeResponse) Reset() {
+	*x = OtpChallengeResponse{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OtpChallengeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OtpChallengeResponse) ProtoMessage() {}
+
+func (x *OtpChallengeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OtpChallengeResponse.ProtoReflect.Descriptor instead.
+func (*OtpChallengeResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *OtpChallengeResponse) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+// PasswordChallengeResponse contains a password submitted by the user.
+//
+// It is request-only data and must never be returned, logged, or stored in the
+// public authentication snapshot.
+type PasswordChallengeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Password submitted for verification.
+	Password      string `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PasswordChallengeResponse) Reset() {
+	*x = PasswordChallengeResponse{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasswordChallengeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasswordChallengeResponse) ProtoMessage() {}
+
+func (x *PasswordChallengeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PasswordChallengeResponse.ProtoReflect.Descriptor instead.
+func (*PasswordChallengeResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *PasswordChallengeResponse) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+// WebAuthnAssertionResponse contains a browser assertion response.
+type WebAuthnAssertionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Base64url-encoded credential identifier.
+	CredentialId string `protobuf:"bytes,1,opt,name=credential_id,json=credentialId,proto3" json:"credential_id,omitempty"`
+	// Required. Base64url-encoded clientDataJSON.
+	ClientDataJson string `protobuf:"bytes,2,opt,name=client_data_json,json=clientDataJson,proto3" json:"client_data_json,omitempty"`
+	// Required. Base64url-encoded authenticatorData.
+	AuthenticatorData string `protobuf:"bytes,3,opt,name=authenticator_data,json=authenticatorData,proto3" json:"authenticator_data,omitempty"`
+	// Required. Base64url-encoded assertion signature.
+	Signature string `protobuf:"bytes,4,opt,name=signature,proto3" json:"signature,omitempty"`
+	// Optional. Base64url-encoded WebAuthn user handle.
+	UserHandle    string `protobuf:"bytes,5,opt,name=user_handle,json=userHandle,proto3" json:"user_handle,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebAuthnAssertionResponse) Reset() {
+	*x = WebAuthnAssertionResponse{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebAuthnAssertionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebAuthnAssertionResponse) ProtoMessage() {}
+
+func (x *WebAuthnAssertionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebAuthnAssertionResponse.ProtoReflect.Descriptor instead.
+func (*WebAuthnAssertionResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *WebAuthnAssertionResponse) GetCredentialId() string {
+	if x != nil {
+		return x.CredentialId
+	}
+	return ""
+}
+
+func (x *WebAuthnAssertionResponse) GetClientDataJson() string {
+	if x != nil {
+		return x.ClientDataJson
+	}
+	return ""
+}
+
+func (x *WebAuthnAssertionResponse) GetAuthenticatorData() string {
+	if x != nil {
+		return x.AuthenticatorData
+	}
+	return ""
+}
+
+func (x *WebAuthnAssertionResponse) GetSignature() string {
+	if x != nil {
+		return x.Signature
+	}
+	return ""
+}
+
+func (x *WebAuthnAssertionResponse) GetUserHandle() string {
+	if x != nil {
+		return x.UserHandle
+	}
+	return ""
+}
+
+// ApprovalChallengeResponse contains an approval or denial result.
+//
+// Never accept approved=true as sufficient proof. The server must verify
+// approval_token or proof against a trusted provider, device binding, or signed
+// approval channel. SIM Push, Mobile ID, and push approval results should arrive
+// through trusted provider callbacks or contain signed proof.
+type ApprovalChallengeResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. True when the user approved the challenge, false when denied.
+	Approved bool `protobuf:"varint,1,opt,name=approved,proto3" json:"approved,omitempty"`
+	// Optional. Opaque approval token issued to a trusted device or provider.
+	ApprovalToken string `protobuf:"bytes,2,opt,name=approval_token,json=approvalToken,proto3" json:"approval_token,omitempty"`
+	// Optional. Signed proof produced by a trusted device, app, or provider.
+	Proof string `protobuf:"bytes,3,opt,name=proof,proto3" json:"proof,omitempty"`
+	// Optional. Safe denial reason when approved is false.
+	DenialReason  string `protobuf:"bytes,4,opt,name=denial_reason,json=denialReason,proto3" json:"denial_reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ApprovalChallengeResponse) Reset() {
+	*x = ApprovalChallengeResponse{}
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApprovalChallengeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApprovalChallengeResponse) ProtoMessage() {}
+
+func (x *ApprovalChallengeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApprovalChallengeResponse.ProtoReflect.Descriptor instead.
+func (*ApprovalChallengeResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ApprovalChallengeResponse) GetApproved() bool {
+	if x != nil {
+		return x.Approved
+	}
+	return false
+}
+
+func (x *ApprovalChallengeResponse) GetApprovalToken() string {
+	if x != nil {
+		return x.ApprovalToken
+	}
+	return ""
+}
+
+func (x *ApprovalChallengeResponse) GetProof() string {
+	if x != nil {
+		return x.Proof
+	}
+	return ""
+}
+
+func (x *ApprovalChallengeResponse) GetDenialReason() string {
+	if x != nil {
+		return x.DenialReason
+	}
+	return ""
+}
+
 var File_m8_platform_iam_v1_authentication_challenge_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_challenge_proto_rawDesc = "" +
 	"\n" +
-	"1m8/platform/iam/v1/authentication_challenge.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf5\x03\n" +
+	"1m8/platform/iam/v1/authentication_challenge.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa3\t\n" +
 	"\x1dAuthenticationChallengeOption\x12O\n" +
-	"\x06method\x18\x01 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x06method\x12R\n" +
-	"\x04kind\x18\x02 \x01(\x0e2/.m8.platform.iam.v1.AuthenticationChallengeKindB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04kind\x12,\n" +
+	"\x06method\x18\x01 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x06method\x12(\n" +
+	"\tmethod_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\bmethodId\x12,\n" +
 	"\vprovider_id\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
-	"providerId\x12?\n" +
-	"\x15provider_display_name\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x13providerDisplayName\x12:\n" +
-	"\x12masked_destination\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\x12%\n" +
-	"\vrecommended\x18\x06 \x01(\bB\x03\xe0A\x03R\vrecommended\x12!\n" +
+	"providerId\x12R\n" +
+	"\x04kind\x18\x04 \x01(\x0e2/.m8.platform.iam.v1.AuthenticationChallengeKindB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04kind\x12.\n" +
+	"\fdisplay_name\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\vdisplayName\x12\x1f\n" +
+	"\bpriority\x18\x06 \x01(\x05B\x03\xe0A\x03R\bpriority\x12!\n" +
 	"\tavailable\x18\a \x01(\bB\x03\xe0A\x03R\tavailable\x12:\n" +
-	"\x12unavailable_reason\x18\b \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\x11unavailableReason\"\xf3\a\n" +
-	"\x1bAuthenticationChallengeInfo\x12.\n" +
-	"\fchallenge_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\vchallengeId\x12P\n" +
-	"\x04kind\x18\x02 \x01(\x0e2/.m8.platform.iam.v1.AuthenticationChallengeKindB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x04kind\x12M\n" +
-	"\x06method\x18\x03 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x06method\x12,\n" +
-	"\vprovider_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
-	"providerId\x12:\n" +
-	"\x12masked_destination\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\x12a\n" +
-	"\aactions\x18\x06 \x03(\x0e21.m8.platform.iam.v1.AuthenticationChallengeActionB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10\x14\"\a\x82\x01\x04\x10\x01 \x00R\aactions\x129\n" +
-	"\x12attempts_remaining\x18\a \x01(\x05B\n" +
-	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\x11attemptsRemaining\x12@\n" +
-	"\vcreate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"createTime\x12@\n" +
-	"\vexpire_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"expireTime\x129\n" +
-	"\x03otp\x18\n" +
-	" \x01(\v2 .m8.platform.iam.v1.OtpChallengeB\x03\xe0A\x03H\x00R\x03otp\x12H\n" +
-	"\bwebauthn\x18\v \x01(\v2%.m8.platform.iam.v1.WebAuthnChallengeB\x03\xe0A\x03H\x00R\bwebauthn\x12H\n" +
-	"\bredirect\x18\f \x01(\v2%.m8.platform.iam.v1.RedirectChallengeB\x03\xe0A\x03H\x00R\bredirect\x12H\n" +
-	"\bapproval\x18\r \x01(\v2%.m8.platform.iam.v1.ApprovalChallengeB\x03\xe0A\x03H\x00R\bapproval\x12I\n" +
-	"\tmobile_id\x18\x0e \x01(\v2%.m8.platform.iam.v1.MobileIdChallengeB\x03\xe0A\x03H\x00R\bmobileIdB\x13\n" +
-	"\x11public_parameters\"\xa1\x02\n" +
+	"\x12unavailable_reason\x18\b \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\x11unavailableReason\x12:\n" +
+	"\x12masked_destination\x18\t \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\x12i\n" +
+	"\x10delivery_channel\x18\n" +
+	" \x01(\x0e21.m8.platform.iam.v1.AuthenticationDeliveryChannelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fdeliveryChannel\x12o\n" +
+	"\fcapabilities\x18\v \x03(\x0e25.m8.platform.iam.v1.AuthenticationChallengeCapabilityB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\a\x82\x01\x04\x10\x01 \x00R\fcapabilities\x12D\n" +
+	"\x13custom_capabilities\x18\f \x03(\tB\x13\xe0A\x03\xbaH\r\x92\x01\n" +
+	"\x10 \"\x06r\x04\x10\x01\x18@R\x12customCapabilities\x12n\n" +
+	"\x05hints\x18\r \x03(\v2<.m8.platform.iam.v1.AuthenticationChallengeOption.HintsEntryB\x1a\xe0A\x03\xbaH\x14\x9a\x01\x11\x10 \"\x06r\x04\x10\x01\x18@*\x05r\x03\x18\x80\x02R\x05hints\x12%\n" +
+	"\vrecommended\x18\x0e \x01(\bB\x03\xe0A\x03R\vrecommended\x1a8\n" +
+	"\n" +
+	"HintsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xa5\x01\xbaH\xa1\x01\x1a\x9e\x01\n" +
+	"1authentication_challenge_option.provider_required\x12-external provider methods require provider_id\x1a:!(this.method in [7, 8, 10, 11]) || this.provider_id != ''\"\xd1\x13\n" +
+	"\x1bAuthenticationChallengeInfo\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x02id\x12R\n" +
+	"\x04kind\x18\x02 \x01(\x0e2/.m8.platform.iam.v1.AuthenticationChallengeKindB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04kind\x12O\n" +
+	"\x06method\x18\x03 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x06method\x12(\n" +
+	"\tmethod_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\bmethodId\x12,\n" +
+	"\vprovider_id\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
+	"providerId\x12i\n" +
+	"\x10delivery_channel\x18\x06 \x01(\x0e21.m8.platform.iam.v1.AuthenticationDeliveryChannelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fdeliveryChannel\x12:\n" +
+	"\x12masked_destination\x18\a \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\x12@\n" +
+	"\vexpire_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"expireTime\x12S\n" +
+	"\x15resend_available_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x13resendAvailableTime\x12/\n" +
+	"\rattempt_count\x18\n" +
+	" \x01(\x05B\n" +
+	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\fattemptCount\x129\n" +
+	"\x12remaining_attempts\x18\v \x01(\x05B\n" +
+	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\x11remainingAttempts\x12a\n" +
+	"\aactions\x18\f \x03(\x0e21.m8.platform.iam.v1.AuthenticationChallengeActionB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10\x14\"\a\x82\x01\x04\x10\x01 \x00R\aactions\x12o\n" +
+	"\fcapabilities\x18\r \x03(\x0e25.m8.platform.iam.v1.AuthenticationChallengeCapabilityB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\a\x82\x01\x04\x10\x01 \x00R\fcapabilities\x12D\n" +
+	"\x13custom_capabilities\x18\x0e \x03(\tB\x13\xe0A\x03\xbaH\r\x92\x01\n" +
+	"\x10 \"\x06r\x04\x10\x01\x18@R\x12customCapabilities\x12H\n" +
+	"\bpassword\x18\x14 \x01(\v2%.m8.platform.iam.v1.PasswordChallengeB\x03\xe0A\x03H\x00R\bpassword\x129\n" +
+	"\x03otp\x18\x15 \x01(\v2 .m8.platform.iam.v1.OtpChallengeB\x03\xe0A\x03H\x00R\x03otp\x12H\n" +
+	"\bwebauthn\x18\x16 \x01(\v2%.m8.platform.iam.v1.WebAuthnChallengeB\x03\xe0A\x03H\x00R\bwebauthn\x12H\n" +
+	"\bredirect\x18\x17 \x01(\v2%.m8.platform.iam.v1.RedirectChallengeB\x03\xe0A\x03H\x00R\bredirect\x12H\n" +
+	"\bapproval\x18\x18 \x01(\v2%.m8.platform.iam.v1.ApprovalChallengeB\x03\xe0A\x03H\x00R\bapproval\x12I\n" +
+	"\tmobile_id\x18\x19 \x01(\v2%.m8.platform.iam.v1.MobileIdChallengeB\x03\xe0A\x03H\x00R\bmobileId\x12a\n" +
+	"\x11provider_callback\x18\x1a \x01(\v2-.m8.platform.iam.v1.ProviderCallbackChallengeB\x03\xe0A\x03H\x00R\x10providerCallback:\xaa\a\xbaH\xa6\a\x1a\x85\x01\n" +
+	"5authentication_challenge_info.otp_parameters_required\x12+OTP_INPUT challenges require otp parameters\x1a\x1fthis.kind != 2 || has(this.otp)\x1a\x93\x01\n" +
+	":authentication_challenge_info.redirect_parameters_required\x12/REDIRECT challenges require redirect parameters\x1a$this.kind != 4 || has(this.redirect)\x1a\x9d\x01\n" +
+	":authentication_challenge_info.webauthn_parameters_required\x129WEBAUTHN_ASSERTION challenges require webauthn parameters\x1a$this.kind != 5 || has(this.webauthn)\x1a\xaa\x01\n" +
+	":authentication_challenge_info.approval_parameters_required\x12/APPROVAL challenges require approval parameters\x1a;this.kind != 3 || has(this.approval) || has(this.mobile_id)\x1a\x99\x01\n" +
+	":authentication_challenge_info.password_parameters_required\x125PASSWORD_INPUT challenges require password parameters\x1a$this.kind != 1 || has(this.password)\x1a\x9c\x01\n" +
+	"/authentication_challenge_info.provider_required\x12-external provider methods require provider_id\x1a:!(this.method in [7, 8, 10, 11]) || this.provider_id != ''B\x13\n" +
+	"\x11public_parameters\"A\n" +
+	"\x11PasswordChallenge\x12,\n" +
+	"\vpolicy_hint\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\n" +
+	"policyHint\"\xdb\x01\n" +
 	"\fOtpChallenge\x12$\n" +
-	"\x06length\x18\x01 \x01(\x05B\f\xe0A\x03\xbaH\x06\x1a\x04\x18\f(\x04R\x06length\x12O\n" +
-	"\x13resend_available_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\x11resendAvailableAt\x12^\n" +
-	"\x10destination_type\x18\x03 \x01(\x0e2&.m8.platform.iam.v1.OtpDestinationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fdestinationType\x12:\n" +
-	"\x12masked_destination\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\"\x8b\x01\n" +
+	"\x06length\x18\x01 \x01(\x05B\f\xe0A\x03\xbaH\x06\x1a\x04\x18\f(\x04R\x06length\x12i\n" +
+	"\x10delivery_channel\x18\x02 \x01(\x0e21.m8.platform.iam.v1.AuthenticationDeliveryChannelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fdeliveryChannel\x12:\n" +
+	"\x12masked_destination\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11maskedDestination\"\x8b\x01\n" +
 	"\x19WebAuthnAllowedCredential\x12\x1e\n" +
 	"\x04type\x18\x01 \x01(\tB\n" +
 	"\xe0A\x03\xbaH\x04r\x02\x18@R\x04type\x12\x1b\n" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\x02id\x121\n" +
 	"\n" +
 	"transports\x18\x03 \x03(\tB\x11\xe0A\x03\xbaH\v\x92\x01\b\x10\x10\"\x04r\x02\x18@R\n" +
-	"transports\"\xdf\x02\n" +
+	"transports\"\xbe\x03\n" +
 	"\x11WebAuthnChallenge\x12)\n" +
 	"\tchallenge\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tchallenge\x12 \n" +
 	"\x05rp_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x04rpId\x12)\n" +
 	"\n" +
 	"timeout_ms\x18\x03 \x01(\x05B\n" +
 	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\ttimeoutMs\x12i\n" +
-	"\x11user_verification\x18\x04 \x01(\x0e2/.m8.platform.iam.v1.UserVerificationRequirementB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x10userVerification\x12g\n" +
-	"\x11allow_credentials\x18\x05 \x03(\v2-.m8.platform.iam.v1.WebAuthnAllowedCredentialB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10dR\x10allowCredentials\"\xee\x01\n" +
+	"\x11user_verification\x18\x04 \x01(\x0e2/.m8.platform.iam.v1.UserVerificationRequirementB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x10userVerification\x12]\n" +
+	"\x0ediscovery_mode\x18\x05 \x01(\x0e2).m8.platform.iam.v1.WebAuthnDiscoveryModeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\rdiscoveryMode\x12g\n" +
+	"\x11allow_credentials\x18\x06 \x03(\v2-.m8.platform.iam.v1.WebAuthnAllowedCredentialB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10dR\x10allowCredentials\"\xee\x01\n" +
 	"\x11RedirectChallenge\x128\n" +
 	"\x11authorization_url\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\x10authorizationUrl\x12,\n" +
 	"\vprovider_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
@@ -1317,7 +2060,36 @@ const file_m8_platform_iam_v1_authentication_challenge_proto_rawDesc = "" +
 	"\x0etransaction_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\rtransactionId\x124\n" +
 	"\x0fbinding_message\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\x0ebindingMessage\x12*\n" +
 	"\n" +
-	"phone_hint\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\tphoneHint*\xcb\x03\n" +
+	"phone_hint\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\tphoneHint\"u\n" +
+	"\x19ProviderCallbackChallenge\x12,\n" +
+	"\vprovider_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
+	"providerId\x12*\n" +
+	"\n" +
+	"state_hint\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\tstateHint\"\xd9\x02\n" +
+	"\x1fAuthenticationChallengeResponse\x12<\n" +
+	"\x03otp\x18\x01 \x01(\v2(.m8.platform.iam.v1.OtpChallengeResponseH\x00R\x03otp\x12K\n" +
+	"\bpassword\x18\x02 \x01(\v2-.m8.platform.iam.v1.PasswordChallengeResponseH\x00R\bpassword\x12K\n" +
+	"\bwebauthn\x18\x03 \x01(\v2-.m8.platform.iam.v1.WebAuthnAssertionResponseH\x00R\bwebauthn\x12K\n" +
+	"\bapproval\x18\x04 \x01(\v2-.m8.platform.iam.v1.ApprovalChallengeResponseH\x00R\bapprovalB\x11\n" +
+	"\bresponse\x12\x05\xbaH\x02\b\x01\";\n" +
+	"\x14OtpChallengeResponse\x12#\n" +
+	"\x04code\x18\x01 \x01(\tB\x0f\xe0A\x02\xbaH\t\xc8\x01\x01r\x04\x10\x04\x18\fR\x04code\"I\n" +
+	"\x19PasswordChallengeResponse\x12,\n" +
+	"\bpassword\x18\x01 \x01(\tB\x10\xe0A\x02\xbaH\n" +
+	"\xc8\x01\x01r\x05\x10\x01\x18\x80 R\bpassword\"\xa8\x02\n" +
+	"\x19WebAuthnAssertionResponse\x123\n" +
+	"\rcredential_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\x18\x80 R\fcredentialId\x129\n" +
+	"\x10client_data_json\x18\x02 \x01(\tB\x0f\xe0A\x02\xbaH\t\xc8\x01\x01r\x04\x18\x80\x80\x04R\x0eclientDataJson\x12>\n" +
+	"\x12authenticator_data\x18\x03 \x01(\tB\x0f\xe0A\x02\xbaH\t\xc8\x01\x01r\x04\x18\x80\x80\x04R\x11authenticatorData\x12-\n" +
+	"\tsignature\x18\x04 \x01(\tB\x0f\xe0A\x02\xbaH\t\xc8\x01\x01r\x04\x18\x80\x80\x04R\tsignature\x12,\n" +
+	"\vuser_handle\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\n" +
+	"userHandle\"\xfa\x02\n" +
+	"\x19ApprovalChallengeResponse\x12\x1f\n" +
+	"\bapproved\x18\x01 \x01(\bB\x03\xe0A\x02R\bapproved\x122\n" +
+	"\x0eapproval_token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\rapprovalToken\x12\"\n" +
+	"\x05proof\x18\x03 \x01(\tB\f\xe0A\x01\xbaH\x06r\x04\x18\x80\x80\x04R\x05proof\x120\n" +
+	"\rdenial_reason\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\fdenialReason:\xb1\x01\xbaH\xad\x01\x1a\xaa\x01\n" +
+	"*approval_challenge_response.proof_required\x12;approved approval responses require approval_token or proof\x1a?!this.approved || this.approval_token != '' || this.proof != ''*\xcb\x03\n" +
 	"\x14AuthenticationMethod\x12%\n" +
 	"!AUTHENTICATION_METHOD_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eAUTHENTICATION_METHOD_PASSWORD\x10\x01\x12!\n" +
@@ -1339,19 +2111,37 @@ const file_m8_platform_iam_v1_authentication_challenge_proto_rawDesc = "" +
 	"&AUTHENTICATION_CHALLENGE_KIND_APPROVAL\x10\x03\x12*\n" +
 	"&AUTHENTICATION_CHALLENGE_KIND_REDIRECT\x10\x04\x124\n" +
 	"0AUTHENTICATION_CHALLENGE_KIND_WEBAUTHN_ASSERTION\x10\x05\x123\n" +
-	"/AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK\x10\x06*\x8f\x02\n" +
+	"/AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK\x10\x06*\x90\x04\n" +
+	"\x1dAuthenticationDeliveryChannel\x12/\n" +
+	"+AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED\x10\x00\x12*\n" +
+	"&AUTHENTICATION_DELIVERY_CHANNEL_CLIENT\x10\x01\x12'\n" +
+	"#AUTHENTICATION_DELIVERY_CHANNEL_SMS\x10\x02\x12)\n" +
+	"%AUTHENTICATION_DELIVERY_CHANNEL_EMAIL\x10\x03\x125\n" +
+	"1AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP\x10\x04\x12(\n" +
+	"$AUTHENTICATION_DELIVERY_CHANNEL_PUSH\x10\x05\x12,\n" +
+	"(AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH\x10\x06\x12-\n" +
+	")AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID\x10\a\x12,\n" +
+	"(AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN\x10\b\x12(\n" +
+	"$AUTHENTICATION_DELIVERY_CHANNEL_OIDC\x10\t\x12(\n" +
+	"$AUTHENTICATION_DELIVERY_CHANNEL_SAML\x10\n" +
+	"*\x8f\x02\n" +
 	"\x1dAuthenticationChallengeAction\x12/\n" +
 	"+AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED\x10\x00\x12*\n" +
 	"&AUTHENTICATION_CHALLENGE_ACTION_SUBMIT\x10\x01\x12*\n" +
 	"&AUTHENTICATION_CHALLENGE_ACTION_RESEND\x10\x02\x12*\n" +
 	"&AUTHENTICATION_CHALLENGE_ACTION_CANCEL\x10\x03\x129\n" +
-	"5AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD\x10\x04*\xc5\x01\n" +
-	"\x12OtpDestinationType\x12$\n" +
-	" OTP_DESTINATION_TYPE_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aOTP_DESTINATION_TYPE_PHONE\x10\x01\x12\x1e\n" +
-	"\x1aOTP_DESTINATION_TYPE_EMAIL\x10\x02\x12*\n" +
-	"&OTP_DESTINATION_TYPE_AUTHENTICATOR_APP\x10\x03\x12\x1d\n" +
-	"\x19OTP_DESTINATION_TYPE_PUSH\x10\x04*\xd4\x01\n" +
+	"5AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD\x10\x04*\xe9\x02\n" +
+	"!AuthenticationChallengeCapability\x123\n" +
+	"/AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED\x10\x00\x12.\n" +
+	"*AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT\x10\x01\x12.\n" +
+	"*AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND\x10\x02\x120\n" +
+	",AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL\x10\x03\x12>\n" +
+	":AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI\x10\x04\x12=\n" +
+	"9AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD\x10\x05*\xa9\x01\n" +
+	"\x15WebAuthnDiscoveryMode\x12'\n" +
+	"#WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED\x10\x00\x124\n" +
+	"0WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS\x10\x01\x121\n" +
+	"-WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST\x10\x02*\xd4\x01\n" +
 	"\x1bUserVerificationRequirement\x12-\n" +
 	")USER_VERIFICATION_REQUIREMENT_UNSPECIFIED\x10\x00\x12*\n" +
 	"&USER_VERIFICATION_REQUIREMENT_REQUIRED\x10\x01\x12+\n" +
@@ -1376,48 +2166,69 @@ func file_m8_platform_iam_v1_authentication_challenge_proto_rawDescGZIP() []byte
 	return file_m8_platform_iam_v1_authentication_challenge_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_m8_platform_iam_v1_authentication_challenge_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_m8_platform_iam_v1_authentication_challenge_proto_goTypes = []any{
-	(AuthenticationMethod)(0),             // 0: m8.platform.iam.v1.AuthenticationMethod
-	(AuthenticationChallengeKind)(0),      // 1: m8.platform.iam.v1.AuthenticationChallengeKind
-	(AuthenticationChallengeAction)(0),    // 2: m8.platform.iam.v1.AuthenticationChallengeAction
-	(OtpDestinationType)(0),               // 3: m8.platform.iam.v1.OtpDestinationType
-	(UserVerificationRequirement)(0),      // 4: m8.platform.iam.v1.UserVerificationRequirement
-	(ApprovalChannel)(0),                  // 5: m8.platform.iam.v1.ApprovalChannel
-	(*AuthenticationChallengeOption)(nil), // 6: m8.platform.iam.v1.AuthenticationChallengeOption
-	(*AuthenticationChallengeInfo)(nil),   // 7: m8.platform.iam.v1.AuthenticationChallengeInfo
-	(*OtpChallenge)(nil),                  // 8: m8.platform.iam.v1.OtpChallenge
-	(*WebAuthnAllowedCredential)(nil),     // 9: m8.platform.iam.v1.WebAuthnAllowedCredential
-	(*WebAuthnChallenge)(nil),             // 10: m8.platform.iam.v1.WebAuthnChallenge
-	(*RedirectChallenge)(nil),             // 11: m8.platform.iam.v1.RedirectChallenge
-	(*ApprovalChallenge)(nil),             // 12: m8.platform.iam.v1.ApprovalChallenge
-	(*MobileIdChallenge)(nil),             // 13: m8.platform.iam.v1.MobileIdChallenge
-	(*timestamppb.Timestamp)(nil),         // 14: google.protobuf.Timestamp
+	(AuthenticationMethod)(0),               // 0: m8.platform.iam.v1.AuthenticationMethod
+	(AuthenticationChallengeKind)(0),        // 1: m8.platform.iam.v1.AuthenticationChallengeKind
+	(AuthenticationDeliveryChannel)(0),      // 2: m8.platform.iam.v1.AuthenticationDeliveryChannel
+	(AuthenticationChallengeAction)(0),      // 3: m8.platform.iam.v1.AuthenticationChallengeAction
+	(AuthenticationChallengeCapability)(0),  // 4: m8.platform.iam.v1.AuthenticationChallengeCapability
+	(WebAuthnDiscoveryMode)(0),              // 5: m8.platform.iam.v1.WebAuthnDiscoveryMode
+	(UserVerificationRequirement)(0),        // 6: m8.platform.iam.v1.UserVerificationRequirement
+	(ApprovalChannel)(0),                    // 7: m8.platform.iam.v1.ApprovalChannel
+	(*AuthenticationChallengeOption)(nil),   // 8: m8.platform.iam.v1.AuthenticationChallengeOption
+	(*AuthenticationChallengeInfo)(nil),     // 9: m8.platform.iam.v1.AuthenticationChallengeInfo
+	(*PasswordChallenge)(nil),               // 10: m8.platform.iam.v1.PasswordChallenge
+	(*OtpChallenge)(nil),                    // 11: m8.platform.iam.v1.OtpChallenge
+	(*WebAuthnAllowedCredential)(nil),       // 12: m8.platform.iam.v1.WebAuthnAllowedCredential
+	(*WebAuthnChallenge)(nil),               // 13: m8.platform.iam.v1.WebAuthnChallenge
+	(*RedirectChallenge)(nil),               // 14: m8.platform.iam.v1.RedirectChallenge
+	(*ApprovalChallenge)(nil),               // 15: m8.platform.iam.v1.ApprovalChallenge
+	(*MobileIdChallenge)(nil),               // 16: m8.platform.iam.v1.MobileIdChallenge
+	(*ProviderCallbackChallenge)(nil),       // 17: m8.platform.iam.v1.ProviderCallbackChallenge
+	(*AuthenticationChallengeResponse)(nil), // 18: m8.platform.iam.v1.AuthenticationChallengeResponse
+	(*OtpChallengeResponse)(nil),            // 19: m8.platform.iam.v1.OtpChallengeResponse
+	(*PasswordChallengeResponse)(nil),       // 20: m8.platform.iam.v1.PasswordChallengeResponse
+	(*WebAuthnAssertionResponse)(nil),       // 21: m8.platform.iam.v1.WebAuthnAssertionResponse
+	(*ApprovalChallengeResponse)(nil),       // 22: m8.platform.iam.v1.ApprovalChallengeResponse
+	nil,                                     // 23: m8.platform.iam.v1.AuthenticationChallengeOption.HintsEntry
+	(*timestamppb.Timestamp)(nil),           // 24: google.protobuf.Timestamp
 }
 var file_m8_platform_iam_v1_authentication_challenge_proto_depIdxs = []int32{
 	0,  // 0: m8.platform.iam.v1.AuthenticationChallengeOption.method:type_name -> m8.platform.iam.v1.AuthenticationMethod
 	1,  // 1: m8.platform.iam.v1.AuthenticationChallengeOption.kind:type_name -> m8.platform.iam.v1.AuthenticationChallengeKind
-	1,  // 2: m8.platform.iam.v1.AuthenticationChallengeInfo.kind:type_name -> m8.platform.iam.v1.AuthenticationChallengeKind
-	0,  // 3: m8.platform.iam.v1.AuthenticationChallengeInfo.method:type_name -> m8.platform.iam.v1.AuthenticationMethod
-	2,  // 4: m8.platform.iam.v1.AuthenticationChallengeInfo.actions:type_name -> m8.platform.iam.v1.AuthenticationChallengeAction
-	14, // 5: m8.platform.iam.v1.AuthenticationChallengeInfo.create_time:type_name -> google.protobuf.Timestamp
-	14, // 6: m8.platform.iam.v1.AuthenticationChallengeInfo.expire_time:type_name -> google.protobuf.Timestamp
-	8,  // 7: m8.platform.iam.v1.AuthenticationChallengeInfo.otp:type_name -> m8.platform.iam.v1.OtpChallenge
-	10, // 8: m8.platform.iam.v1.AuthenticationChallengeInfo.webauthn:type_name -> m8.platform.iam.v1.WebAuthnChallenge
-	11, // 9: m8.platform.iam.v1.AuthenticationChallengeInfo.redirect:type_name -> m8.platform.iam.v1.RedirectChallenge
-	12, // 10: m8.platform.iam.v1.AuthenticationChallengeInfo.approval:type_name -> m8.platform.iam.v1.ApprovalChallenge
-	13, // 11: m8.platform.iam.v1.AuthenticationChallengeInfo.mobile_id:type_name -> m8.platform.iam.v1.MobileIdChallenge
-	14, // 12: m8.platform.iam.v1.OtpChallenge.resend_available_at:type_name -> google.protobuf.Timestamp
-	3,  // 13: m8.platform.iam.v1.OtpChallenge.destination_type:type_name -> m8.platform.iam.v1.OtpDestinationType
-	4,  // 14: m8.platform.iam.v1.WebAuthnChallenge.user_verification:type_name -> m8.platform.iam.v1.UserVerificationRequirement
-	9,  // 15: m8.platform.iam.v1.WebAuthnChallenge.allow_credentials:type_name -> m8.platform.iam.v1.WebAuthnAllowedCredential
-	5,  // 16: m8.platform.iam.v1.ApprovalChallenge.approval_channel:type_name -> m8.platform.iam.v1.ApprovalChannel
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	2,  // 2: m8.platform.iam.v1.AuthenticationChallengeOption.delivery_channel:type_name -> m8.platform.iam.v1.AuthenticationDeliveryChannel
+	4,  // 3: m8.platform.iam.v1.AuthenticationChallengeOption.capabilities:type_name -> m8.platform.iam.v1.AuthenticationChallengeCapability
+	23, // 4: m8.platform.iam.v1.AuthenticationChallengeOption.hints:type_name -> m8.platform.iam.v1.AuthenticationChallengeOption.HintsEntry
+	1,  // 5: m8.platform.iam.v1.AuthenticationChallengeInfo.kind:type_name -> m8.platform.iam.v1.AuthenticationChallengeKind
+	0,  // 6: m8.platform.iam.v1.AuthenticationChallengeInfo.method:type_name -> m8.platform.iam.v1.AuthenticationMethod
+	2,  // 7: m8.platform.iam.v1.AuthenticationChallengeInfo.delivery_channel:type_name -> m8.platform.iam.v1.AuthenticationDeliveryChannel
+	24, // 8: m8.platform.iam.v1.AuthenticationChallengeInfo.expire_time:type_name -> google.protobuf.Timestamp
+	24, // 9: m8.platform.iam.v1.AuthenticationChallengeInfo.resend_available_time:type_name -> google.protobuf.Timestamp
+	3,  // 10: m8.platform.iam.v1.AuthenticationChallengeInfo.actions:type_name -> m8.platform.iam.v1.AuthenticationChallengeAction
+	4,  // 11: m8.platform.iam.v1.AuthenticationChallengeInfo.capabilities:type_name -> m8.platform.iam.v1.AuthenticationChallengeCapability
+	10, // 12: m8.platform.iam.v1.AuthenticationChallengeInfo.password:type_name -> m8.platform.iam.v1.PasswordChallenge
+	11, // 13: m8.platform.iam.v1.AuthenticationChallengeInfo.otp:type_name -> m8.platform.iam.v1.OtpChallenge
+	13, // 14: m8.platform.iam.v1.AuthenticationChallengeInfo.webauthn:type_name -> m8.platform.iam.v1.WebAuthnChallenge
+	14, // 15: m8.platform.iam.v1.AuthenticationChallengeInfo.redirect:type_name -> m8.platform.iam.v1.RedirectChallenge
+	15, // 16: m8.platform.iam.v1.AuthenticationChallengeInfo.approval:type_name -> m8.platform.iam.v1.ApprovalChallenge
+	16, // 17: m8.platform.iam.v1.AuthenticationChallengeInfo.mobile_id:type_name -> m8.platform.iam.v1.MobileIdChallenge
+	17, // 18: m8.platform.iam.v1.AuthenticationChallengeInfo.provider_callback:type_name -> m8.platform.iam.v1.ProviderCallbackChallenge
+	2,  // 19: m8.platform.iam.v1.OtpChallenge.delivery_channel:type_name -> m8.platform.iam.v1.AuthenticationDeliveryChannel
+	6,  // 20: m8.platform.iam.v1.WebAuthnChallenge.user_verification:type_name -> m8.platform.iam.v1.UserVerificationRequirement
+	5,  // 21: m8.platform.iam.v1.WebAuthnChallenge.discovery_mode:type_name -> m8.platform.iam.v1.WebAuthnDiscoveryMode
+	12, // 22: m8.platform.iam.v1.WebAuthnChallenge.allow_credentials:type_name -> m8.platform.iam.v1.WebAuthnAllowedCredential
+	7,  // 23: m8.platform.iam.v1.ApprovalChallenge.approval_channel:type_name -> m8.platform.iam.v1.ApprovalChannel
+	19, // 24: m8.platform.iam.v1.AuthenticationChallengeResponse.otp:type_name -> m8.platform.iam.v1.OtpChallengeResponse
+	20, // 25: m8.platform.iam.v1.AuthenticationChallengeResponse.password:type_name -> m8.platform.iam.v1.PasswordChallengeResponse
+	21, // 26: m8.platform.iam.v1.AuthenticationChallengeResponse.webauthn:type_name -> m8.platform.iam.v1.WebAuthnAssertionResponse
+	22, // 27: m8.platform.iam.v1.AuthenticationChallengeResponse.approval:type_name -> m8.platform.iam.v1.ApprovalChallengeResponse
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_challenge_proto_init() }
@@ -1426,19 +2237,27 @@ func file_m8_platform_iam_v1_authentication_challenge_proto_init() {
 		return
 	}
 	file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[1].OneofWrappers = []any{
+		(*AuthenticationChallengeInfo_Password)(nil),
 		(*AuthenticationChallengeInfo_Otp)(nil),
 		(*AuthenticationChallengeInfo_Webauthn)(nil),
 		(*AuthenticationChallengeInfo_Redirect)(nil),
 		(*AuthenticationChallengeInfo_Approval)(nil),
 		(*AuthenticationChallengeInfo_MobileId)(nil),
+		(*AuthenticationChallengeInfo_ProviderCallback)(nil),
+	}
+	file_m8_platform_iam_v1_authentication_challenge_proto_msgTypes[10].OneofWrappers = []any{
+		(*AuthenticationChallengeResponse_Otp)(nil),
+		(*AuthenticationChallengeResponse_Password)(nil),
+		(*AuthenticationChallengeResponse_Webauthn)(nil),
+		(*AuthenticationChallengeResponse_Approval)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_challenge_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_challenge_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   8,
+			NumEnums:      8,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -31,15 +31,21 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. Client application that started the authentication.
+  // Output only. M8 application client UUID that started the authentication.
+  //
+  // This is not the OAuth public client_id string used by external relying
+  // parties unless that OAuth client is represented by an M8 application client.
   string client_id = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. Normalized public-safe subject hint or resolved subject.
-  AuthenticationSubject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Output only. Public-safe subject projection.
+  //
+  // Raw email, phone, username, login_hint, external provider subject, and
+  // issuer-scoped identifiers must not be returned in this snapshot.
+  AuthenticationSubjectSnapshot subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Resolved purpose of this authentication flow.
   AuthenticationPurpose purpose = 4 [
@@ -114,6 +120,39 @@ message Authentication {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
+
+  // Output only. Monotonic aggregate version for event ordering, outbox
+  // publishing, replay diagnostics, and admin/debug projections.
+  int64 version = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int64.gte = 0
+  ];
+}
+
+// AuthenticationInteraction is returned to public clients after start.
+//
+// Public unauthenticated clients must use interaction_token together with
+// authentication_id for polling and mutating commands. The token is an opaque
+// one-time or bounded-use interaction secret and must not be stored in the
+// public Authentication snapshot.
+message AuthenticationInteraction {
+  // Output only. Authentication identifier.
+  string authentication_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Opaque interaction token for public polling and commands.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
+  ];
+
+  // Output only. Time when the interaction token expires.
+  google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AuthenticationResult is populated only after successful authentication.
@@ -141,11 +180,25 @@ message AuthenticationResult {
     }
   ];
 
+  // Output only. Configured method or plugin ids that participated.
+  repeated string method_ids = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 255
+        }
+      }
+    }
+  ];
+
   // Output only. OIDC-compatible Authentication Methods References.
   //
   // Examples include pwd, otp, sms, email, mfa, hwk, user, pin, face, fpt, swk,
   // pop, webauthn, passkey, and federated provider-specific values.
-  repeated string amr = 4 [
+  repeated string amr = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 32
@@ -160,14 +213,14 @@ message AuthenticationResult {
 
   // Output only. Final Authentication Context Class Reference value for token
   // issuance or session creation.
-  string acr = 5 [
+  string acr = 6 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Handoff data for OIDC, CIBA, session, Keycloak, or backend
   // integration after successful authentication.
-  AuthenticationHandoff handoff = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  AuthenticationHandoff handoff = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // AuthenticationHandoff carries a public-safe opaque handoff reference.
@@ -211,29 +264,4 @@ message AuthenticationHandoff {
 
   // Output only. Time when the handoff reference expires.
   google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-// InternalAuthenticationExecution is an internal-only execution reference.
-//
-// Do not include this message in public Authentication snapshots or public SDK
-// responses. It exists for internal workflow coordination, callbacks, and admin
-// diagnostics where explicitly authorized.
-message InternalAuthenticationExecution {
-  // Internal authentication identifier.
-  string authentication_id = 1 [(buf.validate.field).string.uuid = true];
-
-  // Internal workflow identifier.
-  string workflow_id = 2 [(buf.validate.field).string.max_len = 255];
-
-  // Internal workflow run identifier.
-  string run_id = 3 [
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  // Internal task queue or routing key.
-  string task_queue = 4 [(buf.validate.field).string.max_len = 255];
-
-  // Internal execution attempt counter.
-  int64 attempt = 5 [(buf.validate.field).int64.gte = 0];
 }

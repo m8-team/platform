@@ -147,6 +147,9 @@ enum AuthenticationErrorCode {
 
   // Provider account could not be found. Do not expose to public login UI.
   AUTHENTICATION_ERROR_CODE_PROVIDER_ACCOUNT_NOT_FOUND = 15;
+
+  // Generic public-safe invalid challenge response.
+  AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE = 16;
 }
 
 // AuthenticationErrorVisibility describes who may receive precise error details.
@@ -169,7 +172,11 @@ enum AuthenticationErrorVisibility {
 // It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
 // provider responses, SAML assertions, or private risk model details. Public
 // clients may receive generic messages even when admin/internal views retain a
-// precise code and details.
+// precise code and details. For PUBLIC projection, sensitive existence errors
+// such as USER_NOT_FOUND, EMAIL_NOT_FOUND, PHONE_NOT_FOUND, SUBJECT_NOT_FOUND,
+// and PROVIDER_ACCOUNT_NOT_FOUND must be mapped to
+// AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED or
+// AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE.
 message AuthenticationError {
   // Output only. Typed error code for SDK branching.
   AuthenticationErrorCode code = 1 [

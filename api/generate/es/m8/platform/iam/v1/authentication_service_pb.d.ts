@@ -4,10 +4,12 @@
 
 import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
-import type { AuthenticationSubject } from "./authentication_subject_pb";
-import type { AuthenticationContext } from "./authentication_context_pb";
-import type { AuthenticationMethod } from "./authentication_challenge_pb";
-import type { Authentication, AuthenticationSchema } from "./authentication_pb";
+import type { AuthenticationAssuranceLevel, AuthenticationOperationType, AuthenticationPurpose, AuthenticationView, LoginExperienceMode } from "./authentication_common_pb";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import type { Authentication, AuthenticationInteraction, AuthenticationSchema } from "./authentication_pb";
+import type { AuthenticationSubject, AuthenticationSubject_Type } from "./authentication_subject_pb";
+import type { AuthenticationStartContext } from "./authentication_context_pb";
+import type { AuthenticationChallengeOption, AuthenticationChallengeResponse, AuthenticationMethod } from "./authentication_challenge_pb";
 import type { OperationSchema } from "../../../../google/longrunning/operations_pb";
 
 /**
@@ -16,53 +18,164 @@ import type { OperationSchema } from "../../../../google/longrunning/operations_
 export declare const file_m8_platform_iam_v1_authentication_service: GenFile;
 
 /**
- * Request to start an authentication operation.
+ * AuthenticationOperationMetadata is stored in google.longrunning.Operation.metadata.
+ *
+ * It describes processing of one command, not the whole authentication lifecycle.
+ *
+ * @generated from message m8.platform.iam.v1.AuthenticationOperationMetadata
+ */
+export declare type AuthenticationOperationMetadata = Message<"m8.platform.iam.v1.AuthenticationOperationMetadata"> & {
+  /**
+   * Output only. Command type represented by this operation.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationOperationType operation_type = 1;
+   */
+  operationType: AuthenticationOperationType;
+
+  /**
+   * Output only. Authentication identifier affected by the command.
+   *
+   * @generated from field: string authentication_id = 2;
+   */
+  authenticationId: string;
+
+  /**
+   * Output only. Server-assigned command id for auditing and deduplication.
+   *
+   * @generated from field: string command_id = 3;
+   */
+  commandId: string;
+
+  /**
+   * Output only. Technical API request id.
+   *
+   * @generated from field: string request_id = 4;
+   */
+  requestId: string;
+
+  /**
+   * Output only. Business correlation id for the login flow.
+   *
+   * @generated from field: string correlation_id = 5;
+   */
+  correlationId: string;
+
+  /**
+   * Output only. Command deduplication key supplied by the caller.
+   *
+   * @generated from field: string idempotency_key = 6;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Output only. Time when command processing was created.
+   *
+   * @generated from field: google.protobuf.Timestamp create_time = 7;
+   */
+  createTime?: Timestamp;
+
+  /**
+   * Output only. Time when command processing was last updated.
+   *
+   * @generated from field: google.protobuf.Timestamp update_time = 8;
+   */
+  updateTime?: Timestamp;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationOperationMetadata.
+ * Use `create(AuthenticationOperationMetadataSchema)` to create a new message.
+ */
+export declare const AuthenticationOperationMetadataSchema: GenMessage<AuthenticationOperationMetadata>;
+
+/**
+ * AuthenticationOperationResponse is stored in google.longrunning.Operation.response.
+ *
+ * @generated from message m8.platform.iam.v1.AuthenticationOperationResponse
+ */
+export declare type AuthenticationOperationResponse = Message<"m8.platform.iam.v1.AuthenticationOperationResponse"> & {
+  /**
+   * Output only. Current public-safe authentication snapshot.
+   *
+   * @generated from field: m8.platform.iam.v1.Authentication authentication = 1;
+   */
+  authentication?: Authentication;
+
+  /**
+   * Output only. Public interaction token returned by StartAuthentication.
+   *
+   * For non-start commands this field may be empty. AuthenticationResult stays
+   * inside Authentication.result to avoid drift.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationInteraction interaction = 2;
+   */
+  interaction?: AuthenticationInteraction;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationOperationResponse.
+ * Use `create(AuthenticationOperationResponseSchema)` to create a new message.
+ */
+export declare const AuthenticationOperationResponseSchema: GenMessage<AuthenticationOperationResponse>;
+
+/**
+ * Request to start authentication.
  *
  * @generated from message m8.platform.iam.v1.StartAuthenticationRequest
  */
 export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.StartAuthenticationRequest"> & {
   /**
-   * Required. Public client application identifier that initiates authentication.
-   * The value must be a UUID.
-   *
-   * The server resolves this value to ClientConfig, project_id, user_pool_id,
-   * allowed providers, allowed methods, and authentication policies.
-   * Clients must not send project_id or user_pool_id in StartAuthenticationRequest.
+   * Required. M8 application client UUID, not an OAuth public client_id string.
    *
    * @generated from field: string client_id = 1;
    */
   clientId: string;
 
   /**
-   * Optional. Subject identifier or hint used to resolve the authenticating user.
+   * Optional. Subject identifier or login hint.
    *
    * @generated from field: m8.platform.iam.v1.AuthenticationSubject subject = 2;
    */
   subject?: AuthenticationSubject;
 
   /**
-   * Optional. Additional authentication context used for policy and challenge selection.
+   * Optional. Client-provided safe hints for starting authentication.
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationContext context = 3;
+   * @generated from field: m8.platform.iam.v1.AuthenticationStartContext context = 3;
    */
-  context?: AuthenticationContext;
+  context?: AuthenticationStartContext;
 
   /**
-   * Optional. Client preferences that influence authentication workflow selection.
+   * Optional. Client preferences and requested purpose.
    *
    * @generated from field: m8.platform.iam.v1.AuthenticationStartOptions options = 4;
    */
   options?: AuthenticationStartOptions;
 
   /**
-   * Optional. Idempotency key for StartAuthentication retries.
-   *
-   * The same client_id and request_id must resolve to the same Authentication
-   * operation. When omitted, retries are not guaranteed to be idempotent.
+   * Required. Technical id of this API request for audit/logging/tracing.
    *
    * @generated from field: string request_id = 5;
    */
   requestId: string;
+
+  /**
+   * Required. Business correlation id for the whole auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 6;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key.
+   *
+   * Repeating a command with the same key must return the same command result
+   * or the current state without repeating provider dispatch, workflow signal,
+   * or other side effects.
+   *
+   * @generated from field: string idempotency_key = 7;
+   */
+  idempotencyKey: string;
 };
 
 /**
@@ -72,26 +185,31 @@ export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.Sta
 export declare const StartAuthenticationRequestSchema: GenMessage<StartAuthenticationRequest>;
 
 /**
- * Request to read the latest authentication operation snapshot.
+ * Request to read the latest authentication snapshot.
  *
  * @generated from message m8.platform.iam.v1.GetAuthenticationRequest
  */
 export declare type GetAuthenticationRequest = Message<"m8.platform.iam.v1.GetAuthenticationRequest"> & {
   /**
-   * Required. Stable unique identifier of the authentication operation to read.
-   * The value must be a valid UUID string.
-   *
-   * The server returns the latest known aggregate snapshot. This request does
-   * not change authentication state and is safe for client or BFF polling.
-   *
-   * Example:
-   * {
-   *   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34"
-   * }
+   * Required. Authentication identifier to read.
    *
    * @generated from field: string authentication_id = 1;
    */
   authenticationId: string;
+
+  /**
+   * Required. Public interaction token returned by StartAuthentication.
+   *
+   * @generated from field: string interaction_token = 2;
+   */
+  interactionToken: string;
+
+  /**
+   * Optional. Requested projection. Defaults to PUBLIC.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationView view = 3;
+   */
+  view: AuthenticationView;
 };
 
 /**
@@ -101,96 +219,176 @@ export declare type GetAuthenticationRequest = Message<"m8.platform.iam.v1.GetAu
 export declare const GetAuthenticationRequestSchema: GenMessage<GetAuthenticationRequest>;
 
 /**
- * Request to cancel an active authentication operation.
+ * Request to resolve dynamic login UI.
  *
- * @generated from message m8.platform.iam.v1.CancelAuthenticationRequest
+ * @generated from message m8.platform.iam.v1.GetAuthenticationExperienceRequest
  */
-export declare type CancelAuthenticationRequest = Message<"m8.platform.iam.v1.CancelAuthenticationRequest"> & {
+export declare type GetAuthenticationExperienceRequest = Message<"m8.platform.iam.v1.GetAuthenticationExperienceRequest"> & {
   /**
-   * Required. Stable unique identifier of the authentication operation to cancel.
-   * The value must be a valid UUID string.
+   * Required. M8 application client UUID, not an OAuth public client_id string.
    *
-   * @generated from field: string authentication_id = 1;
+   * @generated from field: string client_id = 1;
    */
-  authenticationId: string;
+  clientId: string;
 
   /**
-   * Optional. Human-readable or machine-readable reason for cancellation.
+   * Optional. Project id, when already resolved by a trusted caller.
    *
-   * Example:
-   * - "user_closed_login_window"
-   * - "client_restarted_flow"
-   * - "session_replaced"
-   * - "admin_requested"
-   *
-   * @generated from field: string reason = 2;
+   * @generated from field: string project_id = 2;
    */
-  reason: string;
+  projectId: string;
 
   /**
-   * Optional. Idempotency key for retrying cancellation.
+   * Optional. User pool id, when already resolved by a trusted caller.
    *
-   * CancelAuthentication is naturally idempotent for terminal states, but
-   * request_id allows the server to deduplicate concurrent cancellation attempts.
-   * The same authentication_id and request_id must resolve to the same
-   * cancellation result.
-   *
-   * Example:
-   * {
-   *   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34",
-   *   "reason": "user_closed_login_window",
-   *   "request_id": "0d8b7e3e-7e1c-4b7e-8a8f-1f3c2c4f9d11"
-   * }
-   *
-   * @generated from field: string request_id = 3;
+   * @generated from field: string user_pool_id = 3;
    */
-  requestId: string;
+  userPoolId: string;
+
+  /**
+   * Optional. Client-provided safe hints used to shape the UI.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationStartContext context = 4;
+   */
+  context?: AuthenticationStartContext;
 };
 
 /**
- * Describes the message m8.platform.iam.v1.CancelAuthenticationRequest.
- * Use `create(CancelAuthenticationRequestSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.GetAuthenticationExperienceRequest.
+ * Use `create(GetAuthenticationExperienceRequestSchema)` to create a new message.
  */
-export declare const CancelAuthenticationRequestSchema: GenMessage<CancelAuthenticationRequest>;
+export declare const GetAuthenticationExperienceRequestSchema: GenMessage<GetAuthenticationExperienceRequest>;
 
 /**
- * Request to resend the current authentication challenge.
+ * AuthenticationExperience describes dynamic login UI for a client.
  *
- * @generated from message m8.platform.iam.v1.ResendAuthenticationChallengeRequest
+ * @generated from message m8.platform.iam.v1.AuthenticationExperience
  */
-export declare type ResendAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.ResendAuthenticationChallengeRequest"> & {
+export declare type AuthenticationExperience = Message<"m8.platform.iam.v1.AuthenticationExperience"> & {
   /**
-   * Required. Identifier of the authentication operation.
+   * Output only. Effective M8 application client UUID.
    *
-   * @generated from field: string authentication_id = 1;
+   * @generated from field: string client_id = 1;
    */
-  authenticationId: string;
+  clientId: string;
 
   /**
-   * Required. Identifier of the challenge to resend.
+   * Output only. Effective project id.
    *
-   * The value must match Authentication.current_challenge.challenge_id.
-   *
-   * @generated from field: string challenge_id = 2;
+   * @generated from field: string project_id = 2;
    */
-  challengeId: string;
+  projectId: string;
 
   /**
-   * Optional. Idempotency key for retrying resend safely.
+   * Output only. Effective user pool id.
    *
-   * The same authentication_id, challenge_id, and request_id must resolve to the
-   * same resend result.
-   *
-   * @generated from field: string request_id = 3;
+   * @generated from field: string user_pool_id = 3;
    */
-  requestId: string;
+  userPoolId: string;
+
+  /**
+   * Output only. Login UI mode selected by policy.
+   *
+   * @generated from field: m8.platform.iam.v1.LoginExperienceMode mode = 4;
+   */
+  mode: LoginExperienceMode;
+
+  /**
+   * Output only. Subject types accepted by the login UI.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationSubject.Type allowed_subject_types = 5;
+   */
+  allowedSubjectTypes: AuthenticationSubject_Type[];
+
+  /**
+   * Output only. Public-safe challenge options for UI rendering.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeOption available_challenges = 6;
+   */
+  availableChallenges: AuthenticationChallengeOption[];
+
+  /**
+   * Output only. Public-safe identity provider options.
+   *
+   * @generated from field: repeated m8.platform.iam.v1.IdentityProviderOption identity_providers = 7;
+   */
+  identityProviders: IdentityProviderOption[];
+
+  /**
+   * Output only. Whether identifier-first UI should be rendered.
+   *
+   * @generated from field: bool identifier_first = 8;
+   */
+  identifierFirst: boolean;
+
+  /**
+   * Output only. Whether passkey-first UI should be rendered.
+   *
+   * @generated from field: bool passkey_first = 9;
+   */
+  passkeyFirst: boolean;
+
+  /**
+   * Output only. Whether users may select an identity provider.
+   *
+   * @generated from field: bool allow_provider_selection = 10;
+   */
+  allowProviderSelection: boolean;
 };
 
 /**
- * Describes the message m8.platform.iam.v1.ResendAuthenticationChallengeRequest.
- * Use `create(ResendAuthenticationChallengeRequestSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.AuthenticationExperience.
+ * Use `create(AuthenticationExperienceSchema)` to create a new message.
  */
-export declare const ResendAuthenticationChallengeRequestSchema: GenMessage<ResendAuthenticationChallengeRequest>;
+export declare const AuthenticationExperienceSchema: GenMessage<AuthenticationExperience>;
+
+/**
+ * IdentityProviderOption describes a public-safe external provider option.
+ *
+ * @generated from message m8.platform.iam.v1.IdentityProviderOption
+ */
+export declare type IdentityProviderOption = Message<"m8.platform.iam.v1.IdentityProviderOption"> & {
+  /**
+   * Output only. Provider identifier.
+   *
+   * @generated from field: string provider_id = 1;
+   */
+  providerId: string;
+
+  /**
+   * Output only. Display name for UI.
+   *
+   * @generated from field: string display_name = 2;
+   */
+  displayName: string;
+
+  /**
+   * Output only. Provider type such as oidc, saml, mobile_id, or bank_id.
+   *
+   * @generated from field: string provider_type = 3;
+   */
+  providerType: string;
+
+  /**
+   * Output only. Whether this provider is selectable.
+   *
+   * @generated from field: bool enabled = 4;
+   */
+  enabled: boolean;
+
+  /**
+   * Output only. UI ordering priority. Lower values should be rendered first.
+   *
+   * @generated from field: int32 priority = 5;
+   */
+  priority: number;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.IdentityProviderOption.
+ * Use `create(IdentityProviderOptionSchema)` to create a new message.
+ */
+export declare const IdentityProviderOptionSchema: GenMessage<IdentityProviderOption>;
 
 /**
  * Request to select another authentication method or provider.
@@ -199,41 +397,67 @@ export declare const ResendAuthenticationChallengeRequestSchema: GenMessage<Rese
  */
 export declare type SelectAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.SelectAuthenticationChallengeRequest"> & {
   /**
-   * Required. Identifier of the authentication operation.
+   * Required. Authentication identifier.
    *
    * @generated from field: string authentication_id = 1;
    */
   authenticationId: string;
 
   /**
-   * Required. Authentication method selected by the client or user.
+   * Required. Public interaction token returned by StartAuthentication.
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 2;
+   * @generated from field: string interaction_token = 2;
+   */
+  interactionToken: string;
+
+  /**
+   * Required. Normalized authentication method family selected by the client.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 3;
    */
   method: AuthenticationMethod;
 
   /**
+   * Optional. Configured method or plugin id.
+   *
+   * @generated from field: string method_id = 4;
+   */
+  methodId: string;
+
+  /**
    * Optional. Provider identifier for provider-based methods.
    *
-   * Example:
-   * - "google"
-   * - "saml-corp"
-   * - "mobile-id-at"
-   * - "m8-sms"
-   *
-   * @generated from field: string provider_id = 3;
+   * @generated from field: string provider_id = 5;
    */
   providerId: string;
 
   /**
-   * Optional. Idempotency key for retrying selection safely.
+   * Required. Technical id of this API request for audit/logging/tracing.
    *
-   * The same authentication_id, method, provider_id, and request_id must resolve
-   * to the same selection result.
-   *
-   * @generated from field: string request_id = 4;
+   * @generated from field: string request_id = 6;
    */
   requestId: string;
+
+  /**
+   * Required. Business correlation id for the auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 7;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key for this selection.
+   *
+   * @generated from field: string idempotency_key = 8;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Optional. ETag precondition for optimistic concurrency.
+   *
+   * @generated from field: string if_match = 9;
+   */
+  ifMatch: string;
 };
 
 /**
@@ -243,75 +467,128 @@ export declare type SelectAuthenticationChallengeRequest = Message<"m8.platform.
 export declare const SelectAuthenticationChallengeRequestSchema: GenMessage<SelectAuthenticationChallengeRequest>;
 
 /**
- * Request to submit the current authentication challenge response.
+ * Request to resend the current authentication challenge.
  *
- * @generated from message m8.platform.iam.v1.SubmitAuthenticationChallengeRequest
+ * @generated from message m8.platform.iam.v1.ResendAuthenticationChallengeRequest
  */
-export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.SubmitAuthenticationChallengeRequest"> & {
+export declare type ResendAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.ResendAuthenticationChallengeRequest"> & {
   /**
-   * Required. Stable unique identifier of the authentication operation.
+   * Required. Authentication identifier.
    *
    * @generated from field: string authentication_id = 1;
    */
   authenticationId: string;
 
   /**
-   * Required. Identifier of the current challenge being answered.
+   * Required. Public interaction token returned by StartAuthentication.
    *
-   * The value must match Authentication.current_challenge.challenge_id.
+   * @generated from field: string interaction_token = 2;
+   */
+  interactionToken: string;
+
+  /**
+   * Required. Current challenge identifier.
    *
-   * @generated from field: string challenge_id = 2;
+   * @generated from field: string challenge_id = 3;
    */
   challengeId: string;
 
   /**
-   * Required. Response or proof for the current challenge. Raw passwords and
-   * OTP codes are accepted only in this request and must never be returned in
-   * Authentication, AuthenticationContext, AuthenticationChallengeInfo, or
-   * AuthenticationError.
+   * Required. Technical id of this API request for audit/logging/tracing.
    *
-   * @generated from oneof m8.platform.iam.v1.SubmitAuthenticationChallengeRequest.response
-   */
-  response: {
-    /**
-     * OTP code submitted by the user.
-     *
-     * @generated from field: m8.platform.iam.v1.OtpChallengeResponse otp = 3;
-     */
-    value: OtpChallengeResponse;
-    case: "otp";
-  } | {
-    /**
-     * Password submitted by the user.
-     *
-     * @generated from field: m8.platform.iam.v1.PasswordChallengeResponse password = 4;
-     */
-    value: PasswordChallengeResponse;
-    case: "password";
-  } | {
-    /**
-     * WebAuthn assertion produced by the browser or platform authenticator.
-     *
-     * @generated from field: m8.platform.iam.v1.WebAuthnAssertionResponse webauthn = 5;
-     */
-    value: WebAuthnAssertionResponse;
-    case: "webauthn";
-  } | {
-    /**
-     * Approval result submitted by an approval-capable client.
-     *
-     * @generated from field: m8.platform.iam.v1.ApprovalChallengeResponse approval = 6;
-     */
-    value: ApprovalChallengeResponse;
-    case: "approval";
-  } | { case: undefined; value?: undefined };
-
-  /**
-   * Optional. Idempotency key for retrying challenge submission safely.
-   *
-   * @generated from field: string request_id = 7;
+   * @generated from field: string request_id = 4;
    */
   requestId: string;
+
+  /**
+   * Required. Business correlation id for the auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 5;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key for this resend.
+   *
+   * @generated from field: string idempotency_key = 6;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Optional. ETag precondition for optimistic concurrency.
+   *
+   * @generated from field: string if_match = 7;
+   */
+  ifMatch: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.ResendAuthenticationChallengeRequest.
+ * Use `create(ResendAuthenticationChallengeRequestSchema)` to create a new message.
+ */
+export declare const ResendAuthenticationChallengeRequestSchema: GenMessage<ResendAuthenticationChallengeRequest>;
+
+/**
+ * Request to submit the current authentication challenge response.
+ *
+ * @generated from message m8.platform.iam.v1.SubmitAuthenticationChallengeRequest
+ */
+export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.SubmitAuthenticationChallengeRequest"> & {
+  /**
+   * Required. Authentication identifier.
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+
+  /**
+   * Required. Public interaction token returned by StartAuthentication.
+   *
+   * @generated from field: string interaction_token = 2;
+   */
+  interactionToken: string;
+
+  /**
+   * Required. Current challenge identifier.
+   *
+   * @generated from field: string challenge_id = 3;
+   */
+  challengeId: string;
+
+  /**
+   * Required. Request-only response or proof for the current challenge.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationChallengeResponse response = 4;
+   */
+  response?: AuthenticationChallengeResponse;
+
+  /**
+   * Required. Technical id of this API request for audit/logging/tracing.
+   *
+   * @generated from field: string request_id = 5;
+   */
+  requestId: string;
+
+  /**
+   * Required. Business correlation id for the auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 6;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key for this submit.
+   *
+   * @generated from field: string idempotency_key = 7;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Optional. ETag precondition for optimistic concurrency.
+   *
+   * @generated from field: string if_match = 8;
+   */
+  ifMatch: string;
 };
 
 /**
@@ -321,214 +598,148 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
 export declare const SubmitAuthenticationChallengeRequestSchema: GenMessage<SubmitAuthenticationChallengeRequest>;
 
 /**
- * OtpChallengeResponse contains an OTP code submitted by the user.
+ * Request to cancel an active authentication.
  *
- * It is request-only data and must never be returned in public snapshots.
- *
- * @generated from message m8.platform.iam.v1.OtpChallengeResponse
+ * @generated from message m8.platform.iam.v1.CancelAuthenticationRequest
  */
-export declare type OtpChallengeResponse = Message<"m8.platform.iam.v1.OtpChallengeResponse"> & {
+export declare type CancelAuthenticationRequest = Message<"m8.platform.iam.v1.CancelAuthenticationRequest"> & {
   /**
-   * Required. One-time password code submitted for verification.
+   * Required. Authentication identifier.
    *
-   * @generated from field: string code = 1;
+   * @generated from field: string authentication_id = 1;
    */
-  code: string;
+  authenticationId: string;
+
+  /**
+   * Required. Public interaction token returned by StartAuthentication.
+   *
+   * @generated from field: string interaction_token = 2;
+   */
+  interactionToken: string;
+
+  /**
+   * Optional. Human-readable or machine-readable cancellation reason.
+   *
+   * @generated from field: string reason = 3;
+   */
+  reason: string;
+
+  /**
+   * Required. Technical id of this API request for audit/logging/tracing.
+   *
+   * @generated from field: string request_id = 4;
+   */
+  requestId: string;
+
+  /**
+   * Required. Business correlation id for the auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 5;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key for this cancellation.
+   *
+   * @generated from field: string idempotency_key = 6;
+   */
+  idempotencyKey: string;
+
+  /**
+   * Optional. ETag precondition for optimistic concurrency.
+   *
+   * @generated from field: string if_match = 7;
+   */
+  ifMatch: string;
 };
 
 /**
- * Describes the message m8.platform.iam.v1.OtpChallengeResponse.
- * Use `create(OtpChallengeResponseSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.CancelAuthenticationRequest.
+ * Use `create(CancelAuthenticationRequestSchema)` to create a new message.
  */
-export declare const OtpChallengeResponseSchema: GenMessage<OtpChallengeResponse>;
+export declare const CancelAuthenticationRequestSchema: GenMessage<CancelAuthenticationRequest>;
 
 /**
- * PasswordChallengeResponse contains a password submitted by the user.
+ * Provider/Internal request to process a normalized external provider callback.
  *
- * It is request-only data and must never be returned, logged, or stored in the
- * public authentication snapshot.
- *
- * @generated from message m8.platform.iam.v1.PasswordChallengeResponse
- */
-export declare type PasswordChallengeResponse = Message<"m8.platform.iam.v1.PasswordChallengeResponse"> & {
-  /**
-   * Required. Password submitted for verification.
-   *
-   * @generated from field: string password = 1;
-   */
-  password: string;
-};
-
-/**
- * Describes the message m8.platform.iam.v1.PasswordChallengeResponse.
- * Use `create(PasswordChallengeResponseSchema)` to create a new message.
- */
-export declare const PasswordChallengeResponseSchema: GenMessage<PasswordChallengeResponse>;
-
-/**
- * WebAuthnAssertionResponse contains the browser assertion response for a
- * WebAuthn/passkey challenge.
- *
- * @generated from message m8.platform.iam.v1.WebAuthnAssertionResponse
- */
-export declare type WebAuthnAssertionResponse = Message<"m8.platform.iam.v1.WebAuthnAssertionResponse"> & {
-  /**
-   * Required. Base64url-encoded credential identifier.
-   *
-   * @generated from field: string credential_id = 1;
-   */
-  credentialId: string;
-
-  /**
-   * Required. Base64url-encoded clientDataJSON.
-   *
-   * @generated from field: string client_data_json = 2;
-   */
-  clientDataJson: string;
-
-  /**
-   * Required. Base64url-encoded authenticatorData.
-   *
-   * @generated from field: string authenticator_data = 3;
-   */
-  authenticatorData: string;
-
-  /**
-   * Required. Base64url-encoded assertion signature.
-   *
-   * @generated from field: string signature = 4;
-   */
-  signature: string;
-
-  /**
-   * Optional. Base64url-encoded WebAuthn user handle, when supplied by the authenticator.
-   *
-   * @generated from field: string user_handle = 5;
-   */
-  userHandle: string;
-};
-
-/**
- * Describes the message m8.platform.iam.v1.WebAuthnAssertionResponse.
- * Use `create(WebAuthnAssertionResponseSchema)` to create a new message.
- */
-export declare const WebAuthnAssertionResponseSchema: GenMessage<WebAuthnAssertionResponse>;
-
-/**
- * ApprovalChallengeResponse contains an approval or denial result.
- *
- * @generated from message m8.platform.iam.v1.ApprovalChallengeResponse
- */
-export declare type ApprovalChallengeResponse = Message<"m8.platform.iam.v1.ApprovalChallengeResponse"> & {
-  /**
-   * Required. True when the user approved the challenge, false when denied.
-   *
-   * @generated from field: bool approved = 1;
-   */
-  approved: boolean;
-};
-
-/**
- * Describes the message m8.platform.iam.v1.ApprovalChallengeResponse.
- * Use `create(ApprovalChallengeResponseSchema)` to create a new message.
- */
-export declare const ApprovalChallengeResponseSchema: GenMessage<ApprovalChallengeResponse>;
-
-/**
- * Request to process a callback from an external identity provider.
+ * Raw provider HTTP callbacks are handled by an adapter before this request is
+ * created. Do not log or persist secrets, tokens, authorization codes,
+ * SAMLResponse, raw assertions, or provider payloads into public Authentication
+ * snapshots.
  *
  * @generated from message m8.platform.iam.v1.HandleAuthenticationCallbackRequest
  */
 export declare type HandleAuthenticationCallbackRequest = Message<"m8.platform.iam.v1.HandleAuthenticationCallbackRequest"> & {
   /**
+   * Required. Technical id of this API request for audit/logging/tracing.
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * Required. Business correlation id for the auth session/login flow.
+   *
+   * @generated from field: string correlation_id = 2;
+   */
+  correlationId: string;
+
+  /**
+   * Required. Command deduplication key for callback processing.
+   *
+   * @generated from field: string idempotency_key = 3;
+   */
+  idempotencyKey: string;
+
+  /**
    * Required. Provider identifier that produced the callback.
    *
-   * Example:
-   * - "google"
-   * - "saml-corp"
-   * - "mobile-id-at"
-   *
-   * @generated from field: string provider_id = 1;
+   * @generated from field: string provider_id = 4;
    */
   providerId: string;
 
   /**
-   * Optional. Authentication operation identifier.
+   * Optional. Authentication identifier, when resolved by adapter state.
    *
-   * Some providers allow resolving the authentication operation from state,
-   * RelayState, or provider-specific transaction identifiers instead.
-   *
-   * @generated from field: string authentication_id = 2;
+   * @generated from field: string authentication_id = 5;
    */
   authenticationId: string;
 
   /**
-   * Optional. OIDC or OAuth authorization code.
-   *
-   * The server exchanges this value internally if needed. It must not be
-   * returned in public responses.
-   *
-   * @generated from field: string code = 3;
+   * @generated from oneof m8.platform.iam.v1.HandleAuthenticationCallbackRequest.callback
    */
-  code: string;
+  callback: {
+    /**
+     * OIDC/OAuth callback payload.
+     *
+     * @generated from field: m8.platform.iam.v1.OidcAuthenticationCallback oidc = 10;
+     */
+    value: OidcAuthenticationCallback;
+    case: "oidc";
+  } | {
+    /**
+     * SAML callback payload.
+     *
+     * @generated from field: m8.platform.iam.v1.SamlAuthenticationCallback saml = 11;
+     */
+    value: SamlAuthenticationCallback;
+    case: "saml";
+  } | {
+    /**
+     * Provider-specific callback payload.
+     *
+     * @generated from field: m8.platform.iam.v1.GenericProviderCallback generic = 12;
+     */
+    value: GenericProviderCallback;
+    case: "generic";
+  } | { case: undefined; value?: undefined };
 
   /**
-   * Optional. OIDC or OAuth state value.
+   * Optional. Safe request context from the callback adapter.
    *
-   * The server validates this value internally for callback correlation and
-   * anti-CSRF protection. It must not expose secrets.
-   *
-   * @generated from field: string state = 4;
+   * @generated from field: m8.platform.iam.v1.AuthenticationStartContext context = 20;
    */
-  state: string;
-
-  /**
-   * Optional. SAML response payload.
-   *
-   * This field may contain a large base64-encoded SAMLResponse. The server must
-   * validate the assertion internally and must not return raw assertions in
-   * public responses.
-   *
-   * @generated from field: string saml_response = 5;
-   */
-  samlResponse: string;
-
-  /**
-   * Optional. SAML RelayState value.
-   *
-   * @generated from field: string relay_state = 6;
-   */
-  relayState: string;
-
-  /**
-   * Optional. Raw query parameters received from the provider callback.
-   *
-   * This is useful for provider-specific integrations. Do not store or expose
-   * secrets from this map in public responses.
-   *
-   * @generated from field: map<string, string> raw_query = 7;
-   */
-  rawQuery: { [key: string]: string };
-
-  /**
-   * Optional. Raw form parameters received from the provider callback.
-   *
-   * This is useful for SAML POST binding and provider-specific callbacks. Do not
-   * store or expose secrets from this map in public responses.
-   *
-   * @generated from field: map<string, string> raw_form = 8;
-   */
-  rawForm: { [key: string]: string };
-
-  /**
-   * Optional. Idempotency key for retrying callback handling safely.
-   *
-   * The same provider_id, callback state, code, relay_state, and request_id must
-   * resolve to the same callback result.
-   *
-   * @generated from field: string request_id = 9;
-   */
-  requestId: string;
+  context?: AuthenticationStartContext;
 };
 
 /**
@@ -538,142 +749,153 @@ export declare type HandleAuthenticationCallbackRequest = Message<"m8.platform.i
 export declare const HandleAuthenticationCallbackRequestSchema: GenMessage<HandleAuthenticationCallbackRequest>;
 
 /**
- * Response returned after processing an external provider callback.
+ * OidcAuthenticationCallback contains normalized OIDC/OAuth callback values.
  *
- * @generated from message m8.platform.iam.v1.HandleAuthenticationCallbackResponse
+ * @generated from message m8.platform.iam.v1.OidcAuthenticationCallback
  */
-export declare type HandleAuthenticationCallbackResponse = Message<"m8.platform.iam.v1.HandleAuthenticationCallbackResponse"> & {
+export declare type OidcAuthenticationCallback = Message<"m8.platform.iam.v1.OidcAuthenticationCallback"> & {
   /**
-   * Output only. Updated authentication snapshot.
+   * Optional. OIDC/OAuth authorization code.
    *
-   * The snapshot must not contain provider tokens, raw assertions, client
-   * secrets, internal callback secrets, OTP codes, or passwords.
-   *
-   * @generated from field: m8.platform.iam.v1.Authentication authentication = 1;
+   * @generated from field: string code = 1;
    */
-  authentication?: Authentication;
+  code: string;
 
   /**
-   * Output only. Optional redirect URI where the browser should be redirected
-   * after callback handling.
+   * Required. OIDC/OAuth state.
    *
-   * This URI must be validated by the server against the original client
-   * configuration and callback state.
-   *
-   * @generated from field: string redirect_uri = 2;
+   * @generated from field: string state = 2;
    */
-  redirectUri: string;
+  state: string;
 
   /**
-   * Output only. Indicates whether the provider callback completed the
-   * authentication operation.
+   * Optional. OIDC/OAuth error code.
    *
-   * @generated from field: bool completed = 3;
+   * @generated from field: string error = 3;
    */
-  completed: boolean;
+  error: string;
+
+  /**
+   * Optional. OIDC/OAuth error description.
+   *
+   * @generated from field: string error_description = 4;
+   */
+  errorDescription: string;
 };
 
 /**
- * Describes the message m8.platform.iam.v1.HandleAuthenticationCallbackResponse.
- * Use `create(HandleAuthenticationCallbackResponseSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.OidcAuthenticationCallback.
+ * Use `create(OidcAuthenticationCallbackSchema)` to create a new message.
  */
-export declare const HandleAuthenticationCallbackResponseSchema: GenMessage<HandleAuthenticationCallbackResponse>;
+export declare const OidcAuthenticationCallbackSchema: GenMessage<OidcAuthenticationCallback>;
 
 /**
- * Metadata for the StartAuthentication long-running operation.
+ * SamlAuthenticationCallback contains normalized SAML callback values.
  *
- * @generated from message m8.platform.iam.v1.StartAuthenticationOperationMetadata
+ * @generated from message m8.platform.iam.v1.SamlAuthenticationCallback
  */
-export declare type StartAuthenticationOperationMetadata = Message<"m8.platform.iam.v1.StartAuthenticationOperationMetadata"> & {
+export declare type SamlAuthenticationCallback = Message<"m8.platform.iam.v1.SamlAuthenticationCallback"> & {
   /**
-   * Output only. Current snapshot of the authentication operation.
+   * Required. Base64-encoded SAMLResponse.
    *
-   * The value is updated as the workflow advances through state transitions and
-   * can be used by clients to poll progress before the operation completes.
-   *
-   * @generated from field: m8.platform.iam.v1.Authentication authentication = 1;
+   * @generated from field: string saml_response = 1;
    */
-  authentication?: Authentication;
+  samlResponse: string;
+
+  /**
+   * Required. SAML RelayState.
+   *
+   * @generated from field: string relay_state = 2;
+   */
+  relayState: string;
 };
 
 /**
- * Describes the message m8.platform.iam.v1.StartAuthenticationOperationMetadata.
- * Use `create(StartAuthenticationOperationMetadataSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.SamlAuthenticationCallback.
+ * Use `create(SamlAuthenticationCallbackSchema)` to create a new message.
  */
-export declare const StartAuthenticationOperationMetadataSchema: GenMessage<StartAuthenticationOperationMetadata>;
+export declare const SamlAuthenticationCallbackSchema: GenMessage<SamlAuthenticationCallback>;
 
 /**
- * AuthenticationStartOptions contains optional client preferences for starting authentication.
+ * GenericProviderCallback contains normalized provider-specific callback values.
  *
- * The server may use these values to select login experience, provider, method,
- * and assurance requirements, but policy can override unsupported or disallowed
- * preferences.
- *
- * Example:
- * - passkey-first login requests requested_authentication_method =
- *   AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
- * - tenant-specific UI flow sends `login_experience_version`
- * - OIDC request passes acr_values requested by the relying party
+ * @generated from message m8.platform.iam.v1.GenericProviderCallback
+ */
+export declare type GenericProviderCallback = Message<"m8.platform.iam.v1.GenericProviderCallback"> & {
+  /**
+   * Optional. Normalized query parameters from the provider callback.
+   *
+   * @generated from field: map<string, string> query = 1;
+   */
+  query: { [key: string]: string };
+
+  /**
+   * Optional. Normalized form parameters from the provider callback.
+   *
+   * @generated from field: map<string, string> form = 2;
+   */
+  form: { [key: string]: string };
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.GenericProviderCallback.
+ * Use `create(GenericProviderCallbackSchema)` to create a new message.
+ */
+export declare const GenericProviderCallbackSchema: GenMessage<GenericProviderCallback>;
+
+/**
+ * AuthenticationStartOptions contains optional preferences for starting
+ * authentication.
  *
  * @generated from message m8.platform.iam.v1.AuthenticationStartOptions
  */
 export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.AuthenticationStartOptions"> & {
   /**
+   * Optional. Purpose requested by the client.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationPurpose purpose = 1;
+   */
+  purpose: AuthenticationPurpose;
+
+  /**
+   * Optional. Requested assurance level.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel requested_assurance_level = 2;
+   */
+  requestedAssuranceLevel: AuthenticationAssuranceLevel;
+
+  /**
    * Optional. Login experience version requested by the client.
    *
-   * Example:
-   * - "default"
-   * - "passkey-first"
-   * - "passwordless-v2"
-   *
-   * @generated from field: string login_experience_version = 1;
+   * @generated from field: string login_experience_version = 3;
    */
   loginExperienceVersion: string;
 
   /**
-   * Optional. Preferred standard authentication method requested by the client.
+   * Optional. Preferred normalized authentication method.
    *
-   * Use requested_method_id for custom, provider, or plugin methods not modeled
-   * by AuthenticationMethod.
-   *
-   * @generated from field: m8.platform.iam.v1.AuthenticationMethod requested_authentication_method = 2;
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod requested_authentication_method = 4;
    */
   requestedAuthenticationMethod: AuthenticationMethod;
 
   /**
-   * Optional. Preferred custom, provider, or plugin method identifier.
+   * Optional. Preferred configured method or plugin id.
    *
-   * This complements requested_authentication_method and must be interpreted
-   * against server-side client, provider, and policy configuration.
-   *
-   * @generated from field: string requested_method_id = 3;
+   * @generated from field: string requested_method_id = 5;
    */
   requestedMethodId: string;
 
   /**
-   * Optional. Preferred authentication provider identifier.
-   * This selects a provider, channel, or provider integration for the requested
-   * method. AuthenticationSubject.provider_id scopes subject identifiers and
-   * must not be used to select the login provider.
+   * Optional. Preferred provider identifier.
    *
-   * Example:
-   * - WebAuthn provider id for passkey authentication
-   * - OIDC provider id for external identity provider login
-   * - Mobile ID provider id for mobile operator authentication
-   *
-   * @generated from field: string requested_provider_id = 4;
+   * @generated from field: string requested_provider_id = 6;
    */
   requestedProviderId: string;
 
   /**
    * Optional. Requested Authentication Context Class Reference values.
    *
-   * Example:
-   * - "AAL1" for normal login
-   * - "AAL2" for multi-factor authentication
-   * - "AAL3" for hardware-backed phishing-resistant authentication
-   *
-   * @generated from field: repeated string acr_values = 5;
+   * @generated from field: repeated string acr_values = 7;
    */
   acrValues: string[];
 };
@@ -685,28 +907,25 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
 export declare const AuthenticationStartOptionsSchema: GenMessage<AuthenticationStartOptions>;
 
 /**
- * Service that starts and drives authentication operations.
+ * AuthenticationService is the public SDK/login API for authentication.
  *
- * General flow:
- * - StartAuthentication creates an authentication operation.
- * - GetAuthentication polls the public-safe operation snapshot.
- * - Authentication.available_challenges builds dynamic login UI.
- * - SelectAuthenticationChallenge selects an allowed method, provider, channel,
- *   or integration.
- * - ResendAuthenticationChallenge redelivers an OTP-like current challenge.
- * - SubmitAuthenticationChallenge submits the user or client proof for the
- *   current challenge.
- * - HandleAuthenticationCallback accepts external provider callbacks.
- * - CancelAuthentication cancels an active operation.
+ * google.longrunning.Operation is used only for asynchronous command processing:
+ * starting a workflow, signaling an existing workflow, dispatching provider work,
+ * or processing another async orchestration step. An Operation tracks one
+ * command. It is not the authentication lifecycle. Authentication.state is the
+ * lifecycle source of truth and clients should poll GetAuthentication for the
+ * current public-safe snapshot.
  *
  * @generated from service m8.platform.iam.v1.AuthenticationService
  */
 export declare const AuthenticationService: GenService<{
   /**
-   * Starts a new authentication operation.
+   * Starts a new authentication flow.
    *
-   * The returned long-running operation resolves to Authentication when the
-   * authentication workflow reaches a terminal state.
+   * This command usually starts Temporal-backed orchestration. Operation.metadata
+   * contains AuthenticationOperationMetadata. Operation.response contains
+   * AuthenticationOperationResponse after command completion. Operation.error
+   * contains google.rpc.Status for command-level terminal failure.
    *
    * @generated from rpc m8.platform.iam.v1.AuthenticationService.StartAuthentication
    */
@@ -716,16 +935,10 @@ export declare const AuthenticationService: GenService<{
     output: typeof OperationSchema;
   },
   /**
-   * Returns the latest snapshot of an authentication operation.
+   * Returns the latest public-safe authentication snapshot.
    *
-   * It is safe to call this method repeatedly for polling. The response must not
-   * contain sensitive challenge secrets such as OTP codes, passwords, provider
-   * tokens, or internal callback secrets.
-   *
-   * Authorization:
-   * - caller must be allowed to read the operation in the resolved project and
-   *   user pool
-   * - public clients may only read operations they started or are allowed to poll
+   * This is synchronous read/query API and does not return Operation. Public
+   * clients must send the interaction_token received from StartAuthentication.
    *
    * @generated from rpc m8.platform.iam.v1.AuthenticationService.GetAuthentication
    */
@@ -735,205 +948,95 @@ export declare const AuthenticationService: GenService<{
     output: typeof AuthenticationSchema;
   },
   /**
-   * Cancels an active authentication operation.
+   * Returns the dynamic login experience for a client and optional context.
    *
-   * The method is idempotent. Canceling an already terminal authentication
-   * returns the current snapshot without changing its state.
+   * This is a synchronous read/query API for login UI discovery. It must not
+   * reveal whether a specific user has a passkey or other sensitive
+   * authenticator before policy allows that disclosure.
    *
-   * Cancel transition:
-   * - fully cancelable active states transition to CANCELED
-   * - cancel during VERIFYING, AUTHORIZATION_HANDOFF_PENDING, or FINALIZING may
-   *   return an unchanged snapshot if verification or finalization already
-   *   passed the safe cancellation point
-   * - terminal states are returned unchanged
-   * - a successful transition updates update_time and increments version
-   * - terminal snapshots keep their existing update_time and version
-   *
-   * Implementation TODO:
-   * - load Authentication by authentication_id
-   * - return terminal snapshots unchanged
-   * - persist state = CANCELED with optimistic version check
-   * - emit audit or outbox event when the event model exists
-   * - signal or cancel the underlying Temporal workflow
-   *
-   * Authorization:
-   * - caller must be allowed to cancel the authentication operation
-   * - public clients may cancel only their own active operation
-   * - admin and service callers may cancel according to policy
-   *
-   * @generated from rpc m8.platform.iam.v1.AuthenticationService.CancelAuthentication
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.GetAuthenticationExperience
    */
-  cancelAuthentication: {
+  getAuthenticationExperience: {
     methodKind: "unary";
-    input: typeof CancelAuthenticationRequestSchema;
-    output: typeof AuthenticationSchema;
+    input: typeof GetAuthenticationExperienceRequestSchema;
+    output: typeof AuthenticationExperienceSchema;
   },
   /**
-   * Resends the current challenge when the selected method supports resend,
-   * such as SMS OTP or email OTP.
+   * Selects an allowed challenge method or provider.
    *
-   * The method does not create a new authentication operation and must not
-   * expose OTP codes or other challenge secrets. It is intended for active
-   * operations whose current_challenge allows resend.
-   *
-   * Allowed states:
-   * - CHALLENGE_DELIVERED
-   * - WAITING_FOR_USER
-   * - CHALLENGE_RETRY_REQUIRED
-   * - STEP_UP_REQUIRED
-   *
-   * State transition:
-   * - WAITING_FOR_USER -> CHALLENGE_DELIVERED or WAITING_FOR_USER
-   * - state_reason becomes AUTHENTICATION_STATE_REASON_OTP_RESENT
-   * - current_challenge resend metadata may be updated
-   * - update_time is updated and version is incremented
-   *
-   * Idempotency:
-   * - same authentication_id, challenge_id, and request_id returns the same
-   *   resend result
-   *
-   * Implementation TODO:
-   * - signal Temporal workflow with ResendChallengeSignal
-   * - let workflow enforce cooldown, rate limit, and provider policy
-   * - update current_challenge without exposing OTP codes or provider secrets
-   *
-   * Authorization:
-   * - caller must be allowed to operate on this authentication operation
-   * - public clients may resend only their own current challenge
-   *
-   * @generated from rpc m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge
-   */
-  resendAuthenticationChallenge: {
-    methodKind: "unary";
-    input: typeof ResendAuthenticationChallengeRequestSchema;
-    output: typeof AuthenticationSchema;
-  },
-  /**
-   * Selects an allowed authentication method or provider for an existing
-   * authentication operation.
-   *
-   * This method prepares a new public-safe current_challenge but does not verify
-   * user identity by itself. It does not accept passwords, OTP codes, WebAuthn
-   * assertions, provider authorization codes, or provider tokens.
-   *
-   * Allowed states:
-   * - IDENTIFYING, when the subject is already sufficiently resolved
-   * - EVALUATING, when policy has already resolved allowed options
-   * - CHALLENGE_DELIVERED
-   * - WAITING_FOR_USER
-   * - CHALLENGE_RETRY_REQUIRED
-   * - STEP_UP_REQUIRED
-   *
-   * State transition:
-   * - current_challenge is replaced with a newly prepared challenge
-   * - state usually becomes CHALLENGE_PREPARING, CHALLENGE_DELIVERED, or
-   *   WAITING_FOR_USER
-   * - state_reason becomes AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
-   * - update_time is updated and version is incremented
-   *
-   * If the requested method or provider is not allowed, the operation is not
-   * changed and the server should return a command error or a safe
-   * Authentication.error with METHOD_NOT_ALLOWED or PROVIDER_NOT_ALLOWED.
-   *
-   * Implementation TODO:
-   * - signal Temporal workflow with SelectChallengeSignal
-   * - let workflow enforce allowed methods, providers, risk decision, and policy
-   * - prepare a new current_challenge without exposing secrets
-   *
-   * Authorization:
-   * - caller can select only methods and providers allowed by client policy,
-   *   user pool policy, risk decision, and current authentication state
+   * This command may signal Temporal-backed orchestration. idempotency_key is
+   * used as the signal/command deduplication key; repeating it must return the
+   * same command result or current state without repeating side effects.
    *
    * @generated from rpc m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge
    */
   selectAuthenticationChallenge: {
     methodKind: "unary";
     input: typeof SelectAuthenticationChallengeRequestSchema;
-    output: typeof AuthenticationSchema;
+    output: typeof OperationSchema;
   },
   /**
-   * Submits a user or client response to the current authentication challenge.
+   * Resends or redelivers the current challenge when the method supports it.
    *
-   * This method accepts the proof or response required by current_challenge and
-   * returns an updated public-safe Authentication snapshot. The response must
-   * never contain passwords, OTP codes, provider tokens, raw callback secrets,
-   * private WebAuthn server-side session secrets, or raw provider responses.
+   * This command may dispatch through an external provider asynchronously.
    *
-   * Allowed states:
-   * - CHALLENGE_DELIVERED
-   * - WAITING_FOR_USER
-   * - CHALLENGE_RETRY_REQUIRED
-   * - STEP_UP_REQUIRED
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge
+   */
+  resendAuthenticationChallenge: {
+    methodKind: "unary";
+    input: typeof ResendAuthenticationChallengeRequestSchema;
+    output: typeof OperationSchema;
+  },
+  /**
+   * Submits a response to the current challenge.
    *
-   * State transition:
-   * - WAITING_FOR_USER -> VERIFYING
-   * - VERIFYING -> AUTHENTICATED | CHALLENGE_RETRY_REQUIRED | DENIED | BLOCKED
-   *   | ATTEMPTS_EXCEEDED | EXPIRED | FAILED
-   *
-   * Idempotency:
-   * - same authentication_id, challenge_id, and request_id returns the same
-   *   submission result
-   *
-   * Implementation TODO:
-   * - signal Temporal workflow with SubmitChallengeSignal
-   * - workflow verifies proof or response
-   * - workflow updates attempts, state_reason, current_challenge, and error
-   * - workflow never stores raw passwords or OTP codes in the public snapshot
-   *
-   * Authorization:
-   * - caller must be allowed to operate on this authentication operation
-   * - public clients may submit only their own current challenge
+   * This command may verify locally, signal asynchronous orchestration, or wait
+   * for external provider verification.
    *
    * @generated from rpc m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge
    */
   submitAuthenticationChallenge: {
     methodKind: "unary";
     input: typeof SubmitAuthenticationChallengeRequestSchema;
-    output: typeof AuthenticationSchema;
+    output: typeof OperationSchema;
   },
   /**
-   * Processes callbacks from external identity providers.
+   * Cancels an active authentication flow.
    *
-   * Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
-   * providers. The method validates provider state internally and must not
-   * expose provider tokens, raw assertions, client secrets, or internal callback
-   * secrets in the response.
+   * This command may signal asynchronous workflow cancellation.
    *
-   * HTTP bindings:
-   * - GET is used by OIDC/OAuth authorization code callbacks.
-   * - POST is used by SAML POST binding and provider-specific callbacks.
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.CancelAuthentication
+   */
+  cancelAuthentication: {
+    methodKind: "unary";
+    input: typeof CancelAuthenticationRequestSchema;
+    output: typeof OperationSchema;
+  },
+}>;
+
+/**
+ * AuthenticationProviderCallbackService is an internal normalized provider
+ * callback API.
+ *
+ * External IdPs are not expected to send protobuf JSON. HTTP adapters/BFFs
+ * receive real callbacks such as GET /callback?code=...&state=... or SAML
+ * form-urlencoded POSTs, validate transport concerns, and normalize them into
+ * HandleAuthenticationCallbackRequest for this service.
+ *
+ * @generated from service m8.platform.iam.v1.AuthenticationProviderCallbackService
+ */
+export declare const AuthenticationProviderCallbackService: GenService<{
+  /**
+   * Processes a normalized callback from an external provider.
    *
-   * Callback behavior:
-   * - validate provider_id
-   * - resolve Authentication by authentication_id, state, relay_state, or
-   *   provider transaction identifiers
-   * - validate state, relay state, nonce, anti-CSRF data, signatures, tokens, or
-   *   provider-specific proof internally
-   * - update state_reason to PROVIDER_CALLBACK_RECEIVED or
-   *   PROVIDER_CALLBACK_INVALID
-   * - transition through VERIFYING, FINALIZING, AUTHENTICATED, DENIED, BLOCKED,
-   *   or FAILED according to validation and policy
+   * This command may signal Temporal-backed authentication orchestration.
    *
-   * Idempotency:
-   * - same provider_id, callback state, code, relay_state, and request_id returns
-   *   the same callback result
-   *
-   * Implementation TODO:
-   * - signal Temporal workflow with ProviderCallbackSignal
-   * - let workflow validate callback data and finish the provider step
-   *
-   * Authorization:
-   * - provider callbacks must be authenticated or validated through state,
-   *   signature, SAML validation, OIDC token validation, or provider-specific
-   *   verification
-   * - public clients must not be trusted to assert callback success
-   *
-   * @generated from rpc m8.platform.iam.v1.AuthenticationService.HandleAuthenticationCallback
+   * @generated from rpc m8.platform.iam.v1.AuthenticationProviderCallbackService.HandleAuthenticationCallback
    */
   handleAuthenticationCallback: {
     methodKind: "unary";
     input: typeof HandleAuthenticationCallbackRequestSchema;
-    output: typeof HandleAuthenticationCallbackResponseSchema;
+    output: typeof OperationSchema;
   },
 }>;
 

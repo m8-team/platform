@@ -14,27 +14,27 @@ import "m8/platform/iam/v1/authentication.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_common.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
-import "m8/platform/iam/v1/authentication_error.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
-// AuthenticationService starts and drives authentication flows.
+// AuthenticationService is the public SDK/login API for authentication.
 //
-// Public SDK and login UI calls use StartAuthentication, GetAuthentication,
-// SelectAuthenticationChallenge, ResendAuthenticationChallenge,
-// SubmitAuthenticationChallenge, and CancelAuthentication. Provider callbacks
-// use HandleAuthenticationCallback and should be exposed only through trusted
-// provider/internal adapter surfaces.
+// google.longrunning.Operation is used only for asynchronous command processing:
+// starting a workflow, signaling an existing workflow, dispatching provider work,
+// or processing another async orchestration step. An Operation tracks one
+// command. It is not the authentication lifecycle. Authentication.state is the
+// lifecycle source of truth and clients should poll GetAuthentication for the
+// current public-safe snapshot.
 service AuthenticationService {
-  option (m8.platform.extension.v1.description) = "Use this API to start authentication workflows, drive challenges, and process provider callbacks.";
+  option (m8.platform.extension.v1.description) = "Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state.";
 
   // Starts a new authentication flow.
   //
-  // This method starts asynchronous execution. Operation.metadata contains
-  // AuthenticationOperationMetadata. Operation.response contains
-  // AuthenticationOperationResponse after successful completion. Operation.error
-  // contains google.rpc.Status for terminal failure.
+  // This command usually starts Temporal-backed orchestration. Operation.metadata
+  // contains AuthenticationOperationMetadata. Operation.response contains
+  // AuthenticationOperationResponse after command completion. Operation.error
+  // contains google.rpc.Status for command-level terminal failure.
   rpc StartAuthentication(StartAuthenticationRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -45,23 +45,22 @@ service AuthenticationService {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "client_id,subject,idempotency_key";
+    option (google.api.method_signature) = "client_id,subject,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Start authentication"
-      description: "Starts a new authentication workflow and returns a long-running operation with typed authentication metadata and response."
+      description: "Starts asynchronous authentication command processing and returns command-level operation tracking metadata."
       operation_id: "StartAuthentication"
     };
   }
 
   // Returns the latest public-safe authentication snapshot.
   //
-  // This read-only method is safe for polling and returns Authentication
-  // directly. It never returns challenge secrets, provider tokens, raw callback
-  // payloads, raw device fingerprints, or internal execution details.
+  // This is synchronous read/query API and does not return Operation. Public
+  // clients must send the interaction_token received from StartAuthentication.
   rpc GetAuthentication(GetAuthenticationRequest) returns (Authentication) {
     option idempotency_level = NO_SIDE_EFFECTS;
     option (google.api.http) = {get: "/v1/iam/authentications/{authentication_id}"};
-    option (google.api.method_signature) = "authentication_id";
+    option (google.api.method_signature) = "authentication_id,interaction_token";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get authentication"
       description: "Returns the latest public-safe authentication snapshot for polling."
@@ -69,12 +68,30 @@ service AuthenticationService {
     };
   }
 
+  // Returns the dynamic login experience for a client and optional context.
+  //
+  // This is a synchronous read/query API for login UI discovery. It must not
+  // reveal whether a specific user has a passkey or other sensitive
+  // authenticator before policy allows that disclosure.
+  rpc GetAuthenticationExperience(GetAuthenticationExperienceRequest) returns (AuthenticationExperience) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (google.api.http) = {
+      post: "/v1/iam/authenticationExperience:get"
+      body: "*"
+    };
+    option (google.api.method_signature) = "client_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get authentication experience"
+      description: "Returns dynamic login UI configuration, provider options, and public-safe method options."
+      operation_id: "GetAuthenticationExperience"
+    };
+  }
+
   // Selects an allowed challenge method or provider.
   //
-  // This method may signal asynchronous execution. Operation.metadata contains
-  // AuthenticationOperationMetadata. Operation.response contains
-  // AuthenticationOperationResponse after successful completion. Operation.error
-  // contains google.rpc.Status for terminal failure.
+  // This command may signal Temporal-backed orchestration. idempotency_key is
+  // used as the signal/command deduplication key; repeating it must return the
+  // same command result or current state without repeating side effects.
   rpc SelectAuthenticationChallenge(SelectAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -85,20 +102,17 @@ service AuthenticationService {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "authentication_id,method,provider_id,request_id";
+    option (google.api.method_signature) = "authentication_id,interaction_token,method,method_id,provider_id,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Select challenge"
-      description: "Selects an allowed authentication method or provider and returns a long-running operation for tracking challenge preparation."
+      description: "Selects an allowed authentication method or provider and returns command-level operation tracking metadata."
       operation_id: "SelectAuthenticationChallenge"
     };
   }
 
   // Resends or redelivers the current challenge when the method supports it.
   //
-  // This method may dispatch through an external provider. Operation.metadata
-  // contains AuthenticationOperationMetadata. Operation.response contains
-  // AuthenticationOperationResponse after successful completion. Operation.error
-  // contains google.rpc.Status for terminal failure.
+  // This command may dispatch through an external provider asynchronously.
   rpc ResendAuthenticationChallenge(ResendAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -109,21 +123,18 @@ service AuthenticationService {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "authentication_id,challenge_id,request_id";
+    option (google.api.method_signature) = "authentication_id,interaction_token,challenge_id,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Resend challenge"
-      description: "Resends the current challenge when supported and returns a long-running operation for tracking dispatch."
+      description: "Resends the current challenge and returns command-level operation tracking metadata."
       operation_id: "ResendAuthenticationChallenge"
     };
   }
 
   // Submits a response to the current challenge.
   //
-  // This method may verify locally, signal asynchronous execution, or wait for
-  // external verification. Operation.metadata contains
-  // AuthenticationOperationMetadata. Operation.response contains
-  // AuthenticationOperationResponse after successful completion. Operation.error
-  // contains google.rpc.Status for terminal failure.
+  // This command may verify locally, signal asynchronous orchestration, or wait
+  // for external provider verification.
   rpc SubmitAuthenticationChallenge(SubmitAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -134,20 +145,17 @@ service AuthenticationService {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "authentication_id,challenge_id,request_id";
+    option (google.api.method_signature) = "authentication_id,interaction_token,challenge_id,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Submit challenge"
-      description: "Submits a response to the current challenge and returns a long-running operation for tracking verification."
+      description: "Submits a challenge response and returns command-level operation tracking metadata."
       operation_id: "SubmitAuthenticationChallenge"
     };
   }
 
   // Cancels an active authentication flow.
   //
-  // This method may signal asynchronous cancellation. Operation.metadata
-  // contains AuthenticationOperationMetadata. Operation.response contains
-  // AuthenticationOperationResponse after successful completion. Operation.error
-  // contains google.rpc.Status for terminal failure.
+  // This command may signal asynchronous workflow cancellation.
   rpc CancelAuthentication(CancelAuthenticationRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
@@ -158,119 +166,110 @@ service AuthenticationService {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "authentication_id,request_id";
+    option (google.api.method_signature) = "authentication_id,interaction_token,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Cancel authentication"
-      description: "Cancels an active authentication flow and returns a long-running operation for tracking cancellation."
+      description: "Cancels an active authentication and returns command-level operation tracking metadata."
       operation_id: "CancelAuthentication"
     };
   }
+}
 
-  // Provider/Internal API. Processes callbacks from external providers.
+// AuthenticationProviderCallbackService is an internal normalized provider
+// callback API.
+//
+// External IdPs are not expected to send protobuf JSON. HTTP adapters/BFFs
+// receive real callbacks such as GET /callback?code=...&state=... or SAML
+// form-urlencoded POSTs, validate transport concerns, and normalize them into
+// HandleAuthenticationCallbackRequest for this service.
+service AuthenticationProviderCallbackService {
+  option (m8.platform.extension.v1.description) = "Use this internal API to process normalized external provider callbacks.";
+
+  // Processes a normalized callback from an external provider.
   //
-  // This is not a normal public login SDK method. Provider adapters may pass
-  // raw query or form values for processing, but secrets, tokens, SAMLResponse,
-  // and raw provider payloads must not be logged or persisted into public
-  // Authentication snapshots.
-  //
-  // Operation.metadata contains AuthenticationOperationMetadata.
-  // Operation.response contains AuthenticationOperationResponse after successful
-  // completion. Operation.error contains google.rpc.Status for terminal failure.
+  // This command may signal Temporal-backed authentication orchestration.
   rpc HandleAuthenticationCallback(HandleAuthenticationCallbackRequest) returns (google.longrunning.Operation) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
-      post: "/v1/iam/authentications/{authentication_id}:callback"
+      post: "/v1/iam/authenticationCallbacks:handle"
       body: "*"
-      additional_bindings: {
-        post: "/v1/iam/authenticationCallbacks/{provider_id}"
-        body: "*"
-      }
-      additional_bindings: {get: "/v1/iam/authenticationCallbacks/{provider_id}"}
     };
     option (google.longrunning.operation_info) = {
       response_type: "AuthenticationOperationResponse"
       metadata_type: "AuthenticationOperationMetadata"
     };
-    option (google.api.method_signature) = "provider_id,authentication_id,request_id";
+    option (google.api.method_signature) = "provider_id,authentication_id,request_id,idempotency_key";
     option (gnostic.openapi.v3.operation) = {
       summary: "Handle provider callback"
-      description: "Provider/internal API that processes external provider callbacks without exposing provider secrets in public snapshots."
+      description: "Internal normalized API that processes external provider callbacks without exposing provider secrets in public snapshots."
       operation_id: "HandleAuthenticationCallback"
     };
   }
 }
 
 // AuthenticationOperationMetadata is stored in google.longrunning.Operation.metadata.
+//
+// It describes processing of one command, not the whole authentication lifecycle.
 message AuthenticationOperationMetadata {
-  // Output only. Authentication identifier.
-  string authentication_id = 1 [
+  // Output only. Command type represented by this operation.
+  AuthenticationOperationType operation_type = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Authentication identifier affected by the command.
+  string authentication_id = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Output only. Current authentication lifecycle state.
-  AuthenticationState state = 2 [
+  // Output only. Server-assigned command id for auditing and deduplication.
+  string command_id = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
+    (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Current state reason.
-  AuthenticationStateReason state_reason = 3 [
+  // Output only. Technical API request id.
+  string request_id = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
+    (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Current challenge snapshot.
-  AuthenticationChallengeInfo current_challenge = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Available challenge options.
-  repeated AuthenticationChallengeOption available_challenges = 5 [
+  // Output only. Business correlation id for the login flow.
+  string correlation_id = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {max_items: 32}
+    (buf.validate.field).string.max_len = 255
   ];
 
-  // Output only. Safe error details when available.
-  AuthenticationError error = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Output only. Command deduplication key supplied by the caller.
+  string idempotency_key = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
 
-  // Output only. Time when the authentication was created.
+  // Output only. Time when command processing was created.
   google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Time when the authentication was last updated.
+  // Output only. Time when command processing was last updated.
   google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Time when the authentication expires.
-  google.protobuf.Timestamp expire_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Business correlation id.
-  string correlation_id = 10 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
-  ];
-
-  // Output only. External request, gateway, or audit id.
-  string request_id = 11 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
-  ];
 }
 
 // AuthenticationOperationResponse is stored in google.longrunning.Operation.response.
 message AuthenticationOperationResponse {
-  // Output only. Final or current public-safe authentication snapshot.
+  // Output only. Current public-safe authentication snapshot.
   Authentication authentication = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Successful authentication result when the flow authenticated.
-  AuthenticationResult result = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Output only. Public interaction token returned by StartAuthentication.
+  //
+  // For non-start commands this field may be empty. AuthenticationResult stays
+  // inside Authentication.result to avoid drift.
+  AuthenticationInteraction interaction = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to start authentication.
 message StartAuthenticationRequest {
-  // Required. Public client application identifier.
-  //
-  // The server resolves this value to client configuration, project, user pool,
-  // provider policy, allowed methods, and authentication policy. Public clients
-  // must not send project_id or user_pool_id directly.
+  // Required. M8 application client UUID, not an OAuth public client_id string.
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
@@ -286,13 +285,38 @@ message StartAuthenticationRequest {
   // Optional. Client preferences and requested purpose.
   AuthenticationStartOptions options = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. Deduplication key for retrying StartAuthentication.
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Business correlation id for the whole auth session/login flow.
+  string correlation_id = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key.
   //
-  // This is not RequestContext.request_id. request_id, correlation_id, and
-  // trace_id live in AuthenticationStartContext.request.
-  string idempotency_key = 5 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 255
+  // Repeating a command with the same key must return the same command result
+  // or the current state without repeating provider dispatch, workflow signal,
+  // or other side effects.
+  string idempotency_key = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 }
 
@@ -304,10 +328,141 @@ message GetAuthenticationRequest {
     (buf.validate.field).required = true,
     (buf.validate.field).string.uuid = true
   ];
+
+  // Required. Public interaction token returned by StartAuthentication.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
+  ];
+
+  // Optional. Requested projection. Defaults to PUBLIC.
+  AuthenticationView view = 3 [(buf.validate.field).enum.defined_only = true];
+}
+
+// Request to resolve dynamic login UI.
+message GetAuthenticationExperienceRequest {
+  // Required. M8 application client UUID, not an OAuth public client_id string.
+  string client_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Project id, when already resolved by a trusted caller.
+  string project_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. User pool id, when already resolved by a trusted caller.
+  string user_pool_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Client-provided safe hints used to shape the UI.
+  AuthenticationStartContext context = 4;
+}
+
+// AuthenticationExperience describes dynamic login UI for a client.
+message AuthenticationExperience {
+  // Output only. Effective M8 application client UUID.
+  string client_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Effective project id.
+  string project_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Effective user pool id.
+  string user_pool_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Output only. Login UI mode selected by policy.
+  LoginExperienceMode mode = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Subject types accepted by the login UI.
+  repeated AuthenticationSubject.Type allowed_subject_types = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  // Output only. Public-safe challenge options for UI rendering.
+  repeated AuthenticationChallengeOption available_challenges = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 64}
+  ];
+
+  // Output only. Public-safe identity provider options.
+  repeated IdentityProviderOption identity_providers = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 64}
+  ];
+
+  // Output only. Whether identifier-first UI should be rendered.
+  bool identifier_first = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Whether passkey-first UI should be rendered.
+  bool passkey_first = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Whether users may select an identity provider.
+  bool allow_provider_selection = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// IdentityProviderOption describes a public-safe external provider option.
+message IdentityProviderOption {
+  // Output only. Provider identifier.
+  string provider_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Display name for UI.
+  string display_name = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Provider type such as oidc, saml, mobile_id, or bank_id.
+  string provider_type = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  // Output only. Whether this provider is selectable.
+  bool enabled = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. UI ordering priority. Lower values should be rendered first.
+  int32 priority = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Request to select another authentication method or provider.
 message SelectAuthenticationChallengeRequest {
+  // CEL uses numeric enum values because protovalidate CEL currently evaluates
+  // enum fields as their numeric value in these generated descriptors.
   option (buf.validate.message).cel = {
     id: "select_authentication_challenge.provider_required"
     message: "external provider methods require provider_id"
@@ -321,8 +476,18 @@ message SelectAuthenticationChallengeRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Required. Authentication method selected by the client or user.
-  AuthenticationMethod method = 2 [
+  // Required. Public interaction token returned by StartAuthentication.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
+  ];
+
+  // Required. Normalized authentication method family selected by the client.
+  AuthenticationMethod method = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
@@ -330,23 +495,44 @@ message SelectAuthenticationChallengeRequest {
     }
   ];
 
+  // Optional. Configured method or plugin id.
+  string method_id = 4 [(buf.validate.field).string.max_len = 255];
+
   // Optional. Provider identifier for provider-based methods.
-  string provider_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 255
+  string provider_id = 5 [(buf.validate.field).string.max_len = 255];
+
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 
-  // Optional. External request, gateway, or audit id for this command.
-  string request_id = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+  // Required. Business correlation id for the auth session/login flow.
+  string correlation_id = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key for this selection.
+  string idempotency_key = 8 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 
   // Optional. ETag precondition for optimistic concurrency.
-  string if_match = 5 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  string if_match = 9 [(buf.validate.field).string.max_len = 128];
 }
 
 // Request to resend the current authentication challenge.
@@ -358,24 +544,55 @@ message ResendAuthenticationChallengeRequest {
     (buf.validate.field).string.uuid = true
   ];
 
+  // Required. Public interaction token returned by StartAuthentication.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
+  ];
+
   // Required. Current challenge identifier.
-  string challenge_id = 2 [
+  string challenge_id = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. External request, gateway, or audit id for this command.
-  string request_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Business correlation id for the auth session/login flow.
+  string correlation_id = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key for this resend.
+  string idempotency_key = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 
   // Optional. ETag precondition for optimistic concurrency.
-  string if_match = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  string if_match = 7 [(buf.validate.field).string.max_len = 128];
 }
 
 // Request to submit the current authentication challenge response.
@@ -387,35 +604,61 @@ message SubmitAuthenticationChallengeRequest {
     (buf.validate.field).string.uuid = true
   ];
 
+  // Required. Public interaction token returned by StartAuthentication.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
+  ];
+
   // Required. Current challenge identifier.
-  string challenge_id = 2 [
+  string challenge_id = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
     (buf.validate.field).string.uuid = true
   ];
 
   // Required. Request-only response or proof for the current challenge.
-  //
-  // The server must verify that this response matches the current challenge
-  // kind and method. Secrets in this message must not be returned in public
-  // Authentication, AuthenticationContext, AuthenticationChallengeInfo, or
-  // AuthenticationError snapshots.
-  AuthenticationChallengeResponse response = 3 [
+  AuthenticationChallengeResponse response = 4 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
-  // Optional. External request, gateway, or audit id for this command.
-  string request_id = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Business correlation id for the auth session/login flow.
+  string correlation_id = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key for this submit.
+  string idempotency_key = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 
   // Optional. ETag precondition for optimistic concurrency.
-  string if_match = 5 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  string if_match = 8 [(buf.validate.field).string.max_len = 128];
 }
 
 // Request to cancel an active authentication.
@@ -427,44 +670,103 @@ message CancelAuthenticationRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. Human-readable or machine-readable cancellation reason.
-  string reason = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 512
+  // Required. Public interaction token returned by StartAuthentication.
+  string interaction_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
   ];
 
-  // Optional. External request, gateway, or audit id for this command.
-  string request_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
+  // Optional. Human-readable or machine-readable cancellation reason.
+  string reason = 3 [(buf.validate.field).string.max_len = 512];
+
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Business correlation id for the auth session/login flow.
+  string correlation_id = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key for this cancellation.
+  string idempotency_key = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
   ];
 
   // Optional. ETag precondition for optimistic concurrency.
-  string if_match = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  string if_match = 7 [(buf.validate.field).string.max_len = 128];
 }
 
-// Provider/Internal request to process an external provider callback.
+// Provider/Internal request to process a normalized external provider callback.
 //
-// Raw query and form data may be accepted only for adapter processing. Do not
-// log or persist secrets, tokens, authorization codes, SAMLResponse, raw
-// assertions, or provider payloads into public Authentication snapshots.
+// Raw provider HTTP callbacks are handled by an adapter before this request is
+// created. Do not log or persist secrets, tokens, authorization codes,
+// SAMLResponse, raw assertions, or provider payloads into public Authentication
+// snapshots.
 message HandleAuthenticationCallbackRequest {
   option (buf.validate.message).cel = {
     id: "handle_authentication_callback.oidc_state_required"
-    message: "OIDC callbacks require state either at the top level or inside oidc"
-    expression: "!has(this.oidc) || this.state != '' || this.oidc.state != ''"
+    message: "OIDC callbacks require state"
+    expression: "!has(this.oidc) || this.oidc.state != ''"
   };
   option (buf.validate.message).cel = {
     id: "handle_authentication_callback.saml_state_required"
-    message: "SAML callbacks require relay_state or top-level state"
-    expression: "!has(this.saml) || this.state != '' || this.saml.relay_state != ''"
+    message: "SAML callbacks require relay_state"
+    expression: "!has(this.saml) || this.saml.relay_state != ''"
   };
 
+  // Required. Technical id of this API request for audit/logging/tracing.
+  string request_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Business correlation id for the auth session/login flow.
+  string correlation_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
+  // Required. Command deduplication key for callback processing.
+  string idempotency_key = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 255
+    }
+  ];
+
   // Required. Provider identifier that produced the callback.
-  string provider_id = 1 [
+  string provider_id = 4 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
     (buf.validate.field).string = {
@@ -473,17 +775,10 @@ message HandleAuthenticationCallbackRequest {
     }
   ];
 
-  // Optional. Authentication identifier, when resolved by URL or adapter state.
-  string authentication_id = 2 [
-    (google.api.field_behavior) = OPTIONAL,
+  // Optional. Authentication identifier, when resolved by adapter state.
+  string authentication_id = 5 [
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
-  ];
-
-  // Optional. Top-level callback state for adapter routing.
-  string state = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
   ];
 
   oneof callback {
@@ -499,17 +794,11 @@ message HandleAuthenticationCallbackRequest {
     GenericProviderCallback generic = 12;
   }
 
-  // Optional. External request, gateway, or audit id for this callback.
-  string request_id = 20 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  // Optional. Safe request context from the callback adapter.
+  AuthenticationStartContext context = 20;
 }
 
-// OidcAuthenticationCallback contains OIDC/OAuth callback values.
-//
-// Authorization codes and errors are request-only adapter inputs. They must not
-// be logged or persisted into public Authentication snapshots.
+// OidcAuthenticationCallback contains normalized OIDC/OAuth callback values.
 message OidcAuthenticationCallback {
   option (buf.validate.message).cel = {
     id: "oidc_authentication_callback.code_or_error"
@@ -518,34 +807,26 @@ message OidcAuthenticationCallback {
   };
 
   // Optional. OIDC/OAuth authorization code.
-  string code = 1 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
-  ];
+  string code = 1 [(buf.validate.field).string.max_len = 4096];
 
-  // Optional. OIDC/OAuth state.
+  // Required. OIDC/OAuth state.
   string state = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
   ];
 
   // Optional. OIDC/OAuth error code.
-  string error = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 255
-  ];
+  string error = 3 [(buf.validate.field).string.max_len = 255];
 
   // Optional. OIDC/OAuth error description.
-  string error_description = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
-  ];
+  string error_description = 4 [(buf.validate.field).string.max_len = 4096];
 }
 
-// SamlAuthenticationCallback contains SAML callback values.
-//
-// SAMLResponse can contain sensitive assertions. It is request-only adapter
-// input and must not be logged or persisted into public snapshots.
+// SamlAuthenticationCallback contains normalized SAML callback values.
 message SamlAuthenticationCallback {
   // Required. Base64-encoded SAMLResponse.
   string saml_response = 1 [
@@ -557,107 +838,77 @@ message SamlAuthenticationCallback {
     }
   ];
 
-  // Optional. SAML RelayState.
+  // Required. SAML RelayState.
   string relay_state = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 4096
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 8
+      max_len: 4096
+    }
   ];
 }
 
-// GenericProviderCallback contains provider-specific callback parameters.
-//
-// These maps are request-only adapter inputs. Do not log or persist values that
-// may contain secrets, tokens, SAMLResponse, passwords, or raw provider payloads.
+// GenericProviderCallback contains normalized provider-specific callback values.
 message GenericProviderCallback {
-  // Optional. Raw query parameters received from the provider callback.
-  map<string, string> query = 1 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).map = {
-      max_pairs: 100
-      keys: {
-        string: {
-          min_len: 1
-          max_len: 128
-        }
-      }
-      values: {
-        string: {max_len: 262144}
+  // Optional. Normalized query parameters from the provider callback.
+  map<string, string> query = 1 [(buf.validate.field).map = {
+    max_pairs: 100
+    keys: {
+      string: {
+        min_len: 1
+        max_len: 128
       }
     }
-  ];
+    values: {
+      string: {max_len: 262144}
+    }
+  }];
 
-  // Optional. Raw form parameters received from the provider callback.
-  map<string, string> form = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).map = {
-      max_pairs: 100
-      keys: {
-        string: {
-          min_len: 1
-          max_len: 128
-        }
-      }
-      values: {
-        string: {max_len: 262144}
+  // Optional. Normalized form parameters from the provider callback.
+  map<string, string> form = 2 [(buf.validate.field).map = {
+    max_pairs: 100
+    keys: {
+      string: {
+        min_len: 1
+        max_len: 128
       }
     }
-  ];
+    values: {
+      string: {max_len: 262144}
+    }
+  }];
 }
 
 // AuthenticationStartOptions contains optional preferences for starting
 // authentication.
 message AuthenticationStartOptions {
   // Optional. Purpose requested by the client.
-  AuthenticationPurpose purpose = 1 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).enum.defined_only = true
-  ];
+  AuthenticationPurpose purpose = 1 [(buf.validate.field).enum.defined_only = true];
 
   // Optional. Requested assurance level.
-  AuthenticationAssuranceLevel requested_assurance_level = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).enum.defined_only = true
-  ];
+  AuthenticationAssuranceLevel requested_assurance_level = 2 [(buf.validate.field).enum.defined_only = true];
 
   // Optional. Login experience version requested by the client.
-  string login_experience_version = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 128
-  ];
+  string login_experience_version = 3 [(buf.validate.field).string.max_len = 128];
 
-  // Optional. Preferred standard authentication method.
-  AuthenticationMethod requested_authentication_method = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).enum.defined_only = true
-  ];
+  // Optional. Preferred normalized authentication method.
+  AuthenticationMethod requested_authentication_method = 4 [(buf.validate.field).enum.defined_only = true];
 
-  // Optional. Preferred custom, provider, or plugin method identifier.
-  string requested_method_id = 5 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 255
-  ];
+  // Optional. Preferred configured method or plugin id.
+  string requested_method_id = 5 [(buf.validate.field).string.max_len = 255];
 
-  // Optional. Preferred authentication provider identifier.
-  //
-  // This selects a provider, channel, or integration for the requested method.
-  // AuthenticationSubject.provider_id scopes subject identifiers and must not
-  // be used to select the login provider.
-  string requested_provider_id = 6 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 255
-  ];
+  // Optional. Preferred provider identifier.
+  string requested_provider_id = 6 [(buf.validate.field).string.max_len = 255];
 
   // Optional. Requested Authentication Context Class Reference values.
-  repeated string acr_values = 7 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).repeated = {
-      max_items: 16
-      items: {
-        string: {
-          min_len: 1
-          max_len: 128
-        }
+  repeated string acr_values = 7 [(buf.validate.field).repeated = {
+    max_items: 16
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
       }
     }
-  ];
+  }];
 }
