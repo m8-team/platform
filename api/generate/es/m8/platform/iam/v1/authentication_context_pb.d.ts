@@ -246,28 +246,27 @@ export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> 
   applicationType: ClientContext_ApplicationType;
 
   /**
-   * Optional. Redirect URI supplied by the client or OIDC authorization request.
-   * The server validates it against the registered client configuration.
+   * Output only. Server-selected login experience resolved from client policy,
+   * request options, risk decision, and interaction constraints.
    *
-   * @generated from field: string redirect_uri = 3;
+   * @generated from field: m8.platform.iam.v1.ClientContext.LoginExperience login_experience = 3;
    */
-  redirectUri: string;
+  loginExperience: ClientContext_LoginExperience;
 
   /**
-   * Optional. Browser origin supplied by the client or gateway. The server uses
-   * it for UI policy, CORS-related checks, and audit, after validating it
-   * against the registered client configuration.
+   * Output only. Indicates whether the resolved client is public and cannot keep
+   * a client secret. It is used by policy and protocol handling.
    *
-   * @generated from field: string origin = 4;
+   * @generated from field: bool public_client = 4;
    */
-  origin: string;
+  publicClient: boolean;
 
   /**
    * Output only. Typed authentication methods allowed by the resolved client
    * policy and server-side risk decision. Dynamic login UI should prefer this
    * field for standard method selection.
    *
-   * @generated from field: repeated m8.platform.iam.v1.AuthenticationMethod allowed_authentication_methods = 9;
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationMethod allowed_authentication_methods = 5;
    */
   allowedAuthenticationMethods: AuthenticationMethod[];
 
@@ -281,20 +280,21 @@ export declare type ClientContext = Message<"m8.platform.iam.v1.ClientContext"> 
   allowedProviderIds: string[];
 
   /**
-   * Output only. Server-selected login experience resolved from client policy,
-   * request options, risk decision, and interaction constraints.
+   * Optional. Redirect URI supplied by the client or OIDC authorization request.
+   * The server validates it against the registered client configuration.
    *
-   * @generated from field: m8.platform.iam.v1.ClientContext.LoginExperience login_experience = 7;
+   * @generated from field: string redirect_uri = 7;
    */
-  loginExperience: ClientContext_LoginExperience;
+  redirectUri: string;
 
   /**
-   * Output only. Indicates whether the resolved client is public and cannot keep
-   * a client secret. It is used by policy and protocol handling.
+   * Optional. Browser origin supplied by the client or gateway. The server uses
+   * it for UI policy, CORS-related checks, and audit, after validating it
+   * against the registered client configuration.
    *
-   * @generated from field: bool public_client = 8;
+   * @generated from field: string origin = 8;
    */
-  publicClient: boolean;
+  origin: string;
 };
 
 /**

@@ -135,7 +135,7 @@ const (
 	// - auth evidence is being stored
 	// - audit event is being written
 	// - session/token handoff is being finalized
-	Authentication_FINALIZING Authentication_State = 12
+	Authentication_FINALIZING Authentication_State = 11
 	// Authentication succeeded locally and waits for session, token, or
 	// authorization handoff.
 	//
@@ -143,11 +143,11 @@ const (
 	// callback waiting is represented by WAITING_FOR_USER with
 	// current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
 	// or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
-	Authentication_AUTHORIZATION_HANDOFF_PENDING Authentication_State = 13
+	Authentication_AUTHORIZATION_HANDOFF_PENDING Authentication_State = 12
 	// Authentication successfully completed.
 	//
 	// Terminal state.
-	Authentication_AUTHENTICATED Authentication_State = 20
+	Authentication_AUTHENTICATED Authentication_State = 13
 	// Authentication was explicitly denied by the user.
 	//
 	// Example:
@@ -155,7 +155,7 @@ const (
 	// - user rejected Mobile ID request
 	//
 	// Terminal state.
-	Authentication_DENIED Authentication_State = 21
+	Authentication_DENIED Authentication_State = 14
 	// Authentication was canceled.
 	//
 	// Example:
@@ -164,7 +164,7 @@ const (
 	// - workflow was canceled
 	//
 	// Terminal state.
-	Authentication_CANCELED Authentication_State = 22
+	Authentication_CANCELED Authentication_State = 15
 	// Authentication expired.
 	//
 	// Example:
@@ -173,7 +173,7 @@ const (
 	// - user did not approve push in time
 	//
 	// Terminal state.
-	Authentication_EXPIRED Authentication_State = 23
+	Authentication_EXPIRED Authentication_State = 16
 	// Authentication failed because retry limit was exceeded.
 	//
 	// Example:
@@ -181,7 +181,7 @@ const (
 	// - too many wrong password attempts
 	//
 	// Terminal state.
-	Authentication_ATTEMPTS_EXCEEDED Authentication_State = 24
+	Authentication_ATTEMPTS_EXCEEDED Authentication_State = 17
 	// Authentication was blocked by an external decision or assurance requirement.
 	//
 	// Example:
@@ -190,7 +190,7 @@ const (
 	// - rate limit exceeded
 	//
 	// Terminal state.
-	Authentication_BLOCKED Authentication_State = 25
+	Authentication_BLOCKED Authentication_State = 18
 	// Authentication failed due to technical or provider error.
 	//
 	// Example:
@@ -200,7 +200,7 @@ const (
 	// - unexpected internal error
 	//
 	// Terminal state.
-	Authentication_FAILED Authentication_State = 26
+	Authentication_FAILED Authentication_State = 19
 )
 
 // Enum value maps for Authentication_State.
@@ -217,15 +217,15 @@ var (
 		8:  "VERIFYING",
 		9:  "CHALLENGE_RETRY_REQUIRED",
 		10: "STEP_UP_REQUIRED",
-		12: "FINALIZING",
-		13: "AUTHORIZATION_HANDOFF_PENDING",
-		20: "AUTHENTICATED",
-		21: "DENIED",
-		22: "CANCELED",
-		23: "EXPIRED",
-		24: "ATTEMPTS_EXCEEDED",
-		25: "BLOCKED",
-		26: "FAILED",
+		11: "FINALIZING",
+		12: "AUTHORIZATION_HANDOFF_PENDING",
+		13: "AUTHENTICATED",
+		14: "DENIED",
+		15: "CANCELED",
+		16: "EXPIRED",
+		17: "ATTEMPTS_EXCEEDED",
+		18: "BLOCKED",
+		19: "FAILED",
 	}
 	Authentication_State_value = map[string]int32{
 		"STATE_UNSPECIFIED":             0,
@@ -239,15 +239,15 @@ var (
 		"VERIFYING":                     8,
 		"CHALLENGE_RETRY_REQUIRED":      9,
 		"STEP_UP_REQUIRED":              10,
-		"FINALIZING":                    12,
-		"AUTHORIZATION_HANDOFF_PENDING": 13,
-		"AUTHENTICATED":                 20,
-		"DENIED":                        21,
-		"CANCELED":                      22,
-		"EXPIRED":                       23,
-		"ATTEMPTS_EXCEEDED":             24,
-		"BLOCKED":                       25,
-		"FAILED":                        26,
+		"FINALIZING":                    11,
+		"AUTHORIZATION_HANDOFF_PENDING": 12,
+		"AUTHENTICATED":                 13,
+		"DENIED":                        14,
+		"CANCELED":                      15,
+		"EXPIRED":                       16,
+		"ATTEMPTS_EXCEEDED":             17,
+		"BLOCKED":                       18,
+		"FAILED":                        19,
 	}
 )
 
@@ -822,7 +822,7 @@ var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\xec\x0f\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_error.proto\"\xe6\x0f\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12-\n" +
 	"\n" +
@@ -851,7 +851,7 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\fstate_reason\x18\x12 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\vstateReason\x12q\n" +
 	"\x14available_challenges\x18\x13 \x03(\v21.m8.platform.iam.v1.AuthenticationChallengeOptionB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10 R\x13availableChallenges\x12B\n" +
 	"\x05error\x18\x11 \x01(\v2'.m8.platform.iam.v1.AuthenticationErrorB\x03\xe0A\x03R\x05error\x12\x17\n" +
-	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\x8c\x03\n" +
+	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\x86\x03\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aCREATED\x10\x01\x12\x10\n" +
@@ -867,17 +867,17 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\x10STEP_UP_REQUIRED\x10\n" +
 	"\x12\x0e\n" +
 	"\n" +
-	"FINALIZING\x10\f\x12!\n" +
-	"\x1dAUTHORIZATION_HANDOFF_PENDING\x10\r\x12\x11\n" +
-	"\rAUTHENTICATED\x10\x14\x12\n" +
+	"FINALIZING\x10\v\x12!\n" +
+	"\x1dAUTHORIZATION_HANDOFF_PENDING\x10\f\x12\x11\n" +
+	"\rAUTHENTICATED\x10\r\x12\n" +
 	"\n" +
-	"\x06DENIED\x10\x15\x12\f\n" +
-	"\bCANCELED\x10\x16\x12\v\n" +
-	"\aEXPIRED\x10\x17\x12\x15\n" +
-	"\x11ATTEMPTS_EXCEEDED\x10\x18\x12\v\n" +
-	"\aBLOCKED\x10\x19\x12\n" +
+	"\x06DENIED\x10\x0e\x12\f\n" +
+	"\bCANCELED\x10\x0f\x12\v\n" +
+	"\aEXPIRED\x10\x10\x12\x15\n" +
+	"\x11ATTEMPTS_EXCEEDED\x10\x11\x12\v\n" +
+	"\aBLOCKED\x10\x12\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x1a\"\x04\b\v\x10\v\"|\n" +
+	"\x06FAILED\x10\x13\"|\n" +
 	"\tChallenge\x12\x19\n" +
 	"\x15CHALLENGE_UNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03OTP\x10\x01\x12\f\n" +

@@ -469,9 +469,9 @@ export enum Authentication_State {
    * - audit event is being written
    * - session/token handoff is being finalized
    *
-   * @generated from enum value: FINALIZING = 12;
+   * @generated from enum value: FINALIZING = 11;
    */
-  FINALIZING = 12,
+  FINALIZING = 11,
 
   /**
    * Authentication succeeded locally and waits for session, token, or
@@ -482,18 +482,18 @@ export enum Authentication_State {
    * current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
    * or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
    *
-   * @generated from enum value: AUTHORIZATION_HANDOFF_PENDING = 13;
+   * @generated from enum value: AUTHORIZATION_HANDOFF_PENDING = 12;
    */
-  AUTHORIZATION_HANDOFF_PENDING = 13,
+  AUTHORIZATION_HANDOFF_PENDING = 12,
 
   /**
    * Authentication successfully completed.
    *
    * Terminal state.
    *
-   * @generated from enum value: AUTHENTICATED = 20;
+   * @generated from enum value: AUTHENTICATED = 13;
    */
-  AUTHENTICATED = 20,
+  AUTHENTICATED = 13,
 
   /**
    * Authentication was explicitly denied by the user.
@@ -504,9 +504,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: DENIED = 21;
+   * @generated from enum value: DENIED = 14;
    */
-  DENIED = 21,
+  DENIED = 14,
 
   /**
    * Authentication was canceled.
@@ -518,9 +518,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: CANCELED = 22;
+   * @generated from enum value: CANCELED = 15;
    */
-  CANCELED = 22,
+  CANCELED = 15,
 
   /**
    * Authentication expired.
@@ -532,9 +532,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: EXPIRED = 23;
+   * @generated from enum value: EXPIRED = 16;
    */
-  EXPIRED = 23,
+  EXPIRED = 16,
 
   /**
    * Authentication failed because retry limit was exceeded.
@@ -545,9 +545,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: ATTEMPTS_EXCEEDED = 24;
+   * @generated from enum value: ATTEMPTS_EXCEEDED = 17;
    */
-  ATTEMPTS_EXCEEDED = 24,
+  ATTEMPTS_EXCEEDED = 17,
 
   /**
    * Authentication was blocked by an external decision or assurance requirement.
@@ -559,9 +559,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: BLOCKED = 25;
+   * @generated from enum value: BLOCKED = 18;
    */
-  BLOCKED = 25,
+  BLOCKED = 18,
 
   /**
    * Authentication failed due to technical or provider error.
@@ -574,9 +574,9 @@ export enum Authentication_State {
    *
    * Terminal state.
    *
-   * @generated from enum value: FAILED = 26;
+   * @generated from enum value: FAILED = 19;
    */
-  FAILED = 26,
+  FAILED = 19,
 }
 
 /**

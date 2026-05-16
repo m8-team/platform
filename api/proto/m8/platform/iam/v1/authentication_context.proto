@@ -167,8 +167,6 @@ message RequestContext {
 // ClientContext describes the resolved OAuth, OIDC, or application client
 // configuration used to drive authentication policy and login UI selection.
 message ClientContext {
-  reserved 5;
-
   // ApplicationType identifies the broad class of client application.
   enum ApplicationType {
     // Application type is not specified.
@@ -231,33 +229,21 @@ message ClientContext {
     (buf.validate.field).enum.defined_only = true
   ];
 
-  // Optional. Redirect URI supplied by the client or OIDC authorization request.
-  // The server validates it against the registered client configuration.
-  string redirect_uri = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string = {
-      max_len: 2048
-      uri_ref: true
-    }
+  // Output only. Server-selected login experience resolved from client policy,
+  // request options, risk decision, and interaction constraints.
+  LoginExperience login_experience = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
   ];
 
-  // Optional. Browser origin supplied by the client or gateway. The server uses
-  // it for UI policy, CORS-related checks, and audit, after validating it
-  // against the registered client configuration.
-  string origin = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string = {
-      max_len: 512
-      uri: true
-    }
-  ];
+  // Output only. Indicates whether the resolved client is public and cannot keep
+  // a client secret. It is used by policy and protocol handling.
+  bool public_client = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Typed authentication methods allowed by the resolved client
   // policy and server-side risk decision. Dynamic login UI should prefer this
   // field for standard method selection.
-  repeated AuthenticationMethod allowed_authentication_methods = 9 [
+  repeated AuthenticationMethod allowed_authentication_methods = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 32
@@ -286,16 +272,28 @@ message ClientContext {
     }
   ];
 
-  // Output only. Server-selected login experience resolved from client policy,
-  // request options, risk decision, and interaction constraints.
-  LoginExperience login_experience = 7 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
+  // Optional. Redirect URI supplied by the client or OIDC authorization request.
+  // The server validates it against the registered client configuration.
+  string redirect_uri = 7 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 2048
+      uri_ref: true
+    }
   ];
 
-  // Output only. Indicates whether the resolved client is public and cannot keep
-  // a client secret. It is used by policy and protocol handling.
-  bool public_client = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Optional. Browser origin supplied by the client or gateway. The server uses
+  // it for UI policy, CORS-related checks, and audit, after validating it
+  // against the registered client configuration.
+  string origin = 8 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 512
+      uri: true
+    }
+  ];
 }
 
 // SessionContext describes the existing authentication session used for

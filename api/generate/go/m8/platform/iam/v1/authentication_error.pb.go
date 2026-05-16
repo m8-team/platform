@@ -269,7 +269,7 @@ func (AuthenticationErrorCode) EnumDescriptor() ([]byte, []int) {
 type AuthenticationError struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Typed error code for SDK branching.
-	TypedCode AuthenticationErrorCode `protobuf:"varint,6,opt,name=typed_code,json=typedCode,proto3,enum=m8.platform.iam.v1.AuthenticationErrorCode" json:"typed_code,omitempty"`
+	TypedCode AuthenticationErrorCode `protobuf:"varint,1,opt,name=typed_code,json=typedCode,proto3,enum=m8.platform.iam.v1.AuthenticationErrorCode" json:"typed_code,omitempty"`
 	// Output only. Safe human-readable error message.
 	//
 	// This message must not contain stack traces, secrets, tokens, OTP codes,
@@ -288,9 +288,9 @@ type AuthenticationError struct {
 	//
 	// This must not contain raw provider responses, tokens, assertions, callback
 	// secrets, stack traces, or user-entered secrets.
-	ProviderErrorCode string `protobuf:"bytes,7,opt,name=provider_error_code,json=providerErrorCode,proto3" json:"provider_error_code,omitempty"`
+	ProviderErrorCode string `protobuf:"bytes,5,opt,name=provider_error_code,json=providerErrorCode,proto3" json:"provider_error_code,omitempty"`
 	// Output only. Indicates whether retrying the same operation may succeed.
-	Retryable     bool `protobuf:"varint,5,opt,name=retryable,proto3" json:"retryable,omitempty"`
+	Retryable     bool `protobuf:"varint,6,opt,name=retryable,proto3" json:"retryable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -371,16 +371,16 @@ var File_m8_platform_iam_v1_authentication_error_proto protoreflect.FileDescript
 
 const file_m8_platform_iam_v1_authentication_error_proto_rawDesc = "" +
 	"\n" +
-	"-m8/platform/iam/v1/authentication_error.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xfd\x02\n" +
+	"-m8/platform/iam/v1/authentication_error.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xf7\x02\n" +
 	"\x13AuthenticationError\x12W\n" +
 	"\n" +
-	"typed_code\x18\x06 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationErrorCodeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\ttypedCode\x12%\n" +
+	"typed_code\x18\x01 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationErrorCodeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\ttypedCode\x12%\n" +
 	"\amessage\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\bR\amessage\x12R\n" +
 	"\x06reason\x18\x03 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x06reason\x12,\n" +
 	"\vprovider_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
 	"providerId\x12;\n" +
-	"\x13provider_error_code\x18\a \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11providerErrorCode\x12!\n" +
-	"\tretryable\x18\x05 \x01(\bB\x03\xe0A\x03R\tretryableJ\x04\b\x01\x10\x02*\xe1\n" +
+	"\x13provider_error_code\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x11providerErrorCode\x12!\n" +
+	"\tretryable\x18\x06 \x01(\bB\x03\xe0A\x03R\tretryable*\xe1\n" +
 	"\n" +
 	"\x19AuthenticationStateReason\x12+\n" +
 	"'AUTHENTICATION_STATE_REASON_UNSPECIFIED\x10\x00\x12.\n" +

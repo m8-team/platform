@@ -138,10 +138,8 @@ enum AuthenticationErrorCode {
 // It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
 // provider responses, or private risk model details.
 message AuthenticationError {
-  reserved 1;
-
   // Output only. Typed error code for SDK branching.
-  AuthenticationErrorCode typed_code = 6 [
+  AuthenticationErrorCode typed_code = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
@@ -176,11 +174,11 @@ message AuthenticationError {
   //
   // This must not contain raw provider responses, tokens, assertions, callback
   // secrets, stack traces, or user-entered secrets.
-  string provider_error_code = 7 [
+  string provider_error_code = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 255
   ];
 
   // Output only. Indicates whether retrying the same operation may succeed.
-  bool retryable = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool retryable = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

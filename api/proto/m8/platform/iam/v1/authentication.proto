@@ -44,8 +44,6 @@ message Authentication {
   // are not changed.
   //
   enum State {
-    reserved 11;
-
     // Authentication state is not specified.
     STATE_UNSPECIFIED = 0;
 
@@ -143,7 +141,7 @@ message Authentication {
     // - auth evidence is being stored
     // - audit event is being written
     // - session/token handoff is being finalized
-    FINALIZING = 12;
+    FINALIZING = 11;
 
     // Authentication succeeded locally and waits for session, token, or
     // authorization handoff.
@@ -152,12 +150,12 @@ message Authentication {
     // callback waiting is represented by WAITING_FOR_USER with
     // current_challenge.kind set to AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
     // or AUTHENTICATION_CHALLENGE_KIND_REDIRECT.
-    AUTHORIZATION_HANDOFF_PENDING = 13;
+    AUTHORIZATION_HANDOFF_PENDING = 12;
 
     // Authentication successfully completed.
     //
     // Terminal state.
-    AUTHENTICATED = 20;
+    AUTHENTICATED = 13;
 
     // Authentication was explicitly denied by the user.
     //
@@ -166,7 +164,7 @@ message Authentication {
     // - user rejected Mobile ID request
     //
     // Terminal state.
-    DENIED = 21;
+    DENIED = 14;
 
     // Authentication was canceled.
     //
@@ -176,7 +174,7 @@ message Authentication {
     // - workflow was canceled
     //
     // Terminal state.
-    CANCELED = 22;
+    CANCELED = 15;
 
     // Authentication expired.
     //
@@ -186,7 +184,7 @@ message Authentication {
     // - user did not approve push in time
     //
     // Terminal state.
-    EXPIRED = 23;
+    EXPIRED = 16;
 
     // Authentication failed because retry limit was exceeded.
     //
@@ -195,7 +193,7 @@ message Authentication {
     // - too many wrong password attempts
     //
     // Terminal state.
-    ATTEMPTS_EXCEEDED = 24;
+    ATTEMPTS_EXCEEDED = 17;
 
     // Authentication was blocked by an external decision or assurance requirement.
     //
@@ -205,7 +203,7 @@ message Authentication {
     // - rate limit exceeded
     //
     // Terminal state.
-    BLOCKED = 25;
+    BLOCKED = 18;
 
     // Authentication failed due to technical or provider error.
     //
@@ -216,7 +214,7 @@ message Authentication {
     // - unexpected internal error
     //
     // Terminal state.
-    FAILED = 26;
+    FAILED = 19;
   }
 
   // Challenge type required to continue or complete authentication.

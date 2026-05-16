@@ -23,7 +23,7 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
   /**
    * Output only. Typed error code for SDK branching.
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode typed_code = 6;
+   * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode typed_code = 1;
    */
   typedCode: AuthenticationErrorCode;
 
@@ -62,14 +62,14 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
    * This must not contain raw provider responses, tokens, assertions, callback
    * secrets, stack traces, or user-entered secrets.
    *
-   * @generated from field: string provider_error_code = 7;
+   * @generated from field: string provider_error_code = 5;
    */
   providerErrorCode: string;
 
   /**
    * Output only. Indicates whether retrying the same operation may succeed.
    *
-   * @generated from field: bool retryable = 5;
+   * @generated from field: bool retryable = 6;
    */
   retryable: boolean;
 };

@@ -520,20 +520,20 @@ message SubmitAuthenticationChallengeRequest {
     option (buf.validate.oneof).required = true;
 
     // OTP code submitted by the user.
-    OtpChallengeResponse otp = 10;
+    OtpChallengeResponse otp = 3;
 
     // Password submitted by the user.
-    PasswordChallengeResponse password = 11;
+    PasswordChallengeResponse password = 4;
 
     // WebAuthn assertion produced by the browser or platform authenticator.
-    WebAuthnAssertionResponse webauthn = 12;
+    WebAuthnAssertionResponse webauthn = 5;
 
     // Approval result submitted by an approval-capable client.
-    ApprovalChallengeResponse approval = 13;
+    ApprovalChallengeResponse approval = 6;
   }
 
   // Optional. Idempotency key for retrying challenge submission safely.
-  string request_id = 100 [
+  string request_id = 7 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
@@ -769,8 +769,6 @@ message StartAuthenticationOperationMetadata {
 // - tenant-specific UI flow sends `login_experience_version`
 // - OIDC request passes acr_values requested by the relying party
 message AuthenticationStartOptions {
-  reserved 3;
-
   // Optional. Login experience version requested by the client.
   //
   // Example:
@@ -783,7 +781,7 @@ message AuthenticationStartOptions {
   //
   // Use requested_method_id for custom, provider, or plugin methods not modeled
   // by AuthenticationMethod.
-  AuthenticationMethod requested_authentication_method = 5 [
+  AuthenticationMethod requested_authentication_method = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).enum = {defined_only: true}
   ];
@@ -792,7 +790,7 @@ message AuthenticationStartOptions {
   //
   // This complements requested_authentication_method and must be interpreted
   // against server-side client, provider, and policy configuration.
-  string requested_method_id = 6 [
+  string requested_method_id = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
@@ -806,7 +804,7 @@ message AuthenticationStartOptions {
   // - WebAuthn provider id for passkey authentication
   // - OIDC provider id for external identity provider login
   // - Mobile ID provider id for mobile operator authentication
-  string requested_provider_id = 2 [
+  string requested_provider_id = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 255
   ];
@@ -817,5 +815,5 @@ message AuthenticationStartOptions {
   // - "AAL1" for normal login
   // - "AAL2" for multi-factor authentication
   // - "AAL3" for hardware-backed phishing-resistant authentication
-  repeated string acr_values = 4 [(google.api.field_behavior) = OPTIONAL];
+  repeated string acr_values = 5 [(google.api.field_behavior) = OPTIONAL];
 }

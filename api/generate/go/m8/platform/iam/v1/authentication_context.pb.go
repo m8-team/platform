@@ -914,27 +914,27 @@ type ClientContext struct {
 	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	// Output only. Application class resolved from the client configuration.
 	ApplicationType ClientContext_ApplicationType `protobuf:"varint,2,opt,name=application_type,json=applicationType,proto3,enum=m8.platform.iam.v1.ClientContext_ApplicationType" json:"application_type,omitempty"`
-	// Optional. Redirect URI supplied by the client or OIDC authorization request.
-	// The server validates it against the registered client configuration.
-	RedirectUri string `protobuf:"bytes,3,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	// Optional. Browser origin supplied by the client or gateway. The server uses
-	// it for UI policy, CORS-related checks, and audit, after validating it
-	// against the registered client configuration.
-	Origin string `protobuf:"bytes,4,opt,name=origin,proto3" json:"origin,omitempty"`
+	// Output only. Server-selected login experience resolved from client policy,
+	// request options, risk decision, and interaction constraints.
+	LoginExperience ClientContext_LoginExperience `protobuf:"varint,3,opt,name=login_experience,json=loginExperience,proto3,enum=m8.platform.iam.v1.ClientContext_LoginExperience" json:"login_experience,omitempty"`
+	// Output only. Indicates whether the resolved client is public and cannot keep
+	// a client secret. It is used by policy and protocol handling.
+	PublicClient bool `protobuf:"varint,4,opt,name=public_client,json=publicClient,proto3" json:"public_client,omitempty"`
 	// Output only. Typed authentication methods allowed by the resolved client
 	// policy and server-side risk decision. Dynamic login UI should prefer this
 	// field for standard method selection.
-	AllowedAuthenticationMethods []AuthenticationMethod `protobuf:"varint,9,rep,packed,name=allowed_authentication_methods,json=allowedAuthenticationMethods,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"allowed_authentication_methods,omitempty"`
+	AllowedAuthenticationMethods []AuthenticationMethod `protobuf:"varint,5,rep,packed,name=allowed_authentication_methods,json=allowedAuthenticationMethods,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"allowed_authentication_methods,omitempty"`
 	// Output only. Provider identifiers allowed by the resolved client policy.
 	// These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
 	// providers and must not be confused with a requested provider selector.
 	AllowedProviderIds []string `protobuf:"bytes,6,rep,name=allowed_provider_ids,json=allowedProviderIds,proto3" json:"allowed_provider_ids,omitempty"`
-	// Output only. Server-selected login experience resolved from client policy,
-	// request options, risk decision, and interaction constraints.
-	LoginExperience ClientContext_LoginExperience `protobuf:"varint,7,opt,name=login_experience,json=loginExperience,proto3,enum=m8.platform.iam.v1.ClientContext_LoginExperience" json:"login_experience,omitempty"`
-	// Output only. Indicates whether the resolved client is public and cannot keep
-	// a client secret. It is used by policy and protocol handling.
-	PublicClient  bool `protobuf:"varint,8,opt,name=public_client,json=publicClient,proto3" json:"public_client,omitempty"`
+	// Optional. Redirect URI supplied by the client or OIDC authorization request.
+	// The server validates it against the registered client configuration.
+	RedirectUri string `protobuf:"bytes,7,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
+	// Optional. Browser origin supplied by the client or gateway. The server uses
+	// it for UI policy, CORS-related checks, and audit, after validating it
+	// against the registered client configuration.
+	Origin        string `protobuf:"bytes,8,opt,name=origin,proto3" json:"origin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -983,18 +983,18 @@ func (x *ClientContext) GetApplicationType() ClientContext_ApplicationType {
 	return ClientContext_APPLICATION_TYPE_UNSPECIFIED
 }
 
-func (x *ClientContext) GetRedirectUri() string {
+func (x *ClientContext) GetLoginExperience() ClientContext_LoginExperience {
 	if x != nil {
-		return x.RedirectUri
+		return x.LoginExperience
 	}
-	return ""
+	return ClientContext_LOGIN_EXPERIENCE_UNSPECIFIED
 }
 
-func (x *ClientContext) GetOrigin() string {
+func (x *ClientContext) GetPublicClient() bool {
 	if x != nil {
-		return x.Origin
+		return x.PublicClient
 	}
-	return ""
+	return false
 }
 
 func (x *ClientContext) GetAllowedAuthenticationMethods() []AuthenticationMethod {
@@ -1011,18 +1011,18 @@ func (x *ClientContext) GetAllowedProviderIds() []string {
 	return nil
 }
 
-func (x *ClientContext) GetLoginExperience() ClientContext_LoginExperience {
+func (x *ClientContext) GetRedirectUri() string {
 	if x != nil {
-		return x.LoginExperience
+		return x.RedirectUri
 	}
-	return ClientContext_LOGIN_EXPERIENCE_UNSPECIFIED
+	return ""
 }
 
-func (x *ClientContext) GetPublicClient() bool {
+func (x *ClientContext) GetOrigin() string {
 	if x != nil {
-		return x.PublicClient
+		return x.Origin
 	}
-	return false
+	return ""
 }
 
 // SessionContext describes the existing authentication session used for
@@ -1953,16 +1953,16 @@ const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04r\x02\x18@R\btimezone\x124\n" +
 	"\x0faccept_language\x18\t \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x0eacceptLanguage\x12D\n" +
 	"\rreceived_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\freceivedTime\"\xbb\b\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\freceivedTime\"\xb5\b\n" +
 	"\rClientContext\x12+\n" +
 	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12i\n" +
-	"\x10application_type\x18\x02 \x01(\x0e21.m8.platform.iam.v1.ClientContext.ApplicationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fapplicationType\x124\n" +
-	"\fredirect_uri\x18\x03 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x10\x90\x01\x01R\vredirectUri\x12)\n" +
-	"\x06origin\x18\x04 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x04\x88\x01\x01R\x06origin\x12\x84\x01\n" +
-	"\x1eallowed_authentication_methods\x18\t \x03(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\a\x82\x01\x04\x10\x01 \x00R\x1callowedAuthenticationMethods\x12F\n" +
-	"\x14allowed_provider_ids\x18\x06 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\x12allowedProviderIds\x12i\n" +
-	"\x10login_experience\x18\a \x01(\x0e21.m8.platform.iam.v1.ClientContext.LoginExperienceB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0floginExperience\x12(\n" +
-	"\rpublic_client\x18\b \x01(\bB\x03\xe0A\x03R\fpublicClient\"\xd9\x01\n" +
+	"\x10application_type\x18\x02 \x01(\x0e21.m8.platform.iam.v1.ClientContext.ApplicationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fapplicationType\x12i\n" +
+	"\x10login_experience\x18\x03 \x01(\x0e21.m8.platform.iam.v1.ClientContext.LoginExperienceB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0floginExperience\x12(\n" +
+	"\rpublic_client\x18\x04 \x01(\bB\x03\xe0A\x03R\fpublicClient\x12\x84\x01\n" +
+	"\x1eallowed_authentication_methods\x18\x05 \x03(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\a\x82\x01\x04\x10\x01 \x00R\x1callowedAuthenticationMethods\x12F\n" +
+	"\x14allowed_provider_ids\x18\x06 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\x12allowedProviderIds\x124\n" +
+	"\fredirect_uri\x18\a \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x10\x90\x01\x01R\vredirectUri\x12)\n" +
+	"\x06origin\x18\b \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x04\x88\x01\x01R\x06origin\"\xd9\x01\n" +
 	"\x0fApplicationType\x12 \n" +
 	"\x1cAPPLICATION_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14APPLICATION_TYPE_WEB\x10\x01\x12\x18\n" +
@@ -1977,7 +1977,7 @@ const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"#LOGIN_EXPERIENCE_PASSWORDLESS_FIRST\x10\x02\x12\"\n" +
 	"\x1eLOGIN_EXPERIENCE_PASSKEY_FIRST\x10\x03\x12#\n" +
 	"\x1fLOGIN_EXPERIENCE_PROVIDER_FIRST\x10\x04\x12\x1c\n" +
-	"\x18LOGIN_EXPERIENCE_STEP_UP\x10\x05J\x04\b\x05\x10\x06\"\xb7\x06\n" +
+	"\x18LOGIN_EXPERIENCE_STEP_UP\x10\x05\"\xb7\x06\n" +
 	"\x0eSessionContext\x12;\n" +
 	"\x13existing_session_id\x18\x01 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\x11existingSessionId\x12L\n" +
 	"\x1aprevious_authentication_id\x18\x02 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x18previousAuthenticationId\x128\n" +
@@ -2179,8 +2179,8 @@ var file_m8_platform_iam_v1_authentication_context_proto_depIdxs = []int32{
 	19, // 9: m8.platform.iam.v1.AuthenticationContext.labels:type_name -> m8.platform.iam.v1.AuthenticationContext.LabelsEntry
 	20, // 10: m8.platform.iam.v1.RequestContext.received_time:type_name -> google.protobuf.Timestamp
 	0,  // 11: m8.platform.iam.v1.ClientContext.application_type:type_name -> m8.platform.iam.v1.ClientContext.ApplicationType
-	21, // 12: m8.platform.iam.v1.ClientContext.allowed_authentication_methods:type_name -> m8.platform.iam.v1.AuthenticationMethod
-	1,  // 13: m8.platform.iam.v1.ClientContext.login_experience:type_name -> m8.platform.iam.v1.ClientContext.LoginExperience
+	1,  // 12: m8.platform.iam.v1.ClientContext.login_experience:type_name -> m8.platform.iam.v1.ClientContext.LoginExperience
+	21, // 13: m8.platform.iam.v1.ClientContext.allowed_authentication_methods:type_name -> m8.platform.iam.v1.AuthenticationMethod
 	22, // 14: m8.platform.iam.v1.SessionContext.previous_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
 	20, // 15: m8.platform.iam.v1.SessionContext.auth_time:type_name -> google.protobuf.Timestamp
 	23, // 16: m8.platform.iam.v1.SessionContext.max_age:type_name -> google.protobuf.Duration

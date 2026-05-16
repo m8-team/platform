@@ -276,7 +276,7 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
     /**
      * OTP code submitted by the user.
      *
-     * @generated from field: m8.platform.iam.v1.OtpChallengeResponse otp = 10;
+     * @generated from field: m8.platform.iam.v1.OtpChallengeResponse otp = 3;
      */
     value: OtpChallengeResponse;
     case: "otp";
@@ -284,7 +284,7 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
     /**
      * Password submitted by the user.
      *
-     * @generated from field: m8.platform.iam.v1.PasswordChallengeResponse password = 11;
+     * @generated from field: m8.platform.iam.v1.PasswordChallengeResponse password = 4;
      */
     value: PasswordChallengeResponse;
     case: "password";
@@ -292,7 +292,7 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
     /**
      * WebAuthn assertion produced by the browser or platform authenticator.
      *
-     * @generated from field: m8.platform.iam.v1.WebAuthnAssertionResponse webauthn = 12;
+     * @generated from field: m8.platform.iam.v1.WebAuthnAssertionResponse webauthn = 5;
      */
     value: WebAuthnAssertionResponse;
     case: "webauthn";
@@ -300,7 +300,7 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
     /**
      * Approval result submitted by an approval-capable client.
      *
-     * @generated from field: m8.platform.iam.v1.ApprovalChallengeResponse approval = 13;
+     * @generated from field: m8.platform.iam.v1.ApprovalChallengeResponse approval = 6;
      */
     value: ApprovalChallengeResponse;
     case: "approval";
@@ -309,7 +309,7 @@ export declare type SubmitAuthenticationChallengeRequest = Message<"m8.platform.
   /**
    * Optional. Idempotency key for retrying challenge submission safely.
    *
-   * @generated from field: string request_id = 100;
+   * @generated from field: string request_id = 7;
    */
   requestId: string;
 };
@@ -636,7 +636,7 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * Use requested_method_id for custom, provider, or plugin methods not modeled
    * by AuthenticationMethod.
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationMethod requested_authentication_method = 5;
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod requested_authentication_method = 2;
    */
   requestedAuthenticationMethod: AuthenticationMethod;
 
@@ -646,7 +646,7 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * This complements requested_authentication_method and must be interpreted
    * against server-side client, provider, and policy configuration.
    *
-   * @generated from field: string requested_method_id = 6;
+   * @generated from field: string requested_method_id = 3;
    */
   requestedMethodId: string;
 
@@ -661,7 +661,7 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * - OIDC provider id for external identity provider login
    * - Mobile ID provider id for mobile operator authentication
    *
-   * @generated from field: string requested_provider_id = 2;
+   * @generated from field: string requested_provider_id = 4;
    */
   requestedProviderId: string;
 
@@ -673,7 +673,7 @@ export declare type AuthenticationStartOptions = Message<"m8.platform.iam.v1.Aut
    * - "AAL2" for multi-factor authentication
    * - "AAL3" for hardware-backed phishing-resistant authentication
    *
-   * @generated from field: repeated string acr_values = 4;
+   * @generated from field: repeated string acr_values = 5;
    */
   acrValues: string[];
 };

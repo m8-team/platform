@@ -129,19 +129,6 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
   method: AuthenticationMethod;
 
   /**
-   * Output only. Typed list of actions currently available for this challenge.
-   *
-   * Examples:
-   * - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
-   * - AUTHENTICATION_CHALLENGE_ACTION_RESEND
-   * - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
-   * - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-   *
-   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 10;
-   */
-  actions: AuthenticationChallengeAction[];
-
-  /**
    * Output only. Identifier of the identity provider or channel provider used
    * by this challenge.
    *
@@ -155,18 +142,29 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
   providerId: string;
 
   /**
-   * Output only. Time when this challenge was created.
+   * Output only. Masked destination where the challenge was delivered.
    *
-   * @generated from field: google.protobuf.Timestamp create_time = 5;
+   * Example:
+   * - "+43******4567"
+   * - "s***@example.com"
+   * - "iPhone 15 Pro"
+   *
+   * @generated from field: string masked_destination = 5;
    */
-  createTime?: Timestamp;
+  maskedDestination: string;
 
   /**
-   * Output only. Time when this challenge expires.
+   * Output only. Typed list of actions currently available for this challenge.
    *
-   * @generated from field: google.protobuf.Timestamp expire_time = 6;
+   * Examples:
+   * - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+   * - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+   * - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+   * - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+   *
+   * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 6;
    */
-  expireTime?: Timestamp;
+  actions: AuthenticationChallengeAction[];
 
   /**
    * Output only. Number of attempts remaining for this challenge.
@@ -178,16 +176,18 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
   attemptsRemaining: number;
 
   /**
-   * Output only. Masked destination where the challenge was delivered.
+   * Output only. Time when this challenge was created.
    *
-   * Example:
-   * - "+43******4567"
-   * - "s***@example.com"
-   * - "iPhone 15 Pro"
-   *
-   * @generated from field: string masked_destination = 8;
+   * @generated from field: google.protobuf.Timestamp create_time = 8;
    */
-  maskedDestination: string;
+  createTime?: Timestamp;
+
+  /**
+   * Output only. Time when this challenge expires.
+   *
+   * @generated from field: google.protobuf.Timestamp expire_time = 9;
+   */
+  expireTime?: Timestamp;
 
   /**
    * @generated from oneof m8.platform.iam.v1.AuthenticationChallengeInfo.public_parameters
@@ -196,7 +196,7 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
     /**
      * Output only. Public parameters for OTP challenges.
      *
-     * @generated from field: m8.platform.iam.v1.OtpChallenge otp = 20;
+     * @generated from field: m8.platform.iam.v1.OtpChallenge otp = 10;
      */
     value: OtpChallenge;
     case: "otp";
@@ -204,7 +204,7 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
     /**
      * Output only. Public parameters for WebAuthn/passkey assertion challenges.
      *
-     * @generated from field: m8.platform.iam.v1.WebAuthnChallenge webauthn = 21;
+     * @generated from field: m8.platform.iam.v1.WebAuthnChallenge webauthn = 11;
      */
     value: WebAuthnChallenge;
     case: "webauthn";
@@ -212,7 +212,7 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
     /**
      * Output only. Public parameters for redirect-based provider challenges.
      *
-     * @generated from field: m8.platform.iam.v1.RedirectChallenge redirect = 22;
+     * @generated from field: m8.platform.iam.v1.RedirectChallenge redirect = 12;
      */
     value: RedirectChallenge;
     case: "redirect";
@@ -220,7 +220,7 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
     /**
      * Output only. Public parameters for push approval challenges.
      *
-     * @generated from field: m8.platform.iam.v1.ApprovalChallenge approval = 23;
+     * @generated from field: m8.platform.iam.v1.ApprovalChallenge approval = 13;
      */
     value: ApprovalChallenge;
     case: "approval";
@@ -228,7 +228,7 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
     /**
      * Output only. Public parameters for Mobile ID challenges.
      *
-     * @generated from field: m8.platform.iam.v1.MobileIdChallenge mobile_id = 24;
+     * @generated from field: m8.platform.iam.v1.MobileIdChallenge mobile_id = 14;
      */
     value: MobileIdChallenge;
     case: "mobileId";
@@ -365,7 +365,7 @@ export declare type WebAuthnChallenge = Message<"m8.platform.iam.v1.WebAuthnChal
    *
    * Empty list means discoverable credentials or resident keys may be used.
    *
-   * @generated from field: repeated m8.platform.iam.v1.WebAuthnAllowedCredential allow_credentials = 6;
+   * @generated from field: repeated m8.platform.iam.v1.WebAuthnAllowedCredential allow_credentials = 5;
    */
   allowCredentials: WebAuthnAllowedCredential[];
 };

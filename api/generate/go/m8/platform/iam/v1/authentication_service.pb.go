@@ -429,7 +429,7 @@ type SubmitAuthenticationChallengeRequest struct {
 	//	*SubmitAuthenticationChallengeRequest_Approval
 	Response isSubmitAuthenticationChallengeRequest_Response `protobuf_oneof:"response"`
 	// Optional. Idempotency key for retrying challenge submission safely.
-	RequestId     string `protobuf:"bytes,100,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	RequestId     string `protobuf:"bytes,7,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -534,22 +534,22 @@ type isSubmitAuthenticationChallengeRequest_Response interface {
 
 type SubmitAuthenticationChallengeRequest_Otp struct {
 	// OTP code submitted by the user.
-	Otp *OtpChallengeResponse `protobuf:"bytes,10,opt,name=otp,proto3,oneof"`
+	Otp *OtpChallengeResponse `protobuf:"bytes,3,opt,name=otp,proto3,oneof"`
 }
 
 type SubmitAuthenticationChallengeRequest_Password struct {
 	// Password submitted by the user.
-	Password *PasswordChallengeResponse `protobuf:"bytes,11,opt,name=password,proto3,oneof"`
+	Password *PasswordChallengeResponse `protobuf:"bytes,4,opt,name=password,proto3,oneof"`
 }
 
 type SubmitAuthenticationChallengeRequest_Webauthn struct {
 	// WebAuthn assertion produced by the browser or platform authenticator.
-	Webauthn *WebAuthnAssertionResponse `protobuf:"bytes,12,opt,name=webauthn,proto3,oneof"`
+	Webauthn *WebAuthnAssertionResponse `protobuf:"bytes,5,opt,name=webauthn,proto3,oneof"`
 }
 
 type SubmitAuthenticationChallengeRequest_Approval struct {
 	// Approval result submitted by an approval-capable client.
-	Approval *ApprovalChallengeResponse `protobuf:"bytes,13,opt,name=approval,proto3,oneof"`
+	Approval *ApprovalChallengeResponse `protobuf:"bytes,6,opt,name=approval,proto3,oneof"`
 }
 
 func (*SubmitAuthenticationChallengeRequest_Otp) isSubmitAuthenticationChallengeRequest_Response() {}
@@ -1079,12 +1079,12 @@ type AuthenticationStartOptions struct {
 	//
 	// Use requested_method_id for custom, provider, or plugin methods not modeled
 	// by AuthenticationMethod.
-	RequestedAuthenticationMethod AuthenticationMethod `protobuf:"varint,5,opt,name=requested_authentication_method,json=requestedAuthenticationMethod,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"requested_authentication_method,omitempty"`
+	RequestedAuthenticationMethod AuthenticationMethod `protobuf:"varint,2,opt,name=requested_authentication_method,json=requestedAuthenticationMethod,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"requested_authentication_method,omitempty"`
 	// Optional. Preferred custom, provider, or plugin method identifier.
 	//
 	// This complements requested_authentication_method and must be interpreted
 	// against server-side client, provider, and policy configuration.
-	RequestedMethodId string `protobuf:"bytes,6,opt,name=requested_method_id,json=requestedMethodId,proto3" json:"requested_method_id,omitempty"`
+	RequestedMethodId string `protobuf:"bytes,3,opt,name=requested_method_id,json=requestedMethodId,proto3" json:"requested_method_id,omitempty"`
 	// Optional. Preferred authentication provider identifier.
 	// This selects a provider, channel, or provider integration for the requested
 	// method. AuthenticationSubject.provider_id scopes subject identifiers and
@@ -1094,14 +1094,14 @@ type AuthenticationStartOptions struct {
 	// - WebAuthn provider id for passkey authentication
 	// - OIDC provider id for external identity provider login
 	// - Mobile ID provider id for mobile operator authentication
-	RequestedProviderId string `protobuf:"bytes,2,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
+	RequestedProviderId string `protobuf:"bytes,4,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
 	// Optional. Requested Authentication Context Class Reference values.
 	//
 	// Example:
 	// - "AAL1" for normal login
 	// - "AAL2" for multi-factor authentication
 	// - "AAL3" for hardware-backed phishing-resistant authentication
-	AcrValues     []string `protobuf:"bytes,4,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	AcrValues     []string `protobuf:"bytes,5,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1207,13 +1207,12 @@ const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\x11authentication_id\x18\x01 \x01(\tB\x13\xe0A\x02\xbaH\r\xc8\x01\x01r\b\x10\x01\x18\xff\x01\xb0\x01\x01R\x10authenticationId\x123\n" +
 	"\fchallenge_id\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
 	"\xc8\x01\x01r\x05\x10\x01\x18\xff\x01R\vchallengeId\x12<\n" +
-	"\x03otp\x18\n" +
-	" \x01(\v2(.m8.platform.iam.v1.OtpChallengeResponseH\x00R\x03otp\x12K\n" +
-	"\bpassword\x18\v \x01(\v2-.m8.platform.iam.v1.PasswordChallengeResponseH\x00R\bpassword\x12K\n" +
-	"\bwebauthn\x18\f \x01(\v2-.m8.platform.iam.v1.WebAuthnAssertionResponseH\x00R\bwebauthn\x12K\n" +
-	"\bapproval\x18\r \x01(\v2-.m8.platform.iam.v1.ApprovalChallengeResponseH\x00R\bapproval\x12-\n" +
+	"\x03otp\x18\x03 \x01(\v2(.m8.platform.iam.v1.OtpChallengeResponseH\x00R\x03otp\x12K\n" +
+	"\bpassword\x18\x04 \x01(\v2-.m8.platform.iam.v1.PasswordChallengeResponseH\x00R\bpassword\x12K\n" +
+	"\bwebauthn\x18\x05 \x01(\v2-.m8.platform.iam.v1.WebAuthnAssertionResponseH\x00R\bwebauthn\x12K\n" +
+	"\bapproval\x18\x06 \x01(\v2-.m8.platform.iam.v1.ApprovalChallengeResponseH\x00R\bapproval\x12-\n" +
 	"\n" +
-	"request_id\x18d \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\trequestIdB\x11\n" +
+	"request_id\x18\a \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\trequestIdB\x11\n" +
 	"\bresponse\x12\x05\xbaH\x02\b\x01\";\n" +
 	"\x14OtpChallengeResponse\x12#\n" +
 	"\x04code\x18\x01 \x01(\tB\x0f\xe0A\x02\xbaH\t\xc8\x01\x01r\x04\x10\x04\x18\fR\x04code\"I\n" +
@@ -1253,14 +1252,14 @@ const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\fredirect_uri\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\vredirectUri\x12!\n" +
 	"\tcompleted\x18\x03 \x01(\bB\x03\xe0A\x03R\tcompleted\"w\n" +
 	"$StartAuthenticationOperationMetadata\x12O\n" +
-	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"\x82\x03\n" +
+	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"\xfc\x02\n" +
 	"\x1aAuthenticationStartOptions\x12=\n" +
 	"\x18login_experience_version\x18\x01 \x01(\tB\x03\xe0A\x01R\x16loginExperienceVersion\x12}\n" +
-	"\x1frequested_authentication_method\x18\x05 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\x1drequestedAuthenticationMethod\x12;\n" +
-	"\x13requested_method_id\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x11requestedMethodId\x12?\n" +
-	"\x15requested_provider_id\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x13requestedProviderId\x12\"\n" +
+	"\x1frequested_authentication_method\x18\x02 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\x1drequestedAuthenticationMethod\x12;\n" +
+	"\x13requested_method_id\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x11requestedMethodId\x12?\n" +
+	"\x15requested_provider_id\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\xff\x01R\x13requestedProviderId\x12\"\n" +
 	"\n" +
-	"acr_values\x18\x04 \x03(\tB\x03\xe0A\x01R\tacrValuesJ\x04\b\x03\x10\x042\xea\x17\n" +
+	"acr_values\x18\x05 \x03(\tB\x03\xe0A\x01R\tacrValues2\xea\x17\n" +
 	"\x15AuthenticationService\x12\xeb\x02\n" +
 	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\x84\x02\xcaA6\n" +
 	"\x0eAuthentication\x12$StartAuthenticationOperationMetadata\xdaA\x1cclient_id,subject,request_id\xbaG~\x12\x05Start\x1a`Starts a new authentication workflow and returns a long-running operation for tracking progress.*\x13StartAuthentication\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02\x12\xcc\x02\n" +

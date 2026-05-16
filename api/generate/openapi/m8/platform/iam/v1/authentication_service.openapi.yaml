@@ -726,6 +726,27 @@ components:
                     type: string
                     description: Output only. Authentication method selected for this challenge.
                     format: enum
+                providerId:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. Identifier of the identity provider or channel provider used
+                         by this challenge.
+
+                         Example:
+                         - "google"
+                         - "m8-sms"
+                         - "mobile-id-at"
+                maskedDestination:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. Masked destination where the challenge was delivered.
+
+                         Example:
+                         - "+43******4567"
+                         - "s***@example.com"
+                         - "iPhone 15 Pro"
                 actions:
                     readOnly: true
                     type: array
@@ -746,17 +767,14 @@ components:
                          - AUTHENTICATION_CHALLENGE_ACTION_RESEND
                          - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
                          - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
-                providerId:
+                attemptsRemaining:
                     readOnly: true
-                    type: string
+                    type: integer
                     description: |-
-                        Output only. Identifier of the identity provider or channel provider used
-                         by this challenge.
+                        Output only. Number of attempts remaining for this challenge.
 
-                         Example:
-                         - "google"
-                         - "m8-sms"
-                         - "mobile-id-at"
+                         For challenges that do not support attempts, this value may be zero.
+                    format: int32
                 createTime:
                     readOnly: true
                     type: string
@@ -767,24 +785,6 @@ components:
                     type: string
                     description: Output only. Time when this challenge expires.
                     format: date-time
-                attemptsRemaining:
-                    readOnly: true
-                    type: integer
-                    description: |-
-                        Output only. Number of attempts remaining for this challenge.
-
-                         For challenges that do not support attempts, this value may be zero.
-                    format: int32
-                maskedDestination:
-                    readOnly: true
-                    type: string
-                    description: |-
-                        Output only. Masked destination where the challenge was delivered.
-
-                         Example:
-                         - "+43******4567"
-                         - "s***@example.com"
-                         - "iPhone 15 Pro"
                 otp:
                     readOnly: true
                     allOf:
@@ -1303,17 +1303,26 @@ components:
                     type: string
                     description: Output only. Application class resolved from the client configuration.
                     format: enum
-                redirectUri:
+                loginExperience:
+                    readOnly: true
+                    enum:
+                        - LOGIN_EXPERIENCE_UNSPECIFIED
+                        - LOGIN_EXPERIENCE_IDENTIFIER_FIRST
+                        - LOGIN_EXPERIENCE_PASSWORDLESS_FIRST
+                        - LOGIN_EXPERIENCE_PASSKEY_FIRST
+                        - LOGIN_EXPERIENCE_PROVIDER_FIRST
+                        - LOGIN_EXPERIENCE_STEP_UP
                     type: string
                     description: |-
-                        Optional. Redirect URI supplied by the client or OIDC authorization request.
-                         The server validates it against the registered client configuration.
-                origin:
-                    type: string
+                        Output only. Server-selected login experience resolved from client policy,
+                         request options, risk decision, and interaction constraints.
+                    format: enum
+                publicClient:
+                    readOnly: true
+                    type: boolean
                     description: |-
-                        Optional. Browser origin supplied by the client or gateway. The server uses
-                         it for UI policy, CORS-related checks, and audit, after validating it
-                         against the registered client configuration.
+                        Output only. Indicates whether the resolved client is public and cannot keep
+                         a client secret. It is used by policy and protocol handling.
                 allowedAuthenticationMethods:
                     readOnly: true
                     type: array
@@ -1346,26 +1355,17 @@ components:
                         Output only. Provider identifiers allowed by the resolved client policy.
                          These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
                          providers and must not be confused with a requested provider selector.
-                loginExperience:
-                    readOnly: true
-                    enum:
-                        - LOGIN_EXPERIENCE_UNSPECIFIED
-                        - LOGIN_EXPERIENCE_IDENTIFIER_FIRST
-                        - LOGIN_EXPERIENCE_PASSWORDLESS_FIRST
-                        - LOGIN_EXPERIENCE_PASSKEY_FIRST
-                        - LOGIN_EXPERIENCE_PROVIDER_FIRST
-                        - LOGIN_EXPERIENCE_STEP_UP
+                redirectUri:
                     type: string
                     description: |-
-                        Output only. Server-selected login experience resolved from client policy,
-                         request options, risk decision, and interaction constraints.
-                    format: enum
-                publicClient:
-                    readOnly: true
-                    type: boolean
+                        Optional. Redirect URI supplied by the client or OIDC authorization request.
+                         The server validates it against the registered client configuration.
+                origin:
+                    type: string
                     description: |-
-                        Output only. Indicates whether the resolved client is public and cannot keep
-                         a client secret. It is used by policy and protocol handling.
+                        Optional. Browser origin supplied by the client or gateway. The server uses
+                         it for UI policy, CORS-related checks, and audit, after validating it
+                         against the registered client configuration.
             description: |-
                 ClientContext describes the resolved OAuth, OIDC, or application client
                  configuration used to drive authentication policy and login UI selection.
