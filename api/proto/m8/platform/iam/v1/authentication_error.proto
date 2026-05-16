@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// AuthenticationStateReason explains the latest authentication state transition.
+//
+// Values are safe to expose to clients and internal admin UI. They must not
+// encode secrets, provider tokens, raw provider responses, stack traces, or
+// private risk model details.
+enum AuthenticationStateReason {
+  // Authentication state reason is not specified.
+  AUTHENTICATION_STATE_REASON_UNSPECIFIED = 0;
+
+  // Authentication operation was accepted by the server.
+  AUTHENTICATION_STATE_REASON_START_ACCEPTED = 1;
+
+  // Subject was successfully resolved.
+  AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED = 2;
+
+  // Subject could not be found or resolved.
+  AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND = 3;
+
+  // Risk decision allowed authentication to continue.
+  AUTHENTICATION_STATE_REASON_RISK_ALLOWED = 4;
+
+  // Risk decision requires an additional challenge.
+  AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED = 5;
+
+  // Risk decision blocked authentication.
+  AUTHENTICATION_STATE_REASON_RISK_BLOCKED = 6;
+
+  // Challenge was selected.
+  AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED = 7;
+
+  // OTP was sent.
+  AUTHENTICATION_STATE_REASON_OTP_SENT = 8;
+
+  // OTP resend was requested and accepted.
+  AUTHENTICATION_STATE_REASON_OTP_RESENT = 9;
+
+  // Submitted OTP was invalid.
+  AUTHENTICATION_STATE_REASON_OTP_INVALID = 10;
+
+  // Attempts limit was exceeded.
+  AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED = 11;
+
+  // User approved authentication in another channel.
+  AUTHENTICATION_STATE_REASON_USER_APPROVED = 12;
+
+  // User denied authentication in another channel.
+  AUTHENTICATION_STATE_REASON_USER_DENIED = 13;
+
+  // External provider redirect is required.
+  AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED = 14;
+
+  // External provider callback was received.
+  AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED = 15;
+
+  // External provider callback validation failed.
+  AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID = 16;
+
+  // External provider timed out.
+  AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT = 17;
+
+  // WebAuthn assertion was invalid.
+  AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID = 18;
+
+  // Authentication completed successfully.
+  AUTHENTICATION_STATE_REASON_AUTHENTICATED = 19;
+
+  // Authentication expired.
+  AUTHENTICATION_STATE_REASON_EXPIRED = 20;
+
+  // Authentication was canceled.
+  AUTHENTICATION_STATE_REASON_CANCELED = 21;
+
+  // Authentication failed because of an internal error.
+  AUTHENTICATION_STATE_REASON_INTERNAL_ERROR = 22;
+
+  // Client selected a different authentication challenge.
+  AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED = 23;
+
+  // Challenge resend is not allowed yet.
+  AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE = 24;
+
+  // Requested method is not allowed for this client, user, or context.
+  AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED = 25;
+
+  // Requested provider is not allowed for this client, user, or context.
+  AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED = 26;
+}
+
+// AuthenticationError contains safe error details for terminal or problem
+// states.
+//
+// It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
+// provider responses, or private risk model details.
+message AuthenticationError {
+  // Output only. Stable machine-readable error code.
+  //
+  // Example:
+  // - "subject_not_found"
+  // - "method_not_allowed"
+  // - "provider_callback_invalid"
+  // - "attempts_exceeded"
+  string code = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Output only. Safe human-readable error message.
+  //
+  // This message must not contain stack traces, secrets, tokens, OTP codes,
+  // passwords, or raw provider responses.
+  string message = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Output only. State reason associated with this error.
+  AuthenticationStateReason reason = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Provider related to the error, if any.
+  //
+  // Example:
+  // - "google"
+  // - "saml-corp"
+  // - "mobile-id-at"
+  string provider_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  // Output only. Indicates whether retrying the same operation may succeed.
+  bool retryable = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

@@ -7,6 +7,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
+import "m8/platform/iam/v1/authentication_error.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
@@ -37,9 +38,6 @@ message Authentication {
   // incremented. If the operation is already terminal, update_time and version
   // are not changed.
   //
-  // TODO: Add an explicit state_reason when the authentication state reason
-  // contract is introduced. Cancel is a normal user/client action and should not
-  // populate error.
   enum State {
     // Authentication state is not specified.
     STATE_UNSPECIFIED = 0;
@@ -517,14 +515,23 @@ message Authentication {
   // challenge summary, but it must still contain only public-safe data.
   AuthenticationChallengeInfo current_challenge = 16 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Machine-readable reason explaining the latest state transition.
+  //
+  // This value is safe to expose to clients and admin UI. It is used for both
+  // normal transitions, such as START_ACCEPTED or OTP_SENT, and problem
+  // transitions, such as PROVIDER_CALLBACK_INVALID.
+  AuthenticationStateReason state_reason = 18 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Output only. Error details for failed, denied, blocked, expired, or
+  // attempts-exceeded states.
+  //
+  // This field must not contain secrets, provider tokens, stack traces, OTP
+  // codes, passwords, or raw provider responses. CANCELED usually does not
+  // populate error because cancellation is a normal user or client action.
   AuthenticationError error = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   string etag = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
-
-message AuthenticationError {
-  string code = 1;
-  string message = 2;
-  string provider_id = 3;
-  string reason = 4;
 }
