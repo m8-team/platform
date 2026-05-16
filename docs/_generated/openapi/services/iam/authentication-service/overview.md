@@ -8,6 +8,9 @@ Use this API to start authentication workflows and track their long-running oper
 
 | Method | Description |
 | --- | --- |
+| [Handle callback](./HandleAuthenticationCallback.md) | Processes callbacks from external identity providers and returns an updated authentication snapshot without exposing provider secrets or tokens. |
 | [Get](./GetAuthentication.md) | Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets. |
+| [Resend challenge](./ResendAuthenticationChallenge.md) | Resends the current challenge when the selected method supports resend. It does not create a new authentication operation or expose challenge secrets. |
 | [Cancel](./CancelAuthentication.md) | Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged. |
+| [Select challenge](./SelectAuthenticationChallenge.md) | Selects an allowed authentication method or provider and prepares a new public-safe current challenge without verifying user identity. |
 | [Start](./StartAuthentication.md) | Starts a new authentication workflow and returns a long-running operation for tracking progress. |

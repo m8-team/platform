@@ -43,6 +43,15 @@ const (
 	// AuthenticationServiceCancelAuthenticationProcedure is the fully-qualified name of the
 	// AuthenticationService's CancelAuthentication RPC.
 	AuthenticationServiceCancelAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication"
+	// AuthenticationServiceResendAuthenticationChallengeProcedure is the fully-qualified name of the
+	// AuthenticationService's ResendAuthenticationChallenge RPC.
+	AuthenticationServiceResendAuthenticationChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge"
+	// AuthenticationServiceSelectAuthenticationChallengeProcedure is the fully-qualified name of the
+	// AuthenticationService's SelectAuthenticationChallenge RPC.
+	AuthenticationServiceSelectAuthenticationChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/SelectAuthenticationChallenge"
+	// AuthenticationServiceHandleAuthenticationCallbackProcedure is the fully-qualified name of the
+	// AuthenticationService's HandleAuthenticationCallback RPC.
+	AuthenticationServiceHandleAuthenticationCallbackProcedure = "/m8.platform.iam.v1.AuthenticationService/HandleAuthenticationCallback"
 )
 
 // AuthenticationServiceClient is a client for the m8.platform.iam.v1.AuthenticationService service.
@@ -86,6 +95,105 @@ type AuthenticationServiceClient interface {
 	// - public clients may cancel only their own active operation
 	// - admin and service callers may cancel according to policy
 	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
+	// Resends the current challenge when the selected method supports resend,
+	// such as SMS OTP or email OTP.
+	//
+	// The method does not create a new authentication operation and must not
+	// expose OTP codes or other challenge secrets. It is intended for active
+	// operations whose current_challenge allows resend.
+	//
+	// Allowed states:
+	// - CHALLENGE_DELIVERED
+	// - WAITING_FOR_USER
+	// - CHALLENGE_RETRY_REQUIRED
+	// - STEP_UP_REQUIRED
+	//
+	// State transition:
+	// - WAITING_FOR_USER -> CHALLENGE_DELIVERED or WAITING_FOR_USER
+	// - state_reason becomes AUTHENTICATION_STATE_REASON_OTP_RESENT
+	// - current_challenge resend metadata may be updated
+	// - update_time is updated and version is incremented
+	//
+	// Idempotency:
+	//   - same authentication_id, challenge_id, and request_id returns the same
+	//     resend result
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with ResendChallengeSignal
+	// - let workflow enforce cooldown, rate limit, and provider policy
+	// - update current_challenge without exposing OTP codes or provider secrets
+	//
+	// Authorization:
+	// - caller must be allowed to operate on this authentication operation
+	// - public clients may resend only their own current challenge
+	ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error)
+	// Selects an allowed authentication method or provider for an existing
+	// authentication operation.
+	//
+	// This method prepares a new public-safe current_challenge but does not verify
+	// user identity by itself. It does not accept passwords, OTP codes, WebAuthn
+	// assertions, provider authorization codes, or provider tokens.
+	//
+	// Allowed states:
+	// - IDENTIFYING, when the subject is already sufficiently resolved
+	// - EVALUATING, when policy has already resolved allowed options
+	// - CHALLENGE_DELIVERED
+	// - WAITING_FOR_USER
+	// - CHALLENGE_RETRY_REQUIRED
+	// - STEP_UP_REQUIRED
+	//
+	// State transition:
+	//   - current_challenge is replaced with a newly prepared challenge
+	//   - state usually becomes CHALLENGE_PREPARING, CHALLENGE_DELIVERED, or
+	//     WAITING_FOR_USER
+	//   - state_reason becomes AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
+	//   - update_time is updated and version is incremented
+	//
+	// If the requested method or provider is not allowed, the operation is not
+	// changed and the server should return a command error or a safe
+	// Authentication.error with METHOD_NOT_ALLOWED or PROVIDER_NOT_ALLOWED.
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with SelectChallengeSignal
+	// - let workflow enforce allowed methods, providers, risk decision, and policy
+	// - prepare a new current_challenge without exposing secrets
+	//
+	// Authorization:
+	//   - caller can select only methods and providers allowed by client policy,
+	//     user pool policy, risk decision, and current authentication state
+	SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error)
+	// Processes callbacks from external identity providers.
+	//
+	// Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
+	// providers. The method validates provider state internally and must not
+	// expose provider tokens, raw assertions, client secrets, or internal callback
+	// secrets in the response.
+	//
+	// Callback behavior:
+	//   - validate provider_id
+	//   - resolve Authentication by authentication_id, state, relay_state, or
+	//     provider transaction identifiers
+	//   - validate state, relay state, nonce, anti-CSRF data, signatures, tokens, or
+	//     provider-specific proof internally
+	//   - update state_reason to PROVIDER_CALLBACK_RECEIVED or
+	//     PROVIDER_CALLBACK_INVALID
+	//   - transition through VERIFYING, FINALIZING, AUTHENTICATED, DENIED, BLOCKED,
+	//     or FAILED according to validation and policy
+	//
+	// Idempotency:
+	//   - same provider_id, callback state, code, relay_state, and request_id returns
+	//     the same callback result
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with ProviderCallbackSignal
+	// - let workflow validate callback data and finish the provider step
+	//
+	// Authorization:
+	//   - provider callbacks must be authenticated or validated through state,
+	//     signature, SAML validation, OIDC token validation, or provider-specific
+	//     verification
+	//   - public clients must not be trusted to assert callback success
+	HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[v1.HandleAuthenticationCallbackResponse], error)
 }
 
 // NewAuthenticationServiceClient constructs a client for the
@@ -120,14 +228,38 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		resendAuthenticationChallenge: connect.NewClient[v1.ResendAuthenticationChallengeRequest, v1.Authentication](
+			httpClient,
+			baseURL+AuthenticationServiceResendAuthenticationChallengeProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("ResendAuthenticationChallenge")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		selectAuthenticationChallenge: connect.NewClient[v1.SelectAuthenticationChallengeRequest, v1.Authentication](
+			httpClient,
+			baseURL+AuthenticationServiceSelectAuthenticationChallengeProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("SelectAuthenticationChallenge")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		handleAuthenticationCallback: connect.NewClient[v1.HandleAuthenticationCallbackRequest, v1.HandleAuthenticationCallbackResponse](
+			httpClient,
+			baseURL+AuthenticationServiceHandleAuthenticationCallbackProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("HandleAuthenticationCallback")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // authenticationServiceClient implements AuthenticationServiceClient.
 type authenticationServiceClient struct {
-	startAuthentication  *connect.Client[v1.StartAuthenticationRequest, longrunningpb.Operation]
-	getAuthentication    *connect.Client[v1.GetAuthenticationRequest, v1.Authentication]
-	cancelAuthentication *connect.Client[v1.CancelAuthenticationRequest, v1.Authentication]
+	startAuthentication           *connect.Client[v1.StartAuthenticationRequest, longrunningpb.Operation]
+	getAuthentication             *connect.Client[v1.GetAuthenticationRequest, v1.Authentication]
+	cancelAuthentication          *connect.Client[v1.CancelAuthenticationRequest, v1.Authentication]
+	resendAuthenticationChallenge *connect.Client[v1.ResendAuthenticationChallengeRequest, v1.Authentication]
+	selectAuthenticationChallenge *connect.Client[v1.SelectAuthenticationChallengeRequest, v1.Authentication]
+	handleAuthenticationCallback  *connect.Client[v1.HandleAuthenticationCallbackRequest, v1.HandleAuthenticationCallbackResponse]
 }
 
 // StartAuthentication calls m8.platform.iam.v1.AuthenticationService.StartAuthentication.
@@ -143,6 +275,24 @@ func (c *authenticationServiceClient) GetAuthentication(ctx context.Context, req
 // CancelAuthentication calls m8.platform.iam.v1.AuthenticationService.CancelAuthentication.
 func (c *authenticationServiceClient) CancelAuthentication(ctx context.Context, req *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
 	return c.cancelAuthentication.CallUnary(ctx, req)
+}
+
+// ResendAuthenticationChallenge calls
+// m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge.
+func (c *authenticationServiceClient) ResendAuthenticationChallenge(ctx context.Context, req *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error) {
+	return c.resendAuthenticationChallenge.CallUnary(ctx, req)
+}
+
+// SelectAuthenticationChallenge calls
+// m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge.
+func (c *authenticationServiceClient) SelectAuthenticationChallenge(ctx context.Context, req *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error) {
+	return c.selectAuthenticationChallenge.CallUnary(ctx, req)
+}
+
+// HandleAuthenticationCallback calls
+// m8.platform.iam.v1.AuthenticationService.HandleAuthenticationCallback.
+func (c *authenticationServiceClient) HandleAuthenticationCallback(ctx context.Context, req *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[v1.HandleAuthenticationCallbackResponse], error) {
+	return c.handleAuthenticationCallback.CallUnary(ctx, req)
 }
 
 // AuthenticationServiceHandler is an implementation of the m8.platform.iam.v1.AuthenticationService
@@ -187,6 +337,105 @@ type AuthenticationServiceHandler interface {
 	// - public clients may cancel only their own active operation
 	// - admin and service callers may cancel according to policy
 	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
+	// Resends the current challenge when the selected method supports resend,
+	// such as SMS OTP or email OTP.
+	//
+	// The method does not create a new authentication operation and must not
+	// expose OTP codes or other challenge secrets. It is intended for active
+	// operations whose current_challenge allows resend.
+	//
+	// Allowed states:
+	// - CHALLENGE_DELIVERED
+	// - WAITING_FOR_USER
+	// - CHALLENGE_RETRY_REQUIRED
+	// - STEP_UP_REQUIRED
+	//
+	// State transition:
+	// - WAITING_FOR_USER -> CHALLENGE_DELIVERED or WAITING_FOR_USER
+	// - state_reason becomes AUTHENTICATION_STATE_REASON_OTP_RESENT
+	// - current_challenge resend metadata may be updated
+	// - update_time is updated and version is incremented
+	//
+	// Idempotency:
+	//   - same authentication_id, challenge_id, and request_id returns the same
+	//     resend result
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with ResendChallengeSignal
+	// - let workflow enforce cooldown, rate limit, and provider policy
+	// - update current_challenge without exposing OTP codes or provider secrets
+	//
+	// Authorization:
+	// - caller must be allowed to operate on this authentication operation
+	// - public clients may resend only their own current challenge
+	ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error)
+	// Selects an allowed authentication method or provider for an existing
+	// authentication operation.
+	//
+	// This method prepares a new public-safe current_challenge but does not verify
+	// user identity by itself. It does not accept passwords, OTP codes, WebAuthn
+	// assertions, provider authorization codes, or provider tokens.
+	//
+	// Allowed states:
+	// - IDENTIFYING, when the subject is already sufficiently resolved
+	// - EVALUATING, when policy has already resolved allowed options
+	// - CHALLENGE_DELIVERED
+	// - WAITING_FOR_USER
+	// - CHALLENGE_RETRY_REQUIRED
+	// - STEP_UP_REQUIRED
+	//
+	// State transition:
+	//   - current_challenge is replaced with a newly prepared challenge
+	//   - state usually becomes CHALLENGE_PREPARING, CHALLENGE_DELIVERED, or
+	//     WAITING_FOR_USER
+	//   - state_reason becomes AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
+	//   - update_time is updated and version is incremented
+	//
+	// If the requested method or provider is not allowed, the operation is not
+	// changed and the server should return a command error or a safe
+	// Authentication.error with METHOD_NOT_ALLOWED or PROVIDER_NOT_ALLOWED.
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with SelectChallengeSignal
+	// - let workflow enforce allowed methods, providers, risk decision, and policy
+	// - prepare a new current_challenge without exposing secrets
+	//
+	// Authorization:
+	//   - caller can select only methods and providers allowed by client policy,
+	//     user pool policy, risk decision, and current authentication state
+	SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error)
+	// Processes callbacks from external identity providers.
+	//
+	// Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
+	// providers. The method validates provider state internally and must not
+	// expose provider tokens, raw assertions, client secrets, or internal callback
+	// secrets in the response.
+	//
+	// Callback behavior:
+	//   - validate provider_id
+	//   - resolve Authentication by authentication_id, state, relay_state, or
+	//     provider transaction identifiers
+	//   - validate state, relay state, nonce, anti-CSRF data, signatures, tokens, or
+	//     provider-specific proof internally
+	//   - update state_reason to PROVIDER_CALLBACK_RECEIVED or
+	//     PROVIDER_CALLBACK_INVALID
+	//   - transition through VERIFYING, FINALIZING, AUTHENTICATED, DENIED, BLOCKED,
+	//     or FAILED according to validation and policy
+	//
+	// Idempotency:
+	//   - same provider_id, callback state, code, relay_state, and request_id returns
+	//     the same callback result
+	//
+	// Implementation TODO:
+	// - signal Temporal workflow with ProviderCallbackSignal
+	// - let workflow validate callback data and finish the provider step
+	//
+	// Authorization:
+	//   - provider callbacks must be authenticated or validated through state,
+	//     signature, SAML validation, OIDC token validation, or provider-specific
+	//     verification
+	//   - public clients must not be trusted to assert callback success
+	HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[v1.HandleAuthenticationCallbackResponse], error)
 }
 
 // NewAuthenticationServiceHandler builds an HTTP handler from the service implementation. It
@@ -217,6 +466,27 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	authenticationServiceResendAuthenticationChallengeHandler := connect.NewUnaryHandler(
+		AuthenticationServiceResendAuthenticationChallengeProcedure,
+		svc.ResendAuthenticationChallenge,
+		connect.WithSchema(authenticationServiceMethods.ByName("ResendAuthenticationChallenge")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	authenticationServiceSelectAuthenticationChallengeHandler := connect.NewUnaryHandler(
+		AuthenticationServiceSelectAuthenticationChallengeProcedure,
+		svc.SelectAuthenticationChallenge,
+		connect.WithSchema(authenticationServiceMethods.ByName("SelectAuthenticationChallenge")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	authenticationServiceHandleAuthenticationCallbackHandler := connect.NewUnaryHandler(
+		AuthenticationServiceHandleAuthenticationCallbackProcedure,
+		svc.HandleAuthenticationCallback,
+		connect.WithSchema(authenticationServiceMethods.ByName("HandleAuthenticationCallback")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/m8.platform.iam.v1.AuthenticationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthenticationServiceStartAuthenticationProcedure:
@@ -225,6 +495,12 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 			authenticationServiceGetAuthenticationHandler.ServeHTTP(w, r)
 		case AuthenticationServiceCancelAuthenticationProcedure:
 			authenticationServiceCancelAuthenticationHandler.ServeHTTP(w, r)
+		case AuthenticationServiceResendAuthenticationChallengeProcedure:
+			authenticationServiceResendAuthenticationChallengeHandler.ServeHTTP(w, r)
+		case AuthenticationServiceSelectAuthenticationChallengeProcedure:
+			authenticationServiceSelectAuthenticationChallengeHandler.ServeHTTP(w, r)
+		case AuthenticationServiceHandleAuthenticationCallbackProcedure:
+			authenticationServiceHandleAuthenticationCallbackHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -244,4 +520,16 @@ func (UnimplementedAuthenticationServiceHandler) GetAuthentication(context.Conte
 
 func (UnimplementedAuthenticationServiceHandler) CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.CancelAuthentication is not implemented"))
+}
+
+func (UnimplementedAuthenticationServiceHandler) ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge is not implemented"))
+}
+
+func (UnimplementedAuthenticationServiceHandler) SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[v1.Authentication], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge is not implemented"))
+}
+
+func (UnimplementedAuthenticationServiceHandler) HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[v1.HandleAuthenticationCallbackResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.HandleAuthenticationCallback is not implemented"))
 }

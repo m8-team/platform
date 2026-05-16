@@ -6,6 +6,7 @@ import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegen
 import type { Message } from "@bufbuild/protobuf";
 import type { AuthenticationSubject } from "./authentication_subject_pb";
 import type { AuthenticationContext } from "./authentication_context_pb";
+import type { AuthenticationMethod } from "./authentication_challenge_pb";
 import type { Authentication, AuthenticationSchema } from "./authentication_pb";
 import type { OperationSchema } from "../../../../google/longrunning/operations_pb";
 
@@ -151,6 +152,240 @@ export declare type CancelAuthenticationRequest = Message<"m8.platform.iam.v1.Ca
  * Use `create(CancelAuthenticationRequestSchema)` to create a new message.
  */
 export declare const CancelAuthenticationRequestSchema: GenMessage<CancelAuthenticationRequest>;
+
+/**
+ * Request to resend the current authentication challenge.
+ *
+ * @generated from message m8.platform.iam.v1.ResendAuthenticationChallengeRequest
+ */
+export declare type ResendAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.ResendAuthenticationChallengeRequest"> & {
+  /**
+   * Required. Identifier of the authentication operation.
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+
+  /**
+   * Required. Identifier of the challenge to resend.
+   *
+   * The value must match Authentication.current_challenge.challenge_id.
+   *
+   * @generated from field: string challenge_id = 2;
+   */
+  challengeId: string;
+
+  /**
+   * Optional. Idempotency key for retrying resend safely.
+   *
+   * The same authentication_id, challenge_id, and request_id must resolve to the
+   * same resend result.
+   *
+   * @generated from field: string request_id = 3;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.ResendAuthenticationChallengeRequest.
+ * Use `create(ResendAuthenticationChallengeRequestSchema)` to create a new message.
+ */
+export declare const ResendAuthenticationChallengeRequestSchema: GenMessage<ResendAuthenticationChallengeRequest>;
+
+/**
+ * Request to select another authentication method or provider.
+ *
+ * @generated from message m8.platform.iam.v1.SelectAuthenticationChallengeRequest
+ */
+export declare type SelectAuthenticationChallengeRequest = Message<"m8.platform.iam.v1.SelectAuthenticationChallengeRequest"> & {
+  /**
+   * Required. Identifier of the authentication operation.
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+
+  /**
+   * Required. Authentication method selected by the client or user.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 2;
+   */
+  method: AuthenticationMethod;
+
+  /**
+   * Optional. Provider identifier for provider-based methods.
+   *
+   * Example:
+   * - "google"
+   * - "saml-corp"
+   * - "mobile-id-at"
+   * - "m8-sms"
+   *
+   * @generated from field: string provider_id = 3;
+   */
+  providerId: string;
+
+  /**
+   * Optional. Idempotency key for retrying selection safely.
+   *
+   * The same authentication_id, method, provider_id, and request_id must resolve
+   * to the same selection result.
+   *
+   * @generated from field: string request_id = 4;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.SelectAuthenticationChallengeRequest.
+ * Use `create(SelectAuthenticationChallengeRequestSchema)` to create a new message.
+ */
+export declare const SelectAuthenticationChallengeRequestSchema: GenMessage<SelectAuthenticationChallengeRequest>;
+
+/**
+ * Request to process a callback from an external identity provider.
+ *
+ * @generated from message m8.platform.iam.v1.HandleAuthenticationCallbackRequest
+ */
+export declare type HandleAuthenticationCallbackRequest = Message<"m8.platform.iam.v1.HandleAuthenticationCallbackRequest"> & {
+  /**
+   * Required. Provider identifier that produced the callback.
+   *
+   * Example:
+   * - "google"
+   * - "saml-corp"
+   * - "mobile-id-at"
+   *
+   * @generated from field: string provider_id = 1;
+   */
+  providerId: string;
+
+  /**
+   * Optional. Authentication operation identifier.
+   *
+   * Some providers allow resolving the authentication operation from state,
+   * RelayState, or provider-specific transaction identifiers instead.
+   *
+   * @generated from field: string authentication_id = 2;
+   */
+  authenticationId: string;
+
+  /**
+   * Optional. OIDC or OAuth authorization code.
+   *
+   * The server exchanges this value internally if needed. It must not be
+   * returned in public responses.
+   *
+   * @generated from field: string code = 3;
+   */
+  code: string;
+
+  /**
+   * Optional. OIDC or OAuth state value.
+   *
+   * The server validates this value internally for callback correlation and
+   * anti-CSRF protection. It must not expose secrets.
+   *
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * Optional. SAML response payload.
+   *
+   * This field may contain a large base64-encoded SAMLResponse. The server must
+   * validate the assertion internally and must not return raw assertions in
+   * public responses.
+   *
+   * @generated from field: string saml_response = 5;
+   */
+  samlResponse: string;
+
+  /**
+   * Optional. SAML RelayState value.
+   *
+   * @generated from field: string relay_state = 6;
+   */
+  relayState: string;
+
+  /**
+   * Optional. Raw query parameters received from the provider callback.
+   *
+   * This is useful for provider-specific integrations. Do not store or expose
+   * secrets from this map in public responses.
+   *
+   * @generated from field: map<string, string> raw_query = 7;
+   */
+  rawQuery: { [key: string]: string };
+
+  /**
+   * Optional. Raw form parameters received from the provider callback.
+   *
+   * This is useful for SAML POST binding and provider-specific callbacks. Do not
+   * store or expose secrets from this map in public responses.
+   *
+   * @generated from field: map<string, string> raw_form = 8;
+   */
+  rawForm: { [key: string]: string };
+
+  /**
+   * Optional. Idempotency key for retrying callback handling safely.
+   *
+   * The same provider_id, callback state, code, relay_state, and request_id must
+   * resolve to the same callback result.
+   *
+   * @generated from field: string request_id = 9;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.HandleAuthenticationCallbackRequest.
+ * Use `create(HandleAuthenticationCallbackRequestSchema)` to create a new message.
+ */
+export declare const HandleAuthenticationCallbackRequestSchema: GenMessage<HandleAuthenticationCallbackRequest>;
+
+/**
+ * Response returned after processing an external provider callback.
+ *
+ * @generated from message m8.platform.iam.v1.HandleAuthenticationCallbackResponse
+ */
+export declare type HandleAuthenticationCallbackResponse = Message<"m8.platform.iam.v1.HandleAuthenticationCallbackResponse"> & {
+  /**
+   * Output only. Updated authentication snapshot.
+   *
+   * The snapshot must not contain provider tokens, raw assertions, client
+   * secrets, internal callback secrets, OTP codes, or passwords.
+   *
+   * @generated from field: m8.platform.iam.v1.Authentication authentication = 1;
+   */
+  authentication?: Authentication;
+
+  /**
+   * Output only. Optional redirect URI where the browser should be redirected
+   * after callback handling.
+   *
+   * This URI must be validated by the server against the original client
+   * configuration and callback state.
+   *
+   * @generated from field: string redirect_uri = 2;
+   */
+  redirectUri: string;
+
+  /**
+   * Output only. Indicates whether the provider callback completed the
+   * authentication operation.
+   *
+   * @generated from field: bool completed = 3;
+   */
+  completed: boolean;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.HandleAuthenticationCallbackResponse.
+ * Use `create(HandleAuthenticationCallbackResponseSchema)` to create a new message.
+ */
+export declare const HandleAuthenticationCallbackResponseSchema: GenMessage<HandleAuthenticationCallbackResponse>;
 
 /**
  * Metadata for the StartAuthentication long-running operation.
@@ -314,6 +549,129 @@ export declare const AuthenticationService: GenService<{
     methodKind: "unary";
     input: typeof CancelAuthenticationRequestSchema;
     output: typeof AuthenticationSchema;
+  },
+  /**
+   * Resends the current challenge when the selected method supports resend,
+   * such as SMS OTP or email OTP.
+   *
+   * The method does not create a new authentication operation and must not
+   * expose OTP codes or other challenge secrets. It is intended for active
+   * operations whose current_challenge allows resend.
+   *
+   * Allowed states:
+   * - CHALLENGE_DELIVERED
+   * - WAITING_FOR_USER
+   * - CHALLENGE_RETRY_REQUIRED
+   * - STEP_UP_REQUIRED
+   *
+   * State transition:
+   * - WAITING_FOR_USER -> CHALLENGE_DELIVERED or WAITING_FOR_USER
+   * - state_reason becomes AUTHENTICATION_STATE_REASON_OTP_RESENT
+   * - current_challenge resend metadata may be updated
+   * - update_time is updated and version is incremented
+   *
+   * Idempotency:
+   * - same authentication_id, challenge_id, and request_id returns the same
+   *   resend result
+   *
+   * Implementation TODO:
+   * - signal Temporal workflow with ResendChallengeSignal
+   * - let workflow enforce cooldown, rate limit, and provider policy
+   * - update current_challenge without exposing OTP codes or provider secrets
+   *
+   * Authorization:
+   * - caller must be allowed to operate on this authentication operation
+   * - public clients may resend only their own current challenge
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge
+   */
+  resendAuthenticationChallenge: {
+    methodKind: "unary";
+    input: typeof ResendAuthenticationChallengeRequestSchema;
+    output: typeof AuthenticationSchema;
+  },
+  /**
+   * Selects an allowed authentication method or provider for an existing
+   * authentication operation.
+   *
+   * This method prepares a new public-safe current_challenge but does not verify
+   * user identity by itself. It does not accept passwords, OTP codes, WebAuthn
+   * assertions, provider authorization codes, or provider tokens.
+   *
+   * Allowed states:
+   * - IDENTIFYING, when the subject is already sufficiently resolved
+   * - EVALUATING, when policy has already resolved allowed options
+   * - CHALLENGE_DELIVERED
+   * - WAITING_FOR_USER
+   * - CHALLENGE_RETRY_REQUIRED
+   * - STEP_UP_REQUIRED
+   *
+   * State transition:
+   * - current_challenge is replaced with a newly prepared challenge
+   * - state usually becomes CHALLENGE_PREPARING, CHALLENGE_DELIVERED, or
+   *   WAITING_FOR_USER
+   * - state_reason becomes AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
+   * - update_time is updated and version is incremented
+   *
+   * If the requested method or provider is not allowed, the operation is not
+   * changed and the server should return a command error or a safe
+   * Authentication.error with METHOD_NOT_ALLOWED or PROVIDER_NOT_ALLOWED.
+   *
+   * Implementation TODO:
+   * - signal Temporal workflow with SelectChallengeSignal
+   * - let workflow enforce allowed methods, providers, risk decision, and policy
+   * - prepare a new current_challenge without exposing secrets
+   *
+   * Authorization:
+   * - caller can select only methods and providers allowed by client policy,
+   *   user pool policy, risk decision, and current authentication state
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge
+   */
+  selectAuthenticationChallenge: {
+    methodKind: "unary";
+    input: typeof SelectAuthenticationChallengeRequestSchema;
+    output: typeof AuthenticationSchema;
+  },
+  /**
+   * Processes callbacks from external identity providers.
+   *
+   * Providers include OIDC, SAML, Mobile ID, bank ID, national ID, or custom
+   * providers. The method validates provider state internally and must not
+   * expose provider tokens, raw assertions, client secrets, or internal callback
+   * secrets in the response.
+   *
+   * Callback behavior:
+   * - validate provider_id
+   * - resolve Authentication by authentication_id, state, relay_state, or
+   *   provider transaction identifiers
+   * - validate state, relay state, nonce, anti-CSRF data, signatures, tokens, or
+   *   provider-specific proof internally
+   * - update state_reason to PROVIDER_CALLBACK_RECEIVED or
+   *   PROVIDER_CALLBACK_INVALID
+   * - transition through VERIFYING, FINALIZING, AUTHENTICATED, DENIED, BLOCKED,
+   *   or FAILED according to validation and policy
+   *
+   * Idempotency:
+   * - same provider_id, callback state, code, relay_state, and request_id returns
+   *   the same callback result
+   *
+   * Implementation TODO:
+   * - signal Temporal workflow with ProviderCallbackSignal
+   * - let workflow validate callback data and finish the provider step
+   *
+   * Authorization:
+   * - provider callbacks must be authenticated or validated through state,
+   *   signature, SAML validation, OIDC token validation, or provider-specific
+   *   verification
+   * - public clients must not be trusted to assert callback success
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.HandleAuthenticationCallback
+   */
+  handleAuthenticationCallback: {
+    methodKind: "unary";
+    input: typeof HandleAuthenticationCallbackRequestSchema;
+    output: typeof HandleAuthenticationCallbackResponseSchema;
   },
 }>;
 

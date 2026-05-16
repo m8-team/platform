@@ -5,6 +5,8 @@
 import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import type { AuthenticationChallengeInfo } from "./authentication_challenge_pb";
+import type { AuthenticationError, AuthenticationStateReason } from "./authentication_error_pb";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication.proto.
@@ -113,8 +115,13 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   state: Authentication_State;
 
   /**
-   * Output only. Challenge selected for this authentication operation.
-   * The value is always one of the defined non-zero enum values.
+   * Output only. Summary challenge type selected for this authentication operation.
+   *
+   * For detailed public-safe challenge parameters, use current_challenge. This
+   * field is kept for backward-compatible clients that only need the coarse
+   * challenge type.
+   *
+   * The value may be CHALLENGE_UNSPECIFIED before challenge selection.
    *
    * Example:
    * - OTP for one-time password authentication
@@ -208,6 +215,45 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   userId: string;
 
   /**
+   * Output only. Current challenge that the client or user must complete.
+   *
+   * This field contains only public-safe challenge parameters. It must not
+   * contain OTP codes, passwords, provider secrets, private tokens, or internal
+   * callback secrets.
+   *
+   * This field may be empty while the operation is in CREATED, INITIALIZING,
+   * IDENTIFYING, or EVALUATING.
+   *
+   * This field should be filled after the flow reaches CHALLENGE_PREPARING,
+   * CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
+   * STEP_UP_REQUIRED, or CALLBACK_PENDING.
+   *
+   * For terminal states, this field may remain filled as the last known
+   * challenge summary, but it must still contain only public-safe data.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationChallengeInfo current_challenge = 16;
+   */
+  currentChallenge?: AuthenticationChallengeInfo;
+
+  /**
+   * Output only. Machine-readable reason explaining the latest state transition.
+   *
+   * This value is safe to expose to clients and admin UI. It is used for both
+   * normal transitions, such as START_ACCEPTED or OTP_SENT, and problem
+   * transitions, such as PROVIDER_CALLBACK_INVALID.
+   *
+   * @generated from field: m8.platform.iam.v1.AuthenticationStateReason state_reason = 18;
+   */
+  stateReason: AuthenticationStateReason;
+
+  /**
+   * Output only. Error details for failed, denied, blocked, expired, or
+   * attempts-exceeded states.
+   *
+   * This field must not contain secrets, provider tokens, stack traces, OTP
+   * codes, passwords, or raw provider responses. CANCELED usually does not
+   * populate error because cancellation is a normal user or client action.
+   *
    * @generated from field: m8.platform.iam.v1.AuthenticationError error = 17;
    */
   error?: AuthenticationError;
@@ -242,9 +288,6 @@ export declare const AuthenticationSchema: GenMessage<Authentication>;
  * incremented. If the operation is already terminal, update_time and version
  * are not changed.
  *
- * TODO: Add an explicit state_reason when the authentication state reason
- * contract is introduced. Cancel is a normal user/client action and should not
- * populate error.
  *
  * @generated from enum m8.platform.iam.v1.Authentication.State
  */
@@ -675,35 +718,4 @@ export enum Authentication_AssuranceLevel {
  * Describes the enum m8.platform.iam.v1.Authentication.AssuranceLevel.
  */
 export declare const Authentication_AssuranceLevelSchema: GenEnum<Authentication_AssuranceLevel>;
-
-/**
- * @generated from message m8.platform.iam.v1.AuthenticationError
- */
-export declare type AuthenticationError = Message<"m8.platform.iam.v1.AuthenticationError"> & {
-  /**
-   * @generated from field: string code = 1;
-   */
-  code: string;
-
-  /**
-   * @generated from field: string message = 2;
-   */
-  message: string;
-
-  /**
-   * @generated from field: string provider_id = 3;
-   */
-  providerId: string;
-
-  /**
-   * @generated from field: string reason = 4;
-   */
-  reason: string;
-};
-
-/**
- * Describes the message m8.platform.iam.v1.AuthenticationError.
- * Use `create(AuthenticationErrorSchema)` to create a new message.
- */
-export declare const AuthenticationErrorSchema: GenMessage<AuthenticationError>;
 
