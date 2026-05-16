@@ -1,27 +1,16 @@
 openapi: 3.0.3
 info:
   title: Authentication API
-  description: Use this API to start authentication workflows and track their long-running operation state.
+  description: Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state.
   version: v1
 paths:
-  /v1/iam/authenticationCallbacks/{providerId}:
+  /v1/iam/authenticationCallbacks:handle:
     post:
-      summary: Handle callback
-      description: Processes callbacks from external identity providers and returns an updated authentication snapshot without exposing provider secrets or tokens.
+      tags:
+        - AuthenticationProviderCallbackService
+      summary: Handle provider callback
+      description: Internal normalized API that processes external provider callbacks without exposing provider secrets in public snapshots.
       operationId: HandleAuthenticationCallback
-      parameters:
-        - name: providerId
-          in: path
-          description: |-
-            Required. Provider identifier that produced the callback.
-
-             Example:
-             - "google"
-             - "saml-corp"
-             - "mobile-id-at"
-          required: true
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -34,63 +23,57 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HandleAuthenticationCallbackResponse'
-  /v1/iam/authentications/{authenticationId}:
-    get:
-      summary: Get
-      description: Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets.
-      operationId: GetAuthentication
-      parameters:
-        - name: authenticationId
-          in: path
-          description: |-
-            Required. Stable unique identifier of the authentication operation to read.
-             The value must be a valid UUID string.
-
-             The server returns the latest known aggregate snapshot. This request does
-             not change authentication state and is safe for client or BFF polling.
-
-             Example:
-             {
-               "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34"
-             }
-          required: true
-          schema:
-            type: string
+                $ref: '#/components/schemas/Operation'
+  /v1/iam/authenticationExperience:get:
+    post:
+      tags:
+        - AuthenticationService
+      summary: Get authentication experience
+      description: Returns dynamic login UI configuration, provider options, and public-safe method options.
+      operationId: GetAuthenticationExperience
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetAuthenticationExperienceRequest'
+        required: true
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Authentication'
-  /v1/iam/authentications/{authenticationId}/challenges/{challengeId}:resend:
-    post:
-      summary: Resend challenge
-      description: Resends the current challenge when the selected method supports resend. It does not create a new authentication operation or expose challenge secrets.
-      operationId: ResendAuthenticationChallenge
+                $ref: '#/components/schemas/AuthenticationExperience'
+  /v1/iam/authentications/{authenticationId}:
+    get:
+      tags:
+        - AuthenticationService
+      summary: Get authentication
+      description: Returns the latest public-safe authentication snapshot for polling.
+      operationId: GetAuthentication
       parameters:
         - name: authenticationId
           in: path
-          description: Required. Identifier of the authentication operation.
+          description: Required. Authentication identifier to read.
           required: true
           schema:
             type: string
-        - name: challengeId
-          in: path
-          description: |-
-            Required. Identifier of the challenge to resend.
-
-             The value must match Authentication.current_challenge.challenge_id.
-          required: true
+        - name: interactionToken
+          in: query
+          description: Required. Public interaction token returned by StartAuthentication.
           schema:
             type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResendAuthenticationChallengeRequest'
-        required: true
+        - name: view
+          in: query
+          description: Optional. Requested projection. Defaults to PUBLIC.
+          schema:
+            enum:
+              - AUTHENTICATION_VIEW_UNSPECIFIED
+              - AUTHENTICATION_VIEW_PUBLIC
+              - AUTHENTICATION_VIEW_ADMIN
+              - AUTHENTICATION_VIEW_INTERNAL
+            type: string
+            format: enum
       responses:
         '200':
           description: OK
@@ -100,15 +83,15 @@ paths:
                 $ref: '#/components/schemas/Authentication'
   /v1/iam/authentications/{authenticationId}:cancel:
     post:
-      summary: Cancel
-      description: Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged.
+      tags:
+        - AuthenticationService
+      summary: Cancel authentication
+      description: Cancels an active authentication and returns command-level operation tracking metadata.
       operationId: CancelAuthentication
       parameters:
         - name: authenticationId
           in: path
-          description: |-
-            Required. Stable unique identifier of the authentication operation to cancel.
-             The value must be a valid UUID string.
+          description: Required. Authentication identifier.
           required: true
           schema:
             type: string
@@ -124,16 +107,45 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Authentication'
+                $ref: '#/components/schemas/Operation'
+  /v1/iam/authentications/{authenticationId}:resendChallenge:
+    post:
+      tags:
+        - AuthenticationService
+      summary: Resend challenge
+      description: Resends the current challenge and returns command-level operation tracking metadata.
+      operationId: ResendAuthenticationChallenge
+      parameters:
+        - name: authenticationId
+          in: path
+          description: Required. Authentication identifier.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendAuthenticationChallengeRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
   /v1/iam/authentications/{authenticationId}:selectChallenge:
     post:
+      tags:
+        - AuthenticationService
       summary: Select challenge
-      description: Selects an allowed authentication method or provider and prepares a new public-safe current challenge without verifying user identity.
+      description: Selects an allowed authentication method or provider and returns command-level operation tracking metadata.
       operationId: SelectAuthenticationChallenge
       parameters:
         - name: authenticationId
           in: path
-          description: Required. Identifier of the authentication operation.
+          description: Required. Authentication identifier.
           required: true
           schema:
             type: string
@@ -149,11 +161,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Authentication'
+                $ref: '#/components/schemas/Operation'
+  /v1/iam/authentications/{authenticationId}:submitChallenge:
+    post:
+      tags:
+        - AuthenticationService
+      summary: Submit challenge
+      description: Submits a challenge response and returns command-level operation tracking metadata.
+      operationId: SubmitAuthenticationChallenge
+      parameters:
+        - name: authenticationId
+          in: path
+          description: Required. Authentication identifier.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAuthenticationChallengeRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
   /v1/iam/authentications:start:
     post:
-      summary: Start
-      description: Starts a new authentication workflow and returns a long-running operation for tracking progress.
+      tags:
+        - AuthenticationService
+      summary: Start authentication
+      description: Starts asynchronous authentication command processing and returns command-level operation tracking metadata.
       operationId: StartAuthentication
       requestBody:
         content:
@@ -197,11 +238,7 @@ components:
         bindingMessage:
           readOnly: true
           type: string
-          description: |-
-            Output only. Human-readable binding message shown to the user.
-
-             Example:
-             "Confirm login to M8 Console: 493-118"
+          description: Output only. Binding message shown to the user.
         approvalChannel:
           readOnly: true
           enum:
@@ -216,248 +253,89 @@ components:
         approvalDeviceHint:
           readOnly: true
           type: string
-          description: |-
-            Output only. Masked device or destination hint.
-
-             Example:
-             "iPhone 15 Pro"
+          description: Output only. Masked device or destination hint.
         expiresInSeconds:
           readOnly: true
           type: integer
           description: Output only. Number of seconds until the approval challenge expires.
           format: int32
       description: ApprovalChallenge contains public parameters for approval-style challenges.
-    Authentication:
+    ApprovalChallengeResponse:
       required:
-        - clientId
-        - workflowId
-        - requestedAssuranceLevel
+        - approved
+      type: object
+      properties:
+        approved:
+          type: boolean
+          description: Required. True when the user approved the challenge, false when denied.
+        approvalToken:
+          type: string
+          description: Optional. Opaque approval token issued to a trusted device or provider.
+        proof:
+          type: string
+          description: Optional. Signed proof produced by a trusted device, app, or provider.
+        denialReason:
+          type: string
+          description: Optional. Safe denial reason when approved is false.
+      description: |-
+        ApprovalChallengeResponse contains an approval or denial result.
+
+         Never accept approved=true as sufficient proof. The server must verify
+         approval_token or proof against a trusted provider, device binding, or signed
+         approval channel. SIM Push, Mobile ID, and push approval results should arrive
+         through trusted provider callbacks or contain signed proof.
+    Authentication:
       type: object
       properties:
         id:
-          type: string
-          description: |-
-            Identifier. Stable unique identifier of the authentication operation.
-
-             Example:
-             - generated when the authentication operation is created
-             - used to query or correlate authentication progress
-             - remains unchanged for the lifetime of the operation
-        projectId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Immutable project identifier that owns this authentication operation.
-             The server resolves this value from client_id and client configuration.
-
-             Example:
-             - used to isolate authentication data by project
-             - used to load project-scoped authentication configuration
-             - remains unchanged for the lifetime of the operation
-        userPoolId:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Immutable user pool identifier where the identity must be resolved.
-             The server resolves this value from client_id and client configuration.
-
-             Example:
-             - selects the identity namespace for the authentication operation
-             - scopes user lookup, authenticators, and provider links
-             - remains unchanged for the lifetime of the operation
+          description: Identifier. Stable server-generated authentication identifier.
         clientId:
+          readOnly: true
           type: string
           description: |-
-            Required. Immutable client application identifier that initiated authentication.
-             The value must be a UUID.
+            Output only. M8 application client UUID that started the authentication.
 
-             Example:
-             - first-party web application
-             - first-party mobile application
-             - backend service acting as an authentication client
-             - external OIDC client
-        workflowId:
-          type: string
+             This is not the OAuth public client_id string used by external relying
+             parties unless that OAuth client is represented by an M8 application client.
+        subject:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationSubjectSnapshot'
           description: |-
-            Required. Temporal workflow identifier that executes this authentication operation.
+            Output only. Public-safe subject projection.
 
-             Example:
-             - assigned when the authentication workflow is started
-             - used to signal or query the workflow execution
-             - remains stable for the lifetime of the workflow
-        runId:
+             Raw email, phone, username, login_hint, external provider subject, and
+             issuer-scoped identifiers must not be returned in this snapshot.
+        purpose:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_PURPOSE_UNSPECIFIED
+            - AUTHENTICATION_PURPOSE_PRIMARY_LOGIN
+            - AUTHENTICATION_PURPOSE_REAUTHENTICATION
+            - AUTHENTICATION_PURPOSE_STEP_UP
+            - AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY
+            - AUTHENTICATION_PURPOSE_IDENTITY_LINKING
+            - AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION
           type: string
-          description: |-
-            Optional. Temporal run identifier for the concrete workflow execution.
-             May be empty when the authentication operation has just been created.
-
-             Example:
-             - assigned when the workflow run is started
-             - used with workflow_id to correlate worker logs and callbacks
-             - identifies the run that produced the current authentication state
+          description: Output only. Resolved purpose of this authentication flow.
+          format: enum
         state:
           readOnly: true
           enum:
-            - STATE_UNSPECIFIED
-            - CREATED
-            - INITIALIZING
-            - IDENTIFYING
-            - EVALUATING
-            - CHALLENGE_PREPARING
-            - CHALLENGE_DELIVERED
-            - WAITING_FOR_USER
-            - VERIFYING
-            - CHALLENGE_RETRY_REQUIRED
-            - STEP_UP_REQUIRED
-            - CALLBACK_PENDING
-            - FINALIZING
-            - AUTHENTICATED
-            - DENIED
-            - CANCELED
-            - EXPIRED
-            - ATTEMPTS_EXCEEDED
-            - BLOCKED
-            - FAILED
+            - AUTHENTICATION_STATE_UNSPECIFIED
+            - AUTHENTICATION_STATE_STARTING
+            - AUTHENTICATION_STATE_CHALLENGE_REQUIRED
+            - AUTHENTICATION_STATE_CHALLENGE_SENT
+            - AUTHENTICATION_STATE_VERIFYING
+            - AUTHENTICATION_STATE_AUTHENTICATED
+            - AUTHENTICATION_STATE_FAILED
+            - AUTHENTICATION_STATE_CANCELLED
+            - AUTHENTICATION_STATE_EXPIRED
           type: string
-          description: |-
-            Output only. Current lifecycle state of the authentication operation.
-             The value is always one of the defined non-zero enum values.
-
-             Example:
-             - CHALLENGE_DELIVERED after the challenge is exposed
-             - WAITING_FOR_USER while user action is pending
-             - AUTHENTICATED after successful completion
+          description: Output only. Public lifecycle state.
           format: enum
-        challenge:
-          readOnly: true
-          enum:
-            - CHALLENGE_UNSPECIFIED
-            - OTP
-            - APPROVAL
-            - MOBILE_ID
-            - WEBAUTHN
-            - OIDC
-            - SAML
-            - PASSWORD
-          type: string
-          description: |-
-            Output only. Summary challenge type selected for this authentication operation.
-
-             For detailed public-safe challenge parameters, use current_challenge. This
-             field is kept for backward-compatible clients that only need the coarse
-             challenge type.
-
-             The value may be CHALLENGE_UNSPECIFIED before challenge selection.
-
-             Example:
-             - OTP for one-time password authentication
-             - WEBAUTHN for passkey or security key authentication
-             - PASSWORD for password-based authentication
-          format: enum
-        requestedAssuranceLevel:
-          enum:
-            - ASSURANCE_LEVEL_UNSPECIFIED
-            - AAL0
-            - AAL1
-            - AAL2
-            - AAL3
-          type: string
-          description: |-
-            Required. Minimum authentication assurance level requested for this operation.
-             The value must be a defined assurance level stronger than AAL0.
-
-             Example:
-             - AAL1 for normal login
-             - AAL2 for sensitive operation
-             - AAL3 for privileged operation
-          format: enum
-        achievedAssuranceLevel:
-          readOnly: true
-          enum:
-            - ASSURANCE_LEVEL_UNSPECIFIED
-            - AAL0
-            - AAL1
-            - AAL2
-            - AAL3
-          type: string
-          description: |-
-            Output only. Authentication assurance level actually achieved by this operation.
-             Defaults to AAL0 when no user assurance has been established.
-             The value is always one of the defined non-zero enum values.
-
-             Example:
-             - AAL0 when the operation has just been created
-             - requested AAL2, achieved AAL2 after OTP + password
-             - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
-          format: enum
-        createTime:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Time when the authentication operation was created.
-             Remains unchanged for the lifetime of the operation.
-          format: date-time
-        updateTime:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Time when the authentication operation was last updated.
-
-             Example:
-             - state transition was persisted
-             - challenge delivery result was recorded
-             - authentication completion or failure was recorded
-          format: date-time
-        expireTime:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Time when the authentication operation expires.
-
-             Example:
-             - user action must be completed before this time
-             - stale authentication operations can be failed after this time
-          format: date-time
-        version:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Monotonic version of the authentication operation.
-             New authentication operations start with version 1.
-
-             Example:
-             - incremented after each persisted state transition
-             - used to build etag and detect stale aggregate snapshots
-        userId:
-          readOnly: true
-          type: string
-          description: |-
-            Output only. Stable unique identifier of the resolved M8 Identity user.
-
-             Empty until the authentication operation resolves the claimant
-             to a user inside user_pool_id.
-
-             Once set, this value must not change for the lifetime of the operation.
-        currentChallenge:
-          readOnly: true
-          allOf:
-            - $ref: '#/components/schemas/AuthenticationChallengeInfo'
-          description: |-
-            Output only. Current challenge that the client or user must complete.
-
-             This field contains only public-safe challenge parameters. It must not
-             contain OTP codes, passwords, provider secrets, private tokens, or internal
-             callback secrets.
-
-             This field may be empty while the operation is in CREATED, INITIALIZING,
-             IDENTIFYING, or EVALUATING.
-
-             This field should be filled after the flow reaches CHALLENGE_PREPARING,
-             CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING, CHALLENGE_RETRY_REQUIRED,
-             STEP_UP_REQUIRED, or CALLBACK_PENDING.
-
-             For terminal states, this field may remain filled as the last known
-             challenge summary, but it must still contain only public-safe data.
         stateReason:
           readOnly: true
           enum:
@@ -469,9 +347,9 @@ components:
             - AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED
             - AUTHENTICATION_STATE_REASON_RISK_BLOCKED
             - AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED
-            - AUTHENTICATION_STATE_REASON_OTP_SENT
-            - AUTHENTICATION_STATE_REASON_OTP_RESENT
-            - AUTHENTICATION_STATE_REASON_OTP_INVALID
+            - AUTHENTICATION_STATE_REASON_CHALLENGE_SENT
+            - AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT
+            - AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID
             - AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED
             - AUTHENTICATION_STATE_REASON_USER_APPROVED
             - AUTHENTICATION_STATE_REASON_USER_DENIED
@@ -482,52 +360,107 @@ components:
             - AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID
             - AUTHENTICATION_STATE_REASON_AUTHENTICATED
             - AUTHENTICATION_STATE_REASON_EXPIRED
-            - AUTHENTICATION_STATE_REASON_CANCELED
-            - AUTHENTICATION_STATE_REASON_INTERNAL_ERROR
+            - AUTHENTICATION_STATE_REASON_CANCELLED
+            - AUTHENTICATION_STATE_REASON_FAILED
             - AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
             - AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE
             - AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED
             - AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED
           type: string
-          description: |-
-            Output only. Machine-readable reason explaining the latest state transition.
-
-             This value is safe to expose to clients and admin UI. It is used for both
-             normal transitions, such as START_ACCEPTED or OTP_SENT, and problem
-             transitions, such as PROVIDER_CALLBACK_INVALID.
+          description: Output only. Machine-readable reason for the latest state transition.
           format: enum
+        currentChallenge:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationChallengeInfo'
+          description: |-
+            Output only. Current challenge that the UI or client must complete.
+
+             This is the source of truth for submit flow and dynamic login UI. It must
+             never contain OTP codes, passwords, provider tokens, raw callback payloads,
+             private WebAuthn session secrets, or private risk data.
+        availableChallenges:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthenticationChallengeOption'
+          description: |-
+            Output only. Challenge options that the UI may render or allow selecting.
+
+             The server may include unavailable options with safe reasons. The list must
+             not reveal sensitive authenticator existence unless policy allows it.
         error:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/AuthenticationError'
           description: |-
-            Output only. Error details for failed, denied, blocked, expired, or
-             attempts-exceeded states.
+            Output only. Terminal or actionable error details.
 
-             This field must not contain secrets, provider tokens, stack traces, OTP
-             codes, passwords, or raw provider responses. CANCELED usually does not
-             populate error because cancellation is a normal user or client action.
+             Public clients may receive a generic message and code even when internal
+             admin or audit views retain a more precise reason to prevent enumeration.
+        result:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationResult'
+          description: Output only. Result of a successful authentication.
+        context:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationContext'
+          description: |-
+            Output only. Server-normalized context used for policy, audit, risk, UI,
+             and protocol handoff decisions.
+        createTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when authentication was created.
+          format: date-time
+        updateTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when authentication was last updated.
+          format: date-time
+        expireTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when authentication expires.
+          format: date-time
         etag:
           readOnly: true
           type: string
-      description: |-
-        Authentication stores the current state of a single authentication operation.
-
-         Example:
-         - authentication was started by an API request
-         - lifecycle state is updated while the operation is processed
-         - selected challenge stays attached to the operation until completion
-    AuthenticationChallengeInfo:
-      type: object
-      properties:
-        challengeId:
+          description: Output only. Entity tag for optimistic concurrency on mutating commands.
+        requestedAssuranceLevel:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
+          type: string
+          description: Output only. Assurance level the server resolved for this authentication.
+          format: enum
+        version:
           readOnly: true
           type: string
           description: |-
-            Output only. Server-generated identifier of this challenge.
+            Output only. Monotonic aggregate version for event ordering, outbox
+             publishing, replay diagnostics, and admin/debug projections.
+      description: |-
+        Authentication is the public-safe snapshot of a single authentication flow.
 
-             The client must send this identifier back when submitting a challenge
-             response in a later API call.
+         It is suitable for public SDKs, mobile and web login UI, backend integration,
+         Keycloak/OIDC/CIBA handoff, and polling while an operation is in progress.
+         This message must not expose internal execution identifiers, provider raw
+         payloads, OTP codes, passwords, bearer tokens, raw fingerprints, or private
+         risk features.
+    AuthenticationChallengeInfo:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          description: Output only. Server-generated challenge identifier.
         kind:
           readOnly: true
           enum:
@@ -539,7 +472,7 @@ components:
             - AUTHENTICATION_CHALLENGE_KIND_WEBAUTHN_ASSERTION
             - AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
           type: string
-          description: Output only. Kind of client or user action required by this challenge.
+          description: Output only. Kind of client or user action required.
           format: enum
         method:
           readOnly: true
@@ -559,68 +492,103 @@ components:
           type: string
           description: Output only. Authentication method selected for this challenge.
           format: enum
+        methodId:
+          readOnly: true
+          type: string
+          description: Output only. Configured method or plugin identifier.
         providerId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Identifier of the identity provider or channel provider used
-             by this challenge.
-
-             Example:
-             - "google"
-             - "m8-sms"
-             - "mobile-id-at"
-        createTime:
+          description: Output only. Provider, channel, or integration identifier.
+        deliveryChannel:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
+            - AUTHENTICATION_DELIVERY_CHANNEL_CLIENT
+            - AUTHENTICATION_DELIVERY_CHANNEL_SMS
+            - AUTHENTICATION_DELIVERY_CHANNEL_EMAIL
+            - AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP
+            - AUTHENTICATION_DELIVERY_CHANNEL_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID
+            - AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN
+            - AUTHENTICATION_DELIVERY_CHANNEL_OIDC
+            - AUTHENTICATION_DELIVERY_CHANNEL_SAML
+          type: string
+          description: Output only. Delivery channel for this challenge.
+          format: enum
+        maskedDestination:
           readOnly: true
           type: string
-          description: Output only. Time when this challenge was created.
-          format: date-time
+          description: Output only. Masked destination where safe to expose.
         expireTime:
           readOnly: true
           type: string
           description: Output only. Time when this challenge expires.
           format: date-time
-        attemptsRemaining:
-          readOnly: true
-          type: integer
-          description: |-
-            Output only. Number of attempts remaining for this challenge.
-
-             For challenges that do not support attempts, this value may be zero.
-          format: int32
-        maskedDestination:
+        resendAvailableTime:
           readOnly: true
           type: string
-          description: |-
-            Output only. Masked destination where the challenge was delivered.
-
-             Example:
-             - "+43******4567"
-             - "s***@example.com"
-             - "iPhone 15 Pro"
-        availableActions:
+          description: Output only. Time when resend becomes available.
+          format: date-time
+        attemptCount:
+          readOnly: true
+          type: integer
+          description: Output only. Number of attempts already submitted for this challenge.
+          format: int32
+        remainingAttempts:
+          readOnly: true
+          type: integer
+          description: Output only. Number of attempts remaining for this challenge.
+          format: int32
+        actions:
+          readOnly: true
+          type: array
+          items:
+            enum:
+              - AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED
+              - AUTHENTICATION_CHALLENGE_ACTION_SUBMIT
+              - AUTHENTICATION_CHALLENGE_ACTION_RESEND
+              - AUTHENTICATION_CHALLENGE_ACTION_CANCEL
+              - AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD
+            type: string
+            format: enum
+          description: Output only. Actions currently available for this challenge.
+        capabilities:
+          readOnly: true
+          type: array
+          items:
+            enum:
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD
+            type: string
+            format: enum
+          description: Output only. Typed UI and command capabilities for this challenge.
+        customCapabilities:
           readOnly: true
           type: array
           items:
             type: string
-          description: |-
-            Output only. Actions currently available for this challenge.
-
-             Example:
-             - "submit"
-             - "resend"
-             - "cancel"
-             - "select_another_method"
+          description: Output only. Custom extension capability labels for plugin methods.
+        password:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/PasswordChallenge'
+          description: Output only. Public parameters for password input.
         otp:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/OtpChallenge'
-          description: Output only. Public parameters for OTP challenges.
+          description: Output only. Public parameters for OTP input.
         webauthn:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/WebAuthnChallenge'
-          description: Output only. Public parameters for WebAuthn/passkey assertion challenges.
+          description: Output only. Public parameters for WebAuthn/passkey assertion.
         redirect:
           readOnly: true
           allOf:
@@ -636,226 +604,557 @@ components:
           allOf:
             - $ref: '#/components/schemas/MobileIdChallenge'
           description: Output only. Public parameters for Mobile ID challenges.
+        providerCallback:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/ProviderCallbackChallenge'
+          description: Output only. Public parameters for provider callback waits.
       description: |-
-        AuthenticationChallengeInfo contains public-safe details of the current
-         authentication challenge.
+        AuthenticationChallengeInfo is the source of truth for current challenge UI
+         and submit flow.
 
-         It is intended for clients, BFFs, and SDKs to understand what action is
-         required next. It must not contain OTP codes, passwords, provider secrets,
-         private tokens, internal callback secrets, raw risk features, raw device
-         fingerprints, or private WebAuthn server-side session secrets.
+         It must not contain OTP codes, passwords, provider secrets, private tokens,
+         internal callback secrets, raw risk features, raw device fingerprints, or
+         private WebAuthn server-side session secrets.
+    AuthenticationChallengeOption:
+      type: object
+      properties:
+        method:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_METHOD_UNSPECIFIED
+            - AUTHENTICATION_METHOD_PASSWORD
+            - AUTHENTICATION_METHOD_SMS_OTP
+            - AUTHENTICATION_METHOD_EMAIL_OTP
+            - AUTHENTICATION_METHOD_TOTP
+            - AUTHENTICATION_METHOD_PUSH_APPROVAL
+            - AUTHENTICATION_METHOD_PUSH_OTP
+            - AUTHENTICATION_METHOD_SIM_PUSH
+            - AUTHENTICATION_METHOD_MOBILE_ID
+            - AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
+            - AUTHENTICATION_METHOD_OIDC
+            - AUTHENTICATION_METHOD_SAML
+          type: string
+          description: Output only. Authentication method represented by this option.
+          format: enum
+        methodId:
+          readOnly: true
+          type: string
+          description: |-
+            Output only. Configured method or plugin identifier.
+
+             Examples:
+             - "exolve_sms"
+             - "mts_simpush"
+             - "company_passkey"
+             - "google_oidc"
+        providerId:
+          readOnly: true
+          type: string
+          description: Output only. Provider, channel, or integration identifier.
+        kind:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED
+            - AUTHENTICATION_CHALLENGE_KIND_PASSWORD_INPUT
+            - AUTHENTICATION_CHALLENGE_KIND_OTP_INPUT
+            - AUTHENTICATION_CHALLENGE_KIND_APPROVAL
+            - AUTHENTICATION_CHALLENGE_KIND_REDIRECT
+            - AUTHENTICATION_CHALLENGE_KIND_WEBAUTHN_ASSERTION
+            - AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK
+          type: string
+          description: Output only. Challenge kind the client should expect for this option.
+          format: enum
+        displayName:
+          readOnly: true
+          type: string
+          description: Output only. Human-readable method or provider display name.
+        priority:
+          readOnly: true
+          type: integer
+          description: Output only. UI ordering priority. Lower values should be rendered first.
+          format: int32
+        available:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether this option can currently be selected.
+        unavailableReason:
+          readOnly: true
+          type: string
+          description: Output only. Safe explanation shown when available is false.
+        maskedDestination:
+          readOnly: true
+          type: string
+          description: Output only. Masked destination if policy allows exposing it.
+        deliveryChannel:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
+            - AUTHENTICATION_DELIVERY_CHANNEL_CLIENT
+            - AUTHENTICATION_DELIVERY_CHANNEL_SMS
+            - AUTHENTICATION_DELIVERY_CHANNEL_EMAIL
+            - AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP
+            - AUTHENTICATION_DELIVERY_CHANNEL_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID
+            - AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN
+            - AUTHENTICATION_DELIVERY_CHANNEL_OIDC
+            - AUTHENTICATION_DELIVERY_CHANNEL_SAML
+          type: string
+          description: Output only. Delivery channel used by this option.
+          format: enum
+        capabilities:
+          readOnly: true
+          type: array
+          items:
+            enum:
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI
+              - AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD
+            type: string
+            format: enum
+          description: Output only. Typed UI and command capabilities.
+        customCapabilities:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Custom extension capability labels for plugin methods.
+        hints:
+          readOnly: true
+          type: object
+          additionalProperties:
+            type: string
+          description: Output only. Additional public-safe UI hints.
+        recommended:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether the UI should highlight this option.
+      description: |-
+        AuthenticationChallengeOption describes a public-safe method/provider option
+         for dynamic login UI.
+    AuthenticationChallengeResponse:
+      type: object
+      properties:
+        otp:
+          allOf:
+            - $ref: '#/components/schemas/OtpChallengeResponse'
+          description: OTP code submitted by the user.
+        password:
+          allOf:
+            - $ref: '#/components/schemas/PasswordChallengeResponse'
+          description: Password submitted by the user.
+        webauthn:
+          allOf:
+            - $ref: '#/components/schemas/WebAuthnAssertionResponse'
+          description: WebAuthn assertion produced by the browser or platform authenticator.
+        approval:
+          allOf:
+            - $ref: '#/components/schemas/ApprovalChallengeResponse'
+          description: Approval result submitted by a trusted device, provider, or app.
+      description: |-
+        AuthenticationChallengeResponse contains request-only response data for the
+         current challenge.
+
+         The selected oneof must match Authentication.current_challenge.kind and
+         Authentication.current_challenge.method. The server enforces that relation
+         against the current authentication state and challenge id.
     AuthenticationContext:
       type: object
       properties:
         request:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/RequestContext'
-          description: |-
-            Optional. Request-level metadata supplied by the client, gateway, or BFF.
-             It is used for idempotency, tracing, rate limiting, audit correlation, and
-             workflow orchestration.
-        client:
-          allOf:
-            - $ref: '#/components/schemas/ClientContext'
-          description: |-
-            Optional. Client application context resolved from StartAuthenticationRequest.client_id.
-             Server-resolved fields in this message describe the effective client
-             configuration used to select login UI, providers, methods, and policies.
+          description: Output only. Normalized request context.
         session:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/SessionContext'
-          description: |-
-            Optional. Session context used for re-authentication, max_age checks, and
-             step-up decisions. Caller-provided session hints must be verified by the
-             server before they are used as security signals.
+          description: Output only. Normalized session context.
         resource:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/ResourceContext'
-          description: |-
-            Optional. Tenant, resource, and audience context for the operation that
-             requires authentication. It is used by risk policy, authorization handoff,
-             and audit.
+          description: Output only. Normalized resource and tenant context.
         interaction:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/InteractionContext'
-          description: |-
-            Optional. Interaction and UI hints used to choose the login experience and
-             protocol presentation mode. These hints must not be used as proof of user or
-             authenticator state.
+          description: Output only. Normalized UI and interaction context.
         device:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/DeviceContext'
-          description: |-
-            Optional. Device, browser, SDK, and app hints used for UX, risk scoring, and
-             audit. This message stores identifiers and normalized hints, not raw device
-             fingerprint payloads.
+          description: Output only. Normalized device, browser, app, and SDK context.
         network:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/NetworkContext'
-          description: |-
-            Optional. Network and geolocation hints used for fraud detection, adaptive
-             MFA, rate limiting, and audit. Gateway-provided values must be normalized
-             and verified against the trusted proxy chain.
+          description: Output only. Normalized network and geolocation context.
         oidc:
+          readOnly: true
           allOf:
             - $ref: '#/components/schemas/OidcContext'
-          description: |-
-            Optional. OIDC/OAuth protocol parameters that influenced the authentication
-             request. The server maps acr_values to normalized assurance requirements.
-        risk:
+          description: Output only. Normalized OIDC/OAuth context.
+        ciba:
+          readOnly: true
           allOf:
-            - $ref: '#/components/schemas/RiskContext'
-          description: |-
-            Optional. Safe summary of the risk decision associated with this
-             authentication. Raw model features and private scoring data must remain in
-             M8 Risk Decision.
-        labels:
-          type: object
-          additionalProperties:
-            type: string
-          description: |-
-            Optional. Non-sensitive labels for filtering, routing, analytics, and audit.
-             Labels must not contain passwords, OTP codes, raw tokens, or private risk
-             model features.
+            - $ref: '#/components/schemas/CibaContext'
+          description: Output only. Normalized CIBA context.
+        transaction:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/TransactionContext'
+          description: Output only. Normalized transaction confirmation context.
       description: |-
-        AuthenticationContext contains decision input for an authentication operation.
+        AuthenticationContext is the public-safe server-normalized output context.
 
-         It combines request, client, session, device, network, protocol, resource,
-         and risk signals used by Authentication Service, Risk Decision, dynamic login
-         UI, step-up policy, rate limiting, audit, and workflow orchestration.
-
-         The context is intentionally partial: different callers and server-side
-         enrichment stages can fill different sections. It must not contain passwords,
-         OTP codes, raw provider tokens, callback secrets, raw fingerprint payloads, or
-         private risk model features.
+         It must not blindly echo raw client input and must not contain risk/debug
+         fields, raw provider tokens, raw callback payloads, raw device fingerprints,
+         passwords, OTP codes, or bearer session secrets.
     AuthenticationError:
       type: object
       properties:
         code:
           readOnly: true
+          enum:
+            - AUTHENTICATION_ERROR_CODE_UNSPECIFIED
+            - AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED
+            - AUTHENTICATION_ERROR_CODE_INVALID_CREDENTIALS
+            - AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED
+            - AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED
+            - AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID
+            - AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED
+            - AUTHENTICATION_ERROR_CODE_EXPIRED
+            - AUTHENTICATION_ERROR_CODE_BLOCKED
+            - AUTHENTICATION_ERROR_CODE_DENIED
+            - AUTHENTICATION_ERROR_CODE_INTERNAL
+            - AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND
+            - AUTHENTICATION_ERROR_CODE_USER_NOT_FOUND
+            - AUTHENTICATION_ERROR_CODE_PHONE_NOT_FOUND
+            - AUTHENTICATION_ERROR_CODE_EMAIL_NOT_FOUND
+            - AUTHENTICATION_ERROR_CODE_PROVIDER_ACCOUNT_NOT_FOUND
+            - AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE
           type: string
-          description: |-
-            Output only. Stable machine-readable error code.
-
-             Example:
-             - "subject_not_found"
-             - "method_not_allowed"
-             - "provider_callback_invalid"
-             - "attempts_exceeded"
+          description: Output only. Typed error code for SDK branching.
+          format: enum
         message:
           readOnly: true
           type: string
-          description: |-
-            Output only. Safe human-readable error message.
-
-             This message must not contain stack traces, secrets, tokens, OTP codes,
-             passwords, or raw provider responses.
-        reason:
+          description: Output only. Safe human-readable error message.
+        retryable:
+          readOnly: true
+          type: boolean
+          description: Output only. Indicates whether retrying may succeed.
+        visibility:
           readOnly: true
           enum:
-            - AUTHENTICATION_STATE_REASON_UNSPECIFIED
-            - AUTHENTICATION_STATE_REASON_START_ACCEPTED
-            - AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED
-            - AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND
-            - AUTHENTICATION_STATE_REASON_RISK_ALLOWED
-            - AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED
-            - AUTHENTICATION_STATE_REASON_RISK_BLOCKED
-            - AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED
-            - AUTHENTICATION_STATE_REASON_OTP_SENT
-            - AUTHENTICATION_STATE_REASON_OTP_RESENT
-            - AUTHENTICATION_STATE_REASON_OTP_INVALID
-            - AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED
-            - AUTHENTICATION_STATE_REASON_USER_APPROVED
-            - AUTHENTICATION_STATE_REASON_USER_DENIED
-            - AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED
-            - AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED
-            - AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID
-            - AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT
-            - AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID
-            - AUTHENTICATION_STATE_REASON_AUTHENTICATED
-            - AUTHENTICATION_STATE_REASON_EXPIRED
-            - AUTHENTICATION_STATE_REASON_CANCELED
-            - AUTHENTICATION_STATE_REASON_INTERNAL_ERROR
-            - AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED
-            - AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE
-            - AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED
-            - AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED
+            - AUTHENTICATION_ERROR_VISIBILITY_UNSPECIFIED
+            - AUTHENTICATION_ERROR_VISIBILITY_PUBLIC
+            - AUTHENTICATION_ERROR_VISIBILITY_ADMIN
+            - AUTHENTICATION_ERROR_VISIBILITY_INTERNAL
           type: string
-          description: Output only. State reason associated with this error.
+          description: Output only. Visibility scope for the error details.
           format: enum
         providerId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Provider related to the error, if any.
-
-             Example:
-             - "google"
-             - "saml-corp"
-             - "mobile-id-at"
-        retryable:
+          description: Output only. Provider related to the error, if any.
+        providerErrorCode:
           readOnly: true
-          type: boolean
-          description: Output only. Indicates whether retrying the same operation may succeed.
+          type: string
+          description: Output only. Safe provider-level error code.
+        details:
+          readOnly: true
+          type: object
+          additionalProperties:
+            type: string
+          description: Output only. Additional public-safe structured details.
       description: |-
-        AuthenticationError contains safe error details for terminal or problem
-         states.
+        AuthenticationError contains safe terminal or actionable error details.
 
          It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
-         provider responses, or private risk model details.
-    AuthenticationStartOptions:
+         provider responses, SAML assertions, or private risk model details. Public
+         clients may receive generic messages even when admin/internal views retain a
+         precise code and details. For PUBLIC projection, sensitive existence errors
+         such as USER_NOT_FOUND, EMAIL_NOT_FOUND, PHONE_NOT_FOUND, SUBJECT_NOT_FOUND,
+         and PROVIDER_ACCOUNT_NOT_FOUND must be mapped to
+         AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED or
+         AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE.
+    AuthenticationExperience:
       type: object
       properties:
-        loginExperienceVersion:
+        clientId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Login experience version requested by the client.
-
-             Example:
-             - "default"
-             - "passkey-first"
-             - "passwordless-v2"
-        requestedProviderId:
+          description: Output only. Effective M8 application client UUID.
+        projectId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Preferred authentication provider identifier.
-
-             Example:
-             - WebAuthn provider id for passkey authentication
-             - OIDC provider id for external identity provider login
-             - Mobile ID provider id for mobile operator authentication
-        requestedMethod:
+          description: Output only. Effective project id.
+        userPoolId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Preferred authentication method requested by the client.
+          description: Output only. Effective user pool id.
+        mode:
+          readOnly: true
+          enum:
+            - LOGIN_EXPERIENCE_MODE_UNSPECIFIED
+            - LOGIN_EXPERIENCE_MODE_IDENTIFIER_FIRST
+            - LOGIN_EXPERIENCE_MODE_PASSWORDLESS_FIRST
+            - LOGIN_EXPERIENCE_MODE_PASSKEY_FIRST
+            - LOGIN_EXPERIENCE_MODE_PROVIDER_FIRST
+          type: string
+          description: Output only. Login UI mode selected by policy.
+          format: enum
+        allowedSubjectTypes:
+          readOnly: true
+          type: array
+          items:
+            enum:
+              - TYPE_UNSPECIFIED
+              - USER_ID
+              - LOGIN_HINT
+              - EMAIL
+              - PHONE
+              - USERNAME
+              - EXTERNAL_IDENTITY
+            type: string
+            format: enum
+          description: Output only. Subject types accepted by the login UI.
+        availableChallenges:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthenticationChallengeOption'
+          description: Output only. Public-safe challenge options for UI rendering.
+        identityProviders:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityProviderOption'
+          description: Output only. Public-safe identity provider options.
+        identifierFirst:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether identifier-first UI should be rendered.
+        passkeyFirst:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether passkey-first UI should be rendered.
+        allowProviderSelection:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether users may select an identity provider.
+      description: AuthenticationExperience describes dynamic login UI for a client.
+    AuthenticationHandoff:
+      type: object
+      properties:
+        type:
+          readOnly: true
+          enum:
+            - TYPE_UNSPECIFIED
+            - AUTHORIZATION_CODE
+            - CIBA_AUTH_REQ_ID
+            - SESSION_HANDOFF
+            - JWT_BEARER_ASSERTION
+            - KEYCLOAK_LOGIN_ACTION
+          type: string
+          description: Output only. Handoff type.
+          format: enum
+        handoffId:
+          readOnly: true
+          type: string
+          description: Output only. Opaque handoff identifier redeemable by the protocol adapter.
+        expireTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when the handoff reference expires.
+          format: date-time
+      description: |-
+        AuthenticationHandoff carries a public-safe opaque handoff reference.
 
-             Example:
-             - "passkey"
-             - "password"
-             - "otp"
-             - "mobile_id"
-        acrValues:
+         It must not contain authorization codes, JWTs, refresh tokens, raw provider
+         tokens, SAML assertions, or session bearer secrets. The handoff_id is an
+         opaque reference that the appropriate protocol adapter can redeem.
+    AuthenticationResult:
+      type: object
+      properties:
+        authTime:
+          readOnly: true
+          type: string
+          description: Output only. Time when the user authentication was established.
+          format: date-time
+        achievedAssuranceLevel:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
+          type: string
+          description: Output only. Final normalized assurance level achieved by the flow.
+          format: enum
+        authenticationMethods:
+          readOnly: true
+          type: array
+          items:
+            enum:
+              - AUTHENTICATION_METHOD_UNSPECIFIED
+              - AUTHENTICATION_METHOD_PASSWORD
+              - AUTHENTICATION_METHOD_SMS_OTP
+              - AUTHENTICATION_METHOD_EMAIL_OTP
+              - AUTHENTICATION_METHOD_TOTP
+              - AUTHENTICATION_METHOD_PUSH_APPROVAL
+              - AUTHENTICATION_METHOD_PUSH_OTP
+              - AUTHENTICATION_METHOD_SIM_PUSH
+              - AUTHENTICATION_METHOD_MOBILE_ID
+              - AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
+              - AUTHENTICATION_METHOD_OIDC
+              - AUTHENTICATION_METHOD_SAML
+            type: string
+            format: enum
+          description: Output only. Normalized authentication methods that participated.
+        methodIds:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Configured method or plugin ids that participated.
+        amr:
+          readOnly: true
           type: array
           items:
             type: string
           description: |-
-            Optional. Requested Authentication Context Class Reference values.
+            Output only. OIDC-compatible Authentication Methods References.
 
-             Example:
-             - "AAL1" for normal login
-             - "AAL2" for multi-factor authentication
-             - "AAL3" for hardware-backed phishing-resistant authentication
+             Examples include pwd, otp, sms, email, mfa, hwk, user, pin, face, fpt, swk,
+             pop, webauthn, passkey, and federated provider-specific values.
+        acr:
+          readOnly: true
+          type: string
+          description: |-
+            Output only. Final Authentication Context Class Reference value for token
+             issuance or session creation.
+        handoff:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationHandoff'
+          description: |-
+            Output only. Handoff data for OIDC, CIBA, session, Keycloak, or backend
+             integration after successful authentication.
+      description: AuthenticationResult is populated only after successful authentication.
+    AuthenticationStartContext:
+      type: object
+      properties:
+        request:
+          allOf:
+            - $ref: '#/components/schemas/RequestHint'
+          description: Optional. Request-level hints from a client, gateway, or BFF.
+        session:
+          allOf:
+            - $ref: '#/components/schemas/SessionHint'
+          description: Optional. Existing-session hints for reauthentication or step-up.
+        resource:
+          allOf:
+            - $ref: '#/components/schemas/ResourceHint'
+          description: Optional. Resource or business-operation hints.
+        interaction:
+          allOf:
+            - $ref: '#/components/schemas/InteractionHint'
+          description: Optional. UI and interaction hints.
+        device:
+          allOf:
+            - $ref: '#/components/schemas/DeviceHint'
+          description: Optional. Device, browser, app, or SDK hints.
+        network:
+          allOf:
+            - $ref: '#/components/schemas/NetworkHint'
+          description: Optional. Network hints supplied by a trusted gateway or BFF.
+        oidc:
+          allOf:
+            - $ref: '#/components/schemas/OidcRequestHint'
+          description: Optional. OIDC/OAuth request hints.
+        ciba:
+          allOf:
+            - $ref: '#/components/schemas/CibaRequestHint'
+          description: Optional. CIBA request hints.
+        transaction:
+          allOf:
+            - $ref: '#/components/schemas/TransactionHint'
+          description: Optional. Transaction confirmation hints.
       description: |-
-        AuthenticationStartOptions contains optional client preferences for starting authentication.
+        AuthenticationStartContext contains client-provided safe hints for starting
+         authentication.
 
-         The server may use these values to select login experience, provider, method,
-         and assurance requirements, but policy can override unsupported or disallowed
-         preferences.
-
-         Example:
-         - passkey-first login requests `requested_method` = "passkey"
-         - tenant-specific UI flow sends `login_experience_version`
-         - OIDC request passes acr_values requested by the relying party
+         Hints are not authoritative security facts. Clients must not send resolved
+         tenant ids, risk decisions, geolocation enrichment, raw device fingerprints,
+         provider trust decisions, passwords, OTP codes, callback payloads, or tokens.
+    AuthenticationStartOptions:
+      type: object
+      properties:
+        purpose:
+          enum:
+            - AUTHENTICATION_PURPOSE_UNSPECIFIED
+            - AUTHENTICATION_PURPOSE_PRIMARY_LOGIN
+            - AUTHENTICATION_PURPOSE_REAUTHENTICATION
+            - AUTHENTICATION_PURPOSE_STEP_UP
+            - AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY
+            - AUTHENTICATION_PURPOSE_IDENTITY_LINKING
+            - AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION
+          type: string
+          description: Optional. Purpose requested by the client.
+          format: enum
+        requestedAssuranceLevel:
+          enum:
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
+          type: string
+          description: Optional. Requested assurance level.
+          format: enum
+        loginExperienceVersion:
+          type: string
+          description: Optional. Login experience version requested by the client.
+        requestedAuthenticationMethod:
+          enum:
+            - AUTHENTICATION_METHOD_UNSPECIFIED
+            - AUTHENTICATION_METHOD_PASSWORD
+            - AUTHENTICATION_METHOD_SMS_OTP
+            - AUTHENTICATION_METHOD_EMAIL_OTP
+            - AUTHENTICATION_METHOD_TOTP
+            - AUTHENTICATION_METHOD_PUSH_APPROVAL
+            - AUTHENTICATION_METHOD_PUSH_OTP
+            - AUTHENTICATION_METHOD_SIM_PUSH
+            - AUTHENTICATION_METHOD_MOBILE_ID
+            - AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY
+            - AUTHENTICATION_METHOD_OIDC
+            - AUTHENTICATION_METHOD_SAML
+          type: string
+          description: Optional. Preferred normalized authentication method.
+          format: enum
+        requestedMethodId:
+          type: string
+          description: Optional. Preferred configured method or plugin id.
+        requestedProviderId:
+          type: string
+          description: Optional. Preferred provider identifier.
+        acrValues:
+          type: array
+          items:
+            type: string
+          description: Optional. Requested Authentication Context Class Reference values.
+      description: |-
+        AuthenticationStartOptions contains optional preferences for starting
+         authentication.
     AuthenticationSubject:
       required:
         - type
@@ -904,9 +1203,10 @@ components:
 
              This field does not select the authentication provider for the workflow.
              Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
+             AuthenticationSubject.provider_id must not be used to select the login provider.
 
-             This field should normally be set only when type is EXTERNAL_IDENTITY,
-             or when LOGIN_HINT is explicitly provider-scoped.
+             This field is allowed only when type is EXTERNAL_IDENTITY, or when
+             LOGIN_HINT is explicitly provider-scoped.
              This field is required when type is EXTERNAL_IDENTITY.
 
              Example:
@@ -933,6 +1233,52 @@ components:
          - user provides an email address on the login screen
          - client passes a known user identifier for step-up authentication
          - external identity provider supplies an issuer-scoped subject identifier
+    AuthenticationSubjectSnapshot:
+      type: object
+      properties:
+        type:
+          readOnly: true
+          enum:
+            - TYPE_UNSPECIFIED
+            - USER_ID
+            - LOGIN_HINT
+            - EMAIL
+            - PHONE
+            - USERNAME
+            - EXTERNAL_IDENTITY
+          type: string
+          description: Output only. Subject type accepted or resolved by the server.
+          format: enum
+        userId:
+          readOnly: true
+          type: string
+          description: Output only. Resolved M8 Identity user id, when policy allows exposing it.
+        maskedValue:
+          readOnly: true
+          type: string
+          description: |-
+            Output only. Masked value safe for UI display.
+
+             Examples:
+             - "s***@example.com"
+             - "+43******4567"
+             - "j***e"
+        providerId:
+          readOnly: true
+          type: string
+          description: Output only. Provider id for provider-scoped hints, when safe to expose.
+        resolved:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether the server resolved the subject.
+      description: |-
+        AuthenticationSubjectSnapshot is the public-safe subject projection returned
+         in Authentication snapshots.
+
+         It must not contain raw email addresses, phone numbers, usernames, login
+         hints, external provider subjects, or issuer-scoped identifiers. Use
+         masked_value for UI display and return user_id only after the subject is
+         safely resolved and policy allows exposing it.
     Callback:
       type: object
       properties:
@@ -962,116 +1308,73 @@ components:
     CancelAuthenticationRequest:
       required:
         - authenticationId
+        - interactionToken
+        - requestId
+        - correlationId
+        - idempotencyKey
       type: object
       properties:
         authenticationId:
           type: string
-          description: |-
-            Required. Stable unique identifier of the authentication operation to cancel.
-             The value must be a valid UUID string.
+          description: Required. Authentication identifier.
+        interactionToken:
+          type: string
+          description: Required. Public interaction token returned by StartAuthentication.
         reason:
           type: string
-          description: |-
-            Optional. Human-readable or machine-readable reason for cancellation.
-
-             Example:
-             - "user_closed_login_window"
-             - "client_restarted_flow"
-             - "session_replaced"
-             - "admin_requested"
+          description: Optional. Human-readable or machine-readable cancellation reason.
         requestId:
           type: string
-          description: |-
-            Optional. Idempotency key for retrying cancellation.
-
-             CancelAuthentication is naturally idempotent for terminal states, but
-             request_id allows the server to deduplicate concurrent cancellation attempts.
-             The same authentication_id and request_id must resolve to the same
-             cancellation result.
-
-             Example:
-             {
-               "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34",
-               "reason": "user_closed_login_window",
-               "request_id": "0d8b7e3e-7e1c-4b7e-8a8f-1f3c2c4f9d11"
-             }
-      description: Request to cancel an active authentication operation.
-    ClientContext:
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
+          type: string
+          description: Required. Business correlation id for the auth session/login flow.
+        idempotencyKey:
+          type: string
+          description: Required. Command deduplication key for this cancellation.
+        ifMatch:
+          type: string
+          description: Optional. ETag precondition for optimistic concurrency.
+      description: Request to cancel an active authentication.
+    CibaContext:
       type: object
       properties:
-        clientId:
+        bindingMessage:
           readOnly: true
           type: string
-          description: |-
-            Output only. Effective client identifier resolved from
-             StartAuthenticationRequest.client_id. When present, it must be a UUID and
-             must match the client configuration used to resolve project, user pool,
-             providers, methods, and policies.
-        applicationType:
+          description: Output only. User-visible binding message.
+        expireTime:
           readOnly: true
-          enum:
-            - APPLICATION_TYPE_UNSPECIFIED
-            - APPLICATION_TYPE_WEB
-            - APPLICATION_TYPE_SPA
-            - APPLICATION_TYPE_MOBILE
-            - APPLICATION_TYPE_BACKEND
-            - APPLICATION_TYPE_CLI
-            - APPLICATION_TYPE_DEVICE
           type: string
-          description: Output only. Application class resolved from the client configuration.
-          format: enum
-        redirectUri:
+          description: Output only. Authentication request expiry.
+          format: date-time
+        interval:
+          readOnly: true
+          pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
           type: string
-          description: |-
-            Optional. Redirect URI supplied by the client or OIDC authorization request.
-             The server validates it against the registered client configuration.
-        origin:
+          description: Output only. Polling interval for CIBA token polling or status checks.
+        clientNotificationTokenId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Browser origin supplied by the client or gateway. The server uses
-             it for UI policy, CORS-related checks, and audit, after validating it
-             against the registered client configuration.
-        allowedMethods:
-          readOnly: true
-          type: array
-          items:
-            type: string
-          description: |-
-            Output only. Authentication methods allowed by the resolved client policy.
-             TODO: Replace strings with AuthenticationMethod when the method enum is
-             introduced in the public IAM authentication contract.
-        allowedProviderIds:
-          readOnly: true
-          type: array
-          items:
-            type: string
-          description: |-
-            Output only. Provider identifiers allowed by the resolved client policy.
-             These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
-             providers and must not be confused with a requested provider selector.
-        loginExperience:
-          readOnly: true
-          enum:
-            - LOGIN_EXPERIENCE_UNSPECIFIED
-            - LOGIN_EXPERIENCE_IDENTIFIER_FIRST
-            - LOGIN_EXPERIENCE_PASSWORDLESS_FIRST
-            - LOGIN_EXPERIENCE_PASSKEY_FIRST
-            - LOGIN_EXPERIENCE_PROVIDER_FIRST
-            - LOGIN_EXPERIENCE_STEP_UP
+          description: Output only. Reference or hash for client_notification_token, if used.
+      description: CibaContext contains public-safe CIBA output context.
+    CibaRequestHint:
+      type: object
+      properties:
+        loginHintToken:
           type: string
-          description: |-
-            Output only. Server-selected login experience resolved from client policy,
-             request options, risk decision, and interaction constraints.
-          format: enum
-        publicClient:
-          readOnly: true
-          type: boolean
-          description: |-
-            Output only. Indicates whether the resolved client is public and cannot keep
-             a client secret. It is used by policy and protocol handling.
-      description: |-
-        ClientContext describes the resolved OAuth, OIDC, or application client
-         configuration used to drive authentication policy and login UI selection.
+          description: Optional. Opaque login_hint_token received by the protocol adapter.
+        idTokenHint:
+          type: string
+          description: Optional. OIDC id_token_hint received by the protocol adapter.
+        bindingMessage:
+          type: string
+          description: Optional. User-visible binding message.
+        requestedExpiry:
+          pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+          type: string
+          description: Optional. Requested expiry for the CIBA authentication request.
+      description: CibaRequestHint contains CIBA-specific start hints.
     DefaultType:
       type: object
       properties:
@@ -1086,58 +1389,101 @@ components:
       type: object
       properties:
         deviceId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Stable device identifier supplied by a trusted SDK, BFF, or device
-             service. It must not be a raw device fingerprint payload or bearer secret.
+          description: Output only. Stable device lookup id.
+        trustedDeviceId:
+          readOnly: true
+          type: string
+          description: Output only. Trusted-device lookup id.
+        deviceFingerprintId:
+          readOnly: true
+          type: string
+          description: Output only. Stored fingerprint reference, not raw fingerprint data.
+        platform:
+          readOnly: true
+          type: string
+          description: Output only. Platform.
+        os:
+          readOnly: true
+          type: string
+          description: Output only. Operating system name.
+        osVersion:
+          readOnly: true
+          type: string
+          description: Output only. Operating system version.
+        browser:
+          readOnly: true
+          type: string
+          description: Output only. Browser name.
+        browserVersion:
+          readOnly: true
+          type: string
+          description: Output only. Browser version.
+        appVersion:
+          readOnly: true
+          type: string
+          description: Output only. Application version.
+        sdkName:
+          readOnly: true
+          type: string
+          description: Output only. SDK name.
+        sdkVersion:
+          readOnly: true
+          type: string
+          description: Output only. SDK version.
+        webauthnAvailable:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether WebAuthn APIs may be available.
+        passkeyAvailableHint:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether passkeys may be available on the platform.
+      description: DeviceContext describes normalized device, browser, app, and SDK context.
+    DeviceHint:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          description: Optional. Stable device lookup id. It must not be a raw fingerprint.
         trustedDeviceId:
           type: string
-          description: |-
-            Optional. Reference to a trusted-device record. It must be a lookup
-             identifier, not a trusted-device secret or token.
+          description: Optional. Trusted-device lookup id. It must not be a bearer secret.
         deviceFingerprintId:
           type: string
-          description: |-
-            Optional. Reference to a stored device fingerprint record. Raw fingerprint
-             payloads must be stored outside AuthenticationContext.
+          description: Optional. Stored fingerprint reference, not raw fingerprint data.
         platform:
           type: string
-          description: Optional. Platform hint such as web, ios, android, desktop, or device.
+          description: Optional. Platform hint.
         os:
           type: string
-          description: Optional. Operating system name reported by the client, SDK, or parser.
+          description: Optional. Operating system name.
         osVersion:
           type: string
-          description: Optional. Operating system version reported by the client, SDK, or parser.
+          description: Optional. Operating system version.
         browser:
           type: string
-          description: Optional. Browser name reported by the client, SDK, or User-Agent parser.
+          description: Optional. Browser name.
         browserVersion:
           type: string
-          description: Optional. Browser version reported by the client, SDK, or User-Agent parser.
+          description: Optional. Browser version.
         appVersion:
           type: string
-          description: Optional. Application version reported by the first-party client or SDK.
+          description: Optional. Application version.
         sdkName:
           type: string
-          description: Optional. SDK name that submitted or enriched the authentication request.
+          description: Optional. SDK name.
         sdkVersion:
           type: string
-          description: Optional. SDK version that submitted or enriched the authentication request.
+          description: Optional. SDK version.
         webauthnAvailable:
           type: boolean
-          description: |-
-            Optional. Client-provided UX hint indicating that WebAuthn APIs may be
-             available. It must not be used as proof of authenticator registration.
+          description: Optional. UX hint that WebAuthn APIs may be available.
         passkeyAvailableHint:
           type: boolean
-          description: |-
-            Optional. Client-provided UX hint indicating that passkey authentication may
-             be available on the current platform. Risk and challenge selection must
-             verify real authenticator state separately.
-      description: |-
-        DeviceContext describes normalized device, browser, SDK, and application
-         hints used for UX, risk scoring, fraud detection, and audit.
+          description: Optional. UX hint that passkeys may be available.
+      description: DeviceHint contains client-provided device, browser, app, and SDK hints.
     Discriminator:
       type: object
       properties:
@@ -1223,6 +1569,39 @@ components:
           items:
             $ref: '#/components/schemas/NamedAny'
       description: Allows referencing an external resource for extended documentation.
+    GenericProviderCallback:
+      type: object
+      properties:
+        query:
+          type: object
+          additionalProperties:
+            type: string
+          description: Optional. Normalized query parameters from the provider callback.
+        form:
+          type: object
+          additionalProperties:
+            type: string
+          description: Optional. Normalized form parameters from the provider callback.
+      description: GenericProviderCallback contains normalized provider-specific callback values.
+    GetAuthenticationExperienceRequest:
+      required:
+        - clientId
+      type: object
+      properties:
+        clientId:
+          type: string
+          description: Required. M8 application client UUID, not an OAuth public client_id string.
+        projectId:
+          type: string
+          description: Optional. Project id, when already resolved by a trusted caller.
+        userPoolId:
+          type: string
+          description: Optional. User pool id, when already resolved by a trusted caller.
+        context:
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationStartContext'
+          description: Optional. Client-provided safe hints used to shape the UI.
+      description: Request to resolve dynamic login UI.
     GoogleProtobufAny:
       type: object
       properties:
@@ -1233,104 +1612,50 @@ components:
       description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
     HandleAuthenticationCallbackRequest:
       required:
+        - requestId
+        - correlationId
+        - idempotencyKey
         - providerId
       type: object
       properties:
-        providerId:
-          type: string
-          description: |-
-            Required. Provider identifier that produced the callback.
-
-             Example:
-             - "google"
-             - "saml-corp"
-             - "mobile-id-at"
-        authenticationId:
-          type: string
-          description: |-
-            Optional. Authentication operation identifier.
-
-             Some providers allow resolving the authentication operation from state,
-             RelayState, or provider-specific transaction identifiers instead.
-        code:
-          type: string
-          description: |-
-            Optional. OIDC or OAuth authorization code.
-
-             The server exchanges this value internally if needed. It must not be
-             returned in public responses.
-        state:
-          type: string
-          description: |-
-            Optional. OIDC or OAuth state value.
-
-             The server validates this value internally for callback correlation and
-             anti-CSRF protection. It must not expose secrets.
-        samlResponse:
-          type: string
-          description: |-
-            Optional. SAML response payload.
-
-             This field may contain a large base64-encoded SAMLResponse. The server must
-             validate the assertion internally and must not return raw assertions in
-             public responses.
-        relayState:
-          type: string
-          description: Optional. SAML RelayState value.
-        rawQuery:
-          type: object
-          additionalProperties:
-            type: string
-          description: |-
-            Optional. Raw query parameters received from the provider callback.
-
-             This is useful for provider-specific integrations. Do not store or expose
-             secrets from this map in public responses.
-        rawForm:
-          type: object
-          additionalProperties:
-            type: string
-          description: |-
-            Optional. Raw form parameters received from the provider callback.
-
-             This is useful for SAML POST binding and provider-specific callbacks. Do not
-             store or expose secrets from this map in public responses.
         requestId:
           type: string
-          description: |-
-            Optional. Idempotency key for retrying callback handling safely.
-
-             The same provider_id, callback state, code, relay_state, and request_id must
-             resolve to the same callback result.
-      description: Request to process a callback from an external identity provider.
-    HandleAuthenticationCallbackResponse:
-      type: object
-      properties:
-        authentication:
-          readOnly: true
-          allOf:
-            - $ref: '#/components/schemas/Authentication'
-          description: |-
-            Output only. Updated authentication snapshot.
-
-             The snapshot must not contain provider tokens, raw assertions, client
-             secrets, internal callback secrets, OTP codes, or passwords.
-        redirectUri:
-          readOnly: true
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
           type: string
-          description: |-
-            Output only. Optional redirect URI where the browser should be redirected
-             after callback handling.
+          description: Required. Business correlation id for the auth session/login flow.
+        idempotencyKey:
+          type: string
+          description: Required. Command deduplication key for callback processing.
+        providerId:
+          type: string
+          description: Required. Provider identifier that produced the callback.
+        authenticationId:
+          type: string
+          description: Optional. Authentication identifier, when resolved by adapter state.
+        oidc:
+          allOf:
+            - $ref: '#/components/schemas/OidcAuthenticationCallback'
+          description: OIDC/OAuth callback payload.
+        saml:
+          allOf:
+            - $ref: '#/components/schemas/SamlAuthenticationCallback'
+          description: SAML callback payload.
+        generic:
+          allOf:
+            - $ref: '#/components/schemas/GenericProviderCallback'
+          description: Provider-specific callback payload.
+        context:
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationStartContext'
+          description: Optional. Safe request context from the callback adapter.
+      description: |-
+        Provider/Internal request to process a normalized external provider callback.
 
-             This URI must be validated by the server against the original client
-             configuration and callback state.
-        completed:
-          readOnly: true
-          type: boolean
-          description: |-
-            Output only. Indicates whether the provider callback completed the
-             authentication operation.
-      description: Response returned after processing an external provider callback.
+         Raw provider HTTP callbacks are handled by an adapter before this request is
+         created. Do not log or persist secrets, tokens, authorization codes,
+         SAMLResponse, raw assertions, or provider payloads into public Authentication
+         snapshots.
     Header:
       type: object
       properties:
@@ -1375,7 +1700,90 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NamedHeaderOrReference'
+    IdentityProviderOption:
+      type: object
+      properties:
+        providerId:
+          readOnly: true
+          type: string
+          description: Output only. Provider identifier.
+        displayName:
+          readOnly: true
+          type: string
+          description: Output only. Display name for UI.
+        providerType:
+          readOnly: true
+          type: string
+          description: Output only. Provider type such as oidc, saml, mobile_id, or bank_id.
+        enabled:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether this provider is selectable.
+        priority:
+          readOnly: true
+          type: integer
+          description: Output only. UI ordering priority. Lower values should be rendered first.
+          format: int32
+      description: IdentityProviderOption describes a public-safe external provider option.
     InteractionContext:
+      type: object
+      properties:
+        uiMode:
+          readOnly: true
+          enum:
+            - UI_MODE_UNSPECIFIED
+            - UI_MODE_REDIRECT
+            - UI_MODE_EMBEDDED
+            - UI_MODE_API
+            - UI_MODE_DEVICE_CODE
+            - UI_MODE_CIBA
+          type: string
+          description: Output only. Effective UI mode.
+          format: enum
+        loginHintSource:
+          readOnly: true
+          enum:
+            - LOGIN_HINT_SOURCE_UNSPECIFIED
+            - LOGIN_HINT_SOURCE_USER_INPUT
+            - LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT
+            - LOGIN_HINT_SOURCE_SESSION
+            - LOGIN_HINT_SOURCE_INVITATION
+            - LOGIN_HINT_SOURCE_ADMIN_SELECTED
+            - LOGIN_HINT_SOURCE_IDP_CALLBACK
+          type: string
+          description: Output only. Normalized login hint source.
+          format: enum
+        preferredLocale:
+          readOnly: true
+          type: string
+          description: Output only. Effective UI locale.
+        display:
+          readOnly: true
+          enum:
+            - DISPLAY_MODE_UNSPECIFIED
+            - DISPLAY_MODE_PAGE
+            - DISPLAY_MODE_POPUP
+            - DISPLAY_MODE_TOUCH
+            - DISPLAY_MODE_WAP
+          type: string
+          description: Output only. Effective OIDC display mode.
+          format: enum
+        prompts:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Effective OIDC prompt values.
+        passkeyCapableClient:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether the client is believed to support passkeys.
+        userVerificationSupported:
+          readOnly: true
+          type: boolean
+          description: Output only. Whether WebAuthn user verification may be supported.
+      description: InteractionContext describes normalized UI and protocol interaction context.
+    InteractionHint:
       type: object
       properties:
         uiMode:
@@ -1387,9 +1795,7 @@ components:
             - UI_MODE_DEVICE_CODE
             - UI_MODE_CIBA
           type: string
-          description: |-
-            Optional. Requested interaction mode supplied by the client, gateway, or
-             protocol adapter. The server may override it based on client policy.
+          description: UI mode requested by the client.
           format: enum
         loginHintSource:
           enum:
@@ -1401,13 +1807,11 @@ components:
             - LOGIN_HINT_SOURCE_ADMIN_SELECTED
             - LOGIN_HINT_SOURCE_IDP_CALLBACK
           type: string
-          description: |-
-            Optional. Source of the login hint or subject hint. It is used for UX,
-             audit, and risk context but must not be treated as proof of identity.
+          description: Source of the login hint or subject hint.
           format: enum
         preferredLocale:
           type: string
-          description: Optional. Preferred locale for the login UI and challenge messages.
+          description: Optional. Preferred UI locale.
         display:
           enum:
             - DISPLAY_MODE_UNSPECIFIED
@@ -1416,29 +1820,20 @@ components:
             - DISPLAY_MODE_TOUCH
             - DISPLAY_MODE_WAP
           type: string
-          description: Optional. OIDC display mode requested by the client or relying party.
+          description: Optional. OIDC display mode.
           format: enum
         prompts:
           type: array
           items:
             type: string
-          description: |-
-            Optional. OIDC prompt values such as login, consent, select_account, or none.
-             The server interprets these values against client and session policy.
+          description: Optional. OIDC prompt values.
         passkeyCapableClient:
           type: boolean
-          description: |-
-            Optional. Client-provided UX hint indicating that the current browser or
-             platform may support passkeys. It must not be used as proof that a passkey
-             authenticator is registered or available for the user.
+          description: Optional. UX hint that the client may support passkeys.
         userVerificationSupported:
           type: boolean
-          description: |-
-            Optional. Client-provided UX hint indicating that WebAuthn user verification
-             may be supported. It must not be used as proof that verification occurred.
-      description: |-
-        InteractionContext describes how the user and client are expected to interact
-         with the authentication flow.
+          description: Optional. UX hint that WebAuthn user verification may be supported.
+      description: InteractionHint contains client-provided UI and protocol hints.
     ItemsItem:
       type: object
       properties:
@@ -1513,7 +1908,7 @@ components:
         bindingMessage:
           readOnly: true
           type: string
-          description: Output only. Human-readable binding message shown to the user.
+          description: Output only. Binding message shown to the user.
         phoneHint:
           readOnly: true
           type: string
@@ -1665,59 +2060,48 @@ components:
       type: object
       properties:
         ip:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Client IP address as normalized by the gateway or server. It may
-             be supplied by a BFF, but Authentication Service must validate trusted proxy
-             boundaries before relying on it.
+          description: Output only. Client IP normalized through trusted proxy boundaries.
         forwardedFor:
+          readOnly: true
           type: array
           items:
             type: string
-          description: |-
-            Optional. Forwarded client IP chain parsed from trusted forwarding headers.
-             Values from untrusted proxy chains must not be used for security decisions.
+          description: Output only. Trusted forwarded client IP chain.
         countryCode:
           readOnly: true
           type: string
-          description: |-
-            Output only. ISO 3166-1 alpha-2 country code produced by server-side network
-             enrichment.
+          description: Output only. ISO 3166-1 alpha-2 country code from server enrichment.
         region:
           readOnly: true
           type: string
-          description: |-
-            Output only. Region or subdivision produced by server-side geolocation
-             enrichment.
+          description: Output only. Region from server-side geolocation.
         city:
           readOnly: true
           type: string
-          description: Output only. City produced by server-side geolocation enrichment.
+          description: Output only. City from server-side geolocation.
         asn:
           readOnly: true
           type: integer
-          description: |-
-            Output only. Autonomous system number produced by server-side network
-             enrichment.
+          description: Output only. Autonomous system number from server enrichment.
           format: uint32
         isp:
           readOnly: true
           type: string
-          description: |-
-            Output only. Internet service provider or organization name produced by
-             server-side network enrichment.
+          description: Output only. ISP or organization from server enrichment.
         isProxy:
           readOnly: true
           type: boolean
-          description: Output only. Indicates server-side enrichment classified the IP as a proxy.
+          description: Output only. Whether server enrichment classified the IP as a proxy.
         isVpn:
           readOnly: true
           type: boolean
-          description: Output only. Indicates server-side enrichment classified the IP as a VPN.
+          description: Output only. Whether server enrichment classified the IP as a VPN.
         isTor:
           readOnly: true
           type: boolean
-          description: Output only. Indicates server-side enrichment classified the IP as Tor.
+          description: Output only. Whether server enrichment classified the IP as Tor.
         riskLevel:
           readOnly: true
           enum:
@@ -1727,15 +2111,75 @@ components:
             - NETWORK_RISK_LEVEL_HIGH
             - NETWORK_RISK_LEVEL_CRITICAL
           type: string
-          description: |-
-            Output only. Network-only risk level produced by server-side enrichment or
-             M8 Risk Decision.
+          description: Output only. Network-only risk level from enrichment or Risk Decision.
           format: enum
-      description: |-
-        NetworkContext describes normalized IP, proxy, network, geolocation, and
-         network-risk hints used by Risk Decision, rate limiting, fraud detection, and
-         audit.
+      description: NetworkContext describes server-normalized network and geolocation context.
+    NetworkHint:
+      type: object
+      properties:
+        ip:
+          type: string
+          description: Optional. Client IP as observed by a trusted gateway or BFF.
+        forwardedFor:
+          type: array
+          items:
+            type: string
+          description: Optional. Forwarded client IP chain from trusted forwarding headers.
+      description: NetworkHint contains client or gateway provided network hints.
+    OidcAuthenticationCallback:
+      required:
+        - state
+      type: object
+      properties:
+        code:
+          type: string
+          description: Optional. OIDC/OAuth authorization code.
+        state:
+          type: string
+          description: Required. OIDC/OAuth state.
+        error:
+          type: string
+          description: Optional. OIDC/OAuth error code.
+        errorDescription:
+          type: string
+          description: Optional. OIDC/OAuth error description.
+      description: OidcAuthenticationCallback contains normalized OIDC/OAuth callback values.
     OidcContext:
+      type: object
+      properties:
+        scope:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Validated OAuth scopes.
+        acrValues:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Effective ACR values.
+        prompt:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Effective prompt values.
+        maxAge:
+          readOnly: true
+          pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+          type: string
+          description: Output only. Effective max_age.
+        redirectUri:
+          readOnly: true
+          type: string
+          description: Output only. Validated redirect URI.
+        stateId:
+          readOnly: true
+          type: string
+          description: Output only. Token id or hash for sensitive protocol state.
+      description: OidcContext describes server-normalized OAuth and OIDC context.
+    OidcRequestHint:
       type: object
       properties:
         scope:
@@ -1747,61 +2191,51 @@ components:
           type: array
           items:
             type: string
-          description: |-
-            Optional. Authentication Context Class Reference values requested by the
-             relying party. The server maps these protocol values to normalized assurance
-             requirements such as requested_assurance_level.
+          description: Optional. Requested ACR values.
         prompt:
           type: array
           items:
             type: string
-          description: Optional. OIDC prompt values such as login, consent, select_account, or none.
+          description: Optional. OIDC prompt values.
         maxAge:
           pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
           type: string
-          description: |-
-            Optional. OIDC max_age requirement used to determine whether the existing
-             session is fresh enough or step-up is required.
+          description: Optional. OIDC max_age requirement.
         nonce:
           type: string
-          description: |-
-            Optional. OIDC nonce value. It is protocol state and must not be treated as
-             proof of authentication by itself.
+          description: Optional. OIDC nonce. Do not treat it as proof of authentication.
         state:
           type: string
-          description: |-
-            Optional. OAuth/OIDC state value. It is protocol correlation state and must
-             not be logged if deployment policy treats it as sensitive.
+          description: Optional. OAuth/OIDC state. Deployments may treat it as sensitive.
         codeChallenge:
           type: string
-          description: Optional. PKCE code challenge supplied by the client.
+          description: Optional. PKCE code challenge.
         codeChallengeMethod:
           type: string
-          description: Optional. PKCE code challenge method, typically plain or S256.
+          description: Optional. PKCE code challenge method.
         responseType:
           type: string
-          description: Optional. OAuth/OIDC response type requested by the client.
+          description: Optional. OAuth/OIDC response type.
         responseMode:
           type: string
-          description: Optional. OAuth/OIDC response mode requested by the client.
+          description: Optional. OAuth/OIDC response mode.
         loginHint:
           type: string
-          description: |-
-            Optional. OIDC login_hint value supplied by the relying party. It is a hint
-             only and must not be treated as proof of user identity.
+          description: Optional. OIDC login_hint. It is only a hint.
         resource:
           type: array
           items:
             type: string
-          description: Optional. OAuth resource indicators requested by the client.
+          description: Optional. OAuth resource indicators.
         audience:
           type: array
           items:
             type: string
-          description: Optional. OAuth/OIDC audience values requested by the client.
-      description: |-
-        OidcContext describes OAuth and OpenID Connect request parameters that
-         influence authentication requirements and protocol handling.
+          description: Optional. OAuth/OIDC audience values.
+        redirectUri:
+          type: string
+          description: Optional. Redirect URI requested by the client or protocol adapter.
+      description: OidcRequestHint describes OAuth and OIDC request hints.
     Operation:
       type: object
       properties:
@@ -1850,34 +2284,37 @@ components:
           type: integer
           description: Output only. Expected OTP length.
           format: int32
-        resendAvailableAt:
-          readOnly: true
-          type: string
-          description: Output only. Time when OTP resend becomes available.
-          format: date-time
-        destinationType:
+        deliveryChannel:
           readOnly: true
           enum:
-            - OTP_DESTINATION_TYPE_UNSPECIFIED
-            - OTP_DESTINATION_TYPE_PHONE
-            - OTP_DESTINATION_TYPE_EMAIL
-            - OTP_DESTINATION_TYPE_AUTHENTICATOR_APP
-            - OTP_DESTINATION_TYPE_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED
+            - AUTHENTICATION_DELIVERY_CHANNEL_CLIENT
+            - AUTHENTICATION_DELIVERY_CHANNEL_SMS
+            - AUTHENTICATION_DELIVERY_CHANNEL_EMAIL
+            - AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP
+            - AUTHENTICATION_DELIVERY_CHANNEL_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH
+            - AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID
+            - AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN
+            - AUTHENTICATION_DELIVERY_CHANNEL_OIDC
+            - AUTHENTICATION_DELIVERY_CHANNEL_SAML
           type: string
           description: Output only. Destination type used for OTP delivery.
           format: enum
         maskedDestination:
           readOnly: true
           type: string
-          description: |-
-            Output only. Masked destination where the OTP was delivered.
-
-             This duplicates AuthenticationChallengeInfo.masked_destination for clients
-             that render method-specific UI blocks.
-      description: |-
-        OtpChallenge contains public-safe parameters for an OTP challenge.
-
-         It never contains the OTP code.
+          description: Output only. Masked destination where the OTP was delivered.
+      description: OtpChallenge contains public-safe parameters for an OTP challenge.
+    OtpChallengeResponse:
+      required:
+        - code
+      type: object
+      properties:
+        code:
+          type: string
+          description: Required. One-time password code submitted for verification.
+      description: OtpChallengeResponse contains an OTP code submitted by the user.
     Parameter:
       type: object
       properties:
@@ -1919,6 +2356,27 @@ components:
           $ref: '#/components/schemas/Parameter'
         reference:
           $ref: '#/components/schemas/Reference'
+    PasswordChallenge:
+      type: object
+      properties:
+        policyHint:
+          readOnly: true
+          type: string
+          description: Output only. Password policy hint safe for UI display.
+      description: PasswordChallenge contains public-safe parameters for password input.
+    PasswordChallengeResponse:
+      required:
+        - password
+      type: object
+      properties:
+        password:
+          type: string
+          description: Required. Password submitted for verification.
+      description: |-
+        PasswordChallengeResponse contains a password submitted by the user.
+
+         It is request-only data and must never be returned, logged, or stored in the
+         public authentication snapshot.
     PathItem:
       type: object
       properties:
@@ -1964,17 +2422,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NamedSchemaOrReference'
+    ProviderCallbackChallenge:
+      type: object
+      properties:
+        providerId:
+          readOnly: true
+          type: string
+          description: Output only. Provider identifier expected to send the callback.
+        stateHint:
+          readOnly: true
+          type: string
+          description: Output only. Callback state or transaction hint safe to expose if policy allows it.
+      description: |-
+        ProviderCallbackChallenge indicates the flow is waiting for a provider
+         callback through the provider/internal callback API.
     RedirectChallenge:
       type: object
       properties:
         authorizationUrl:
           readOnly: true
           type: string
-          description: |-
-            Output only. Authorization URL where the client should redirect the user.
-
-             The URL must not contain provider client secrets or internal callback
-             secrets. OIDC state can be opaque, but must not reveal sensitive data.
+          description: Output only. Authorization URL where the client should redirect the user.
         providerId:
           readOnly: true
           type: string
@@ -1986,9 +2454,7 @@ components:
         callbackExpected:
           readOnly: true
           type: boolean
-          description: |-
-            Output only. Indicates whether the authentication operation expects an
-             external provider callback.
+          description: Output only. Whether an external provider callback is expected.
       description: |-
         RedirectChallenge contains public parameters for redirect-based provider
          authentication.
@@ -2027,85 +2493,101 @@ components:
       type: object
       properties:
         requestId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. External request identifier supplied by a client, gateway, or BFF.
-             When present, it must be a UUID and can be used to correlate retries and
-             audit records.
+          description: Output only. Technical API request id selected by the server.
         correlationId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Correlation identifier propagated across services and logs.
-             When present, it must be a UUID and must not be treated as a security proof.
+          description: Output only. Business correlation id for the login flow.
         traceId:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Distributed tracing identifier propagated by the gateway or
-             service mesh. It is used for diagnostics and audit correlation.
-        idempotencyKey:
-          type: string
-          description: |-
-            Optional. Idempotency key supplied by the caller or BFF for retry safety.
-             When present, it must be a UUID. Authentication Service validates
-             idempotency against the effective client.
+          description: Output only. Observability trace id.
         sourceService:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Name of the service, gateway, adapter, or BFF that submitted the
-             authentication request. It is used for audit and routing diagnostics.
+          description: Output only. Request source service.
         userAgent:
+          readOnly: true
           type: string
-          description: |-
-            Optional. User-Agent header or normalized agent string supplied by the
-             client or gateway. It is useful for UX and audit but must not be trusted as
-             a device proof.
+          description: Output only. Normalized user agent.
         locale:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Requested locale supplied by the client, gateway, or BFF. The
-             server may use it for challenge text, dynamic login UI, and audit display.
+          description: Output only. Effective locale.
         timezone:
+          readOnly: true
           type: string
-          description: |-
-            Optional. IANA time zone name supplied by the client or BFF. It is used for
-             UX and audit display and must not be treated as trusted location evidence.
-        acceptLanguage:
-          type: string
-          description: |-
-            Optional. Accept-Language header supplied by the client or gateway. The
-             server may use it as a localization hint when locale is absent.
+          description: Output only. Effective time zone.
         receivedTime:
           readOnly: true
           type: string
-          description: |-
-            Output only. Server-side time when the authentication request was received
-             or normalized for processing. It is used by audit and workflow orchestration.
+          description: Output only. Server-side receive time.
           format: date-time
-      description: |-
-        RequestContext describes request-level metadata used for idempotency,
-         tracing, localization, rate limiting, audit, and workflow correlation.
+      description: RequestContext is the server-normalized request metadata.
+    RequestHint:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: |-
+            Optional. Technical id of the API request for audit/logging/tracing.
+
+             This is not a command idempotency key.
+        correlationId:
+          type: string
+          description: Optional. Business correlation id for the login flow.
+        traceId:
+          type: string
+          description: Optional. Observability trace id.
+        sourceService:
+          type: string
+          description: Optional. Service, gateway, adapter, or BFF that submitted the request.
+        userAgent:
+          type: string
+          description: Optional. User-Agent header or normalized user agent string.
+        locale:
+          type: string
+          description: Optional. Requested locale.
+        timezone:
+          type: string
+          description: Optional. IANA time zone name.
+        acceptLanguage:
+          type: string
+          description: Optional. Accept-Language header.
+      description: RequestHint contains client-provided request metadata.
     ResendAuthenticationChallengeRequest:
       required:
         - authenticationId
+        - interactionToken
         - challengeId
+        - requestId
+        - correlationId
+        - idempotencyKey
       type: object
       properties:
         authenticationId:
           type: string
-          description: Required. Identifier of the authentication operation.
+          description: Required. Authentication identifier.
+        interactionToken:
+          type: string
+          description: Required. Public interaction token returned by StartAuthentication.
         challengeId:
           type: string
-          description: |-
-            Required. Identifier of the challenge to resend.
-
-             The value must match Authentication.current_challenge.challenge_id.
+          description: Required. Current challenge identifier.
         requestId:
           type: string
-          description: |-
-            Optional. Idempotency key for retrying resend safely.
-
-             The same authentication_id, challenge_id, and request_id must resolve to the
-             same resend result.
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
+          type: string
+          description: Required. Business correlation id for the auth session/login flow.
+        idempotencyKey:
+          type: string
+          description: Required. Command deduplication key for this resend.
+        ifMatch:
+          type: string
+          description: Optional. ETag precondition for optimistic concurrency.
       description: Request to resend the current authentication challenge.
     ResourceContext:
       type: object
@@ -2113,48 +2595,49 @@ components:
         organizationId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Organization identifier resolved from the client, project, or
-             resource context. It is used for tenant isolation, policy, and audit.
+          description: Output only. Organization identifier resolved by the server.
         workspaceId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Workspace identifier resolved from the client, project, or
-             resource context. It is used for policy, routing, and audit.
+          description: Output only. Workspace identifier resolved by the server.
         projectId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Project identifier resolved from client_id. Clients must not
-             provide this value in StartAuthenticationRequest.
+          description: Output only. Project identifier resolved from client_id and policy.
         userPoolId:
           readOnly: true
           type: string
-          description: |-
-            Output only. User pool identifier resolved from client_id and client
-             configuration. Clients must not provide this value in StartAuthenticationRequest.
+          description: Output only. User pool identifier resolved from client_id and policy.
+        requestedResource:
+          readOnly: true
+          type: string
+          description: Output only. Validated requested resource.
+        requestedOperation:
+          readOnly: true
+          type: string
+          description: Output only. Validated requested operation.
+        audience:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Validated OAuth/OIDC audiences or resource indicators.
+      description: ResourceContext describes normalized tenant, resource, operation, and audience.
+    ResourceHint:
+      type: object
+      properties:
         requestedResource:
           type: string
-          description: |-
-            Optional. Resource name, URL, or opaque resource indicator supplied by a
-             client or BFF for step-up and risk decisions. The server validates it against
-             resource and tenant policy before use.
+          description: Optional. Resource indicator, URL, or opaque resource name.
         requestedOperation:
           type: string
-          description: |-
-            Optional. Operation or action that requires authentication, such as
-             transfer.confirm or admin.user.disable. It is used by risk policy and audit.
+          description: Optional. Operation requiring authentication.
         audience:
           type: array
           items:
             type: string
-          description: |-
-            Optional. OAuth/OIDC audiences or resource indicators requested by the
-             client or relying party. The server validates them against client policy.
-      description: |-
-        ResourceContext describes the tenant, resource, operation, and audience for
-         which authentication is requested.
+          description: Optional. OAuth/OIDC audiences or resource indicators.
+      description: ResourceHint contains client-provided resource and operation hints.
     Response:
       type: object
       properties:
@@ -2192,66 +2675,19 @@ components:
           items:
             $ref: '#/components/schemas/NamedAny'
       description: A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.  The documentation is not necessarily expected to cover all possible HTTP response codes because they may not be known in advance. However, documentation is expected to cover a successful operation response and any known errors.  The `default` MAY be used as a default response object for all HTTP codes  that are not covered individually by the specification.  The `Responses Object` MUST contain at least one response code, and it  SHOULD be the response for a successful operation call.
-    RiskContext:
+    SamlAuthenticationCallback:
+      required:
+        - samlResponse
+        - relayState
       type: object
       properties:
-        riskSessionId:
-          readOnly: true
+        samlResponse:
           type: string
-          description: |-
-            Output only. Identifier of the risk session linked to this authentication
-             operation. It is used to correlate events with M8 Risk Decision and Audit.
-        decisionId:
-          readOnly: true
+          description: Required. Base64-encoded SAMLResponse.
+        relayState:
           type: string
-          description: |-
-            Output only. Identifier of the risk decision linked to this authentication
-             operation. Audit can use it to resolve full risk evidence in M8 Risk Decision.
-        riskLevel:
-          readOnly: true
-          enum:
-            - RISK_LEVEL_UNSPECIFIED
-            - RISK_LEVEL_LOW
-            - RISK_LEVEL_MEDIUM
-            - RISK_LEVEL_HIGH
-            - RISK_LEVEL_CRITICAL
-          type: string
-          description: Output only. Safe summary risk level returned by M8 Risk Decision.
-          format: enum
-        recommendedAction:
-          readOnly: true
-          enum:
-            - RISK_ACTION_UNSPECIFIED
-            - RISK_ACTION_ALLOW
-            - RISK_ACTION_CHALLENGE
-            - RISK_ACTION_STEP_UP
-            - RISK_ACTION_DENY
-          type: string
-          description: Output only. Recommended action returned by M8 Risk Decision.
-          format: enum
-        reasons:
-          readOnly: true
-          type: array
-          items:
-            type: string
-          description: |-
-            Output only. Safe reason codes or short reason labels produced by M8 Risk
-             Decision. They must be suitable for audit and internal admin UI.
-        policyIds:
-          readOnly: true
-          type: array
-          items:
-            type: string
-          description: |-
-            Output only. Risk or authentication policy identifiers that influenced the
-             decision. They are used for audit, explainability, and troubleshooting.
-      description: |-
-        RiskContext contains a safe summary of risk decision state associated with
-         an authentication operation.
-
-         It must not contain raw risk model features, raw device fingerprints, private
-         scoring data, provider tokens, or secrets. Full risk evidence lives in M8 Risk
-         Decision and is linked by decision_id or risk_session_id.
+          description: Required. SAML RelayState.
+      description: SamlAuthenticationCallback contains normalized SAML callback values.
     Schema:
       type: object
       properties:
@@ -2361,12 +2797,19 @@ components:
     SelectAuthenticationChallengeRequest:
       required:
         - authenticationId
+        - interactionToken
         - method
+        - requestId
+        - correlationId
+        - idempotencyKey
       type: object
       properties:
         authenticationId:
           type: string
-          description: Required. Identifier of the authentication operation.
+          description: Required. Authentication identifier.
+        interactionToken:
+          type: string
+          description: Required. Public interaction token returned by StartAuthentication.
         method:
           enum:
             - AUTHENTICATION_METHOD_UNSPECIFIED
@@ -2382,25 +2825,26 @@ components:
             - AUTHENTICATION_METHOD_OIDC
             - AUTHENTICATION_METHOD_SAML
           type: string
-          description: Required. Authentication method selected by the client or user.
+          description: Required. Normalized authentication method family selected by the client.
           format: enum
+        methodId:
+          type: string
+          description: Optional. Configured method or plugin id.
         providerId:
           type: string
-          description: |-
-            Optional. Provider identifier for provider-based methods.
-
-             Example:
-             - "google"
-             - "saml-corp"
-             - "mobile-id-at"
-             - "m8-sms"
+          description: Optional. Provider identifier for provider-based methods.
         requestId:
           type: string
-          description: |-
-            Optional. Idempotency key for retrying selection safely.
-
-             The same authentication_id, method, provider_id, and request_id must resolve
-             to the same selection result.
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
+          type: string
+          description: Required. Business correlation id for the auth session/login flow.
+        idempotencyKey:
+          type: string
+          description: Required. Command deduplication key for this selection.
+        ifMatch:
+          type: string
+          description: Optional. ETag precondition for optimistic concurrency.
       description: Request to select another authentication method or provider.
     Server:
       type: object
@@ -2443,49 +2887,36 @@ components:
       type: object
       properties:
         existingSessionId:
-          type: string
-          description: |-
-            Optional. Identifier of an existing session supplied by a client, BFF, or
-             session service. It must reference a session record and must not be a bearer
-             secret or raw session token.
-        previousAuthenticationId:
-          type: string
-          description: |-
-            Optional. Previous authentication operation identifier associated with the
-             existing session. It can be supplied by a BFF or resolved by the server for
-             audit and step-up correlation.
-        previousUserId:
           readOnly: true
           type: string
-          description: |-
-            Output only. Stable M8 Identity user identifier resolved from the existing
-             session. Caller-provided values must not be trusted for user binding.
+          description: Output only. Existing session lookup id.
+        previousAuthenticationId:
+          readOnly: true
+          type: string
+          description: Output only. Previous authentication id associated with the session.
         previousAssuranceLevel:
           readOnly: true
           enum:
-            - ASSURANCE_LEVEL_UNSPECIFIED
-            - AAL0
-            - AAL1
-            - AAL2
-            - AAL3
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
           type: string
-          description: |-
-            Output only. Assurance level established by the previous authentication
-             session. It is used to decide whether step-up is required.
+          description: Output only. Assurance level established by the previous session.
           format: enum
         authTime:
+          readOnly: true
           type: string
-          description: |-
-            Optional. Time when the existing session was originally authenticated. It is
-             used for OIDC max_age checks and freshness-based step-up.
+          description: Output only. Previous authentication time.
           format: date-time
         maxAge:
+          readOnly: true
           pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
           type: string
-          description: |-
-            Optional. Maximum acceptable age for the existing authentication. It is
-             commonly derived from OIDC max_age or resource policy.
+          description: Output only. Effective max age requirement.
         stepUpReason:
+          readOnly: true
           enum:
             - STEP_UP_REASON_UNSPECIFIED
             - STEP_UP_REASON_SENSITIVE_OPERATION
@@ -2495,47 +2926,86 @@ components:
             - STEP_UP_REASON_USER_REQUESTED
             - STEP_UP_REASON_ADMIN_POLICY
           type: string
-          description: |-
-            Optional. Reason stronger or fresher authentication is being requested. The
-             server verifies caller-provided reasons against policy and risk decisions.
+          description: Output only. Reason step-up or reauthentication is required.
           format: enum
-      description: |-
-        SessionContext describes the existing authentication session used for
-         re-authentication, OIDC max_age checks, and step-up decisions.
+        requestedAssuranceLevel:
+          readOnly: true
+          enum:
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
+          type: string
+          description: Output only. Assurance level requested for the current authentication.
+          format: enum
+      description: SessionContext describes normalized session and step-up context.
+    SessionHint:
+      type: object
+      properties:
+        existingSessionId:
+          type: string
+          description: Optional. Existing session lookup id. It must not be a bearer token.
+        previousAuthenticationId:
+          type: string
+          description: Optional. Previous authentication id associated with the existing session.
+        authTime:
+          type: string
+          description: Optional. Caller-observed previous authentication time.
+          format: date-time
+        maxAge:
+          pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+          type: string
+          description: Optional. Maximum acceptable age for the existing authentication.
+        requestedAssuranceLevel:
+          enum:
+            - AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL0
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL1
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL2
+            - AUTHENTICATION_ASSURANCE_LEVEL_AAL3
+          type: string
+          description: Optional. Hint about the desired assurance level.
+          format: enum
+      description: SessionHint contains client-provided safe hints about an existing session.
     StartAuthenticationRequest:
       required:
         - clientId
+        - requestId
+        - correlationId
+        - idempotencyKey
       type: object
       properties:
         clientId:
           type: string
-          description: |-
-            Required. Public client application identifier that initiates authentication.
-             The value must be a UUID.
-
-             The server resolves this value to ClientConfig, project_id, user_pool_id,
-             allowed providers, allowed methods, and authentication policies.
-             Clients must not send project_id or user_pool_id in StartAuthenticationRequest.
+          description: Required. M8 application client UUID, not an OAuth public client_id string.
         subject:
           allOf:
             - $ref: '#/components/schemas/AuthenticationSubject'
-          description: Optional. Subject identifier or hint used to resolve the authenticating user.
+          description: Optional. Subject identifier or login hint.
         context:
           allOf:
-            - $ref: '#/components/schemas/AuthenticationContext'
-          description: Optional. Additional authentication context used for policy and challenge selection.
+            - $ref: '#/components/schemas/AuthenticationStartContext'
+          description: Optional. Client-provided safe hints for starting authentication.
         options:
           allOf:
             - $ref: '#/components/schemas/AuthenticationStartOptions'
-          description: Optional. Client preferences that influence authentication workflow selection.
+          description: Optional. Client preferences and requested purpose.
         requestId:
           type: string
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
+          type: string
+          description: Required. Business correlation id for the whole auth session/login flow.
+        idempotencyKey:
+          type: string
           description: |-
-            Optional. Idempotency key for StartAuthentication retries.
+            Required. Command deduplication key.
 
-             The same client_id and request_id must resolve to the same Authentication
-             operation. When omitted, retries are not guaranteed to be idempotent.
-      description: Request to start an authentication operation.
+             Repeating a command with the same key must return the same command result
+             or the current state without repeating provider dispatch, workflow signal,
+             or other side effects.
+      description: Request to start authentication.
     StringArray:
       type: object
       properties:
@@ -2550,13 +3020,142 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/NamedString'
+    SubmitAuthenticationChallengeRequest:
+      required:
+        - authenticationId
+        - interactionToken
+        - challengeId
+        - response
+        - requestId
+        - correlationId
+        - idempotencyKey
+      type: object
+      properties:
+        authenticationId:
+          type: string
+          description: Required. Authentication identifier.
+        interactionToken:
+          type: string
+          description: Required. Public interaction token returned by StartAuthentication.
+        challengeId:
+          type: string
+          description: Required. Current challenge identifier.
+        response:
+          allOf:
+            - $ref: '#/components/schemas/AuthenticationChallengeResponse'
+          description: Required. Request-only response or proof for the current challenge.
+        requestId:
+          type: string
+          description: Required. Technical id of this API request for audit/logging/tracing.
+        correlationId:
+          type: string
+          description: Required. Business correlation id for the auth session/login flow.
+        idempotencyKey:
+          type: string
+          description: Required. Command deduplication key for this submit.
+        ifMatch:
+          type: string
+          description: Optional. ETag precondition for optimistic concurrency.
+      description: Request to submit the current authentication challenge response.
+    TransactionContext:
+      type: object
+      properties:
+        transactionId:
+          readOnly: true
+          type: string
+          description: Output only. Transaction identifier.
+        type:
+          readOnly: true
+          type: string
+          description: Output only. Transaction type.
+        amount:
+          readOnly: true
+          type: string
+          description: Output only. Amount string as normalized by the business domain.
+        currency:
+          readOnly: true
+          type: string
+          description: Output only. ISO 4217 currency code.
+        counterpartyMasked:
+          readOnly: true
+          type: string
+          description: Output only. Masked counterparty display value.
+        bindingMessage:
+          readOnly: true
+          type: string
+          description: Output only. Binding message shown to the user.
+      description: TransactionContext contains public-safe transaction confirmation context.
+    TransactionHint:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          description: Optional. Transaction identifier.
+        type:
+          type: string
+          description: Optional. Transaction type.
+        amount:
+          type: string
+          description: Optional. Amount string as provided by the business domain.
+        currency:
+          type: string
+          description: Optional. ISO 4217 currency code.
+        counterparty:
+          type: string
+          description: Optional. Counterparty display hint. Server must mask before returning.
+        bindingMessage:
+          type: string
+          description: Optional. Binding message shown to the user.
+      description: TransactionHint contains client-provided transaction confirmation hints.
+    WebAuthnAllowedCredential:
+      type: object
+      properties:
+        type:
+          readOnly: true
+          type: string
+          description: Output only. Credential descriptor type, usually public-key.
+        id:
+          readOnly: true
+          type: string
+          description: Output only. Base64url-encoded credential identifier.
+        transports:
+          readOnly: true
+          type: array
+          items:
+            type: string
+          description: Output only. Allowed authenticator transports.
+      description: WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry.
+    WebAuthnAssertionResponse:
+      required:
+        - credentialId
+        - clientDataJson
+        - authenticatorData
+        - signature
+      type: object
+      properties:
+        credentialId:
+          type: string
+          description: Required. Base64url-encoded credential identifier.
+        clientDataJson:
+          type: string
+          description: Required. Base64url-encoded clientDataJSON.
+        authenticatorData:
+          type: string
+          description: Required. Base64url-encoded authenticatorData.
+        signature:
+          type: string
+          description: Required. Base64url-encoded assertion signature.
+        userHandle:
+          type: string
+          description: Optional. Base64url-encoded WebAuthn user handle.
+      description: WebAuthnAssertionResponse contains a browser assertion response.
     WebAuthnChallenge:
       type: object
       properties:
         challenge:
           readOnly: true
           type: string
-          description: Output only. Base64url-encoded WebAuthn challenge generated by the server.
+          description: Output only. Base64url-encoded WebAuthn challenge.
         rpId:
           readOnly: true
           type: string
@@ -2576,21 +3175,28 @@ components:
           type: string
           description: Output only. WebAuthn user verification requirement.
           format: enum
-        allowedCredentialIds:
+        discoveryMode:
+          readOnly: true
+          enum:
+            - WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED
+            - WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS
+            - WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST
+          type: string
+          description: |-
+            Output only. WebAuthn discovery mode selected by policy.
+
+             Before a subject or session is reliably resolved, passkey-first UI should
+             use discoverable credentials and must not return allow_credentials. For
+             known-user or step-up flows, allow_credentials may be returned only when
+             policy allows exposing credential descriptors.
+          format: enum
+        allowCredentials:
           readOnly: true
           type: array
           items:
-            type: string
-          description: |-
-            Output only. Base64url-encoded credential IDs allowed for this assertion.
-
-             Empty list means discoverable credentials or resident keys may be used.
-      description: |-
-        WebAuthnChallenge contains public parameters for a WebAuthn/passkey assertion
-         ceremony.
-
-         It contains public challenge data and does not contain a server-side session
-         secret.
+            $ref: '#/components/schemas/WebAuthnAllowedCredential'
+          description: Output only. Public credential descriptors allowed for this assertion.
+      description: WebAuthnChallenge contains public parameters for a WebAuthn assertion.
     Xml:
       type: object
       properties:
@@ -2609,3 +3215,23 @@ components:
           items:
             $ref: '#/components/schemas/NamedAny'
       description: A metadata object that allows for more fine-tuned XML model definitions.  When using arrays, XML element names are *not* inferred (for singular/plural forms) and the `name` property SHOULD be used to add that information. See examples for expected behavior.
+tags:
+  - name: AuthenticationProviderCallbackService
+    description: |-
+      AuthenticationProviderCallbackService is an internal normalized provider
+       callback API.
+
+       External IdPs are not expected to send protobuf JSON. HTTP adapters/BFFs
+       receive real callbacks such as GET /callback?code=...&state=... or SAML
+       form-urlencoded POSTs, validate transport concerns, and normalize them into
+       HandleAuthenticationCallbackRequest for this service.
+  - name: AuthenticationService
+    description: |-
+      AuthenticationService is the public SDK/login API for authentication.
+
+       google.longrunning.Operation is used only for asynchronous command processing:
+       starting a workflow, signaling an existing workflow, dispatching provider work,
+       or processing another async orchestration step. An Operation tracks one
+       command. It is not the authentication lifecycle. Authentication.state is the
+       lifecycle source of truth and clients should poll GetAuthentication for the
+       current public-safe snapshot.

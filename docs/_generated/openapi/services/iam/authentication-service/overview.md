@@ -2,15 +2,17 @@
 
 # Authentication API: REST reference
 
-Use this API to start authentication workflows and track their long-running operation state.
+Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| [Handle callback](./HandleAuthenticationCallback.md) | Processes callbacks from external identity providers and returns an updated authentication snapshot without exposing provider secrets or tokens. |
-| [Get](./GetAuthentication.md) | Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets. |
-| [Resend challenge](./ResendAuthenticationChallenge.md) | Resends the current challenge when the selected method supports resend. It does not create a new authentication operation or expose challenge secrets. |
-| [Cancel](./CancelAuthentication.md) | Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged. |
-| [Select challenge](./SelectAuthenticationChallenge.md) | Selects an allowed authentication method or provider and prepares a new public-safe current challenge without verifying user identity. |
-| [Start](./StartAuthentication.md) | Starts a new authentication workflow and returns a long-running operation for tracking progress. |
+| [Handle provider callback](./operations/HandleAuthenticationCallback.md) | Internal normalized API that processes external provider callbacks without exposing provider secrets in public snapshots. |
+| [Get authentication experience](./operations/GetAuthenticationExperience.md) | Returns dynamic login UI configuration, provider options, and public-safe method options. |
+| [Get authentication](./operations/GetAuthentication.md) | Returns the latest public-safe authentication snapshot for polling. |
+| [Cancel authentication](./operations/CancelAuthentication.md) | Cancels an active authentication and returns command-level operation tracking metadata. |
+| [Resend challenge](./operations/ResendAuthenticationChallenge.md) | Resends the current challenge and returns command-level operation tracking metadata. |
+| [Select challenge](./operations/SelectAuthenticationChallenge.md) | Selects an allowed authentication method or provider and returns command-level operation tracking metadata. |
+| [Submit challenge](./operations/SubmitAuthenticationChallenge.md) | Submits a challenge response and returns command-level operation tracking metadata. |
+| [Start authentication](./operations/StartAuthentication.md) | Starts asynchronous authentication command processing and returns command-level operation tracking metadata. |
