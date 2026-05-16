@@ -19,6 +19,7 @@ service AuthenticationService {
   // The returned long-running operation resolves to Authentication when the
   // authentication workflow reaches a terminal state.
   rpc StartAuthentication(StartAuthenticationRequest) returns (google.longrunning.Operation) {
+    option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
       post: "/v1/iam/authentications:start"
       body: "*"
@@ -46,6 +47,17 @@ message StartAuthenticationRequest {
   // Optional. Additional authentication context used for policy and challenge selection.
   AuthenticationContext context = 3 [
     (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Required. Client-generated idempotency key for this start request.
+  //
+  // Retrying StartAuthentication with the same request_id must not create a
+  // second authentication operation. The value must be unique for each logical
+  // start request and should be reused only for retries of that same request.
+  string request_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.uuid = true
   ];
 }
 

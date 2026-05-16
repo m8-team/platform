@@ -23,18 +23,54 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Type of subject identifier carried in value.
 type AuthenticationSubject_Type int32
 
 const (
-	AuthenticationSubject_TYPE_UNSPECIFIED    AuthenticationSubject_Type = 0
-	AuthenticationSubject_USER_ID             AuthenticationSubject_Type = 1
-	AuthenticationSubject_LOGIN_HINT          AuthenticationSubject_Type = 2
-	AuthenticationSubject_EMAIL               AuthenticationSubject_Type = 3
-	AuthenticationSubject_PHONE               AuthenticationSubject_Type = 4
-	AuthenticationSubject_USERNAME            AuthenticationSubject_Type = 5
-	AuthenticationSubject_EXTERNAL_IDENTITY   AuthenticationSubject_Type = 6
+	// Authentication subject type is not specified.
+	AuthenticationSubject_TYPE_UNSPECIFIED AuthenticationSubject_Type = 0
+	// Value contains a stable M8 Identity user identifier.
+	//
+	// Example:
+	// - user_id from a previous authenticated session
+	// - user_id selected by an internal service
+	AuthenticationSubject_USER_ID AuthenticationSubject_Type = 1
+	// Value contains a login hint that needs to be resolved by the server.
+	//
+	// Example:
+	// - opaque login_hint from an authorization request
+	// - tenant-specific username or identifier entered by the user
+	AuthenticationSubject_LOGIN_HINT AuthenticationSubject_Type = 2
+	// Value contains an email address.
+	//
+	// Example:
+	// - primary email entered during sign-in
+	// - email received from a trusted upstream identity provider
+	AuthenticationSubject_EMAIL AuthenticationSubject_Type = 3
+	// Value contains a phone number.
+	//
+	// Example:
+	// - phone number entered for SMS OTP authentication
+	// - verified phone number from an upstream identity provider
+	AuthenticationSubject_PHONE AuthenticationSubject_Type = 4
+	// Value contains a username.
+	//
+	// Example:
+	// - tenant-local username
+	// - employee login name
+	AuthenticationSubject_USERNAME AuthenticationSubject_Type = 5
+	// Value contains an external identity provider subject identifier.
+	//
+	// Example:
+	// - OIDC subject from provider_id and issuer
+	// - SAML NameID scoped by issuer
+	AuthenticationSubject_EXTERNAL_IDENTITY AuthenticationSubject_Type = 6
+	// Value contains a WebAuthn credential identifier.
+	//
+	// Example:
+	// - passkey credential id selected by the browser
+	// - roaming security key credential id
 	AuthenticationSubject_WEBAUTHN_CREDENTIAL AuthenticationSubject_Type = 7
-	AuthenticationSubject_MOBILE_ID           AuthenticationSubject_Type = 8
 )
 
 // Enum value maps for AuthenticationSubject_Type.
@@ -48,7 +84,6 @@ var (
 		5: "USERNAME",
 		6: "EXTERNAL_IDENTITY",
 		7: "WEBAUTHN_CREDENTIAL",
-		8: "MOBILE_ID",
 	}
 	AuthenticationSubject_Type_value = map[string]int32{
 		"TYPE_UNSPECIFIED":    0,
@@ -59,7 +94,6 @@ var (
 		"USERNAME":            5,
 		"EXTERNAL_IDENTITY":   6,
 		"WEBAUTHN_CREDENTIAL": 7,
-		"MOBILE_ID":           8,
 	}
 )
 
@@ -90,12 +124,44 @@ func (AuthenticationSubject_Type) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP(), []int{0, 0}
 }
 
+// AuthenticationSubject identifies or hints at the claimant being authenticated.
+//
+// Example:
+// - user provides an email address on the login screen
+// - client passes a known user identifier for step-up authentication
+// - external identity provider supplies an issuer-scoped subject identifier
 type AuthenticationSubject struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Type          AuthenticationSubject_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"type,omitempty"`
-	Value         string                     `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	ProviderId    string                     `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	Issuer        string                     `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Type of identifier represented by value.
+	// The value is always one of the defined non-zero enum values.
+	//
+	// Example:
+	// - EMAIL when value contains an email address
+	// - PHONE when value contains a phone number
+	// - USER_ID when value contains an M8 Identity user id
+	Type AuthenticationSubject_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"type,omitempty"`
+	// Required. Subject identifier or hint value.
+	//
+	// Example:
+	// - user UUID when type is USER_ID
+	// - email address when type is EMAIL
+	// - phone number when type is PHONE
+	// - external subject when type is EXTERNAL_IDENTITY
+	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	// Optional. Identity provider identifier that scopes provider-specific values.
+	//
+	// Example:
+	// - OIDC provider id for EXTERNAL_IDENTITY
+	// - SAML provider id for EXTERNAL_IDENTITY
+	// - Mobile ID provider id for MOBILE_ID
+	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	// Optional. Issuer that scopes external identity values.
+	//
+	// Example:
+	// - OIDC issuer URL
+	// - SAML entity ID
+	// - mobile operator issuer identifier
+	Issuer        string `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,13 +228,13 @@ var File_m8_platform_iam_v1_authentication_subject_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xed\x02\n" +
+	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xde\x02\n" +
 	"\x15AuthenticationSubject\x12Q\n" +
 	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04type\x12\x1f\n" +
 	"\x05value\x18\x02 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05value\x12$\n" +
 	"\vprovider_id\x18\x03 \x01(\tB\x03\xe0A\x01R\n" +
 	"providerId\x12\x1b\n" +
-	"\x06issuer\x18\x04 \x01(\tB\x03\xe0A\x01R\x06issuer\"\x9c\x01\n" +
+	"\x06issuer\x18\x04 \x01(\tB\x03\xe0A\x01R\x06issuer\"\x8d\x01\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aUSER_ID\x10\x01\x12\x0e\n" +
@@ -178,8 +244,7 @@ const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\x05PHONE\x10\x04\x12\f\n" +
 	"\bUSERNAME\x10\x05\x12\x15\n" +
 	"\x11EXTERNAL_IDENTITY\x10\x06\x12\x17\n" +
-	"\x13WEBAUTHN_CREDENTIAL\x10\a\x12\r\n" +
-	"\tMOBILE_ID\x10\bB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x13WEBAUTHN_CREDENTIAL\x10\aB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_subject_proto_rawDescOnce sync.Once

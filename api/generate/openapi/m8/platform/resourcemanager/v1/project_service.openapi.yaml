@@ -7,7 +7,7 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/projects:
+    /v1/resourcemanager/projects:
         get:
             tags:
                 - ProjectService
@@ -98,7 +98,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Project'
-    /v1/projects/{id}:
+    /v1/resourcemanager/projects/{id}:
         get:
             tags:
                 - ProjectService
@@ -154,7 +154,7 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /v1/projects/{id}:undelete:
+    /v1/resourcemanager/projects/{id}:undelete:
         post:
             tags:
                 - ProjectService
@@ -177,7 +177,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Project'
-    /v1/projects/{project.id}:
+    /v1/resourcemanager/projects/{project.id}:
         patch:
             tags:
                 - ProjectService

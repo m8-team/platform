@@ -11,25 +11,62 @@ import type { Message } from "@bufbuild/protobuf";
 export declare const file_m8_platform_iam_v1_authentication_subject: GenFile;
 
 /**
+ * AuthenticationSubject identifies or hints at the claimant being authenticated.
+ *
+ * Example:
+ * - user provides an email address on the login screen
+ * - client passes a known user identifier for step-up authentication
+ * - external identity provider supplies an issuer-scoped subject identifier
+ *
  * @generated from message m8.platform.iam.v1.AuthenticationSubject
  */
 export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.AuthenticationSubject"> & {
   /**
+   * Required. Type of identifier represented by value.
+   * The value is always one of the defined non-zero enum values.
+   *
+   * Example:
+   * - EMAIL when value contains an email address
+   * - PHONE when value contains a phone number
+   * - USER_ID when value contains an M8 Identity user id
+   *
    * @generated from field: m8.platform.iam.v1.AuthenticationSubject.Type type = 1;
    */
   type: AuthenticationSubject_Type;
 
   /**
+   * Required. Subject identifier or hint value.
+   *
+   * Example:
+   * - user UUID when type is USER_ID
+   * - email address when type is EMAIL
+   * - phone number when type is PHONE
+   * - external subject when type is EXTERNAL_IDENTITY
+   *
    * @generated from field: string value = 2;
    */
   value: string;
 
   /**
+   * Optional. Identity provider identifier that scopes provider-specific values.
+   *
+   * Example:
+   * - OIDC provider id for EXTERNAL_IDENTITY
+   * - SAML provider id for EXTERNAL_IDENTITY
+   * - Mobile ID provider id for MOBILE_ID
+   *
    * @generated from field: string provider_id = 3;
    */
   providerId: string;
 
   /**
+   * Optional. Issuer that scopes external identity values.
+   *
+   * Example:
+   * - OIDC issuer URL
+   * - SAML entity ID
+   * - mobile operator issuer identifier
+   *
    * @generated from field: string issuer = 4;
    */
   issuer: string;
@@ -42,53 +79,94 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
 export declare const AuthenticationSubjectSchema: GenMessage<AuthenticationSubject>;
 
 /**
+ * Type of subject identifier carried in value.
+ *
  * @generated from enum m8.platform.iam.v1.AuthenticationSubject.Type
  */
 export enum AuthenticationSubject_Type {
   /**
+   * Authentication subject type is not specified.
+   *
    * @generated from enum value: TYPE_UNSPECIFIED = 0;
    */
   TYPE_UNSPECIFIED = 0,
 
   /**
+   * Value contains a stable M8 Identity user identifier.
+   *
+   * Example:
+   * - user_id from a previous authenticated session
+   * - user_id selected by an internal service
+   *
    * @generated from enum value: USER_ID = 1;
    */
   USER_ID = 1,
 
   /**
+   * Value contains a login hint that needs to be resolved by the server.
+   *
+   * Example:
+   * - opaque login_hint from an authorization request
+   * - tenant-specific username or identifier entered by the user
+   *
    * @generated from enum value: LOGIN_HINT = 2;
    */
   LOGIN_HINT = 2,
 
   /**
+   * Value contains an email address.
+   *
+   * Example:
+   * - primary email entered during sign-in
+   * - email received from a trusted upstream identity provider
+   *
    * @generated from enum value: EMAIL = 3;
    */
   EMAIL = 3,
 
   /**
+   * Value contains a phone number.
+   *
+   * Example:
+   * - phone number entered for SMS OTP authentication
+   * - verified phone number from an upstream identity provider
+   *
    * @generated from enum value: PHONE = 4;
    */
   PHONE = 4,
 
   /**
+   * Value contains a username.
+   *
+   * Example:
+   * - tenant-local username
+   * - employee login name
+   *
    * @generated from enum value: USERNAME = 5;
    */
   USERNAME = 5,
 
   /**
+   * Value contains an external identity provider subject identifier.
+   *
+   * Example:
+   * - OIDC subject from provider_id and issuer
+   * - SAML NameID scoped by issuer
+   *
    * @generated from enum value: EXTERNAL_IDENTITY = 6;
    */
   EXTERNAL_IDENTITY = 6,
 
   /**
+   * Value contains a WebAuthn credential identifier.
+   *
+   * Example:
+   * - passkey credential id selected by the browser
+   * - roaming security key credential id
+   *
    * @generated from enum value: WEBAUTHN_CREDENTIAL = 7;
    */
   WEBAUTHN_CREDENTIAL = 7,
-
-  /**
-   * @generated from enum value: MOBILE_ID = 8;
-   */
-  MOBILE_ID = 8,
 }
 
 /**

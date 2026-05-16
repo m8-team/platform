@@ -32,7 +32,13 @@ type StartAuthenticationRequest struct {
 	// Optional. Subject identifier or hint used to resolve the authenticating user.
 	Subject *AuthenticationSubject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	// Optional. Additional authentication context used for policy and challenge selection.
-	Context       *AuthenticationContext `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	Context *AuthenticationContext `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	// Required. Client-generated idempotency key for this start request.
+	//
+	// Retrying StartAuthentication with the same request_id must not create a
+	// second authentication operation. The value must be unique for each logical
+	// start request and should be reused only for retries of that same request.
+	RequestId     string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -88,6 +94,13 @@ func (x *StartAuthenticationRequest) GetContext() *AuthenticationContext {
 	return nil
 }
 
+func (x *StartAuthenticationRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
 // Metadata for the StartAuthentication long-running operation.
 type StartAuthenticationOperationMetadata struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -141,16 +154,18 @@ var File_m8_platform_iam_v1_authentication_service_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\x1a/m8/platform/iam/v1/authentication_context.proto\"\xd8\x01\n" +
+	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\x1a/m8/platform/iam/v1/authentication_context.proto\"\x87\x02\n" +
 	"\x1aStartAuthenticationRequest\x12&\n" +
 	"\tclient_id\x18\x01 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bclientId\x12H\n" +
 	"\asubject\x18\x02 \x01(\v2).m8.platform.iam.v1.AuthenticationSubjectB\x03\xe0A\x01R\asubject\x12H\n" +
-	"\acontext\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationContextB\x03\xe0A\x01R\acontext\"w\n" +
+	"\acontext\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationContextB\x03\xe0A\x01R\acontext\x12-\n" +
+	"\n" +
+	"request_id\x18\x04 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\trequestId\"w\n" +
 	"$StartAuthenticationOperationMetadata\x12O\n" +
-	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication2\xb9\x01\n" +
-	"\x15AuthenticationService\x12\x9f\x01\n" +
-	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"9\xcaA6\n" +
-	"\x0eAuthentication\x12$StartAuthenticationOperationMetadataB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication2\xe4\x01\n" +
+	"\x15AuthenticationService\x12\xca\x01\n" +
+	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"d\xcaA6\n" +
+	"\x0eAuthentication\x12$StartAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_service_proto_rawDescOnce sync.Once

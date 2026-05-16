@@ -6,6 +6,187 @@ info:
     title: M8 Platform API
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
-paths: {}
+paths:
+    /v1/iam/authentications:start:
+        post:
+            tags:
+                - AuthenticationService
+            description: |-
+                Starts a new authentication operation.
+
+                 The returned long-running operation resolves to Authentication when the
+                 authentication workflow reaches a terminal state.
+            operationId: AuthenticationService_StartAuthentication
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/StartAuthenticationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Operation'
 components:
-    schemas: {}
+    schemas:
+        AuthenticationContext:
+            type: object
+            properties: {}
+        AuthenticationSubject:
+            required:
+                - type
+                - value
+            type: object
+            properties:
+                type:
+                    enum:
+                        - TYPE_UNSPECIFIED
+                        - USER_ID
+                        - LOGIN_HINT
+                        - EMAIL
+                        - PHONE
+                        - USERNAME
+                        - EXTERNAL_IDENTITY
+                        - WEBAUTHN_CREDENTIAL
+                    type: string
+                    description: |-
+                        Required. Type of identifier represented by value.
+                         The value is always one of the defined non-zero enum values.
+
+                         Example:
+                         - EMAIL when value contains an email address
+                         - PHONE when value contains a phone number
+                         - USER_ID when value contains an M8 Identity user id
+                    format: enum
+                value:
+                    type: string
+                    description: |-
+                        Required. Subject identifier or hint value.
+
+                         Example:
+                         - user UUID when type is USER_ID
+                         - email address when type is EMAIL
+                         - phone number when type is PHONE
+                         - external subject when type is EXTERNAL_IDENTITY
+                providerId:
+                    type: string
+                    description: |-
+                        Optional. Identity provider identifier that scopes provider-specific values.
+
+                         Example:
+                         - OIDC provider id for EXTERNAL_IDENTITY
+                         - SAML provider id for EXTERNAL_IDENTITY
+                         - Mobile ID provider id for MOBILE_ID
+                issuer:
+                    type: string
+                    description: |-
+                        Optional. Issuer that scopes external identity values.
+
+                         Example:
+                         - OIDC issuer URL
+                         - SAML entity ID
+                         - mobile operator issuer identifier
+            description: |-
+                AuthenticationSubject identifies or hints at the claimant being authenticated.
+
+                 Example:
+                 - user provides an email address on the login screen
+                 - client passes a known user identifier for step-up authentication
+                 - external identity provider supplies an issuer-scoped subject identifier
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Operation:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: |-
+                        The server-assigned name, which is only unique within the same service that
+                         originally returns it. If you use the default HTTP mapping, the
+                         `name` should be a resource name ending with `operations/{unique_id}`.
+                metadata:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: |-
+                        Service-specific metadata associated with the operation.  It typically
+                         contains progress information and common metadata such as create time.
+                         Some services might not provide such metadata.  Any method that returns a
+                         long-running operation should document the metadata type, if any.
+                done:
+                    type: boolean
+                    description: |-
+                        If the value is `false`, it means the operation is still in progress.
+                         If `true`, the operation is completed, and either `error` or `response` is
+                         available.
+                error:
+                    allOf:
+                        - $ref: '#/components/schemas/Status'
+                    description: The error result of the operation in case of failure or cancellation.
+                response:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: |-
+                        The normal, successful response of the operation.  If the original
+                         method returns no data on success, such as `Delete`, the response is
+                         `google.protobuf.Empty`.  If the original method is standard
+                         `Get`/`Create`/`Update`, the response should be the resource.  For other
+                         methods, the response should have the type `XxxResponse`, where `Xxx`
+                         is the original method name.  For example, if the original method name
+                         is `TakeSnapshot()`, the inferred response type is
+                         `TakeSnapshotResponse`.
+            description: |-
+                This resource represents a long-running operation that is the result of a
+                 network API call.
+        StartAuthenticationRequest:
+            required:
+                - clientId
+                - requestId
+            type: object
+            properties:
+                clientId:
+                    type: string
+                    description: Required. Immutable client application identifier that initiates authentication.
+                subject:
+                    allOf:
+                        - $ref: '#/components/schemas/AuthenticationSubject'
+                    description: Optional. Subject identifier or hint used to resolve the authenticating user.
+                context:
+                    allOf:
+                        - $ref: '#/components/schemas/AuthenticationContext'
+                    description: Optional. Additional authentication context used for policy and challenge selection.
+                requestId:
+                    type: string
+                    description: |-
+                        Required. Client-generated idempotency key for this start request.
+
+                         Retrying StartAuthentication with the same request_id must not create a
+                         second authentication operation. The value must be unique for each logical
+                         start request and should be reused only for retries of that same request.
+            description: Request to start an authentication operation.
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+tags:
+    - name: AuthenticationService

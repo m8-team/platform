@@ -14,6 +14,19 @@ const generatedOpenapiRoot = path.join(docsRoot, '_generated', 'openapi');
 const generatedServicesRoot = path.join(generatedOpenapiRoot, 'services');
 const docsOverviewTargets = [
   {
+    groupSegments: ['iam'],
+    title: 'Overview',
+    intro: 'Этот REST reference организован по сервисам `IAM`.',
+    outputFile: path.join(
+      docsRoot,
+      'services',
+      'iam',
+      'api-reference',
+      'rest',
+      'index.md',
+    ),
+  },
+  {
     groupSegments: ['resourcemanager'],
     title: 'Overview',
     intro: 'Этот REST reference организован по сервисам `Resource Manager`.',

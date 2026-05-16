@@ -3,6 +3,35 @@ href: index.md
 items:
   - name: Сервисы
     items:
+      - name: IAM
+        href: services/iam/index.md
+        items:
+          - name: Управление доступом
+            href: services/iam/access-management.md
+          - name: Справочник API
+            items:
+              - name: Аутентификация
+                href: services/iam/api-reference/authentication.md
+              - name: REST
+                items:
+                  - name: Overview
+                    href: services/iam/api-reference/rest/index.md
+                  - name: Authentication
+                    include:
+                      path: services/iam/api-reference/rest/authentication
+                      includers:
+                        - name: openapi
+                          input: _generated/openapi/services/iam/authentication-service/openapi.yaml
+                          leadingPage:
+                            name: Overview
+                            spec:
+                              renderMode: hidden
+                          tags:
+                            __root__:
+                              name: Overview
+                              path: overview.md
+                              alias: overview
+                    mode: link
       - name: Resource Manager
         href: services/resource-manager/index.md
         items:

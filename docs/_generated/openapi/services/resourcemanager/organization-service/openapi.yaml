@@ -4,7 +4,7 @@ info:
   description: Use this API to create, list, view, update, soft-delete, and undelete organizations.
   version: v1
 paths:
-  /v1/organizations:
+  /v1/resourcemanager/organizations:
     get:
       summary: List
       description: Returns a paginated list of organizations available to the caller.
@@ -74,7 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
-  /v1/organizations/{id}:
+  /v1/resourcemanager/organizations/{id}:
     get:
       summary: Get
       description: Returns a single organization by its UUID.
@@ -126,7 +126,7 @@ paths:
         '200':
           description: OK
           content: {}
-  /v1/organizations/{id}:undelete:
+  /v1/resourcemanager/organizations/{id}:undelete:
     post:
       summary: Undelete
       description: Restores a previously soft-deleted organization.
@@ -147,7 +147,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
-  /v1/organizations/{organization.id}:
+  /v1/resourcemanager/organizations/{organization.id}:
     patch:
       summary: Update
       description: Updates mutable fields of an existing organization.

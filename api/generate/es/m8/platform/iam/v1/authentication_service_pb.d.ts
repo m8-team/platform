@@ -40,6 +40,17 @@ export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.Sta
    * @generated from field: m8.platform.iam.v1.AuthenticationContext context = 3;
    */
   context?: AuthenticationContext;
+
+  /**
+   * Required. Client-generated idempotency key for this start request.
+   *
+   * Retrying StartAuthentication with the same request_id must not create a
+   * second authentication operation. The value must be unique for each logical
+   * start request and should be reused only for retries of that same request.
+   *
+   * @generated from field: string request_id = 4;
+   */
+  requestId: string;
 };
 
 /**

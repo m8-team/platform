@@ -63,6 +63,7 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 			httpClient,
 			baseURL+AuthenticationServiceStartAuthenticationProcedure,
 			connect.WithSchema(authenticationServiceMethods.ByName("StartAuthentication")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -99,6 +100,7 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 		AuthenticationServiceStartAuthenticationProcedure,
 		svc.StartAuthentication,
 		connect.WithSchema(authenticationServiceMethods.ByName("StartAuthentication")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/m8.platform.iam.v1.AuthenticationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
