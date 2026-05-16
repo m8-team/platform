@@ -305,13 +305,50 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
+  // Required. Immutable project identifier that owns this authentication operation.
+  //
+  // Example:
+  // - used to isolate authentication data by project
+  // - used to load project-scoped authentication configuration
+  // - remains unchanged for the lifetime of the operation
+  string project_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Immutable user pool identifier where the identity must be resolved.
+  //
+  // Example:
+  // - selects the identity namespace for the authentication operation
+  // - scopes user lookup, authenticators, and provider links
+  // - remains unchanged for the lifetime of the operation
+  string user_pool_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Required. Immutable client application identifier that initiated authentication.
+  // The value is an opaque client identifier and is not required to be a UUID.
+  //
+  // Example:
+  // - first-party web application
+  // - first-party mobile application
+  // - backend service acting as an authentication client
+  // - external OIDC client
+  string client_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
   // Required. Temporal workflow identifier that executes this authentication operation.
   //
   // Example:
   // - assigned when the authentication workflow is started
   // - used to signal or query the workflow execution
   // - remains stable for the lifetime of the workflow
-  string workflow_id = 2 [
+  string workflow_id = 5 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
@@ -323,7 +360,7 @@ message Authentication {
   // - assigned when the workflow run is started
   // - used with workflow_id to correlate worker logs and callbacks
   // - identifies the run that produced the current authentication state
-  string run_id = 3 [
+  string run_id = 6 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true
@@ -336,7 +373,7 @@ message Authentication {
   // - CHALLENGE_DELIVERED after the challenge is exposed
   // - WAITING_FOR_USER while user action is pending
   // - AUTHENTICATED after successful completion
-  State state = 4 [
+  State state = 7 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
@@ -351,75 +388,12 @@ message Authentication {
   // - OTP for one-time password authentication
   // - WEBAUTHN for passkey or security key authentication
   // - PASSWORD for password-based authentication
-  Challenge challenge = 5 [
+  Challenge challenge = 8 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
       not_in: [0]
     }
-  ];
-
-  // Output only. Time when the authentication operation was created.
-  // Remains unchanged for the lifetime of the operation.
-  google.protobuf.Timestamp create_time = 6 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (google.api.field_behavior) = IMMUTABLE
-  ];
-
-  // Output only. Time when the authentication operation was last updated.
-  //
-  // Example:
-  // - state transition was persisted
-  // - challenge delivery result was recorded
-  // - authentication completion or failure was recorded
-  google.protobuf.Timestamp update_time = 7 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
-
-  // Output only. Time when the authentication operation expires.
-  //
-  // Example:
-  // - user action must be completed before this time
-  // - stale authentication operations can be failed after this time
-  google.protobuf.Timestamp expire_time = 8 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
-
-  // Required. Immutable project identifier that owns this authentication operation.
-  //
-  // Example:
-  // - used to isolate authentication data by project
-  // - used to load project-scoped authentication configuration
-  // - remains unchanged for the lifetime of the operation
-  string project_id = 9 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.field_behavior) = IMMUTABLE,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  // Required. Immutable user pool identifier where the identity must be resolved.
-  //
-  // Example:
-  // - selects the identity namespace for the authentication operation
-  // - scopes user lookup, authenticators, and provider links
-  // - remains unchanged for the lifetime of the operation
-  string user_pool_id = 10 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.field_behavior) = IMMUTABLE,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  // Required. Immutable client application identifier that initiated authentication.
-  // The value is an opaque client identifier and is not required to be a UUID.
-  //
-  // Example:
-  // - first-party web application
-  // - first-party mobile application
-  // - backend service acting as an authentication client
-  // - external OIDC client
-  string client_id = 11 [
-    (google.api.field_behavior) = REQUIRED,
-    (google.api.field_behavior) = IMMUTABLE
   ];
 
   // Required. Minimum authentication assurance level requested for this operation.
@@ -429,7 +403,7 @@ message Authentication {
   // - AAL1 for normal login
   // - AAL2 for sensitive operation
   // - AAL3 for privileged operation
-  AssuranceLevel requested_assurance_level = 15 [
+  AssuranceLevel requested_assurance_level = 9 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
@@ -445,12 +419,38 @@ message Authentication {
   // - AAL0 when the operation has just been created
   // - requested AAL2, achieved AAL2 after OTP + password
   // - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
-  AssuranceLevel achieved_assurance_level = 16 [
+  AssuranceLevel achieved_assurance_level = 10 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum = {
       defined_only: true
       not_in: [0]
     }
+  ];
+
+  // Output only. Time when the authentication operation was created.
+  // Remains unchanged for the lifetime of the operation.
+  google.protobuf.Timestamp create_time = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.field_behavior) = IMMUTABLE
+  ];
+
+  // Output only. Time when the authentication operation was last updated.
+  //
+  // Example:
+  // - state transition was persisted
+  // - challenge delivery result was recorded
+  // - authentication completion or failure was recorded
+  google.protobuf.Timestamp update_time = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Output only. Time when the authentication operation expires.
+  //
+  // Example:
+  // - user action must be completed before this time
+  // - stale authentication operations can be failed after this time
+  google.protobuf.Timestamp expire_time = 13 [
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
   // Output only. Monotonic version of the authentication operation.
@@ -459,7 +459,7 @@ message Authentication {
   // Example:
   // - incremented after each persisted state transition
   // - used to build etag and detect stale aggregate snapshots
-  int64 version = 17 [
+  int64 version = 14 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int64.gte = 1
   ];

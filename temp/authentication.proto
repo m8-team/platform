@@ -15,30 +15,9 @@ option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zend
 // Аутентификация
 message Authentication {
 
-
-  // UUID соединения
-  string channel_id = 4 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
-  
-  // UUID провайдера
-  string provider_id = 5 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
-
   // Способ идентификации пользователя
   Identity identity = 6 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
  
-  // IP адрес клиента
-  string client_ip = 7 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.ip = true];
-
-  // Источник (web / mobile / retail)
-  string source_type = 8 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}];
-
-  // Источник
-  string source_id = 9 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}]; // zenden.ru|zenden_mobile|corp|uuid
-
-  // Статус аутентификации
-  AuthenticationState state = 10 [
-    (google.api.field_behavior) = REQUIRED, 
-    (validate.rules).enum = { defined_only: true, not_in: [0] }
-  ];
 
   // Оставшееся кол-во попыток ввода OTP
   // Может быть null, если количество попыток ещё не устанавливалось.
@@ -51,13 +30,6 @@ message Authentication {
   FailReason fail_reason = 12 [
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
-
-  // Метаданные
-  map<string, string> metadata = 13 [(validate.rules).map = {ignore_empty: true, max_pairs: 32, keys: {string: {max_len: 64}}, values: {string: {max_len: 256}}}];
-
-
-  // Был ли использован fallback
-  bool fallback_used = 17;
 
   // Детальная информация о причине ошибки аутентификации
   message FailReason {
