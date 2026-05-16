@@ -65,12 +65,6 @@ const (
 	// - OIDC subject from provider_id and issuer
 	// - SAML NameID scoped by issuer
 	AuthenticationSubject_EXTERNAL_IDENTITY AuthenticationSubject_Type = 6
-	// Value contains a WebAuthn credential identifier.
-	//
-	// Example:
-	// - passkey credential id selected by the browser
-	// - roaming security key credential id
-	AuthenticationSubject_WEBAUTHN_CREDENTIAL AuthenticationSubject_Type = 7
 )
 
 // Enum value maps for AuthenticationSubject_Type.
@@ -83,17 +77,15 @@ var (
 		4: "PHONE",
 		5: "USERNAME",
 		6: "EXTERNAL_IDENTITY",
-		7: "WEBAUTHN_CREDENTIAL",
 	}
 	AuthenticationSubject_Type_value = map[string]int32{
-		"TYPE_UNSPECIFIED":    0,
-		"USER_ID":             1,
-		"LOGIN_HINT":          2,
-		"EMAIL":               3,
-		"PHONE":               4,
-		"USERNAME":            5,
-		"EXTERNAL_IDENTITY":   6,
-		"WEBAUTHN_CREDENTIAL": 7,
+		"TYPE_UNSPECIFIED":  0,
+		"USER_ID":           1,
+		"LOGIN_HINT":        2,
+		"EMAIL":             3,
+		"PHONE":             4,
+		"USERNAME":          5,
+		"EXTERNAL_IDENTITY": 6,
 	}
 )
 
@@ -142,10 +134,16 @@ type AuthenticationSubject struct {
 	Type AuthenticationSubject_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"type,omitempty"`
 	// Required. Subject identifier or hint value.
 	//
+	// Validation depends on type:
+	// - USER_ID must be a UUID
+	// - EMAIL must be a valid email address
+	// - PHONE must be an E.164 phone number
+	// - USERNAME must be 3 to 64 characters and match the username pattern
+	//
 	// Example:
 	// - user UUID when type is USER_ID
 	// - email address when type is EMAIL
-	// - phone number when type is PHONE
+	// - phone number in E.164 format when type is PHONE
 	// - external subject when type is EXTERNAL_IDENTITY
 	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
 	// Optional. Provider identifier that scopes provider-specific subject values.
@@ -155,6 +153,7 @@ type AuthenticationSubject struct {
 	//
 	// This field should normally be set only when type is EXTERNAL_IDENTITY,
 	// or when LOGIN_HINT is explicitly provider-scoped.
+	// This field is required when type is EXTERNAL_IDENTITY.
 	//
 	// Example:
 	// - "google" for an OIDC external subject
@@ -166,6 +165,8 @@ type AuthenticationSubject struct {
 	// This field should normally be set only when type is EXTERNAL_IDENTITY.
 	// For OIDC it should match the issuer claim. For SAML it should match the
 	// IdP entity ID.
+	// When type is EXTERNAL_IDENTITY, this field is required unless the server
+	// can resolve the issuer from provider_id.
 	//
 	// The server must validate this value against the configured provider.
 	// Clients should not be allowed to freely choose arbitrary issuers.
@@ -236,13 +237,13 @@ var File_m8_platform_iam_v1_authentication_subject_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xde\x02\n" +
+	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xc4\x02\n" +
 	"\x15AuthenticationSubject\x12Q\n" +
 	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04type\x12\x1f\n" +
 	"\x05value\x18\x02 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x05value\x12$\n" +
 	"\vprovider_id\x18\x03 \x01(\tB\x03\xe0A\x01R\n" +
 	"providerId\x12\x1b\n" +
-	"\x06issuer\x18\x04 \x01(\tB\x03\xe0A\x01R\x06issuer\"\x8d\x01\n" +
+	"\x06issuer\x18\x04 \x01(\tB\x03\xe0A\x01R\x06issuer\"t\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aUSER_ID\x10\x01\x12\x0e\n" +
@@ -251,8 +252,7 @@ const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\x05EMAIL\x10\x03\x12\t\n" +
 	"\x05PHONE\x10\x04\x12\f\n" +
 	"\bUSERNAME\x10\x05\x12\x15\n" +
-	"\x11EXTERNAL_IDENTITY\x10\x06\x12\x17\n" +
-	"\x13WEBAUTHN_CREDENTIAL\x10\aB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x11EXTERNAL_IDENTITY\x10\x06B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_subject_proto_rawDescOnce sync.Once

@@ -40,6 +40,63 @@ service AuthenticationService {
       operation_id: "StartAuthentication"
     };
   }
+
+  // Returns the latest snapshot of an authentication operation.
+  //
+  // It is safe to call this method repeatedly for polling. The response must not
+  // contain sensitive challenge secrets such as OTP codes, passwords, provider
+  // tokens, or internal callback secrets.
+  //
+  // Authorization:
+  // - caller must be allowed to read the operation in the resolved project and
+  //   user pool
+  // - public clients may only read operations they started or are allowed to poll
+  rpc GetAuthentication(GetAuthenticationRequest) returns (Authentication) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+    option (google.api.http) = {get: "/v1/iam/authentications/{authentication_id}"};
+    option (google.api.method_signature) = "authentication_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get"
+      description: "Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets."
+      operation_id: "GetAuthentication"
+    };
+  }
+
+  // Cancels an active authentication operation.
+  //
+  // The method is idempotent. Canceling an already terminal authentication
+  // returns the current snapshot without changing its state.
+  //
+  // Cancel transition:
+  // - active states transition to CANCELED
+  // - terminal states are returned unchanged
+  // - a successful transition updates update_time and increments version
+  // - terminal snapshots keep their existing update_time and version
+  //
+  // Implementation TODO:
+  // - load Authentication by authentication_id
+  // - return terminal snapshots unchanged
+  // - persist state = CANCELED with optimistic version check
+  // - emit audit or outbox event when the event model exists
+  // - signal or cancel the underlying Temporal workflow
+  //
+  // Authorization:
+  // - caller must be allowed to cancel the authentication operation
+  // - public clients may cancel only their own active operation
+  // - admin and service callers may cancel according to policy
+  rpc CancelAuthentication(CancelAuthenticationRequest) returns (Authentication) {
+    option idempotency_level = IDEMPOTENT;
+    option (google.api.http) = {
+      post: "/v1/iam/authentications/{authentication_id}:cancel"
+      body: "*"
+    };
+    option (google.api.method_signature) = "authentication_id,request_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Cancel"
+      description: "Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged."
+      operation_id: "CancelAuthentication"
+    };
+  }
 }
 
 // Request to start an authentication operation.
@@ -70,6 +127,75 @@ message StartAuthenticationRequest {
   // The same client_id and request_id must resolve to the same Authentication
   // operation. When omitted, retries are not guaranteed to be idempotent.
   string request_id = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+// Request to read the latest authentication operation snapshot.
+message GetAuthenticationRequest {
+  // Required. Stable unique identifier of the authentication operation to read.
+  // The value must be a valid UUID string.
+  //
+  // The server returns the latest known aggregate snapshot. This request does
+  // not change authentication state and is safe for client or BFF polling.
+  //
+  // Example:
+  // {
+  //   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34"
+  // }
+  string authentication_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 255
+      uuid: true
+    }
+  ];
+}
+
+// Request to cancel an active authentication operation.
+message CancelAuthenticationRequest {
+  // Required. Stable unique identifier of the authentication operation to cancel.
+  // The value must be a valid UUID string.
+  string authentication_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 255
+      uuid: true
+    }
+  ];
+
+  // Optional. Human-readable or machine-readable reason for cancellation.
+  //
+  // Example:
+  // - "user_closed_login_window"
+  // - "client_restarted_flow"
+  // - "session_replaced"
+  // - "admin_requested"
+  string reason = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  // Optional. Idempotency key for retrying cancellation.
+  //
+  // CancelAuthentication is naturally idempotent for terminal states, but
+  // request_id allows the server to deduplicate concurrent cancellation attempts.
+  // The same authentication_id and request_id must resolve to the same
+  // cancellation result.
+  //
+  // Example:
+  // {
+  //   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34",
+  //   "reason": "user_closed_login_window",
+  //   "request_id": "0d8b7e3e-7e1c-4b7e-8a8f-1f3c2c4f9d11"
+  // }
+  string request_id = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
     (buf.validate.field).string.uuid = true

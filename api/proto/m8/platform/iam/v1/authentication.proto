@@ -20,6 +20,25 @@ message Authentication {
   option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
 
   // Current lifecycle state of an authentication operation.
+  //
+  // Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+  // CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
+  // CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+  //
+  // Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+  // ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
+  //
+  // Cancel transition rule:
+  // - cancelable state -> CANCELED
+  // - terminal states are immutable
+  //
+  // On a successful transition to CANCELED, update_time is updated and version is
+  // incremented. If the operation is already terminal, update_time and version
+  // are not changed.
+  //
+  // TODO: Add an explicit state_reason when the authentication state reason
+  // contract is introduced. Cancel is a normal user/client action and should not
+  // populate error.
   enum State {
     // Authentication state is not specified.
     STATE_UNSPECIFIED = 0;

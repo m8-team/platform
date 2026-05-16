@@ -35,7 +35,8 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   id: string;
 
   /**
-   * Required. Immutable project identifier that owns this authentication operation.
+   * Output only. Immutable project identifier that owns this authentication operation.
+   * The server resolves this value from client_id and client configuration.
    *
    * Example:
    * - used to isolate authentication data by project
@@ -47,7 +48,8 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   projectId: string;
 
   /**
-   * Required. Immutable user pool identifier where the identity must be resolved.
+   * Output only. Immutable user pool identifier where the identity must be resolved.
+   * The server resolves this value from client_id and client configuration.
    *
    * Example:
    * - selects the identity namespace for the authentication operation
@@ -60,7 +62,7 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
 
   /**
    * Required. Immutable client application identifier that initiated authentication.
-   * The value is an opaque client identifier and is not required to be a UUID.
+   * The value must be a UUID.
    *
    * Example:
    * - first-party web application
@@ -204,6 +206,16 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
    * @generated from field: string user_id = 15;
    */
   userId: string;
+
+  /**
+   * @generated from field: m8.platform.iam.v1.AuthenticationError error = 17;
+   */
+  error?: AuthenticationError;
+
+  /**
+   * @generated from field: string etag = 20;
+   */
+  etag: string;
 };
 
 /**
@@ -214,6 +226,25 @@ export declare const AuthenticationSchema: GenMessage<Authentication>;
 
 /**
  * Current lifecycle state of an authentication operation.
+ *
+ * Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+ * CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
+ * CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+ *
+ * Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+ * ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
+ *
+ * Cancel transition rule:
+ * - cancelable state -> CANCELED
+ * - terminal states are immutable
+ *
+ * On a successful transition to CANCELED, update_time is updated and version is
+ * incremented. If the operation is already terminal, update_time and version
+ * are not changed.
+ *
+ * TODO: Add an explicit state_reason when the authentication state reason
+ * contract is introduced. Cancel is a normal user/client action and should not
+ * populate error.
  *
  * @generated from enum m8.platform.iam.v1.Authentication.State
  */
@@ -644,4 +675,35 @@ export enum Authentication_AssuranceLevel {
  * Describes the enum m8.platform.iam.v1.Authentication.AssuranceLevel.
  */
 export declare const Authentication_AssuranceLevelSchema: GenEnum<Authentication_AssuranceLevel>;
+
+/**
+ * @generated from message m8.platform.iam.v1.AuthenticationError
+ */
+export declare type AuthenticationError = Message<"m8.platform.iam.v1.AuthenticationError"> & {
+  /**
+   * @generated from field: string code = 1;
+   */
+  code: string;
+
+  /**
+   * @generated from field: string message = 2;
+   */
+  message: string;
+
+  /**
+   * @generated from field: string provider_id = 3;
+   */
+  providerId: string;
+
+  /**
+   * @generated from field: string reason = 4;
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.AuthenticationError.
+ * Use `create(AuthenticationErrorSchema)` to create a new message.
+ */
+export declare const AuthenticationErrorSchema: GenMessage<AuthenticationError>;
 

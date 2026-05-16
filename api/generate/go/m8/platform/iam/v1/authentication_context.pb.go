@@ -7,8 +7,12 @@
 package iam
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,8 +25,639 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// ApplicationType identifies the broad class of client application.
+type ClientContext_ApplicationType int32
+
+const (
+	// Application type is not specified.
+	ClientContext_APPLICATION_TYPE_UNSPECIFIED ClientContext_ApplicationType = 0
+	// Server-rendered or traditional web application.
+	ClientContext_APPLICATION_TYPE_WEB ClientContext_ApplicationType = 1
+	// Browser-based single-page application.
+	ClientContext_APPLICATION_TYPE_SPA ClientContext_ApplicationType = 2
+	// Native mobile application.
+	ClientContext_APPLICATION_TYPE_MOBILE ClientContext_ApplicationType = 3
+	// Backend or confidential service client.
+	ClientContext_APPLICATION_TYPE_BACKEND ClientContext_ApplicationType = 4
+	// Command-line client.
+	ClientContext_APPLICATION_TYPE_CLI ClientContext_ApplicationType = 5
+	// Device or embedded client, including constrained-input devices.
+	ClientContext_APPLICATION_TYPE_DEVICE ClientContext_ApplicationType = 6
+)
+
+// Enum value maps for ClientContext_ApplicationType.
+var (
+	ClientContext_ApplicationType_name = map[int32]string{
+		0: "APPLICATION_TYPE_UNSPECIFIED",
+		1: "APPLICATION_TYPE_WEB",
+		2: "APPLICATION_TYPE_SPA",
+		3: "APPLICATION_TYPE_MOBILE",
+		4: "APPLICATION_TYPE_BACKEND",
+		5: "APPLICATION_TYPE_CLI",
+		6: "APPLICATION_TYPE_DEVICE",
+	}
+	ClientContext_ApplicationType_value = map[string]int32{
+		"APPLICATION_TYPE_UNSPECIFIED": 0,
+		"APPLICATION_TYPE_WEB":         1,
+		"APPLICATION_TYPE_SPA":         2,
+		"APPLICATION_TYPE_MOBILE":      3,
+		"APPLICATION_TYPE_BACKEND":     4,
+		"APPLICATION_TYPE_CLI":         5,
+		"APPLICATION_TYPE_DEVICE":      6,
+	}
+)
+
+func (x ClientContext_ApplicationType) Enum() *ClientContext_ApplicationType {
+	p := new(ClientContext_ApplicationType)
+	*p = x
+	return p
+}
+
+func (x ClientContext_ApplicationType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ClientContext_ApplicationType) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[0].Descriptor()
+}
+
+func (ClientContext_ApplicationType) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[0]
+}
+
+func (x ClientContext_ApplicationType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ClientContext_ApplicationType.Descriptor instead.
+func (ClientContext_ApplicationType) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{2, 0}
+}
+
+// LoginExperience describes the server-selected login experience for this
+// client and request.
+type ClientContext_LoginExperience int32
+
+const (
+	// Login experience is not specified.
+	ClientContext_LOGIN_EXPERIENCE_UNSPECIFIED ClientContext_LoginExperience = 0
+	// User identifies themselves before the authentication method is selected.
+	ClientContext_LOGIN_EXPERIENCE_IDENTIFIER_FIRST ClientContext_LoginExperience = 1
+	// Passwordless method selection is preferred before password entry.
+	ClientContext_LOGIN_EXPERIENCE_PASSWORDLESS_FIRST ClientContext_LoginExperience = 2
+	// Passkey or WebAuthn authentication is preferred first.
+	ClientContext_LOGIN_EXPERIENCE_PASSKEY_FIRST ClientContext_LoginExperience = 3
+	// External provider selection is preferred first.
+	ClientContext_LOGIN_EXPERIENCE_PROVIDER_FIRST ClientContext_LoginExperience = 4
+	// Step-up experience is selected for an existing session or sensitive action.
+	ClientContext_LOGIN_EXPERIENCE_STEP_UP ClientContext_LoginExperience = 5
+)
+
+// Enum value maps for ClientContext_LoginExperience.
+var (
+	ClientContext_LoginExperience_name = map[int32]string{
+		0: "LOGIN_EXPERIENCE_UNSPECIFIED",
+		1: "LOGIN_EXPERIENCE_IDENTIFIER_FIRST",
+		2: "LOGIN_EXPERIENCE_PASSWORDLESS_FIRST",
+		3: "LOGIN_EXPERIENCE_PASSKEY_FIRST",
+		4: "LOGIN_EXPERIENCE_PROVIDER_FIRST",
+		5: "LOGIN_EXPERIENCE_STEP_UP",
+	}
+	ClientContext_LoginExperience_value = map[string]int32{
+		"LOGIN_EXPERIENCE_UNSPECIFIED":        0,
+		"LOGIN_EXPERIENCE_IDENTIFIER_FIRST":   1,
+		"LOGIN_EXPERIENCE_PASSWORDLESS_FIRST": 2,
+		"LOGIN_EXPERIENCE_PASSKEY_FIRST":      3,
+		"LOGIN_EXPERIENCE_PROVIDER_FIRST":     4,
+		"LOGIN_EXPERIENCE_STEP_UP":            5,
+	}
+)
+
+func (x ClientContext_LoginExperience) Enum() *ClientContext_LoginExperience {
+	p := new(ClientContext_LoginExperience)
+	*p = x
+	return p
+}
+
+func (x ClientContext_LoginExperience) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ClientContext_LoginExperience) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[1].Descriptor()
+}
+
+func (ClientContext_LoginExperience) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[1]
+}
+
+func (x ClientContext_LoginExperience) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ClientContext_LoginExperience.Descriptor instead.
+func (ClientContext_LoginExperience) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{2, 1}
+}
+
+// StepUpReason describes why stronger or fresher authentication is requested.
+type SessionContext_StepUpReason int32
+
+const (
+	// Step-up reason is not specified.
+	SessionContext_STEP_UP_REASON_UNSPECIFIED SessionContext_StepUpReason = 0
+	// Authentication is required for a sensitive operation.
+	SessionContext_STEP_UP_REASON_SENSITIVE_OPERATION SessionContext_StepUpReason = 1
+	// Risk policy requires additional authentication.
+	SessionContext_STEP_UP_REASON_RISK_POLICY SessionContext_StepUpReason = 2
+	// Existing session is older than the accepted max age.
+	SessionContext_STEP_UP_REASON_SESSION_TOO_OLD SessionContext_StepUpReason = 3
+	// Existing session assurance is lower than the requested assurance level.
+	SessionContext_STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW SessionContext_StepUpReason = 4
+	// User explicitly requested re-authentication or stronger authentication.
+	SessionContext_STEP_UP_REASON_USER_REQUESTED SessionContext_StepUpReason = 5
+	// Administrative or tenant policy requires step-up.
+	SessionContext_STEP_UP_REASON_ADMIN_POLICY SessionContext_StepUpReason = 6
+)
+
+// Enum value maps for SessionContext_StepUpReason.
+var (
+	SessionContext_StepUpReason_name = map[int32]string{
+		0: "STEP_UP_REASON_UNSPECIFIED",
+		1: "STEP_UP_REASON_SENSITIVE_OPERATION",
+		2: "STEP_UP_REASON_RISK_POLICY",
+		3: "STEP_UP_REASON_SESSION_TOO_OLD",
+		4: "STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW",
+		5: "STEP_UP_REASON_USER_REQUESTED",
+		6: "STEP_UP_REASON_ADMIN_POLICY",
+	}
+	SessionContext_StepUpReason_value = map[string]int32{
+		"STEP_UP_REASON_UNSPECIFIED":             0,
+		"STEP_UP_REASON_SENSITIVE_OPERATION":     1,
+		"STEP_UP_REASON_RISK_POLICY":             2,
+		"STEP_UP_REASON_SESSION_TOO_OLD":         3,
+		"STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW": 4,
+		"STEP_UP_REASON_USER_REQUESTED":          5,
+		"STEP_UP_REASON_ADMIN_POLICY":            6,
+	}
+)
+
+func (x SessionContext_StepUpReason) Enum() *SessionContext_StepUpReason {
+	p := new(SessionContext_StepUpReason)
+	*p = x
+	return p
+}
+
+func (x SessionContext_StepUpReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SessionContext_StepUpReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[2].Descriptor()
+}
+
+func (SessionContext_StepUpReason) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[2]
+}
+
+func (x SessionContext_StepUpReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SessionContext_StepUpReason.Descriptor instead.
+func (SessionContext_StepUpReason) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{3, 0}
+}
+
+// UiMode describes the protocol or UI channel used for interaction.
+type InteractionContext_UiMode int32
+
+const (
+	// UI mode is not specified.
+	InteractionContext_UI_MODE_UNSPECIFIED InteractionContext_UiMode = 0
+	// Browser redirect-based authentication.
+	InteractionContext_UI_MODE_REDIRECT InteractionContext_UiMode = 1
+	// Embedded login UI inside an application shell.
+	InteractionContext_UI_MODE_EMBEDDED InteractionContext_UiMode = 2
+	// API-driven interaction without a hosted UI.
+	InteractionContext_UI_MODE_API InteractionContext_UiMode = 3
+	// OAuth device code or constrained device interaction.
+	InteractionContext_UI_MODE_DEVICE_CODE InteractionContext_UiMode = 4
+	// Client-initiated backchannel authentication.
+	InteractionContext_UI_MODE_CIBA InteractionContext_UiMode = 5
+)
+
+// Enum value maps for InteractionContext_UiMode.
+var (
+	InteractionContext_UiMode_name = map[int32]string{
+		0: "UI_MODE_UNSPECIFIED",
+		1: "UI_MODE_REDIRECT",
+		2: "UI_MODE_EMBEDDED",
+		3: "UI_MODE_API",
+		4: "UI_MODE_DEVICE_CODE",
+		5: "UI_MODE_CIBA",
+	}
+	InteractionContext_UiMode_value = map[string]int32{
+		"UI_MODE_UNSPECIFIED": 0,
+		"UI_MODE_REDIRECT":    1,
+		"UI_MODE_EMBEDDED":    2,
+		"UI_MODE_API":         3,
+		"UI_MODE_DEVICE_CODE": 4,
+		"UI_MODE_CIBA":        5,
+	}
+)
+
+func (x InteractionContext_UiMode) Enum() *InteractionContext_UiMode {
+	p := new(InteractionContext_UiMode)
+	*p = x
+	return p
+}
+
+func (x InteractionContext_UiMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (InteractionContext_UiMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[3].Descriptor()
+}
+
+func (InteractionContext_UiMode) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[3]
+}
+
+func (x InteractionContext_UiMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use InteractionContext_UiMode.Descriptor instead.
+func (InteractionContext_UiMode) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{5, 0}
+}
+
+// LoginHintSource identifies where the login hint or subject hint came from.
+type InteractionContext_LoginHintSource int32
+
+const (
+	// Login hint source is not specified.
+	InteractionContext_LOGIN_HINT_SOURCE_UNSPECIFIED InteractionContext_LoginHintSource = 0
+	// Login hint was entered by the user.
+	InteractionContext_LOGIN_HINT_SOURCE_USER_INPUT InteractionContext_LoginHintSource = 1
+	// Login hint came from an OIDC login_hint parameter.
+	InteractionContext_LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT InteractionContext_LoginHintSource = 2
+	// Login hint was inferred from an existing session.
+	InteractionContext_LOGIN_HINT_SOURCE_SESSION InteractionContext_LoginHintSource = 3
+	// Login hint came from an invitation flow.
+	InteractionContext_LOGIN_HINT_SOURCE_INVITATION InteractionContext_LoginHintSource = 4
+	// Login hint was selected by an administrator or operator.
+	InteractionContext_LOGIN_HINT_SOURCE_ADMIN_SELECTED InteractionContext_LoginHintSource = 5
+	// Login hint came from an external identity provider callback.
+	InteractionContext_LOGIN_HINT_SOURCE_IDP_CALLBACK InteractionContext_LoginHintSource = 6
+)
+
+// Enum value maps for InteractionContext_LoginHintSource.
+var (
+	InteractionContext_LoginHintSource_name = map[int32]string{
+		0: "LOGIN_HINT_SOURCE_UNSPECIFIED",
+		1: "LOGIN_HINT_SOURCE_USER_INPUT",
+		2: "LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT",
+		3: "LOGIN_HINT_SOURCE_SESSION",
+		4: "LOGIN_HINT_SOURCE_INVITATION",
+		5: "LOGIN_HINT_SOURCE_ADMIN_SELECTED",
+		6: "LOGIN_HINT_SOURCE_IDP_CALLBACK",
+	}
+	InteractionContext_LoginHintSource_value = map[string]int32{
+		"LOGIN_HINT_SOURCE_UNSPECIFIED":     0,
+		"LOGIN_HINT_SOURCE_USER_INPUT":      1,
+		"LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT": 2,
+		"LOGIN_HINT_SOURCE_SESSION":         3,
+		"LOGIN_HINT_SOURCE_INVITATION":      4,
+		"LOGIN_HINT_SOURCE_ADMIN_SELECTED":  5,
+		"LOGIN_HINT_SOURCE_IDP_CALLBACK":    6,
+	}
+)
+
+func (x InteractionContext_LoginHintSource) Enum() *InteractionContext_LoginHintSource {
+	p := new(InteractionContext_LoginHintSource)
+	*p = x
+	return p
+}
+
+func (x InteractionContext_LoginHintSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (InteractionContext_LoginHintSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[4].Descriptor()
+}
+
+func (InteractionContext_LoginHintSource) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[4]
+}
+
+func (x InteractionContext_LoginHintSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use InteractionContext_LoginHintSource.Descriptor instead.
+func (InteractionContext_LoginHintSource) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{5, 1}
+}
+
+// DisplayMode mirrors OIDC display values that influence presentation.
+type InteractionContext_DisplayMode int32
+
+const (
+	// Display mode is not specified.
+	InteractionContext_DISPLAY_MODE_UNSPECIFIED InteractionContext_DisplayMode = 0
+	// Full-page authentication UI.
+	InteractionContext_DISPLAY_MODE_PAGE InteractionContext_DisplayMode = 1
+	// Popup authentication UI.
+	InteractionContext_DISPLAY_MODE_POPUP InteractionContext_DisplayMode = 2
+	// Touch-optimized authentication UI.
+	InteractionContext_DISPLAY_MODE_TOUCH InteractionContext_DisplayMode = 3
+	// WAP/mobile constrained authentication UI.
+	InteractionContext_DISPLAY_MODE_WAP InteractionContext_DisplayMode = 4
+)
+
+// Enum value maps for InteractionContext_DisplayMode.
+var (
+	InteractionContext_DisplayMode_name = map[int32]string{
+		0: "DISPLAY_MODE_UNSPECIFIED",
+		1: "DISPLAY_MODE_PAGE",
+		2: "DISPLAY_MODE_POPUP",
+		3: "DISPLAY_MODE_TOUCH",
+		4: "DISPLAY_MODE_WAP",
+	}
+	InteractionContext_DisplayMode_value = map[string]int32{
+		"DISPLAY_MODE_UNSPECIFIED": 0,
+		"DISPLAY_MODE_PAGE":        1,
+		"DISPLAY_MODE_POPUP":       2,
+		"DISPLAY_MODE_TOUCH":       3,
+		"DISPLAY_MODE_WAP":         4,
+	}
+)
+
+func (x InteractionContext_DisplayMode) Enum() *InteractionContext_DisplayMode {
+	p := new(InteractionContext_DisplayMode)
+	*p = x
+	return p
+}
+
+func (x InteractionContext_DisplayMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (InteractionContext_DisplayMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[5].Descriptor()
+}
+
+func (InteractionContext_DisplayMode) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[5]
+}
+
+func (x InteractionContext_DisplayMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use InteractionContext_DisplayMode.Descriptor instead.
+func (InteractionContext_DisplayMode) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{5, 2}
+}
+
+// NetworkRiskLevel summarizes network-only risk enrichment.
+type NetworkContext_NetworkRiskLevel int32
+
+const (
+	// Network risk level is not specified.
+	NetworkContext_NETWORK_RISK_LEVEL_UNSPECIFIED NetworkContext_NetworkRiskLevel = 0
+	// Network signals indicate low risk.
+	NetworkContext_NETWORK_RISK_LEVEL_LOW NetworkContext_NetworkRiskLevel = 1
+	// Network signals indicate medium risk.
+	NetworkContext_NETWORK_RISK_LEVEL_MEDIUM NetworkContext_NetworkRiskLevel = 2
+	// Network signals indicate high risk.
+	NetworkContext_NETWORK_RISK_LEVEL_HIGH NetworkContext_NetworkRiskLevel = 3
+	// Network signals indicate critical risk.
+	NetworkContext_NETWORK_RISK_LEVEL_CRITICAL NetworkContext_NetworkRiskLevel = 4
+)
+
+// Enum value maps for NetworkContext_NetworkRiskLevel.
+var (
+	NetworkContext_NetworkRiskLevel_name = map[int32]string{
+		0: "NETWORK_RISK_LEVEL_UNSPECIFIED",
+		1: "NETWORK_RISK_LEVEL_LOW",
+		2: "NETWORK_RISK_LEVEL_MEDIUM",
+		3: "NETWORK_RISK_LEVEL_HIGH",
+		4: "NETWORK_RISK_LEVEL_CRITICAL",
+	}
+	NetworkContext_NetworkRiskLevel_value = map[string]int32{
+		"NETWORK_RISK_LEVEL_UNSPECIFIED": 0,
+		"NETWORK_RISK_LEVEL_LOW":         1,
+		"NETWORK_RISK_LEVEL_MEDIUM":      2,
+		"NETWORK_RISK_LEVEL_HIGH":        3,
+		"NETWORK_RISK_LEVEL_CRITICAL":    4,
+	}
+)
+
+func (x NetworkContext_NetworkRiskLevel) Enum() *NetworkContext_NetworkRiskLevel {
+	p := new(NetworkContext_NetworkRiskLevel)
+	*p = x
+	return p
+}
+
+func (x NetworkContext_NetworkRiskLevel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NetworkContext_NetworkRiskLevel) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[6].Descriptor()
+}
+
+func (NetworkContext_NetworkRiskLevel) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[6]
+}
+
+func (x NetworkContext_NetworkRiskLevel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NetworkContext_NetworkRiskLevel.Descriptor instead.
+func (NetworkContext_NetworkRiskLevel) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{7, 0}
+}
+
+// RiskLevel summarizes the overall risk level for this authentication.
+type RiskContext_RiskLevel int32
+
+const (
+	// Risk level is not specified.
+	RiskContext_RISK_LEVEL_UNSPECIFIED RiskContext_RiskLevel = 0
+	// Risk decision indicates low risk.
+	RiskContext_RISK_LEVEL_LOW RiskContext_RiskLevel = 1
+	// Risk decision indicates medium risk.
+	RiskContext_RISK_LEVEL_MEDIUM RiskContext_RiskLevel = 2
+	// Risk decision indicates high risk.
+	RiskContext_RISK_LEVEL_HIGH RiskContext_RiskLevel = 3
+	// Risk decision indicates critical risk.
+	RiskContext_RISK_LEVEL_CRITICAL RiskContext_RiskLevel = 4
+)
+
+// Enum value maps for RiskContext_RiskLevel.
+var (
+	RiskContext_RiskLevel_name = map[int32]string{
+		0: "RISK_LEVEL_UNSPECIFIED",
+		1: "RISK_LEVEL_LOW",
+		2: "RISK_LEVEL_MEDIUM",
+		3: "RISK_LEVEL_HIGH",
+		4: "RISK_LEVEL_CRITICAL",
+	}
+	RiskContext_RiskLevel_value = map[string]int32{
+		"RISK_LEVEL_UNSPECIFIED": 0,
+		"RISK_LEVEL_LOW":         1,
+		"RISK_LEVEL_MEDIUM":      2,
+		"RISK_LEVEL_HIGH":        3,
+		"RISK_LEVEL_CRITICAL":    4,
+	}
+)
+
+func (x RiskContext_RiskLevel) Enum() *RiskContext_RiskLevel {
+	p := new(RiskContext_RiskLevel)
+	*p = x
+	return p
+}
+
+func (x RiskContext_RiskLevel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RiskContext_RiskLevel) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[7].Descriptor()
+}
+
+func (RiskContext_RiskLevel) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[7]
+}
+
+func (x RiskContext_RiskLevel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RiskContext_RiskLevel.Descriptor instead.
+func (RiskContext_RiskLevel) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{9, 0}
+}
+
+// RiskAction describes the action recommended by Risk Decision.
+type RiskContext_RiskAction int32
+
+const (
+	// Risk action is not specified.
+	RiskContext_RISK_ACTION_UNSPECIFIED RiskContext_RiskAction = 0
+	// Risk Decision recommends allowing the current authentication path.
+	RiskContext_RISK_ACTION_ALLOW RiskContext_RiskAction = 1
+	// Risk Decision recommends adding or selecting a challenge.
+	RiskContext_RISK_ACTION_CHALLENGE RiskContext_RiskAction = 2
+	// Risk Decision recommends stronger or fresher authentication.
+	RiskContext_RISK_ACTION_STEP_UP RiskContext_RiskAction = 3
+	// Risk Decision recommends denying authentication.
+	RiskContext_RISK_ACTION_DENY RiskContext_RiskAction = 4
+)
+
+// Enum value maps for RiskContext_RiskAction.
+var (
+	RiskContext_RiskAction_name = map[int32]string{
+		0: "RISK_ACTION_UNSPECIFIED",
+		1: "RISK_ACTION_ALLOW",
+		2: "RISK_ACTION_CHALLENGE",
+		3: "RISK_ACTION_STEP_UP",
+		4: "RISK_ACTION_DENY",
+	}
+	RiskContext_RiskAction_value = map[string]int32{
+		"RISK_ACTION_UNSPECIFIED": 0,
+		"RISK_ACTION_ALLOW":       1,
+		"RISK_ACTION_CHALLENGE":   2,
+		"RISK_ACTION_STEP_UP":     3,
+		"RISK_ACTION_DENY":        4,
+	}
+)
+
+func (x RiskContext_RiskAction) Enum() *RiskContext_RiskAction {
+	p := new(RiskContext_RiskAction)
+	*p = x
+	return p
+}
+
+func (x RiskContext_RiskAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RiskContext_RiskAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_context_proto_enumTypes[8].Descriptor()
+}
+
+func (RiskContext_RiskAction) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_context_proto_enumTypes[8]
+}
+
+func (x RiskContext_RiskAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RiskContext_RiskAction.Descriptor instead.
+func (RiskContext_RiskAction) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{9, 1}
+}
+
+// AuthenticationContext contains decision input for an authentication operation.
+//
+// It combines request, client, session, device, network, protocol, resource,
+// and risk signals used by Authentication Service, Risk Decision, dynamic login
+// UI, step-up policy, rate limiting, audit, and workflow orchestration.
+//
+// The context is intentionally partial: different callers and server-side
+// enrichment stages can fill different sections. It must not contain passwords,
+// OTP codes, raw provider tokens, callback secrets, raw fingerprint payloads, or
+// private risk model features.
 type AuthenticationContext struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Request-level metadata supplied by the client, gateway, or BFF.
+	// It is used for idempotency, tracing, rate limiting, audit correlation, and
+	// workflow orchestration.
+	Request *RequestContext `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	// Optional. Client application context resolved from StartAuthenticationRequest.client_id.
+	// Server-resolved fields in this message describe the effective client
+	// configuration used to select login UI, providers, methods, and policies.
+	Client *ClientContext `protobuf:"bytes,2,opt,name=client,proto3" json:"client,omitempty"`
+	// Optional. Session context used for re-authentication, max_age checks, and
+	// step-up decisions. Caller-provided session hints must be verified by the
+	// server before they are used as security signals.
+	Session *SessionContext `protobuf:"bytes,3,opt,name=session,proto3" json:"session,omitempty"`
+	// Optional. Tenant, resource, and audience context for the operation that
+	// requires authentication. It is used by risk policy, authorization handoff,
+	// and audit.
+	Resource *ResourceContext `protobuf:"bytes,4,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Interaction and UI hints used to choose the login experience and
+	// protocol presentation mode. These hints must not be used as proof of user or
+	// authenticator state.
+	Interaction *InteractionContext `protobuf:"bytes,5,opt,name=interaction,proto3" json:"interaction,omitempty"`
+	// Optional. Device, browser, SDK, and app hints used for UX, risk scoring, and
+	// audit. This message stores identifiers and normalized hints, not raw device
+	// fingerprint payloads.
+	Device *DeviceContext `protobuf:"bytes,6,opt,name=device,proto3" json:"device,omitempty"`
+	// Optional. Network and geolocation hints used for fraud detection, adaptive
+	// MFA, rate limiting, and audit. Gateway-provided values must be normalized
+	// and verified against the trusted proxy chain.
+	Network *NetworkContext `protobuf:"bytes,7,opt,name=network,proto3" json:"network,omitempty"`
+	// Optional. OIDC/OAuth protocol parameters that influenced the authentication
+	// request. The server maps acr_values to normalized assurance requirements.
+	Oidc *OidcContext `protobuf:"bytes,8,opt,name=oidc,proto3" json:"oidc,omitempty"`
+	// Optional. Safe summary of the risk decision associated with this
+	// authentication. Raw model features and private scoring data must remain in
+	// M8 Risk Decision.
+	Risk *RiskContext `protobuf:"bytes,9,opt,name=risk,proto3" json:"risk,omitempty"`
+	// Optional. Non-sensitive labels for filtering, routing, analytics, and audit.
+	// Labels must not contain passwords, OTP codes, raw tokens, or private risk
+	// model features.
+	Labels        map[string]string `protobuf:"bytes,100,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -57,12 +692,1440 @@ func (*AuthenticationContext) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *AuthenticationContext) GetRequest() *RequestContext {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetClient() *ClientContext {
+	if x != nil {
+		return x.Client
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetSession() *SessionContext {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetResource() *ResourceContext {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetInteraction() *InteractionContext {
+	if x != nil {
+		return x.Interaction
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetDevice() *DeviceContext {
+	if x != nil {
+		return x.Device
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetNetwork() *NetworkContext {
+	if x != nil {
+		return x.Network
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetOidc() *OidcContext {
+	if x != nil {
+		return x.Oidc
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetRisk() *RiskContext {
+	if x != nil {
+		return x.Risk
+	}
+	return nil
+}
+
+func (x *AuthenticationContext) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// RequestContext describes request-level metadata used for idempotency,
+// tracing, localization, rate limiting, audit, and workflow correlation.
+type RequestContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. External request identifier supplied by a client, gateway, or BFF.
+	// When present, it must be a UUID and can be used to correlate retries and
+	// audit records.
+	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// Optional. Correlation identifier propagated across services and logs.
+	// When present, it must be a UUID and must not be treated as a security proof.
+	CorrelationId string `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
+	// Optional. Distributed tracing identifier propagated by the gateway or
+	// service mesh. It is used for diagnostics and audit correlation.
+	TraceId string `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	// Optional. Idempotency key supplied by the caller or BFF for retry safety.
+	// When present, it must be a UUID. Authentication Service validates
+	// idempotency against the effective client.
+	IdempotencyKey string `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	// Optional. Name of the service, gateway, adapter, or BFF that submitted the
+	// authentication request. It is used for audit and routing diagnostics.
+	SourceService string `protobuf:"bytes,5,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	// Optional. User-Agent header or normalized agent string supplied by the
+	// client or gateway. It is useful for UX and audit but must not be trusted as
+	// a device proof.
+	UserAgent string `protobuf:"bytes,6,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	// Optional. Requested locale supplied by the client, gateway, or BFF. The
+	// server may use it for challenge text, dynamic login UI, and audit display.
+	Locale string `protobuf:"bytes,7,opt,name=locale,proto3" json:"locale,omitempty"`
+	// Optional. IANA time zone name supplied by the client or BFF. It is used for
+	// UX and audit display and must not be treated as trusted location evidence.
+	Timezone string `protobuf:"bytes,8,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	// Optional. Accept-Language header supplied by the client or gateway. The
+	// server may use it as a localization hint when locale is absent.
+	AcceptLanguage string `protobuf:"bytes,9,opt,name=accept_language,json=acceptLanguage,proto3" json:"accept_language,omitempty"`
+	// Output only. Server-side time when the authentication request was received
+	// or normalized for processing. It is used by audit and workflow orchestration.
+	ReceivedTime  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=received_time,json=receivedTime,proto3" json:"received_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestContext) Reset() {
+	*x = RequestContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestContext) ProtoMessage() {}
+
+func (x *RequestContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestContext.ProtoReflect.Descriptor instead.
+func (*RequestContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RequestContext) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *RequestContext) GetCorrelationId() string {
+	if x != nil {
+		return x.CorrelationId
+	}
+	return ""
+}
+
+func (x *RequestContext) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *RequestContext) GetIdempotencyKey() string {
+	if x != nil {
+		return x.IdempotencyKey
+	}
+	return ""
+}
+
+func (x *RequestContext) GetSourceService() string {
+	if x != nil {
+		return x.SourceService
+	}
+	return ""
+}
+
+func (x *RequestContext) GetUserAgent() string {
+	if x != nil {
+		return x.UserAgent
+	}
+	return ""
+}
+
+func (x *RequestContext) GetLocale() string {
+	if x != nil {
+		return x.Locale
+	}
+	return ""
+}
+
+func (x *RequestContext) GetTimezone() string {
+	if x != nil {
+		return x.Timezone
+	}
+	return ""
+}
+
+func (x *RequestContext) GetAcceptLanguage() string {
+	if x != nil {
+		return x.AcceptLanguage
+	}
+	return ""
+}
+
+func (x *RequestContext) GetReceivedTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ReceivedTime
+	}
+	return nil
+}
+
+// ClientContext describes the resolved OAuth, OIDC, or application client
+// configuration used to drive authentication policy and login UI selection.
+type ClientContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Effective client identifier resolved from
+	// StartAuthenticationRequest.client_id. When present, it must be a UUID and
+	// must match the client configuration used to resolve project, user pool,
+	// providers, methods, and policies.
+	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	// Output only. Application class resolved from the client configuration.
+	ApplicationType ClientContext_ApplicationType `protobuf:"varint,2,opt,name=application_type,json=applicationType,proto3,enum=m8.platform.iam.v1.ClientContext_ApplicationType" json:"application_type,omitempty"`
+	// Optional. Redirect URI supplied by the client or OIDC authorization request.
+	// The server validates it against the registered client configuration.
+	RedirectUri string `protobuf:"bytes,3,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
+	// Optional. Browser origin supplied by the client or gateway. The server uses
+	// it for UI policy, CORS-related checks, and audit, after validating it
+	// against the registered client configuration.
+	Origin string `protobuf:"bytes,4,opt,name=origin,proto3" json:"origin,omitempty"`
+	// Output only. Authentication methods allowed by the resolved client policy.
+	// TODO: Replace strings with AuthenticationMethod when the method enum is
+	// introduced in the public IAM authentication contract.
+	AllowedMethods []string `protobuf:"bytes,5,rep,name=allowed_methods,json=allowedMethods,proto3" json:"allowed_methods,omitempty"`
+	// Output only. Provider identifiers allowed by the resolved client policy.
+	// These values scope available OIDC, SAML, Mobile ID, passkey, or OTP
+	// providers and must not be confused with a requested provider selector.
+	AllowedProviderIds []string `protobuf:"bytes,6,rep,name=allowed_provider_ids,json=allowedProviderIds,proto3" json:"allowed_provider_ids,omitempty"`
+	// Output only. Server-selected login experience resolved from client policy,
+	// request options, risk decision, and interaction constraints.
+	LoginExperience ClientContext_LoginExperience `protobuf:"varint,7,opt,name=login_experience,json=loginExperience,proto3,enum=m8.platform.iam.v1.ClientContext_LoginExperience" json:"login_experience,omitempty"`
+	// Output only. Indicates whether the resolved client is public and cannot keep
+	// a client secret. It is used by policy and protocol handling.
+	PublicClient  bool `protobuf:"varint,8,opt,name=public_client,json=publicClient,proto3" json:"public_client,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClientContext) Reset() {
+	*x = ClientContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClientContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClientContext) ProtoMessage() {}
+
+func (x *ClientContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClientContext.ProtoReflect.Descriptor instead.
+func (*ClientContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ClientContext) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *ClientContext) GetApplicationType() ClientContext_ApplicationType {
+	if x != nil {
+		return x.ApplicationType
+	}
+	return ClientContext_APPLICATION_TYPE_UNSPECIFIED
+}
+
+func (x *ClientContext) GetRedirectUri() string {
+	if x != nil {
+		return x.RedirectUri
+	}
+	return ""
+}
+
+func (x *ClientContext) GetOrigin() string {
+	if x != nil {
+		return x.Origin
+	}
+	return ""
+}
+
+func (x *ClientContext) GetAllowedMethods() []string {
+	if x != nil {
+		return x.AllowedMethods
+	}
+	return nil
+}
+
+func (x *ClientContext) GetAllowedProviderIds() []string {
+	if x != nil {
+		return x.AllowedProviderIds
+	}
+	return nil
+}
+
+func (x *ClientContext) GetLoginExperience() ClientContext_LoginExperience {
+	if x != nil {
+		return x.LoginExperience
+	}
+	return ClientContext_LOGIN_EXPERIENCE_UNSPECIFIED
+}
+
+func (x *ClientContext) GetPublicClient() bool {
+	if x != nil {
+		return x.PublicClient
+	}
+	return false
+}
+
+// SessionContext describes the existing authentication session used for
+// re-authentication, OIDC max_age checks, and step-up decisions.
+type SessionContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Identifier of an existing session supplied by a client, BFF, or
+	// session service. It must reference a session record and must not be a bearer
+	// secret or raw session token.
+	ExistingSessionId string `protobuf:"bytes,1,opt,name=existing_session_id,json=existingSessionId,proto3" json:"existing_session_id,omitempty"`
+	// Optional. Previous authentication operation identifier associated with the
+	// existing session. It can be supplied by a BFF or resolved by the server for
+	// audit and step-up correlation.
+	PreviousAuthenticationId string `protobuf:"bytes,2,opt,name=previous_authentication_id,json=previousAuthenticationId,proto3" json:"previous_authentication_id,omitempty"`
+	// Output only. Stable M8 Identity user identifier resolved from the existing
+	// session. Caller-provided values must not be trusted for user binding.
+	PreviousUserId string `protobuf:"bytes,3,opt,name=previous_user_id,json=previousUserId,proto3" json:"previous_user_id,omitempty"`
+	// Output only. Assurance level established by the previous authentication
+	// session. It is used to decide whether step-up is required.
+	PreviousAssuranceLevel Authentication_AssuranceLevel `protobuf:"varint,4,opt,name=previous_assurance_level,json=previousAssuranceLevel,proto3,enum=m8.platform.iam.v1.Authentication_AssuranceLevel" json:"previous_assurance_level,omitempty"`
+	// Optional. Time when the existing session was originally authenticated. It is
+	// used for OIDC max_age checks and freshness-based step-up.
+	AuthTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
+	// Optional. Maximum acceptable age for the existing authentication. It is
+	// commonly derived from OIDC max_age or resource policy.
+	MaxAge *durationpb.Duration `protobuf:"bytes,6,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	// Optional. Reason stronger or fresher authentication is being requested. The
+	// server verifies caller-provided reasons against policy and risk decisions.
+	StepUpReason  SessionContext_StepUpReason `protobuf:"varint,7,opt,name=step_up_reason,json=stepUpReason,proto3,enum=m8.platform.iam.v1.SessionContext_StepUpReason" json:"step_up_reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SessionContext) Reset() {
+	*x = SessionContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SessionContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SessionContext) ProtoMessage() {}
+
+func (x *SessionContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SessionContext.ProtoReflect.Descriptor instead.
+func (*SessionContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SessionContext) GetExistingSessionId() string {
+	if x != nil {
+		return x.ExistingSessionId
+	}
+	return ""
+}
+
+func (x *SessionContext) GetPreviousAuthenticationId() string {
+	if x != nil {
+		return x.PreviousAuthenticationId
+	}
+	return ""
+}
+
+func (x *SessionContext) GetPreviousUserId() string {
+	if x != nil {
+		return x.PreviousUserId
+	}
+	return ""
+}
+
+func (x *SessionContext) GetPreviousAssuranceLevel() Authentication_AssuranceLevel {
+	if x != nil {
+		return x.PreviousAssuranceLevel
+	}
+	return Authentication_ASSURANCE_LEVEL_UNSPECIFIED
+}
+
+func (x *SessionContext) GetAuthTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AuthTime
+	}
+	return nil
+}
+
+func (x *SessionContext) GetMaxAge() *durationpb.Duration {
+	if x != nil {
+		return x.MaxAge
+	}
+	return nil
+}
+
+func (x *SessionContext) GetStepUpReason() SessionContext_StepUpReason {
+	if x != nil {
+		return x.StepUpReason
+	}
+	return SessionContext_STEP_UP_REASON_UNSPECIFIED
+}
+
+// ResourceContext describes the tenant, resource, operation, and audience for
+// which authentication is requested.
+type ResourceContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Organization identifier resolved from the client, project, or
+	// resource context. It is used for tenant isolation, policy, and audit.
+	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	// Output only. Workspace identifier resolved from the client, project, or
+	// resource context. It is used for policy, routing, and audit.
+	WorkspaceId string `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
+	// Output only. Project identifier resolved from client_id. Clients must not
+	// provide this value in StartAuthenticationRequest.
+	ProjectId string `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	// Output only. User pool identifier resolved from client_id and client
+	// configuration. Clients must not provide this value in StartAuthenticationRequest.
+	UserPoolId string `protobuf:"bytes,4,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
+	// Optional. Resource name, URL, or opaque resource indicator supplied by a
+	// client or BFF for step-up and risk decisions. The server validates it against
+	// resource and tenant policy before use.
+	RequestedResource string `protobuf:"bytes,5,opt,name=requested_resource,json=requestedResource,proto3" json:"requested_resource,omitempty"`
+	// Optional. Operation or action that requires authentication, such as
+	// transfer.confirm or admin.user.disable. It is used by risk policy and audit.
+	RequestedOperation string `protobuf:"bytes,6,opt,name=requested_operation,json=requestedOperation,proto3" json:"requested_operation,omitempty"`
+	// Optional. OAuth/OIDC audiences or resource indicators requested by the
+	// client or relying party. The server validates them against client policy.
+	Audience      []string `protobuf:"bytes,7,rep,name=audience,proto3" json:"audience,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResourceContext) Reset() {
+	*x = ResourceContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceContext) ProtoMessage() {}
+
+func (x *ResourceContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceContext.ProtoReflect.Descriptor instead.
+func (*ResourceContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ResourceContext) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetWorkspaceId() string {
+	if x != nil {
+		return x.WorkspaceId
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetUserPoolId() string {
+	if x != nil {
+		return x.UserPoolId
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetRequestedResource() string {
+	if x != nil {
+		return x.RequestedResource
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetRequestedOperation() string {
+	if x != nil {
+		return x.RequestedOperation
+	}
+	return ""
+}
+
+func (x *ResourceContext) GetAudience() []string {
+	if x != nil {
+		return x.Audience
+	}
+	return nil
+}
+
+// InteractionContext describes how the user and client are expected to interact
+// with the authentication flow.
+type InteractionContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Requested interaction mode supplied by the client, gateway, or
+	// protocol adapter. The server may override it based on client policy.
+	UiMode InteractionContext_UiMode `protobuf:"varint,1,opt,name=ui_mode,json=uiMode,proto3,enum=m8.platform.iam.v1.InteractionContext_UiMode" json:"ui_mode,omitempty"`
+	// Optional. Source of the login hint or subject hint. It is used for UX,
+	// audit, and risk context but must not be treated as proof of identity.
+	LoginHintSource InteractionContext_LoginHintSource `protobuf:"varint,2,opt,name=login_hint_source,json=loginHintSource,proto3,enum=m8.platform.iam.v1.InteractionContext_LoginHintSource" json:"login_hint_source,omitempty"`
+	// Optional. Preferred locale for the login UI and challenge messages.
+	PreferredLocale string `protobuf:"bytes,3,opt,name=preferred_locale,json=preferredLocale,proto3" json:"preferred_locale,omitempty"`
+	// Optional. OIDC display mode requested by the client or relying party.
+	Display InteractionContext_DisplayMode `protobuf:"varint,4,opt,name=display,proto3,enum=m8.platform.iam.v1.InteractionContext_DisplayMode" json:"display,omitempty"`
+	// Optional. OIDC prompt values such as login, consent, select_account, or none.
+	// The server interprets these values against client and session policy.
+	Prompts []string `protobuf:"bytes,5,rep,name=prompts,proto3" json:"prompts,omitempty"`
+	// Optional. Client-provided UX hint indicating that the current browser or
+	// platform may support passkeys. It must not be used as proof that a passkey
+	// authenticator is registered or available for the user.
+	PasskeyCapableClient bool `protobuf:"varint,6,opt,name=passkey_capable_client,json=passkeyCapableClient,proto3" json:"passkey_capable_client,omitempty"`
+	// Optional. Client-provided UX hint indicating that WebAuthn user verification
+	// may be supported. It must not be used as proof that verification occurred.
+	UserVerificationSupported bool `protobuf:"varint,7,opt,name=user_verification_supported,json=userVerificationSupported,proto3" json:"user_verification_supported,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *InteractionContext) Reset() {
+	*x = InteractionContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InteractionContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InteractionContext) ProtoMessage() {}
+
+func (x *InteractionContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InteractionContext.ProtoReflect.Descriptor instead.
+func (*InteractionContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *InteractionContext) GetUiMode() InteractionContext_UiMode {
+	if x != nil {
+		return x.UiMode
+	}
+	return InteractionContext_UI_MODE_UNSPECIFIED
+}
+
+func (x *InteractionContext) GetLoginHintSource() InteractionContext_LoginHintSource {
+	if x != nil {
+		return x.LoginHintSource
+	}
+	return InteractionContext_LOGIN_HINT_SOURCE_UNSPECIFIED
+}
+
+func (x *InteractionContext) GetPreferredLocale() string {
+	if x != nil {
+		return x.PreferredLocale
+	}
+	return ""
+}
+
+func (x *InteractionContext) GetDisplay() InteractionContext_DisplayMode {
+	if x != nil {
+		return x.Display
+	}
+	return InteractionContext_DISPLAY_MODE_UNSPECIFIED
+}
+
+func (x *InteractionContext) GetPrompts() []string {
+	if x != nil {
+		return x.Prompts
+	}
+	return nil
+}
+
+func (x *InteractionContext) GetPasskeyCapableClient() bool {
+	if x != nil {
+		return x.PasskeyCapableClient
+	}
+	return false
+}
+
+func (x *InteractionContext) GetUserVerificationSupported() bool {
+	if x != nil {
+		return x.UserVerificationSupported
+	}
+	return false
+}
+
+// DeviceContext describes normalized device, browser, SDK, and application
+// hints used for UX, risk scoring, fraud detection, and audit.
+type DeviceContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Stable device identifier supplied by a trusted SDK, BFF, or device
+	// service. It must not be a raw device fingerprint payload or bearer secret.
+	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	// Optional. Reference to a trusted-device record. It must be a lookup
+	// identifier, not a trusted-device secret or token.
+	TrustedDeviceId string `protobuf:"bytes,2,opt,name=trusted_device_id,json=trustedDeviceId,proto3" json:"trusted_device_id,omitempty"`
+	// Optional. Reference to a stored device fingerprint record. Raw fingerprint
+	// payloads must be stored outside AuthenticationContext.
+	DeviceFingerprintId string `protobuf:"bytes,3,opt,name=device_fingerprint_id,json=deviceFingerprintId,proto3" json:"device_fingerprint_id,omitempty"`
+	// Optional. Platform hint such as web, ios, android, desktop, or device.
+	Platform string `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
+	// Optional. Operating system name reported by the client, SDK, or parser.
+	Os string `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
+	// Optional. Operating system version reported by the client, SDK, or parser.
+	OsVersion string `protobuf:"bytes,6,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
+	// Optional. Browser name reported by the client, SDK, or User-Agent parser.
+	Browser string `protobuf:"bytes,7,opt,name=browser,proto3" json:"browser,omitempty"`
+	// Optional. Browser version reported by the client, SDK, or User-Agent parser.
+	BrowserVersion string `protobuf:"bytes,8,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"`
+	// Optional. Application version reported by the first-party client or SDK.
+	AppVersion string `protobuf:"bytes,9,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`
+	// Optional. SDK name that submitted or enriched the authentication request.
+	SdkName string `protobuf:"bytes,10,opt,name=sdk_name,json=sdkName,proto3" json:"sdk_name,omitempty"`
+	// Optional. SDK version that submitted or enriched the authentication request.
+	SdkVersion string `protobuf:"bytes,11,opt,name=sdk_version,json=sdkVersion,proto3" json:"sdk_version,omitempty"`
+	// Optional. Client-provided UX hint indicating that WebAuthn APIs may be
+	// available. It must not be used as proof of authenticator registration.
+	WebauthnAvailable bool `protobuf:"varint,12,opt,name=webauthn_available,json=webauthnAvailable,proto3" json:"webauthn_available,omitempty"`
+	// Optional. Client-provided UX hint indicating that passkey authentication may
+	// be available on the current platform. Risk and challenge selection must
+	// verify real authenticator state separately.
+	PasskeyAvailableHint bool `protobuf:"varint,13,opt,name=passkey_available_hint,json=passkeyAvailableHint,proto3" json:"passkey_available_hint,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *DeviceContext) Reset() {
+	*x = DeviceContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeviceContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeviceContext) ProtoMessage() {}
+
+func (x *DeviceContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeviceContext.ProtoReflect.Descriptor instead.
+func (*DeviceContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeviceContext) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetTrustedDeviceId() string {
+	if x != nil {
+		return x.TrustedDeviceId
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetDeviceFingerprintId() string {
+	if x != nil {
+		return x.DeviceFingerprintId
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetPlatform() string {
+	if x != nil {
+		return x.Platform
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetOs() string {
+	if x != nil {
+		return x.Os
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetOsVersion() string {
+	if x != nil {
+		return x.OsVersion
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetBrowser() string {
+	if x != nil {
+		return x.Browser
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetBrowserVersion() string {
+	if x != nil {
+		return x.BrowserVersion
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetAppVersion() string {
+	if x != nil {
+		return x.AppVersion
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetSdkName() string {
+	if x != nil {
+		return x.SdkName
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetSdkVersion() string {
+	if x != nil {
+		return x.SdkVersion
+	}
+	return ""
+}
+
+func (x *DeviceContext) GetWebauthnAvailable() bool {
+	if x != nil {
+		return x.WebauthnAvailable
+	}
+	return false
+}
+
+func (x *DeviceContext) GetPasskeyAvailableHint() bool {
+	if x != nil {
+		return x.PasskeyAvailableHint
+	}
+	return false
+}
+
+// NetworkContext describes normalized IP, proxy, network, geolocation, and
+// network-risk hints used by Risk Decision, rate limiting, fraud detection, and
+// audit.
+type NetworkContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Client IP address as normalized by the gateway or server. It may
+	// be supplied by a BFF, but Authentication Service must validate trusted proxy
+	// boundaries before relying on it.
+	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	// Optional. Forwarded client IP chain parsed from trusted forwarding headers.
+	// Values from untrusted proxy chains must not be used for security decisions.
+	ForwardedFor []string `protobuf:"bytes,2,rep,name=forwarded_for,json=forwardedFor,proto3" json:"forwarded_for,omitempty"`
+	// Output only. ISO 3166-1 alpha-2 country code produced by server-side network
+	// enrichment.
+	CountryCode string `protobuf:"bytes,3,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	// Output only. Region or subdivision produced by server-side geolocation
+	// enrichment.
+	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
+	// Output only. City produced by server-side geolocation enrichment.
+	City string `protobuf:"bytes,5,opt,name=city,proto3" json:"city,omitempty"`
+	// Output only. Autonomous system number produced by server-side network
+	// enrichment.
+	Asn uint32 `protobuf:"varint,6,opt,name=asn,proto3" json:"asn,omitempty"`
+	// Output only. Internet service provider or organization name produced by
+	// server-side network enrichment.
+	Isp string `protobuf:"bytes,7,opt,name=isp,proto3" json:"isp,omitempty"`
+	// Output only. Indicates server-side enrichment classified the IP as a proxy.
+	IsProxy bool `protobuf:"varint,8,opt,name=is_proxy,json=isProxy,proto3" json:"is_proxy,omitempty"`
+	// Output only. Indicates server-side enrichment classified the IP as a VPN.
+	IsVpn bool `protobuf:"varint,9,opt,name=is_vpn,json=isVpn,proto3" json:"is_vpn,omitempty"`
+	// Output only. Indicates server-side enrichment classified the IP as Tor.
+	IsTor bool `protobuf:"varint,10,opt,name=is_tor,json=isTor,proto3" json:"is_tor,omitempty"`
+	// Output only. Network-only risk level produced by server-side enrichment or
+	// M8 Risk Decision.
+	RiskLevel     NetworkContext_NetworkRiskLevel `protobuf:"varint,11,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.NetworkContext_NetworkRiskLevel" json:"risk_level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NetworkContext) Reset() {
+	*x = NetworkContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkContext) ProtoMessage() {}
+
+func (x *NetworkContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkContext.ProtoReflect.Descriptor instead.
+func (*NetworkContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *NetworkContext) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *NetworkContext) GetForwardedFor() []string {
+	if x != nil {
+		return x.ForwardedFor
+	}
+	return nil
+}
+
+func (x *NetworkContext) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+func (x *NetworkContext) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *NetworkContext) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *NetworkContext) GetAsn() uint32 {
+	if x != nil {
+		return x.Asn
+	}
+	return 0
+}
+
+func (x *NetworkContext) GetIsp() string {
+	if x != nil {
+		return x.Isp
+	}
+	return ""
+}
+
+func (x *NetworkContext) GetIsProxy() bool {
+	if x != nil {
+		return x.IsProxy
+	}
+	return false
+}
+
+func (x *NetworkContext) GetIsVpn() bool {
+	if x != nil {
+		return x.IsVpn
+	}
+	return false
+}
+
+func (x *NetworkContext) GetIsTor() bool {
+	if x != nil {
+		return x.IsTor
+	}
+	return false
+}
+
+func (x *NetworkContext) GetRiskLevel() NetworkContext_NetworkRiskLevel {
+	if x != nil {
+		return x.RiskLevel
+	}
+	return NetworkContext_NETWORK_RISK_LEVEL_UNSPECIFIED
+}
+
+// OidcContext describes OAuth and OpenID Connect request parameters that
+// influence authentication requirements and protocol handling.
+type OidcContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. OAuth scopes requested by the relying party.
+	Scope []string `protobuf:"bytes,1,rep,name=scope,proto3" json:"scope,omitempty"`
+	// Optional. Authentication Context Class Reference values requested by the
+	// relying party. The server maps these protocol values to normalized assurance
+	// requirements such as requested_assurance_level.
+	AcrValues []string `protobuf:"bytes,2,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	// Optional. OIDC prompt values such as login, consent, select_account, or none.
+	Prompt []string `protobuf:"bytes,3,rep,name=prompt,proto3" json:"prompt,omitempty"`
+	// Optional. OIDC max_age requirement used to determine whether the existing
+	// session is fresh enough or step-up is required.
+	MaxAge *durationpb.Duration `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	// Optional. OIDC nonce value. It is protocol state and must not be treated as
+	// proof of authentication by itself.
+	Nonce string `protobuf:"bytes,5,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	// Optional. OAuth/OIDC state value. It is protocol correlation state and must
+	// not be logged if deployment policy treats it as sensitive.
+	State string `protobuf:"bytes,6,opt,name=state,proto3" json:"state,omitempty"`
+	// Optional. PKCE code challenge supplied by the client.
+	CodeChallenge string `protobuf:"bytes,7,opt,name=code_challenge,json=codeChallenge,proto3" json:"code_challenge,omitempty"`
+	// Optional. PKCE code challenge method, typically plain or S256.
+	CodeChallengeMethod string `protobuf:"bytes,8,opt,name=code_challenge_method,json=codeChallengeMethod,proto3" json:"code_challenge_method,omitempty"`
+	// Optional. OAuth/OIDC response type requested by the client.
+	ResponseType string `protobuf:"bytes,9,opt,name=response_type,json=responseType,proto3" json:"response_type,omitempty"`
+	// Optional. OAuth/OIDC response mode requested by the client.
+	ResponseMode string `protobuf:"bytes,10,opt,name=response_mode,json=responseMode,proto3" json:"response_mode,omitempty"`
+	// Optional. OIDC login_hint value supplied by the relying party. It is a hint
+	// only and must not be treated as proof of user identity.
+	LoginHint string `protobuf:"bytes,11,opt,name=login_hint,json=loginHint,proto3" json:"login_hint,omitempty"`
+	// Optional. OAuth resource indicators requested by the client.
+	Resource []string `protobuf:"bytes,12,rep,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. OAuth/OIDC audience values requested by the client.
+	Audience      []string `protobuf:"bytes,13,rep,name=audience,proto3" json:"audience,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OidcContext) Reset() {
+	*x = OidcContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OidcContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OidcContext) ProtoMessage() {}
+
+func (x *OidcContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OidcContext.ProtoReflect.Descriptor instead.
+func (*OidcContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *OidcContext) GetScope() []string {
+	if x != nil {
+		return x.Scope
+	}
+	return nil
+}
+
+func (x *OidcContext) GetAcrValues() []string {
+	if x != nil {
+		return x.AcrValues
+	}
+	return nil
+}
+
+func (x *OidcContext) GetPrompt() []string {
+	if x != nil {
+		return x.Prompt
+	}
+	return nil
+}
+
+func (x *OidcContext) GetMaxAge() *durationpb.Duration {
+	if x != nil {
+		return x.MaxAge
+	}
+	return nil
+}
+
+func (x *OidcContext) GetNonce() string {
+	if x != nil {
+		return x.Nonce
+	}
+	return ""
+}
+
+func (x *OidcContext) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *OidcContext) GetCodeChallenge() string {
+	if x != nil {
+		return x.CodeChallenge
+	}
+	return ""
+}
+
+func (x *OidcContext) GetCodeChallengeMethod() string {
+	if x != nil {
+		return x.CodeChallengeMethod
+	}
+	return ""
+}
+
+func (x *OidcContext) GetResponseType() string {
+	if x != nil {
+		return x.ResponseType
+	}
+	return ""
+}
+
+func (x *OidcContext) GetResponseMode() string {
+	if x != nil {
+		return x.ResponseMode
+	}
+	return ""
+}
+
+func (x *OidcContext) GetLoginHint() string {
+	if x != nil {
+		return x.LoginHint
+	}
+	return ""
+}
+
+func (x *OidcContext) GetResource() []string {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *OidcContext) GetAudience() []string {
+	if x != nil {
+		return x.Audience
+	}
+	return nil
+}
+
+// RiskContext contains a safe summary of risk decision state associated with
+// an authentication operation.
+//
+// It must not contain raw risk model features, raw device fingerprints, private
+// scoring data, provider tokens, or secrets. Full risk evidence lives in M8 Risk
+// Decision and is linked by decision_id or risk_session_id.
+type RiskContext struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Identifier of the risk session linked to this authentication
+	// operation. It is used to correlate events with M8 Risk Decision and Audit.
+	RiskSessionId string `protobuf:"bytes,1,opt,name=risk_session_id,json=riskSessionId,proto3" json:"risk_session_id,omitempty"`
+	// Output only. Identifier of the risk decision linked to this authentication
+	// operation. Audit can use it to resolve full risk evidence in M8 Risk Decision.
+	DecisionId string `protobuf:"bytes,2,opt,name=decision_id,json=decisionId,proto3" json:"decision_id,omitempty"`
+	// Output only. Safe summary risk level returned by M8 Risk Decision.
+	RiskLevel RiskContext_RiskLevel `protobuf:"varint,3,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.RiskContext_RiskLevel" json:"risk_level,omitempty"`
+	// Output only. Recommended action returned by M8 Risk Decision.
+	RecommendedAction RiskContext_RiskAction `protobuf:"varint,4,opt,name=recommended_action,json=recommendedAction,proto3,enum=m8.platform.iam.v1.RiskContext_RiskAction" json:"recommended_action,omitempty"`
+	// Output only. Safe reason codes or short reason labels produced by M8 Risk
+	// Decision. They must be suitable for audit and internal admin UI.
+	Reasons []string `protobuf:"bytes,5,rep,name=reasons,proto3" json:"reasons,omitempty"`
+	// Output only. Risk or authentication policy identifiers that influenced the
+	// decision. They are used for audit, explainability, and troubleshooting.
+	PolicyIds     []string `protobuf:"bytes,6,rep,name=policy_ids,json=policyIds,proto3" json:"policy_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RiskContext) Reset() {
+	*x = RiskContext{}
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RiskContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RiskContext) ProtoMessage() {}
+
+func (x *RiskContext) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RiskContext.ProtoReflect.Descriptor instead.
+func (*RiskContext) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RiskContext) GetRiskSessionId() string {
+	if x != nil {
+		return x.RiskSessionId
+	}
+	return ""
+}
+
+func (x *RiskContext) GetDecisionId() string {
+	if x != nil {
+		return x.DecisionId
+	}
+	return ""
+}
+
+func (x *RiskContext) GetRiskLevel() RiskContext_RiskLevel {
+	if x != nil {
+		return x.RiskLevel
+	}
+	return RiskContext_RISK_LEVEL_UNSPECIFIED
+}
+
+func (x *RiskContext) GetRecommendedAction() RiskContext_RiskAction {
+	if x != nil {
+		return x.RecommendedAction
+	}
+	return RiskContext_RISK_ACTION_UNSPECIFIED
+}
+
+func (x *RiskContext) GetReasons() []string {
+	if x != nil {
+		return x.Reasons
+	}
+	return nil
+}
+
+func (x *RiskContext) GetPolicyIds() []string {
+	if x != nil {
+		return x.PolicyIds
+	}
+	return nil
+}
+
 var File_m8_platform_iam_v1_authentication_context_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\"\x17\n" +
-	"\x15AuthenticationContextB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a'm8/platform/iam/v1/authentication.proto\"\xa3\x06\n" +
+	"\x15AuthenticationContext\x12A\n" +
+	"\arequest\x18\x01 \x01(\v2\".m8.platform.iam.v1.RequestContextB\x03\xe0A\x01R\arequest\x12>\n" +
+	"\x06client\x18\x02 \x01(\v2!.m8.platform.iam.v1.ClientContextB\x03\xe0A\x01R\x06client\x12A\n" +
+	"\asession\x18\x03 \x01(\v2\".m8.platform.iam.v1.SessionContextB\x03\xe0A\x01R\asession\x12D\n" +
+	"\bresource\x18\x04 \x01(\v2#.m8.platform.iam.v1.ResourceContextB\x03\xe0A\x01R\bresource\x12M\n" +
+	"\vinteraction\x18\x05 \x01(\v2&.m8.platform.iam.v1.InteractionContextB\x03\xe0A\x01R\vinteraction\x12>\n" +
+	"\x06device\x18\x06 \x01(\v2!.m8.platform.iam.v1.DeviceContextB\x03\xe0A\x01R\x06device\x12A\n" +
+	"\anetwork\x18\a \x01(\v2\".m8.platform.iam.v1.NetworkContextB\x03\xe0A\x01R\anetwork\x128\n" +
+	"\x04oidc\x18\b \x01(\v2\x1f.m8.platform.iam.v1.OidcContextB\x03\xe0A\x01R\x04oidc\x128\n" +
+	"\x04risk\x18\t \x01(\v2\x1f.m8.platform.iam.v1.RiskContextB\x03\xe0A\x01R\x04risk\x12}\n" +
+	"\x06labels\x18d \x03(\v25.m8.platform.iam.v1.AuthenticationContext.LabelsEntryB.\xe0A\x01\xbaH(\x9a\x01%\x102\"\x1ar\x18\x10\x01\x18@2\x12^[A-Za-z0-9._/-]+$*\x05r\x03\x18\x80\x02R\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xff\x03\n" +
+	"\x0eRequestContext\x12-\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\trequestId\x125\n" +
+	"\x0ecorrelation_id\x18\x02 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\rcorrelationId\x12&\n" +
+	"\btrace_id\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\atraceId\x127\n" +
+	"\x0fidempotency_key\x18\x04 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x0eidempotencyKey\x122\n" +
+	"\x0esource_service\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\rsourceService\x12*\n" +
+	"\n" +
+	"user_agent\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tuserAgent\x12\"\n" +
+	"\x06locale\x18\a \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18#R\x06locale\x12&\n" +
+	"\btimezone\x18\b \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\btimezone\x124\n" +
+	"\x0faccept_language\x18\t \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x0eacceptLanguage\x12D\n" +
+	"\rreceived_time\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\freceivedTime\"\xec\a\n" +
+	"\rClientContext\x12+\n" +
+	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12i\n" +
+	"\x10application_type\x18\x02 \x01(\x0e21.m8.platform.iam.v1.ClientContext.ApplicationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0fapplicationType\x124\n" +
+	"\fredirect_uri\x18\x03 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x10\x90\x01\x01R\vredirectUri\x12)\n" +
+	"\x06origin\x18\x04 \x01(\tB\x11\xe0A\x01\xbaH\v\xd8\x01\x01r\x06\x18\x80\x04\x88\x01\x01R\x06origin\x12<\n" +
+	"\x0fallowed_methods\x18\x05 \x03(\tB\x13\xe0A\x03\xbaH\r\x92\x01\n" +
+	"\x10 \"\x06r\x04\x10\x01\x18@R\x0eallowedMethods\x12F\n" +
+	"\x14allowed_provider_ids\x18\x06 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\x12allowedProviderIds\x12i\n" +
+	"\x10login_experience\x18\a \x01(\x0e21.m8.platform.iam.v1.ClientContext.LoginExperienceB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x0floginExperience\x12(\n" +
+	"\rpublic_client\x18\b \x01(\bB\x03\xe0A\x03R\fpublicClient\"\xd9\x01\n" +
+	"\x0fApplicationType\x12 \n" +
+	"\x1cAPPLICATION_TYPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14APPLICATION_TYPE_WEB\x10\x01\x12\x18\n" +
+	"\x14APPLICATION_TYPE_SPA\x10\x02\x12\x1b\n" +
+	"\x17APPLICATION_TYPE_MOBILE\x10\x03\x12\x1c\n" +
+	"\x18APPLICATION_TYPE_BACKEND\x10\x04\x12\x18\n" +
+	"\x14APPLICATION_TYPE_CLI\x10\x05\x12\x1b\n" +
+	"\x17APPLICATION_TYPE_DEVICE\x10\x06\"\xea\x01\n" +
+	"\x0fLoginExperience\x12 \n" +
+	"\x1cLOGIN_EXPERIENCE_UNSPECIFIED\x10\x00\x12%\n" +
+	"!LOGIN_EXPERIENCE_IDENTIFIER_FIRST\x10\x01\x12'\n" +
+	"#LOGIN_EXPERIENCE_PASSWORDLESS_FIRST\x10\x02\x12\"\n" +
+	"\x1eLOGIN_EXPERIENCE_PASSKEY_FIRST\x10\x03\x12#\n" +
+	"\x1fLOGIN_EXPERIENCE_PROVIDER_FIRST\x10\x04\x12\x1c\n" +
+	"\x18LOGIN_EXPERIENCE_STEP_UP\x10\x05\"\xb7\x06\n" +
+	"\x0eSessionContext\x12;\n" +
+	"\x13existing_session_id\x18\x01 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\x11existingSessionId\x12L\n" +
+	"\x1aprevious_authentication_id\x18\x02 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x18previousAuthenticationId\x128\n" +
+	"\x10previous_user_id\x18\x03 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x0epreviousUserId\x12x\n" +
+	"\x18previous_assurance_level\x18\x04 \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x16previousAssuranceLevel\x12<\n" +
+	"\tauth_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\bauthTime\x127\n" +
+	"\amax_age\x18\x06 \x01(\v2\x19.google.protobuf.DurationB\x03\xe0A\x01R\x06maxAge\x12b\n" +
+	"\x0estep_up_reason\x18\a \x01(\x0e2/.m8.platform.iam.v1.SessionContext.StepUpReasonB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\fstepUpReason\"\x8a\x02\n" +
+	"\fStepUpReason\x12\x1e\n" +
+	"\x1aSTEP_UP_REASON_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"STEP_UP_REASON_SENSITIVE_OPERATION\x10\x01\x12\x1e\n" +
+	"\x1aSTEP_UP_REASON_RISK_POLICY\x10\x02\x12\"\n" +
+	"\x1eSTEP_UP_REASON_SESSION_TOO_OLD\x10\x03\x12*\n" +
+	"&STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW\x10\x04\x12!\n" +
+	"\x1dSTEP_UP_REASON_USER_REQUESTED\x10\x05\x12\x1f\n" +
+	"\x1bSTEP_UP_REASON_ADMIN_POLICY\x10\x06\"\x8a\x03\n" +
+	"\x0fResourceContext\x127\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x0eorganizationId\x121\n" +
+	"\fworkspace_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\vworkspaceId\x12-\n" +
+	"\n" +
+	"project_id\x18\x03 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\tprojectId\x120\n" +
+	"\fuser_pool_id\x18\x04 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\n" +
+	"userPoolId\x12:\n" +
+	"\x12requested_resource\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x11requestedResource\x12<\n" +
+	"\x13requested_operation\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\x12requestedOperation\x120\n" +
+	"\baudience\x18\a \x03(\tB\x14\xe0A\x01\xbaH\x0e\x92\x01\v\x10 \"\ar\x05\x10\x01\x18\x80\x02R\baudience\"\xbd\b\n" +
+	"\x12InteractionContext\x12S\n" +
+	"\aui_mode\x18\x01 \x01(\x0e2-.m8.platform.iam.v1.InteractionContext.UiModeB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\x06uiMode\x12o\n" +
+	"\x11login_hint_source\x18\x02 \x01(\x0e26.m8.platform.iam.v1.InteractionContext.LoginHintSourceB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\x0floginHintSource\x125\n" +
+	"\x10preferred_locale\x18\x03 \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18#R\x0fpreferredLocale\x12Y\n" +
+	"\adisplay\x18\x04 \x01(\x0e22.m8.platform.iam.v1.InteractionContext.DisplayModeB\v\xe0A\x01\xbaH\x05\x82\x01\x02\x10\x01R\adisplay\x12-\n" +
+	"\aprompts\x18\x05 \x03(\tB\x13\xe0A\x01\xbaH\r\x92\x01\n" +
+	"\x10\b\"\x06r\x04\x10\x01\x18 R\aprompts\x129\n" +
+	"\x16passkey_capable_client\x18\x06 \x01(\bB\x03\xe0A\x01R\x14passkeyCapableClient\x12C\n" +
+	"\x1buser_verification_supported\x18\a \x01(\bB\x03\xe0A\x01R\x19userVerificationSupported\"\x89\x01\n" +
+	"\x06UiMode\x12\x17\n" +
+	"\x13UI_MODE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10UI_MODE_REDIRECT\x10\x01\x12\x14\n" +
+	"\x10UI_MODE_EMBEDDED\x10\x02\x12\x0f\n" +
+	"\vUI_MODE_API\x10\x03\x12\x17\n" +
+	"\x13UI_MODE_DEVICE_CODE\x10\x04\x12\x10\n" +
+	"\fUI_MODE_CIBA\x10\x05\"\x88\x02\n" +
+	"\x0fLoginHintSource\x12!\n" +
+	"\x1dLOGIN_HINT_SOURCE_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cLOGIN_HINT_SOURCE_USER_INPUT\x10\x01\x12%\n" +
+	"!LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT\x10\x02\x12\x1d\n" +
+	"\x19LOGIN_HINT_SOURCE_SESSION\x10\x03\x12 \n" +
+	"\x1cLOGIN_HINT_SOURCE_INVITATION\x10\x04\x12$\n" +
+	" LOGIN_HINT_SOURCE_ADMIN_SELECTED\x10\x05\x12\"\n" +
+	"\x1eLOGIN_HINT_SOURCE_IDP_CALLBACK\x10\x06\"\x88\x01\n" +
+	"\vDisplayMode\x12\x1c\n" +
+	"\x18DISPLAY_MODE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11DISPLAY_MODE_PAGE\x10\x01\x12\x16\n" +
+	"\x12DISPLAY_MODE_POPUP\x10\x02\x12\x16\n" +
+	"\x12DISPLAY_MODE_TOUCH\x10\x03\x12\x14\n" +
+	"\x10DISPLAY_MODE_WAP\x10\x04\"\xed\x04\n" +
+	"\rDeviceContext\x12(\n" +
+	"\tdevice_id\x18\x01 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\bdeviceId\x127\n" +
+	"\x11trusted_device_id\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\x0ftrustedDeviceId\x12?\n" +
+	"\x15device_fingerprint_id\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\x13deviceFingerprintId\x12&\n" +
+	"\bplatform\x18\x04 \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\bplatform\x12\x1a\n" +
+	"\x02os\x18\x05 \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\x02os\x12)\n" +
+	"\n" +
+	"os_version\x18\x06 \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\tosVersion\x12$\n" +
+	"\abrowser\x18\a \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\abrowser\x123\n" +
+	"\x0fbrowser_version\x18\b \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\x0ebrowserVersion\x12+\n" +
+	"\vapp_version\x18\t \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\n" +
+	"appVersion\x12%\n" +
+	"\bsdk_name\x18\n" +
+	" \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\asdkName\x12+\n" +
+	"\vsdk_version\x18\v \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\n" +
+	"sdkVersion\x122\n" +
+	"\x12webauthn_available\x18\f \x01(\bB\x03\xe0A\x01R\x11webauthnAvailable\x129\n" +
+	"\x16passkey_available_hint\x18\r \x01(\bB\x03\xe0A\x01R\x14passkeyAvailableHint\"\x8d\x05\n" +
+	"\x0eNetworkContext\x12\x1d\n" +
+	"\x02ip\x18\x01 \x01(\tB\r\xe0A\x01\xbaH\a\xd8\x01\x01r\x02p\x01R\x02ip\x126\n" +
+	"\rforwarded_for\x18\x02 \x03(\tB\x11\xe0A\x01\xbaH\v\x92\x01\b\x10\x10\"\x04r\x02p\x01R\fforwardedFor\x12=\n" +
+	"\fcountry_code\x18\x03 \x01(\tB\x1a\xe0A\x03\xbaH\x14\xd8\x01\x01r\x0f2\n" +
+	"^[A-Z]{2}$\x98\x01\x02R\vcountryCode\x12#\n" +
+	"\x06region\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\x06region\x12\x1f\n" +
+	"\x04city\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\x04city\x12\x15\n" +
+	"\x03asn\x18\x06 \x01(\rB\x03\xe0A\x03R\x03asn\x12\x1d\n" +
+	"\x03isp\x18\a \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x02R\x03isp\x12\x1e\n" +
+	"\bis_proxy\x18\b \x01(\bB\x03\xe0A\x03R\aisProxy\x12\x1a\n" +
+	"\x06is_vpn\x18\t \x01(\bB\x03\xe0A\x03R\x05isVpn\x12\x1a\n" +
+	"\x06is_tor\x18\n" +
+	" \x01(\bB\x03\xe0A\x03R\x05isTor\x12_\n" +
+	"\n" +
+	"risk_level\x18\v \x01(\x0e23.m8.platform.iam.v1.NetworkContext.NetworkRiskLevelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\triskLevel\"\xaf\x01\n" +
+	"\x10NetworkRiskLevel\x12\"\n" +
+	"\x1eNETWORK_RISK_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16NETWORK_RISK_LEVEL_LOW\x10\x01\x12\x1d\n" +
+	"\x19NETWORK_RISK_LEVEL_MEDIUM\x10\x02\x12\x1b\n" +
+	"\x17NETWORK_RISK_LEVEL_HIGH\x10\x03\x12\x1f\n" +
+	"\x1bNETWORK_RISK_LEVEL_CRITICAL\x10\x04\"\x81\x05\n" +
+	"\vOidcContext\x12*\n" +
+	"\x05scope\x18\x01 \x03(\tB\x14\xe0A\x01\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\x05scope\x123\n" +
+	"\n" +
+	"acr_values\x18\x02 \x03(\tB\x14\xe0A\x01\xbaH\x0e\x92\x01\v\x10\x10\"\ar\x05\x10\x01\x18\x80\x01R\tacrValues\x12+\n" +
+	"\x06prompt\x18\x03 \x03(\tB\x13\xe0A\x01\xbaH\r\x92\x01\n" +
+	"\x10\b\"\x06r\x04\x10\x01\x18 R\x06prompt\x127\n" +
+	"\amax_age\x18\x04 \x01(\v2\x19.google.protobuf.DurationB\x03\xe0A\x01R\x06maxAge\x12!\n" +
+	"\x05nonce\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x05nonce\x12!\n" +
+	"\x05state\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x05state\x122\n" +
+	"\x0ecode_challenge\x18\a \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\rcodeChallenge\x12>\n" +
+	"\x15code_challenge_method\x18\b \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18 R\x13codeChallengeMethod\x120\n" +
+	"\rresponse_type\x18\t \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x01R\fresponseType\x12/\n" +
+	"\rresponse_mode\x18\n" +
+	" \x01(\tB\n" +
+	"\xe0A\x01\xbaH\x04r\x02\x18@R\fresponseMode\x12*\n" +
+	"\n" +
+	"login_hint\x18\v \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\tloginHint\x120\n" +
+	"\bresource\x18\f \x03(\tB\x14\xe0A\x01\xbaH\x0e\x92\x01\v\x10 \"\ar\x05\x10\x01\x18\x80\x04R\bresource\x120\n" +
+	"\baudience\x18\r \x03(\tB\x14\xe0A\x01\xbaH\x0e\x92\x01\v\x10 \"\ar\x05\x10\x01\x18\x80\x02R\baudience\"\xa4\x05\n" +
+	"\vRiskContext\x123\n" +
+	"\x0frisk_session_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\rriskSessionId\x12,\n" +
+	"\vdecision_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\n" +
+	"decisionId\x12U\n" +
+	"\n" +
+	"risk_level\x18\x03 \x01(\x0e2).m8.platform.iam.v1.RiskContext.RiskLevelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\triskLevel\x12f\n" +
+	"\x12recommended_action\x18\x04 \x01(\x0e2*.m8.platform.iam.v1.RiskContext.RiskActionB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x11recommendedAction\x12.\n" +
+	"\areasons\x18\x05 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\ar\x05\x10\x01\x18\x80\x02R\areasons\x123\n" +
+	"\n" +
+	"policy_ids\x18\x06 \x03(\tB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10 \"\ar\x05\x10\x01\x18\x80\x01R\tpolicyIds\"\x80\x01\n" +
+	"\tRiskLevel\x12\x1a\n" +
+	"\x16RISK_LEVEL_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0eRISK_LEVEL_LOW\x10\x01\x12\x15\n" +
+	"\x11RISK_LEVEL_MEDIUM\x10\x02\x12\x13\n" +
+	"\x0fRISK_LEVEL_HIGH\x10\x03\x12\x17\n" +
+	"\x13RISK_LEVEL_CRITICAL\x10\x04\"\x8a\x01\n" +
+	"\n" +
+	"RiskAction\x12\x1b\n" +
+	"\x17RISK_ACTION_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11RISK_ACTION_ALLOW\x10\x01\x12\x19\n" +
+	"\x15RISK_ACTION_CHALLENGE\x10\x02\x12\x17\n" +
+	"\x13RISK_ACTION_STEP_UP\x10\x03\x12\x14\n" +
+	"\x10RISK_ACTION_DENY\x10\x04B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_context_proto_rawDescOnce sync.Once
@@ -76,16 +2139,63 @@ func file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_context_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_m8_platform_iam_v1_authentication_context_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
+var file_m8_platform_iam_v1_authentication_context_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_m8_platform_iam_v1_authentication_context_proto_goTypes = []any{
-	(*AuthenticationContext)(nil), // 0: m8.platform.iam.v1.AuthenticationContext
+	(ClientContext_ApplicationType)(0),      // 0: m8.platform.iam.v1.ClientContext.ApplicationType
+	(ClientContext_LoginExperience)(0),      // 1: m8.platform.iam.v1.ClientContext.LoginExperience
+	(SessionContext_StepUpReason)(0),        // 2: m8.platform.iam.v1.SessionContext.StepUpReason
+	(InteractionContext_UiMode)(0),          // 3: m8.platform.iam.v1.InteractionContext.UiMode
+	(InteractionContext_LoginHintSource)(0), // 4: m8.platform.iam.v1.InteractionContext.LoginHintSource
+	(InteractionContext_DisplayMode)(0),     // 5: m8.platform.iam.v1.InteractionContext.DisplayMode
+	(NetworkContext_NetworkRiskLevel)(0),    // 6: m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
+	(RiskContext_RiskLevel)(0),              // 7: m8.platform.iam.v1.RiskContext.RiskLevel
+	(RiskContext_RiskAction)(0),             // 8: m8.platform.iam.v1.RiskContext.RiskAction
+	(*AuthenticationContext)(nil),           // 9: m8.platform.iam.v1.AuthenticationContext
+	(*RequestContext)(nil),                  // 10: m8.platform.iam.v1.RequestContext
+	(*ClientContext)(nil),                   // 11: m8.platform.iam.v1.ClientContext
+	(*SessionContext)(nil),                  // 12: m8.platform.iam.v1.SessionContext
+	(*ResourceContext)(nil),                 // 13: m8.platform.iam.v1.ResourceContext
+	(*InteractionContext)(nil),              // 14: m8.platform.iam.v1.InteractionContext
+	(*DeviceContext)(nil),                   // 15: m8.platform.iam.v1.DeviceContext
+	(*NetworkContext)(nil),                  // 16: m8.platform.iam.v1.NetworkContext
+	(*OidcContext)(nil),                     // 17: m8.platform.iam.v1.OidcContext
+	(*RiskContext)(nil),                     // 18: m8.platform.iam.v1.RiskContext
+	nil,                                     // 19: m8.platform.iam.v1.AuthenticationContext.LabelsEntry
+	(*timestamppb.Timestamp)(nil),           // 20: google.protobuf.Timestamp
+	(Authentication_AssuranceLevel)(0),      // 21: m8.platform.iam.v1.Authentication.AssuranceLevel
+	(*durationpb.Duration)(nil),             // 22: google.protobuf.Duration
 }
 var file_m8_platform_iam_v1_authentication_context_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	10, // 0: m8.platform.iam.v1.AuthenticationContext.request:type_name -> m8.platform.iam.v1.RequestContext
+	11, // 1: m8.platform.iam.v1.AuthenticationContext.client:type_name -> m8.platform.iam.v1.ClientContext
+	12, // 2: m8.platform.iam.v1.AuthenticationContext.session:type_name -> m8.platform.iam.v1.SessionContext
+	13, // 3: m8.platform.iam.v1.AuthenticationContext.resource:type_name -> m8.platform.iam.v1.ResourceContext
+	14, // 4: m8.platform.iam.v1.AuthenticationContext.interaction:type_name -> m8.platform.iam.v1.InteractionContext
+	15, // 5: m8.platform.iam.v1.AuthenticationContext.device:type_name -> m8.platform.iam.v1.DeviceContext
+	16, // 6: m8.platform.iam.v1.AuthenticationContext.network:type_name -> m8.platform.iam.v1.NetworkContext
+	17, // 7: m8.platform.iam.v1.AuthenticationContext.oidc:type_name -> m8.platform.iam.v1.OidcContext
+	18, // 8: m8.platform.iam.v1.AuthenticationContext.risk:type_name -> m8.platform.iam.v1.RiskContext
+	19, // 9: m8.platform.iam.v1.AuthenticationContext.labels:type_name -> m8.platform.iam.v1.AuthenticationContext.LabelsEntry
+	20, // 10: m8.platform.iam.v1.RequestContext.received_time:type_name -> google.protobuf.Timestamp
+	0,  // 11: m8.platform.iam.v1.ClientContext.application_type:type_name -> m8.platform.iam.v1.ClientContext.ApplicationType
+	1,  // 12: m8.platform.iam.v1.ClientContext.login_experience:type_name -> m8.platform.iam.v1.ClientContext.LoginExperience
+	21, // 13: m8.platform.iam.v1.SessionContext.previous_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
+	20, // 14: m8.platform.iam.v1.SessionContext.auth_time:type_name -> google.protobuf.Timestamp
+	22, // 15: m8.platform.iam.v1.SessionContext.max_age:type_name -> google.protobuf.Duration
+	2,  // 16: m8.platform.iam.v1.SessionContext.step_up_reason:type_name -> m8.platform.iam.v1.SessionContext.StepUpReason
+	3,  // 17: m8.platform.iam.v1.InteractionContext.ui_mode:type_name -> m8.platform.iam.v1.InteractionContext.UiMode
+	4,  // 18: m8.platform.iam.v1.InteractionContext.login_hint_source:type_name -> m8.platform.iam.v1.InteractionContext.LoginHintSource
+	5,  // 19: m8.platform.iam.v1.InteractionContext.display:type_name -> m8.platform.iam.v1.InteractionContext.DisplayMode
+	6,  // 20: m8.platform.iam.v1.NetworkContext.risk_level:type_name -> m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
+	22, // 21: m8.platform.iam.v1.OidcContext.max_age:type_name -> google.protobuf.Duration
+	7,  // 22: m8.platform.iam.v1.RiskContext.risk_level:type_name -> m8.platform.iam.v1.RiskContext.RiskLevel
+	8,  // 23: m8.platform.iam.v1.RiskContext.recommended_action:type_name -> m8.platform.iam.v1.RiskContext.RiskAction
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_context_proto_init() }
@@ -93,18 +2203,20 @@ func file_m8_platform_iam_v1_authentication_context_proto_init() {
 	if File_m8_platform_iam_v1_authentication_context_proto != nil {
 		return
 	}
+	file_m8_platform_iam_v1_authentication_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_context_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   1,
+			NumEnums:      9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_m8_platform_iam_v1_authentication_context_proto_goTypes,
 		DependencyIndexes: file_m8_platform_iam_v1_authentication_context_proto_depIdxs,
+		EnumInfos:         file_m8_platform_iam_v1_authentication_context_proto_enumTypes,
 		MessageInfos:      file_m8_platform_iam_v1_authentication_context_proto_msgTypes,
 	}.Build()
 	File_m8_platform_iam_v1_authentication_context_proto = out.File

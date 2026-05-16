@@ -8,4 +8,6 @@ Use this API to start authentication workflows and track their long-running oper
 
 | Method | Description |
 | --- | --- |
+| [Get](./GetAuthentication.md) | Returns the latest snapshot of an authentication operation. Safe for polling and never includes sensitive challenge secrets. |
+| [Cancel](./CancelAuthentication.md) | Cancels an active authentication operation and returns the updated snapshot. Terminal operations are returned unchanged. |
 | [Start](./StartAuthentication.md) | Starts a new authentication workflow and returns a long-running operation for tracking progress. |

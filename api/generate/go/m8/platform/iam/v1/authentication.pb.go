@@ -26,6 +26,25 @@ const (
 )
 
 // Current lifecycle state of an authentication operation.
+//
+// Cancelable states are CREATED, INITIALIZING, IDENTIFYING, EVALUATING,
+// CHALLENGE_PREPARING, CHALLENGE_DELIVERED, WAITING_FOR_USER, VERIFYING,
+// CHALLENGE_RETRY_REQUIRED, STEP_UP_REQUIRED, CALLBACK_PENDING, and FINALIZING.
+//
+// Terminal states are AUTHENTICATED, DENIED, CANCELED, EXPIRED,
+// ATTEMPTS_EXCEEDED, BLOCKED, and FAILED.
+//
+// Cancel transition rule:
+// - cancelable state -> CANCELED
+// - terminal states are immutable
+//
+// On a successful transition to CANCELED, update_time is updated and version is
+// incremented. If the operation is already terminal, update_time and version
+// are not changed.
+//
+// TODO: Add an explicit state_reason when the authentication state reason
+// contract is introduced. Cancel is a normal user/client action and should not
+// populate error.
 type Authentication_State int32
 
 const (
@@ -461,14 +480,16 @@ type Authentication struct {
 	// - used to query or correlate authentication progress
 	// - remains unchanged for the lifetime of the operation
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Required. Immutable project identifier that owns this authentication operation.
+	// Output only. Immutable project identifier that owns this authentication operation.
+	// The server resolves this value from client_id and client configuration.
 	//
 	// Example:
 	// - used to isolate authentication data by project
 	// - used to load project-scoped authentication configuration
 	// - remains unchanged for the lifetime of the operation
 	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	// Required. Immutable user pool identifier where the identity must be resolved.
+	// Output only. Immutable user pool identifier where the identity must be resolved.
+	// The server resolves this value from client_id and client configuration.
 	//
 	// Example:
 	// - selects the identity namespace for the authentication operation
@@ -476,7 +497,7 @@ type Authentication struct {
 	// - remains unchanged for the lifetime of the operation
 	UserPoolId string `protobuf:"bytes,3,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
 	// Required. Immutable client application identifier that initiated authentication.
-	// The value is an opaque client identifier and is not required to be a UUID.
+	// The value must be a UUID.
 	//
 	// Example:
 	// - first-party web application
@@ -561,7 +582,9 @@ type Authentication struct {
 	// to a user inside user_pool_id.
 	//
 	// Once set, this value must not change for the lifetime of the operation.
-	UserId        string `protobuf:"bytes,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string               `protobuf:"bytes,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Error         *AuthenticationError `protobuf:"bytes,17,opt,name=error,proto3" json:"error,omitempty"`
+	Etag          string               `protobuf:"bytes,20,opt,name=etag,proto3" json:"etag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -701,23 +724,105 @@ func (x *Authentication) GetUserId() string {
 	return ""
 }
 
+func (x *Authentication) GetError() *AuthenticationError {
+	if x != nil {
+		return x.Error
+	}
+	return nil
+}
+
+func (x *Authentication) GetEtag() string {
+	if x != nil {
+		return x.Etag
+	}
+	return ""
+}
+
+type AuthenticationError struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	ProviderId    string                 `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthenticationError) Reset() {
+	*x = AuthenticationError{}
+	mi := &file_m8_platform_iam_v1_authentication_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthenticationError) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthenticationError) ProtoMessage() {}
+
+func (x *AuthenticationError) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthenticationError.ProtoReflect.Descriptor instead.
+func (*AuthenticationError) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AuthenticationError) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *AuthenticationError) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *AuthenticationError) GetProviderId() string {
+	if x != nil {
+		return x.ProviderId
+	}
+	return ""
+}
+
+func (x *AuthenticationError) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xc4\f\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xa7\r\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12-\n" +
 	"\n" +
-	"project_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\tprojectId\x120\n" +
-	"\fuser_pool_id\x18\x03 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\n" +
-	"userPoolId\x12#\n" +
-	"\tclient_id\x18\x04 \x01(\tB\x06\xe0A\x02\xe0A\x05R\bclientId\x12*\n" +
+	"project_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\tprojectId\x120\n" +
+	"\fuser_pool_id\x18\x03 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"userPoolId\x12+\n" +
+	"\tclient_id\x18\x04 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12*\n" +
 	"\vworkflow_id\x18\x05 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
 	"workflowId\x12%\n" +
 	"\x06run_id\x18\x06 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x05runId\x12M\n" +
-	"\x05state\x18\a \x01(\x0e2(.m8.platform.iam.v1.Authentication.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12Y\n" +
-	"\tchallenge\x18\b \x01(\x0e2,.m8.platform.iam.v1.Authentication.ChallengeB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\tchallenge\x12~\n" +
+	"\x05state\x18\a \x01(\x0e2(.m8.platform.iam.v1.Authentication.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12W\n" +
+	"\tchallenge\x18\b \x01(\x0e2,.m8.platform.iam.v1.Authentication.ChallengeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\tchallenge\x12~\n" +
 	"\x19requested_assurance_level\x18\t \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\x0f\xe0A\x02\xbaH\t\x82\x01\x06\x10\x01 \x00 \x01R\x17requestedAssuranceLevel\x12z\n" +
 	"\x18achieved_assurance_level\x18\n" +
 	" \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x16achievedAssuranceLevel\x12C\n" +
@@ -729,7 +834,9 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"expireTime\x12$\n" +
 	"\aversion\x18\x0e \x01(\x03B\n" +
 	"\xe0A\x03\xbaH\x04\"\x02(\x01R\aversion\x12'\n" +
-	"\auser_id\x18\x0f \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\"\xf9\x02\n" +
+	"\auser_id\x18\x0f \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\x12B\n" +
+	"\x05error\x18\x11 \x01(\v2'.m8.platform.iam.v1.AuthenticationErrorB\x03\xe0A\x03R\x05error\x12\x17\n" +
+	"\x04etag\x18\x14 \x01(\tB\x03\xe0A\x03R\x04etag\"\xf9\x02\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aCREATED\x10\x01\x12\x10\n" +
@@ -770,7 +877,13 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\x04AAL0\x10\x01\x12\b\n" +
 	"\x04AAL1\x10\x02\x12\b\n" +
 	"\x04AAL2\x10\x03\x12\b\n" +
-	"\x04AAL3\x10\x04:&\x8a\xb5\x18\"m8.platform.iam.authentications.v1B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x04AAL3\x10\x04:&\x8a\xb5\x18\"m8.platform.iam.authentications.v1\"|\n" +
+	"\x13AuthenticationError\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1f\n" +
+	"\vprovider_id\x18\x03 \x01(\tR\n" +
+	"providerId\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reasonB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_proto_rawDescOnce sync.Once
@@ -785,27 +898,29 @@ func file_m8_platform_iam_v1_authentication_proto_rawDescGZIP() []byte {
 }
 
 var file_m8_platform_iam_v1_authentication_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_m8_platform_iam_v1_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_m8_platform_iam_v1_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_iam_v1_authentication_proto_goTypes = []any{
 	(Authentication_State)(0),          // 0: m8.platform.iam.v1.Authentication.State
 	(Authentication_Challenge)(0),      // 1: m8.platform.iam.v1.Authentication.Challenge
 	(Authentication_AssuranceLevel)(0), // 2: m8.platform.iam.v1.Authentication.AssuranceLevel
 	(*Authentication)(nil),             // 3: m8.platform.iam.v1.Authentication
-	(*timestamppb.Timestamp)(nil),      // 4: google.protobuf.Timestamp
+	(*AuthenticationError)(nil),        // 4: m8.platform.iam.v1.AuthenticationError
+	(*timestamppb.Timestamp)(nil),      // 5: google.protobuf.Timestamp
 }
 var file_m8_platform_iam_v1_authentication_proto_depIdxs = []int32{
 	0, // 0: m8.platform.iam.v1.Authentication.state:type_name -> m8.platform.iam.v1.Authentication.State
 	1, // 1: m8.platform.iam.v1.Authentication.challenge:type_name -> m8.platform.iam.v1.Authentication.Challenge
 	2, // 2: m8.platform.iam.v1.Authentication.requested_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
 	2, // 3: m8.platform.iam.v1.Authentication.achieved_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
-	4, // 4: m8.platform.iam.v1.Authentication.create_time:type_name -> google.protobuf.Timestamp
-	4, // 5: m8.platform.iam.v1.Authentication.update_time:type_name -> google.protobuf.Timestamp
-	4, // 6: m8.platform.iam.v1.Authentication.expire_time:type_name -> google.protobuf.Timestamp
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5, // 4: m8.platform.iam.v1.Authentication.create_time:type_name -> google.protobuf.Timestamp
+	5, // 5: m8.platform.iam.v1.Authentication.update_time:type_name -> google.protobuf.Timestamp
+	5, // 6: m8.platform.iam.v1.Authentication.expire_time:type_name -> google.protobuf.Timestamp
+	4, // 7: m8.platform.iam.v1.Authentication.error:type_name -> m8.platform.iam.v1.AuthenticationError
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_proto_init() }
@@ -819,7 +934,7 @@ func file_m8_platform_iam_v1_authentication_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

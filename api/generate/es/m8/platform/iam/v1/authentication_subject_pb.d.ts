@@ -37,10 +37,16 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
   /**
    * Required. Subject identifier or hint value.
    *
+   * Validation depends on type:
+   * - USER_ID must be a UUID
+   * - EMAIL must be a valid email address
+   * - PHONE must be an E.164 phone number
+   * - USERNAME must be 3 to 64 characters and match the username pattern
+   *
    * Example:
    * - user UUID when type is USER_ID
    * - email address when type is EMAIL
-   * - phone number when type is PHONE
+   * - phone number in E.164 format when type is PHONE
    * - external subject when type is EXTERNAL_IDENTITY
    *
    * @generated from field: string value = 2;
@@ -55,6 +61,7 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
    *
    * This field should normally be set only when type is EXTERNAL_IDENTITY,
    * or when LOGIN_HINT is explicitly provider-scoped.
+   * This field is required when type is EXTERNAL_IDENTITY.
    *
    * Example:
    * - "google" for an OIDC external subject
@@ -71,6 +78,8 @@ export declare type AuthenticationSubject = Message<"m8.platform.iam.v1.Authenti
    * This field should normally be set only when type is EXTERNAL_IDENTITY.
    * For OIDC it should match the issuer claim. For SAML it should match the
    * IdP entity ID.
+   * When type is EXTERNAL_IDENTITY, this field is required unless the server
+   * can resolve the issuer from provider_id.
    *
    * The server must validate this value against the configured provider.
    * Clients should not be allowed to freely choose arbitrary issuers.
@@ -164,17 +173,6 @@ export enum AuthenticationSubject_Type {
    * @generated from enum value: EXTERNAL_IDENTITY = 6;
    */
   EXTERNAL_IDENTITY = 6,
-
-  /**
-   * Value contains a WebAuthn credential identifier.
-   *
-   * Example:
-   * - passkey credential id selected by the browser
-   * - roaming security key credential id
-   *
-   * @generated from enum value: WEBAUTHN_CREDENTIAL = 7;
-   */
-  WEBAUTHN_CREDENTIAL = 7,
 }
 
 /**

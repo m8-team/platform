@@ -2,13 +2,17 @@
 // @generated from file m8/platform/iam/v1/authentication_context.proto (package m8.platform.iam.v1, syntax proto3)
 /* eslint-disable */
 
-import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, tsEnum } from "@bufbuild/protobuf/codegenv2";
+import { file_buf_validate_validate } from "../../../../buf/validate/validate_pb";
+import { file_google_api_field_behavior } from "../../../../google/api/field_behavior_pb";
+import { file_google_protobuf_duration, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
+import { file_m8_platform_iam_v1_authentication } from "./authentication_pb";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication_context.proto.
  */
 export const file_m8_platform_iam_v1_authentication_context = /*@__PURE__*/
-  fileDesc("Ci9tOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb25fY29udGV4dC5wcm90bxISbTgucGxhdGZvcm0uaWFtLnYxIhcKFUF1dGhlbnRpY2F0aW9uQ29udGV4dEI3WjVnaXRodWIuY29tL204LXRlYW0vZ28tZ2VucHJvdG8vbTgvcGxhdGZvcm0vaWFtL3YxO2lhbWIGcHJvdG8z");
+  fileDesc("Ci9tOC9wbGF0Zm9ybS9pYW0vdjEvYXV0aGVudGljYXRpb25fY29udGV4dC5wcm90bxISbTgucGxhdGZvcm0uaWFtLnYxIsEFChVBdXRoZW50aWNhdGlvbkNvbnRleHQSOAoHcmVxdWVzdBgBIAEoCzIiLm04LnBsYXRmb3JtLmlhbS52MS5SZXF1ZXN0Q29udGV4dEID4EEBEjYKBmNsaWVudBgCIAEoCzIhLm04LnBsYXRmb3JtLmlhbS52MS5DbGllbnRDb250ZXh0QgPgQQESOAoHc2Vzc2lvbhgDIAEoCzIiLm04LnBsYXRmb3JtLmlhbS52MS5TZXNzaW9uQ29udGV4dEID4EEBEjoKCHJlc291cmNlGAQgASgLMiMubTgucGxhdGZvcm0uaWFtLnYxLlJlc291cmNlQ29udGV4dEID4EEBEkAKC2ludGVyYWN0aW9uGAUgASgLMiYubTgucGxhdGZvcm0uaWFtLnYxLkludGVyYWN0aW9uQ29udGV4dEID4EEBEjYKBmRldmljZRgGIAEoCzIhLm04LnBsYXRmb3JtLmlhbS52MS5EZXZpY2VDb250ZXh0QgPgQQESOAoHbmV0d29yaxgHIAEoCzIiLm04LnBsYXRmb3JtLmlhbS52MS5OZXR3b3JrQ29udGV4dEID4EEBEjIKBG9pZGMYCCABKAsyHy5tOC5wbGF0Zm9ybS5pYW0udjEuT2lkY0NvbnRleHRCA+BBARIyCgRyaXNrGAkgASgLMh8ubTgucGxhdGZvcm0uaWFtLnYxLlJpc2tDb250ZXh0QgPgQQESdQoGbGFiZWxzGGQgAygLMjUubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uQ29udGV4dC5MYWJlbHNFbnRyeUIu4EEBukgomgElEDIiGnIYEAEYQDISXltBLVphLXowLTkuXy8tXSskKgVyAxiAAhotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIoIDCg5SZXF1ZXN0Q29udGV4dBIiCgpyZXF1ZXN0X2lkGAEgASgJQg7gQQG6SAjYAQFyA7ABARImCg5jb3JyZWxhdGlvbl9pZBgCIAEoCUIO4EEBukgI2AEBcgOwAQESHQoIdHJhY2VfaWQYAyABKAlCC+BBAbpIBXIDGIABEicKD2lkZW1wb3RlbmN5X2tleRgEIAEoCUIO4EEBukgI2AEBcgOwAQESIwoOc291cmNlX3NlcnZpY2UYBSABKAlCC+BBAbpIBXIDGIABEh8KCnVzZXJfYWdlbnQYBiABKAlCC+BBAbpIBXIDGIAIEhoKBmxvY2FsZRgHIAEoCUIK4EEBukgEcgIYIxIcCgh0aW1lem9uZRgIIAEoCUIK4EEBukgEcgIYQBIkCg9hY2NlcHRfbGFuZ3VhZ2UYCSABKAlCC+BBAbpIBXIDGIACEjYKDXJlY2VpdmVkX3RpbWUYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQMi+QYKDUNsaWVudENvbnRleHQSIQoJY2xpZW50X2lkGAEgASgJQg7gQQO6SAjYAQFyA7ABARJYChBhcHBsaWNhdGlvbl90eXBlGAIgASgOMjEubTgucGxhdGZvcm0uaWFtLnYxLkNsaWVudENvbnRleHQuQXBwbGljYXRpb25UeXBlQgvgQQO6SAWCAQIQARInCgxyZWRpcmVjdF91cmkYAyABKAlCEeBBAbpIC9gBAXIGGIAQkAEBEiEKBm9yaWdpbhgEIAEoCUIR4EEBukgL2AEBcgYYgASIAQESLAoPYWxsb3dlZF9tZXRob2RzGAUgAygJQhPgQQO6SA2SAQoQICIGcgQQARhAEjIKFGFsbG93ZWRfcHJvdmlkZXJfaWRzGAYgAygJQhTgQQO6SA6SAQsQQCIHcgUQARiAARJYChBsb2dpbl9leHBlcmllbmNlGAcgASgOMjEubTgucGxhdGZvcm0uaWFtLnYxLkNsaWVudENvbnRleHQuTG9naW5FeHBlcmllbmNlQgvgQQO6SAWCAQIQARIaCg1wdWJsaWNfY2xpZW50GAggASgIQgPgQQMi2QEKD0FwcGxpY2F0aW9uVHlwZRIgChxBUFBMSUNBVElPTl9UWVBFX1VOU1BFQ0lGSUVEEAASGAoUQVBQTElDQVRJT05fVFlQRV9XRUIQARIYChRBUFBMSUNBVElPTl9UWVBFX1NQQRACEhsKF0FQUExJQ0FUSU9OX1RZUEVfTU9CSUxFEAMSHAoYQVBQTElDQVRJT05fVFlQRV9CQUNLRU5EEAQSGAoUQVBQTElDQVRJT05fVFlQRV9DTEkQBRIbChdBUFBMSUNBVElPTl9UWVBFX0RFVklDRRAGIuoBCg9Mb2dpbkV4cGVyaWVuY2USIAocTE9HSU5fRVhQRVJJRU5DRV9VTlNQRUNJRklFRBAAEiUKIUxPR0lOX0VYUEVSSUVOQ0VfSURFTlRJRklFUl9GSVJTVBABEicKI0xPR0lOX0VYUEVSSUVOQ0VfUEFTU1dPUkRMRVNTX0ZJUlNUEAISIgoeTE9HSU5fRVhQRVJJRU5DRV9QQVNTS0VZX0ZJUlNUEAMSIwofTE9HSU5fRVhQRVJJRU5DRV9QUk9WSURFUl9GSVJTVBAEEhwKGExPR0lOX0VYUEVSSUVOQ0VfU1RFUF9VUBAFIsIFCg5TZXNzaW9uQ29udGV4dBIoChNleGlzdGluZ19zZXNzaW9uX2lkGAEgASgJQgvgQQG6SAVyAxiAARIyChpwcmV2aW91c19hdXRoZW50aWNhdGlvbl9pZBgCIAEoCUIO4EEBukgI2AEBcgOwAQESKAoQcHJldmlvdXNfdXNlcl9pZBgDIAEoCUIO4EEDukgI2AEBcgOwAQESYAoYcHJldmlvdXNfYXNzdXJhbmNlX2xldmVsGAQgASgOMjEubTgucGxhdGZvcm0uaWFtLnYxLkF1dGhlbnRpY2F0aW9uLkFzc3VyYW5jZUxldmVsQgvgQQO6SAWCAQIQARIyCglhdXRoX3RpbWUYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgPgQQESLwoHbWF4X2FnZRgGIAEoCzIZLmdvb2dsZS5wcm90b2J1Zi5EdXJhdGlvbkID4EEBElQKDnN0ZXBfdXBfcmVhc29uGAcgASgOMi8ubTgucGxhdGZvcm0uaWFtLnYxLlNlc3Npb25Db250ZXh0LlN0ZXBVcFJlYXNvbkIL4EEBukgFggECEAEiigIKDFN0ZXBVcFJlYXNvbhIeChpTVEVQX1VQX1JFQVNPTl9VTlNQRUNJRklFRBAAEiYKIlNURVBfVVBfUkVBU09OX1NFTlNJVElWRV9PUEVSQVRJT04QARIeChpTVEVQX1VQX1JFQVNPTl9SSVNLX1BPTElDWRACEiIKHlNURVBfVVBfUkVBU09OX1NFU1NJT05fVE9PX09MRBADEioKJlNURVBfVVBfUkVBU09OX0FTU1VSQU5DRV9MRVZFTF9UT09fTE9XEAQSIQodU1RFUF9VUF9SRUFTT05fVVNFUl9SRVFVRVNURUQQBRIfChtTVEVQX1VQX1JFQVNPTl9BRE1JTl9QT0xJQ1kQBiKlAgoPUmVzb3VyY2VDb250ZXh0EicKD29yZ2FuaXphdGlvbl9pZBgBIAEoCUIO4EEDukgI2AEBcgOwAQESJAoMd29ya3NwYWNlX2lkGAIgASgJQg7gQQO6SAjYAQFyA7ABARIiCgpwcm9qZWN0X2lkGAMgASgJQg7gQQO6SAjYAQFyA7ABARIkCgx1c2VyX3Bvb2xfaWQYBCABKAlCDuBBA7pICNgBAXIDsAEBEicKEnJlcXVlc3RlZF9yZXNvdXJjZRgFIAEoCUIL4EEBukgFcgMYgAQSKAoTcmVxdWVzdGVkX29wZXJhdGlvbhgGIAEoCUIL4EEBukgFcgMYgAESJgoIYXVkaWVuY2UYByADKAlCFOBBAbpIDpIBCxAgIgdyBRABGIACItAHChJJbnRlcmFjdGlvbkNvbnRleHQSSwoHdWlfbW9kZRgBIAEoDjItLm04LnBsYXRmb3JtLmlhbS52MS5JbnRlcmFjdGlvbkNvbnRleHQuVWlNb2RlQgvgQQG6SAWCAQIQARJeChFsb2dpbl9oaW50X3NvdXJjZRgCIAEoDjI2Lm04LnBsYXRmb3JtLmlhbS52MS5JbnRlcmFjdGlvbkNvbnRleHQuTG9naW5IaW50U291cmNlQgvgQQG6SAWCAQIQARIkChBwcmVmZXJyZWRfbG9jYWxlGAMgASgJQgrgQQG6SARyAhgjElAKB2Rpc3BsYXkYBCABKA4yMi5tOC5wbGF0Zm9ybS5pYW0udjEuSW50ZXJhY3Rpb25Db250ZXh0LkRpc3BsYXlNb2RlQgvgQQG6SAWCAQIQARIkCgdwcm9tcHRzGAUgAygJQhPgQQG6SA2SAQoQCCIGcgQQARggEiMKFnBhc3NrZXlfY2FwYWJsZV9jbGllbnQYBiABKAhCA+BBARIoCht1c2VyX3ZlcmlmaWNhdGlvbl9zdXBwb3J0ZWQYByABKAhCA+BBASKJAQoGVWlNb2RlEhcKE1VJX01PREVfVU5TUEVDSUZJRUQQABIUChBVSV9NT0RFX1JFRElSRUNUEAESFAoQVUlfTU9ERV9FTUJFRERFRBACEg8KC1VJX01PREVfQVBJEAMSFwoTVUlfTU9ERV9ERVZJQ0VfQ09ERRAEEhAKDFVJX01PREVfQ0lCQRAFIogCCg9Mb2dpbkhpbnRTb3VyY2USIQodTE9HSU5fSElOVF9TT1VSQ0VfVU5TUEVDSUZJRUQQABIgChxMT0dJTl9ISU5UX1NPVVJDRV9VU0VSX0lOUFVUEAESJQohTE9HSU5fSElOVF9TT1VSQ0VfT0lEQ19MT0dJTl9ISU5UEAISHQoZTE9HSU5fSElOVF9TT1VSQ0VfU0VTU0lPThADEiAKHExPR0lOX0hJTlRfU09VUkNFX0lOVklUQVRJT04QBBIkCiBMT0dJTl9ISU5UX1NPVVJDRV9BRE1JTl9TRUxFQ1RFRBAFEiIKHkxPR0lOX0hJTlRfU09VUkNFX0lEUF9DQUxMQkFDSxAGIogBCgtEaXNwbGF5TW9kZRIcChhESVNQTEFZX01PREVfVU5TUEVDSUZJRUQQABIVChFESVNQTEFZX01PREVfUEFHRRABEhYKEkRJU1BMQVlfTU9ERV9QT1BVUBACEhYKEkRJU1BMQVlfTU9ERV9UT1VDSBADEhQKEERJU1BMQVlfTU9ERV9XQVAQBCLBAwoNRGV2aWNlQ29udGV4dBIeCglkZXZpY2VfaWQYASABKAlCC+BBAbpIBXIDGIABEiYKEXRydXN0ZWRfZGV2aWNlX2lkGAIgASgJQgvgQQG6SAVyAxiAARIqChVkZXZpY2VfZmluZ2VycHJpbnRfaWQYAyABKAlCC+BBAbpIBXIDGIABEhwKCHBsYXRmb3JtGAQgASgJQgrgQQG6SARyAhhAEhYKAm9zGAUgASgJQgrgQQG6SARyAhhAEh4KCm9zX3ZlcnNpb24YBiABKAlCCuBBAbpIBHICGEASGwoHYnJvd3NlchgHIAEoCUIK4EEBukgEcgIYQBIjCg9icm93c2VyX3ZlcnNpb24YCCABKAlCCuBBAbpIBHICGEASHwoLYXBwX3ZlcnNpb24YCSABKAlCCuBBAbpIBHICGEASHAoIc2RrX25hbWUYCiABKAlCCuBBAbpIBHICGEASHwoLc2RrX3ZlcnNpb24YCyABKAlCCuBBAbpIBHICGEASHwoSd2ViYXV0aG5fYXZhaWxhYmxlGAwgASgIQgPgQQESIwoWcGFzc2tleV9hdmFpbGFibGVfaGludBgNIAEoCEID4EEBIrQECg5OZXR3b3JrQ29udGV4dBIZCgJpcBgBIAEoCUIN4EEBukgH2AEBcgJwARIoCg1mb3J3YXJkZWRfZm9yGAIgAygJQhHgQQG6SAuSAQgQECIEcgJwARIwCgxjb3VudHJ5X2NvZGUYAyABKAlCGuBBA7pIFNgBAXIPMgpeW0EtWl17Mn0kmAECEhsKBnJlZ2lvbhgEIAEoCUIL4EEDukgFcgMYgAESGQoEY2l0eRgFIAEoCUIL4EEDukgFcgMYgAESEAoDYXNuGAYgASgNQgPgQQMSGAoDaXNwGAcgASgJQgvgQQO6SAVyAxiAAhIVCghpc19wcm94eRgIIAEoCEID4EEDEhMKBmlzX3ZwbhgJIAEoCEID4EEDEhMKBmlzX3RvchgKIAEoCEID4EEDElQKCnJpc2tfbGV2ZWwYCyABKA4yMy5tOC5wbGF0Zm9ybS5pYW0udjEuTmV0d29ya0NvbnRleHQuTmV0d29ya1Jpc2tMZXZlbEIL4EEDukgFggECEAEirwEKEE5ldHdvcmtSaXNrTGV2ZWwSIgoeTkVUV09SS19SSVNLX0xFVkVMX1VOU1BFQ0lGSUVEEAASGgoWTkVUV09SS19SSVNLX0xFVkVMX0xPVxABEh0KGU5FVFdPUktfUklTS19MRVZFTF9NRURJVU0QAhIbChdORVRXT1JLX1JJU0tfTEVWRUxfSElHSBADEh8KG05FVFdPUktfUklTS19MRVZFTF9DUklUSUNBTBAEIvIDCgtPaWRjQ29udGV4dBIjCgVzY29wZRgBIAMoCUIU4EEBukgOkgELEEAiB3IFEAEYgAESKAoKYWNyX3ZhbHVlcxgCIAMoCUIU4EEBukgOkgELEBAiB3IFEAEYgAESIwoGcHJvbXB0GAMgAygJQhPgQQG6SA2SAQoQCCIGcgQQARggEi8KB21heF9hZ2UYBCABKAsyGS5nb29nbGUucHJvdG9idWYuRHVyYXRpb25CA+BBARIaCgVub25jZRgFIAEoCUIL4EEBukgFcgMYgAQSGgoFc3RhdGUYBiABKAlCC+BBAbpIBXIDGIAEEiMKDmNvZGVfY2hhbGxlbmdlGAcgASgJQgvgQQG6SAVyAxiAAhIpChVjb2RlX2NoYWxsZW5nZV9tZXRob2QYCCABKAlCCuBBAbpIBHICGCASIgoNcmVzcG9uc2VfdHlwZRgJIAEoCUIL4EEBukgFcgMYgAESIQoNcmVzcG9uc2VfbW9kZRgKIAEoCUIK4EEBukgEcgIYQBIfCgpsb2dpbl9oaW50GAsgASgJQgvgQQG6SAVyAxiABBImCghyZXNvdXJjZRgMIAMoCUIU4EEBukgOkgELECAiB3IFEAEYgAQSJgoIYXVkaWVuY2UYDSADKAlCFOBBAbpIDpIBCxAgIgdyBRABGIACItcECgtSaXNrQ29udGV4dBIkCg9yaXNrX3Nlc3Npb25faWQYASABKAlCC+BBA7pIBXIDGIABEiAKC2RlY2lzaW9uX2lkGAIgASgJQgvgQQO6SAVyAxiAARJKCgpyaXNrX2xldmVsGAMgASgOMikubTgucGxhdGZvcm0uaWFtLnYxLlJpc2tDb250ZXh0LlJpc2tMZXZlbEIL4EEDukgFggECEAESUwoScmVjb21tZW5kZWRfYWN0aW9uGAQgASgOMioubTgucGxhdGZvcm0uaWFtLnYxLlJpc2tDb250ZXh0LlJpc2tBY3Rpb25CC+BBA7pIBYIBAhABEiUKB3JlYXNvbnMYBSADKAlCFOBBA7pIDpIBCxAgIgdyBRABGIACEigKCnBvbGljeV9pZHMYBiADKAlCFOBBA7pIDpIBCxAgIgdyBRABGIABIoABCglSaXNrTGV2ZWwSGgoWUklTS19MRVZFTF9VTlNQRUNJRklFRBAAEhIKDlJJU0tfTEVWRUxfTE9XEAESFQoRUklTS19MRVZFTF9NRURJVU0QAhITCg9SSVNLX0xFVkVMX0hJR0gQAxIXChNSSVNLX0xFVkVMX0NSSVRJQ0FMEAQiigEKClJpc2tBY3Rpb24SGwoXUklTS19BQ1RJT05fVU5TUEVDSUZJRUQQABIVChFSSVNLX0FDVElPTl9BTExPVxABEhkKFVJJU0tfQUNUSU9OX0NIQUxMRU5HRRACEhcKE1JJU0tfQUNUSU9OX1NURVBfVVAQAxIUChBSSVNLX0FDVElPTl9ERU5ZEARCN1o1Z2l0aHViLmNvbS9tOC10ZWFtL2dvLWdlbnByb3RvL204L3BsYXRmb3JtL2lhbS92MTtpYW1iBnByb3RvMw", [file_buf_validate_validate, file_google_api_field_behavior, file_google_protobuf_duration, file_google_protobuf_timestamp, file_m8_platform_iam_v1_authentication]);
 
 /**
  * Describes the message m8.platform.iam.v1.AuthenticationContext.
@@ -16,4 +20,194 @@ export const file_m8_platform_iam_v1_authentication_context = /*@__PURE__*/
  */
 export const AuthenticationContextSchema = /*@__PURE__*/
   messageDesc(file_m8_platform_iam_v1_authentication_context, 0);
+
+/**
+ * Describes the message m8.platform.iam.v1.RequestContext.
+ * Use `create(RequestContextSchema)` to create a new message.
+ */
+export const RequestContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 1);
+
+/**
+ * Describes the message m8.platform.iam.v1.ClientContext.
+ * Use `create(ClientContextSchema)` to create a new message.
+ */
+export const ClientContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 2);
+
+/**
+ * Describes the enum m8.platform.iam.v1.ClientContext.ApplicationType.
+ */
+export const ClientContext_ApplicationTypeSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 2, 0);
+
+/**
+ * ApplicationType identifies the broad class of client application.
+ *
+ * @generated from enum m8.platform.iam.v1.ClientContext.ApplicationType
+ */
+export const ClientContext_ApplicationType = /*@__PURE__*/
+  tsEnum(ClientContext_ApplicationTypeSchema);
+
+/**
+ * Describes the enum m8.platform.iam.v1.ClientContext.LoginExperience.
+ */
+export const ClientContext_LoginExperienceSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 2, 1);
+
+/**
+ * LoginExperience describes the server-selected login experience for this
+ * client and request.
+ *
+ * @generated from enum m8.platform.iam.v1.ClientContext.LoginExperience
+ */
+export const ClientContext_LoginExperience = /*@__PURE__*/
+  tsEnum(ClientContext_LoginExperienceSchema);
+
+/**
+ * Describes the message m8.platform.iam.v1.SessionContext.
+ * Use `create(SessionContextSchema)` to create a new message.
+ */
+export const SessionContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 3);
+
+/**
+ * Describes the enum m8.platform.iam.v1.SessionContext.StepUpReason.
+ */
+export const SessionContext_StepUpReasonSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 3, 0);
+
+/**
+ * StepUpReason describes why stronger or fresher authentication is requested.
+ *
+ * @generated from enum m8.platform.iam.v1.SessionContext.StepUpReason
+ */
+export const SessionContext_StepUpReason = /*@__PURE__*/
+  tsEnum(SessionContext_StepUpReasonSchema);
+
+/**
+ * Describes the message m8.platform.iam.v1.ResourceContext.
+ * Use `create(ResourceContextSchema)` to create a new message.
+ */
+export const ResourceContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 4);
+
+/**
+ * Describes the message m8.platform.iam.v1.InteractionContext.
+ * Use `create(InteractionContextSchema)` to create a new message.
+ */
+export const InteractionContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 5);
+
+/**
+ * Describes the enum m8.platform.iam.v1.InteractionContext.UiMode.
+ */
+export const InteractionContext_UiModeSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 5, 0);
+
+/**
+ * UiMode describes the protocol or UI channel used for interaction.
+ *
+ * @generated from enum m8.platform.iam.v1.InteractionContext.UiMode
+ */
+export const InteractionContext_UiMode = /*@__PURE__*/
+  tsEnum(InteractionContext_UiModeSchema);
+
+/**
+ * Describes the enum m8.platform.iam.v1.InteractionContext.LoginHintSource.
+ */
+export const InteractionContext_LoginHintSourceSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 5, 1);
+
+/**
+ * LoginHintSource identifies where the login hint or subject hint came from.
+ *
+ * @generated from enum m8.platform.iam.v1.InteractionContext.LoginHintSource
+ */
+export const InteractionContext_LoginHintSource = /*@__PURE__*/
+  tsEnum(InteractionContext_LoginHintSourceSchema);
+
+/**
+ * Describes the enum m8.platform.iam.v1.InteractionContext.DisplayMode.
+ */
+export const InteractionContext_DisplayModeSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 5, 2);
+
+/**
+ * DisplayMode mirrors OIDC display values that influence presentation.
+ *
+ * @generated from enum m8.platform.iam.v1.InteractionContext.DisplayMode
+ */
+export const InteractionContext_DisplayMode = /*@__PURE__*/
+  tsEnum(InteractionContext_DisplayModeSchema);
+
+/**
+ * Describes the message m8.platform.iam.v1.DeviceContext.
+ * Use `create(DeviceContextSchema)` to create a new message.
+ */
+export const DeviceContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 6);
+
+/**
+ * Describes the message m8.platform.iam.v1.NetworkContext.
+ * Use `create(NetworkContextSchema)` to create a new message.
+ */
+export const NetworkContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 7);
+
+/**
+ * Describes the enum m8.platform.iam.v1.NetworkContext.NetworkRiskLevel.
+ */
+export const NetworkContext_NetworkRiskLevelSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 7, 0);
+
+/**
+ * NetworkRiskLevel summarizes network-only risk enrichment.
+ *
+ * @generated from enum m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
+ */
+export const NetworkContext_NetworkRiskLevel = /*@__PURE__*/
+  tsEnum(NetworkContext_NetworkRiskLevelSchema);
+
+/**
+ * Describes the message m8.platform.iam.v1.OidcContext.
+ * Use `create(OidcContextSchema)` to create a new message.
+ */
+export const OidcContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 8);
+
+/**
+ * Describes the message m8.platform.iam.v1.RiskContext.
+ * Use `create(RiskContextSchema)` to create a new message.
+ */
+export const RiskContextSchema = /*@__PURE__*/
+  messageDesc(file_m8_platform_iam_v1_authentication_context, 9);
+
+/**
+ * Describes the enum m8.platform.iam.v1.RiskContext.RiskLevel.
+ */
+export const RiskContext_RiskLevelSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 9, 0);
+
+/**
+ * RiskLevel summarizes the overall risk level for this authentication.
+ *
+ * @generated from enum m8.platform.iam.v1.RiskContext.RiskLevel
+ */
+export const RiskContext_RiskLevel = /*@__PURE__*/
+  tsEnum(RiskContext_RiskLevelSchema);
+
+/**
+ * Describes the enum m8.platform.iam.v1.RiskContext.RiskAction.
+ */
+export const RiskContext_RiskActionSchema = /*@__PURE__*/
+  enumDesc(file_m8_platform_iam_v1_authentication_context, 9, 1);
+
+/**
+ * RiskAction describes the action recommended by Risk Decision.
+ *
+ * @generated from enum m8.platform.iam.v1.RiskContext.RiskAction
+ */
+export const RiskContext_RiskAction = /*@__PURE__*/
+  tsEnum(RiskContext_RiskActionSchema);
 

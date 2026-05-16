@@ -6,7 +6,7 @@ import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegen
 import type { Message } from "@bufbuild/protobuf";
 import type { AuthenticationSubject } from "./authentication_subject_pb";
 import type { AuthenticationContext } from "./authentication_context_pb";
-import type { Authentication } from "./authentication_pb";
+import type { Authentication, AuthenticationSchema } from "./authentication_pb";
 import type { OperationSchema } from "../../../../google/longrunning/operations_pb";
 
 /**
@@ -21,7 +21,12 @@ export declare const file_m8_platform_iam_v1_authentication_service: GenFile;
  */
 export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.StartAuthenticationRequest"> & {
   /**
-   * Required. Immutable client application identifier that initiates authentication.
+   * Required. Public client application identifier that initiates authentication.
+   * The value must be a UUID.
+   *
+   * The server resolves this value to ClientConfig, project_id, user_pool_id,
+   * allowed providers, allowed methods, and authentication policies.
+   * Clients must not send project_id or user_pool_id in StartAuthenticationRequest.
    *
    * @generated from field: string client_id = 1;
    */
@@ -47,6 +52,16 @@ export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.Sta
    * @generated from field: m8.platform.iam.v1.AuthenticationStartOptions options = 4;
    */
   options?: AuthenticationStartOptions;
+
+  /**
+   * Optional. Idempotency key for StartAuthentication retries.
+   *
+   * The same client_id and request_id must resolve to the same Authentication
+   * operation. When omitted, retries are not guaranteed to be idempotent.
+   *
+   * @generated from field: string request_id = 5;
+   */
+  requestId: string;
 };
 
 /**
@@ -54,6 +69,88 @@ export declare type StartAuthenticationRequest = Message<"m8.platform.iam.v1.Sta
  * Use `create(StartAuthenticationRequestSchema)` to create a new message.
  */
 export declare const StartAuthenticationRequestSchema: GenMessage<StartAuthenticationRequest>;
+
+/**
+ * Request to read the latest authentication operation snapshot.
+ *
+ * @generated from message m8.platform.iam.v1.GetAuthenticationRequest
+ */
+export declare type GetAuthenticationRequest = Message<"m8.platform.iam.v1.GetAuthenticationRequest"> & {
+  /**
+   * Required. Stable unique identifier of the authentication operation to read.
+   * The value must be a valid UUID string.
+   *
+   * The server returns the latest known aggregate snapshot. This request does
+   * not change authentication state and is safe for client or BFF polling.
+   *
+   * Example:
+   * {
+   *   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34"
+   * }
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.GetAuthenticationRequest.
+ * Use `create(GetAuthenticationRequestSchema)` to create a new message.
+ */
+export declare const GetAuthenticationRequestSchema: GenMessage<GetAuthenticationRequest>;
+
+/**
+ * Request to cancel an active authentication operation.
+ *
+ * @generated from message m8.platform.iam.v1.CancelAuthenticationRequest
+ */
+export declare type CancelAuthenticationRequest = Message<"m8.platform.iam.v1.CancelAuthenticationRequest"> & {
+  /**
+   * Required. Stable unique identifier of the authentication operation to cancel.
+   * The value must be a valid UUID string.
+   *
+   * @generated from field: string authentication_id = 1;
+   */
+  authenticationId: string;
+
+  /**
+   * Optional. Human-readable or machine-readable reason for cancellation.
+   *
+   * Example:
+   * - "user_closed_login_window"
+   * - "client_restarted_flow"
+   * - "session_replaced"
+   * - "admin_requested"
+   *
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
+
+  /**
+   * Optional. Idempotency key for retrying cancellation.
+   *
+   * CancelAuthentication is naturally idempotent for terminal states, but
+   * request_id allows the server to deduplicate concurrent cancellation attempts.
+   * The same authentication_id and request_id must resolve to the same
+   * cancellation result.
+   *
+   * Example:
+   * {
+   *   "authentication_id": "7b0b93f5-6f4a-4c5b-9a9d-2b58a67e1c34",
+   *   "reason": "user_closed_login_window",
+   *   "request_id": "0d8b7e3e-7e1c-4b7e-8a8f-1f3c2c4f9d11"
+   * }
+   *
+   * @generated from field: string request_id = 3;
+   */
+  requestId: string;
+};
+
+/**
+ * Describes the message m8.platform.iam.v1.CancelAuthenticationRequest.
+ * Use `create(CancelAuthenticationRequestSchema)` to create a new message.
+ */
+export declare const CancelAuthenticationRequestSchema: GenMessage<CancelAuthenticationRequest>;
 
 /**
  * Metadata for the StartAuthentication long-running operation.
@@ -167,6 +264,56 @@ export declare const AuthenticationService: GenService<{
     methodKind: "unary";
     input: typeof StartAuthenticationRequestSchema;
     output: typeof OperationSchema;
+  },
+  /**
+   * Returns the latest snapshot of an authentication operation.
+   *
+   * It is safe to call this method repeatedly for polling. The response must not
+   * contain sensitive challenge secrets such as OTP codes, passwords, provider
+   * tokens, or internal callback secrets.
+   *
+   * Authorization:
+   * - caller must be allowed to read the operation in the resolved project and
+   *   user pool
+   * - public clients may only read operations they started or are allowed to poll
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.GetAuthentication
+   */
+  getAuthentication: {
+    methodKind: "unary";
+    input: typeof GetAuthenticationRequestSchema;
+    output: typeof AuthenticationSchema;
+  },
+  /**
+   * Cancels an active authentication operation.
+   *
+   * The method is idempotent. Canceling an already terminal authentication
+   * returns the current snapshot without changing its state.
+   *
+   * Cancel transition:
+   * - active states transition to CANCELED
+   * - terminal states are returned unchanged
+   * - a successful transition updates update_time and increments version
+   * - terminal snapshots keep their existing update_time and version
+   *
+   * Implementation TODO:
+   * - load Authentication by authentication_id
+   * - return terminal snapshots unchanged
+   * - persist state = CANCELED with optimistic version check
+   * - emit audit or outbox event when the event model exists
+   * - signal or cancel the underlying Temporal workflow
+   *
+   * Authorization:
+   * - caller must be allowed to cancel the authentication operation
+   * - public clients may cancel only their own active operation
+   * - admin and service callers may cancel according to policy
+   *
+   * @generated from rpc m8.platform.iam.v1.AuthenticationService.CancelAuthentication
+   */
+  cancelAuthentication: {
+    methodKind: "unary";
+    input: typeof CancelAuthenticationRequestSchema;
+    output: typeof AuthenticationSchema;
   },
 }>;
 

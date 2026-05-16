@@ -37,6 +37,12 @@ const (
 	// AuthenticationServiceStartAuthenticationProcedure is the fully-qualified name of the
 	// AuthenticationService's StartAuthentication RPC.
 	AuthenticationServiceStartAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/StartAuthentication"
+	// AuthenticationServiceGetAuthenticationProcedure is the fully-qualified name of the
+	// AuthenticationService's GetAuthentication RPC.
+	AuthenticationServiceGetAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/GetAuthentication"
+	// AuthenticationServiceCancelAuthenticationProcedure is the fully-qualified name of the
+	// AuthenticationService's CancelAuthentication RPC.
+	AuthenticationServiceCancelAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication"
 )
 
 // AuthenticationServiceClient is a client for the m8.platform.iam.v1.AuthenticationService service.
@@ -46,6 +52,40 @@ type AuthenticationServiceClient interface {
 	// The returned long-running operation resolves to Authentication when the
 	// authentication workflow reaches a terminal state.
 	StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	// Returns the latest snapshot of an authentication operation.
+	//
+	// It is safe to call this method repeatedly for polling. The response must not
+	// contain sensitive challenge secrets such as OTP codes, passwords, provider
+	// tokens, or internal callback secrets.
+	//
+	// Authorization:
+	//   - caller must be allowed to read the operation in the resolved project and
+	//     user pool
+	//   - public clients may only read operations they started or are allowed to poll
+	GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
+	// Cancels an active authentication operation.
+	//
+	// The method is idempotent. Canceling an already terminal authentication
+	// returns the current snapshot without changing its state.
+	//
+	// Cancel transition:
+	// - active states transition to CANCELED
+	// - terminal states are returned unchanged
+	// - a successful transition updates update_time and increments version
+	// - terminal snapshots keep their existing update_time and version
+	//
+	// Implementation TODO:
+	// - load Authentication by authentication_id
+	// - return terminal snapshots unchanged
+	// - persist state = CANCELED with optimistic version check
+	// - emit audit or outbox event when the event model exists
+	// - signal or cancel the underlying Temporal workflow
+	//
+	// Authorization:
+	// - caller must be allowed to cancel the authentication operation
+	// - public clients may cancel only their own active operation
+	// - admin and service callers may cancel according to policy
+	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
 }
 
 // NewAuthenticationServiceClient constructs a client for the
@@ -66,17 +106,43 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		getAuthentication: connect.NewClient[v1.GetAuthenticationRequest, v1.Authentication](
+			httpClient,
+			baseURL+AuthenticationServiceGetAuthenticationProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("GetAuthentication")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		cancelAuthentication: connect.NewClient[v1.CancelAuthenticationRequest, v1.Authentication](
+			httpClient,
+			baseURL+AuthenticationServiceCancelAuthenticationProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("CancelAuthentication")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // authenticationServiceClient implements AuthenticationServiceClient.
 type authenticationServiceClient struct {
-	startAuthentication *connect.Client[v1.StartAuthenticationRequest, longrunningpb.Operation]
+	startAuthentication  *connect.Client[v1.StartAuthenticationRequest, longrunningpb.Operation]
+	getAuthentication    *connect.Client[v1.GetAuthenticationRequest, v1.Authentication]
+	cancelAuthentication *connect.Client[v1.CancelAuthenticationRequest, v1.Authentication]
 }
 
 // StartAuthentication calls m8.platform.iam.v1.AuthenticationService.StartAuthentication.
 func (c *authenticationServiceClient) StartAuthentication(ctx context.Context, req *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.startAuthentication.CallUnary(ctx, req)
+}
+
+// GetAuthentication calls m8.platform.iam.v1.AuthenticationService.GetAuthentication.
+func (c *authenticationServiceClient) GetAuthentication(ctx context.Context, req *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
+	return c.getAuthentication.CallUnary(ctx, req)
+}
+
+// CancelAuthentication calls m8.platform.iam.v1.AuthenticationService.CancelAuthentication.
+func (c *authenticationServiceClient) CancelAuthentication(ctx context.Context, req *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
+	return c.cancelAuthentication.CallUnary(ctx, req)
 }
 
 // AuthenticationServiceHandler is an implementation of the m8.platform.iam.v1.AuthenticationService
@@ -87,6 +153,40 @@ type AuthenticationServiceHandler interface {
 	// The returned long-running operation resolves to Authentication when the
 	// authentication workflow reaches a terminal state.
 	StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	// Returns the latest snapshot of an authentication operation.
+	//
+	// It is safe to call this method repeatedly for polling. The response must not
+	// contain sensitive challenge secrets such as OTP codes, passwords, provider
+	// tokens, or internal callback secrets.
+	//
+	// Authorization:
+	//   - caller must be allowed to read the operation in the resolved project and
+	//     user pool
+	//   - public clients may only read operations they started or are allowed to poll
+	GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
+	// Cancels an active authentication operation.
+	//
+	// The method is idempotent. Canceling an already terminal authentication
+	// returns the current snapshot without changing its state.
+	//
+	// Cancel transition:
+	// - active states transition to CANCELED
+	// - terminal states are returned unchanged
+	// - a successful transition updates update_time and increments version
+	// - terminal snapshots keep their existing update_time and version
+	//
+	// Implementation TODO:
+	// - load Authentication by authentication_id
+	// - return terminal snapshots unchanged
+	// - persist state = CANCELED with optimistic version check
+	// - emit audit or outbox event when the event model exists
+	// - signal or cancel the underlying Temporal workflow
+	//
+	// Authorization:
+	// - caller must be allowed to cancel the authentication operation
+	// - public clients may cancel only their own active operation
+	// - admin and service callers may cancel according to policy
+	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
 }
 
 // NewAuthenticationServiceHandler builds an HTTP handler from the service implementation. It
@@ -103,10 +203,28 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	authenticationServiceGetAuthenticationHandler := connect.NewUnaryHandler(
+		AuthenticationServiceGetAuthenticationProcedure,
+		svc.GetAuthentication,
+		connect.WithSchema(authenticationServiceMethods.ByName("GetAuthentication")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	authenticationServiceCancelAuthenticationHandler := connect.NewUnaryHandler(
+		AuthenticationServiceCancelAuthenticationProcedure,
+		svc.CancelAuthentication,
+		connect.WithSchema(authenticationServiceMethods.ByName("CancelAuthentication")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/m8.platform.iam.v1.AuthenticationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthenticationServiceStartAuthenticationProcedure:
 			authenticationServiceStartAuthenticationHandler.ServeHTTP(w, r)
+		case AuthenticationServiceGetAuthenticationProcedure:
+			authenticationServiceGetAuthenticationHandler.ServeHTTP(w, r)
+		case AuthenticationServiceCancelAuthenticationProcedure:
+			authenticationServiceCancelAuthenticationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -118,4 +236,12 @@ type UnimplementedAuthenticationServiceHandler struct{}
 
 func (UnimplementedAuthenticationServiceHandler) StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.StartAuthentication is not implemented"))
+}
+
+func (UnimplementedAuthenticationServiceHandler) GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.GetAuthentication is not implemented"))
+}
+
+func (UnimplementedAuthenticationServiceHandler) CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.CancelAuthentication is not implemented"))
 }
