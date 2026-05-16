@@ -1,0 +1,118 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// AuthenticationSubject identifies or hints at the claimant being authenticated.
+//
+// Example:
+// - user provides an email address on the login screen
+// - client passes a known user identifier for step-up authentication
+// - external identity provider supplies an issuer-scoped subject identifier
+message AuthenticationSubject {
+  // Type of subject identifier carried in value.
+  enum Type {
+    // Authentication subject type is not specified.
+    TYPE_UNSPECIFIED = 0;
+
+    // Value contains a stable M8 Identity user identifier.
+    //
+    // Example:
+    // - user_id from a previous authenticated session
+    // - user_id selected by an internal service
+    USER_ID = 1;
+
+    // Value contains a login hint that needs to be resolved by the server.
+    //
+    // Example:
+    // - opaque login_hint from an authorization request
+    // - tenant-specific username or identifier entered by the user
+    LOGIN_HINT = 2;
+
+    // Value contains an email address.
+    //
+    // Example:
+    // - primary email entered during sign-in
+    // - email received from a trusted upstream identity provider
+    EMAIL = 3;
+
+    // Value contains a phone number.
+    //
+    // Example:
+    // - phone number entered for SMS OTP authentication
+    // - verified phone number from an upstream identity provider
+    PHONE = 4;
+
+    // Value contains a username.
+    //
+    // Example:
+    // - tenant-local username
+    // - employee login name
+    USERNAME = 5;
+
+    // Value contains an external identity provider subject identifier.
+    //
+    // Example:
+    // - OIDC subject from provider_id and issuer
+    // - SAML NameID scoped by issuer
+    EXTERNAL_IDENTITY = 6;
+
+    // Value contains a WebAuthn credential identifier.
+    //
+    // Example:
+    // - passkey credential id selected by the browser
+    // - roaming security key credential id
+    WEBAUTHN_CREDENTIAL = 7;
+  }
+
+  // Required. Type of identifier represented by value.
+  // The value is always one of the defined non-zero enum values.
+  //
+  // Example:
+  // - EMAIL when value contains an email address
+  // - PHONE when value contains a phone number
+  // - USER_ID when value contains an M8 Identity user id
+  Type type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Required. Subject identifier or hint value.
+  //
+  // Example:
+  // - user UUID when type is USER_ID
+  // - email address when type is EMAIL
+  // - phone number when type is PHONE
+  // - external subject when type is EXTERNAL_IDENTITY
+  string value = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Optional. Identity provider identifier that scopes provider-specific values.
+  //
+  // Example:
+  // - OIDC provider id for EXTERNAL_IDENTITY
+  // - SAML provider id for EXTERNAL_IDENTITY
+  // - Mobile ID provider id for MOBILE_ID
+  string provider_id = 3 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Optional. Issuer that scopes external identity values.
+  //
+  // Example:
+  // - OIDC issuer URL
+  // - SAML entity ID
+  // - mobile operator issuer identifier
+  string issuer = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}

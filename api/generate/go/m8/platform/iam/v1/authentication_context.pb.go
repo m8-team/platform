@@ -21,78 +21,26 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AuthenticationDecisionContext is a normalized immutable decision snapshot created by M8 Authentication.
-//
-// It may include references and summarized signals from M8 Identity, Resource Manager, Access,
-// and Audit, but it does not own their data or become their source of truth.
-// Authentication owns the workflow and challenge execution only. Risk Decision owns adaptive
-// risk signals, policy evaluation, and decision results in m8.platform.riskdecision.v1.
-//
-// Example:
-// - M8 Authentication builds the context before selecting a challenge
-// - M8 Risk Decision consumes it as input
-// - Challenge Selector uses auth-owned challenge and provider context to execute the result
-type AuthenticationDecisionContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable unique identifier of this decision context snapshot.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Request metadata observed at the authentication boundary.
-	Request *RequestMetadata `protobuf:"bytes,2,opt,name=request,proto3" json:"request,omitempty"`
-	// Business intent for the authentication operation.
-	Intent *AuthenticationIntent `protobuf:"bytes,3,opt,name=intent,proto3" json:"intent,omitempty"`
-	// Tenant and realm references used for isolation and requirement lookup.
-	// Resource Manager remains the source of truth for tenant and resource hierarchy.
-	Tenant *TenantContext `protobuf:"bytes,4,opt,name=tenant,proto3" json:"tenant,omitempty"`
-	// OAuth or platform client reference information.
-	// Resource Manager remains the source of truth for client resources.
-	Client *ClientContext `protobuf:"bytes,5,opt,name=client,proto3" json:"client,omitempty"`
-	// Subject reference and summarized identity information without raw sensitive PII.
-	// M8 Identity remains the source of truth for users, identities, and authenticators.
-	Subject *SubjectContext `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`
-	// Existing session information used for max_age and step-up decisions.
-	Session *SessionContext `protobuf:"bytes,7,opt,name=session,proto3" json:"session,omitempty"`
-	// Requested and achieved assurance information.
-	Assurance *AssuranceContext `protobuf:"bytes,8,opt,name=assurance,proto3" json:"assurance,omitempty"`
-	// Protected transaction or operation reference information.
-	// Access remains responsible for business authorization decisions.
-	Transaction *TransactionContext `protobuf:"bytes,9,opt,name=transaction,proto3" json:"transaction,omitempty"`
-	// Device information represented with identifiers, hashes, or references.
-	Device *DeviceContext `protobuf:"bytes,10,opt,name=device,proto3" json:"device,omitempty"`
-	// Network information represented with coarse or hashed values where needed.
-	Network *NetworkContext `protobuf:"bytes,11,opt,name=network,proto3" json:"network,omitempty"`
-	// Runtime and workflow information for tracing and operational decisions.
-	Runtime *RuntimeContext `protobuf:"bytes,12,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	// OAuth, OpenID Connect, SAML, and CIBA request context.
-	Oauth *OAuthContext `protobuf:"bytes,13,opt,name=oauth,proto3" json:"oauth,omitempty"`
-	// DPoP token-binding context; this is not a user challenge.
-	Dpop *DpopContext `protobuf:"bytes,14,opt,name=dpop,proto3" json:"dpop,omitempty"`
-	// Challenge selection state and fallback options.
-	Challenge *ChallengeDecisionContext `protobuf:"bytes,15,opt,name=challenge,proto3" json:"challenge,omitempty"`
-	// Provider selection, health, and provider transaction state.
-	Provider *ProviderDecisionContext `protobuf:"bytes,16,opt,name=provider,proto3" json:"provider,omitempty"`
-	// Authentication evidence that can be safely reused for audit or downstream evaluation.
-	// M8 Audit owns immutable long-term audit history.
-	Evidence *EvidenceContext `protobuf:"bytes,19,opt,name=evidence,proto3" json:"evidence,omitempty"`
-	// Additional non-sensitive attributes for tenant-specific authentication extensions.
-	Attributes    map[string]string `protobuf:"bytes,20,rep,name=attributes,proto3" json:"attributes,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+type AuthenticationContext struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AuthenticationDecisionContext) Reset() {
-	*x = AuthenticationDecisionContext{}
+func (x *AuthenticationContext) Reset() {
+	*x = AuthenticationContext{}
 	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthenticationDecisionContext) String() string {
+func (x *AuthenticationContext) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthenticationDecisionContext) ProtoMessage() {}
+func (*AuthenticationContext) ProtoMessage() {}
 
-func (x *AuthenticationDecisionContext) ProtoReflect() protoreflect.Message {
+func (x *AuthenticationContext) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_iam_v1_authentication_context_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -104,167 +52,17 @@ func (x *AuthenticationDecisionContext) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AuthenticationDecisionContext.ProtoReflect.Descriptor instead.
-func (*AuthenticationDecisionContext) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuthenticationContext.ProtoReflect.Descriptor instead.
+func (*AuthenticationContext) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *AuthenticationDecisionContext) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *AuthenticationDecisionContext) GetRequest() *RequestMetadata {
-	if x != nil {
-		return x.Request
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetIntent() *AuthenticationIntent {
-	if x != nil {
-		return x.Intent
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetTenant() *TenantContext {
-	if x != nil {
-		return x.Tenant
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetClient() *ClientContext {
-	if x != nil {
-		return x.Client
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetSubject() *SubjectContext {
-	if x != nil {
-		return x.Subject
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetSession() *SessionContext {
-	if x != nil {
-		return x.Session
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetAssurance() *AssuranceContext {
-	if x != nil {
-		return x.Assurance
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetTransaction() *TransactionContext {
-	if x != nil {
-		return x.Transaction
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetDevice() *DeviceContext {
-	if x != nil {
-		return x.Device
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetNetwork() *NetworkContext {
-	if x != nil {
-		return x.Network
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetRuntime() *RuntimeContext {
-	if x != nil {
-		return x.Runtime
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetOauth() *OAuthContext {
-	if x != nil {
-		return x.Oauth
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetDpop() *DpopContext {
-	if x != nil {
-		return x.Dpop
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetChallenge() *ChallengeDecisionContext {
-	if x != nil {
-		return x.Challenge
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetProvider() *ProviderDecisionContext {
-	if x != nil {
-		return x.Provider
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetEvidence() *EvidenceContext {
-	if x != nil {
-		return x.Evidence
-	}
-	return nil
-}
-
-func (x *AuthenticationDecisionContext) GetAttributes() map[string]string {
-	if x != nil {
-		return x.Attributes
-	}
-	return nil
 }
 
 var File_m8_platform_iam_v1_authentication_context_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_context_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\x1a9m8/platform/iam/v1/authentication_assurance_context.proto\x1aBm8/platform/iam/v1/authentication_challenge_decision_context.proto\x1a;m8/platform/iam/v1/authentication_environment_context.proto\x1a8m8/platform/iam/v1/authentication_evidence_context.proto\x1a8m8/platform/iam/v1/authentication_identity_context.proto\x1a5m8/platform/iam/v1/authentication_oauth_context.proto\x1a8m8/platform/iam/v1/authentication_provider_context.proto\x1a7m8/platform/iam/v1/authentication_request_context.proto\x1a8m8/platform/iam/v1/authentication_resource_context.proto\"\xe6\t\n" +
-	"\x1dAuthenticationDecisionContext\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12=\n" +
-	"\arequest\x18\x02 \x01(\v2#.m8.platform.iam.v1.RequestMetadataR\arequest\x12@\n" +
-	"\x06intent\x18\x03 \x01(\v2(.m8.platform.iam.v1.AuthenticationIntentR\x06intent\x129\n" +
-	"\x06tenant\x18\x04 \x01(\v2!.m8.platform.iam.v1.TenantContextR\x06tenant\x129\n" +
-	"\x06client\x18\x05 \x01(\v2!.m8.platform.iam.v1.ClientContextR\x06client\x12<\n" +
-	"\asubject\x18\x06 \x01(\v2\".m8.platform.iam.v1.SubjectContextR\asubject\x12<\n" +
-	"\asession\x18\a \x01(\v2\".m8.platform.iam.v1.SessionContextR\asession\x12B\n" +
-	"\tassurance\x18\b \x01(\v2$.m8.platform.iam.v1.AssuranceContextR\tassurance\x12H\n" +
-	"\vtransaction\x18\t \x01(\v2&.m8.platform.iam.v1.TransactionContextR\vtransaction\x129\n" +
-	"\x06device\x18\n" +
-	" \x01(\v2!.m8.platform.iam.v1.DeviceContextR\x06device\x12<\n" +
-	"\anetwork\x18\v \x01(\v2\".m8.platform.iam.v1.NetworkContextR\anetwork\x12<\n" +
-	"\aruntime\x18\f \x01(\v2\".m8.platform.iam.v1.RuntimeContextR\aruntime\x126\n" +
-	"\x05oauth\x18\r \x01(\v2 .m8.platform.iam.v1.OAuthContextR\x05oauth\x123\n" +
-	"\x04dpop\x18\x0e \x01(\v2\x1f.m8.platform.iam.v1.DpopContextR\x04dpop\x12J\n" +
-	"\tchallenge\x18\x0f \x01(\v2,.m8.platform.iam.v1.ChallengeDecisionContextR\tchallenge\x12G\n" +
-	"\bprovider\x18\x10 \x01(\v2+.m8.platform.iam.v1.ProviderDecisionContextR\bprovider\x12?\n" +
-	"\bevidence\x18\x13 \x01(\v2#.m8.platform.iam.v1.EvidenceContextR\bevidence\x12a\n" +
-	"\n" +
-	"attributes\x18\x14 \x03(\v2A.m8.platform.iam.v1.AuthenticationDecisionContext.AttributesEntryR\n" +
-	"attributes\x1a=\n" +
-	"\x0fAttributesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\x11\x10\x12J\x04\b\x12\x10\x13R\x04riskR\x06policyB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"/m8/platform/iam/v1/authentication_context.proto\x12\x12m8.platform.iam.v1\"\x17\n" +
+	"\x15AuthenticationContextB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_context_proto_rawDescOnce sync.Once
@@ -278,50 +76,16 @@ func file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_context_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_m8_platform_iam_v1_authentication_context_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_m8_platform_iam_v1_authentication_context_proto_goTypes = []any{
-	(*AuthenticationDecisionContext)(nil), // 0: m8.platform.iam.v1.AuthenticationDecisionContext
-	nil,                                   // 1: m8.platform.iam.v1.AuthenticationDecisionContext.AttributesEntry
-	(*RequestMetadata)(nil),               // 2: m8.platform.iam.v1.RequestMetadata
-	(*AuthenticationIntent)(nil),          // 3: m8.platform.iam.v1.AuthenticationIntent
-	(*TenantContext)(nil),                 // 4: m8.platform.iam.v1.TenantContext
-	(*ClientContext)(nil),                 // 5: m8.platform.iam.v1.ClientContext
-	(*SubjectContext)(nil),                // 6: m8.platform.iam.v1.SubjectContext
-	(*SessionContext)(nil),                // 7: m8.platform.iam.v1.SessionContext
-	(*AssuranceContext)(nil),              // 8: m8.platform.iam.v1.AssuranceContext
-	(*TransactionContext)(nil),            // 9: m8.platform.iam.v1.TransactionContext
-	(*DeviceContext)(nil),                 // 10: m8.platform.iam.v1.DeviceContext
-	(*NetworkContext)(nil),                // 11: m8.platform.iam.v1.NetworkContext
-	(*RuntimeContext)(nil),                // 12: m8.platform.iam.v1.RuntimeContext
-	(*OAuthContext)(nil),                  // 13: m8.platform.iam.v1.OAuthContext
-	(*DpopContext)(nil),                   // 14: m8.platform.iam.v1.DpopContext
-	(*ChallengeDecisionContext)(nil),      // 15: m8.platform.iam.v1.ChallengeDecisionContext
-	(*ProviderDecisionContext)(nil),       // 16: m8.platform.iam.v1.ProviderDecisionContext
-	(*EvidenceContext)(nil),               // 17: m8.platform.iam.v1.EvidenceContext
+	(*AuthenticationContext)(nil), // 0: m8.platform.iam.v1.AuthenticationContext
 }
 var file_m8_platform_iam_v1_authentication_context_proto_depIdxs = []int32{
-	2,  // 0: m8.platform.iam.v1.AuthenticationDecisionContext.request:type_name -> m8.platform.iam.v1.RequestMetadata
-	3,  // 1: m8.platform.iam.v1.AuthenticationDecisionContext.intent:type_name -> m8.platform.iam.v1.AuthenticationIntent
-	4,  // 2: m8.platform.iam.v1.AuthenticationDecisionContext.tenant:type_name -> m8.platform.iam.v1.TenantContext
-	5,  // 3: m8.platform.iam.v1.AuthenticationDecisionContext.client:type_name -> m8.platform.iam.v1.ClientContext
-	6,  // 4: m8.platform.iam.v1.AuthenticationDecisionContext.subject:type_name -> m8.platform.iam.v1.SubjectContext
-	7,  // 5: m8.platform.iam.v1.AuthenticationDecisionContext.session:type_name -> m8.platform.iam.v1.SessionContext
-	8,  // 6: m8.platform.iam.v1.AuthenticationDecisionContext.assurance:type_name -> m8.platform.iam.v1.AssuranceContext
-	9,  // 7: m8.platform.iam.v1.AuthenticationDecisionContext.transaction:type_name -> m8.platform.iam.v1.TransactionContext
-	10, // 8: m8.platform.iam.v1.AuthenticationDecisionContext.device:type_name -> m8.platform.iam.v1.DeviceContext
-	11, // 9: m8.platform.iam.v1.AuthenticationDecisionContext.network:type_name -> m8.platform.iam.v1.NetworkContext
-	12, // 10: m8.platform.iam.v1.AuthenticationDecisionContext.runtime:type_name -> m8.platform.iam.v1.RuntimeContext
-	13, // 11: m8.platform.iam.v1.AuthenticationDecisionContext.oauth:type_name -> m8.platform.iam.v1.OAuthContext
-	14, // 12: m8.platform.iam.v1.AuthenticationDecisionContext.dpop:type_name -> m8.platform.iam.v1.DpopContext
-	15, // 13: m8.platform.iam.v1.AuthenticationDecisionContext.challenge:type_name -> m8.platform.iam.v1.ChallengeDecisionContext
-	16, // 14: m8.platform.iam.v1.AuthenticationDecisionContext.provider:type_name -> m8.platform.iam.v1.ProviderDecisionContext
-	17, // 15: m8.platform.iam.v1.AuthenticationDecisionContext.evidence:type_name -> m8.platform.iam.v1.EvidenceContext
-	1,  // 16: m8.platform.iam.v1.AuthenticationDecisionContext.attributes:type_name -> m8.platform.iam.v1.AuthenticationDecisionContext.AttributesEntry
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	0, // [0:0] is the sub-list for method output_type
+	0, // [0:0] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_context_proto_init() }
@@ -329,22 +93,13 @@ func file_m8_platform_iam_v1_authentication_context_proto_init() {
 	if File_m8_platform_iam_v1_authentication_context_proto != nil {
 		return
 	}
-	file_m8_platform_iam_v1_authentication_assurance_context_proto_init()
-	file_m8_platform_iam_v1_authentication_challenge_decision_context_proto_init()
-	file_m8_platform_iam_v1_authentication_environment_context_proto_init()
-	file_m8_platform_iam_v1_authentication_evidence_context_proto_init()
-	file_m8_platform_iam_v1_authentication_identity_context_proto_init()
-	file_m8_platform_iam_v1_authentication_oauth_context_proto_init()
-	file_m8_platform_iam_v1_authentication_provider_context_proto_init()
-	file_m8_platform_iam_v1_authentication_request_context_proto_init()
-	file_m8_platform_iam_v1_authentication_resource_context_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_context_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_context_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

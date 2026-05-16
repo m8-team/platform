@@ -463,4 +463,16 @@ message Authentication {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int64.gte = 1
   ];
+
+  // Output only. Stable unique identifier of the resolved M8 Identity user.
+  //
+  // Empty until the authentication operation resolves the claimant
+  // to a user inside user_pool_id.
+  //
+  // Once set, this value must not change for the lifetime of the operation.
+  string user_id = 15 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
 }

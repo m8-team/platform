@@ -21,7 +21,7 @@ service WorkspaceService {
 
   // Returns one workspace by its UUID.
   rpc GetWorkspace(GetWorkspaceRequest) returns (Workspace) {
-    option (google.api.http) = {get: "/v1/workspaces/{id}"};
+    option (google.api.http) = {get: "/v1/resourcemanager/workspaces/{id}"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -33,7 +33,7 @@ service WorkspaceService {
   // Returns a page of workspaces for the specified organization.
   // In the HTTP API, the organization UUID is passed in the query string.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
-    option (google.api.http) = {get: "/v1/workspaces"};
+    option (google.api.http) = {get: "/v1/resourcemanager/workspaces"};
     option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
@@ -46,7 +46,7 @@ service WorkspaceService {
   // In the HTTP API, the organization UUID is passed in the query string.
   rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
-      post: "/v1/workspaces"
+      post: "/v1/resourcemanager/workspaces"
       body: "workspace"
     };
     option (google.api.method_signature) = "organization_id,workspace";
@@ -60,7 +60,7 @@ service WorkspaceService {
   // Updates the editable fields of an existing workspace.
   rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (Workspace) {
     option (google.api.http) = {
-      patch: "/v1/workspaces/{workspace.id}"
+      patch: "/v1/resourcemanager/workspaces/{workspace.id}"
       body: "workspace"
     };
     option (google.api.method_signature) = "workspace,update_mask";
@@ -73,7 +73,7 @@ service WorkspaceService {
 
   // Archives a workspace without deleting it permanently.
   rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/workspaces/{id}"};
+    option (google.api.http) = {delete: "/v1/resourcemanager/workspaces/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
@@ -84,7 +84,7 @@ service WorkspaceService {
 
   // Restores a workspace that was previously archived.
   rpc UndeleteWorkspace(UndeleteWorkspaceRequest) returns (Workspace) {
-    option (google.api.http) = {post: "/v1/workspaces/{id}:undelete"};
+    option (google.api.http) = {post: "/v1/resourcemanager/workspaces/{id}:undelete"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"

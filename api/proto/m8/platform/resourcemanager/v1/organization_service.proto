@@ -21,7 +21,7 @@ service OrganizationService {
 
   // Returns one organization by its UUID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {get: "/v1/organizations/{id}"};
+    option (google.api.http) = {get: "/v1/resourcemanager/organizations/{id}"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -32,7 +32,7 @@ service OrganizationService {
 
   // Returns a page of organizations available to the caller.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {get: "/v1/organizations"};
+    option (google.api.http) = {get: "/v1/resourcemanager/organizations"};
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
@@ -44,7 +44,7 @@ service OrganizationService {
   rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
     option idempotency_level = IDEMPOTENT;
     option (google.api.http) = {
-      post: "/v1/organizations"
+      post: "/v1/resourcemanager/organizations"
       body: "organization"
     };
     option (google.api.method_signature) = "organization";
@@ -58,7 +58,7 @@ service OrganizationService {
   // Updates the editable fields of an existing organization.
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
-      patch: "/v1/organizations/{organization.id}"
+      patch: "/v1/resourcemanager/organizations/{organization.id}"
       body: "organization"
     };
     option (google.api.method_signature) = "organization,update_mask";
@@ -71,7 +71,7 @@ service OrganizationService {
 
   // Archives an organization without deleting it permanently.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/organizations/{id}"};
+    option (google.api.http) = {delete: "/v1/resourcemanager/organizations/{id}"};
     option (google.api.method_signature) = "id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
@@ -82,7 +82,7 @@ service OrganizationService {
 
   // Restores an organization that was previously archived.
   rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {post: "/v1/organizations/{id}:undelete"};
+    option (google.api.http) = {post: "/v1/resourcemanager/organizations/{id}:undelete"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"

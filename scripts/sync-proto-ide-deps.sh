@@ -14,6 +14,7 @@ buf export buf.build/bufbuild/protovalidate \
 
 buf export buf.build/googleapis/googleapis \
   --path google/api \
+  --path google/longrunning \
   --path google/protobuf \
   --output "$OUT_DIR"
 

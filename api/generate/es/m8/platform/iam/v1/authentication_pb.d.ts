@@ -2,10 +2,9 @@
 // @generated from file m8/platform/iam/v1/authentication.proto (package m8.platform.iam.v1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
-import type { AuthenticationState } from "./authentication_state_pb";
-import type { AuthenticationChallenge } from "./authentication_challenge_pb";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication.proto.
@@ -36,30 +35,175 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
   id: string;
 
   /**
+   * Required. Immutable project identifier that owns this authentication operation.
+   *
+   * Example:
+   * - used to isolate authentication data by project
+   * - used to load project-scoped authentication configuration
+   * - remains unchanged for the lifetime of the operation
+   *
+   * @generated from field: string project_id = 2;
+   */
+  projectId: string;
+
+  /**
+   * Required. Immutable user pool identifier where the identity must be resolved.
+   *
+   * Example:
+   * - selects the identity namespace for the authentication operation
+   * - scopes user lookup, authenticators, and provider links
+   * - remains unchanged for the lifetime of the operation
+   *
+   * @generated from field: string user_pool_id = 3;
+   */
+  userPoolId: string;
+
+  /**
+   * Required. Immutable client application identifier that initiated authentication.
+   * The value is an opaque client identifier and is not required to be a UUID.
+   *
+   * Example:
+   * - first-party web application
+   * - first-party mobile application
+   * - backend service acting as an authentication client
+   * - external OIDC client
+   *
+   * @generated from field: string client_id = 4;
+   */
+  clientId: string;
+
+  /**
+   * Required. Temporal workflow identifier that executes this authentication operation.
+   *
+   * Example:
+   * - assigned when the authentication workflow is started
+   * - used to signal or query the workflow execution
+   * - remains stable for the lifetime of the workflow
+   *
+   * @generated from field: string workflow_id = 5;
+   */
+  workflowId: string;
+
+  /**
+   * Optional. Temporal run identifier for the concrete workflow execution.
+   * May be empty when the authentication operation has just been created.
+   *
+   * Example:
+   * - assigned when the workflow run is started
+   * - used with workflow_id to correlate worker logs and callbacks
+   * - identifies the run that produced the current authentication state
+   *
+   * @generated from field: string run_id = 6;
+   */
+  runId: string;
+
+  /**
    * Output only. Current lifecycle state of the authentication operation.
    * The value is always one of the defined non-zero enum values.
    *
    * Example:
-   * - AUTHENTICATION_STATE_CHALLENGE_DELIVERED after the challenge is exposed
-   * - AUTHENTICATION_STATE_WAITING_FOR_USER while user action is pending
-   * - AUTHENTICATION_STATE_AUTHENTICATED after successful completion
+   * - CHALLENGE_DELIVERED after the challenge is exposed
+   * - WAITING_FOR_USER while user action is pending
+   * - AUTHENTICATED after successful completion
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationState state = 2;
+   * @generated from field: m8.platform.iam.v1.Authentication.State state = 7;
    */
-  state: AuthenticationState;
+  state: Authentication_State;
 
   /**
    * Output only. Challenge selected for this authentication operation.
    * The value is always one of the defined non-zero enum values.
    *
    * Example:
-   * - AUTHENTICATION_CHALLENGE_OTP for one-time password authentication
-   * - AUTHENTICATION_CHALLENGE_WEBAUTHN for passkey or security key authentication
-   * - AUTHENTICATION_CHALLENGE_PASSWORD for password-based authentication
+   * - OTP for one-time password authentication
+   * - WEBAUTHN for passkey or security key authentication
+   * - PASSWORD for password-based authentication
    *
-   * @generated from field: m8.platform.iam.v1.AuthenticationChallenge challenge = 3;
+   * @generated from field: m8.platform.iam.v1.Authentication.Challenge challenge = 8;
    */
-  challenge: AuthenticationChallenge;
+  challenge: Authentication_Challenge;
+
+  /**
+   * Required. Minimum authentication assurance level requested for this operation.
+   * The value must be a defined assurance level stronger than AAL0.
+   *
+   * Example:
+   * - AAL1 for normal login
+   * - AAL2 for sensitive operation
+   * - AAL3 for privileged operation
+   *
+   * @generated from field: m8.platform.iam.v1.Authentication.AssuranceLevel requested_assurance_level = 9;
+   */
+  requestedAssuranceLevel: Authentication_AssuranceLevel;
+
+  /**
+   * Output only. Authentication assurance level actually achieved by this operation.
+   * Defaults to AAL0 when no user assurance has been established.
+   * The value is always one of the defined non-zero enum values.
+   *
+   * Example:
+   * - AAL0 when the operation has just been created
+   * - requested AAL2, achieved AAL2 after OTP + password
+   * - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
+   *
+   * @generated from field: m8.platform.iam.v1.Authentication.AssuranceLevel achieved_assurance_level = 10;
+   */
+  achievedAssuranceLevel: Authentication_AssuranceLevel;
+
+  /**
+   * Output only. Time when the authentication operation was created.
+   * Remains unchanged for the lifetime of the operation.
+   *
+   * @generated from field: google.protobuf.Timestamp create_time = 11;
+   */
+  createTime?: Timestamp;
+
+  /**
+   * Output only. Time when the authentication operation was last updated.
+   *
+   * Example:
+   * - state transition was persisted
+   * - challenge delivery result was recorded
+   * - authentication completion or failure was recorded
+   *
+   * @generated from field: google.protobuf.Timestamp update_time = 12;
+   */
+  updateTime?: Timestamp;
+
+  /**
+   * Output only. Time when the authentication operation expires.
+   *
+   * Example:
+   * - user action must be completed before this time
+   * - stale authentication operations can be failed after this time
+   *
+   * @generated from field: google.protobuf.Timestamp expire_time = 13;
+   */
+  expireTime?: Timestamp;
+
+  /**
+   * Output only. Monotonic version of the authentication operation.
+   * New authentication operations start with version 1.
+   *
+   * Example:
+   * - incremented after each persisted state transition
+   * - used to build etag and detect stale aggregate snapshots
+   *
+   * @generated from field: int64 version = 14;
+   */
+  version: bigint;
+
+  /**
+   * Output only. Stable unique identifier of the resolved M8 Identity user.
+   *
+   * Empty until the authentication operation resolves the claimant
+   * to a user inside user_pool_id.
+   *
+   * Once set, this value must not change for the lifetime of the operation.
+   *
+   * @generated from field: string user_id = 15;
+   */
+  userId: string;
 };
 
 /**
@@ -67,4 +211,437 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
  * Use `create(AuthenticationSchema)` to create a new message.
  */
 export declare const AuthenticationSchema: GenMessage<Authentication>;
+
+/**
+ * Current lifecycle state of an authentication operation.
+ *
+ * @generated from enum m8.platform.iam.v1.Authentication.State
+ */
+export enum Authentication_State {
+  /**
+   * Authentication state is not specified.
+   *
+   * @generated from enum value: STATE_UNSPECIFIED = 0;
+   */
+  STATE_UNSPECIFIED = 0,
+
+  /**
+   * Authentication operation has been created but processing has not started yet.
+   *
+   * Example:
+   * - API accepted StartAuthentication request
+   * - record created in storage
+   * - workflow is not yet started or not yet acknowledged
+   *
+   * @generated from enum value: CREATED = 1;
+   */
+  CREATED = 1,
+
+  /**
+   * Authentication operation is being initialized.
+   *
+   * Example:
+   * - Temporal workflow started
+   * - tenant/user pool/client context is being prepared
+   * - authentication requirements are being loaded
+   *
+   * @generated from enum value: INITIALIZING = 2;
+   */
+  INITIALIZING = 2,
+
+  /**
+   * User identity is being resolved.
+   *
+   * Example:
+   * - phone/email/login_hint is mapped to M8 Identity user
+   * - external identity provider user is being resolved
+   * - external identity link is being checked
+   *
+   * @generated from enum value: IDENTIFYING = 3;
+   */
+  IDENTIFYING = 3,
+
+  /**
+   * Authentication decision inputs are being evaluated.
+   *
+   * Example:
+   * - device and network inputs are being prepared
+   * - rate-limit check is being performed
+   * - channel selection
+   * - decision whether step-up is required
+   *
+   * @generated from enum value: EVALUATING = 4;
+   */
+  EVALUATING = 4,
+
+  /**
+   * A challenge has been selected and is being prepared.
+   *
+   * Example:
+   * - OTP is being generated
+   * - WebAuthn challenge is being created
+   * - Mobile ID request is being prepared
+   * - OIDC/SAML redirect/request is being prepared
+   *
+   * @generated from enum value: CHALLENGE_PREPARING = 5;
+   */
+  CHALLENGE_PREPARING = 5,
+
+  /**
+   * Challenge has been delivered or exposed to the user/client.
+   *
+   * Example:
+   * - OTP sent via SMS/email/Telegram/VK
+   * - Push approval sent
+   * - Mobile ID transaction started
+   * - WebAuthn challenge returned to browser
+   * - OIDC/SAML redirect URL returned
+   *
+   * @generated from enum value: CHALLENGE_DELIVERED = 6;
+   */
+  CHALLENGE_DELIVERED = 6,
+
+  /**
+   * Authentication is waiting for user action or external provider callback.
+   *
+   * Example:
+   * - waiting for OTP input
+   * - waiting for push approval
+   * - waiting for Mobile ID callback
+   * - waiting for WebAuthn assertion
+   * - waiting for OIDC/SAML callback
+   *
+   * @generated from enum value: WAITING_FOR_USER = 7;
+   */
+  WAITING_FOR_USER = 7,
+
+  /**
+   * User response or external provider response is being verified.
+   *
+   * Example:
+   * - OTP verification
+   * - password verification
+   * - WebAuthn assertion verification
+   * - Mobile ID id_token verification
+   * - OIDC/SAML response validation
+   *
+   * @generated from enum value: VERIFYING = 8;
+   */
+  VERIFYING = 8,
+
+  /**
+   * Provided challenge response was invalid, but authentication can continue.
+   *
+   * Example:
+   * - wrong OTP, but attempts remain
+   * - wrong password, but attempts remain
+   * - WebAuthn assertion failed and retry is allowed
+   *
+   * @generated from enum value: CHALLENGE_RETRY_REQUIRED = 9;
+   */
+  CHALLENGE_RETRY_REQUIRED = 9,
+
+  /**
+   * Additional authentication factor is required.
+   *
+   * Example:
+   * - external decision requires passkey step-up
+   * - requested acr_values require stronger authentication
+   * - sensitive operation requires fresh authentication
+   *
+   * @generated from enum value: STEP_UP_REQUIRED = 10;
+   */
+  STEP_UP_REQUIRED = 10,
+
+  /**
+   * Authentication succeeded locally, but external authorization server callback
+   * or finalization is still pending.
+   *
+   * Example:
+   * - M8 Authentication has verified the user
+   * - external authorization callback is not yet sent or not yet acknowledged
+   *
+   * @generated from enum value: CALLBACK_PENDING = 11;
+   */
+  CALLBACK_PENDING = 11,
+
+  /**
+   * Authentication finalization is in progress.
+   *
+   * Example:
+   * - auth evidence is being stored
+   * - audit event is being written
+   * - session/token handoff is being finalized
+   *
+   * @generated from enum value: FINALIZING = 12;
+   */
+  FINALIZING = 12,
+
+  /**
+   * Authentication successfully completed.
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: AUTHENTICATED = 20;
+   */
+  AUTHENTICATED = 20,
+
+  /**
+   * Authentication was explicitly denied by the user.
+   *
+   * Example:
+   * - user pressed Deny in push approval
+   * - user rejected Mobile ID request
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: DENIED = 21;
+   */
+  DENIED = 21,
+
+  /**
+   * Authentication was canceled.
+   *
+   * Example:
+   * - user canceled login
+   * - client canceled operation
+   * - workflow was canceled
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: CANCELED = 22;
+   */
+  CANCELED = 22,
+
+  /**
+   * Authentication expired.
+   *
+   * Example:
+   * - OTP TTL expired
+   * - external provider authentication request expired
+   * - user did not approve push in time
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: EXPIRED = 23;
+   */
+  EXPIRED = 23,
+
+  /**
+   * Authentication failed because retry limit was exceeded.
+   *
+   * Example:
+   * - too many wrong OTP attempts
+   * - too many wrong password attempts
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: ATTEMPTS_EXCEEDED = 24;
+   */
+  ATTEMPTS_EXCEEDED = 24,
+
+  /**
+   * Authentication was blocked by an external decision or assurance requirement.
+   *
+   * Example:
+   * - external decision denied the authentication
+   * - user, device, or channel is blocked
+   * - rate limit exceeded
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: BLOCKED = 25;
+   */
+  BLOCKED = 25,
+
+  /**
+   * Authentication failed due to technical or provider error.
+   *
+   * Example:
+   * - provider unavailable
+   * - invalid external callback
+   * - external authorization callback failed permanently
+   * - unexpected internal error
+   *
+   * Terminal state.
+   *
+   * @generated from enum value: FAILED = 26;
+   */
+  FAILED = 26,
+}
+
+/**
+ * Describes the enum m8.platform.iam.v1.Authentication.State.
+ */
+export declare const Authentication_StateSchema: GenEnum<Authentication_State>;
+
+/**
+ * Challenge type required to continue or complete authentication.
+ *
+ * @generated from enum m8.platform.iam.v1.Authentication.Challenge
+ */
+export enum Authentication_Challenge {
+  /**
+   * Authentication challenge is not specified.
+   *
+   * @generated from enum value: CHALLENGE_UNSPECIFIED = 0;
+   */
+  CHALLENGE_UNSPECIFIED = 0,
+
+  /**
+   * User must enter a one-time password delivered through a configured channel.
+   *
+   * Example:
+   * - OTP sent via SMS/email/Telegram/VK
+   * - OTP sent in a push notification
+   * - OTP generated and validated by an external provider
+   *
+   * @generated from enum value: OTP = 1;
+   */
+  OTP = 1,
+
+  /**
+   * User must explicitly approve authentication without entering a one-time password.
+   *
+   * Example:
+   * - push approval in a mobile application
+   * - approve/deny prompt on a trusted device
+   * - transaction confirmation without manual code entry
+   *
+   * @generated from enum value: APPROVAL = 2;
+   */
+  APPROVAL = 2,
+
+  /**
+   * User must complete authentication through a mobile network operator's Mobile ID flow.
+   *
+   * Example:
+   * - Mobile ID request is sent to the operator
+   * - user confirms authentication on the operator side
+   * - provider callback returns the Mobile ID result
+   *
+   * @generated from enum value: MOBILE_ID = 3;
+   */
+  MOBILE_ID = 3,
+
+  /**
+   * User must complete a WebAuthn-compatible credential challenge.
+   *
+   * Example:
+   * - passkey authentication in a browser
+   * - platform authenticator assertion
+   * - roaming security key assertion
+   *
+   * @generated from enum value: WEBAUTHN = 4;
+   */
+  WEBAUTHN = 4,
+
+  /**
+   * User must authenticate through an external OpenID Connect identity provider.
+   *
+   * Example:
+   * - redirect to an external OIDC provider
+   * - login_hint is passed to the provider
+   * - authorization callback returns an authorization code or error
+   *
+   * @generated from enum value: OIDC = 5;
+   */
+  OIDC = 5,
+
+  /**
+   * User must authenticate through an external SAML identity provider.
+   *
+   * Example:
+   * - redirect to an external SAML identity provider
+   * - SAML authentication request is created
+   * - SAML response is returned to the assertion consumer endpoint
+   *
+   * @generated from enum value: SAML = 6;
+   */
+  SAML = 6,
+
+  /**
+   * User must enter a static secret known by the user.
+   *
+   * Example:
+   * - password verification during primary authentication
+   * - password re-entry for a sensitive operation
+   * - password check before issuing a stronger challenge
+   *
+   * @generated from enum value: PASSWORD = 7;
+   */
+  PASSWORD = 7,
+}
+
+/**
+ * Describes the enum m8.platform.iam.v1.Authentication.Challenge.
+ */
+export declare const Authentication_ChallengeSchema: GenEnum<Authentication_Challenge>;
+
+/**
+ * Authentication assurance level required or achieved by an authentication flow.
+ *
+ * @generated from enum m8.platform.iam.v1.Authentication.AssuranceLevel
+ */
+export enum Authentication_AssuranceLevel {
+  /**
+   * Authentication assurance level is not specified.
+   *
+   * @generated from enum value: ASSURANCE_LEVEL_UNSPECIFIED = 0;
+   */
+  ASSURANCE_LEVEL_UNSPECIFIED = 0,
+
+  /**
+   * AAL0 means no authenticated user assurance has been established.
+   *
+   * Example:
+   * - anonymous request before primary authentication
+   * - public client flow before user interaction
+   * - no authentication requirement has been selected yet
+   *
+   * @generated from enum value: AAL0 = 1;
+   */
+  AAL0 = 1,
+
+  /**
+   * AAL1 provides basic assurance that the claimant controls an authenticator.
+   *
+   * Example:
+   * - single-factor password authentication
+   * - one-time password sent to a registered email address
+   * - low-sensitivity access where basic authentication is sufficient
+   *
+   * @generated from enum value: AAL1 = 2;
+   */
+  AAL1 = 2,
+
+  /**
+   * AAL2 provides high confidence through multi-factor authentication.
+   *
+   * Example:
+   * - password plus one-time password
+   * - password plus push approval
+   * - passkey or WebAuthn authentication used as a phishing-resistant factor
+   *
+   * @generated from enum value: AAL2 = 3;
+   */
+  AAL2 = 3,
+
+  /**
+   * AAL3 provides very high confidence with phishing-resistant authentication.
+   *
+   * Example:
+   * - hardware-backed WebAuthn credential with verifier impersonation resistance
+   * - high-sensitivity operation requiring the strongest available authenticator
+   * - privileged access requiring proof of possession of a strong authenticator
+   *
+   * @generated from enum value: AAL3 = 4;
+   */
+  AAL3 = 4,
+}
+
+/**
+ * Describes the enum m8.platform.iam.v1.Authentication.AssuranceLevel.
+ */
+export declare const Authentication_AssuranceLevelSchema: GenEnum<Authentication_AssuranceLevel>;
 

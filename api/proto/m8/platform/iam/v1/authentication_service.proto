@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/longrunning/operations.proto";
+import "m8/platform/iam/v1/authentication.proto";
+import "m8/platform/iam/v1/authentication_subject.proto";
+import "m8/platform/iam/v1/authentication_context.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Service that starts and drives authentication operations.
+service AuthenticationService {
+  // Starts a new authentication operation.
+  //
+  // The returned long-running operation resolves to Authentication when the
+  // authentication workflow reaches a terminal state.
+  rpc StartAuthentication(StartAuthenticationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/v1/iam/authentications:start"
+      body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "Authentication"
+      metadata_type: "StartAuthenticationOperationMetadata"
+    };
+  }
+}
+
+// Request to start an authentication operation.
+message StartAuthenticationRequest {
+  // Required. Immutable client application identifier that initiates authentication.
+  string client_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Optional. Subject identifier or hint used to resolve the authenticating user.
+  AuthenticationSubject subject = 2 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  // Optional. Additional authentication context used for policy and challenge selection.
+  AuthenticationContext context = 3 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+// Metadata for the StartAuthentication long-running operation.
+message StartAuthenticationOperationMetadata {
+  // Output only. Current snapshot of the authentication operation.
+  //
+  // The value is updated as the workflow advances through state transitions and
+  // can be used by clients to poll progress before the operation completes.
+  Authentication authentication = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

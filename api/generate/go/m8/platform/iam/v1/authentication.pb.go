@@ -12,6 +12,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,6 +24,427 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// Current lifecycle state of an authentication operation.
+type Authentication_State int32
+
+const (
+	// Authentication state is not specified.
+	Authentication_STATE_UNSPECIFIED Authentication_State = 0
+	// Authentication operation has been created but processing has not started yet.
+	//
+	// Example:
+	// - API accepted StartAuthentication request
+	// - record created in storage
+	// - workflow is not yet started or not yet acknowledged
+	Authentication_CREATED Authentication_State = 1
+	// Authentication operation is being initialized.
+	//
+	// Example:
+	// - Temporal workflow started
+	// - tenant/user pool/client context is being prepared
+	// - authentication requirements are being loaded
+	Authentication_INITIALIZING Authentication_State = 2
+	// User identity is being resolved.
+	//
+	// Example:
+	// - phone/email/login_hint is mapped to M8 Identity user
+	// - external identity provider user is being resolved
+	// - external identity link is being checked
+	Authentication_IDENTIFYING Authentication_State = 3
+	// Authentication decision inputs are being evaluated.
+	//
+	// Example:
+	// - device and network inputs are being prepared
+	// - rate-limit check is being performed
+	// - channel selection
+	// - decision whether step-up is required
+	Authentication_EVALUATING Authentication_State = 4
+	// A challenge has been selected and is being prepared.
+	//
+	// Example:
+	// - OTP is being generated
+	// - WebAuthn challenge is being created
+	// - Mobile ID request is being prepared
+	// - OIDC/SAML redirect/request is being prepared
+	Authentication_CHALLENGE_PREPARING Authentication_State = 5
+	// Challenge has been delivered or exposed to the user/client.
+	//
+	// Example:
+	// - OTP sent via SMS/email/Telegram/VK
+	// - Push approval sent
+	// - Mobile ID transaction started
+	// - WebAuthn challenge returned to browser
+	// - OIDC/SAML redirect URL returned
+	Authentication_CHALLENGE_DELIVERED Authentication_State = 6
+	// Authentication is waiting for user action or external provider callback.
+	//
+	// Example:
+	// - waiting for OTP input
+	// - waiting for push approval
+	// - waiting for Mobile ID callback
+	// - waiting for WebAuthn assertion
+	// - waiting for OIDC/SAML callback
+	Authentication_WAITING_FOR_USER Authentication_State = 7
+	// User response or external provider response is being verified.
+	//
+	// Example:
+	// - OTP verification
+	// - password verification
+	// - WebAuthn assertion verification
+	// - Mobile ID id_token verification
+	// - OIDC/SAML response validation
+	Authentication_VERIFYING Authentication_State = 8
+	// Provided challenge response was invalid, but authentication can continue.
+	//
+	// Example:
+	// - wrong OTP, but attempts remain
+	// - wrong password, but attempts remain
+	// - WebAuthn assertion failed and retry is allowed
+	Authentication_CHALLENGE_RETRY_REQUIRED Authentication_State = 9
+	// Additional authentication factor is required.
+	//
+	// Example:
+	// - external decision requires passkey step-up
+	// - requested acr_values require stronger authentication
+	// - sensitive operation requires fresh authentication
+	Authentication_STEP_UP_REQUIRED Authentication_State = 10
+	// Authentication succeeded locally, but external authorization server callback
+	// or finalization is still pending.
+	//
+	// Example:
+	// - M8 Authentication has verified the user
+	// - external authorization callback is not yet sent or not yet acknowledged
+	Authentication_CALLBACK_PENDING Authentication_State = 11
+	// Authentication finalization is in progress.
+	//
+	// Example:
+	// - auth evidence is being stored
+	// - audit event is being written
+	// - session/token handoff is being finalized
+	Authentication_FINALIZING Authentication_State = 12
+	// Authentication successfully completed.
+	//
+	// Terminal state.
+	Authentication_AUTHENTICATED Authentication_State = 20
+	// Authentication was explicitly denied by the user.
+	//
+	// Example:
+	// - user pressed Deny in push approval
+	// - user rejected Mobile ID request
+	//
+	// Terminal state.
+	Authentication_DENIED Authentication_State = 21
+	// Authentication was canceled.
+	//
+	// Example:
+	// - user canceled login
+	// - client canceled operation
+	// - workflow was canceled
+	//
+	// Terminal state.
+	Authentication_CANCELED Authentication_State = 22
+	// Authentication expired.
+	//
+	// Example:
+	// - OTP TTL expired
+	// - external provider authentication request expired
+	// - user did not approve push in time
+	//
+	// Terminal state.
+	Authentication_EXPIRED Authentication_State = 23
+	// Authentication failed because retry limit was exceeded.
+	//
+	// Example:
+	// - too many wrong OTP attempts
+	// - too many wrong password attempts
+	//
+	// Terminal state.
+	Authentication_ATTEMPTS_EXCEEDED Authentication_State = 24
+	// Authentication was blocked by an external decision or assurance requirement.
+	//
+	// Example:
+	// - external decision denied the authentication
+	// - user, device, or channel is blocked
+	// - rate limit exceeded
+	//
+	// Terminal state.
+	Authentication_BLOCKED Authentication_State = 25
+	// Authentication failed due to technical or provider error.
+	//
+	// Example:
+	// - provider unavailable
+	// - invalid external callback
+	// - external authorization callback failed permanently
+	// - unexpected internal error
+	//
+	// Terminal state.
+	Authentication_FAILED Authentication_State = 26
+)
+
+// Enum value maps for Authentication_State.
+var (
+	Authentication_State_name = map[int32]string{
+		0:  "STATE_UNSPECIFIED",
+		1:  "CREATED",
+		2:  "INITIALIZING",
+		3:  "IDENTIFYING",
+		4:  "EVALUATING",
+		5:  "CHALLENGE_PREPARING",
+		6:  "CHALLENGE_DELIVERED",
+		7:  "WAITING_FOR_USER",
+		8:  "VERIFYING",
+		9:  "CHALLENGE_RETRY_REQUIRED",
+		10: "STEP_UP_REQUIRED",
+		11: "CALLBACK_PENDING",
+		12: "FINALIZING",
+		20: "AUTHENTICATED",
+		21: "DENIED",
+		22: "CANCELED",
+		23: "EXPIRED",
+		24: "ATTEMPTS_EXCEEDED",
+		25: "BLOCKED",
+		26: "FAILED",
+	}
+	Authentication_State_value = map[string]int32{
+		"STATE_UNSPECIFIED":        0,
+		"CREATED":                  1,
+		"INITIALIZING":             2,
+		"IDENTIFYING":              3,
+		"EVALUATING":               4,
+		"CHALLENGE_PREPARING":      5,
+		"CHALLENGE_DELIVERED":      6,
+		"WAITING_FOR_USER":         7,
+		"VERIFYING":                8,
+		"CHALLENGE_RETRY_REQUIRED": 9,
+		"STEP_UP_REQUIRED":         10,
+		"CALLBACK_PENDING":         11,
+		"FINALIZING":               12,
+		"AUTHENTICATED":            20,
+		"DENIED":                   21,
+		"CANCELED":                 22,
+		"EXPIRED":                  23,
+		"ATTEMPTS_EXCEEDED":        24,
+		"BLOCKED":                  25,
+		"FAILED":                   26,
+	}
+)
+
+func (x Authentication_State) Enum() *Authentication_State {
+	p := new(Authentication_State)
+	*p = x
+	return p
+}
+
+func (x Authentication_State) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Authentication_State) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_proto_enumTypes[0].Descriptor()
+}
+
+func (Authentication_State) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_proto_enumTypes[0]
+}
+
+func (x Authentication_State) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Authentication_State.Descriptor instead.
+func (Authentication_State) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_proto_rawDescGZIP(), []int{0, 0}
+}
+
+// Challenge type required to continue or complete authentication.
+type Authentication_Challenge int32
+
+const (
+	// Authentication challenge is not specified.
+	Authentication_CHALLENGE_UNSPECIFIED Authentication_Challenge = 0
+	// User must enter a one-time password delivered through a configured channel.
+	//
+	// Example:
+	// - OTP sent via SMS/email/Telegram/VK
+	// - OTP sent in a push notification
+	// - OTP generated and validated by an external provider
+	Authentication_OTP Authentication_Challenge = 1
+	// User must explicitly approve authentication without entering a one-time password.
+	//
+	// Example:
+	// - push approval in a mobile application
+	// - approve/deny prompt on a trusted device
+	// - transaction confirmation without manual code entry
+	Authentication_APPROVAL Authentication_Challenge = 2
+	// User must complete authentication through a mobile network operator's Mobile ID flow.
+	//
+	// Example:
+	// - Mobile ID request is sent to the operator
+	// - user confirms authentication on the operator side
+	// - provider callback returns the Mobile ID result
+	Authentication_MOBILE_ID Authentication_Challenge = 3
+	// User must complete a WebAuthn-compatible credential challenge.
+	//
+	// Example:
+	// - passkey authentication in a browser
+	// - platform authenticator assertion
+	// - roaming security key assertion
+	Authentication_WEBAUTHN Authentication_Challenge = 4
+	// User must authenticate through an external OpenID Connect identity provider.
+	//
+	// Example:
+	// - redirect to an external OIDC provider
+	// - login_hint is passed to the provider
+	// - authorization callback returns an authorization code or error
+	Authentication_OIDC Authentication_Challenge = 5
+	// User must authenticate through an external SAML identity provider.
+	//
+	// Example:
+	// - redirect to an external SAML identity provider
+	// - SAML authentication request is created
+	// - SAML response is returned to the assertion consumer endpoint
+	Authentication_SAML Authentication_Challenge = 6
+	// User must enter a static secret known by the user.
+	//
+	// Example:
+	// - password verification during primary authentication
+	// - password re-entry for a sensitive operation
+	// - password check before issuing a stronger challenge
+	Authentication_PASSWORD Authentication_Challenge = 7
+)
+
+// Enum value maps for Authentication_Challenge.
+var (
+	Authentication_Challenge_name = map[int32]string{
+		0: "CHALLENGE_UNSPECIFIED",
+		1: "OTP",
+		2: "APPROVAL",
+		3: "MOBILE_ID",
+		4: "WEBAUTHN",
+		5: "OIDC",
+		6: "SAML",
+		7: "PASSWORD",
+	}
+	Authentication_Challenge_value = map[string]int32{
+		"CHALLENGE_UNSPECIFIED": 0,
+		"OTP":                   1,
+		"APPROVAL":              2,
+		"MOBILE_ID":             3,
+		"WEBAUTHN":              4,
+		"OIDC":                  5,
+		"SAML":                  6,
+		"PASSWORD":              7,
+	}
+)
+
+func (x Authentication_Challenge) Enum() *Authentication_Challenge {
+	p := new(Authentication_Challenge)
+	*p = x
+	return p
+}
+
+func (x Authentication_Challenge) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Authentication_Challenge) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_proto_enumTypes[1].Descriptor()
+}
+
+func (Authentication_Challenge) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_proto_enumTypes[1]
+}
+
+func (x Authentication_Challenge) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Authentication_Challenge.Descriptor instead.
+func (Authentication_Challenge) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_proto_rawDescGZIP(), []int{0, 1}
+}
+
+// Authentication assurance level required or achieved by an authentication flow.
+type Authentication_AssuranceLevel int32
+
+const (
+	// Authentication assurance level is not specified.
+	Authentication_ASSURANCE_LEVEL_UNSPECIFIED Authentication_AssuranceLevel = 0
+	// AAL0 means no authenticated user assurance has been established.
+	//
+	// Example:
+	// - anonymous request before primary authentication
+	// - public client flow before user interaction
+	// - no authentication requirement has been selected yet
+	Authentication_AAL0 Authentication_AssuranceLevel = 1
+	// AAL1 provides basic assurance that the claimant controls an authenticator.
+	//
+	// Example:
+	// - single-factor password authentication
+	// - one-time password sent to a registered email address
+	// - low-sensitivity access where basic authentication is sufficient
+	Authentication_AAL1 Authentication_AssuranceLevel = 2
+	// AAL2 provides high confidence through multi-factor authentication.
+	//
+	// Example:
+	// - password plus one-time password
+	// - password plus push approval
+	// - passkey or WebAuthn authentication used as a phishing-resistant factor
+	Authentication_AAL2 Authentication_AssuranceLevel = 3
+	// AAL3 provides very high confidence with phishing-resistant authentication.
+	//
+	// Example:
+	// - hardware-backed WebAuthn credential with verifier impersonation resistance
+	// - high-sensitivity operation requiring the strongest available authenticator
+	// - privileged access requiring proof of possession of a strong authenticator
+	Authentication_AAL3 Authentication_AssuranceLevel = 4
+)
+
+// Enum value maps for Authentication_AssuranceLevel.
+var (
+	Authentication_AssuranceLevel_name = map[int32]string{
+		0: "ASSURANCE_LEVEL_UNSPECIFIED",
+		1: "AAL0",
+		2: "AAL1",
+		3: "AAL2",
+		4: "AAL3",
+	}
+	Authentication_AssuranceLevel_value = map[string]int32{
+		"ASSURANCE_LEVEL_UNSPECIFIED": 0,
+		"AAL0":                        1,
+		"AAL1":                        2,
+		"AAL2":                        3,
+		"AAL3":                        4,
+	}
+)
+
+func (x Authentication_AssuranceLevel) Enum() *Authentication_AssuranceLevel {
+	p := new(Authentication_AssuranceLevel)
+	*p = x
+	return p
+}
+
+func (x Authentication_AssuranceLevel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Authentication_AssuranceLevel) Descriptor() protoreflect.EnumDescriptor {
+	return file_m8_platform_iam_v1_authentication_proto_enumTypes[2].Descriptor()
+}
+
+func (Authentication_AssuranceLevel) Type() protoreflect.EnumType {
+	return &file_m8_platform_iam_v1_authentication_proto_enumTypes[2]
+}
+
+func (x Authentication_AssuranceLevel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Authentication_AssuranceLevel.Descriptor instead.
+func (Authentication_AssuranceLevel) EnumDescriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_proto_rawDescGZIP(), []int{0, 2}
+}
 
 // Authentication stores the current state of a single authentication operation.
 //
@@ -39,22 +461,107 @@ type Authentication struct {
 	// - used to query or correlate authentication progress
 	// - remains unchanged for the lifetime of the operation
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Required. Immutable project identifier that owns this authentication operation.
+	//
+	// Example:
+	// - used to isolate authentication data by project
+	// - used to load project-scoped authentication configuration
+	// - remains unchanged for the lifetime of the operation
+	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	// Required. Immutable user pool identifier where the identity must be resolved.
+	//
+	// Example:
+	// - selects the identity namespace for the authentication operation
+	// - scopes user lookup, authenticators, and provider links
+	// - remains unchanged for the lifetime of the operation
+	UserPoolId string `protobuf:"bytes,3,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
+	// Required. Immutable client application identifier that initiated authentication.
+	// The value is an opaque client identifier and is not required to be a UUID.
+	//
+	// Example:
+	// - first-party web application
+	// - first-party mobile application
+	// - backend service acting as an authentication client
+	// - external OIDC client
+	ClientId string `protobuf:"bytes,4,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	// Required. Temporal workflow identifier that executes this authentication operation.
+	//
+	// Example:
+	// - assigned when the authentication workflow is started
+	// - used to signal or query the workflow execution
+	// - remains stable for the lifetime of the workflow
+	WorkflowId string `protobuf:"bytes,5,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	// Optional. Temporal run identifier for the concrete workflow execution.
+	// May be empty when the authentication operation has just been created.
+	//
+	// Example:
+	// - assigned when the workflow run is started
+	// - used with workflow_id to correlate worker logs and callbacks
+	// - identifies the run that produced the current authentication state
+	RunId string `protobuf:"bytes,6,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// Output only. Current lifecycle state of the authentication operation.
 	// The value is always one of the defined non-zero enum values.
 	//
 	// Example:
-	// - AUTHENTICATION_STATE_CHALLENGE_DELIVERED after the challenge is exposed
-	// - AUTHENTICATION_STATE_WAITING_FOR_USER while user action is pending
-	// - AUTHENTICATION_STATE_AUTHENTICATED after successful completion
-	State AuthenticationState `protobuf:"varint,2,opt,name=state,proto3,enum=m8.platform.iam.v1.AuthenticationState" json:"state,omitempty"`
+	// - CHALLENGE_DELIVERED after the challenge is exposed
+	// - WAITING_FOR_USER while user action is pending
+	// - AUTHENTICATED after successful completion
+	State Authentication_State `protobuf:"varint,7,opt,name=state,proto3,enum=m8.platform.iam.v1.Authentication_State" json:"state,omitempty"`
 	// Output only. Challenge selected for this authentication operation.
 	// The value is always one of the defined non-zero enum values.
 	//
 	// Example:
-	// - AUTHENTICATION_CHALLENGE_OTP for one-time password authentication
-	// - AUTHENTICATION_CHALLENGE_WEBAUTHN for passkey or security key authentication
-	// - AUTHENTICATION_CHALLENGE_PASSWORD for password-based authentication
-	Challenge     AuthenticationChallenge `protobuf:"varint,3,opt,name=challenge,proto3,enum=m8.platform.iam.v1.AuthenticationChallenge" json:"challenge,omitempty"`
+	// - OTP for one-time password authentication
+	// - WEBAUTHN for passkey or security key authentication
+	// - PASSWORD for password-based authentication
+	Challenge Authentication_Challenge `protobuf:"varint,8,opt,name=challenge,proto3,enum=m8.platform.iam.v1.Authentication_Challenge" json:"challenge,omitempty"`
+	// Required. Minimum authentication assurance level requested for this operation.
+	// The value must be a defined assurance level stronger than AAL0.
+	//
+	// Example:
+	// - AAL1 for normal login
+	// - AAL2 for sensitive operation
+	// - AAL3 for privileged operation
+	RequestedAssuranceLevel Authentication_AssuranceLevel `protobuf:"varint,9,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.Authentication_AssuranceLevel" json:"requested_assurance_level,omitempty"`
+	// Output only. Authentication assurance level actually achieved by this operation.
+	// Defaults to AAL0 when no user assurance has been established.
+	// The value is always one of the defined non-zero enum values.
+	//
+	// Example:
+	// - AAL0 when the operation has just been created
+	// - requested AAL2, achieved AAL2 after OTP + password
+	// - requested AAL3, achieved AAL3 after hardware-backed WebAuthn
+	AchievedAssuranceLevel Authentication_AssuranceLevel `protobuf:"varint,10,opt,name=achieved_assurance_level,json=achievedAssuranceLevel,proto3,enum=m8.platform.iam.v1.Authentication_AssuranceLevel" json:"achieved_assurance_level,omitempty"`
+	// Output only. Time when the authentication operation was created.
+	// Remains unchanged for the lifetime of the operation.
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	// Output only. Time when the authentication operation was last updated.
+	//
+	// Example:
+	// - state transition was persisted
+	// - challenge delivery result was recorded
+	// - authentication completion or failure was recorded
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	// Output only. Time when the authentication operation expires.
+	//
+	// Example:
+	// - user action must be completed before this time
+	// - stale authentication operations can be failed after this time
+	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	// Output only. Monotonic version of the authentication operation.
+	// New authentication operations start with version 1.
+	//
+	// Example:
+	// - incremented after each persisted state transition
+	// - used to build etag and detect stale aggregate snapshots
+	Version int64 `protobuf:"varint,14,opt,name=version,proto3" json:"version,omitempty"`
+	// Output only. Stable unique identifier of the resolved M8 Identity user.
+	//
+	// Empty until the authentication operation resolves the claimant
+	// to a user inside user_pool_id.
+	//
+	// Once set, this value must not change for the lifetime of the operation.
+	UserId        string `protobuf:"bytes,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,29 +603,174 @@ func (x *Authentication) GetId() string {
 	return ""
 }
 
-func (x *Authentication) GetState() AuthenticationState {
+func (x *Authentication) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+func (x *Authentication) GetUserPoolId() string {
+	if x != nil {
+		return x.UserPoolId
+	}
+	return ""
+}
+
+func (x *Authentication) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *Authentication) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *Authentication) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *Authentication) GetState() Authentication_State {
 	if x != nil {
 		return x.State
 	}
-	return AuthenticationState_AUTHENTICATION_STATE_UNSPECIFIED
+	return Authentication_STATE_UNSPECIFIED
 }
 
-func (x *Authentication) GetChallenge() AuthenticationChallenge {
+func (x *Authentication) GetChallenge() Authentication_Challenge {
 	if x != nil {
 		return x.Challenge
 	}
-	return AuthenticationChallenge_AUTHENTICATION_CHALLENGE_UNSPECIFIED
+	return Authentication_CHALLENGE_UNSPECIFIED
+}
+
+func (x *Authentication) GetRequestedAssuranceLevel() Authentication_AssuranceLevel {
+	if x != nil {
+		return x.RequestedAssuranceLevel
+	}
+	return Authentication_ASSURANCE_LEVEL_UNSPECIFIED
+}
+
+func (x *Authentication) GetAchievedAssuranceLevel() Authentication_AssuranceLevel {
+	if x != nil {
+		return x.AchievedAssuranceLevel
+	}
+	return Authentication_ASSURANCE_LEVEL_UNSPECIFIED
+}
+
+func (x *Authentication) GetCreateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreateTime
+	}
+	return nil
+}
+
+func (x *Authentication) GetUpdateTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdateTime
+	}
+	return nil
+}
+
+func (x *Authentication) GetExpireTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpireTime
+	}
+	return nil
+}
+
+func (x *Authentication) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Authentication) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
 }
 
 var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a-m8/platform/iam/v1/authentication_state.proto\"\x80\x02\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xc4\f\n" +
 	"\x0eAuthentication\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12L\n" +
-	"\x05state\x18\x02 \x01(\x0e2'.m8.platform.iam.v1.AuthenticationStateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12X\n" +
-	"\tchallenge\x18\x03 \x01(\x0e2+.m8.platform.iam.v1.AuthenticationChallengeB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\tchallenge:&\x8a\xb5\x18\"m8.platform.iam.authentications.v1B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12-\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\tprojectId\x120\n" +
+	"\fuser_pool_id\x18\x03 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"userPoolId\x12#\n" +
+	"\tclient_id\x18\x04 \x01(\tB\x06\xe0A\x02\xe0A\x05R\bclientId\x12*\n" +
+	"\vworkflow_id\x18\x05 \x01(\tB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
+	"workflowId\x12%\n" +
+	"\x06run_id\x18\x06 \x01(\tB\x0e\xe0A\x01\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x05runId\x12M\n" +
+	"\x05state\x18\a \x01(\x0e2(.m8.platform.iam.v1.Authentication.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12Y\n" +
+	"\tchallenge\x18\b \x01(\x0e2,.m8.platform.iam.v1.Authentication.ChallengeB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\tchallenge\x12~\n" +
+	"\x19requested_assurance_level\x18\t \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\x0f\xe0A\x02\xbaH\t\x82\x01\x06\x10\x01 \x00 \x01R\x17requestedAssuranceLevel\x12z\n" +
+	"\x18achieved_assurance_level\x18\n" +
+	" \x01(\x0e21.m8.platform.iam.v1.Authentication.AssuranceLevelB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x16achievedAssuranceLevel\x12C\n" +
+	"\vcreate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xe0A\x03\xe0A\x05R\n" +
+	"createTime\x12@\n" +
+	"\vupdate_time\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"updateTime\x12@\n" +
+	"\vexpire_time\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"expireTime\x12$\n" +
+	"\aversion\x18\x0e \x01(\x03B\n" +
+	"\xe0A\x03\xbaH\x04\"\x02(\x01R\aversion\x12'\n" +
+	"\auser_id\x18\x0f \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\"\xf9\x02\n" +
+	"\x05State\x12\x15\n" +
+	"\x11STATE_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aCREATED\x10\x01\x12\x10\n" +
+	"\fINITIALIZING\x10\x02\x12\x0f\n" +
+	"\vIDENTIFYING\x10\x03\x12\x0e\n" +
+	"\n" +
+	"EVALUATING\x10\x04\x12\x17\n" +
+	"\x13CHALLENGE_PREPARING\x10\x05\x12\x17\n" +
+	"\x13CHALLENGE_DELIVERED\x10\x06\x12\x14\n" +
+	"\x10WAITING_FOR_USER\x10\a\x12\r\n" +
+	"\tVERIFYING\x10\b\x12\x1c\n" +
+	"\x18CHALLENGE_RETRY_REQUIRED\x10\t\x12\x14\n" +
+	"\x10STEP_UP_REQUIRED\x10\n" +
+	"\x12\x14\n" +
+	"\x10CALLBACK_PENDING\x10\v\x12\x0e\n" +
+	"\n" +
+	"FINALIZING\x10\f\x12\x11\n" +
+	"\rAUTHENTICATED\x10\x14\x12\n" +
+	"\n" +
+	"\x06DENIED\x10\x15\x12\f\n" +
+	"\bCANCELED\x10\x16\x12\v\n" +
+	"\aEXPIRED\x10\x17\x12\x15\n" +
+	"\x11ATTEMPTS_EXCEEDED\x10\x18\x12\v\n" +
+	"\aBLOCKED\x10\x19\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x1a\"|\n" +
+	"\tChallenge\x12\x19\n" +
+	"\x15CHALLENGE_UNSPECIFIED\x10\x00\x12\a\n" +
+	"\x03OTP\x10\x01\x12\f\n" +
+	"\bAPPROVAL\x10\x02\x12\r\n" +
+	"\tMOBILE_ID\x10\x03\x12\f\n" +
+	"\bWEBAUTHN\x10\x04\x12\b\n" +
+	"\x04OIDC\x10\x05\x12\b\n" +
+	"\x04SAML\x10\x06\x12\f\n" +
+	"\bPASSWORD\x10\a\"Y\n" +
+	"\x0eAssuranceLevel\x12\x1f\n" +
+	"\x1bASSURANCE_LEVEL_UNSPECIFIED\x10\x00\x12\b\n" +
+	"\x04AAL0\x10\x01\x12\b\n" +
+	"\x04AAL1\x10\x02\x12\b\n" +
+	"\x04AAL2\x10\x03\x12\b\n" +
+	"\x04AAL3\x10\x04:&\x8a\xb5\x18\"m8.platform.iam.authentications.v1B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_proto_rawDescOnce sync.Once
@@ -132,20 +784,28 @@ func file_m8_platform_iam_v1_authentication_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_proto_rawDescData
 }
 
+var file_m8_platform_iam_v1_authentication_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_m8_platform_iam_v1_authentication_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_m8_platform_iam_v1_authentication_proto_goTypes = []any{
-	(*Authentication)(nil),       // 0: m8.platform.iam.v1.Authentication
-	(AuthenticationState)(0),     // 1: m8.platform.iam.v1.AuthenticationState
-	(AuthenticationChallenge)(0), // 2: m8.platform.iam.v1.AuthenticationChallenge
+	(Authentication_State)(0),          // 0: m8.platform.iam.v1.Authentication.State
+	(Authentication_Challenge)(0),      // 1: m8.platform.iam.v1.Authentication.Challenge
+	(Authentication_AssuranceLevel)(0), // 2: m8.platform.iam.v1.Authentication.AssuranceLevel
+	(*Authentication)(nil),             // 3: m8.platform.iam.v1.Authentication
+	(*timestamppb.Timestamp)(nil),      // 4: google.protobuf.Timestamp
 }
 var file_m8_platform_iam_v1_authentication_proto_depIdxs = []int32{
-	1, // 0: m8.platform.iam.v1.Authentication.state:type_name -> m8.platform.iam.v1.AuthenticationState
-	2, // 1: m8.platform.iam.v1.Authentication.challenge:type_name -> m8.platform.iam.v1.AuthenticationChallenge
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 0: m8.platform.iam.v1.Authentication.state:type_name -> m8.platform.iam.v1.Authentication.State
+	1, // 1: m8.platform.iam.v1.Authentication.challenge:type_name -> m8.platform.iam.v1.Authentication.Challenge
+	2, // 2: m8.platform.iam.v1.Authentication.requested_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
+	2, // 3: m8.platform.iam.v1.Authentication.achieved_assurance_level:type_name -> m8.platform.iam.v1.Authentication.AssuranceLevel
+	4, // 4: m8.platform.iam.v1.Authentication.create_time:type_name -> google.protobuf.Timestamp
+	4, // 5: m8.platform.iam.v1.Authentication.update_time:type_name -> google.protobuf.Timestamp
+	4, // 6: m8.platform.iam.v1.Authentication.expire_time:type_name -> google.protobuf.Timestamp
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_proto_init() }
@@ -153,20 +813,19 @@ func file_m8_platform_iam_v1_authentication_proto_init() {
 	if File_m8_platform_iam_v1_authentication_proto != nil {
 		return
 	}
-	file_m8_platform_iam_v1_authentication_challenge_proto_init()
-	file_m8_platform_iam_v1_authentication_state_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      3,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_m8_platform_iam_v1_authentication_proto_goTypes,
 		DependencyIndexes: file_m8_platform_iam_v1_authentication_proto_depIdxs,
+		EnumInfos:         file_m8_platform_iam_v1_authentication_proto_enumTypes,
 		MessageInfos:      file_m8_platform_iam_v1_authentication_proto_msgTypes,
 	}.Build()
 	File_m8_platform_iam_v1_authentication_proto = out.File

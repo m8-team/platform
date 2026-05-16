@@ -4,15 +4,6 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
-import type { AuthenticationIntent, RequestMetadata } from "./authentication_request_context_pb";
-import type { ClientContext, TenantContext, TransactionContext } from "./authentication_resource_context_pb";
-import type { SessionContext, SubjectContext } from "./authentication_identity_context_pb";
-import type { AssuranceContext } from "./authentication_assurance_context_pb";
-import type { DeviceContext, NetworkContext, RuntimeContext } from "./authentication_environment_context_pb";
-import type { DpopContext, OAuthContext } from "./authentication_oauth_context_pb";
-import type { ChallengeDecisionContext } from "./authentication_challenge_decision_context_pb";
-import type { ProviderDecisionContext } from "./authentication_provider_context_pb";
-import type { EvidenceContext } from "./authentication_evidence_context_pb";
 
 /**
  * Describes the file m8/platform/iam/v1/authentication_context.proto.
@@ -20,156 +11,14 @@ import type { EvidenceContext } from "./authentication_evidence_context_pb";
 export declare const file_m8_platform_iam_v1_authentication_context: GenFile;
 
 /**
- * AuthenticationDecisionContext is a normalized immutable decision snapshot created by M8 Authentication.
- *
- * It may include references and summarized signals from M8 Identity, Resource Manager, Access,
- * and Audit, but it does not own their data or become their source of truth.
- * Authentication owns the workflow and challenge execution only. Risk Decision owns adaptive
- * risk signals, policy evaluation, and decision results in m8.platform.riskdecision.v1.
- *
- * Example:
- * - M8 Authentication builds the context before selecting a challenge
- * - M8 Risk Decision consumes it as input
- * - Challenge Selector uses auth-owned challenge and provider context to execute the result
- *
- * @generated from message m8.platform.iam.v1.AuthenticationDecisionContext
+ * @generated from message m8.platform.iam.v1.AuthenticationContext
  */
-export declare type AuthenticationDecisionContext = Message<"m8.platform.iam.v1.AuthenticationDecisionContext"> & {
-  /**
-   * Stable unique identifier of this decision context snapshot.
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * Request metadata observed at the authentication boundary.
-   *
-   * @generated from field: m8.platform.iam.v1.RequestMetadata request = 2;
-   */
-  request?: RequestMetadata;
-
-  /**
-   * Business intent for the authentication operation.
-   *
-   * @generated from field: m8.platform.iam.v1.AuthenticationIntent intent = 3;
-   */
-  intent?: AuthenticationIntent;
-
-  /**
-   * Tenant and realm references used for isolation and requirement lookup.
-   * Resource Manager remains the source of truth for tenant and resource hierarchy.
-   *
-   * @generated from field: m8.platform.iam.v1.TenantContext tenant = 4;
-   */
-  tenant?: TenantContext;
-
-  /**
-   * OAuth or platform client reference information.
-   * Resource Manager remains the source of truth for client resources.
-   *
-   * @generated from field: m8.platform.iam.v1.ClientContext client = 5;
-   */
-  client?: ClientContext;
-
-  /**
-   * Subject reference and summarized identity information without raw sensitive PII.
-   * M8 Identity remains the source of truth for users, identities, and authenticators.
-   *
-   * @generated from field: m8.platform.iam.v1.SubjectContext subject = 6;
-   */
-  subject?: SubjectContext;
-
-  /**
-   * Existing session information used for max_age and step-up decisions.
-   *
-   * @generated from field: m8.platform.iam.v1.SessionContext session = 7;
-   */
-  session?: SessionContext;
-
-  /**
-   * Requested and achieved assurance information.
-   *
-   * @generated from field: m8.platform.iam.v1.AssuranceContext assurance = 8;
-   */
-  assurance?: AssuranceContext;
-
-  /**
-   * Protected transaction or operation reference information.
-   * Access remains responsible for business authorization decisions.
-   *
-   * @generated from field: m8.platform.iam.v1.TransactionContext transaction = 9;
-   */
-  transaction?: TransactionContext;
-
-  /**
-   * Device information represented with identifiers, hashes, or references.
-   *
-   * @generated from field: m8.platform.iam.v1.DeviceContext device = 10;
-   */
-  device?: DeviceContext;
-
-  /**
-   * Network information represented with coarse or hashed values where needed.
-   *
-   * @generated from field: m8.platform.iam.v1.NetworkContext network = 11;
-   */
-  network?: NetworkContext;
-
-  /**
-   * Runtime and workflow information for tracing and operational decisions.
-   *
-   * @generated from field: m8.platform.iam.v1.RuntimeContext runtime = 12;
-   */
-  runtime?: RuntimeContext;
-
-  /**
-   * OAuth, OpenID Connect, SAML, and CIBA request context.
-   *
-   * @generated from field: m8.platform.iam.v1.OAuthContext oauth = 13;
-   */
-  oauth?: OAuthContext;
-
-  /**
-   * DPoP token-binding context; this is not a user challenge.
-   *
-   * @generated from field: m8.platform.iam.v1.DpopContext dpop = 14;
-   */
-  dpop?: DpopContext;
-
-  /**
-   * Challenge selection state and fallback options.
-   *
-   * @generated from field: m8.platform.iam.v1.ChallengeDecisionContext challenge = 15;
-   */
-  challenge?: ChallengeDecisionContext;
-
-  /**
-   * Provider selection, health, and provider transaction state.
-   *
-   * @generated from field: m8.platform.iam.v1.ProviderDecisionContext provider = 16;
-   */
-  provider?: ProviderDecisionContext;
-
-  /**
-   * Authentication evidence that can be safely reused for audit or downstream evaluation.
-   * M8 Audit owns immutable long-term audit history.
-   *
-   * @generated from field: m8.platform.iam.v1.EvidenceContext evidence = 19;
-   */
-  evidence?: EvidenceContext;
-
-  /**
-   * Additional non-sensitive attributes for tenant-specific authentication extensions.
-   *
-   * @generated from field: map<string, string> attributes = 20;
-   */
-  attributes: { [key: string]: string };
+export declare type AuthenticationContext = Message<"m8.platform.iam.v1.AuthenticationContext"> & {
 };
 
 /**
- * Describes the message m8.platform.iam.v1.AuthenticationDecisionContext.
- * Use `create(AuthenticationDecisionContextSchema)` to create a new message.
+ * Describes the message m8.platform.iam.v1.AuthenticationContext.
+ * Use `create(AuthenticationContextSchema)` to create a new message.
  */
-export declare const AuthenticationDecisionContextSchema: GenMessage<AuthenticationDecisionContext>;
+export declare const AuthenticationContextSchema: GenMessage<AuthenticationContext>;
 
