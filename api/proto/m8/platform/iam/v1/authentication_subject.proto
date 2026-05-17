@@ -11,17 +11,16 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 // AuthenticationSubject identifies the claimant at the start of authentication.
 //
 // The caller must provide exactly one identifier. These values are request-only
-// inputs: public Authentication snapshots must return masked or resolved subject
-// projections instead of raw email, phone, or username values.
+// inputs and must not be returned raw in public Authentication snapshots.
 message AuthenticationSubject {
   // Required. Exactly one subject identifier.
   oneof identifier {
     option (buf.validate.oneof).required = true;
 
-    // Stable M8 Identity user identifier.
+    // Stable user identifier.
     string user_id = 1 [(buf.validate.field).string.uuid = true];
 
-    // Email address entered by the user or supplied by a trusted adapter.
+    // Email address entered by the user.
     string email = 2 [
       (buf.validate.field).string.email = true,
       (buf.validate.field).string.max_bytes = 254
