@@ -305,7 +305,7 @@ message AuthenticationExperience {
     (buf.validate.field).enum.defined_only = true
   ];
 
-  repeated AuthenticationSubject.Type allowed_subject_types = 5 [
+  repeated AuthenticationSubjectType allowed_subject_types = 5 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).repeated = {
       max_items: 16

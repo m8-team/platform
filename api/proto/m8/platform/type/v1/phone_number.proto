@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package m8.platform.type.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/type/v1;type";
+
+// PhoneNumber represents a normalized international phone number.
+//
+// The value must be stored in E.164 format:
+//
+//   +<country_code><national_number>
+//
+// Examples:
+// - +436641234567
+// - +79991234567
+// - +12025550123
+message PhoneNumber {
+  // Phone number in E.164 format.
+  string e164 = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.pattern = "^\\+[1-9]\\d{1,14}$"
+  ];
+}

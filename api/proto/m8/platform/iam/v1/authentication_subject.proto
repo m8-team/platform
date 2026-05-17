@@ -4,41 +4,58 @@ package m8.platform.iam.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
+import "m8/platform/type/v1/phone_number.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
+enum AuthenticationSubjectType {
+  AUTHENTICATION_SUBJECT_TYPE_UNSPECIFIED = 0;
+  AUTHENTICATION_SUBJECT_TYPE_USER_ID = 1;
+  AUTHENTICATION_SUBJECT_TYPE_EMAIL = 2;
+  AUTHENTICATION_SUBJECT_TYPE_PHONE = 3;
+  AUTHENTICATION_SUBJECT_TYPE_USERNAME = 4;
+  AUTHENTICATION_SUBJECT_TYPE_EXTERNAL_IDENTITY = 5;
+}
+
 message AuthenticationSubject {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    USER_ID = 1;
-    LOGIN_HINT = 2;
-    EMAIL = 3;
-    PHONE = 4;
-    USERNAME = 5;
-    EXTERNAL_IDENTITY = 6;
+  oneof identifier {
+    option (buf.validate.oneof).required = true;
+
+    string user_id = 1 [
+      (buf.validate.field).string.uuid = true
+    ];
+
+    string email = 2 [
+      (buf.validate.field).string.email = true,
+      (buf.validate.field).string.max_bytes = 254
+    ];
+
+    PhoneNumber phone = 3;
+
+    string username = 4 [
+      (buf.validate.field).string.min_len = 1,
+      (buf.validate.field).string.max_len = 128,
+      (buf.validate.field).string.pattern = "^[a-zA-Z0-9._@-]+$"
+    ];
+
+    ExternalAuthenticationSubject external = 5;
   }
+}
 
-  Type type = 1 [
+message ExternalAuthenticationSubject {
+  string provider_id = 1 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).enum = {
-      defined_only: true
-      not_in: [0]
-    }
+    (buf.validate.field).string.uuid = true
   ];
 
-  string value = 2 [
+  string issuer = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  string subject = 3 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true,
-    (buf.validate.field).string.max_len = 50
-  ];
-
-  string provider_id = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 50
-  ];
-
-  string issuer = 4 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 50
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 512
   ];
 }
