@@ -68,6 +68,17 @@ service AuthenticationService {
     };
     option (zenden.cloud.extension.v1.scopes) = "auth.authentication.admin";
   }
+
+  rpc GetOperation(google.longrunning.GetOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/operations/{name=**}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.operation.read";
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticateResponse"
+      metadata_type: "AuthenticateOperationMetadata"
+    };
+  }
 }
 
 // StreamAuthenticateRequest — обёртка для запросов в bidirectional streaming RPC.

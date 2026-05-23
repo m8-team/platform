@@ -12,112 +12,75 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_iam_v1_authentication_challenge: GenFile;
 
 /**
- * AuthenticationChallengeOption describes a public-safe method/provider option
- * for dynamic login UI.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationChallengeOption
  */
 export declare type AuthenticationChallengeOption = Message<"m8.platform.iam.v1.AuthenticationChallengeOption"> & {
   /**
-   * Output only. Authentication method represented by this option.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 1;
    */
   method: AuthenticationMethod;
 
   /**
-   * Output only. Configured method or plugin identifier.
-   *
-   * Examples:
-   * - "exolve_sms"
-   * - "mts_simpush"
-   * - "company_passkey"
-   * - "google_oidc"
-   *
    * @generated from field: string method_id = 2;
    */
   methodId: string;
 
   /**
-   * Output only. Provider, channel, or integration identifier.
-   *
    * @generated from field: string provider_id = 3;
    */
   providerId: string;
 
   /**
-   * Output only. Challenge kind the client should expect for this option.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationChallengeKind kind = 4;
    */
   kind: AuthenticationChallengeKind;
 
   /**
-   * Output only. Human-readable method or provider display name.
-   *
    * @generated from field: string display_name = 5;
    */
   displayName: string;
 
   /**
-   * Output only. UI ordering priority. Lower values should be rendered first.
-   *
    * @generated from field: int32 priority = 6;
    */
   priority: number;
 
   /**
-   * Output only. Whether this option can currently be selected.
-   *
    * @generated from field: bool available = 7;
    */
   available: boolean;
 
   /**
-   * Output only. Safe explanation shown when available is false.
-   *
    * @generated from field: string unavailable_reason = 8;
    */
   unavailableReason: string;
 
   /**
-   * Output only. Masked destination if policy allows exposing it.
-   *
    * @generated from field: string masked_destination = 9;
    */
   maskedDestination: string;
 
   /**
-   * Output only. Delivery channel used by this option.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationDeliveryChannel delivery_channel = 10;
    */
   deliveryChannel: AuthenticationDeliveryChannel;
 
   /**
-   * Output only. Typed UI and command capabilities.
-   *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeCapability capabilities = 11;
    */
   capabilities: AuthenticationChallengeCapability[];
 
   /**
-   * Output only. Custom extension capability labels for plugin methods.
-   *
    * @generated from field: repeated string custom_capabilities = 12;
    */
   customCapabilities: string[];
 
   /**
-   * Output only. Additional public-safe UI hints.
-   *
    * @generated from field: map<string, string> hints = 13;
    */
   hints: { [key: string]: string };
 
   /**
-   * Output only. Whether the UI should highlight this option.
-   *
    * @generated from field: bool recommended = 14;
    */
   recommended: boolean;
@@ -130,110 +93,75 @@ export declare type AuthenticationChallengeOption = Message<"m8.platform.iam.v1.
 export declare const AuthenticationChallengeOptionSchema: GenMessage<AuthenticationChallengeOption>;
 
 /**
- * AuthenticationChallengeInfo is the source of truth for current challenge UI
- * and submit flow.
- *
- * It must not contain OTP codes, passwords, provider secrets, private tokens,
- * internal callback secrets, raw risk features, raw device fingerprints, or
- * private WebAuthn server-side session secrets.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationChallengeInfo
  */
 export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.AuthenticationChallengeInfo"> & {
   /**
-   * Output only. Server-generated challenge identifier.
-   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
-   * Output only. Kind of client or user action required.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationChallengeKind kind = 2;
    */
   kind: AuthenticationChallengeKind;
 
   /**
-   * Output only. Authentication method selected for this challenge.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationMethod method = 3;
    */
   method: AuthenticationMethod;
 
   /**
-   * Output only. Configured method or plugin identifier.
-   *
    * @generated from field: string method_id = 4;
    */
   methodId: string;
 
   /**
-   * Output only. Provider, channel, or integration identifier.
-   *
    * @generated from field: string provider_id = 5;
    */
   providerId: string;
 
   /**
-   * Output only. Delivery channel for this challenge.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationDeliveryChannel delivery_channel = 6;
    */
   deliveryChannel: AuthenticationDeliveryChannel;
 
   /**
-   * Output only. Masked destination where safe to expose.
-   *
    * @generated from field: string masked_destination = 7;
    */
   maskedDestination: string;
 
   /**
-   * Output only. Time when this challenge expires.
-   *
    * @generated from field: google.protobuf.Timestamp expire_time = 8;
    */
   expireTime?: Timestamp;
 
   /**
-   * Output only. Time when resend becomes available.
-   *
    * @generated from field: google.protobuf.Timestamp resend_available_time = 9;
    */
   resendAvailableTime?: Timestamp;
 
   /**
-   * Output only. Number of attempts already submitted for this challenge.
-   *
    * @generated from field: int32 attempt_count = 10;
    */
   attemptCount: number;
 
   /**
-   * Output only. Number of attempts remaining for this challenge.
-   *
    * @generated from field: int32 remaining_attempts = 11;
    */
   remainingAttempts: number;
 
   /**
-   * Output only. Actions currently available for this challenge.
-   *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeAction actions = 12;
    */
   actions: AuthenticationChallengeAction[];
 
   /**
-   * Output only. Typed UI and command capabilities for this challenge.
-   *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeCapability capabilities = 13;
    */
   capabilities: AuthenticationChallengeCapability[];
 
   /**
-   * Output only. Custom extension capability labels for plugin methods.
-   *
    * @generated from field: repeated string custom_capabilities = 14;
    */
   customCapabilities: string[];
@@ -243,56 +171,42 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
    */
   publicParameters: {
     /**
-     * Output only. Public parameters for password input.
-     *
      * @generated from field: m8.platform.iam.v1.PasswordChallenge password = 20;
      */
     value: PasswordChallenge;
     case: "password";
   } | {
     /**
-     * Output only. Public parameters for OTP input.
-     *
      * @generated from field: m8.platform.iam.v1.OtpChallenge otp = 21;
      */
     value: OtpChallenge;
     case: "otp";
   } | {
     /**
-     * Output only. Public parameters for WebAuthn/passkey assertion.
-     *
      * @generated from field: m8.platform.iam.v1.WebAuthnChallenge webauthn = 22;
      */
     value: WebAuthnChallenge;
     case: "webauthn";
   } | {
     /**
-     * Output only. Public parameters for redirect-based provider challenges.
-     *
      * @generated from field: m8.platform.iam.v1.RedirectChallenge redirect = 23;
      */
     value: RedirectChallenge;
     case: "redirect";
   } | {
     /**
-     * Output only. Public parameters for push approval challenges.
-     *
      * @generated from field: m8.platform.iam.v1.ApprovalChallenge approval = 24;
      */
     value: ApprovalChallenge;
     case: "approval";
   } | {
     /**
-     * Output only. Public parameters for Mobile ID challenges.
-     *
      * @generated from field: m8.platform.iam.v1.MobileIdChallenge mobile_id = 25;
      */
     value: MobileIdChallenge;
     case: "mobileId";
   } | {
     /**
-     * Output only. Public parameters for provider callback waits.
-     *
      * @generated from field: m8.platform.iam.v1.ProviderCallbackChallenge provider_callback = 26;
      */
     value: ProviderCallbackChallenge;
@@ -307,14 +221,10 @@ export declare type AuthenticationChallengeInfo = Message<"m8.platform.iam.v1.Au
 export declare const AuthenticationChallengeInfoSchema: GenMessage<AuthenticationChallengeInfo>;
 
 /**
- * PasswordChallenge contains public-safe parameters for password input.
- *
  * @generated from message m8.platform.iam.v1.PasswordChallenge
  */
 export declare type PasswordChallenge = Message<"m8.platform.iam.v1.PasswordChallenge"> & {
   /**
-   * Output only. Password policy hint safe for UI display.
-   *
    * @generated from field: string policy_hint = 1;
    */
   policyHint: string;
@@ -327,28 +237,20 @@ export declare type PasswordChallenge = Message<"m8.platform.iam.v1.PasswordChal
 export declare const PasswordChallengeSchema: GenMessage<PasswordChallenge>;
 
 /**
- * OtpChallenge contains public-safe parameters for an OTP challenge.
- *
  * @generated from message m8.platform.iam.v1.OtpChallenge
  */
 export declare type OtpChallenge = Message<"m8.platform.iam.v1.OtpChallenge"> & {
   /**
-   * Output only. Expected OTP length.
-   *
    * @generated from field: int32 length = 1;
    */
   length: number;
 
   /**
-   * Output only. Destination type used for OTP delivery.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationDeliveryChannel delivery_channel = 2;
    */
   deliveryChannel: AuthenticationDeliveryChannel;
 
   /**
-   * Output only. Masked destination where the OTP was delivered.
-   *
    * @generated from field: string masked_destination = 3;
    */
   maskedDestination: string;
@@ -361,28 +263,20 @@ export declare type OtpChallenge = Message<"m8.platform.iam.v1.OtpChallenge"> & 
 export declare const OtpChallengeSchema: GenMessage<OtpChallenge>;
 
 /**
- * WebAuthnAllowedCredential mirrors a PublicKeyCredentialDescriptor entry.
- *
  * @generated from message m8.platform.iam.v1.WebAuthnAllowedCredential
  */
 export declare type WebAuthnAllowedCredential = Message<"m8.platform.iam.v1.WebAuthnAllowedCredential"> & {
   /**
-   * Output only. Credential descriptor type, usually public-key.
-   *
    * @generated from field: string type = 1;
    */
   type: string;
 
   /**
-   * Output only. Base64url-encoded credential identifier.
-   *
    * @generated from field: string id = 2;
    */
   id: string;
 
   /**
-   * Output only. Allowed authenticator transports.
-   *
    * @generated from field: repeated string transports = 3;
    */
   transports: string[];
@@ -395,54 +289,35 @@ export declare type WebAuthnAllowedCredential = Message<"m8.platform.iam.v1.WebA
 export declare const WebAuthnAllowedCredentialSchema: GenMessage<WebAuthnAllowedCredential>;
 
 /**
- * WebAuthnChallenge contains public parameters for a WebAuthn assertion.
- *
  * @generated from message m8.platform.iam.v1.WebAuthnChallenge
  */
 export declare type WebAuthnChallenge = Message<"m8.platform.iam.v1.WebAuthnChallenge"> & {
   /**
-   * Output only. Base64url-encoded WebAuthn challenge.
-   *
    * @generated from field: string challenge = 1;
    */
   challenge: string;
 
   /**
-   * Output only. Relying Party ID.
-   *
    * @generated from field: string rp_id = 2;
    */
   rpId: string;
 
   /**
-   * Output only. Ceremony timeout in milliseconds.
-   *
    * @generated from field: int32 timeout_ms = 3;
    */
   timeoutMs: number;
 
   /**
-   * Output only. WebAuthn user verification requirement.
-   *
    * @generated from field: m8.platform.iam.v1.UserVerificationRequirement user_verification = 4;
    */
   userVerification: UserVerificationRequirement;
 
   /**
-   * Output only. WebAuthn discovery mode selected by policy.
-   *
-   * Before a subject or session is reliably resolved, passkey-first UI should
-   * use discoverable credentials and must not return allow_credentials. For
-   * known-user or step-up flows, allow_credentials may be returned only when
-   * policy allows exposing credential descriptors.
-   *
    * @generated from field: m8.platform.iam.v1.WebAuthnDiscoveryMode discovery_mode = 5;
    */
   discoveryMode: WebAuthnDiscoveryMode;
 
   /**
-   * Output only. Public credential descriptors allowed for this assertion.
-   *
    * @generated from field: repeated m8.platform.iam.v1.WebAuthnAllowedCredential allow_credentials = 6;
    */
   allowCredentials: WebAuthnAllowedCredential[];
@@ -455,36 +330,25 @@ export declare type WebAuthnChallenge = Message<"m8.platform.iam.v1.WebAuthnChal
 export declare const WebAuthnChallengeSchema: GenMessage<WebAuthnChallenge>;
 
 /**
- * RedirectChallenge contains public parameters for redirect-based provider
- * authentication.
- *
  * @generated from message m8.platform.iam.v1.RedirectChallenge
  */
 export declare type RedirectChallenge = Message<"m8.platform.iam.v1.RedirectChallenge"> & {
   /**
-   * Output only. Authorization URL where the client should redirect the user.
-   *
    * @generated from field: string authorization_url = 1;
    */
   authorizationUrl: string;
 
   /**
-   * Output only. Provider identifier.
-   *
    * @generated from field: string provider_id = 2;
    */
   providerId: string;
 
   /**
-   * Output only. Human-readable provider display name.
-   *
    * @generated from field: string provider_display_name = 3;
    */
   providerDisplayName: string;
 
   /**
-   * Output only. Whether an external provider callback is expected.
-   *
    * @generated from field: bool callback_expected = 4;
    */
   callbackExpected: boolean;
@@ -497,35 +361,25 @@ export declare type RedirectChallenge = Message<"m8.platform.iam.v1.RedirectChal
 export declare const RedirectChallengeSchema: GenMessage<RedirectChallenge>;
 
 /**
- * ApprovalChallenge contains public parameters for approval-style challenges.
- *
  * @generated from message m8.platform.iam.v1.ApprovalChallenge
  */
 export declare type ApprovalChallenge = Message<"m8.platform.iam.v1.ApprovalChallenge"> & {
   /**
-   * Output only. Binding message shown to the user.
-   *
    * @generated from field: string binding_message = 1;
    */
   bindingMessage: string;
 
   /**
-   * Output only. Channel used for approval.
-   *
    * @generated from field: m8.platform.iam.v1.ApprovalChannel approval_channel = 2;
    */
   approvalChannel: ApprovalChannel;
 
   /**
-   * Output only. Masked device or destination hint.
-   *
    * @generated from field: string approval_device_hint = 3;
    */
   approvalDeviceHint: string;
 
   /**
-   * Output only. Number of seconds until the approval challenge expires.
-   *
    * @generated from field: int32 expires_in_seconds = 4;
    */
   expiresInSeconds: number;
@@ -538,28 +392,20 @@ export declare type ApprovalChallenge = Message<"m8.platform.iam.v1.ApprovalChal
 export declare const ApprovalChallengeSchema: GenMessage<ApprovalChallenge>;
 
 /**
- * MobileIdChallenge contains public parameters for Mobile ID authentication.
- *
  * @generated from message m8.platform.iam.v1.MobileIdChallenge
  */
 export declare type MobileIdChallenge = Message<"m8.platform.iam.v1.MobileIdChallenge"> & {
   /**
-   * Output only. Provider transaction identifier safe to expose to the client.
-   *
    * @generated from field: string transaction_id = 1;
    */
   transactionId: string;
 
   /**
-   * Output only. Binding message shown to the user.
-   *
    * @generated from field: string binding_message = 2;
    */
   bindingMessage: string;
 
   /**
-   * Output only. Masked phone or subscriber hint.
-   *
    * @generated from field: string phone_hint = 3;
    */
   phoneHint: string;
@@ -572,22 +418,15 @@ export declare type MobileIdChallenge = Message<"m8.platform.iam.v1.MobileIdChal
 export declare const MobileIdChallengeSchema: GenMessage<MobileIdChallenge>;
 
 /**
- * ProviderCallbackChallenge indicates the flow is waiting for a provider
- * callback through the provider/internal callback API.
- *
  * @generated from message m8.platform.iam.v1.ProviderCallbackChallenge
  */
 export declare type ProviderCallbackChallenge = Message<"m8.platform.iam.v1.ProviderCallbackChallenge"> & {
   /**
-   * Output only. Provider identifier expected to send the callback.
-   *
    * @generated from field: string provider_id = 1;
    */
   providerId: string;
 
   /**
-   * Output only. Callback state or transaction hint safe to expose if policy allows it.
-   *
    * @generated from field: string state_hint = 2;
    */
   stateHint: string;
@@ -600,13 +439,6 @@ export declare type ProviderCallbackChallenge = Message<"m8.platform.iam.v1.Prov
 export declare const ProviderCallbackChallengeSchema: GenMessage<ProviderCallbackChallenge>;
 
 /**
- * AuthenticationChallengeResponse contains request-only response data for the
- * current challenge.
- *
- * The selected oneof must match Authentication.current_challenge.kind and
- * Authentication.current_challenge.method. The server enforces that relation
- * against the current authentication state and challenge id.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationChallengeResponse
  */
 export declare type AuthenticationChallengeResponse = Message<"m8.platform.iam.v1.AuthenticationChallengeResponse"> & {
@@ -615,32 +447,24 @@ export declare type AuthenticationChallengeResponse = Message<"m8.platform.iam.v
    */
   response: {
     /**
-     * OTP code submitted by the user.
-     *
      * @generated from field: m8.platform.iam.v1.OtpChallengeResponse otp = 1;
      */
     value: OtpChallengeResponse;
     case: "otp";
   } | {
     /**
-     * Password submitted by the user.
-     *
      * @generated from field: m8.platform.iam.v1.PasswordChallengeResponse password = 2;
      */
     value: PasswordChallengeResponse;
     case: "password";
   } | {
     /**
-     * WebAuthn assertion produced by the browser or platform authenticator.
-     *
      * @generated from field: m8.platform.iam.v1.WebAuthnAssertionResponse webauthn = 3;
      */
     value: WebAuthnAssertionResponse;
     case: "webauthn";
   } | {
     /**
-     * Approval result submitted by a trusted device, provider, or app.
-     *
      * @generated from field: m8.platform.iam.v1.ApprovalChallengeResponse approval = 4;
      */
     value: ApprovalChallengeResponse;
@@ -655,14 +479,10 @@ export declare type AuthenticationChallengeResponse = Message<"m8.platform.iam.v
 export declare const AuthenticationChallengeResponseSchema: GenMessage<AuthenticationChallengeResponse>;
 
 /**
- * OtpChallengeResponse contains an OTP code submitted by the user.
- *
  * @generated from message m8.platform.iam.v1.OtpChallengeResponse
  */
 export declare type OtpChallengeResponse = Message<"m8.platform.iam.v1.OtpChallengeResponse"> & {
   /**
-   * Required. One-time password code submitted for verification.
-   *
    * @generated from field: string code = 1;
    */
   code: string;
@@ -675,17 +495,10 @@ export declare type OtpChallengeResponse = Message<"m8.platform.iam.v1.OtpChalle
 export declare const OtpChallengeResponseSchema: GenMessage<OtpChallengeResponse>;
 
 /**
- * PasswordChallengeResponse contains a password submitted by the user.
- *
- * It is request-only data and must never be returned, logged, or stored in the
- * public authentication snapshot.
- *
  * @generated from message m8.platform.iam.v1.PasswordChallengeResponse
  */
 export declare type PasswordChallengeResponse = Message<"m8.platform.iam.v1.PasswordChallengeResponse"> & {
   /**
-   * Required. Password submitted for verification.
-   *
    * @generated from field: string password = 1;
    */
   password: string;
@@ -698,42 +511,30 @@ export declare type PasswordChallengeResponse = Message<"m8.platform.iam.v1.Pass
 export declare const PasswordChallengeResponseSchema: GenMessage<PasswordChallengeResponse>;
 
 /**
- * WebAuthnAssertionResponse contains a browser assertion response.
- *
  * @generated from message m8.platform.iam.v1.WebAuthnAssertionResponse
  */
 export declare type WebAuthnAssertionResponse = Message<"m8.platform.iam.v1.WebAuthnAssertionResponse"> & {
   /**
-   * Required. Base64url-encoded credential identifier.
-   *
    * @generated from field: string credential_id = 1;
    */
   credentialId: string;
 
   /**
-   * Required. Base64url-encoded clientDataJSON.
-   *
    * @generated from field: string client_data_json = 2;
    */
   clientDataJson: string;
 
   /**
-   * Required. Base64url-encoded authenticatorData.
-   *
    * @generated from field: string authenticator_data = 3;
    */
   authenticatorData: string;
 
   /**
-   * Required. Base64url-encoded assertion signature.
-   *
    * @generated from field: string signature = 4;
    */
   signature: string;
 
   /**
-   * Optional. Base64url-encoded WebAuthn user handle.
-   *
    * @generated from field: string user_handle = 5;
    */
   userHandle: string;
@@ -746,40 +547,25 @@ export declare type WebAuthnAssertionResponse = Message<"m8.platform.iam.v1.WebA
 export declare const WebAuthnAssertionResponseSchema: GenMessage<WebAuthnAssertionResponse>;
 
 /**
- * ApprovalChallengeResponse contains an approval or denial result.
- *
- * Never accept approved=true as sufficient proof. The server must verify
- * approval_token or proof against a trusted provider, device binding, or signed
- * approval channel. SIM Push, Mobile ID, and push approval results should arrive
- * through trusted provider callbacks or contain signed proof.
- *
  * @generated from message m8.platform.iam.v1.ApprovalChallengeResponse
  */
 export declare type ApprovalChallengeResponse = Message<"m8.platform.iam.v1.ApprovalChallengeResponse"> & {
   /**
-   * Required. True when the user approved the challenge, false when denied.
-   *
    * @generated from field: bool approved = 1;
    */
   approved: boolean;
 
   /**
-   * Optional. Opaque approval token issued to a trusted device or provider.
-   *
    * @generated from field: string approval_token = 2;
    */
   approvalToken: string;
 
   /**
-   * Optional. Signed proof produced by a trusted device, app, or provider.
-   *
    * @generated from field: string proof = 3;
    */
   proof: string;
 
   /**
-   * Optional. Safe denial reason when approved is false.
-   *
    * @generated from field: string denial_reason = 4;
    */
   denialReason: string;
@@ -792,92 +578,65 @@ export declare type ApprovalChallengeResponse = Message<"m8.platform.iam.v1.Appr
 export declare const ApprovalChallengeResponseSchema: GenMessage<ApprovalChallengeResponse>;
 
 /**
- * AuthenticationMethod identifies the selected method used to prove the
- * claimant's identity.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationMethod
  */
 export enum AuthenticationMethod {
   /**
-   * Authentication method is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * User authenticates with a password.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_PASSWORD = 1;
    */
   PASSWORD = 1,
 
   /**
-   * User authenticates with a one-time password delivered by SMS.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_SMS_OTP = 2;
    */
   SMS_OTP = 2,
 
   /**
-   * User authenticates with a one-time password delivered by email.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_EMAIL_OTP = 3;
    */
   EMAIL_OTP = 3,
 
   /**
-   * User authenticates with a time-based one-time password.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_TOTP = 4;
    */
   TOTP = 4,
 
   /**
-   * User approves authentication in a trusted application.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_PUSH_APPROVAL = 5;
    */
   PUSH_APPROVAL = 5,
 
   /**
-   * User enters a one-time password generated or delivered through push.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_PUSH_OTP = 6;
    */
   PUSH_OTP = 6,
 
   /**
-   * User authenticates with SIM push or SIM applet confirmation.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_SIM_PUSH = 7;
    */
   SIM_PUSH = 7,
 
   /**
-   * User authenticates through a Mobile ID provider.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_MOBILE_ID = 8;
    */
   MOBILE_ID = 8,
 
   /**
-   * User authenticates with WebAuthn or passkey.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY = 9;
    */
   WEBAUTHN_PASSKEY = 9,
 
   /**
-   * User authenticates through an OpenID Connect identity provider.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_OIDC = 10;
    */
   OIDC = 10,
 
   /**
-   * User authenticates through a SAML identity provider.
-   *
    * @generated from enum value: AUTHENTICATION_METHOD_SAML = 11;
    */
   SAML = 11,
@@ -889,57 +648,40 @@ export enum AuthenticationMethod {
 export declare const AuthenticationMethodSchema: GenEnum<AuthenticationMethod>;
 
 /**
- * AuthenticationChallengeKind identifies the action required to continue the
- * authentication flow.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationChallengeKind
  */
 export enum AuthenticationChallengeKind {
   /**
-   * Authentication challenge kind is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Client must collect a password from the user.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_PASSWORD_INPUT = 1;
    */
   PASSWORD_INPUT = 1,
 
   /**
-   * Client must collect a one-time password from the user.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_OTP_INPUT = 2;
    */
   OTP_INPUT = 2,
 
   /**
-   * User must approve or deny authentication in another channel.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_APPROVAL = 3;
    */
   APPROVAL = 3,
 
   /**
-   * Client must redirect the user to an external provider.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_REDIRECT = 4;
    */
   REDIRECT = 4,
 
   /**
-   * Client must perform a WebAuthn assertion ceremony.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_WEBAUTHN_ASSERTION = 5;
    */
   WEBAUTHN_ASSERTION = 5,
 
   /**
-   * Authentication is waiting for an external provider callback.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK = 6;
    */
   PROVIDER_CALLBACK = 6,
@@ -951,85 +693,60 @@ export enum AuthenticationChallengeKind {
 export declare const AuthenticationChallengeKindSchema: GenEnum<AuthenticationChallengeKind>;
 
 /**
- * AuthenticationDeliveryChannel describes where the challenge is presented or
- * delivered.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationDeliveryChannel
  */
 export enum AuthenticationDeliveryChannel {
   /**
-   * Authentication delivery channel is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Challenge is handled directly by the current API client.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_CLIENT = 1;
    */
   CLIENT = 1,
 
   /**
-   * Challenge is delivered to a phone number by SMS.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_SMS = 2;
    */
   SMS = 2,
 
   /**
-   * Challenge is delivered to an email address.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_EMAIL = 3;
    */
   EMAIL = 3,
 
   /**
-   * Challenge is expected from an authenticator application.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP = 4;
    */
   AUTHENTICATOR_APP = 4,
 
   /**
-   * Challenge is delivered through push notification.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_PUSH = 5;
    */
   PUSH = 5,
 
   /**
-   * Challenge is delivered through SIM push.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH = 6;
    */
   SIM_PUSH = 6,
 
   /**
-   * Challenge is handled by a Mobile ID provider.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID = 7;
    */
   MOBILE_ID = 7,
 
   /**
-   * Challenge is handled by a browser WebAuthn ceremony.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN = 8;
    */
   WEBAUTHN = 8,
 
   /**
-   * Challenge is handled by an OIDC redirect.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_OIDC = 9;
    */
   OIDC = 9,
 
   /**
-   * Challenge is handled by a SAML redirect or POST binding.
-   *
    * @generated from enum value: AUTHENTICATION_DELIVERY_CHANNEL_SAML = 10;
    */
   SAML = 10,
@@ -1041,43 +758,30 @@ export enum AuthenticationDeliveryChannel {
 export declare const AuthenticationDeliveryChannelSchema: GenEnum<AuthenticationDeliveryChannel>;
 
 /**
- * AuthenticationChallengeAction identifies actions currently available for the
- * current challenge.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationChallengeAction
  */
 export enum AuthenticationChallengeAction {
   /**
-   * Authentication challenge action is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Client can submit a response for the current challenge.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_SUBMIT = 1;
    */
   SUBMIT = 1,
 
   /**
-   * Client can request redelivery of an OTP-like challenge.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_RESEND = 2;
    */
   RESEND = 2,
 
   /**
-   * Client can cancel the authentication.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_CANCEL = 3;
    */
   CANCEL = 3,
 
   /**
-   * Client can select another allowed authentication method.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
    */
   SELECT_ANOTHER_METHOD = 4,
@@ -1089,50 +793,35 @@ export enum AuthenticationChallengeAction {
 export declare const AuthenticationChallengeActionSchema: GenEnum<AuthenticationChallengeAction>;
 
 /**
- * AuthenticationChallengeCapability describes typed UI and command capabilities
- * exposed by a challenge or challenge option.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationChallengeCapability
  */
 export enum AuthenticationChallengeCapability {
   /**
-   * Authentication challenge capability is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * A response can be submitted for this challenge.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT = 1;
    */
   SUBMIT = 1,
 
   /**
-   * The challenge can be resent or redelivered.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND = 2;
    */
   RESEND = 2,
 
   /**
-   * The UI can use platform autofill.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL = 3;
    */
   AUTOFILL = 3,
 
   /**
-   * The UI can use passkey conditional mediation.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI = 4;
    */
   PASSKEY_CONDITIONAL_UI = 4,
 
   /**
-   * The user can select another allowed method.
-   *
    * @generated from enum value: AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD = 5;
    */
   SELECT_ANOTHER_METHOD = 5,
@@ -1144,69 +833,60 @@ export enum AuthenticationChallengeCapability {
 export declare const AuthenticationChallengeCapabilitySchema: GenEnum<AuthenticationChallengeCapability>;
 
 /**
- * WebAuthnDiscoveryMode controls whether credential ids may be returned.
- *
- * @generated from enum m8.platform.iam.v1.WebAuthnDiscoveryMode
+ * @generated from enum m8.platform.iam.v1.ApprovalChannel
  */
-export enum WebAuthnDiscoveryMode {
+export enum ApprovalChannel {
   /**
-   * WebAuthn discovery mode is not specified.
-   *
-   * @generated from enum value: WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED = 0;
+   * @generated from enum value: APPROVAL_CHANNEL_UNSPECIFIED = 0;
    */
-  WEBAUTHN_DISCOVERY_MODE_UNSPECIFIED = 0,
+  UNSPECIFIED = 0,
 
   /**
-   * Use discoverable credentials or conditional UI without returning allow-list.
-   *
-   * @generated from enum value: WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS = 1;
+   * @generated from enum value: APPROVAL_CHANNEL_PUSH = 1;
    */
-  WEBAUTHN_DISCOVERY_MODE_DISCOVERABLE_CREDENTIALS = 1,
+  PUSH = 1,
 
   /**
-   * Use a known-user allow-list when subject/session is safely resolved.
-   *
-   * @generated from enum value: WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST = 2;
+   * @generated from enum value: APPROVAL_CHANNEL_SIM_PUSH = 2;
    */
-  WEBAUTHN_DISCOVERY_MODE_KNOWN_USER_ALLOW_LIST = 2,
+  SIM_PUSH = 2,
+
+  /**
+   * @generated from enum value: APPROVAL_CHANNEL_MOBILE_ID = 3;
+   */
+  MOBILE_ID = 3,
+
+  /**
+   * @generated from enum value: APPROVAL_CHANNEL_BANK_ID = 4;
+   */
+  BANK_ID = 4,
 }
 
 /**
- * Describes the enum m8.platform.iam.v1.WebAuthnDiscoveryMode.
+ * Describes the enum m8.platform.iam.v1.ApprovalChannel.
  */
-export declare const WebAuthnDiscoveryModeSchema: GenEnum<WebAuthnDiscoveryMode>;
+export declare const ApprovalChannelSchema: GenEnum<ApprovalChannel>;
 
 /**
- * UserVerificationRequirement mirrors the WebAuthn user verification
- * requirement used for an assertion ceremony.
- *
  * @generated from enum m8.platform.iam.v1.UserVerificationRequirement
  */
 export enum UserVerificationRequirement {
   /**
-   * User verification requirement is not specified.
-   *
    * @generated from enum value: USER_VERIFICATION_REQUIREMENT_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * User verification is required.
-   *
    * @generated from enum value: USER_VERIFICATION_REQUIREMENT_REQUIRED = 1;
    */
   REQUIRED = 1,
 
   /**
-   * User verification is preferred.
-   *
    * @generated from enum value: USER_VERIFICATION_REQUIREMENT_PREFERRED = 2;
    */
   PREFERRED = 2,
 
   /**
-   * User verification is discouraged.
-   *
    * @generated from enum value: USER_VERIFICATION_REQUIREMENT_DISCOURAGED = 3;
    */
   DISCOURAGED = 3,
@@ -1218,49 +898,32 @@ export enum UserVerificationRequirement {
 export declare const UserVerificationRequirementSchema: GenEnum<UserVerificationRequirement>;
 
 /**
- * ApprovalChannel identifies the out-of-band channel used for approval.
- *
- * @generated from enum m8.platform.iam.v1.ApprovalChannel
+ * @generated from enum m8.platform.iam.v1.WebAuthnDiscoveryMode
  */
-export enum ApprovalChannel {
+export enum WebAuthnDiscoveryMode {
   /**
-   * Approval channel is not specified.
-   *
-   * @generated from enum value: APPROVAL_CHANNEL_UNSPECIFIED = 0;
+   * @generated from enum value: WEB_AUTHN_DISCOVERY_MODE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Approval is delivered through a push notification.
-   *
-   * @generated from enum value: APPROVAL_CHANNEL_PUSH = 1;
+   * @generated from enum value: WEB_AUTHN_DISCOVERY_MODE_ALLOWED = 1;
    */
-  PUSH = 1,
+  ALLOWED = 1,
 
   /**
-   * Approval is delivered through SIM push or SIM applet confirmation.
-   *
-   * @generated from enum value: APPROVAL_CHANNEL_SIM_PUSH = 2;
+   * @generated from enum value: WEB_AUTHN_DISCOVERY_MODE_REQUIRED = 2;
    */
-  SIM_PUSH = 2,
+  REQUIRED = 2,
 
   /**
-   * Approval is delivered through a Mobile ID provider.
-   *
-   * @generated from enum value: APPROVAL_CHANNEL_MOBILE_ID = 3;
+   * @generated from enum value: WEB_AUTHN_DISCOVERY_MODE_DISABLED = 3;
    */
-  MOBILE_ID = 3,
-
-  /**
-   * Approval is delivered through a bank identity provider.
-   *
-   * @generated from enum value: APPROVAL_CHANNEL_BANK_ID = 4;
-   */
-  BANK_ID = 4,
+  DISABLED = 3,
 }
 
 /**
- * Describes the enum m8.platform.iam.v1.ApprovalChannel.
+ * Describes the enum m8.platform.iam.v1.WebAuthnDiscoveryMode.
  */
-export declare const ApprovalChannelSchema: GenEnum<ApprovalChannel>;
+export declare const WebAuthnDiscoveryModeSchema: GenEnum<WebAuthnDiscoveryMode>;
 

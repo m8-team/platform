@@ -11,65 +11,40 @@ import type { Message } from "@bufbuild/protobuf";
 export declare const file_m8_platform_iam_v1_authentication_error: GenFile;
 
 /**
- * AuthenticationError contains safe terminal or actionable error details.
- *
- * It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
- * provider responses, SAML assertions, or private risk model details. Public
- * clients may receive generic messages even when admin/internal views retain a
- * precise code and details. For PUBLIC projection, sensitive existence errors
- * such as USER_NOT_FOUND, EMAIL_NOT_FOUND, PHONE_NOT_FOUND, SUBJECT_NOT_FOUND,
- * and PROVIDER_ACCOUNT_NOT_FOUND must be mapped to
- * AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED or
- * AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationError
  */
 export declare type AuthenticationError = Message<"m8.platform.iam.v1.AuthenticationError"> & {
   /**
-   * Output only. Typed error code for SDK branching.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationErrorCode code = 1;
    */
   code: AuthenticationErrorCode;
 
   /**
-   * Output only. Safe human-readable error message.
-   *
    * @generated from field: string message = 2;
    */
   message: string;
 
   /**
-   * Output only. Indicates whether retrying may succeed.
-   *
    * @generated from field: bool retryable = 3;
    */
   retryable: boolean;
 
   /**
-   * Output only. Visibility scope for the error details.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationErrorVisibility visibility = 4;
    */
   visibility: AuthenticationErrorVisibility;
 
   /**
-   * Output only. Provider related to the error, if any.
-   *
    * @generated from field: string provider_id = 5;
    */
   providerId: string;
 
   /**
-   * Output only. Safe provider-level error code.
-   *
    * @generated from field: string provider_error_code = 6;
    */
   providerErrorCode: string;
 
   /**
-   * Output only. Additional public-safe structured details.
-   *
    * @generated from field: map<string, string> details = 7;
    */
   details: { [key: string]: string };
@@ -82,199 +57,140 @@ export declare type AuthenticationError = Message<"m8.platform.iam.v1.Authentica
 export declare const AuthenticationErrorSchema: GenMessage<AuthenticationError>;
 
 /**
- * AuthenticationStateReason explains the latest authentication state transition.
- *
- * Reasons are machine-readable transition labels. They are not a replacement
- * for AuthenticationError and should not duplicate every possible error code.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationStateReason
  */
 export enum AuthenticationStateReason {
   /**
-   * Authentication state reason is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Authentication request was accepted.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_START_ACCEPTED = 1;
    */
   START_ACCEPTED = 1,
 
   /**
-   * Subject was successfully resolved or accepted as a hint.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED = 2;
    */
   SUBJECT_RESOLVED = 2,
 
   /**
-   * Subject could not be resolved. Public clients may receive a generic state.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND = 3;
    */
   SUBJECT_NOT_FOUND = 3,
 
   /**
-   * Risk decision allowed authentication to continue.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_RISK_ALLOWED = 4;
    */
   RISK_ALLOWED = 4,
 
   /**
-   * Risk decision requires an additional challenge.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED = 5;
    */
   RISK_CHALLENGE_REQUIRED = 5,
 
   /**
-   * Risk decision blocked authentication.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_RISK_BLOCKED = 6;
    */
   RISK_BLOCKED = 6,
 
   /**
-   * Challenge was selected.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED = 7;
    */
   CHALLENGE_SELECTED = 7,
 
   /**
-   * Challenge was sent, exposed, or dispatched.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CHALLENGE_SENT = 8;
    */
   CHALLENGE_SENT = 8,
 
   /**
-   * Challenge resend was accepted.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT = 9;
    */
   CHALLENGE_RESENT = 9,
 
   /**
-   * Submitted challenge response was invalid but retry may be possible.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID = 10;
    */
   CHALLENGE_RESPONSE_INVALID = 10,
 
   /**
-   * Attempts limit was exceeded.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED = 11;
    */
   ATTEMPTS_EXCEEDED = 11,
 
   /**
-   * User or trusted provider approved authentication.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_USER_APPROVED = 12;
    */
   USER_APPROVED = 12,
 
   /**
-   * User or trusted provider denied authentication.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_USER_DENIED = 13;
    */
   USER_DENIED = 13,
 
   /**
-   * External provider redirect is required.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED = 14;
    */
   PROVIDER_REDIRECT_REQUIRED = 14,
 
   /**
-   * External provider callback was received.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED = 15;
    */
   PROVIDER_CALLBACK_RECEIVED = 15,
 
   /**
-   * External provider callback validation failed.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID = 16;
    */
   PROVIDER_CALLBACK_INVALID = 16,
 
   /**
-   * External provider timed out.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT = 17;
    */
   PROVIDER_TIMEOUT = 17,
 
   /**
-   * WebAuthn assertion was invalid.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID = 18;
    */
   WEBAUTHN_ASSERTION_INVALID = 18,
 
   /**
-   * Authentication completed successfully.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_AUTHENTICATED = 19;
    */
   AUTHENTICATED = 19,
 
   /**
-   * Authentication expired.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_EXPIRED = 20;
    */
   EXPIRED = 20,
 
   /**
-   * Authentication was cancelled.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CANCELLED = 21;
    */
   CANCELLED = 21,
 
   /**
-   * Authentication failed because of an internal or provider error.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_FAILED = 22;
    */
   FAILED = 22,
 
   /**
-   * Client selected a different challenge.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED = 23;
    */
   CHALLENGE_RESELECTED = 23,
 
   /**
-   * Challenge resend is not allowed yet.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE = 24;
    */
   RESEND_NOT_AVAILABLE = 24,
 
   /**
-   * Requested method is not allowed.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED = 25;
    */
   METHOD_NOT_ALLOWED = 25,
 
   /**
-   * Requested provider is not allowed.
-   *
    * @generated from enum value: AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED = 26;
    */
   PROVIDER_NOT_ALLOWED = 26,
@@ -286,130 +202,90 @@ export enum AuthenticationStateReason {
 export declare const AuthenticationStateReasonSchema: GenEnum<AuthenticationStateReason>;
 
 /**
- * AuthenticationErrorCode provides stable typed error codes for SDK branching.
- *
- * Precise existence-related codes are for admin, audit, and internal visibility.
- * Public login clients should receive neutral public-safe errors to prevent
- * account, phone, email, or provider-account enumeration.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationErrorCode
  */
 export enum AuthenticationErrorCode {
   /**
-   * Authentication error code is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Generic public-safe authentication failure.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED = 1;
    */
   AUTHENTICATION_FAILED = 1,
 
   /**
-   * Generic public-safe invalid credentials or challenge response.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_INVALID_CREDENTIALS = 2;
    */
   INVALID_CREDENTIALS = 2,
 
   /**
-   * Requested authentication method is not allowed.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED = 3;
    */
   METHOD_NOT_ALLOWED = 3,
 
   /**
-   * Requested provider is not allowed.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED = 4;
    */
   PROVIDER_NOT_ALLOWED = 4,
 
   /**
-   * Provider callback was invalid or failed validation.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID = 5;
    */
   PROVIDER_CALLBACK_INVALID = 5,
 
   /**
-   * Retry attempts were exceeded.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED = 6;
    */
   ATTEMPTS_EXCEEDED = 6,
 
   /**
-   * Authentication expired.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_EXPIRED = 7;
    */
   EXPIRED = 7,
 
   /**
-   * Authentication was blocked by policy or risk decision.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_BLOCKED = 8;
    */
   BLOCKED = 8,
 
   /**
-   * Authentication was denied by the user or provider.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_DENIED = 9;
    */
   DENIED = 9,
 
   /**
-   * Internal or technical error.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_INTERNAL = 10;
    */
   INTERNAL = 10,
 
   /**
-   * Subject could not be found or resolved. Do not expose to public login UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND = 11;
    */
   SUBJECT_NOT_FOUND = 11,
 
   /**
-   * User could not be found. Do not expose to public login UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_USER_NOT_FOUND = 12;
    */
   USER_NOT_FOUND = 12,
 
   /**
-   * Phone could not be found. Do not expose to public login UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_PHONE_NOT_FOUND = 13;
    */
   PHONE_NOT_FOUND = 13,
 
   /**
-   * Email could not be found. Do not expose to public login UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_EMAIL_NOT_FOUND = 14;
    */
   EMAIL_NOT_FOUND = 14,
 
   /**
-   * Provider account could not be found. Do not expose to public login UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_PROVIDER_ACCOUNT_NOT_FOUND = 15;
    */
   PROVIDER_ACCOUNT_NOT_FOUND = 15,
 
   /**
-   * Generic public-safe invalid challenge response.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE = 16;
    */
   INVALID_CHALLENGE_RESPONSE = 16,
@@ -421,35 +297,25 @@ export enum AuthenticationErrorCode {
 export declare const AuthenticationErrorCodeSchema: GenEnum<AuthenticationErrorCode>;
 
 /**
- * AuthenticationErrorVisibility describes who may receive precise error details.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationErrorVisibility
  */
 export enum AuthenticationErrorVisibility {
   /**
-   * Authentication error visibility is not specified.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_VISIBILITY_UNSPECIFIED = 0;
    */
   UNSPECIFIED = 0,
 
   /**
-   * Error is safe for public clients.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_VISIBILITY_PUBLIC = 1;
    */
   PUBLIC = 1,
 
   /**
-   * Error is intended for admin or support UI.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_VISIBILITY_ADMIN = 2;
    */
   ADMIN = 2,
 
   /**
-   * Error is intended only for internal services, logs, or audit.
-   *
    * @generated from enum value: AUTHENTICATION_ERROR_VISIBILITY_INTERNAL = 3;
    */
   INTERNAL = 3,

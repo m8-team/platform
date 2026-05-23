@@ -70,8 +70,6 @@ export const SessionContext_StepUpReasonSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 6, 0);
 
 /**
- * StepUpReason describes why stronger or fresher authentication is requested.
- *
  * @generated from enum m8.platform.iam.v1.SessionContext.StepUpReason
  */
 export const SessionContext_StepUpReason = /*@__PURE__*/
@@ -112,8 +110,6 @@ export const InteractionContext_UiModeSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 10, 0);
 
 /**
- * UiMode describes the protocol or UI channel.
- *
  * @generated from enum m8.platform.iam.v1.InteractionContext.UiMode
  */
 export const InteractionContext_UiMode = /*@__PURE__*/
@@ -126,8 +122,6 @@ export const InteractionContext_LoginHintSourceSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 10, 1);
 
 /**
- * LoginHintSource identifies where a login hint came from.
- *
  * @generated from enum m8.platform.iam.v1.InteractionContext.LoginHintSource
  */
 export const InteractionContext_LoginHintSource = /*@__PURE__*/
@@ -140,8 +134,6 @@ export const InteractionContext_DisplayModeSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 10, 2);
 
 /**
- * DisplayMode mirrors OIDC display values.
- *
  * @generated from enum m8.platform.iam.v1.InteractionContext.DisplayMode
  */
 export const InteractionContext_DisplayMode = /*@__PURE__*/
@@ -182,8 +174,6 @@ export const NetworkContext_NetworkRiskLevelSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 14, 0);
 
 /**
- * NetworkRiskLevel summarizes network-only risk enrichment.
- *
  * @generated from enum m8.platform.iam.v1.NetworkContext.NetworkRiskLevel
  */
 export const NetworkContext_NetworkRiskLevel = /*@__PURE__*/
@@ -245,8 +235,6 @@ export const RiskContext_RiskLevelSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 21, 0);
 
 /**
- * RiskLevel summarizes the overall risk level.
- *
  * @generated from enum m8.platform.iam.v1.RiskContext.RiskLevel
  */
 export const RiskContext_RiskLevel = /*@__PURE__*/
@@ -259,8 +247,6 @@ export const RiskContext_RiskActionSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_context, 21, 1);
 
 /**
- * RiskAction describes the action recommended by Risk Decision.
- *
  * @generated from enum m8.platform.iam.v1.RiskContext.RiskAction
  */
 export const RiskContext_RiskAction = /*@__PURE__*/

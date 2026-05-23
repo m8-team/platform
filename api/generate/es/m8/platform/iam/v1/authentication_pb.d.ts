@@ -17,150 +17,90 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 export declare const file_m8_platform_iam_v1_authentication: GenFile;
 
 /**
- * Authentication is the public-safe snapshot of a single authentication flow.
- *
- * It is suitable for public SDKs, mobile and web login UI, backend integration,
- * Keycloak/OIDC/CIBA handoff, and polling while an operation is in progress.
- * This message must not expose internal execution identifiers, provider raw
- * payloads, OTP codes, passwords, bearer tokens, raw fingerprints, or private
- * risk features.
- *
  * @generated from message m8.platform.iam.v1.Authentication
  */
 export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"> & {
   /**
-   * Identifier. Stable server-generated authentication identifier.
-   *
    * @generated from field: string id = 1;
    */
   id: string;
 
   /**
-   * Output only. M8 application client UUID that started the authentication.
-   *
-   * This is not the OAuth public client_id string used by external relying
-   * parties unless that OAuth client is represented by an M8 application client.
-   *
    * @generated from field: string client_id = 2;
    */
   clientId: string;
 
   /**
-   * Output only. Public-safe subject projection.
-   *
-   * Raw email, phone, username, login_hint, external provider subject, and
-   * issuer-scoped identifiers must not be returned in this snapshot.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationSubjectSnapshot subject = 3;
    */
   subject?: AuthenticationSubjectSnapshot;
 
   /**
-   * Output only. Resolved purpose of this authentication flow.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationPurpose purpose = 4;
    */
   purpose: AuthenticationPurpose;
 
   /**
-   * Output only. Public lifecycle state.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationState state = 5;
    */
   state: AuthenticationState;
 
   /**
-   * Output only. Machine-readable reason for the latest state transition.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationStateReason state_reason = 6;
    */
   stateReason: AuthenticationStateReason;
 
   /**
-   * Output only. Current challenge that the UI or client must complete.
-   *
-   * This is the source of truth for submit flow and dynamic login UI. It must
-   * never contain OTP codes, passwords, provider tokens, raw callback payloads,
-   * private WebAuthn session secrets, or private risk data.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationChallengeInfo current_challenge = 7;
    */
   currentChallenge?: AuthenticationChallengeInfo;
 
   /**
-   * Output only. Challenge options that the UI may render or allow selecting.
-   *
-   * The server may include unavailable options with safe reasons. The list must
-   * not reveal sensitive authenticator existence unless policy allows it.
-   *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationChallengeOption available_challenges = 8;
    */
   availableChallenges: AuthenticationChallengeOption[];
 
   /**
-   * Output only. Terminal or actionable error details.
-   *
-   * Public clients may receive a generic message and code even when internal
-   * admin or audit views retain a more precise reason to prevent enumeration.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationError error = 9;
    */
   error?: AuthenticationError;
 
   /**
-   * Output only. Result of a successful authentication.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationResult result = 10;
    */
   result?: AuthenticationResult;
 
   /**
-   * Output only. Server-normalized context used for policy, audit, risk, UI,
-   * and protocol handoff decisions.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationContext context = 11;
    */
   context?: AuthenticationContext;
 
   /**
-   * Output only. Time when authentication was created.
-   *
    * @generated from field: google.protobuf.Timestamp create_time = 12;
    */
   createTime?: Timestamp;
 
   /**
-   * Output only. Time when authentication was last updated.
-   *
    * @generated from field: google.protobuf.Timestamp update_time = 13;
    */
   updateTime?: Timestamp;
 
   /**
-   * Output only. Time when authentication expires.
-   *
    * @generated from field: google.protobuf.Timestamp expire_time = 14;
    */
   expireTime?: Timestamp;
 
   /**
-   * Output only. Entity tag for optimistic concurrency on mutating commands.
-   *
    * @generated from field: string etag = 15;
    */
   etag: string;
 
   /**
-   * Output only. Assurance level the server resolved for this authentication.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel requested_assurance_level = 16;
    */
   requestedAssuranceLevel: AuthenticationAssuranceLevel;
 
   /**
-   * Output only. Monotonic aggregate version for event ordering, outbox
-   * publishing, replay diagnostics, and admin/debug projections.
-   *
    * @generated from field: int64 version = 17;
    */
   version: bigint;
@@ -173,33 +113,20 @@ export declare type Authentication = Message<"m8.platform.iam.v1.Authentication"
 export declare const AuthenticationSchema: GenMessage<Authentication>;
 
 /**
- * AuthenticationInteraction is returned to public clients after start.
- *
- * Public unauthenticated clients must use interaction_token together with
- * authentication_id for polling and mutating commands. The token is an opaque
- * one-time or bounded-use interaction secret and must not be stored in the
- * public Authentication snapshot.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationInteraction
  */
 export declare type AuthenticationInteraction = Message<"m8.platform.iam.v1.AuthenticationInteraction"> & {
   /**
-   * Output only. Authentication identifier.
-   *
    * @generated from field: string authentication_id = 1;
    */
   authenticationId: string;
 
   /**
-   * Output only. Opaque interaction token for public polling and commands.
-   *
    * @generated from field: string interaction_token = 2;
    */
   interactionToken: string;
 
   /**
-   * Output only. Time when the interaction token expires.
-   *
    * @generated from field: google.protobuf.Timestamp expire_time = 3;
    */
   expireTime?: Timestamp;
@@ -212,61 +139,40 @@ export declare type AuthenticationInteraction = Message<"m8.platform.iam.v1.Auth
 export declare const AuthenticationInteractionSchema: GenMessage<AuthenticationInteraction>;
 
 /**
- * AuthenticationResult is populated only after successful authentication.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationResult
  */
 export declare type AuthenticationResult = Message<"m8.platform.iam.v1.AuthenticationResult"> & {
   /**
-   * Output only. Time when the user authentication was established.
-   *
    * @generated from field: google.protobuf.Timestamp auth_time = 1;
    */
   authTime?: Timestamp;
 
   /**
-   * Output only. Final normalized assurance level achieved by the flow.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationAssuranceLevel achieved_assurance_level = 2;
    */
   achievedAssuranceLevel: AuthenticationAssuranceLevel;
 
   /**
-   * Output only. Normalized authentication methods that participated.
-   *
    * @generated from field: repeated m8.platform.iam.v1.AuthenticationMethod authentication_methods = 3;
    */
   authenticationMethods: AuthenticationMethod[];
 
   /**
-   * Output only. Configured method or plugin ids that participated.
-   *
    * @generated from field: repeated string method_ids = 4;
    */
   methodIds: string[];
 
   /**
-   * Output only. OIDC-compatible Authentication Methods References.
-   *
-   * Examples include pwd, otp, sms, email, mfa, hwk, user, pin, face, fpt, swk,
-   * pop, webauthn, passkey, and federated provider-specific values.
-   *
    * @generated from field: repeated string amr = 5;
    */
   amr: string[];
 
   /**
-   * Output only. Final Authentication Context Class Reference value for token
-   * issuance or session creation.
-   *
    * @generated from field: string acr = 6;
    */
   acr: string;
 
   /**
-   * Output only. Handoff data for OIDC, CIBA, session, Keycloak, or backend
-   * integration after successful authentication.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationHandoff handoff = 7;
    */
   handoff?: AuthenticationHandoff;
@@ -279,32 +185,20 @@ export declare type AuthenticationResult = Message<"m8.platform.iam.v1.Authentic
 export declare const AuthenticationResultSchema: GenMessage<AuthenticationResult>;
 
 /**
- * AuthenticationHandoff carries a public-safe opaque handoff reference.
- *
- * It must not contain authorization codes, JWTs, refresh tokens, raw provider
- * tokens, SAML assertions, or session bearer secrets. The handoff_id is an
- * opaque reference that the appropriate protocol adapter can redeem.
- *
  * @generated from message m8.platform.iam.v1.AuthenticationHandoff
  */
 export declare type AuthenticationHandoff = Message<"m8.platform.iam.v1.AuthenticationHandoff"> & {
   /**
-   * Output only. Handoff type.
-   *
    * @generated from field: m8.platform.iam.v1.AuthenticationHandoff.Type type = 1;
    */
   type: AuthenticationHandoff_Type;
 
   /**
-   * Output only. Opaque handoff identifier redeemable by the protocol adapter.
-   *
    * @generated from field: string handoff_id = 2;
    */
   handoffId: string;
 
   /**
-   * Output only. Time when the handoff reference expires.
-   *
    * @generated from field: google.protobuf.Timestamp expire_time = 3;
    */
   expireTime?: Timestamp;
@@ -317,49 +211,35 @@ export declare type AuthenticationHandoff = Message<"m8.platform.iam.v1.Authenti
 export declare const AuthenticationHandoffSchema: GenMessage<AuthenticationHandoff>;
 
 /**
- * Type of handoff produced by the authentication flow.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationHandoff.Type
  */
 export enum AuthenticationHandoff_Type {
   /**
-   * Handoff type is not specified.
-   *
    * @generated from enum value: TYPE_UNSPECIFIED = 0;
    */
   TYPE_UNSPECIFIED = 0,
 
   /**
-   * OIDC authorization code handoff.
-   *
    * @generated from enum value: AUTHORIZATION_CODE = 1;
    */
   AUTHORIZATION_CODE = 1,
 
   /**
-   * CIBA auth_req_id handoff.
-   *
    * @generated from enum value: CIBA_AUTH_REQ_ID = 2;
    */
   CIBA_AUTH_REQ_ID = 2,
 
   /**
-   * Server-side session handoff.
-   *
    * @generated from enum value: SESSION_HANDOFF = 3;
    */
   SESSION_HANDOFF = 3,
 
   /**
-   * JWT bearer assertion handoff reference.
-   *
    * @generated from enum value: JWT_BEARER_ASSERTION = 4;
    */
   JWT_BEARER_ASSERTION = 4,
 
   /**
-   * Keycloak login action handoff.
-   *
    * @generated from enum value: KEYCLOAK_LOGIN_ACTION = 5;
    */
   KEYCLOAK_LOGIN_ACTION = 5,

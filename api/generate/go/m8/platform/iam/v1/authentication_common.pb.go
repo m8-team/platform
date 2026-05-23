@@ -21,31 +21,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AuthenticationState is the public lifecycle state of an authentication.
-//
-// It intentionally describes workflow progress without exposing the underlying
-// execution engine or provider internals.
 type AuthenticationState int32
 
 const (
-	// Authentication state is not specified.
-	AuthenticationState_AUTHENTICATION_STATE_UNSPECIFIED AuthenticationState = 0
-	// Authentication has been accepted and server-side processing has started.
-	AuthenticationState_AUTHENTICATION_STATE_STARTING AuthenticationState = 1
-	// The server needs the user or client to select or complete a challenge.
+	AuthenticationState_AUTHENTICATION_STATE_UNSPECIFIED        AuthenticationState = 0
+	AuthenticationState_AUTHENTICATION_STATE_STARTING           AuthenticationState = 1
 	AuthenticationState_AUTHENTICATION_STATE_CHALLENGE_REQUIRED AuthenticationState = 2
-	// A challenge has been delivered, exposed, or dispatched to the user.
-	AuthenticationState_AUTHENTICATION_STATE_CHALLENGE_SENT AuthenticationState = 3
-	// A submitted challenge response or provider callback is being verified.
-	AuthenticationState_AUTHENTICATION_STATE_VERIFYING AuthenticationState = 4
-	// Authentication completed successfully.
-	AuthenticationState_AUTHENTICATION_STATE_AUTHENTICATED AuthenticationState = 5
-	// Authentication reached a terminal failure state.
-	AuthenticationState_AUTHENTICATION_STATE_FAILED AuthenticationState = 6
-	// Authentication was cancelled by the user, client, provider, or server.
-	AuthenticationState_AUTHENTICATION_STATE_CANCELLED AuthenticationState = 7
-	// Authentication expired before completion.
-	AuthenticationState_AUTHENTICATION_STATE_EXPIRED AuthenticationState = 8
+	AuthenticationState_AUTHENTICATION_STATE_CHALLENGE_SENT     AuthenticationState = 3
+	AuthenticationState_AUTHENTICATION_STATE_VERIFYING          AuthenticationState = 4
+	AuthenticationState_AUTHENTICATION_STATE_AUTHENTICATED      AuthenticationState = 5
+	AuthenticationState_AUTHENTICATION_STATE_FAILED             AuthenticationState = 6
+	AuthenticationState_AUTHENTICATION_STATE_CANCELLED          AuthenticationState = 7
+	AuthenticationState_AUTHENTICATION_STATE_EXPIRED            AuthenticationState = 8
 )
 
 // Enum value maps for AuthenticationState.
@@ -101,21 +88,14 @@ func (AuthenticationState) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{0}
 }
 
-// AuthenticationAssuranceLevel is the normalized assurance level requested or
-// achieved by an authentication flow.
 type AuthenticationAssuranceLevel int32
 
 const (
-	// Authentication assurance level is not specified.
 	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED AuthenticationAssuranceLevel = 0
-	// AAL0 means no authenticated user assurance has been established.
-	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL0 AuthenticationAssuranceLevel = 1
-	// AAL1 provides basic assurance that the claimant controls an authenticator.
-	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL1 AuthenticationAssuranceLevel = 2
-	// AAL2 provides high confidence through multi-factor authentication.
-	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL2 AuthenticationAssuranceLevel = 3
-	// AAL3 provides very high confidence with phishing-resistant authentication.
-	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL3 AuthenticationAssuranceLevel = 4
+	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL0        AuthenticationAssuranceLevel = 1
+	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL1        AuthenticationAssuranceLevel = 2
+	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL2        AuthenticationAssuranceLevel = 3
+	AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_AAL3        AuthenticationAssuranceLevel = 4
 )
 
 // Enum value maps for AuthenticationAssuranceLevel.
@@ -163,23 +143,15 @@ func (AuthenticationAssuranceLevel) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{1}
 }
 
-// AuthenticationPurpose explains why the authentication is being performed.
 type AuthenticationPurpose int32
 
 const (
-	// Authentication purpose is not specified.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_UNSPECIFIED AuthenticationPurpose = 0
-	// Primary user login.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_PRIMARY_LOGIN AuthenticationPurpose = 1
-	// Fresh authentication for an existing user session.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_REAUTHENTICATION AuthenticationPurpose = 2
-	// Stronger authentication for an existing session or sensitive action.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_STEP_UP AuthenticationPurpose = 3
-	// Account recovery or credential recovery flow.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY AuthenticationPurpose = 4
-	// Linking a local account with an external identity.
-	AuthenticationPurpose_AUTHENTICATION_PURPOSE_IDENTITY_LINKING AuthenticationPurpose = 5
-	// Confirmation of a transaction or business action.
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_UNSPECIFIED              AuthenticationPurpose = 0
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_PRIMARY_LOGIN            AuthenticationPurpose = 1
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_REAUTHENTICATION         AuthenticationPurpose = 2
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_STEP_UP                  AuthenticationPurpose = 3
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY         AuthenticationPurpose = 4
+	AuthenticationPurpose_AUTHENTICATION_PURPOSE_IDENTITY_LINKING         AuthenticationPurpose = 5
 	AuthenticationPurpose_AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION AuthenticationPurpose = 6
 )
 
@@ -232,91 +204,13 @@ func (AuthenticationPurpose) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{2}
 }
 
-// AuthenticationOperationType identifies the asynchronous command represented
-// by a google.longrunning.Operation.
-//
-// The operation tracks processing of one command, not the entire authentication
-// lifecycle. Authentication.state is the source of truth for lifecycle state.
-type AuthenticationOperationType int32
-
-const (
-	// Authentication operation type is not specified.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED AuthenticationOperationType = 0
-	// StartAuthentication command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_START AuthenticationOperationType = 1
-	// SelectAuthenticationChallenge command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE AuthenticationOperationType = 2
-	// ResendAuthenticationChallenge command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE AuthenticationOperationType = 3
-	// SubmitAuthenticationChallenge command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE AuthenticationOperationType = 4
-	// CancelAuthentication command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_CANCEL AuthenticationOperationType = 5
-	// Provider callback command processing.
-	AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK AuthenticationOperationType = 6
-)
-
-// Enum value maps for AuthenticationOperationType.
-var (
-	AuthenticationOperationType_name = map[int32]string{
-		0: "AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED",
-		1: "AUTHENTICATION_OPERATION_TYPE_START",
-		2: "AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE",
-		3: "AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE",
-		4: "AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE",
-		5: "AUTHENTICATION_OPERATION_TYPE_CANCEL",
-		6: "AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK",
-	}
-	AuthenticationOperationType_value = map[string]int32{
-		"AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED":       0,
-		"AUTHENTICATION_OPERATION_TYPE_START":             1,
-		"AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE":  2,
-		"AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE":  3,
-		"AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE":  4,
-		"AUTHENTICATION_OPERATION_TYPE_CANCEL":            5,
-		"AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK": 6,
-	}
-)
-
-func (x AuthenticationOperationType) Enum() *AuthenticationOperationType {
-	p := new(AuthenticationOperationType)
-	*p = x
-	return p
-}
-
-func (x AuthenticationOperationType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AuthenticationOperationType) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_common_proto_enumTypes[3].Descriptor()
-}
-
-func (AuthenticationOperationType) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_common_proto_enumTypes[3]
-}
-
-func (x AuthenticationOperationType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AuthenticationOperationType.Descriptor instead.
-func (AuthenticationOperationType) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{3}
-}
-
-// AuthenticationView controls how much information is projected by read APIs.
 type AuthenticationView int32
 
 const (
-	// Defaults to public-safe projection.
 	AuthenticationView_AUTHENTICATION_VIEW_UNSPECIFIED AuthenticationView = 0
-	// Public-safe projection for mobile, web, and public SDK clients.
-	AuthenticationView_AUTHENTICATION_VIEW_PUBLIC AuthenticationView = 1
-	// Admin projection with additional diagnostic information where authorized.
-	AuthenticationView_AUTHENTICATION_VIEW_ADMIN AuthenticationView = 2
-	// Internal projection for trusted services and provider adapters.
-	AuthenticationView_AUTHENTICATION_VIEW_INTERNAL AuthenticationView = 3
+	AuthenticationView_AUTHENTICATION_VIEW_PUBLIC      AuthenticationView = 1
+	AuthenticationView_AUTHENTICATION_VIEW_ADMIN       AuthenticationView = 2
+	AuthenticationView_AUTHENTICATION_VIEW_INTERNAL    AuthenticationView = 3
 )
 
 // Enum value maps for AuthenticationView.
@@ -346,11 +240,11 @@ func (x AuthenticationView) String() string {
 }
 
 func (AuthenticationView) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_common_proto_enumTypes[4].Descriptor()
+	return file_m8_platform_iam_v1_authentication_common_proto_enumTypes[3].Descriptor()
 }
 
 func (AuthenticationView) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_common_proto_enumTypes[4]
+	return &file_m8_platform_iam_v1_authentication_common_proto_enumTypes[3]
 }
 
 func (x AuthenticationView) Number() protoreflect.EnumNumber {
@@ -359,23 +253,17 @@ func (x AuthenticationView) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AuthenticationView.Descriptor instead.
 func (AuthenticationView) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{3}
 }
 
-// LoginExperienceMode describes the dynamic login UI mode selected by policy.
 type LoginExperienceMode int32
 
 const (
-	// Login experience mode is not specified.
-	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_UNSPECIFIED LoginExperienceMode = 0
-	// Ask for an identifier before method selection.
-	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_IDENTIFIER_FIRST LoginExperienceMode = 1
-	// Prefer passwordless method selection.
+	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_UNSPECIFIED        LoginExperienceMode = 0
+	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_IDENTIFIER_FIRST   LoginExperienceMode = 1
 	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_PASSWORDLESS_FIRST LoginExperienceMode = 2
-	// Prefer passkey or WebAuthn conditional UI.
-	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_PASSKEY_FIRST LoginExperienceMode = 3
-	// Prefer external identity provider selection.
-	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_PROVIDER_FIRST LoginExperienceMode = 4
+	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_PASSKEY_FIRST      LoginExperienceMode = 3
+	LoginExperienceMode_LOGIN_EXPERIENCE_MODE_PROVIDER_FIRST     LoginExperienceMode = 4
 )
 
 // Enum value maps for LoginExperienceMode.
@@ -407,11 +295,11 @@ func (x LoginExperienceMode) String() string {
 }
 
 func (LoginExperienceMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_common_proto_enumTypes[5].Descriptor()
+	return file_m8_platform_iam_v1_authentication_common_proto_enumTypes[4].Descriptor()
 }
 
 func (LoginExperienceMode) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_common_proto_enumTypes[5]
+	return &file_m8_platform_iam_v1_authentication_common_proto_enumTypes[4]
 }
 
 func (x LoginExperienceMode) Number() protoreflect.EnumNumber {
@@ -420,7 +308,7 @@ func (x LoginExperienceMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use LoginExperienceMode.Descriptor instead.
 func (LoginExperienceMode) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{5}
+	return file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP(), []int{4}
 }
 
 var File_m8_platform_iam_v1_authentication_common_proto protoreflect.FileDescriptor
@@ -451,15 +339,7 @@ const file_m8_platform_iam_v1_authentication_common_proto_rawDesc = "" +
 	"\x1eAUTHENTICATION_PURPOSE_STEP_UP\x10\x03\x12+\n" +
 	"'AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY\x10\x04\x12+\n" +
 	"'AUTHENTICATION_PURPOSE_IDENTITY_LINKING\x10\x05\x123\n" +
-	"/AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION\x10\x06*\xf0\x02\n" +
-	"\x1bAuthenticationOperationType\x12-\n" +
-	")AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
-	"#AUTHENTICATION_OPERATION_TYPE_START\x10\x01\x122\n" +
-	".AUTHENTICATION_OPERATION_TYPE_SELECT_CHALLENGE\x10\x02\x122\n" +
-	".AUTHENTICATION_OPERATION_TYPE_RESEND_CHALLENGE\x10\x03\x122\n" +
-	".AUTHENTICATION_OPERATION_TYPE_SUBMIT_CHALLENGE\x10\x04\x12(\n" +
-	"$AUTHENTICATION_OPERATION_TYPE_CANCEL\x10\x05\x123\n" +
-	"/AUTHENTICATION_OPERATION_TYPE_PROVIDER_CALLBACK\x10\x06*\x9a\x01\n" +
+	"/AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION\x10\x06*\x9a\x01\n" +
 	"\x12AuthenticationView\x12#\n" +
 	"\x1fAUTHENTICATION_VIEW_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aAUTHENTICATION_VIEW_PUBLIC\x10\x01\x12\x1d\n" +
@@ -484,14 +364,13 @@ func file_m8_platform_iam_v1_authentication_common_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_common_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_common_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_m8_platform_iam_v1_authentication_common_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
 var file_m8_platform_iam_v1_authentication_common_proto_goTypes = []any{
 	(AuthenticationState)(0),          // 0: m8.platform.iam.v1.AuthenticationState
 	(AuthenticationAssuranceLevel)(0), // 1: m8.platform.iam.v1.AuthenticationAssuranceLevel
 	(AuthenticationPurpose)(0),        // 2: m8.platform.iam.v1.AuthenticationPurpose
-	(AuthenticationOperationType)(0),  // 3: m8.platform.iam.v1.AuthenticationOperationType
-	(AuthenticationView)(0),           // 4: m8.platform.iam.v1.AuthenticationView
-	(LoginExperienceMode)(0),          // 5: m8.platform.iam.v1.LoginExperienceMode
+	(AuthenticationView)(0),           // 3: m8.platform.iam.v1.AuthenticationView
+	(LoginExperienceMode)(0),          // 4: m8.platform.iam.v1.LoginExperienceMode
 }
 var file_m8_platform_iam_v1_authentication_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -511,7 +390,7 @@ func file_m8_platform_iam_v1_authentication_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_common_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_common_proto_rawDesc)),
-			NumEnums:      6,
+			NumEnums:      5,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

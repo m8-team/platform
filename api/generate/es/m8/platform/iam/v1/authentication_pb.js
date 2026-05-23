@@ -54,8 +54,6 @@ export const AuthenticationHandoff_TypeSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication, 3, 0);
 
 /**
- * Type of handoff produced by the authentication flow.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationHandoff.Type
  */
 export const AuthenticationHandoff_Type = /*@__PURE__*/

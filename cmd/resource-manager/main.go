@@ -2,23 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
+	"sync"
 )
 
-type Person struct {
-	Name string
-}
-
-func changeName(person *Person) {
-	person = &Person{
-		Name: "Alice",
-	}
-}
-
 func main() {
-	person := &Person{
-		Name: "Bob",
-	}
-	fmt.Println(person.Name)
-	changeName(person)
-	fmt.Println(person.Name)
+	wg := sync.WaitGroup{}
+
+	wg.Go(func() {
+		g := rand.IntN(10)
+		fmt.Printf("g: %d ", g)
+	})
+	wg.Wait()
 }

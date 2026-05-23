@@ -8,6 +8,7 @@ package iam
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	v1 "github.com/m8-team/go-genproto/m8/platform/type/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,155 +24,21 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Type of subject identifier carried in value.
-type AuthenticationSubject_Type int32
-
-const (
-	// Authentication subject type is not specified.
-	AuthenticationSubject_TYPE_UNSPECIFIED AuthenticationSubject_Type = 0
-	// Value contains a stable M8 Identity user identifier.
-	//
-	// Example:
-	// - user_id from a previous authenticated session
-	// - user_id selected by an internal service
-	AuthenticationSubject_USER_ID AuthenticationSubject_Type = 1
-	// Value contains a login hint that needs to be resolved by the server.
-	//
-	// Example:
-	// - opaque login_hint from an authorization request
-	// - tenant-specific username or identifier entered by the user
-	AuthenticationSubject_LOGIN_HINT AuthenticationSubject_Type = 2
-	// Value contains an email address.
-	//
-	// Example:
-	// - primary email entered during sign-in
-	// - email received from a trusted upstream identity provider
-	AuthenticationSubject_EMAIL AuthenticationSubject_Type = 3
-	// Value contains a phone number.
-	//
-	// Example:
-	// - phone number entered for SMS OTP authentication
-	// - verified phone number from an upstream identity provider
-	AuthenticationSubject_PHONE AuthenticationSubject_Type = 4
-	// Value contains a username.
-	//
-	// Example:
-	// - tenant-local username
-	// - employee login name
-	AuthenticationSubject_USERNAME AuthenticationSubject_Type = 5
-	// Value contains an external identity provider subject identifier.
-	//
-	// Example:
-	// - OIDC subject from provider_id and issuer
-	// - SAML NameID scoped by issuer
-	AuthenticationSubject_EXTERNAL_IDENTITY AuthenticationSubject_Type = 6
-)
-
-// Enum value maps for AuthenticationSubject_Type.
-var (
-	AuthenticationSubject_Type_name = map[int32]string{
-		0: "TYPE_UNSPECIFIED",
-		1: "USER_ID",
-		2: "LOGIN_HINT",
-		3: "EMAIL",
-		4: "PHONE",
-		5: "USERNAME",
-		6: "EXTERNAL_IDENTITY",
-	}
-	AuthenticationSubject_Type_value = map[string]int32{
-		"TYPE_UNSPECIFIED":  0,
-		"USER_ID":           1,
-		"LOGIN_HINT":        2,
-		"EMAIL":             3,
-		"PHONE":             4,
-		"USERNAME":          5,
-		"EXTERNAL_IDENTITY": 6,
-	}
-)
-
-func (x AuthenticationSubject_Type) Enum() *AuthenticationSubject_Type {
-	p := new(AuthenticationSubject_Type)
-	*p = x
-	return p
-}
-
-func (x AuthenticationSubject_Type) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AuthenticationSubject_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_m8_platform_iam_v1_authentication_subject_proto_enumTypes[0].Descriptor()
-}
-
-func (AuthenticationSubject_Type) Type() protoreflect.EnumType {
-	return &file_m8_platform_iam_v1_authentication_subject_proto_enumTypes[0]
-}
-
-func (x AuthenticationSubject_Type) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AuthenticationSubject_Type.Descriptor instead.
-func (AuthenticationSubject_Type) EnumDescriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP(), []int{0, 0}
-}
-
-// AuthenticationSubject identifies or hints at the claimant being authenticated.
+// AuthenticationSubject identifies the claimant at the start of authentication.
 //
-// Example:
-// - user provides an email address on the login screen
-// - client passes a known user identifier for step-up authentication
-// - external identity provider supplies an issuer-scoped subject identifier
+// The caller must provide exactly one identifier. These values are request-only
+// inputs and must not be returned raw in public Authentication snapshots.
 type AuthenticationSubject struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Type of identifier represented by value.
-	// The value is always one of the defined non-zero enum values.
+	// Required. Exactly one subject identifier.
 	//
-	// Example:
-	// - EMAIL when value contains an email address
-	// - PHONE when value contains a phone number
-	// - USER_ID when value contains an M8 Identity user id
-	Type AuthenticationSubject_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"type,omitempty"`
-	// Required. Subject identifier or hint value.
+	// Types that are valid to be assigned to Identifier:
 	//
-	// Validation depends on type:
-	// - USER_ID must be a UUID
-	// - EMAIL must be a valid email address
-	// - PHONE must be an E.164 phone number
-	// - USERNAME must be 3 to 64 characters and match the username pattern
-	//
-	// Example:
-	// - user UUID when type is USER_ID
-	// - email address when type is EMAIL
-	// - phone number in E.164 format when type is PHONE
-	// - external subject when type is EXTERNAL_IDENTITY
-	Value string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
-	// Optional. Provider identifier that scopes provider-specific subject values.
-	//
-	// This field does not select the authentication provider for the workflow.
-	// Provider selection is controlled by AuthenticationStartOptions.requested_provider_id.
-	// AuthenticationSubject.provider_id must not be used to select the login provider.
-	//
-	// This field is allowed only when type is EXTERNAL_IDENTITY, or when
-	// LOGIN_HINT is explicitly provider-scoped.
-	// This field is required when type is EXTERNAL_IDENTITY.
-	//
-	// Example:
-	// - "google" for an OIDC external subject
-	// - "azure-ad" for an Entra ID external subject
-	// - "saml-corp" for a SAML NameID
-	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Optional. Issuer that scopes external identity values.
-	//
-	// This field should normally be set only when type is EXTERNAL_IDENTITY.
-	// For OIDC it should match the issuer claim. For SAML it should match the
-	// IdP entity ID.
-	// When type is EXTERNAL_IDENTITY, this field is required unless the server
-	// can resolve the issuer from provider_id.
-	//
-	// The server must validate this value against the configured provider.
-	// Clients should not be allowed to freely choose arbitrary issuers.
-	Issuer        string `protobuf:"bytes,4,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	//	*AuthenticationSubject_UserId
+	//	*AuthenticationSubject_Email
+	//	*AuthenticationSubject_Phone
+	//	*AuthenticationSubject_Username
+	Identifier    isAuthenticationSubject_Identifier `protobuf_oneof:"identifier"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -206,58 +73,93 @@ func (*AuthenticationSubject) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AuthenticationSubject) GetType() AuthenticationSubject_Type {
+func (x *AuthenticationSubject) GetIdentifier() isAuthenticationSubject_Identifier {
 	if x != nil {
-		return x.Type
+		return x.Identifier
 	}
-	return AuthenticationSubject_TYPE_UNSPECIFIED
+	return nil
 }
 
-func (x *AuthenticationSubject) GetValue() string {
+func (x *AuthenticationSubject) GetUserId() string {
 	if x != nil {
-		return x.Value
+		if x, ok := x.Identifier.(*AuthenticationSubject_UserId); ok {
+			return x.UserId
+		}
 	}
 	return ""
 }
 
-func (x *AuthenticationSubject) GetProviderId() string {
+func (x *AuthenticationSubject) GetEmail() string {
 	if x != nil {
-		return x.ProviderId
+		if x, ok := x.Identifier.(*AuthenticationSubject_Email); ok {
+			return x.Email
+		}
 	}
 	return ""
 }
 
-func (x *AuthenticationSubject) GetIssuer() string {
+func (x *AuthenticationSubject) GetPhone() *v1.PhoneNumber {
 	if x != nil {
-		return x.Issuer
+		if x, ok := x.Identifier.(*AuthenticationSubject_Phone); ok {
+			return x.Phone
+		}
+	}
+	return nil
+}
+
+func (x *AuthenticationSubject) GetUsername() string {
+	if x != nil {
+		if x, ok := x.Identifier.(*AuthenticationSubject_Username); ok {
+			return x.Username
+		}
 	}
 	return ""
 }
+
+type isAuthenticationSubject_Identifier interface {
+	isAuthenticationSubject_Identifier()
+}
+
+type AuthenticationSubject_UserId struct {
+	// Stable user identifier.
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3,oneof"`
+}
+
+type AuthenticationSubject_Email struct {
+	// Email address entered by the user.
+	Email string `protobuf:"bytes,2,opt,name=email,proto3,oneof"`
+}
+
+type AuthenticationSubject_Phone struct {
+	// Phone number normalized as an international E.164 number.
+	Phone *v1.PhoneNumber `protobuf:"bytes,3,opt,name=phone,proto3,oneof"`
+}
+
+type AuthenticationSubject_Username struct {
+	// Tenant-local username or login name.
+	Username string `protobuf:"bytes,4,opt,name=username,proto3,oneof"`
+}
+
+func (*AuthenticationSubject_UserId) isAuthenticationSubject_Identifier() {}
+
+func (*AuthenticationSubject_Email) isAuthenticationSubject_Identifier() {}
+
+func (*AuthenticationSubject_Phone) isAuthenticationSubject_Identifier() {}
+
+func (*AuthenticationSubject_Username) isAuthenticationSubject_Identifier() {}
 
 // AuthenticationSubjectSnapshot is the public-safe subject projection returned
 // in Authentication snapshots.
-//
-// It must not contain raw email addresses, phone numbers, usernames, login
-// hints, external provider subjects, or issuer-scoped identifiers. Use
-// masked_value for UI display and return user_id only after the subject is
-// safely resolved and policy allows exposing it.
 type AuthenticationSubjectSnapshot struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Subject type accepted or resolved by the server.
-	Type AuthenticationSubject_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"type,omitempty"`
-	// Output only. Resolved M8 Identity user id, when policy allows exposing it.
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// Output only. Masked value safe for UI display.
-	//
-	// Examples:
-	// - "s***@example.com"
-	// - "+43******4567"
-	// - "j***e"
-	MaskedValue string `protobuf:"bytes,3,opt,name=masked_value,json=maskedValue,proto3" json:"masked_value,omitempty"`
-	// Output only. Provider id for provider-scoped hints, when safe to expose.
-	ProviderId string `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Output only. Whether the server resolved the subject.
-	Resolved      bool `protobuf:"varint,5,opt,name=resolved,proto3" json:"resolved,omitempty"`
+	// Resolved user identifier, when policy allows exposing it.
+	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// Masked subject value safe for UI display.
+	MaskedValue string `protobuf:"bytes,2,opt,name=masked_value,json=maskedValue,proto3" json:"masked_value,omitempty"`
+	// Provider id for provider-scoped hints, when safe to expose.
+	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	// Whether the server resolved the subject.
+	Resolved      bool `protobuf:"varint,4,opt,name=resolved,proto3" json:"resolved,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -292,13 +194,6 @@ func (*AuthenticationSubjectSnapshot) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AuthenticationSubjectSnapshot) GetType() AuthenticationSubject_Type {
-	if x != nil {
-		return x.Type
-	}
-	return AuthenticationSubject_TYPE_UNSPECIFIED
-}
-
 func (x *AuthenticationSubjectSnapshot) GetUserId() string {
 	if x != nil {
 		return x.UserId
@@ -331,39 +226,21 @@ var File_m8_platform_iam_v1_authentication_subject_proto protoreflect.FileDescri
 
 const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9f\r\n" +
-	"\x15AuthenticationSubject\x12Q\n" +
-	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04type\x12&\n" +
-	"\x05value\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\x01\x18\x80 R\x05value\x12B\n" +
-	"\vprovider_id\x18\x03 \x01(\tB!\xe0A\x01\xbaH\x1b\xd8\x01\x01r\x16\x18\xff\x012\x11^[A-Za-z0-9._-]+$R\n" +
-	"providerId\x12#\n" +
-	"\x06issuer\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x10R\x06issuer\"t\n" +
-	"\x04Type\x12\x14\n" +
-	"\x10TYPE_UNSPECIFIED\x10\x00\x12\v\n" +
-	"\aUSER_ID\x10\x01\x12\x0e\n" +
+	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a&m8/platform/type/v1/phone_number.proto\"\xed\x01\n" +
+	"\x15AuthenticationSubject\x12#\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x06userId\x12\"\n" +
+	"\x05email\x18\x02 \x01(\tB\n" +
+	"\xbaH\ar\x05(\xfe\x01`\x01H\x00R\x05email\x128\n" +
+	"\x05phone\x18\x03 \x01(\v2 .m8.platform.type.v1.PhoneNumberH\x00R\x05phone\x12<\n" +
+	"\busername\x18\x04 \x01(\tB\x1e\xbaH\x1br\x19\x10\x03\x18\x80\x012\x12^[a-zA-Z0-9._@-]+$H\x00R\busernameB\x13\n" +
 	"\n" +
-	"LOGIN_HINT\x10\x02\x12\t\n" +
-	"\x05EMAIL\x10\x03\x12\t\n" +
-	"\x05PHONE\x10\x04\x12\f\n" +
-	"\bUSERNAME\x10\x05\x12\x15\n" +
-	"\x11EXTERNAL_IDENTITY\x10\x06:\xab\n" +
-	"\xbaH\xa7\n" +
-	"\x1a\xc2\x01\n" +
-	"#authentication_subject.user_id_uuid\x12$USER_ID subject value must be a UUID\x1authis.type != 1 || this.value.matches('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')\x1a\xbd\x01\n" +
-	"\"authentication_subject.email_value\x12,EMAIL subject value must be an email address\x1aithis.type != 3 || this.value.matches('^[A-Za-z0-9.!#$%&*+/=?^_{|}~-]+@[A-Za-z0-9-]+([.][A-Za-z0-9-]+)+$')\x1a\x95\x01\n" +
-	"!authentication_subject.phone_e164\x121PHONE subject value must be an E.164 phone number\x1a=this.type != 4 || this.value.matches('^[+][1-9][0-9]{1,14}$')\x1a\x89\x02\n" +
-	"%authentication_subject.username_value\x12nUSERNAME subject value must be 3 to 64 characters and contain only letters, digits, dot, underscore, or hyphen\x1apthis.type != 5 || (this.value.size() >= 3 && this.value.size() <= 64 && this.value.matches('^[A-Za-z0-9._-]+$'))\x1a\x96\x01\n" +
-	":authentication_subject.external_identity_provider_required\x12.EXTERNAL_IDENTITY subject requires provider_id\x1a(this.type != 6 || this.provider_id != ''\x1a\xb7\x01\n" +
-	"(authentication_subject.provider_id_scope\x12Oprovider_id is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT\x1a:this.provider_id == '' || this.type == 6 || this.type == 2\x1a\xa8\x01\n" +
-	"#authentication_subject.issuer_scope\x12Jissuer is allowed only for EXTERNAL_IDENTITY or provider-scoped LOGIN_HINT\x1a5this.issuer == '' || this.type == 6 || this.type == 2\"\x98\x02\n" +
-	"\x1dAuthenticationSubjectSnapshot\x12O\n" +
-	"\x04type\x18\x01 \x01(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x04type\x12'\n" +
-	"\auser_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\x12.\n" +
-	"\fmasked_value\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\vmaskedValue\x12,\n" +
-	"\vprovider_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
+	"identifier\x12\x05\xbaH\x02\b\x01\"\xc7\x01\n" +
+	"\x1dAuthenticationSubjectSnapshot\x12'\n" +
+	"\auser_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\x12.\n" +
+	"\fmasked_value\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\vmaskedValue\x12,\n" +
+	"\vprovider_id\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
 	"providerId\x12\x1f\n" +
-	"\bresolved\x18\x05 \x01(\bB\x03\xe0A\x03R\bresolvedB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\bresolved\x18\x04 \x01(\bB\x03\xe0A\x03R\bresolvedB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_subject_proto_rawDescOnce sync.Once
@@ -377,21 +254,19 @@ func file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_subject_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_m8_platform_iam_v1_authentication_subject_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_iam_v1_authentication_subject_proto_goTypes = []any{
-	(AuthenticationSubject_Type)(0),       // 0: m8.platform.iam.v1.AuthenticationSubject.Type
-	(*AuthenticationSubject)(nil),         // 1: m8.platform.iam.v1.AuthenticationSubject
-	(*AuthenticationSubjectSnapshot)(nil), // 2: m8.platform.iam.v1.AuthenticationSubjectSnapshot
+	(*AuthenticationSubject)(nil),         // 0: m8.platform.iam.v1.AuthenticationSubject
+	(*AuthenticationSubjectSnapshot)(nil), // 1: m8.platform.iam.v1.AuthenticationSubjectSnapshot
+	(*v1.PhoneNumber)(nil),                // 2: m8.platform.type.v1.PhoneNumber
 }
 var file_m8_platform_iam_v1_authentication_subject_proto_depIdxs = []int32{
-	0, // 0: m8.platform.iam.v1.AuthenticationSubject.type:type_name -> m8.platform.iam.v1.AuthenticationSubject.Type
-	0, // 1: m8.platform.iam.v1.AuthenticationSubjectSnapshot.type:type_name -> m8.platform.iam.v1.AuthenticationSubject.Type
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: m8.platform.iam.v1.AuthenticationSubject.phone:type_name -> m8.platform.type.v1.PhoneNumber
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_subject_proto_init() }
@@ -399,19 +274,24 @@ func file_m8_platform_iam_v1_authentication_subject_proto_init() {
 	if File_m8_platform_iam_v1_authentication_subject_proto != nil {
 		return
 	}
+	file_m8_platform_iam_v1_authentication_subject_proto_msgTypes[0].OneofWrappers = []any{
+		(*AuthenticationSubject_UserId)(nil),
+		(*AuthenticationSubject_Email)(nil),
+		(*AuthenticationSubject_Phone)(nil),
+		(*AuthenticationSubject_Username)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_subject_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_subject_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_m8_platform_iam_v1_authentication_subject_proto_goTypes,
 		DependencyIndexes: file_m8_platform_iam_v1_authentication_subject_proto_depIdxs,
-		EnumInfos:         file_m8_platform_iam_v1_authentication_subject_proto_enumTypes,
 		MessageInfos:      file_m8_platform_iam_v1_authentication_subject_proto_msgTypes,
 	}.Build()
 	File_m8_platform_iam_v1_authentication_subject_proto = out.File

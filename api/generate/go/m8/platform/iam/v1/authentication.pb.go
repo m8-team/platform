@@ -25,21 +25,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Type of handoff produced by the authentication flow.
 type AuthenticationHandoff_Type int32
 
 const (
-	// Handoff type is not specified.
-	AuthenticationHandoff_TYPE_UNSPECIFIED AuthenticationHandoff_Type = 0
-	// OIDC authorization code handoff.
-	AuthenticationHandoff_AUTHORIZATION_CODE AuthenticationHandoff_Type = 1
-	// CIBA auth_req_id handoff.
-	AuthenticationHandoff_CIBA_AUTH_REQ_ID AuthenticationHandoff_Type = 2
-	// Server-side session handoff.
-	AuthenticationHandoff_SESSION_HANDOFF AuthenticationHandoff_Type = 3
-	// JWT bearer assertion handoff reference.
-	AuthenticationHandoff_JWT_BEARER_ASSERTION AuthenticationHandoff_Type = 4
-	// Keycloak login action handoff.
+	AuthenticationHandoff_TYPE_UNSPECIFIED      AuthenticationHandoff_Type = 0
+	AuthenticationHandoff_AUTHORIZATION_CODE    AuthenticationHandoff_Type = 1
+	AuthenticationHandoff_CIBA_AUTH_REQ_ID      AuthenticationHandoff_Type = 2
+	AuthenticationHandoff_SESSION_HANDOFF       AuthenticationHandoff_Type = 3
+	AuthenticationHandoff_JWT_BEARER_ASSERTION  AuthenticationHandoff_Type = 4
 	AuthenticationHandoff_KEYCLOAK_LOGIN_ACTION AuthenticationHandoff_Type = 5
 )
 
@@ -90,69 +83,27 @@ func (AuthenticationHandoff_Type) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_proto_rawDescGZIP(), []int{3, 0}
 }
 
-// Authentication is the public-safe snapshot of a single authentication flow.
-//
-// It is suitable for public SDKs, mobile and web login UI, backend integration,
-// Keycloak/OIDC/CIBA handoff, and polling while an operation is in progress.
-// This message must not expose internal execution identifiers, provider raw
-// payloads, OTP codes, passwords, bearer tokens, raw fingerprints, or private
-// risk features.
 type Authentication struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifier. Stable server-generated authentication identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Output only. M8 application client UUID that started the authentication.
-	//
-	// This is not the OAuth public client_id string used by external relying
-	// parties unless that OAuth client is represented by an M8 application client.
-	ClientId string `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Output only. Public-safe subject projection.
-	//
-	// Raw email, phone, username, login_hint, external provider subject, and
-	// issuer-scoped identifiers must not be returned in this snapshot.
-	Subject *AuthenticationSubjectSnapshot `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
-	// Output only. Resolved purpose of this authentication flow.
-	Purpose AuthenticationPurpose `protobuf:"varint,4,opt,name=purpose,proto3,enum=m8.platform.iam.v1.AuthenticationPurpose" json:"purpose,omitempty"`
-	// Output only. Public lifecycle state.
-	State AuthenticationState `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.iam.v1.AuthenticationState" json:"state,omitempty"`
-	// Output only. Machine-readable reason for the latest state transition.
-	StateReason AuthenticationStateReason `protobuf:"varint,6,opt,name=state_reason,json=stateReason,proto3,enum=m8.platform.iam.v1.AuthenticationStateReason" json:"state_reason,omitempty"`
-	// Output only. Current challenge that the UI or client must complete.
-	//
-	// This is the source of truth for submit flow and dynamic login UI. It must
-	// never contain OTP codes, passwords, provider tokens, raw callback payloads,
-	// private WebAuthn session secrets, or private risk data.
-	CurrentChallenge *AuthenticationChallengeInfo `protobuf:"bytes,7,opt,name=current_challenge,json=currentChallenge,proto3" json:"current_challenge,omitempty"`
-	// Output only. Challenge options that the UI may render or allow selecting.
-	//
-	// The server may include unavailable options with safe reasons. The list must
-	// not reveal sensitive authenticator existence unless policy allows it.
-	AvailableChallenges []*AuthenticationChallengeOption `protobuf:"bytes,8,rep,name=available_challenges,json=availableChallenges,proto3" json:"available_challenges,omitempty"`
-	// Output only. Terminal or actionable error details.
-	//
-	// Public clients may receive a generic message and code even when internal
-	// admin or audit views retain a more precise reason to prevent enumeration.
-	Error *AuthenticationError `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
-	// Output only. Result of a successful authentication.
-	Result *AuthenticationResult `protobuf:"bytes,10,opt,name=result,proto3" json:"result,omitempty"`
-	// Output only. Server-normalized context used for policy, audit, risk, UI,
-	// and protocol handoff decisions.
-	Context *AuthenticationContext `protobuf:"bytes,11,opt,name=context,proto3" json:"context,omitempty"`
-	// Output only. Time when authentication was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// Output only. Time when authentication was last updated.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// Output only. Time when authentication expires.
-	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
-	// Output only. Entity tag for optimistic concurrency on mutating commands.
-	Etag string `protobuf:"bytes,15,opt,name=etag,proto3" json:"etag,omitempty"`
-	// Output only. Assurance level the server resolved for this authentication.
-	RequestedAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,16,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
-	// Output only. Monotonic aggregate version for event ordering, outbox
-	// publishing, replay diagnostics, and admin/debug projections.
-	Version       int64 `protobuf:"varint,17,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                   protoimpl.MessageState           `protogen:"open.v1"`
+	Id                      string                           `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ClientId                string                           `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Subject                 *AuthenticationSubjectSnapshot   `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
+	Purpose                 AuthenticationPurpose            `protobuf:"varint,4,opt,name=purpose,proto3,enum=m8.platform.iam.v1.AuthenticationPurpose" json:"purpose,omitempty"`
+	State                   AuthenticationState              `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.iam.v1.AuthenticationState" json:"state,omitempty"`
+	StateReason             AuthenticationStateReason        `protobuf:"varint,6,opt,name=state_reason,json=stateReason,proto3,enum=m8.platform.iam.v1.AuthenticationStateReason" json:"state_reason,omitempty"`
+	CurrentChallenge        *AuthenticationChallengeInfo     `protobuf:"bytes,7,opt,name=current_challenge,json=currentChallenge,proto3" json:"current_challenge,omitempty"`
+	AvailableChallenges     []*AuthenticationChallengeOption `protobuf:"bytes,8,rep,name=available_challenges,json=availableChallenges,proto3" json:"available_challenges,omitempty"`
+	Error                   *AuthenticationError             `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
+	Result                  *AuthenticationResult            `protobuf:"bytes,10,opt,name=result,proto3" json:"result,omitempty"`
+	Context                 *AuthenticationContext           `protobuf:"bytes,11,opt,name=context,proto3" json:"context,omitempty"`
+	CreateTime              *timestamppb.Timestamp           `protobuf:"bytes,12,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime              *timestamppb.Timestamp           `protobuf:"bytes,13,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	ExpireTime              *timestamppb.Timestamp           `protobuf:"bytes,14,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	Etag                    string                           `protobuf:"bytes,15,opt,name=etag,proto3" json:"etag,omitempty"`
+	RequestedAssuranceLevel AuthenticationAssuranceLevel     `protobuf:"varint,16,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
+	Version                 int64                            `protobuf:"varint,17,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *Authentication) Reset() {
@@ -304,22 +255,13 @@ func (x *Authentication) GetVersion() int64 {
 	return 0
 }
 
-// AuthenticationInteraction is returned to public clients after start.
-//
-// Public unauthenticated clients must use interaction_token together with
-// authentication_id for polling and mutating commands. The token is an opaque
-// one-time or bounded-use interaction secret and must not be stored in the
-// public Authentication snapshot.
 type AuthenticationInteraction struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Authentication identifier.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Output only. Opaque interaction token for public polling and commands.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Output only. Time when the interaction token expires.
-	ExpireTime    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuthenticationId string                 `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	InteractionToken string                 `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
+	ExpireTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *AuthenticationInteraction) Reset() {
@@ -373,30 +315,17 @@ func (x *AuthenticationInteraction) GetExpireTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// AuthenticationResult is populated only after successful authentication.
 type AuthenticationResult struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Time when the user authentication was established.
-	AuthTime *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
-	// Output only. Final normalized assurance level achieved by the flow.
+	state                  protoimpl.MessageState       `protogen:"open.v1"`
+	AuthTime               *timestamppb.Timestamp       `protobuf:"bytes,1,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
 	AchievedAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,2,opt,name=achieved_assurance_level,json=achievedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"achieved_assurance_level,omitempty"`
-	// Output only. Normalized authentication methods that participated.
-	AuthenticationMethods []AuthenticationMethod `protobuf:"varint,3,rep,packed,name=authentication_methods,json=authenticationMethods,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"authentication_methods,omitempty"`
-	// Output only. Configured method or plugin ids that participated.
-	MethodIds []string `protobuf:"bytes,4,rep,name=method_ids,json=methodIds,proto3" json:"method_ids,omitempty"`
-	// Output only. OIDC-compatible Authentication Methods References.
-	//
-	// Examples include pwd, otp, sms, email, mfa, hwk, user, pin, face, fpt, swk,
-	// pop, webauthn, passkey, and federated provider-specific values.
-	Amr []string `protobuf:"bytes,5,rep,name=amr,proto3" json:"amr,omitempty"`
-	// Output only. Final Authentication Context Class Reference value for token
-	// issuance or session creation.
-	Acr string `protobuf:"bytes,6,opt,name=acr,proto3" json:"acr,omitempty"`
-	// Output only. Handoff data for OIDC, CIBA, session, Keycloak, or backend
-	// integration after successful authentication.
-	Handoff       *AuthenticationHandoff `protobuf:"bytes,7,opt,name=handoff,proto3" json:"handoff,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	AuthenticationMethods  []AuthenticationMethod       `protobuf:"varint,3,rep,packed,name=authentication_methods,json=authenticationMethods,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"authentication_methods,omitempty"`
+	MethodIds              []string                     `protobuf:"bytes,4,rep,name=method_ids,json=methodIds,proto3" json:"method_ids,omitempty"`
+	Amr                    []string                     `protobuf:"bytes,5,rep,name=amr,proto3" json:"amr,omitempty"`
+	Acr                    string                       `protobuf:"bytes,6,opt,name=acr,proto3" json:"acr,omitempty"`
+	Handoff                *AuthenticationHandoff       `protobuf:"bytes,7,opt,name=handoff,proto3" json:"handoff,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *AuthenticationResult) Reset() {
@@ -478,19 +407,11 @@ func (x *AuthenticationResult) GetHandoff() *AuthenticationHandoff {
 	return nil
 }
 
-// AuthenticationHandoff carries a public-safe opaque handoff reference.
-//
-// It must not contain authorization codes, JWTs, refresh tokens, raw provider
-// tokens, SAML assertions, or session bearer secrets. The handoff_id is an
-// opaque reference that the appropriate protocol adapter can redeem.
 type AuthenticationHandoff struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Handoff type.
-	Type AuthenticationHandoff_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationHandoff_Type" json:"type,omitempty"`
-	// Output only. Opaque handoff identifier redeemable by the protocol adapter.
-	HandoffId string `protobuf:"bytes,2,opt,name=handoff_id,json=handoffId,proto3" json:"handoff_id,omitempty"`
-	// Output only. Time when the handoff reference expires.
-	ExpireTime    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Type          AuthenticationHandoff_Type `protobuf:"varint,1,opt,name=type,proto3,enum=m8.platform.iam.v1.AuthenticationHandoff_Type" json:"type,omitempty"`
+	HandoffId     string                     `protobuf:"bytes,2,opt,name=handoff_id,json=handoffId,proto3" json:"handoff_id,omitempty"`
+	ExpireTime    *timestamppb.Timestamp     `protobuf:"bytes,3,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

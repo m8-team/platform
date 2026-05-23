@@ -9,7 +9,8 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
-import "m8/platform/extension/v1/extension.proto";
+import "google/longrunning/operations.proto";
+import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/organization.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
@@ -17,11 +18,11 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/
 // OrganizationService manages organizations: it lets clients create, read,
 // list, update, archive, and restore them.
 service OrganizationService {
-  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete organizations.";
+  option (m8.platform.common.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete organizations.";
 
   // Returns one organization by its UUID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {get: "/v1/resourcemanager/organizations/{id}"};
+    option (google.api.http) = {get: "/v1/resource-manager/organizations/{id}"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -32,7 +33,7 @@ service OrganizationService {
 
   // Returns a page of organizations available to the caller.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {get: "/v1/resourcemanager/organizations"};
+    option (google.api.http) = {get: "/v1/resource-manager/organizations"};
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
@@ -41,11 +42,14 @@ service OrganizationService {
   }
 
   // Creates a new organization from the provided payload.
-  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization) {
-    option idempotency_level = IDEMPOTENT;
+  rpc CreateOrganization(CreateOrganizationRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
-      post: "/v1/resourcemanager/organizations"
+      post: "/v1/resource-manager/organizations"
       body: "organization"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "OrganizationOperationResponse"
+      metadata_type: "OrganizationOperationMetadata"
     };
     option (google.api.method_signature) = "organization";
     option (gnostic.openapi.v3.operation) = {

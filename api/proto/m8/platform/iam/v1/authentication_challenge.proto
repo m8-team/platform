@@ -113,6 +113,26 @@ enum ApprovalChannel {
   APPROVAL_CHANNEL_BANK_ID = 4;
 }
 
+enum UserVerificationRequirement {
+  USER_VERIFICATION_REQUIREMENT_UNSPECIFIED = 0;
+
+  USER_VERIFICATION_REQUIREMENT_REQUIRED = 1;
+
+  USER_VERIFICATION_REQUIREMENT_PREFERRED = 2;
+
+  USER_VERIFICATION_REQUIREMENT_DISCOURAGED = 3;
+}
+
+enum WebAuthnDiscoveryMode {
+  WEB_AUTHN_DISCOVERY_MODE_UNSPECIFIED = 0;
+
+  WEB_AUTHN_DISCOVERY_MODE_ALLOWED = 1;
+
+  WEB_AUTHN_DISCOVERY_MODE_REQUIRED = 2;
+
+  WEB_AUTHN_DISCOVERY_MODE_DISABLED = 3;
+}
+
 message AuthenticationChallengeOption {
   option (buf.validate.message).cel = {
     id: "authentication_challenge_option.provider_required"

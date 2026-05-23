@@ -23,67 +23,36 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AuthenticationStateReason explains the latest authentication state transition.
-//
-// Reasons are machine-readable transition labels. They are not a replacement
-// for AuthenticationError and should not duplicate every possible error code.
 type AuthenticationStateReason int32
 
 const (
-	// Authentication state reason is not specified.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_UNSPECIFIED AuthenticationStateReason = 0
-	// Authentication request was accepted.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_START_ACCEPTED AuthenticationStateReason = 1
-	// Subject was successfully resolved or accepted as a hint.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED AuthenticationStateReason = 2
-	// Subject could not be resolved. Public clients may receive a generic state.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND AuthenticationStateReason = 3
-	// Risk decision allowed authentication to continue.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_ALLOWED AuthenticationStateReason = 4
-	// Risk decision requires an additional challenge.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED AuthenticationStateReason = 5
-	// Risk decision blocked authentication.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_BLOCKED AuthenticationStateReason = 6
-	// Challenge was selected.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED AuthenticationStateReason = 7
-	// Challenge was sent, exposed, or dispatched.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_SENT AuthenticationStateReason = 8
-	// Challenge resend was accepted.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT AuthenticationStateReason = 9
-	// Submitted challenge response was invalid but retry may be possible.
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_UNSPECIFIED                AuthenticationStateReason = 0
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_START_ACCEPTED             AuthenticationStateReason = 1
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED           AuthenticationStateReason = 2
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND          AuthenticationStateReason = 3
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_ALLOWED               AuthenticationStateReason = 4
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED    AuthenticationStateReason = 5
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RISK_BLOCKED               AuthenticationStateReason = 6
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED         AuthenticationStateReason = 7
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_SENT             AuthenticationStateReason = 8
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT           AuthenticationStateReason = 9
 	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID AuthenticationStateReason = 10
-	// Attempts limit was exceeded.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED AuthenticationStateReason = 11
-	// User or trusted provider approved authentication.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_USER_APPROVED AuthenticationStateReason = 12
-	// User or trusted provider denied authentication.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_USER_DENIED AuthenticationStateReason = 13
-	// External provider redirect is required.
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED          AuthenticationStateReason = 11
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_USER_APPROVED              AuthenticationStateReason = 12
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_USER_DENIED                AuthenticationStateReason = 13
 	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED AuthenticationStateReason = 14
-	// External provider callback was received.
 	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED AuthenticationStateReason = 15
-	// External provider callback validation failed.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID AuthenticationStateReason = 16
-	// External provider timed out.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT AuthenticationStateReason = 17
-	// WebAuthn assertion was invalid.
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID  AuthenticationStateReason = 16
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT           AuthenticationStateReason = 17
 	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID AuthenticationStateReason = 18
-	// Authentication completed successfully.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_AUTHENTICATED AuthenticationStateReason = 19
-	// Authentication expired.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_EXPIRED AuthenticationStateReason = 20
-	// Authentication was cancelled.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CANCELLED AuthenticationStateReason = 21
-	// Authentication failed because of an internal or provider error.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_FAILED AuthenticationStateReason = 22
-	// Client selected a different challenge.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED AuthenticationStateReason = 23
-	// Challenge resend is not allowed yet.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE AuthenticationStateReason = 24
-	// Requested method is not allowed.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED AuthenticationStateReason = 25
-	// Requested provider is not allowed.
-	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED AuthenticationStateReason = 26
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_AUTHENTICATED              AuthenticationStateReason = 19
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_EXPIRED                    AuthenticationStateReason = 20
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CANCELLED                  AuthenticationStateReason = 21
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_FAILED                     AuthenticationStateReason = 22
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED       AuthenticationStateReason = 23
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE       AuthenticationStateReason = 24
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED         AuthenticationStateReason = 25
+	AuthenticationStateReason_AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED       AuthenticationStateReason = 26
 )
 
 // Enum value maps for AuthenticationStateReason.
@@ -175,47 +144,25 @@ func (AuthenticationStateReason) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{0}
 }
 
-// AuthenticationErrorCode provides stable typed error codes for SDK branching.
-//
-// Precise existence-related codes are for admin, audit, and internal visibility.
-// Public login clients should receive neutral public-safe errors to prevent
-// account, phone, email, or provider-account enumeration.
 type AuthenticationErrorCode int32
 
 const (
-	// Authentication error code is not specified.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_UNSPECIFIED AuthenticationErrorCode = 0
-	// Generic public-safe authentication failure.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED AuthenticationErrorCode = 1
-	// Generic public-safe invalid credentials or challenge response.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INVALID_CREDENTIALS AuthenticationErrorCode = 2
-	// Requested authentication method is not allowed.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED AuthenticationErrorCode = 3
-	// Requested provider is not allowed.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED AuthenticationErrorCode = 4
-	// Provider callback was invalid or failed validation.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID AuthenticationErrorCode = 5
-	// Retry attempts were exceeded.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED AuthenticationErrorCode = 6
-	// Authentication expired.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_EXPIRED AuthenticationErrorCode = 7
-	// Authentication was blocked by policy or risk decision.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_BLOCKED AuthenticationErrorCode = 8
-	// Authentication was denied by the user or provider.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_DENIED AuthenticationErrorCode = 9
-	// Internal or technical error.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INTERNAL AuthenticationErrorCode = 10
-	// Subject could not be found or resolved. Do not expose to public login UI.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND AuthenticationErrorCode = 11
-	// User could not be found. Do not expose to public login UI.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_USER_NOT_FOUND AuthenticationErrorCode = 12
-	// Phone could not be found. Do not expose to public login UI.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PHONE_NOT_FOUND AuthenticationErrorCode = 13
-	// Email could not be found. Do not expose to public login UI.
-	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_EMAIL_NOT_FOUND AuthenticationErrorCode = 14
-	// Provider account could not be found. Do not expose to public login UI.
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_UNSPECIFIED                AuthenticationErrorCode = 0
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED      AuthenticationErrorCode = 1
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INVALID_CREDENTIALS        AuthenticationErrorCode = 2
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_METHOD_NOT_ALLOWED         AuthenticationErrorCode = 3
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_NOT_ALLOWED       AuthenticationErrorCode = 4
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_CALLBACK_INVALID  AuthenticationErrorCode = 5
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_ATTEMPTS_EXCEEDED          AuthenticationErrorCode = 6
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_EXPIRED                    AuthenticationErrorCode = 7
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_BLOCKED                    AuthenticationErrorCode = 8
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_DENIED                     AuthenticationErrorCode = 9
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INTERNAL                   AuthenticationErrorCode = 10
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_SUBJECT_NOT_FOUND          AuthenticationErrorCode = 11
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_USER_NOT_FOUND             AuthenticationErrorCode = 12
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PHONE_NOT_FOUND            AuthenticationErrorCode = 13
+	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_EMAIL_NOT_FOUND            AuthenticationErrorCode = 14
 	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_PROVIDER_ACCOUNT_NOT_FOUND AuthenticationErrorCode = 15
-	// Generic public-safe invalid challenge response.
 	AuthenticationErrorCode_AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE AuthenticationErrorCode = 16
 )
 
@@ -288,18 +235,13 @@ func (AuthenticationErrorCode) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{1}
 }
 
-// AuthenticationErrorVisibility describes who may receive precise error details.
 type AuthenticationErrorVisibility int32
 
 const (
-	// Authentication error visibility is not specified.
 	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_UNSPECIFIED AuthenticationErrorVisibility = 0
-	// Error is safe for public clients.
-	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_PUBLIC AuthenticationErrorVisibility = 1
-	// Error is intended for admin or support UI.
-	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_ADMIN AuthenticationErrorVisibility = 2
-	// Error is intended only for internal services, logs, or audit.
-	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_INTERNAL AuthenticationErrorVisibility = 3
+	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_PUBLIC      AuthenticationErrorVisibility = 1
+	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_ADMIN       AuthenticationErrorVisibility = 2
+	AuthenticationErrorVisibility_AUTHENTICATION_ERROR_VISIBILITY_INTERNAL    AuthenticationErrorVisibility = 3
 )
 
 // Enum value maps for AuthenticationErrorVisibility.
@@ -345,34 +287,17 @@ func (AuthenticationErrorVisibility) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_error_proto_rawDescGZIP(), []int{2}
 }
 
-// AuthenticationError contains safe terminal or actionable error details.
-//
-// It must not contain stack traces, secrets, tokens, OTP codes, passwords, raw
-// provider responses, SAML assertions, or private risk model details. Public
-// clients may receive generic messages even when admin/internal views retain a
-// precise code and details. For PUBLIC projection, sensitive existence errors
-// such as USER_NOT_FOUND, EMAIL_NOT_FOUND, PHONE_NOT_FOUND, SUBJECT_NOT_FOUND,
-// and PROVIDER_ACCOUNT_NOT_FOUND must be mapped to
-// AUTHENTICATION_ERROR_CODE_AUTHENTICATION_FAILED or
-// AUTHENTICATION_ERROR_CODE_INVALID_CHALLENGE_RESPONSE.
 type AuthenticationError struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Typed error code for SDK branching.
-	Code AuthenticationErrorCode `protobuf:"varint,1,opt,name=code,proto3,enum=m8.platform.iam.v1.AuthenticationErrorCode" json:"code,omitempty"`
-	// Output only. Safe human-readable error message.
-	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	// Output only. Indicates whether retrying may succeed.
-	Retryable bool `protobuf:"varint,3,opt,name=retryable,proto3" json:"retryable,omitempty"`
-	// Output only. Visibility scope for the error details.
-	Visibility AuthenticationErrorVisibility `protobuf:"varint,4,opt,name=visibility,proto3,enum=m8.platform.iam.v1.AuthenticationErrorVisibility" json:"visibility,omitempty"`
-	// Output only. Provider related to the error, if any.
-	ProviderId string `protobuf:"bytes,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Output only. Safe provider-level error code.
-	ProviderErrorCode string `protobuf:"bytes,6,opt,name=provider_error_code,json=providerErrorCode,proto3" json:"provider_error_code,omitempty"`
-	// Output only. Additional public-safe structured details.
-	Details       map[string]string `protobuf:"bytes,7,rep,name=details,proto3" json:"details,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState        `protogen:"open.v1"`
+	Code              AuthenticationErrorCode       `protobuf:"varint,1,opt,name=code,proto3,enum=m8.platform.iam.v1.AuthenticationErrorCode" json:"code,omitempty"`
+	Message           string                        `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Retryable         bool                          `protobuf:"varint,3,opt,name=retryable,proto3" json:"retryable,omitempty"`
+	Visibility        AuthenticationErrorVisibility `protobuf:"varint,4,opt,name=visibility,proto3,enum=m8.platform.iam.v1.AuthenticationErrorVisibility" json:"visibility,omitempty"`
+	ProviderId        string                        `protobuf:"bytes,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
+	ProviderErrorCode string                        `protobuf:"bytes,6,opt,name=provider_error_code,json=providerErrorCode,proto3" json:"provider_error_code,omitempty"`
+	Details           map[string]string             `protobuf:"bytes,7,rep,name=details,proto3" json:"details,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AuthenticationError) Reset() {

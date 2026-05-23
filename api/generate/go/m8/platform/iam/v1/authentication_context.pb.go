@@ -25,24 +25,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// StepUpReason describes why stronger or fresher authentication is requested.
 type SessionContext_StepUpReason int32
 
 const (
-	// Step-up reason is not specified.
-	SessionContext_STEP_UP_REASON_UNSPECIFIED SessionContext_StepUpReason = 0
-	// Authentication is required for a sensitive operation.
-	SessionContext_STEP_UP_REASON_SENSITIVE_OPERATION SessionContext_StepUpReason = 1
-	// Risk policy requires additional authentication.
-	SessionContext_STEP_UP_REASON_RISK_POLICY SessionContext_StepUpReason = 2
-	// Existing session is older than the accepted max age.
-	SessionContext_STEP_UP_REASON_SESSION_TOO_OLD SessionContext_StepUpReason = 3
-	// Existing session assurance is lower than the requested assurance level.
+	SessionContext_STEP_UP_REASON_UNSPECIFIED             SessionContext_StepUpReason = 0
+	SessionContext_STEP_UP_REASON_SENSITIVE_OPERATION     SessionContext_StepUpReason = 1
+	SessionContext_STEP_UP_REASON_RISK_POLICY             SessionContext_StepUpReason = 2
+	SessionContext_STEP_UP_REASON_SESSION_TOO_OLD         SessionContext_StepUpReason = 3
 	SessionContext_STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW SessionContext_StepUpReason = 4
-	// User explicitly requested reauthentication.
-	SessionContext_STEP_UP_REASON_USER_REQUESTED SessionContext_StepUpReason = 5
-	// Administrative or tenant policy requires step-up.
-	SessionContext_STEP_UP_REASON_ADMIN_POLICY SessionContext_StepUpReason = 6
+	SessionContext_STEP_UP_REASON_USER_REQUESTED          SessionContext_StepUpReason = 5
+	SessionContext_STEP_UP_REASON_ADMIN_POLICY            SessionContext_StepUpReason = 6
 )
 
 // Enum value maps for SessionContext_StepUpReason.
@@ -94,22 +86,15 @@ func (SessionContext_StepUpReason) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{6, 0}
 }
 
-// UiMode describes the protocol or UI channel.
 type InteractionContext_UiMode int32
 
 const (
-	// UI mode is not specified.
 	InteractionContext_UI_MODE_UNSPECIFIED InteractionContext_UiMode = 0
-	// Browser redirect-based authentication.
-	InteractionContext_UI_MODE_REDIRECT InteractionContext_UiMode = 1
-	// Embedded login UI.
-	InteractionContext_UI_MODE_EMBEDDED InteractionContext_UiMode = 2
-	// API-driven interaction.
-	InteractionContext_UI_MODE_API InteractionContext_UiMode = 3
-	// OAuth device code or constrained device interaction.
+	InteractionContext_UI_MODE_REDIRECT    InteractionContext_UiMode = 1
+	InteractionContext_UI_MODE_EMBEDDED    InteractionContext_UiMode = 2
+	InteractionContext_UI_MODE_API         InteractionContext_UiMode = 3
 	InteractionContext_UI_MODE_DEVICE_CODE InteractionContext_UiMode = 4
-	// Client-initiated backchannel authentication.
-	InteractionContext_UI_MODE_CIBA InteractionContext_UiMode = 5
+	InteractionContext_UI_MODE_CIBA        InteractionContext_UiMode = 5
 )
 
 // Enum value maps for InteractionContext_UiMode.
@@ -159,24 +144,16 @@ func (InteractionContext_UiMode) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{10, 0}
 }
 
-// LoginHintSource identifies where a login hint came from.
 type InteractionContext_LoginHintSource int32
 
 const (
-	// Login hint source is not specified.
-	InteractionContext_LOGIN_HINT_SOURCE_UNSPECIFIED InteractionContext_LoginHintSource = 0
-	// Login hint was entered by the user.
-	InteractionContext_LOGIN_HINT_SOURCE_USER_INPUT InteractionContext_LoginHintSource = 1
-	// Login hint came from OIDC login_hint.
+	InteractionContext_LOGIN_HINT_SOURCE_UNSPECIFIED     InteractionContext_LoginHintSource = 0
+	InteractionContext_LOGIN_HINT_SOURCE_USER_INPUT      InteractionContext_LoginHintSource = 1
 	InteractionContext_LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT InteractionContext_LoginHintSource = 2
-	// Login hint came from an existing session.
-	InteractionContext_LOGIN_HINT_SOURCE_SESSION InteractionContext_LoginHintSource = 3
-	// Login hint came from an invitation flow.
-	InteractionContext_LOGIN_HINT_SOURCE_INVITATION InteractionContext_LoginHintSource = 4
-	// Login hint was selected by an administrator.
-	InteractionContext_LOGIN_HINT_SOURCE_ADMIN_SELECTED InteractionContext_LoginHintSource = 5
-	// Login hint came from an external provider callback.
-	InteractionContext_LOGIN_HINT_SOURCE_IDP_CALLBACK InteractionContext_LoginHintSource = 6
+	InteractionContext_LOGIN_HINT_SOURCE_SESSION         InteractionContext_LoginHintSource = 3
+	InteractionContext_LOGIN_HINT_SOURCE_INVITATION      InteractionContext_LoginHintSource = 4
+	InteractionContext_LOGIN_HINT_SOURCE_ADMIN_SELECTED  InteractionContext_LoginHintSource = 5
+	InteractionContext_LOGIN_HINT_SOURCE_IDP_CALLBACK    InteractionContext_LoginHintSource = 6
 )
 
 // Enum value maps for InteractionContext_LoginHintSource.
@@ -228,20 +205,14 @@ func (InteractionContext_LoginHintSource) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{10, 1}
 }
 
-// DisplayMode mirrors OIDC display values.
 type InteractionContext_DisplayMode int32
 
 const (
-	// Display mode is not specified.
 	InteractionContext_DISPLAY_MODE_UNSPECIFIED InteractionContext_DisplayMode = 0
-	// Full-page authentication UI.
-	InteractionContext_DISPLAY_MODE_PAGE InteractionContext_DisplayMode = 1
-	// Popup authentication UI.
-	InteractionContext_DISPLAY_MODE_POPUP InteractionContext_DisplayMode = 2
-	// Touch-optimized authentication UI.
-	InteractionContext_DISPLAY_MODE_TOUCH InteractionContext_DisplayMode = 3
-	// WAP/mobile constrained authentication UI.
-	InteractionContext_DISPLAY_MODE_WAP InteractionContext_DisplayMode = 4
+	InteractionContext_DISPLAY_MODE_PAGE        InteractionContext_DisplayMode = 1
+	InteractionContext_DISPLAY_MODE_POPUP       InteractionContext_DisplayMode = 2
+	InteractionContext_DISPLAY_MODE_TOUCH       InteractionContext_DisplayMode = 3
+	InteractionContext_DISPLAY_MODE_WAP         InteractionContext_DisplayMode = 4
 )
 
 // Enum value maps for InteractionContext_DisplayMode.
@@ -289,20 +260,14 @@ func (InteractionContext_DisplayMode) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{10, 2}
 }
 
-// NetworkRiskLevel summarizes network-only risk enrichment.
 type NetworkContext_NetworkRiskLevel int32
 
 const (
-	// Network risk level is not specified.
 	NetworkContext_NETWORK_RISK_LEVEL_UNSPECIFIED NetworkContext_NetworkRiskLevel = 0
-	// Network signals indicate low risk.
-	NetworkContext_NETWORK_RISK_LEVEL_LOW NetworkContext_NetworkRiskLevel = 1
-	// Network signals indicate medium risk.
-	NetworkContext_NETWORK_RISK_LEVEL_MEDIUM NetworkContext_NetworkRiskLevel = 2
-	// Network signals indicate high risk.
-	NetworkContext_NETWORK_RISK_LEVEL_HIGH NetworkContext_NetworkRiskLevel = 3
-	// Network signals indicate critical risk.
-	NetworkContext_NETWORK_RISK_LEVEL_CRITICAL NetworkContext_NetworkRiskLevel = 4
+	NetworkContext_NETWORK_RISK_LEVEL_LOW         NetworkContext_NetworkRiskLevel = 1
+	NetworkContext_NETWORK_RISK_LEVEL_MEDIUM      NetworkContext_NetworkRiskLevel = 2
+	NetworkContext_NETWORK_RISK_LEVEL_HIGH        NetworkContext_NetworkRiskLevel = 3
+	NetworkContext_NETWORK_RISK_LEVEL_CRITICAL    NetworkContext_NetworkRiskLevel = 4
 )
 
 // Enum value maps for NetworkContext_NetworkRiskLevel.
@@ -350,20 +315,14 @@ func (NetworkContext_NetworkRiskLevel) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{14, 0}
 }
 
-// RiskLevel summarizes the overall risk level.
 type RiskContext_RiskLevel int32
 
 const (
-	// Risk level is not specified.
 	RiskContext_RISK_LEVEL_UNSPECIFIED RiskContext_RiskLevel = 0
-	// Risk decision indicates low risk.
-	RiskContext_RISK_LEVEL_LOW RiskContext_RiskLevel = 1
-	// Risk decision indicates medium risk.
-	RiskContext_RISK_LEVEL_MEDIUM RiskContext_RiskLevel = 2
-	// Risk decision indicates high risk.
-	RiskContext_RISK_LEVEL_HIGH RiskContext_RiskLevel = 3
-	// Risk decision indicates critical risk.
-	RiskContext_RISK_LEVEL_CRITICAL RiskContext_RiskLevel = 4
+	RiskContext_RISK_LEVEL_LOW         RiskContext_RiskLevel = 1
+	RiskContext_RISK_LEVEL_MEDIUM      RiskContext_RiskLevel = 2
+	RiskContext_RISK_LEVEL_HIGH        RiskContext_RiskLevel = 3
+	RiskContext_RISK_LEVEL_CRITICAL    RiskContext_RiskLevel = 4
 )
 
 // Enum value maps for RiskContext_RiskLevel.
@@ -411,20 +370,14 @@ func (RiskContext_RiskLevel) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{21, 0}
 }
 
-// RiskAction describes the action recommended by Risk Decision.
 type RiskContext_RiskAction int32
 
 const (
-	// Risk action is not specified.
 	RiskContext_RISK_ACTION_UNSPECIFIED RiskContext_RiskAction = 0
-	// Allow the current path.
-	RiskContext_RISK_ACTION_ALLOW RiskContext_RiskAction = 1
-	// Add or select a challenge.
-	RiskContext_RISK_ACTION_CHALLENGE RiskContext_RiskAction = 2
-	// Require stronger or fresher authentication.
-	RiskContext_RISK_ACTION_STEP_UP RiskContext_RiskAction = 3
-	// Deny authentication.
-	RiskContext_RISK_ACTION_DENY RiskContext_RiskAction = 4
+	RiskContext_RISK_ACTION_ALLOW       RiskContext_RiskAction = 1
+	RiskContext_RISK_ACTION_CHALLENGE   RiskContext_RiskAction = 2
+	RiskContext_RISK_ACTION_STEP_UP     RiskContext_RiskAction = 3
+	RiskContext_RISK_ACTION_DENY        RiskContext_RiskAction = 4
 )
 
 // Enum value maps for RiskContext_RiskAction.
@@ -472,32 +425,17 @@ func (RiskContext_RiskAction) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_context_proto_rawDescGZIP(), []int{21, 1}
 }
 
-// AuthenticationStartContext contains client-provided safe hints for starting
-// authentication.
-//
-// Hints are not authoritative security facts. Clients must not send resolved
-// tenant ids, risk decisions, geolocation enrichment, raw device fingerprints,
-// provider trust decisions, passwords, OTP codes, callback payloads, or tokens.
 type AuthenticationStartContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Request-level hints from a client, gateway, or BFF.
-	Request *RequestHint `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
-	// Optional. Existing-session hints for reauthentication or step-up.
-	Session *SessionHint `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
-	// Optional. Resource or business-operation hints.
-	Resource *ResourceHint `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	// Optional. UI and interaction hints.
-	Interaction *InteractionHint `protobuf:"bytes,4,opt,name=interaction,proto3" json:"interaction,omitempty"`
-	// Optional. Device, browser, app, or SDK hints.
-	Device *DeviceHint `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
-	// Optional. Network hints supplied by a trusted gateway or BFF.
-	Network *NetworkHint `protobuf:"bytes,6,opt,name=network,proto3" json:"network,omitempty"`
-	// Optional. OIDC/OAuth request hints.
-	Oidc *OidcRequestHint `protobuf:"bytes,7,opt,name=oidc,proto3" json:"oidc,omitempty"`
-	// Optional. CIBA request hints.
-	Ciba *CibaRequestHint `protobuf:"bytes,8,opt,name=ciba,proto3" json:"ciba,omitempty"`
-	// Optional. Transaction confirmation hints.
-	Transaction   *TransactionHint `protobuf:"bytes,9,opt,name=transaction,proto3" json:"transaction,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Request       *RequestHint           `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	Session       *SessionHint           `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
+	Resource      *ResourceHint          `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	Interaction   *InteractionHint       `protobuf:"bytes,4,opt,name=interaction,proto3" json:"interaction,omitempty"`
+	Device        *DeviceHint            `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
+	Network       *NetworkHint           `protobuf:"bytes,6,opt,name=network,proto3" json:"network,omitempty"`
+	Oidc          *OidcRequestHint       `protobuf:"bytes,7,opt,name=oidc,proto3" json:"oidc,omitempty"`
+	Ciba          *CibaRequestHint       `protobuf:"bytes,8,opt,name=ciba,proto3" json:"ciba,omitempty"`
+	Transaction   *TransactionHint       `protobuf:"bytes,9,opt,name=transaction,proto3" json:"transaction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -595,31 +533,17 @@ func (x *AuthenticationStartContext) GetTransaction() *TransactionHint {
 	return nil
 }
 
-// AuthenticationContext is the public-safe server-normalized output context.
-//
-// It must not blindly echo raw client input and must not contain risk/debug
-// fields, raw provider tokens, raw callback payloads, raw device fingerprints,
-// passwords, OTP codes, or bearer session secrets.
 type AuthenticationContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Normalized request context.
-	Request *RequestContext `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
-	// Output only. Normalized session context.
-	Session *SessionContext `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
-	// Output only. Normalized resource and tenant context.
-	Resource *ResourceContext `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	// Output only. Normalized UI and interaction context.
-	Interaction *InteractionContext `protobuf:"bytes,4,opt,name=interaction,proto3" json:"interaction,omitempty"`
-	// Output only. Normalized device, browser, app, and SDK context.
-	Device *DeviceContext `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
-	// Output only. Normalized network and geolocation context.
-	Network *NetworkContext `protobuf:"bytes,6,opt,name=network,proto3" json:"network,omitempty"`
-	// Output only. Normalized OIDC/OAuth context.
-	Oidc *OidcContext `protobuf:"bytes,7,opt,name=oidc,proto3" json:"oidc,omitempty"`
-	// Output only. Normalized CIBA context.
-	Ciba *CibaContext `protobuf:"bytes,8,opt,name=ciba,proto3" json:"ciba,omitempty"`
-	// Output only. Normalized transaction confirmation context.
-	Transaction   *TransactionContext `protobuf:"bytes,9,opt,name=transaction,proto3" json:"transaction,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Request       *RequestContext        `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	Session       *SessionContext        `protobuf:"bytes,2,opt,name=session,proto3" json:"session,omitempty"`
+	Resource      *ResourceContext       `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	Interaction   *InteractionContext    `protobuf:"bytes,4,opt,name=interaction,proto3" json:"interaction,omitempty"`
+	Device        *DeviceContext         `protobuf:"bytes,5,opt,name=device,proto3" json:"device,omitempty"`
+	Network       *NetworkContext        `protobuf:"bytes,6,opt,name=network,proto3" json:"network,omitempty"`
+	Oidc          *OidcContext           `protobuf:"bytes,7,opt,name=oidc,proto3" json:"oidc,omitempty"`
+	Ciba          *CibaContext           `protobuf:"bytes,8,opt,name=ciba,proto3" json:"ciba,omitempty"`
+	Transaction   *TransactionContext    `protobuf:"bytes,9,opt,name=transaction,proto3" json:"transaction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -717,21 +641,12 @@ func (x *AuthenticationContext) GetTransaction() *TransactionContext {
 	return nil
 }
 
-// InternalAuthenticationContext is for admin/internal projections only.
-//
-// Public Authentication snapshots use AuthenticationContext and must not include
-// this message unless the caller is explicitly authorized for admin/internal
-// projection.
 type InternalAuthenticationContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Public-safe context.
-	PublicContext *AuthenticationContext `protobuf:"bytes,1,opt,name=public_context,json=publicContext,proto3" json:"public_context,omitempty"`
-	// Output only. Safe risk summary for admin/internal diagnostics.
-	Risk *RiskContext `protobuf:"bytes,2,opt,name=risk,proto3" json:"risk,omitempty"`
-	// Output only. Policy ids that influenced the authentication.
-	PolicyIds []string `protobuf:"bytes,3,rep,name=policy_ids,json=policyIds,proto3" json:"policy_ids,omitempty"`
-	// Output only. Risk reason codes for admin/internal diagnostics.
-	RiskReasonCodes []string `protobuf:"bytes,4,rep,name=risk_reason_codes,json=riskReasonCodes,proto3" json:"risk_reason_codes,omitempty"`
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	PublicContext   *AuthenticationContext `protobuf:"bytes,1,opt,name=public_context,json=publicContext,proto3" json:"public_context,omitempty"`
+	Risk            *RiskContext           `protobuf:"bytes,2,opt,name=risk,proto3" json:"risk,omitempty"`
+	PolicyIds       []string               `protobuf:"bytes,3,rep,name=policy_ids,json=policyIds,proto3" json:"policy_ids,omitempty"`
+	RiskReasonCodes []string               `protobuf:"bytes,4,rep,name=risk_reason_codes,json=riskReasonCodes,proto3" json:"risk_reason_codes,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -794,27 +709,16 @@ func (x *InternalAuthenticationContext) GetRiskReasonCodes() []string {
 	return nil
 }
 
-// RequestHint contains client-provided request metadata.
 type RequestHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Technical id of the API request for audit/logging/tracing.
-	//
-	// This is not a command idempotency key.
-	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Optional. Business correlation id for the login flow.
-	CorrelationId string `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Optional. Observability trace id.
-	TraceId string `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	// Optional. Service, gateway, adapter, or BFF that submitted the request.
-	SourceService string `protobuf:"bytes,4,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
-	// Optional. User-Agent header or normalized user agent string.
-	UserAgent string `protobuf:"bytes,5,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	// Optional. Requested locale.
-	Locale string `protobuf:"bytes,6,opt,name=locale,proto3" json:"locale,omitempty"`
-	// Optional. IANA time zone name.
-	Timezone string `protobuf:"bytes,7,opt,name=timezone,proto3" json:"timezone,omitempty"`
-	// Optional. Accept-Language header.
-	AcceptLanguage string `protobuf:"bytes,8,opt,name=accept_language,json=acceptLanguage,proto3" json:"accept_language,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	RequestId      string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	CorrelationId  string                 `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
+	TraceId        string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	SourceService  string                 `protobuf:"bytes,4,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	UserAgent      string                 `protobuf:"bytes,5,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	Locale         string                 `protobuf:"bytes,6,opt,name=locale,proto3" json:"locale,omitempty"`
+	Timezone       string                 `protobuf:"bytes,7,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	AcceptLanguage string                 `protobuf:"bytes,8,opt,name=accept_language,json=acceptLanguage,proto3" json:"accept_language,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -905,24 +809,15 @@ func (x *RequestHint) GetAcceptLanguage() string {
 	return ""
 }
 
-// RequestContext is the server-normalized request metadata.
 type RequestContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Technical API request id selected by the server.
-	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Output only. Business correlation id for the login flow.
-	CorrelationId string `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Output only. Observability trace id.
-	TraceId string `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
-	// Output only. Request source service.
-	SourceService string `protobuf:"bytes,4,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
-	// Output only. Normalized user agent.
-	UserAgent string `protobuf:"bytes,5,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
-	// Output only. Effective locale.
-	Locale string `protobuf:"bytes,6,opt,name=locale,proto3" json:"locale,omitempty"`
-	// Output only. Effective time zone.
-	Timezone string `protobuf:"bytes,7,opt,name=timezone,proto3" json:"timezone,omitempty"`
-	// Output only. Server-side receive time.
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	CorrelationId string                 `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
+	TraceId       string                 `protobuf:"bytes,3,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	SourceService string                 `protobuf:"bytes,4,opt,name=source_service,json=sourceService,proto3" json:"source_service,omitempty"`
+	UserAgent     string                 `protobuf:"bytes,5,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	Locale        string                 `protobuf:"bytes,6,opt,name=locale,proto3" json:"locale,omitempty"`
+	Timezone      string                 `protobuf:"bytes,7,opt,name=timezone,proto3" json:"timezone,omitempty"`
 	ReceivedTime  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=received_time,json=receivedTime,proto3" json:"received_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1014,21 +909,15 @@ func (x *RequestContext) GetReceivedTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// SessionHint contains client-provided safe hints about an existing session.
 type SessionHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Existing session lookup id. It must not be a bearer token.
-	ExistingSessionId string `protobuf:"bytes,1,opt,name=existing_session_id,json=existingSessionId,proto3" json:"existing_session_id,omitempty"`
-	// Optional. Previous authentication id associated with the existing session.
-	PreviousAuthenticationId string `protobuf:"bytes,2,opt,name=previous_authentication_id,json=previousAuthenticationId,proto3" json:"previous_authentication_id,omitempty"`
-	// Optional. Caller-observed previous authentication time.
-	AuthTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
-	// Optional. Maximum acceptable age for the existing authentication.
-	MaxAge *durationpb.Duration `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
-	// Optional. Hint about the desired assurance level.
-	RequestedAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,5,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                    protoimpl.MessageState       `protogen:"open.v1"`
+	ExistingSessionId        string                       `protobuf:"bytes,1,opt,name=existing_session_id,json=existingSessionId,proto3" json:"existing_session_id,omitempty"`
+	PreviousAuthenticationId string                       `protobuf:"bytes,2,opt,name=previous_authentication_id,json=previousAuthenticationId,proto3" json:"previous_authentication_id,omitempty"`
+	AuthTime                 *timestamppb.Timestamp       `protobuf:"bytes,3,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
+	MaxAge                   *durationpb.Duration         `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	RequestedAssuranceLevel  AuthenticationAssuranceLevel `protobuf:"varint,5,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *SessionHint) Reset() {
@@ -1096,25 +985,17 @@ func (x *SessionHint) GetRequestedAssuranceLevel() AuthenticationAssuranceLevel 
 	return AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
 }
 
-// SessionContext describes normalized session and step-up context.
 type SessionContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Existing session lookup id.
-	ExistingSessionId string `protobuf:"bytes,1,opt,name=existing_session_id,json=existingSessionId,proto3" json:"existing_session_id,omitempty"`
-	// Output only. Previous authentication id associated with the session.
-	PreviousAuthenticationId string `protobuf:"bytes,2,opt,name=previous_authentication_id,json=previousAuthenticationId,proto3" json:"previous_authentication_id,omitempty"`
-	// Output only. Assurance level established by the previous session.
-	PreviousAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,3,opt,name=previous_assurance_level,json=previousAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"previous_assurance_level,omitempty"`
-	// Output only. Previous authentication time.
-	AuthTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
-	// Output only. Effective max age requirement.
-	MaxAge *durationpb.Duration `protobuf:"bytes,5,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
-	// Output only. Reason step-up or reauthentication is required.
-	StepUpReason SessionContext_StepUpReason `protobuf:"varint,6,opt,name=step_up_reason,json=stepUpReason,proto3,enum=m8.platform.iam.v1.SessionContext_StepUpReason" json:"step_up_reason,omitempty"`
-	// Output only. Assurance level requested for the current authentication.
-	RequestedAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,7,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                    protoimpl.MessageState       `protogen:"open.v1"`
+	ExistingSessionId        string                       `protobuf:"bytes,1,opt,name=existing_session_id,json=existingSessionId,proto3" json:"existing_session_id,omitempty"`
+	PreviousAuthenticationId string                       `protobuf:"bytes,2,opt,name=previous_authentication_id,json=previousAuthenticationId,proto3" json:"previous_authentication_id,omitempty"`
+	PreviousAssuranceLevel   AuthenticationAssuranceLevel `protobuf:"varint,3,opt,name=previous_assurance_level,json=previousAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"previous_assurance_level,omitempty"`
+	AuthTime                 *timestamppb.Timestamp       `protobuf:"bytes,4,opt,name=auth_time,json=authTime,proto3" json:"auth_time,omitempty"`
+	MaxAge                   *durationpb.Duration         `protobuf:"bytes,5,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	StepUpReason             SessionContext_StepUpReason  `protobuf:"varint,6,opt,name=step_up_reason,json=stepUpReason,proto3,enum=m8.platform.iam.v1.SessionContext_StepUpReason" json:"step_up_reason,omitempty"`
+	RequestedAssuranceLevel  AuthenticationAssuranceLevel `protobuf:"varint,7,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *SessionContext) Reset() {
@@ -1196,17 +1077,13 @@ func (x *SessionContext) GetRequestedAssuranceLevel() AuthenticationAssuranceLev
 	return AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
 }
 
-// ResourceHint contains client-provided resource and operation hints.
 type ResourceHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Resource indicator, URL, or opaque resource name.
-	RequestedResource string `protobuf:"bytes,1,opt,name=requested_resource,json=requestedResource,proto3" json:"requested_resource,omitempty"`
-	// Optional. Operation requiring authentication.
-	RequestedOperation string `protobuf:"bytes,2,opt,name=requested_operation,json=requestedOperation,proto3" json:"requested_operation,omitempty"`
-	// Optional. OAuth/OIDC audiences or resource indicators.
-	Audience      []string `protobuf:"bytes,3,rep,name=audience,proto3" json:"audience,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	RequestedResource  string                 `protobuf:"bytes,1,opt,name=requested_resource,json=requestedResource,proto3" json:"requested_resource,omitempty"`
+	RequestedOperation string                 `protobuf:"bytes,2,opt,name=requested_operation,json=requestedOperation,proto3" json:"requested_operation,omitempty"`
+	Audience           []string               `protobuf:"bytes,3,rep,name=audience,proto3" json:"audience,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ResourceHint) Reset() {
@@ -1260,25 +1137,17 @@ func (x *ResourceHint) GetAudience() []string {
 	return nil
 }
 
-// ResourceContext describes normalized tenant, resource, operation, and audience.
 type ResourceContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Organization identifier resolved by the server.
-	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	// Output only. Workspace identifier resolved by the server.
-	WorkspaceId string `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
-	// Output only. Project identifier resolved from client_id and policy.
-	ProjectId string `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	// Output only. User pool identifier resolved from client_id and policy.
-	UserPoolId string `protobuf:"bytes,4,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
-	// Output only. Validated requested resource.
-	RequestedResource string `protobuf:"bytes,5,opt,name=requested_resource,json=requestedResource,proto3" json:"requested_resource,omitempty"`
-	// Output only. Validated requested operation.
-	RequestedOperation string `protobuf:"bytes,6,opt,name=requested_operation,json=requestedOperation,proto3" json:"requested_operation,omitempty"`
-	// Output only. Validated OAuth/OIDC audiences or resource indicators.
-	Audience      []string `protobuf:"bytes,7,rep,name=audience,proto3" json:"audience,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	OrganizationId     string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	WorkspaceId        string                 `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
+	ProjectId          string                 `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	UserPoolId         string                 `protobuf:"bytes,4,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
+	RequestedResource  string                 `protobuf:"bytes,5,opt,name=requested_resource,json=requestedResource,proto3" json:"requested_resource,omitempty"`
+	RequestedOperation string                 `protobuf:"bytes,6,opt,name=requested_operation,json=requestedOperation,proto3" json:"requested_operation,omitempty"`
+	Audience           []string               `protobuf:"bytes,7,rep,name=audience,proto3" json:"audience,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ResourceContext) Reset() {
@@ -1360,23 +1229,15 @@ func (x *ResourceContext) GetAudience() []string {
 	return nil
 }
 
-// InteractionHint contains client-provided UI and protocol hints.
 type InteractionHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// UI mode requested by the client.
-	UiMode InteractionContext_UiMode `protobuf:"varint,1,opt,name=ui_mode,json=uiMode,proto3,enum=m8.platform.iam.v1.InteractionContext_UiMode" json:"ui_mode,omitempty"`
-	// Source of the login hint or subject hint.
-	LoginHintSource InteractionContext_LoginHintSource `protobuf:"varint,2,opt,name=login_hint_source,json=loginHintSource,proto3,enum=m8.platform.iam.v1.InteractionContext_LoginHintSource" json:"login_hint_source,omitempty"`
-	// Optional. Preferred UI locale.
-	PreferredLocale string `protobuf:"bytes,3,opt,name=preferred_locale,json=preferredLocale,proto3" json:"preferred_locale,omitempty"`
-	// Optional. OIDC display mode.
-	Display InteractionContext_DisplayMode `protobuf:"varint,4,opt,name=display,proto3,enum=m8.platform.iam.v1.InteractionContext_DisplayMode" json:"display,omitempty"`
-	// Optional. OIDC prompt values.
-	Prompts []string `protobuf:"bytes,5,rep,name=prompts,proto3" json:"prompts,omitempty"`
-	// Optional. UX hint that the client may support passkeys.
-	PasskeyCapableClient bool `protobuf:"varint,6,opt,name=passkey_capable_client,json=passkeyCapableClient,proto3" json:"passkey_capable_client,omitempty"`
-	// Optional. UX hint that WebAuthn user verification may be supported.
-	UserVerificationSupported bool `protobuf:"varint,7,opt,name=user_verification_supported,json=userVerificationSupported,proto3" json:"user_verification_supported,omitempty"`
+	state                     protoimpl.MessageState             `protogen:"open.v1"`
+	UiMode                    InteractionContext_UiMode          `protobuf:"varint,1,opt,name=ui_mode,json=uiMode,proto3,enum=m8.platform.iam.v1.InteractionContext_UiMode" json:"ui_mode,omitempty"`
+	LoginHintSource           InteractionContext_LoginHintSource `protobuf:"varint,2,opt,name=login_hint_source,json=loginHintSource,proto3,enum=m8.platform.iam.v1.InteractionContext_LoginHintSource" json:"login_hint_source,omitempty"`
+	PreferredLocale           string                             `protobuf:"bytes,3,opt,name=preferred_locale,json=preferredLocale,proto3" json:"preferred_locale,omitempty"`
+	Display                   InteractionContext_DisplayMode     `protobuf:"varint,4,opt,name=display,proto3,enum=m8.platform.iam.v1.InteractionContext_DisplayMode" json:"display,omitempty"`
+	Prompts                   []string                           `protobuf:"bytes,5,rep,name=prompts,proto3" json:"prompts,omitempty"`
+	PasskeyCapableClient      bool                               `protobuf:"varint,6,opt,name=passkey_capable_client,json=passkeyCapableClient,proto3" json:"passkey_capable_client,omitempty"`
+	UserVerificationSupported bool                               `protobuf:"varint,7,opt,name=user_verification_supported,json=userVerificationSupported,proto3" json:"user_verification_supported,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -1460,23 +1321,15 @@ func (x *InteractionHint) GetUserVerificationSupported() bool {
 	return false
 }
 
-// InteractionContext describes normalized UI and protocol interaction context.
 type InteractionContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Effective UI mode.
-	UiMode InteractionContext_UiMode `protobuf:"varint,1,opt,name=ui_mode,json=uiMode,proto3,enum=m8.platform.iam.v1.InteractionContext_UiMode" json:"ui_mode,omitempty"`
-	// Output only. Normalized login hint source.
-	LoginHintSource InteractionContext_LoginHintSource `protobuf:"varint,2,opt,name=login_hint_source,json=loginHintSource,proto3,enum=m8.platform.iam.v1.InteractionContext_LoginHintSource" json:"login_hint_source,omitempty"`
-	// Output only. Effective UI locale.
-	PreferredLocale string `protobuf:"bytes,3,opt,name=preferred_locale,json=preferredLocale,proto3" json:"preferred_locale,omitempty"`
-	// Output only. Effective OIDC display mode.
-	Display InteractionContext_DisplayMode `protobuf:"varint,4,opt,name=display,proto3,enum=m8.platform.iam.v1.InteractionContext_DisplayMode" json:"display,omitempty"`
-	// Output only. Effective OIDC prompt values.
-	Prompts []string `protobuf:"bytes,5,rep,name=prompts,proto3" json:"prompts,omitempty"`
-	// Output only. Whether the client is believed to support passkeys.
-	PasskeyCapableClient bool `protobuf:"varint,6,opt,name=passkey_capable_client,json=passkeyCapableClient,proto3" json:"passkey_capable_client,omitempty"`
-	// Output only. Whether WebAuthn user verification may be supported.
-	UserVerificationSupported bool `protobuf:"varint,7,opt,name=user_verification_supported,json=userVerificationSupported,proto3" json:"user_verification_supported,omitempty"`
+	state                     protoimpl.MessageState             `protogen:"open.v1"`
+	UiMode                    InteractionContext_UiMode          `protobuf:"varint,1,opt,name=ui_mode,json=uiMode,proto3,enum=m8.platform.iam.v1.InteractionContext_UiMode" json:"ui_mode,omitempty"`
+	LoginHintSource           InteractionContext_LoginHintSource `protobuf:"varint,2,opt,name=login_hint_source,json=loginHintSource,proto3,enum=m8.platform.iam.v1.InteractionContext_LoginHintSource" json:"login_hint_source,omitempty"`
+	PreferredLocale           string                             `protobuf:"bytes,3,opt,name=preferred_locale,json=preferredLocale,proto3" json:"preferred_locale,omitempty"`
+	Display                   InteractionContext_DisplayMode     `protobuf:"varint,4,opt,name=display,proto3,enum=m8.platform.iam.v1.InteractionContext_DisplayMode" json:"display,omitempty"`
+	Prompts                   []string                           `protobuf:"bytes,5,rep,name=prompts,proto3" json:"prompts,omitempty"`
+	PasskeyCapableClient      bool                               `protobuf:"varint,6,opt,name=passkey_capable_client,json=passkeyCapableClient,proto3" json:"passkey_capable_client,omitempty"`
+	UserVerificationSupported bool                               `protobuf:"varint,7,opt,name=user_verification_supported,json=userVerificationSupported,proto3" json:"user_verification_supported,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -1560,35 +1413,21 @@ func (x *InteractionContext) GetUserVerificationSupported() bool {
 	return false
 }
 
-// DeviceHint contains client-provided device, browser, app, and SDK hints.
 type DeviceHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Stable device lookup id. It must not be a raw fingerprint.
-	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	// Optional. Trusted-device lookup id. It must not be a bearer secret.
-	TrustedDeviceId string `protobuf:"bytes,2,opt,name=trusted_device_id,json=trustedDeviceId,proto3" json:"trusted_device_id,omitempty"`
-	// Optional. Stored fingerprint reference, not raw fingerprint data.
-	DeviceFingerprintId string `protobuf:"bytes,3,opt,name=device_fingerprint_id,json=deviceFingerprintId,proto3" json:"device_fingerprint_id,omitempty"`
-	// Optional. Platform hint.
-	Platform string `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
-	// Optional. Operating system name.
-	Os string `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
-	// Optional. Operating system version.
-	OsVersion string `protobuf:"bytes,6,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
-	// Optional. Browser name.
-	Browser string `protobuf:"bytes,7,opt,name=browser,proto3" json:"browser,omitempty"`
-	// Optional. Browser version.
-	BrowserVersion string `protobuf:"bytes,8,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"`
-	// Optional. Application version.
-	AppVersion string `protobuf:"bytes,9,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`
-	// Optional. SDK name.
-	SdkName string `protobuf:"bytes,10,opt,name=sdk_name,json=sdkName,proto3" json:"sdk_name,omitempty"`
-	// Optional. SDK version.
-	SdkVersion string `protobuf:"bytes,11,opt,name=sdk_version,json=sdkVersion,proto3" json:"sdk_version,omitempty"`
-	// Optional. UX hint that WebAuthn APIs may be available.
-	WebauthnAvailable bool `protobuf:"varint,12,opt,name=webauthn_available,json=webauthnAvailable,proto3" json:"webauthn_available,omitempty"`
-	// Optional. UX hint that passkeys may be available.
-	PasskeyAvailableHint bool `protobuf:"varint,13,opt,name=passkey_available_hint,json=passkeyAvailableHint,proto3" json:"passkey_available_hint,omitempty"`
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId             string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	TrustedDeviceId      string                 `protobuf:"bytes,2,opt,name=trusted_device_id,json=trustedDeviceId,proto3" json:"trusted_device_id,omitempty"`
+	DeviceFingerprintId  string                 `protobuf:"bytes,3,opt,name=device_fingerprint_id,json=deviceFingerprintId,proto3" json:"device_fingerprint_id,omitempty"`
+	Platform             string                 `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
+	Os                   string                 `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
+	OsVersion            string                 `protobuf:"bytes,6,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
+	Browser              string                 `protobuf:"bytes,7,opt,name=browser,proto3" json:"browser,omitempty"`
+	BrowserVersion       string                 `protobuf:"bytes,8,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"`
+	AppVersion           string                 `protobuf:"bytes,9,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`
+	SdkName              string                 `protobuf:"bytes,10,opt,name=sdk_name,json=sdkName,proto3" json:"sdk_name,omitempty"`
+	SdkVersion           string                 `protobuf:"bytes,11,opt,name=sdk_version,json=sdkVersion,proto3" json:"sdk_version,omitempty"`
+	WebauthnAvailable    bool                   `protobuf:"varint,12,opt,name=webauthn_available,json=webauthnAvailable,proto3" json:"webauthn_available,omitempty"`
+	PasskeyAvailableHint bool                   `protobuf:"varint,13,opt,name=passkey_available_hint,json=passkeyAvailableHint,proto3" json:"passkey_available_hint,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1714,35 +1553,21 @@ func (x *DeviceHint) GetPasskeyAvailableHint() bool {
 	return false
 }
 
-// DeviceContext describes normalized device, browser, app, and SDK context.
 type DeviceContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Stable device lookup id.
-	DeviceId string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	// Output only. Trusted-device lookup id.
-	TrustedDeviceId string `protobuf:"bytes,2,opt,name=trusted_device_id,json=trustedDeviceId,proto3" json:"trusted_device_id,omitempty"`
-	// Output only. Stored fingerprint reference, not raw fingerprint data.
-	DeviceFingerprintId string `protobuf:"bytes,3,opt,name=device_fingerprint_id,json=deviceFingerprintId,proto3" json:"device_fingerprint_id,omitempty"`
-	// Output only. Platform.
-	Platform string `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
-	// Output only. Operating system name.
-	Os string `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
-	// Output only. Operating system version.
-	OsVersion string `protobuf:"bytes,6,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
-	// Output only. Browser name.
-	Browser string `protobuf:"bytes,7,opt,name=browser,proto3" json:"browser,omitempty"`
-	// Output only. Browser version.
-	BrowserVersion string `protobuf:"bytes,8,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"`
-	// Output only. Application version.
-	AppVersion string `protobuf:"bytes,9,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`
-	// Output only. SDK name.
-	SdkName string `protobuf:"bytes,10,opt,name=sdk_name,json=sdkName,proto3" json:"sdk_name,omitempty"`
-	// Output only. SDK version.
-	SdkVersion string `protobuf:"bytes,11,opt,name=sdk_version,json=sdkVersion,proto3" json:"sdk_version,omitempty"`
-	// Output only. Whether WebAuthn APIs may be available.
-	WebauthnAvailable bool `protobuf:"varint,12,opt,name=webauthn_available,json=webauthnAvailable,proto3" json:"webauthn_available,omitempty"`
-	// Output only. Whether passkeys may be available on the platform.
-	PasskeyAvailableHint bool `protobuf:"varint,13,opt,name=passkey_available_hint,json=passkeyAvailableHint,proto3" json:"passkey_available_hint,omitempty"`
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId             string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	TrustedDeviceId      string                 `protobuf:"bytes,2,opt,name=trusted_device_id,json=trustedDeviceId,proto3" json:"trusted_device_id,omitempty"`
+	DeviceFingerprintId  string                 `protobuf:"bytes,3,opt,name=device_fingerprint_id,json=deviceFingerprintId,proto3" json:"device_fingerprint_id,omitempty"`
+	Platform             string                 `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
+	Os                   string                 `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
+	OsVersion            string                 `protobuf:"bytes,6,opt,name=os_version,json=osVersion,proto3" json:"os_version,omitempty"`
+	Browser              string                 `protobuf:"bytes,7,opt,name=browser,proto3" json:"browser,omitempty"`
+	BrowserVersion       string                 `protobuf:"bytes,8,opt,name=browser_version,json=browserVersion,proto3" json:"browser_version,omitempty"`
+	AppVersion           string                 `protobuf:"bytes,9,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`
+	SdkName              string                 `protobuf:"bytes,10,opt,name=sdk_name,json=sdkName,proto3" json:"sdk_name,omitempty"`
+	SdkVersion           string                 `protobuf:"bytes,11,opt,name=sdk_version,json=sdkVersion,proto3" json:"sdk_version,omitempty"`
+	WebauthnAvailable    bool                   `protobuf:"varint,12,opt,name=webauthn_available,json=webauthnAvailable,proto3" json:"webauthn_available,omitempty"`
+	PasskeyAvailableHint bool                   `protobuf:"varint,13,opt,name=passkey_available_hint,json=passkeyAvailableHint,proto3" json:"passkey_available_hint,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1868,13 +1693,10 @@ func (x *DeviceContext) GetPasskeyAvailableHint() bool {
 	return false
 }
 
-// NetworkHint contains client or gateway provided network hints.
 type NetworkHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Client IP as observed by a trusted gateway or BFF.
-	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	// Optional. Forwarded client IP chain from trusted forwarding headers.
-	ForwardedFor  []string `protobuf:"bytes,2,rep,name=forwarded_for,json=forwardedFor,proto3" json:"forwarded_for,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ip            string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	ForwardedFor  []string               `protobuf:"bytes,2,rep,name=forwarded_for,json=forwardedFor,proto3" json:"forwarded_for,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1923,30 +1745,18 @@ func (x *NetworkHint) GetForwardedFor() []string {
 	return nil
 }
 
-// NetworkContext describes server-normalized network and geolocation context.
 type NetworkContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Client IP normalized through trusted proxy boundaries.
-	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	// Output only. Trusted forwarded client IP chain.
-	ForwardedFor []string `protobuf:"bytes,2,rep,name=forwarded_for,json=forwardedFor,proto3" json:"forwarded_for,omitempty"`
-	// Output only. ISO 3166-1 alpha-2 country code from server enrichment.
-	CountryCode string `protobuf:"bytes,3,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
-	// Output only. Region from server-side geolocation.
-	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
-	// Output only. City from server-side geolocation.
-	City string `protobuf:"bytes,5,opt,name=city,proto3" json:"city,omitempty"`
-	// Output only. Autonomous system number from server enrichment.
-	Asn uint32 `protobuf:"varint,6,opt,name=asn,proto3" json:"asn,omitempty"`
-	// Output only. ISP or organization from server enrichment.
-	Isp string `protobuf:"bytes,7,opt,name=isp,proto3" json:"isp,omitempty"`
-	// Output only. Whether server enrichment classified the IP as a proxy.
-	IsProxy bool `protobuf:"varint,8,opt,name=is_proxy,json=isProxy,proto3" json:"is_proxy,omitempty"`
-	// Output only. Whether server enrichment classified the IP as a VPN.
-	IsVpn bool `protobuf:"varint,9,opt,name=is_vpn,json=isVpn,proto3" json:"is_vpn,omitempty"`
-	// Output only. Whether server enrichment classified the IP as Tor.
-	IsTor bool `protobuf:"varint,10,opt,name=is_tor,json=isTor,proto3" json:"is_tor,omitempty"`
-	// Output only. Network-only risk level from enrichment or Risk Decision.
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Ip            string                          `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	ForwardedFor  []string                        `protobuf:"bytes,2,rep,name=forwarded_for,json=forwardedFor,proto3" json:"forwarded_for,omitempty"`
+	CountryCode   string                          `protobuf:"bytes,3,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`
+	Region        string                          `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
+	City          string                          `protobuf:"bytes,5,opt,name=city,proto3" json:"city,omitempty"`
+	Asn           uint32                          `protobuf:"varint,6,opt,name=asn,proto3" json:"asn,omitempty"`
+	Isp           string                          `protobuf:"bytes,7,opt,name=isp,proto3" json:"isp,omitempty"`
+	IsProxy       bool                            `protobuf:"varint,8,opt,name=is_proxy,json=isProxy,proto3" json:"is_proxy,omitempty"`
+	IsVpn         bool                            `protobuf:"varint,9,opt,name=is_vpn,json=isVpn,proto3" json:"is_vpn,omitempty"`
+	IsTor         bool                            `protobuf:"varint,10,opt,name=is_tor,json=isTor,proto3" json:"is_tor,omitempty"`
 	RiskLevel     NetworkContext_NetworkRiskLevel `protobuf:"varint,11,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.NetworkContext_NetworkRiskLevel" json:"risk_level,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2059,39 +1869,24 @@ func (x *NetworkContext) GetRiskLevel() NetworkContext_NetworkRiskLevel {
 	return NetworkContext_NETWORK_RISK_LEVEL_UNSPECIFIED
 }
 
-// OidcRequestHint describes OAuth and OIDC request hints.
 type OidcRequestHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. OAuth scopes requested by the relying party.
-	Scope []string `protobuf:"bytes,1,rep,name=scope,proto3" json:"scope,omitempty"`
-	// Optional. Requested ACR values.
-	AcrValues []string `protobuf:"bytes,2,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
-	// Optional. OIDC prompt values.
-	Prompt []string `protobuf:"bytes,3,rep,name=prompt,proto3" json:"prompt,omitempty"`
-	// Optional. OIDC max_age requirement.
-	MaxAge *durationpb.Duration `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
-	// Optional. OIDC nonce. Do not treat it as proof of authentication.
-	Nonce string `protobuf:"bytes,5,opt,name=nonce,proto3" json:"nonce,omitempty"`
-	// Optional. OAuth/OIDC state. Deployments may treat it as sensitive.
-	State string `protobuf:"bytes,6,opt,name=state,proto3" json:"state,omitempty"`
-	// Optional. PKCE code challenge.
-	CodeChallenge string `protobuf:"bytes,7,opt,name=code_challenge,json=codeChallenge,proto3" json:"code_challenge,omitempty"`
-	// Optional. PKCE code challenge method.
-	CodeChallengeMethod string `protobuf:"bytes,8,opt,name=code_challenge_method,json=codeChallengeMethod,proto3" json:"code_challenge_method,omitempty"`
-	// Optional. OAuth/OIDC response type.
-	ResponseType string `protobuf:"bytes,9,opt,name=response_type,json=responseType,proto3" json:"response_type,omitempty"`
-	// Optional. OAuth/OIDC response mode.
-	ResponseMode string `protobuf:"bytes,10,opt,name=response_mode,json=responseMode,proto3" json:"response_mode,omitempty"`
-	// Optional. OIDC login_hint. It is only a hint.
-	LoginHint string `protobuf:"bytes,11,opt,name=login_hint,json=loginHint,proto3" json:"login_hint,omitempty"`
-	// Optional. OAuth resource indicators.
-	Resource []string `protobuf:"bytes,12,rep,name=resource,proto3" json:"resource,omitempty"`
-	// Optional. OAuth/OIDC audience values.
-	Audience []string `protobuf:"bytes,13,rep,name=audience,proto3" json:"audience,omitempty"`
-	// Optional. Redirect URI requested by the client or protocol adapter.
-	RedirectUri   string `protobuf:"bytes,14,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Scope               []string               `protobuf:"bytes,1,rep,name=scope,proto3" json:"scope,omitempty"`
+	AcrValues           []string               `protobuf:"bytes,2,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	Prompt              []string               `protobuf:"bytes,3,rep,name=prompt,proto3" json:"prompt,omitempty"`
+	MaxAge              *durationpb.Duration   `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	Nonce               string                 `protobuf:"bytes,5,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	State               string                 `protobuf:"bytes,6,opt,name=state,proto3" json:"state,omitempty"`
+	CodeChallenge       string                 `protobuf:"bytes,7,opt,name=code_challenge,json=codeChallenge,proto3" json:"code_challenge,omitempty"`
+	CodeChallengeMethod string                 `protobuf:"bytes,8,opt,name=code_challenge_method,json=codeChallengeMethod,proto3" json:"code_challenge_method,omitempty"`
+	ResponseType        string                 `protobuf:"bytes,9,opt,name=response_type,json=responseType,proto3" json:"response_type,omitempty"`
+	ResponseMode        string                 `protobuf:"bytes,10,opt,name=response_mode,json=responseMode,proto3" json:"response_mode,omitempty"`
+	LoginHint           string                 `protobuf:"bytes,11,opt,name=login_hint,json=loginHint,proto3" json:"login_hint,omitempty"`
+	Resource            []string               `protobuf:"bytes,12,rep,name=resource,proto3" json:"resource,omitempty"`
+	Audience            []string               `protobuf:"bytes,13,rep,name=audience,proto3" json:"audience,omitempty"`
+	RedirectUri         string                 `protobuf:"bytes,14,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *OidcRequestHint) Reset() {
@@ -2222,21 +2017,14 @@ func (x *OidcRequestHint) GetRedirectUri() string {
 	return ""
 }
 
-// OidcContext describes server-normalized OAuth and OIDC context.
 type OidcContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Validated OAuth scopes.
-	Scope []string `protobuf:"bytes,1,rep,name=scope,proto3" json:"scope,omitempty"`
-	// Output only. Effective ACR values.
-	AcrValues []string `protobuf:"bytes,2,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
-	// Output only. Effective prompt values.
-	Prompt []string `protobuf:"bytes,3,rep,name=prompt,proto3" json:"prompt,omitempty"`
-	// Output only. Effective max_age.
-	MaxAge *durationpb.Duration `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
-	// Output only. Validated redirect URI.
-	RedirectUri string `protobuf:"bytes,5,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
-	// Output only. Token id or hash for sensitive protocol state.
-	StateId       string `protobuf:"bytes,6,opt,name=state_id,json=stateId,proto3" json:"state_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Scope         []string               `protobuf:"bytes,1,rep,name=scope,proto3" json:"scope,omitempty"`
+	AcrValues     []string               `protobuf:"bytes,2,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
+	Prompt        []string               `protobuf:"bytes,3,rep,name=prompt,proto3" json:"prompt,omitempty"`
+	MaxAge        *durationpb.Duration   `protobuf:"bytes,4,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
+	RedirectUri   string                 `protobuf:"bytes,5,opt,name=redirect_uri,json=redirectUri,proto3" json:"redirect_uri,omitempty"`
+	StateId       string                 `protobuf:"bytes,6,opt,name=state_id,json=stateId,proto3" json:"state_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2313,17 +2101,12 @@ func (x *OidcContext) GetStateId() string {
 	return ""
 }
 
-// CibaRequestHint contains CIBA-specific start hints.
 type CibaRequestHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Opaque login_hint_token received by the protocol adapter.
-	LoginHintToken string `protobuf:"bytes,1,opt,name=login_hint_token,json=loginHintToken,proto3" json:"login_hint_token,omitempty"`
-	// Optional. OIDC id_token_hint received by the protocol adapter.
-	IdTokenHint string `protobuf:"bytes,2,opt,name=id_token_hint,json=idTokenHint,proto3" json:"id_token_hint,omitempty"`
-	// Optional. User-visible binding message.
-	BindingMessage string `protobuf:"bytes,3,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
-	// Optional. Requested expiry for the CIBA authentication request.
-	RequestedExpiry *durationpb.Duration `protobuf:"bytes,4,opt,name=requested_expiry,json=requestedExpiry,proto3" json:"requested_expiry,omitempty"`
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	LoginHintToken  string                 `protobuf:"bytes,1,opt,name=login_hint_token,json=loginHintToken,proto3" json:"login_hint_token,omitempty"`
+	IdTokenHint     string                 `protobuf:"bytes,2,opt,name=id_token_hint,json=idTokenHint,proto3" json:"id_token_hint,omitempty"`
+	BindingMessage  string                 `protobuf:"bytes,3,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
+	RequestedExpiry *durationpb.Duration   `protobuf:"bytes,4,opt,name=requested_expiry,json=requestedExpiry,proto3" json:"requested_expiry,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -2386,17 +2169,12 @@ func (x *CibaRequestHint) GetRequestedExpiry() *durationpb.Duration {
 	return nil
 }
 
-// CibaContext contains public-safe CIBA output context.
 type CibaContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. User-visible binding message.
-	BindingMessage string `protobuf:"bytes,1,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
-	// Output only. Authentication request expiry.
-	ExpireTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
-	// Output only. Polling interval for CIBA token polling or status checks.
-	Interval *durationpb.Duration `protobuf:"bytes,3,opt,name=interval,proto3" json:"interval,omitempty"`
-	// Output only. Reference or hash for client_notification_token, if used.
-	ClientNotificationTokenId string `protobuf:"bytes,4,opt,name=client_notification_token_id,json=clientNotificationTokenId,proto3" json:"client_notification_token_id,omitempty"`
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	BindingMessage            string                 `protobuf:"bytes,1,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
+	ExpireTime                *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
+	Interval                  *durationpb.Duration   `protobuf:"bytes,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	ClientNotificationTokenId string                 `protobuf:"bytes,4,opt,name=client_notification_token_id,json=clientNotificationTokenId,proto3" json:"client_notification_token_id,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -2459,21 +2237,14 @@ func (x *CibaContext) GetClientNotificationTokenId() string {
 	return ""
 }
 
-// TransactionHint contains client-provided transaction confirmation hints.
 type TransactionHint struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Transaction identifier.
-	TransactionId string `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	// Optional. Transaction type.
-	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	// Optional. Amount string as provided by the business domain.
-	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	// Optional. ISO 4217 currency code.
-	Currency string `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	// Optional. Counterparty display hint. Server must mask before returning.
-	Counterparty string `protobuf:"bytes,5,opt,name=counterparty,proto3" json:"counterparty,omitempty"`
-	// Optional. Binding message shown to the user.
-	BindingMessage string `protobuf:"bytes,6,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TransactionId  string                 `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
+	Type           string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Amount         string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency       string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	Counterparty   string                 `protobuf:"bytes,5,opt,name=counterparty,proto3" json:"counterparty,omitempty"`
+	BindingMessage string                 `protobuf:"bytes,6,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2550,23 +2321,16 @@ func (x *TransactionHint) GetBindingMessage() string {
 	return ""
 }
 
-// TransactionContext contains public-safe transaction confirmation context.
 type TransactionContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Transaction identifier.
-	TransactionId string `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	// Output only. Transaction type.
-	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	// Output only. Amount string as normalized by the business domain.
-	Amount string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	// Output only. ISO 4217 currency code.
-	Currency string `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
-	// Output only. Masked counterparty display value.
-	CounterpartyMasked string `protobuf:"bytes,5,opt,name=counterparty_masked,json=counterpartyMasked,proto3" json:"counterparty_masked,omitempty"`
-	// Output only. Binding message shown to the user.
-	BindingMessage string `protobuf:"bytes,6,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	TransactionId      string                 `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
+	Type               string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Amount             string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Currency           string                 `protobuf:"bytes,4,opt,name=currency,proto3" json:"currency,omitempty"`
+	CounterpartyMasked string                 `protobuf:"bytes,5,opt,name=counterparty_masked,json=counterpartyMasked,proto3" json:"counterparty_masked,omitempty"`
+	BindingMessage     string                 `protobuf:"bytes,6,opt,name=binding_message,json=bindingMessage,proto3" json:"binding_message,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *TransactionContext) Reset() {
@@ -2641,16 +2405,11 @@ func (x *TransactionContext) GetBindingMessage() string {
 	return ""
 }
 
-// RiskContext contains internal/admin risk decision state.
 type RiskContext struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Risk session identifier.
-	RiskSessionId string `protobuf:"bytes,1,opt,name=risk_session_id,json=riskSessionId,proto3" json:"risk_session_id,omitempty"`
-	// Output only. Risk decision identifier.
-	DecisionId string `protobuf:"bytes,2,opt,name=decision_id,json=decisionId,proto3" json:"decision_id,omitempty"`
-	// Output only. Safe risk level summary.
-	RiskLevel RiskContext_RiskLevel `protobuf:"varint,3,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.RiskContext_RiskLevel" json:"risk_level,omitempty"`
-	// Output only. Recommended risk action.
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	RiskSessionId     string                 `protobuf:"bytes,1,opt,name=risk_session_id,json=riskSessionId,proto3" json:"risk_session_id,omitempty"`
+	DecisionId        string                 `protobuf:"bytes,2,opt,name=decision_id,json=decisionId,proto3" json:"decision_id,omitempty"`
+	RiskLevel         RiskContext_RiskLevel  `protobuf:"varint,3,opt,name=risk_level,json=riskLevel,proto3,enum=m8.platform.iam.v1.RiskContext_RiskLevel" json:"risk_level,omitempty"`
 	RecommendedAction RiskContext_RiskAction `protobuf:"varint,4,opt,name=recommended_action,json=recommendedAction,proto3,enum=m8.platform.iam.v1.RiskContext_RiskAction" json:"recommended_action,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache

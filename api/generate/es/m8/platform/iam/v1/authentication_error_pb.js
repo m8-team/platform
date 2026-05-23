@@ -26,11 +26,6 @@ export const AuthenticationStateReasonSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_error, 0);
 
 /**
- * AuthenticationStateReason explains the latest authentication state transition.
- *
- * Reasons are machine-readable transition labels. They are not a replacement
- * for AuthenticationError and should not duplicate every possible error code.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationStateReason
  */
 export const AuthenticationStateReason = /*@__PURE__*/
@@ -43,12 +38,6 @@ export const AuthenticationErrorCodeSchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_error, 1);
 
 /**
- * AuthenticationErrorCode provides stable typed error codes for SDK branching.
- *
- * Precise existence-related codes are for admin, audit, and internal visibility.
- * Public login clients should receive neutral public-safe errors to prevent
- * account, phone, email, or provider-account enumeration.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationErrorCode
  */
 export const AuthenticationErrorCode = /*@__PURE__*/
@@ -61,8 +50,6 @@ export const AuthenticationErrorVisibilitySchema = /*@__PURE__*/
   enumDesc(file_m8_platform_iam_v1_authentication_error, 2);
 
 /**
- * AuthenticationErrorVisibility describes who may receive precise error details.
- *
  * @generated from enum m8.platform.iam.v1.AuthenticationErrorVisibility
  */
 export const AuthenticationErrorVisibility = /*@__PURE__*/

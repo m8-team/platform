@@ -24,9 +24,6 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// AuthenticationServiceName is the fully-qualified name of the AuthenticationService service.
 	AuthenticationServiceName = "m8.platform.iam.v1.AuthenticationService"
-	// AuthenticationProviderCallbackServiceName is the fully-qualified name of the
-	// AuthenticationProviderCallbackService service.
-	AuthenticationProviderCallbackServiceName = "m8.platform.iam.v1.AuthenticationProviderCallbackService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -37,71 +34,30 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AuthenticationServiceStartAuthenticationProcedure is the fully-qualified name of the
-	// AuthenticationService's StartAuthentication RPC.
-	AuthenticationServiceStartAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/StartAuthentication"
-	// AuthenticationServiceGetAuthenticationProcedure is the fully-qualified name of the
-	// AuthenticationService's GetAuthentication RPC.
-	AuthenticationServiceGetAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/GetAuthentication"
-	// AuthenticationServiceGetAuthenticationExperienceProcedure is the fully-qualified name of the
-	// AuthenticationService's GetAuthenticationExperience RPC.
-	AuthenticationServiceGetAuthenticationExperienceProcedure = "/m8.platform.iam.v1.AuthenticationService/GetAuthenticationExperience"
-	// AuthenticationServiceSelectAuthenticationChallengeProcedure is the fully-qualified name of the
-	// AuthenticationService's SelectAuthenticationChallenge RPC.
-	AuthenticationServiceSelectAuthenticationChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/SelectAuthenticationChallenge"
-	// AuthenticationServiceResendAuthenticationChallengeProcedure is the fully-qualified name of the
-	// AuthenticationService's ResendAuthenticationChallenge RPC.
-	AuthenticationServiceResendAuthenticationChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/ResendAuthenticationChallenge"
-	// AuthenticationServiceSubmitAuthenticationChallengeProcedure is the fully-qualified name of the
-	// AuthenticationService's SubmitAuthenticationChallenge RPC.
-	AuthenticationServiceSubmitAuthenticationChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/SubmitAuthenticationChallenge"
-	// AuthenticationServiceCancelAuthenticationProcedure is the fully-qualified name of the
-	// AuthenticationService's CancelAuthentication RPC.
-	AuthenticationServiceCancelAuthenticationProcedure = "/m8.platform.iam.v1.AuthenticationService/CancelAuthentication"
-	// AuthenticationProviderCallbackServiceHandleAuthenticationCallbackProcedure is the fully-qualified
-	// name of the AuthenticationProviderCallbackService's HandleAuthenticationCallback RPC.
-	AuthenticationProviderCallbackServiceHandleAuthenticationCallbackProcedure = "/m8.platform.iam.v1.AuthenticationProviderCallbackService/HandleAuthenticationCallback"
+	// AuthenticationServiceCreateProcedure is the fully-qualified name of the AuthenticationService's
+	// Create RPC.
+	AuthenticationServiceCreateProcedure = "/m8.platform.iam.v1.AuthenticationService/Create"
+	// AuthenticationServiceCancelProcedure is the fully-qualified name of the AuthenticationService's
+	// Cancel RPC.
+	AuthenticationServiceCancelProcedure = "/m8.platform.iam.v1.AuthenticationService/Cancel"
+	// AuthenticationServiceSelectChallengeProcedure is the fully-qualified name of the
+	// AuthenticationService's SelectChallenge RPC.
+	AuthenticationServiceSelectChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/SelectChallenge"
+	// AuthenticationServiceResendChallengeProcedure is the fully-qualified name of the
+	// AuthenticationService's ResendChallenge RPC.
+	AuthenticationServiceResendChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/ResendChallenge"
+	// AuthenticationServiceVerifyChallengeProcedure is the fully-qualified name of the
+	// AuthenticationService's VerifyChallenge RPC.
+	AuthenticationServiceVerifyChallengeProcedure = "/m8.platform.iam.v1.AuthenticationService/VerifyChallenge"
 )
 
 // AuthenticationServiceClient is a client for the m8.platform.iam.v1.AuthenticationService service.
 type AuthenticationServiceClient interface {
-	// Starts a new authentication flow.
-	//
-	// This command usually starts Temporal-backed orchestration. Operation.metadata
-	// contains AuthenticationOperationMetadata. Operation.response contains
-	// AuthenticationOperationResponse after command completion. Operation.error
-	// contains google.rpc.Status for command-level terminal failure.
-	StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Returns the latest public-safe authentication snapshot.
-	//
-	// This is synchronous read/query API and does not return Operation. Public
-	// clients must send the interaction_token received from StartAuthentication.
-	GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
-	// Returns the dynamic login experience for a client and optional context.
-	//
-	// This is a synchronous read/query API for login UI discovery. It must not
-	// reveal whether a specific user has a passkey or other sensitive
-	// authenticator before policy allows that disclosure.
-	GetAuthenticationExperience(context.Context, *connect.Request[v1.GetAuthenticationExperienceRequest]) (*connect.Response[v1.AuthenticationExperience], error)
-	// Selects an allowed challenge method or provider.
-	//
-	// This command may signal Temporal-backed orchestration. idempotency_key is
-	// used as the signal/command deduplication key; repeating it must return the
-	// same command result or current state without repeating side effects.
-	SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Resends or redelivers the current challenge when the method supports it.
-	//
-	// This command may dispatch through an external provider asynchronously.
-	ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Submits a response to the current challenge.
-	//
-	// This command may verify locally, signal asynchronous orchestration, or wait
-	// for external provider verification.
-	SubmitAuthenticationChallenge(context.Context, *connect.Request[v1.SubmitAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Cancels an active authentication flow.
-	//
-	// This command may signal asynchronous workflow cancellation.
-	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	Create(context.Context, *connect.Request[v1.CreateAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	Cancel(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	SelectChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
+	ResendChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
+	VerifyChallenge(context.Context, *connect.Request[v1.VerifyAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewAuthenticationServiceClient constructs a client for the
@@ -115,53 +71,34 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 	baseURL = strings.TrimRight(baseURL, "/")
 	authenticationServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationService").Methods()
 	return &authenticationServiceClient{
-		startAuthentication: connect.NewClient[v1.StartAuthenticationRequest, longrunningpb.Operation](
+		create: connect.NewClient[v1.CreateAuthenticationRequest, longrunningpb.Operation](
 			httpClient,
-			baseURL+AuthenticationServiceStartAuthenticationProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("StartAuthentication")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			baseURL+AuthenticationServiceCreateProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("Create")),
 			connect.WithClientOptions(opts...),
 		),
-		getAuthentication: connect.NewClient[v1.GetAuthenticationRequest, v1.Authentication](
+		cancel: connect.NewClient[v1.CancelAuthenticationRequest, longrunningpb.Operation](
 			httpClient,
-			baseURL+AuthenticationServiceGetAuthenticationProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("GetAuthentication")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			baseURL+AuthenticationServiceCancelProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("Cancel")),
 			connect.WithClientOptions(opts...),
 		),
-		getAuthenticationExperience: connect.NewClient[v1.GetAuthenticationExperienceRequest, v1.AuthenticationExperience](
+		selectChallenge: connect.NewClient[v1.SelectAuthenticationChallengeRequest, longrunningpb.Operation](
 			httpClient,
-			baseURL+AuthenticationServiceGetAuthenticationExperienceProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("GetAuthenticationExperience")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			baseURL+AuthenticationServiceSelectChallengeProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("SelectChallenge")),
 			connect.WithClientOptions(opts...),
 		),
-		selectAuthenticationChallenge: connect.NewClient[v1.SelectAuthenticationChallengeRequest, longrunningpb.Operation](
+		resendChallenge: connect.NewClient[v1.ResendAuthenticationChallengeRequest, longrunningpb.Operation](
 			httpClient,
-			baseURL+AuthenticationServiceSelectAuthenticationChallengeProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("SelectAuthenticationChallenge")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			baseURL+AuthenticationServiceResendChallengeProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("ResendChallenge")),
 			connect.WithClientOptions(opts...),
 		),
-		resendAuthenticationChallenge: connect.NewClient[v1.ResendAuthenticationChallengeRequest, longrunningpb.Operation](
+		verifyChallenge: connect.NewClient[v1.VerifyAuthenticationChallengeRequest, longrunningpb.Operation](
 			httpClient,
-			baseURL+AuthenticationServiceResendAuthenticationChallengeProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("ResendAuthenticationChallenge")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
-			connect.WithClientOptions(opts...),
-		),
-		submitAuthenticationChallenge: connect.NewClient[v1.SubmitAuthenticationChallengeRequest, longrunningpb.Operation](
-			httpClient,
-			baseURL+AuthenticationServiceSubmitAuthenticationChallengeProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("SubmitAuthenticationChallenge")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
-			connect.WithClientOptions(opts...),
-		),
-		cancelAuthentication: connect.NewClient[v1.CancelAuthenticationRequest, longrunningpb.Operation](
-			httpClient,
-			baseURL+AuthenticationServiceCancelAuthenticationProcedure,
-			connect.WithSchema(authenticationServiceMethods.ByName("CancelAuthentication")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			baseURL+AuthenticationServiceVerifyChallengeProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("VerifyChallenge")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -169,94 +106,46 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 
 // authenticationServiceClient implements AuthenticationServiceClient.
 type authenticationServiceClient struct {
-	startAuthentication           *connect.Client[v1.StartAuthenticationRequest, longrunningpb.Operation]
-	getAuthentication             *connect.Client[v1.GetAuthenticationRequest, v1.Authentication]
-	getAuthenticationExperience   *connect.Client[v1.GetAuthenticationExperienceRequest, v1.AuthenticationExperience]
-	selectAuthenticationChallenge *connect.Client[v1.SelectAuthenticationChallengeRequest, longrunningpb.Operation]
-	resendAuthenticationChallenge *connect.Client[v1.ResendAuthenticationChallengeRequest, longrunningpb.Operation]
-	submitAuthenticationChallenge *connect.Client[v1.SubmitAuthenticationChallengeRequest, longrunningpb.Operation]
-	cancelAuthentication          *connect.Client[v1.CancelAuthenticationRequest, longrunningpb.Operation]
+	create          *connect.Client[v1.CreateAuthenticationRequest, longrunningpb.Operation]
+	cancel          *connect.Client[v1.CancelAuthenticationRequest, longrunningpb.Operation]
+	selectChallenge *connect.Client[v1.SelectAuthenticationChallengeRequest, longrunningpb.Operation]
+	resendChallenge *connect.Client[v1.ResendAuthenticationChallengeRequest, longrunningpb.Operation]
+	verifyChallenge *connect.Client[v1.VerifyAuthenticationChallengeRequest, longrunningpb.Operation]
 }
 
-// StartAuthentication calls m8.platform.iam.v1.AuthenticationService.StartAuthentication.
-func (c *authenticationServiceClient) StartAuthentication(ctx context.Context, req *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.startAuthentication.CallUnary(ctx, req)
+// Create calls m8.platform.iam.v1.AuthenticationService.Create.
+func (c *authenticationServiceClient) Create(ctx context.Context, req *connect.Request[v1.CreateAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return c.create.CallUnary(ctx, req)
 }
 
-// GetAuthentication calls m8.platform.iam.v1.AuthenticationService.GetAuthentication.
-func (c *authenticationServiceClient) GetAuthentication(ctx context.Context, req *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
-	return c.getAuthentication.CallUnary(ctx, req)
+// Cancel calls m8.platform.iam.v1.AuthenticationService.Cancel.
+func (c *authenticationServiceClient) Cancel(ctx context.Context, req *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return c.cancel.CallUnary(ctx, req)
 }
 
-// GetAuthenticationExperience calls
-// m8.platform.iam.v1.AuthenticationService.GetAuthenticationExperience.
-func (c *authenticationServiceClient) GetAuthenticationExperience(ctx context.Context, req *connect.Request[v1.GetAuthenticationExperienceRequest]) (*connect.Response[v1.AuthenticationExperience], error) {
-	return c.getAuthenticationExperience.CallUnary(ctx, req)
+// SelectChallenge calls m8.platform.iam.v1.AuthenticationService.SelectChallenge.
+func (c *authenticationServiceClient) SelectChallenge(ctx context.Context, req *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return c.selectChallenge.CallUnary(ctx, req)
 }
 
-// SelectAuthenticationChallenge calls
-// m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge.
-func (c *authenticationServiceClient) SelectAuthenticationChallenge(ctx context.Context, req *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.selectAuthenticationChallenge.CallUnary(ctx, req)
+// ResendChallenge calls m8.platform.iam.v1.AuthenticationService.ResendChallenge.
+func (c *authenticationServiceClient) ResendChallenge(ctx context.Context, req *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return c.resendChallenge.CallUnary(ctx, req)
 }
 
-// ResendAuthenticationChallenge calls
-// m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge.
-func (c *authenticationServiceClient) ResendAuthenticationChallenge(ctx context.Context, req *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.resendAuthenticationChallenge.CallUnary(ctx, req)
-}
-
-// SubmitAuthenticationChallenge calls
-// m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge.
-func (c *authenticationServiceClient) SubmitAuthenticationChallenge(ctx context.Context, req *connect.Request[v1.SubmitAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.submitAuthenticationChallenge.CallUnary(ctx, req)
-}
-
-// CancelAuthentication calls m8.platform.iam.v1.AuthenticationService.CancelAuthentication.
-func (c *authenticationServiceClient) CancelAuthentication(ctx context.Context, req *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.cancelAuthentication.CallUnary(ctx, req)
+// VerifyChallenge calls m8.platform.iam.v1.AuthenticationService.VerifyChallenge.
+func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, req *connect.Request[v1.VerifyAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return c.verifyChallenge.CallUnary(ctx, req)
 }
 
 // AuthenticationServiceHandler is an implementation of the m8.platform.iam.v1.AuthenticationService
 // service.
 type AuthenticationServiceHandler interface {
-	// Starts a new authentication flow.
-	//
-	// This command usually starts Temporal-backed orchestration. Operation.metadata
-	// contains AuthenticationOperationMetadata. Operation.response contains
-	// AuthenticationOperationResponse after command completion. Operation.error
-	// contains google.rpc.Status for command-level terminal failure.
-	StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Returns the latest public-safe authentication snapshot.
-	//
-	// This is synchronous read/query API and does not return Operation. Public
-	// clients must send the interaction_token received from StartAuthentication.
-	GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error)
-	// Returns the dynamic login experience for a client and optional context.
-	//
-	// This is a synchronous read/query API for login UI discovery. It must not
-	// reveal whether a specific user has a passkey or other sensitive
-	// authenticator before policy allows that disclosure.
-	GetAuthenticationExperience(context.Context, *connect.Request[v1.GetAuthenticationExperienceRequest]) (*connect.Response[v1.AuthenticationExperience], error)
-	// Selects an allowed challenge method or provider.
-	//
-	// This command may signal Temporal-backed orchestration. idempotency_key is
-	// used as the signal/command deduplication key; repeating it must return the
-	// same command result or current state without repeating side effects.
-	SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Resends or redelivers the current challenge when the method supports it.
-	//
-	// This command may dispatch through an external provider asynchronously.
-	ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Submits a response to the current challenge.
-	//
-	// This command may verify locally, signal asynchronous orchestration, or wait
-	// for external provider verification.
-	SubmitAuthenticationChallenge(context.Context, *connect.Request[v1.SubmitAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
-	// Cancels an active authentication flow.
-	//
-	// This command may signal asynchronous workflow cancellation.
-	CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	Create(context.Context, *connect.Request[v1.CreateAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	Cancel(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error)
+	SelectChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
+	ResendChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
+	VerifyChallenge(context.Context, *connect.Request[v1.VerifyAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewAuthenticationServiceHandler builds an HTTP handler from the service implementation. It
@@ -266,71 +155,48 @@ type AuthenticationServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	authenticationServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationService").Methods()
-	authenticationServiceStartAuthenticationHandler := connect.NewUnaryHandler(
-		AuthenticationServiceStartAuthenticationProcedure,
-		svc.StartAuthentication,
-		connect.WithSchema(authenticationServiceMethods.ByName("StartAuthentication")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
+	authenticationServiceCreateHandler := connect.NewUnaryHandler(
+		AuthenticationServiceCreateProcedure,
+		svc.Create,
+		connect.WithSchema(authenticationServiceMethods.ByName("Create")),
 		connect.WithHandlerOptions(opts...),
 	)
-	authenticationServiceGetAuthenticationHandler := connect.NewUnaryHandler(
-		AuthenticationServiceGetAuthenticationProcedure,
-		svc.GetAuthentication,
-		connect.WithSchema(authenticationServiceMethods.ByName("GetAuthentication")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+	authenticationServiceCancelHandler := connect.NewUnaryHandler(
+		AuthenticationServiceCancelProcedure,
+		svc.Cancel,
+		connect.WithSchema(authenticationServiceMethods.ByName("Cancel")),
 		connect.WithHandlerOptions(opts...),
 	)
-	authenticationServiceGetAuthenticationExperienceHandler := connect.NewUnaryHandler(
-		AuthenticationServiceGetAuthenticationExperienceProcedure,
-		svc.GetAuthenticationExperience,
-		connect.WithSchema(authenticationServiceMethods.ByName("GetAuthenticationExperience")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+	authenticationServiceSelectChallengeHandler := connect.NewUnaryHandler(
+		AuthenticationServiceSelectChallengeProcedure,
+		svc.SelectChallenge,
+		connect.WithSchema(authenticationServiceMethods.ByName("SelectChallenge")),
 		connect.WithHandlerOptions(opts...),
 	)
-	authenticationServiceSelectAuthenticationChallengeHandler := connect.NewUnaryHandler(
-		AuthenticationServiceSelectAuthenticationChallengeProcedure,
-		svc.SelectAuthenticationChallenge,
-		connect.WithSchema(authenticationServiceMethods.ByName("SelectAuthenticationChallenge")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
+	authenticationServiceResendChallengeHandler := connect.NewUnaryHandler(
+		AuthenticationServiceResendChallengeProcedure,
+		svc.ResendChallenge,
+		connect.WithSchema(authenticationServiceMethods.ByName("ResendChallenge")),
 		connect.WithHandlerOptions(opts...),
 	)
-	authenticationServiceResendAuthenticationChallengeHandler := connect.NewUnaryHandler(
-		AuthenticationServiceResendAuthenticationChallengeProcedure,
-		svc.ResendAuthenticationChallenge,
-		connect.WithSchema(authenticationServiceMethods.ByName("ResendAuthenticationChallenge")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
-		connect.WithHandlerOptions(opts...),
-	)
-	authenticationServiceSubmitAuthenticationChallengeHandler := connect.NewUnaryHandler(
-		AuthenticationServiceSubmitAuthenticationChallengeProcedure,
-		svc.SubmitAuthenticationChallenge,
-		connect.WithSchema(authenticationServiceMethods.ByName("SubmitAuthenticationChallenge")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
-		connect.WithHandlerOptions(opts...),
-	)
-	authenticationServiceCancelAuthenticationHandler := connect.NewUnaryHandler(
-		AuthenticationServiceCancelAuthenticationProcedure,
-		svc.CancelAuthentication,
-		connect.WithSchema(authenticationServiceMethods.ByName("CancelAuthentication")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
+	authenticationServiceVerifyChallengeHandler := connect.NewUnaryHandler(
+		AuthenticationServiceVerifyChallengeProcedure,
+		svc.VerifyChallenge,
+		connect.WithSchema(authenticationServiceMethods.ByName("VerifyChallenge")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/m8.platform.iam.v1.AuthenticationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case AuthenticationServiceStartAuthenticationProcedure:
-			authenticationServiceStartAuthenticationHandler.ServeHTTP(w, r)
-		case AuthenticationServiceGetAuthenticationProcedure:
-			authenticationServiceGetAuthenticationHandler.ServeHTTP(w, r)
-		case AuthenticationServiceGetAuthenticationExperienceProcedure:
-			authenticationServiceGetAuthenticationExperienceHandler.ServeHTTP(w, r)
-		case AuthenticationServiceSelectAuthenticationChallengeProcedure:
-			authenticationServiceSelectAuthenticationChallengeHandler.ServeHTTP(w, r)
-		case AuthenticationServiceResendAuthenticationChallengeProcedure:
-			authenticationServiceResendAuthenticationChallengeHandler.ServeHTTP(w, r)
-		case AuthenticationServiceSubmitAuthenticationChallengeProcedure:
-			authenticationServiceSubmitAuthenticationChallengeHandler.ServeHTTP(w, r)
-		case AuthenticationServiceCancelAuthenticationProcedure:
-			authenticationServiceCancelAuthenticationHandler.ServeHTTP(w, r)
+		case AuthenticationServiceCreateProcedure:
+			authenticationServiceCreateHandler.ServeHTTP(w, r)
+		case AuthenticationServiceCancelProcedure:
+			authenticationServiceCancelHandler.ServeHTTP(w, r)
+		case AuthenticationServiceSelectChallengeProcedure:
+			authenticationServiceSelectChallengeHandler.ServeHTTP(w, r)
+		case AuthenticationServiceResendChallengeProcedure:
+			authenticationServiceResendChallengeHandler.ServeHTTP(w, r)
+		case AuthenticationServiceVerifyChallengeProcedure:
+			authenticationServiceVerifyChallengeHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -340,114 +206,22 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 // UnimplementedAuthenticationServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAuthenticationServiceHandler struct{}
 
-func (UnimplementedAuthenticationServiceHandler) StartAuthentication(context.Context, *connect.Request[v1.StartAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.StartAuthentication is not implemented"))
+func (UnimplementedAuthenticationServiceHandler) Create(context.Context, *connect.Request[v1.CreateAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.Create is not implemented"))
 }
 
-func (UnimplementedAuthenticationServiceHandler) GetAuthentication(context.Context, *connect.Request[v1.GetAuthenticationRequest]) (*connect.Response[v1.Authentication], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.GetAuthentication is not implemented"))
+func (UnimplementedAuthenticationServiceHandler) Cancel(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.Cancel is not implemented"))
 }
 
-func (UnimplementedAuthenticationServiceHandler) GetAuthenticationExperience(context.Context, *connect.Request[v1.GetAuthenticationExperienceRequest]) (*connect.Response[v1.AuthenticationExperience], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.GetAuthenticationExperience is not implemented"))
+func (UnimplementedAuthenticationServiceHandler) SelectChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.SelectChallenge is not implemented"))
 }
 
-func (UnimplementedAuthenticationServiceHandler) SelectAuthenticationChallenge(context.Context, *connect.Request[v1.SelectAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge is not implemented"))
+func (UnimplementedAuthenticationServiceHandler) ResendChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.ResendChallenge is not implemented"))
 }
 
-func (UnimplementedAuthenticationServiceHandler) ResendAuthenticationChallenge(context.Context, *connect.Request[v1.ResendAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge is not implemented"))
-}
-
-func (UnimplementedAuthenticationServiceHandler) SubmitAuthenticationChallenge(context.Context, *connect.Request[v1.SubmitAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge is not implemented"))
-}
-
-func (UnimplementedAuthenticationServiceHandler) CancelAuthentication(context.Context, *connect.Request[v1.CancelAuthenticationRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.CancelAuthentication is not implemented"))
-}
-
-// AuthenticationProviderCallbackServiceClient is a client for the
-// m8.platform.iam.v1.AuthenticationProviderCallbackService service.
-type AuthenticationProviderCallbackServiceClient interface {
-	// Processes a normalized callback from an external provider.
-	//
-	// This command may signal Temporal-backed authentication orchestration.
-	HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[longrunningpb.Operation], error)
-}
-
-// NewAuthenticationProviderCallbackServiceClient constructs a client for the
-// m8.platform.iam.v1.AuthenticationProviderCallbackService service. By default, it uses the Connect
-// protocol with the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed
-// requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or
-// connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAuthenticationProviderCallbackServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthenticationProviderCallbackServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	authenticationProviderCallbackServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationProviderCallbackService").Methods()
-	return &authenticationProviderCallbackServiceClient{
-		handleAuthenticationCallback: connect.NewClient[v1.HandleAuthenticationCallbackRequest, longrunningpb.Operation](
-			httpClient,
-			baseURL+AuthenticationProviderCallbackServiceHandleAuthenticationCallbackProcedure,
-			connect.WithSchema(authenticationProviderCallbackServiceMethods.ByName("HandleAuthenticationCallback")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// authenticationProviderCallbackServiceClient implements
-// AuthenticationProviderCallbackServiceClient.
-type authenticationProviderCallbackServiceClient struct {
-	handleAuthenticationCallback *connect.Client[v1.HandleAuthenticationCallbackRequest, longrunningpb.Operation]
-}
-
-// HandleAuthenticationCallback calls
-// m8.platform.iam.v1.AuthenticationProviderCallbackService.HandleAuthenticationCallback.
-func (c *authenticationProviderCallbackServiceClient) HandleAuthenticationCallback(ctx context.Context, req *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return c.handleAuthenticationCallback.CallUnary(ctx, req)
-}
-
-// AuthenticationProviderCallbackServiceHandler is an implementation of the
-// m8.platform.iam.v1.AuthenticationProviderCallbackService service.
-type AuthenticationProviderCallbackServiceHandler interface {
-	// Processes a normalized callback from an external provider.
-	//
-	// This command may signal Temporal-backed authentication orchestration.
-	HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[longrunningpb.Operation], error)
-}
-
-// NewAuthenticationProviderCallbackServiceHandler builds an HTTP handler from the service
-// implementation. It returns the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAuthenticationProviderCallbackServiceHandler(svc AuthenticationProviderCallbackServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	authenticationProviderCallbackServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationProviderCallbackService").Methods()
-	authenticationProviderCallbackServiceHandleAuthenticationCallbackHandler := connect.NewUnaryHandler(
-		AuthenticationProviderCallbackServiceHandleAuthenticationCallbackProcedure,
-		svc.HandleAuthenticationCallback,
-		connect.WithSchema(authenticationProviderCallbackServiceMethods.ByName("HandleAuthenticationCallback")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/m8.platform.iam.v1.AuthenticationProviderCallbackService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AuthenticationProviderCallbackServiceHandleAuthenticationCallbackProcedure:
-			authenticationProviderCallbackServiceHandleAuthenticationCallbackHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
-}
-
-// UnimplementedAuthenticationProviderCallbackServiceHandler returns CodeUnimplemented from all
-// methods.
-type UnimplementedAuthenticationProviderCallbackServiceHandler struct{}
-
-func (UnimplementedAuthenticationProviderCallbackServiceHandler) HandleAuthenticationCallback(context.Context, *connect.Request[v1.HandleAuthenticationCallbackRequest]) (*connect.Response[longrunningpb.Operation], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationProviderCallbackService.HandleAuthenticationCallback is not implemented"))
+func (UnimplementedAuthenticationServiceHandler) VerifyChallenge(context.Context, *connect.Request[v1.VerifyAuthenticationChallengeRequest]) (*connect.Response[longrunningpb.Operation], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.VerifyChallenge is not implemented"))
 }

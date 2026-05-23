@@ -27,34 +27,302 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// AuthenticationOperationMetadata is stored in google.longrunning.Operation.metadata.
-//
-// It describes processing of one command, not the whole authentication lifecycle.
-type AuthenticationOperationMetadata struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Command type represented by this operation.
-	OperationType AuthenticationOperationType `protobuf:"varint,1,opt,name=operation_type,json=operationType,proto3,enum=m8.platform.iam.v1.AuthenticationOperationType" json:"operation_type,omitempty"`
-	// Output only. Authentication identifier affected by the command.
-	AuthenticationId string `protobuf:"bytes,2,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Output only. Server-assigned command id for auditing and deduplication.
-	CommandId string `protobuf:"bytes,3,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
-	// Output only. Technical API request id.
-	RequestId string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Output only. Business correlation id for the login flow.
-	CorrelationId string `protobuf:"bytes,5,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Output only. Command deduplication key supplied by the caller.
-	IdempotencyKey string `protobuf:"bytes,6,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Output only. Time when command processing was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// Output only. Time when command processing was last updated.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+type CreateAuthenticationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Subject       *AuthenticationSubject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Context       *AuthenticationContext `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	Options       *AuthenticationOptions `protobuf:"bytes,4,opt,name=options,proto3" json:"options,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *CreateAuthenticationRequest) Reset() {
+	*x = CreateAuthenticationRequest{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateAuthenticationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateAuthenticationRequest) ProtoMessage() {}
+
+func (x *CreateAuthenticationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateAuthenticationRequest.ProtoReflect.Descriptor instead.
+func (*CreateAuthenticationRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CreateAuthenticationRequest) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *CreateAuthenticationRequest) GetSubject() *AuthenticationSubject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *CreateAuthenticationRequest) GetContext() *AuthenticationContext {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *CreateAuthenticationRequest) GetOptions() *AuthenticationOptions {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+type ResendAuthenticationChallengeRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuthenticationId string                 `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	ChallengeId      string                 `protobuf:"bytes,2,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ResendAuthenticationChallengeRequest) Reset() {
+	*x = ResendAuthenticationChallengeRequest{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResendAuthenticationChallengeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResendAuthenticationChallengeRequest) ProtoMessage() {}
+
+func (x *ResendAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResendAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
+func (*ResendAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ResendAuthenticationChallengeRequest) GetAuthenticationId() string {
+	if x != nil {
+		return x.AuthenticationId
+	}
+	return ""
+}
+
+func (x *ResendAuthenticationChallengeRequest) GetChallengeId() string {
+	if x != nil {
+		return x.ChallengeId
+	}
+	return ""
+}
+
+type SelectAuthenticationChallengeRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuthenticationId string                 `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	ChallengeId      string                 `protobuf:"bytes,2,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SelectAuthenticationChallengeRequest) Reset() {
+	*x = SelectAuthenticationChallengeRequest{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SelectAuthenticationChallengeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SelectAuthenticationChallengeRequest) ProtoMessage() {}
+
+func (x *SelectAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SelectAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
+func (*SelectAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SelectAuthenticationChallengeRequest) GetAuthenticationId() string {
+	if x != nil {
+		return x.AuthenticationId
+	}
+	return ""
+}
+
+func (x *SelectAuthenticationChallengeRequest) GetChallengeId() string {
+	if x != nil {
+		return x.ChallengeId
+	}
+	return ""
+}
+
+type VerifyAuthenticationChallengeRequest struct {
+	state            protoimpl.MessageState           `protogen:"open.v1"`
+	AuthenticationId string                           `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	ChallengeId      string                           `protobuf:"bytes,2,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
+	Response         *AuthenticationChallengeResponse `protobuf:"bytes,3,opt,name=response,proto3" json:"response,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *VerifyAuthenticationChallengeRequest) Reset() {
+	*x = VerifyAuthenticationChallengeRequest{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VerifyAuthenticationChallengeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VerifyAuthenticationChallengeRequest) ProtoMessage() {}
+
+func (x *VerifyAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VerifyAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
+func (*VerifyAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *VerifyAuthenticationChallengeRequest) GetAuthenticationId() string {
+	if x != nil {
+		return x.AuthenticationId
+	}
+	return ""
+}
+
+func (x *VerifyAuthenticationChallengeRequest) GetChallengeId() string {
+	if x != nil {
+		return x.ChallengeId
+	}
+	return ""
+}
+
+func (x *VerifyAuthenticationChallengeRequest) GetResponse() *AuthenticationChallengeResponse {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+type CancelAuthenticationRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuthenticationId string                 `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	Reason           string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *CancelAuthenticationRequest) Reset() {
+	*x = CancelAuthenticationRequest{}
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelAuthenticationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelAuthenticationRequest) ProtoMessage() {}
+
+func (x *CancelAuthenticationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelAuthenticationRequest.ProtoReflect.Descriptor instead.
+func (*CancelAuthenticationRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CancelAuthenticationRequest) GetAuthenticationId() string {
+	if x != nil {
+		return x.AuthenticationId
+	}
+	return ""
+}
+
+func (x *CancelAuthenticationRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type AuthenticationOperationMetadata struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	AuthenticationId string                 `protobuf:"bytes,2,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
+	CreateTime       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
 func (x *AuthenticationOperationMetadata) Reset() {
 	*x = AuthenticationOperationMetadata{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[0]
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -66,7 +334,7 @@ func (x *AuthenticationOperationMetadata) String() string {
 func (*AuthenticationOperationMetadata) ProtoMessage() {}
 
 func (x *AuthenticationOperationMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[0]
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -79,47 +347,12 @@ func (x *AuthenticationOperationMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthenticationOperationMetadata.ProtoReflect.Descriptor instead.
 func (*AuthenticationOperationMetadata) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *AuthenticationOperationMetadata) GetOperationType() AuthenticationOperationType {
-	if x != nil {
-		return x.OperationType
-	}
-	return AuthenticationOperationType_AUTHENTICATION_OPERATION_TYPE_UNSPECIFIED
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AuthenticationOperationMetadata) GetAuthenticationId() string {
 	if x != nil {
 		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *AuthenticationOperationMetadata) GetCommandId() string {
-	if x != nil {
-		return x.CommandId
-	}
-	return ""
-}
-
-func (x *AuthenticationOperationMetadata) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *AuthenticationOperationMetadata) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *AuthenticationOperationMetadata) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
 	}
 	return ""
 }
@@ -138,23 +371,16 @@ func (x *AuthenticationOperationMetadata) GetUpdateTime() *timestamppb.Timestamp
 	return nil
 }
 
-// AuthenticationOperationResponse is stored in google.longrunning.Operation.response.
 type AuthenticationOperationResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Current public-safe authentication snapshot.
-	Authentication *Authentication `protobuf:"bytes,1,opt,name=authentication,proto3" json:"authentication,omitempty"`
-	// Output only. Public interaction token returned by StartAuthentication.
-	//
-	// For non-start commands this field may be empty. AuthenticationResult stays
-	// inside Authentication.result to avoid drift.
-	Interaction   *AuthenticationInteraction `protobuf:"bytes,2,opt,name=interaction,proto3" json:"interaction,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Authentication *Authentication        `protobuf:"bytes,1,opt,name=authentication,proto3" json:"authentication,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AuthenticationOperationResponse) Reset() {
 	*x = AuthenticationOperationResponse{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[1]
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -166,7 +392,7 @@ func (x *AuthenticationOperationResponse) String() string {
 func (*AuthenticationOperationResponse) ProtoMessage() {}
 
 func (x *AuthenticationOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[1]
+	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -179,7 +405,7 @@ func (x *AuthenticationOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthenticationOperationResponse.ProtoReflect.Descriptor instead.
 func (*AuthenticationOperationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AuthenticationOperationResponse) GetAuthentication() *Authentication {
@@ -189,502 +415,28 @@ func (x *AuthenticationOperationResponse) GetAuthentication() *Authentication {
 	return nil
 }
 
-func (x *AuthenticationOperationResponse) GetInteraction() *AuthenticationInteraction {
-	if x != nil {
-		return x.Interaction
-	}
-	return nil
-}
-
-// Request to start authentication.
-type StartAuthenticationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. M8 application client UUID, not an OAuth public client_id string.
-	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Optional. Subject identifier or login hint.
-	Subject *AuthenticationSubject `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	// Optional. Client-provided safe hints for starting authentication.
-	Context *AuthenticationStartContext `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
-	// Optional. Client preferences and requested purpose.
-	Options *AuthenticationStartOptions `protobuf:"bytes,4,opt,name=options,proto3" json:"options,omitempty"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the whole auth session/login flow.
-	CorrelationId string `protobuf:"bytes,6,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key.
-	//
-	// Repeating a command with the same key must return the same command result
-	// or the current state without repeating provider dispatch, workflow signal,
-	// or other side effects.
-	IdempotencyKey string `protobuf:"bytes,7,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *StartAuthenticationRequest) Reset() {
-	*x = StartAuthenticationRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StartAuthenticationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StartAuthenticationRequest) ProtoMessage() {}
-
-func (x *StartAuthenticationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StartAuthenticationRequest.ProtoReflect.Descriptor instead.
-func (*StartAuthenticationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *StartAuthenticationRequest) GetClientId() string {
-	if x != nil {
-		return x.ClientId
-	}
-	return ""
-}
-
-func (x *StartAuthenticationRequest) GetSubject() *AuthenticationSubject {
-	if x != nil {
-		return x.Subject
-	}
-	return nil
-}
-
-func (x *StartAuthenticationRequest) GetContext() *AuthenticationStartContext {
-	if x != nil {
-		return x.Context
-	}
-	return nil
-}
-
-func (x *StartAuthenticationRequest) GetOptions() *AuthenticationStartOptions {
-	if x != nil {
-		return x.Options
-	}
-	return nil
-}
-
-func (x *StartAuthenticationRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *StartAuthenticationRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *StartAuthenticationRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-// Request to read the latest authentication snapshot.
-type GetAuthenticationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Authentication identifier to read.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Required. Public interaction token returned by StartAuthentication.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Optional. Requested projection. Defaults to PUBLIC.
-	View          AuthenticationView `protobuf:"varint,3,opt,name=view,proto3,enum=m8.platform.iam.v1.AuthenticationView" json:"view,omitempty"`
+type AuthenticationOptions struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MethodId      string                 `protobuf:"bytes,5,opt,name=method_id,json=methodId,proto3" json:"method_id,omitempty"`
+	ProviderId    string                 `protobuf:"bytes,6,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetAuthenticationRequest) Reset() {
-	*x = GetAuthenticationRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAuthenticationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAuthenticationRequest) ProtoMessage() {}
-
-func (x *GetAuthenticationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAuthenticationRequest.ProtoReflect.Descriptor instead.
-func (*GetAuthenticationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *GetAuthenticationRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *GetAuthenticationRequest) GetInteractionToken() string {
-	if x != nil {
-		return x.InteractionToken
-	}
-	return ""
-}
-
-func (x *GetAuthenticationRequest) GetView() AuthenticationView {
-	if x != nil {
-		return x.View
-	}
-	return AuthenticationView_AUTHENTICATION_VIEW_UNSPECIFIED
-}
-
-// Request to resolve dynamic login UI.
-type GetAuthenticationExperienceRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. M8 application client UUID, not an OAuth public client_id string.
-	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Optional. Project id, when already resolved by a trusted caller.
-	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	// Optional. User pool id, when already resolved by a trusted caller.
-	UserPoolId string `protobuf:"bytes,3,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
-	// Optional. Client-provided safe hints used to shape the UI.
-	Context       *AuthenticationStartContext `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAuthenticationExperienceRequest) Reset() {
-	*x = GetAuthenticationExperienceRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAuthenticationExperienceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAuthenticationExperienceRequest) ProtoMessage() {}
-
-func (x *GetAuthenticationExperienceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAuthenticationExperienceRequest.ProtoReflect.Descriptor instead.
-func (*GetAuthenticationExperienceRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GetAuthenticationExperienceRequest) GetClientId() string {
-	if x != nil {
-		return x.ClientId
-	}
-	return ""
-}
-
-func (x *GetAuthenticationExperienceRequest) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *GetAuthenticationExperienceRequest) GetUserPoolId() string {
-	if x != nil {
-		return x.UserPoolId
-	}
-	return ""
-}
-
-func (x *GetAuthenticationExperienceRequest) GetContext() *AuthenticationStartContext {
-	if x != nil {
-		return x.Context
-	}
-	return nil
-}
-
-// AuthenticationExperience describes dynamic login UI for a client.
-type AuthenticationExperience struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Effective M8 application client UUID.
-	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	// Output only. Effective project id.
-	ProjectId string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	// Output only. Effective user pool id.
-	UserPoolId string `protobuf:"bytes,3,opt,name=user_pool_id,json=userPoolId,proto3" json:"user_pool_id,omitempty"`
-	// Output only. Login UI mode selected by policy.
-	Mode LoginExperienceMode `protobuf:"varint,4,opt,name=mode,proto3,enum=m8.platform.iam.v1.LoginExperienceMode" json:"mode,omitempty"`
-	// Output only. Subject types accepted by the login UI.
-	AllowedSubjectTypes []AuthenticationSubject_Type `protobuf:"varint,5,rep,packed,name=allowed_subject_types,json=allowedSubjectTypes,proto3,enum=m8.platform.iam.v1.AuthenticationSubject_Type" json:"allowed_subject_types,omitempty"`
-	// Output only. Public-safe challenge options for UI rendering.
-	AvailableChallenges []*AuthenticationChallengeOption `protobuf:"bytes,6,rep,name=available_challenges,json=availableChallenges,proto3" json:"available_challenges,omitempty"`
-	// Output only. Public-safe identity provider options.
-	IdentityProviders []*IdentityProviderOption `protobuf:"bytes,7,rep,name=identity_providers,json=identityProviders,proto3" json:"identity_providers,omitempty"`
-	// Output only. Whether identifier-first UI should be rendered.
-	IdentifierFirst bool `protobuf:"varint,8,opt,name=identifier_first,json=identifierFirst,proto3" json:"identifier_first,omitempty"`
-	// Output only. Whether passkey-first UI should be rendered.
-	PasskeyFirst bool `protobuf:"varint,9,opt,name=passkey_first,json=passkeyFirst,proto3" json:"passkey_first,omitempty"`
-	// Output only. Whether users may select an identity provider.
-	AllowProviderSelection bool `protobuf:"varint,10,opt,name=allow_provider_selection,json=allowProviderSelection,proto3" json:"allow_provider_selection,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *AuthenticationExperience) Reset() {
-	*x = AuthenticationExperience{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthenticationExperience) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthenticationExperience) ProtoMessage() {}
-
-func (x *AuthenticationExperience) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthenticationExperience.ProtoReflect.Descriptor instead.
-func (*AuthenticationExperience) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *AuthenticationExperience) GetClientId() string {
-	if x != nil {
-		return x.ClientId
-	}
-	return ""
-}
-
-func (x *AuthenticationExperience) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *AuthenticationExperience) GetUserPoolId() string {
-	if x != nil {
-		return x.UserPoolId
-	}
-	return ""
-}
-
-func (x *AuthenticationExperience) GetMode() LoginExperienceMode {
-	if x != nil {
-		return x.Mode
-	}
-	return LoginExperienceMode_LOGIN_EXPERIENCE_MODE_UNSPECIFIED
-}
-
-func (x *AuthenticationExperience) GetAllowedSubjectTypes() []AuthenticationSubject_Type {
-	if x != nil {
-		return x.AllowedSubjectTypes
-	}
-	return nil
-}
-
-func (x *AuthenticationExperience) GetAvailableChallenges() []*AuthenticationChallengeOption {
-	if x != nil {
-		return x.AvailableChallenges
-	}
-	return nil
-}
-
-func (x *AuthenticationExperience) GetIdentityProviders() []*IdentityProviderOption {
-	if x != nil {
-		return x.IdentityProviders
-	}
-	return nil
-}
-
-func (x *AuthenticationExperience) GetIdentifierFirst() bool {
-	if x != nil {
-		return x.IdentifierFirst
-	}
-	return false
-}
-
-func (x *AuthenticationExperience) GetPasskeyFirst() bool {
-	if x != nil {
-		return x.PasskeyFirst
-	}
-	return false
-}
-
-func (x *AuthenticationExperience) GetAllowProviderSelection() bool {
-	if x != nil {
-		return x.AllowProviderSelection
-	}
-	return false
-}
-
-// IdentityProviderOption describes a public-safe external provider option.
-type IdentityProviderOption struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Provider identifier.
-	ProviderId string `protobuf:"bytes,1,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Output only. Display name for UI.
-	DisplayName string `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	// Output only. Provider type such as oidc, saml, mobile_id, or bank_id.
-	ProviderType string `protobuf:"bytes,3,opt,name=provider_type,json=providerType,proto3" json:"provider_type,omitempty"`
-	// Output only. Whether this provider is selectable.
-	Enabled bool `protobuf:"varint,4,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Output only. UI ordering priority. Lower values should be rendered first.
-	Priority      int32 `protobuf:"varint,5,opt,name=priority,proto3" json:"priority,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *IdentityProviderOption) Reset() {
-	*x = IdentityProviderOption{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *IdentityProviderOption) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*IdentityProviderOption) ProtoMessage() {}
-
-func (x *IdentityProviderOption) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use IdentityProviderOption.ProtoReflect.Descriptor instead.
-func (*IdentityProviderOption) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *IdentityProviderOption) GetProviderId() string {
-	if x != nil {
-		return x.ProviderId
-	}
-	return ""
-}
-
-func (x *IdentityProviderOption) GetDisplayName() string {
-	if x != nil {
-		return x.DisplayName
-	}
-	return ""
-}
-
-func (x *IdentityProviderOption) GetProviderType() string {
-	if x != nil {
-		return x.ProviderType
-	}
-	return ""
-}
-
-func (x *IdentityProviderOption) GetEnabled() bool {
-	if x != nil {
-		return x.Enabled
-	}
-	return false
-}
-
-func (x *IdentityProviderOption) GetPriority() int32 {
-	if x != nil {
-		return x.Priority
-	}
-	return 0
-}
-
-// Request to select another authentication method or provider.
-type SelectAuthenticationChallengeRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Authentication identifier.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Required. Public interaction token returned by StartAuthentication.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Required. Normalized authentication method family selected by the client.
-	Method AuthenticationMethod `protobuf:"varint,3,opt,name=method,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"method,omitempty"`
-	// Optional. Configured method or plugin id.
-	MethodId string `protobuf:"bytes,4,opt,name=method_id,json=methodId,proto3" json:"method_id,omitempty"`
-	// Optional. Provider identifier for provider-based methods.
-	ProviderId string `protobuf:"bytes,5,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,6,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the auth session/login flow.
-	CorrelationId string `protobuf:"bytes,7,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key for this selection.
-	IdempotencyKey string `protobuf:"bytes,8,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Optional. ETag precondition for optimistic concurrency.
-	IfMatch       string `protobuf:"bytes,9,opt,name=if_match,json=ifMatch,proto3" json:"if_match,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SelectAuthenticationChallengeRequest) Reset() {
-	*x = SelectAuthenticationChallengeRequest{}
+func (x *AuthenticationOptions) Reset() {
+	*x = AuthenticationOptions{}
 	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SelectAuthenticationChallengeRequest) String() string {
+func (x *AuthenticationOptions) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SelectAuthenticationChallengeRequest) ProtoMessage() {}
+func (*AuthenticationOptions) ProtoMessage() {}
 
-func (x *SelectAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
+func (x *AuthenticationOptions) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -696,1020 +448,71 @@ func (x *SelectAuthenticationChallengeRequest) ProtoReflect() protoreflect.Messa
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SelectAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
-func (*SelectAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuthenticationOptions.ProtoReflect.Descriptor instead.
+func (*AuthenticationOptions) Descriptor() ([]byte, []int) {
 	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *SelectAuthenticationChallengeRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetInteractionToken() string {
-	if x != nil {
-		return x.InteractionToken
-	}
-	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetMethod() AuthenticationMethod {
-	if x != nil {
-		return x.Method
-	}
-	return AuthenticationMethod_AUTHENTICATION_METHOD_UNSPECIFIED
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetMethodId() string {
+func (x *AuthenticationOptions) GetMethodId() string {
 	if x != nil {
 		return x.MethodId
 	}
 	return ""
 }
 
-func (x *SelectAuthenticationChallengeRequest) GetProviderId() string {
+func (x *AuthenticationOptions) GetProviderId() string {
 	if x != nil {
 		return x.ProviderId
 	}
 	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-func (x *SelectAuthenticationChallengeRequest) GetIfMatch() string {
-	if x != nil {
-		return x.IfMatch
-	}
-	return ""
-}
-
-// Request to resend the current authentication challenge.
-type ResendAuthenticationChallengeRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Authentication identifier.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Required. Public interaction token returned by StartAuthentication.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Required. Current challenge identifier.
-	ChallengeId string `protobuf:"bytes,3,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the auth session/login flow.
-	CorrelationId string `protobuf:"bytes,5,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key for this resend.
-	IdempotencyKey string `protobuf:"bytes,6,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Optional. ETag precondition for optimistic concurrency.
-	IfMatch       string `protobuf:"bytes,7,opt,name=if_match,json=ifMatch,proto3" json:"if_match,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResendAuthenticationChallengeRequest) Reset() {
-	*x = ResendAuthenticationChallengeRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResendAuthenticationChallengeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResendAuthenticationChallengeRequest) ProtoMessage() {}
-
-func (x *ResendAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResendAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
-func (*ResendAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetInteractionToken() string {
-	if x != nil {
-		return x.InteractionToken
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetChallengeId() string {
-	if x != nil {
-		return x.ChallengeId
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-func (x *ResendAuthenticationChallengeRequest) GetIfMatch() string {
-	if x != nil {
-		return x.IfMatch
-	}
-	return ""
-}
-
-// Request to submit the current authentication challenge response.
-type SubmitAuthenticationChallengeRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Authentication identifier.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Required. Public interaction token returned by StartAuthentication.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Required. Current challenge identifier.
-	ChallengeId string `protobuf:"bytes,3,opt,name=challenge_id,json=challengeId,proto3" json:"challenge_id,omitempty"`
-	// Required. Request-only response or proof for the current challenge.
-	Response *AuthenticationChallengeResponse `protobuf:"bytes,4,opt,name=response,proto3" json:"response,omitempty"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,5,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the auth session/login flow.
-	CorrelationId string `protobuf:"bytes,6,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key for this submit.
-	IdempotencyKey string `protobuf:"bytes,7,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Optional. ETag precondition for optimistic concurrency.
-	IfMatch       string `protobuf:"bytes,8,opt,name=if_match,json=ifMatch,proto3" json:"if_match,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SubmitAuthenticationChallengeRequest) Reset() {
-	*x = SubmitAuthenticationChallengeRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SubmitAuthenticationChallengeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SubmitAuthenticationChallengeRequest) ProtoMessage() {}
-
-func (x *SubmitAuthenticationChallengeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SubmitAuthenticationChallengeRequest.ProtoReflect.Descriptor instead.
-func (*SubmitAuthenticationChallengeRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetInteractionToken() string {
-	if x != nil {
-		return x.InteractionToken
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetChallengeId() string {
-	if x != nil {
-		return x.ChallengeId
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetResponse() *AuthenticationChallengeResponse {
-	if x != nil {
-		return x.Response
-	}
-	return nil
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-func (x *SubmitAuthenticationChallengeRequest) GetIfMatch() string {
-	if x != nil {
-		return x.IfMatch
-	}
-	return ""
-}
-
-// Request to cancel an active authentication.
-type CancelAuthenticationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Authentication identifier.
-	AuthenticationId string `protobuf:"bytes,1,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Required. Public interaction token returned by StartAuthentication.
-	InteractionToken string `protobuf:"bytes,2,opt,name=interaction_token,json=interactionToken,proto3" json:"interaction_token,omitempty"`
-	// Optional. Human-readable or machine-readable cancellation reason.
-	Reason string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,4,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the auth session/login flow.
-	CorrelationId string `protobuf:"bytes,5,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key for this cancellation.
-	IdempotencyKey string `protobuf:"bytes,6,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Optional. ETag precondition for optimistic concurrency.
-	IfMatch       string `protobuf:"bytes,7,opt,name=if_match,json=ifMatch,proto3" json:"if_match,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CancelAuthenticationRequest) Reset() {
-	*x = CancelAuthenticationRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CancelAuthenticationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CancelAuthenticationRequest) ProtoMessage() {}
-
-func (x *CancelAuthenticationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CancelAuthenticationRequest.ProtoReflect.Descriptor instead.
-func (*CancelAuthenticationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CancelAuthenticationRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetInteractionToken() string {
-	if x != nil {
-		return x.InteractionToken
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-func (x *CancelAuthenticationRequest) GetIfMatch() string {
-	if x != nil {
-		return x.IfMatch
-	}
-	return ""
-}
-
-// Provider/Internal request to process a normalized external provider callback.
-//
-// Raw provider HTTP callbacks are handled by an adapter before this request is
-// created. Do not log or persist secrets, tokens, authorization codes,
-// SAMLResponse, raw assertions, or provider payloads into public Authentication
-// snapshots.
-type HandleAuthenticationCallbackRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Technical id of this API request for audit/logging/tracing.
-	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// Required. Business correlation id for the auth session/login flow.
-	CorrelationId string `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3" json:"correlation_id,omitempty"`
-	// Required. Command deduplication key for callback processing.
-	IdempotencyKey string `protobuf:"bytes,3,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Required. Provider identifier that produced the callback.
-	ProviderId string `protobuf:"bytes,4,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Optional. Authentication identifier, when resolved by adapter state.
-	AuthenticationId string `protobuf:"bytes,5,opt,name=authentication_id,json=authenticationId,proto3" json:"authentication_id,omitempty"`
-	// Types that are valid to be assigned to Callback:
-	//
-	//	*HandleAuthenticationCallbackRequest_Oidc
-	//	*HandleAuthenticationCallbackRequest_Saml
-	//	*HandleAuthenticationCallbackRequest_Generic
-	Callback isHandleAuthenticationCallbackRequest_Callback `protobuf_oneof:"callback"`
-	// Optional. Safe request context from the callback adapter.
-	Context       *AuthenticationStartContext `protobuf:"bytes,20,opt,name=context,proto3" json:"context,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HandleAuthenticationCallbackRequest) Reset() {
-	*x = HandleAuthenticationCallbackRequest{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HandleAuthenticationCallbackRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HandleAuthenticationCallbackRequest) ProtoMessage() {}
-
-func (x *HandleAuthenticationCallbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HandleAuthenticationCallbackRequest.ProtoReflect.Descriptor instead.
-func (*HandleAuthenticationCallbackRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetCorrelationId() string {
-	if x != nil {
-		return x.CorrelationId
-	}
-	return ""
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetProviderId() string {
-	if x != nil {
-		return x.ProviderId
-	}
-	return ""
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetAuthenticationId() string {
-	if x != nil {
-		return x.AuthenticationId
-	}
-	return ""
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetCallback() isHandleAuthenticationCallbackRequest_Callback {
-	if x != nil {
-		return x.Callback
-	}
-	return nil
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetOidc() *OidcAuthenticationCallback {
-	if x != nil {
-		if x, ok := x.Callback.(*HandleAuthenticationCallbackRequest_Oidc); ok {
-			return x.Oidc
-		}
-	}
-	return nil
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetSaml() *SamlAuthenticationCallback {
-	if x != nil {
-		if x, ok := x.Callback.(*HandleAuthenticationCallbackRequest_Saml); ok {
-			return x.Saml
-		}
-	}
-	return nil
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetGeneric() *GenericProviderCallback {
-	if x != nil {
-		if x, ok := x.Callback.(*HandleAuthenticationCallbackRequest_Generic); ok {
-			return x.Generic
-		}
-	}
-	return nil
-}
-
-func (x *HandleAuthenticationCallbackRequest) GetContext() *AuthenticationStartContext {
-	if x != nil {
-		return x.Context
-	}
-	return nil
-}
-
-type isHandleAuthenticationCallbackRequest_Callback interface {
-	isHandleAuthenticationCallbackRequest_Callback()
-}
-
-type HandleAuthenticationCallbackRequest_Oidc struct {
-	// OIDC/OAuth callback payload.
-	Oidc *OidcAuthenticationCallback `protobuf:"bytes,10,opt,name=oidc,proto3,oneof"`
-}
-
-type HandleAuthenticationCallbackRequest_Saml struct {
-	// SAML callback payload.
-	Saml *SamlAuthenticationCallback `protobuf:"bytes,11,opt,name=saml,proto3,oneof"`
-}
-
-type HandleAuthenticationCallbackRequest_Generic struct {
-	// Provider-specific callback payload.
-	Generic *GenericProviderCallback `protobuf:"bytes,12,opt,name=generic,proto3,oneof"`
-}
-
-func (*HandleAuthenticationCallbackRequest_Oidc) isHandleAuthenticationCallbackRequest_Callback() {}
-
-func (*HandleAuthenticationCallbackRequest_Saml) isHandleAuthenticationCallbackRequest_Callback() {}
-
-func (*HandleAuthenticationCallbackRequest_Generic) isHandleAuthenticationCallbackRequest_Callback() {
-}
-
-// OidcAuthenticationCallback contains normalized OIDC/OAuth callback values.
-type OidcAuthenticationCallback struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. OIDC/OAuth authorization code.
-	Code string `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
-	// Required. OIDC/OAuth state.
-	State string `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	// Optional. OIDC/OAuth error code.
-	Error string `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
-	// Optional. OIDC/OAuth error description.
-	ErrorDescription string `protobuf:"bytes,4,opt,name=error_description,json=errorDescription,proto3" json:"error_description,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *OidcAuthenticationCallback) Reset() {
-	*x = OidcAuthenticationCallback{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OidcAuthenticationCallback) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OidcAuthenticationCallback) ProtoMessage() {}
-
-func (x *OidcAuthenticationCallback) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OidcAuthenticationCallback.ProtoReflect.Descriptor instead.
-func (*OidcAuthenticationCallback) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *OidcAuthenticationCallback) GetCode() string {
-	if x != nil {
-		return x.Code
-	}
-	return ""
-}
-
-func (x *OidcAuthenticationCallback) GetState() string {
-	if x != nil {
-		return x.State
-	}
-	return ""
-}
-
-func (x *OidcAuthenticationCallback) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
-func (x *OidcAuthenticationCallback) GetErrorDescription() string {
-	if x != nil {
-		return x.ErrorDescription
-	}
-	return ""
-}
-
-// SamlAuthenticationCallback contains normalized SAML callback values.
-type SamlAuthenticationCallback struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Base64-encoded SAMLResponse.
-	SamlResponse string `protobuf:"bytes,1,opt,name=saml_response,json=samlResponse,proto3" json:"saml_response,omitempty"`
-	// Required. SAML RelayState.
-	RelayState    string `protobuf:"bytes,2,opt,name=relay_state,json=relayState,proto3" json:"relay_state,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SamlAuthenticationCallback) Reset() {
-	*x = SamlAuthenticationCallback{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SamlAuthenticationCallback) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SamlAuthenticationCallback) ProtoMessage() {}
-
-func (x *SamlAuthenticationCallback) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SamlAuthenticationCallback.ProtoReflect.Descriptor instead.
-func (*SamlAuthenticationCallback) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *SamlAuthenticationCallback) GetSamlResponse() string {
-	if x != nil {
-		return x.SamlResponse
-	}
-	return ""
-}
-
-func (x *SamlAuthenticationCallback) GetRelayState() string {
-	if x != nil {
-		return x.RelayState
-	}
-	return ""
-}
-
-// GenericProviderCallback contains normalized provider-specific callback values.
-type GenericProviderCallback struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Normalized query parameters from the provider callback.
-	Query map[string]string `protobuf:"bytes,1,rep,name=query,proto3" json:"query,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Optional. Normalized form parameters from the provider callback.
-	Form          map[string]string `protobuf:"bytes,2,rep,name=form,proto3" json:"form,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GenericProviderCallback) Reset() {
-	*x = GenericProviderCallback{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GenericProviderCallback) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GenericProviderCallback) ProtoMessage() {}
-
-func (x *GenericProviderCallback) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GenericProviderCallback.ProtoReflect.Descriptor instead.
-func (*GenericProviderCallback) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *GenericProviderCallback) GetQuery() map[string]string {
-	if x != nil {
-		return x.Query
-	}
-	return nil
-}
-
-func (x *GenericProviderCallback) GetForm() map[string]string {
-	if x != nil {
-		return x.Form
-	}
-	return nil
-}
-
-// AuthenticationStartOptions contains optional preferences for starting
-// authentication.
-type AuthenticationStartOptions struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional. Purpose requested by the client.
-	Purpose AuthenticationPurpose `protobuf:"varint,1,opt,name=purpose,proto3,enum=m8.platform.iam.v1.AuthenticationPurpose" json:"purpose,omitempty"`
-	// Optional. Requested assurance level.
-	RequestedAssuranceLevel AuthenticationAssuranceLevel `protobuf:"varint,2,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
-	// Optional. Login experience version requested by the client.
-	LoginExperienceVersion string `protobuf:"bytes,3,opt,name=login_experience_version,json=loginExperienceVersion,proto3" json:"login_experience_version,omitempty"`
-	// Optional. Preferred normalized authentication method.
-	RequestedAuthenticationMethod AuthenticationMethod `protobuf:"varint,4,opt,name=requested_authentication_method,json=requestedAuthenticationMethod,proto3,enum=m8.platform.iam.v1.AuthenticationMethod" json:"requested_authentication_method,omitempty"`
-	// Optional. Preferred configured method or plugin id.
-	RequestedMethodId string `protobuf:"bytes,5,opt,name=requested_method_id,json=requestedMethodId,proto3" json:"requested_method_id,omitempty"`
-	// Optional. Preferred provider identifier.
-	RequestedProviderId string `protobuf:"bytes,6,opt,name=requested_provider_id,json=requestedProviderId,proto3" json:"requested_provider_id,omitempty"`
-	// Optional. Requested Authentication Context Class Reference values.
-	AcrValues     []string `protobuf:"bytes,7,rep,name=acr_values,json=acrValues,proto3" json:"acr_values,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthenticationStartOptions) Reset() {
-	*x = AuthenticationStartOptions{}
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthenticationStartOptions) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthenticationStartOptions) ProtoMessage() {}
-
-func (x *AuthenticationStartOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_service_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthenticationStartOptions.ProtoReflect.Descriptor instead.
-func (*AuthenticationStartOptions) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *AuthenticationStartOptions) GetPurpose() AuthenticationPurpose {
-	if x != nil {
-		return x.Purpose
-	}
-	return AuthenticationPurpose_AUTHENTICATION_PURPOSE_UNSPECIFIED
-}
-
-func (x *AuthenticationStartOptions) GetRequestedAssuranceLevel() AuthenticationAssuranceLevel {
-	if x != nil {
-		return x.RequestedAssuranceLevel
-	}
-	return AuthenticationAssuranceLevel_AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED
-}
-
-func (x *AuthenticationStartOptions) GetLoginExperienceVersion() string {
-	if x != nil {
-		return x.LoginExperienceVersion
-	}
-	return ""
-}
-
-func (x *AuthenticationStartOptions) GetRequestedAuthenticationMethod() AuthenticationMethod {
-	if x != nil {
-		return x.RequestedAuthenticationMethod
-	}
-	return AuthenticationMethod_AUTHENTICATION_METHOD_UNSPECIFIED
-}
-
-func (x *AuthenticationStartOptions) GetRequestedMethodId() string {
-	if x != nil {
-		return x.RequestedMethodId
-	}
-	return ""
-}
-
-func (x *AuthenticationStartOptions) GetRequestedProviderId() string {
-	if x != nil {
-		return x.RequestedProviderId
-	}
-	return ""
-}
-
-func (x *AuthenticationStartOptions) GetAcrValues() []string {
-	if x != nil {
-		return x.AcrValues
-	}
-	return nil
 }
 
 var File_m8_platform_iam_v1_authentication_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_service_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\x89\x04\n" +
-	"\x1fAuthenticationOperationMetadata\x12c\n" +
-	"\x0eoperation_type\x18\x01 \x01(\x0e2/.m8.platform.iam.v1.AuthenticationOperationTypeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\roperationType\x12;\n" +
-	"\x11authentication_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12*\n" +
-	"\n" +
-	"command_id\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\tcommandId\x12*\n" +
-	"\n" +
-	"request_id\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\trequestId\x122\n" +
-	"\x0ecorrelation_id\x18\x05 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\rcorrelationId\x124\n" +
-	"\x0fidempotency_key\x18\x06 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\x0eidempotencyKey\x12@\n" +
+	"/m8/platform/iam/v1/authentication_service.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a#google/longrunning/operations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a'm8/platform/iam/v1/authentication.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\x99\x02\n" +
+	"\x1bCreateAuthenticationRequest\x12+\n" +
+	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12C\n" +
+	"\asubject\x18\x02 \x01(\v2).m8.platform.iam.v1.AuthenticationSubjectR\asubject\x12C\n" +
+	"\acontext\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationContextR\acontext\x12C\n" +
+	"\aoptions\x18\x04 \x01(\v2).m8.platform.iam.v1.AuthenticationOptionsR\aoptions\"\x96\x01\n" +
+	"$ResendAuthenticationChallengeRequest\x12;\n" +
+	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x121\n" +
+	"\fchallenge_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vchallengeId\"\x96\x01\n" +
+	"$SelectAuthenticationChallengeRequest\x12;\n" +
+	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x121\n" +
+	"\fchallenge_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vchallengeId\"\xf2\x01\n" +
+	"$VerifyAuthenticationChallengeRequest\x12;\n" +
+	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x121\n" +
+	"\fchallenge_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vchallengeId\x12Z\n" +
+	"\bresponse\x18\x03 \x01(\v23.m8.platform.iam.v1.AuthenticationChallengeResponseB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresponse\"|\n" +
+	"\x1bCancelAuthenticationRequest\x12;\n" +
+	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12 \n" +
+	"\x06reason\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04R\x06reason\"\xe2\x01\n" +
+	"\x1fAuthenticationOperationMetadata\x12;\n" +
+	"\x11authentication_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12@\n" +
 	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12@\n" +
 	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"updateTime\"\xc8\x01\n" +
+	"updateTime\"r\n" +
 	"\x1fAuthenticationOperationResponse\x12O\n" +
-	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\x12T\n" +
-	"\vinteraction\x18\x02 \x01(\v2-.m8.platform.iam.v1.AuthenticationInteractionB\x03\xe0A\x03R\vinteraction\"\xd6\x03\n" +
-	"\x1aStartAuthenticationRequest\x12+\n" +
-	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12H\n" +
-	"\asubject\x18\x02 \x01(\v2).m8.platform.iam.v1.AuthenticationSubjectB\x03\xe0A\x01R\asubject\x12M\n" +
-	"\acontext\x18\x03 \x01(\v2..m8.platform.iam.v1.AuthenticationStartContextB\x03\xe0A\x01R\acontext\x12M\n" +
-	"\aoptions\x18\x04 \x01(\v2..m8.platform.iam.v1.AuthenticationStartOptionsB\x03\xe0A\x01R\aoptions\x12/\n" +
-	"\n" +
-	"request_id\x18\x05 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\x06 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\a \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\"\xdc\x01\n" +
-	"\x18GetAuthenticationRequest\x12;\n" +
-	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12=\n" +
-	"\x11interaction_token\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x10interactionToken\x12D\n" +
-	"\x04view\x18\x03 \x01(\x0e2&.m8.platform.iam.v1.AuthenticationViewB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04view\"\xf6\x01\n" +
-	"\"GetAuthenticationExperienceRequest\x12+\n" +
-	"\tclient_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\bclientId\x12*\n" +
-	"\n" +
-	"project_id\x18\x02 \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\tprojectId\x12-\n" +
-	"\fuser_pool_id\x18\x03 \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\n" +
-	"userPoolId\x12H\n" +
-	"\acontext\x18\x04 \x01(\v2..m8.platform.iam.v1.AuthenticationStartContextR\acontext\"\xdd\x05\n" +
-	"\x18AuthenticationExperience\x12(\n" +
-	"\tclient_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12-\n" +
-	"\n" +
-	"project_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\tprojectId\x120\n" +
-	"\fuser_pool_id\x18\x03 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\n" +
-	"userPoolId\x12H\n" +
-	"\x04mode\x18\x04 \x01(\x0e2'.m8.platform.iam.v1.LoginExperienceModeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x04mode\x12x\n" +
-	"\x15allowed_subject_types\x18\x05 \x03(\x0e2..m8.platform.iam.v1.AuthenticationSubject.TypeB\x14\xe0A\x03\xbaH\x0e\x92\x01\v\x10\x10\"\a\x82\x01\x04\x10\x01 \x00R\x13allowedSubjectTypes\x12q\n" +
-	"\x14available_challenges\x18\x06 \x03(\v21.m8.platform.iam.v1.AuthenticationChallengeOptionB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10@R\x13availableChallenges\x12f\n" +
-	"\x12identity_providers\x18\a \x03(\v2*.m8.platform.iam.v1.IdentityProviderOptionB\v\xe0A\x03\xbaH\x05\x92\x01\x02\x10@R\x11identityProviders\x12.\n" +
-	"\x10identifier_first\x18\b \x01(\bB\x03\xe0A\x03R\x0fidentifierFirst\x12(\n" +
-	"\rpasskey_first\x18\t \x01(\bB\x03\xe0A\x03R\fpasskeyFirst\x12=\n" +
-	"\x18allow_provider_selection\x18\n" +
-	" \x01(\bB\x03\xe0A\x03R\x16allowProviderSelection\"\xe7\x01\n" +
-	"\x16IdentityProviderOption\x12,\n" +
-	"\vprovider_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
-	"providerId\x12.\n" +
-	"\fdisplay_name\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\vdisplayName\x12/\n" +
-	"\rprovider_type\x18\x03 \x01(\tB\n" +
-	"\xe0A\x03\xbaH\x04r\x02\x18@R\fproviderType\x12\x1d\n" +
-	"\aenabled\x18\x04 \x01(\bB\x03\xe0A\x03R\aenabled\x12\x1f\n" +
-	"\bpriority\x18\x05 \x01(\x05B\x03\xe0A\x03R\bpriority\"\xb7\x05\n" +
-	"$SelectAuthenticationChallengeRequest\x12;\n" +
-	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12=\n" +
-	"\x11interaction_token\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x10interactionToken\x12O\n" +
-	"\x06method\x18\x03 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x06method\x12%\n" +
-	"\tmethod_id\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\bmethodId\x12)\n" +
-	"\vprovider_id\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\n" +
-	"providerId\x12/\n" +
-	"\n" +
-	"request_id\x18\x06 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\a \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\b \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\x12#\n" +
-	"\bif_match\x18\t \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\aifMatch:\xa5\x01\xbaH\xa1\x01\x1a\x9e\x01\n" +
-	"1select_authentication_challenge.provider_required\x12-external provider methods require provider_id\x1a:!(this.method in [7, 8, 10, 11]) || this.provider_id != ''\"\x9f\x03\n" +
-	"$ResendAuthenticationChallengeRequest\x12;\n" +
-	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12=\n" +
-	"\x11interaction_token\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x10interactionToken\x121\n" +
-	"\fchallenge_id\x18\x03 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vchallengeId\x12/\n" +
-	"\n" +
-	"request_id\x18\x04 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\x05 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\x06 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\x12#\n" +
-	"\bif_match\x18\a \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\aifMatch\"\xfb\x03\n" +
-	"$SubmitAuthenticationChallengeRequest\x12;\n" +
-	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12=\n" +
-	"\x11interaction_token\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x10interactionToken\x121\n" +
-	"\fchallenge_id\x18\x03 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\vchallengeId\x12Z\n" +
-	"\bresponse\x18\x04 \x01(\v23.m8.platform.iam.v1.AuthenticationChallengeResponseB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresponse\x12/\n" +
-	"\n" +
-	"request_id\x18\x05 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\x06 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\a \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\x12#\n" +
-	"\bif_match\x18\b \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\aifMatch\"\x85\x03\n" +
-	"\x1bCancelAuthenticationRequest\x12;\n" +
-	"\x11authentication_id\x18\x01 \x01(\tB\x0e\xe0A\x02\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12=\n" +
-	"\x11interaction_token\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x10interactionToken\x12 \n" +
-	"\x06reason\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x04R\x06reason\x12/\n" +
-	"\n" +
-	"request_id\x18\x04 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\x05 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\x06 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\x12#\n" +
-	"\bif_match\x18\a \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\aifMatch\"\xf9\x06\n" +
-	"#HandleAuthenticationCallbackRequest\x12/\n" +
-	"\n" +
-	"request_id\x18\x01 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\trequestId\x127\n" +
-	"\x0ecorrelation_id\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\rcorrelationId\x129\n" +
-	"\x0fidempotency_key\x18\x03 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\xff\x01R\x0eidempotencyKey\x121\n" +
-	"\vprovider_id\x18\x04 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\x01\x18\xff\x01R\n" +
-	"providerId\x128\n" +
-	"\x11authentication_id\x18\x05 \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x10authenticationId\x12D\n" +
-	"\x04oidc\x18\n" +
-	" \x01(\v2..m8.platform.iam.v1.OidcAuthenticationCallbackH\x00R\x04oidc\x12D\n" +
-	"\x04saml\x18\v \x01(\v2..m8.platform.iam.v1.SamlAuthenticationCallbackH\x00R\x04saml\x12G\n" +
-	"\ageneric\x18\f \x01(\v2+.m8.platform.iam.v1.GenericProviderCallbackH\x00R\ageneric\x12H\n" +
-	"\acontext\x18\x14 \x01(\v2..m8.platform.iam.v1.AuthenticationStartContextR\acontext:\x8d\x02\xbaH\x89\x02\x1a|\n" +
-	"2handle_authentication_callback.oidc_state_required\x12\x1cOIDC callbacks require state\x1a(!has(this.oidc) || this.oidc.state != ''\x1a\x88\x01\n" +
-	"2handle_authentication_callback.saml_state_required\x12\"SAML callbacks require relay_state\x1a.!has(this.saml) || this.saml.relay_state != ''B\x11\n" +
-	"\bcallback\x12\x05\xbaH\x02\b\x01\"\xb7\x02\n" +
-	"\x1aOidcAuthenticationCallback\x12\x1c\n" +
-	"\x04code\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x18\x80 R\x04code\x12&\n" +
-	"\x05state\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\x05state\x12\x1e\n" +
-	"\x05error\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x05error\x125\n" +
-	"\x11error_description\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\x80 R\x10errorDescription:|\xbaHy\x1aw\n" +
-	"*oidc_authentication_callback.code_or_error\x12$OIDC callback requires code or error\x1a#this.code != '' || this.error != ''\"\x87\x01\n" +
-	"\x1aSamlAuthenticationCallback\x126\n" +
-	"\rsaml_response\x18\x01 \x01(\tB\x11\xe0A\x02\xbaH\v\xc8\x01\x01r\x06\x10\x01\x18\x80\x80\x10R\fsamlResponse\x121\n" +
-	"\vrelay_state\x18\x02 \x01(\tB\x10\xe0A\x02\xbaH\n" +
-	"\xc8\x01\x01r\x05\x10\b\x18\x80 R\n" +
-	"relayState\"\xdb\x02\n" +
-	"\x17GenericProviderCallback\x12g\n" +
-	"\x05query\x18\x01 \x03(\v26.m8.platform.iam.v1.GenericProviderCallback.QueryEntryB\x19\xbaH\x16\x9a\x01\x13\x10d\"\ar\x05\x10\x01\x18\x80\x01*\x06r\x04\x18\x80\x80\x10R\x05query\x12d\n" +
-	"\x04form\x18\x02 \x03(\v25.m8.platform.iam.v1.GenericProviderCallback.FormEntryB\x19\xbaH\x16\x9a\x01\x13\x10d\"\ar\x05\x10\x01\x18\x80\x01*\x06r\x04\x18\x80\x80\x10R\x04form\x1a8\n" +
-	"\n" +
-	"QueryEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a7\n" +
-	"\tFormEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcd\x04\n" +
-	"\x1aAuthenticationStartOptions\x12M\n" +
-	"\apurpose\x18\x01 \x01(\x0e2).m8.platform.iam.v1.AuthenticationPurposeB\b\xbaH\x05\x82\x01\x02\x10\x01R\apurpose\x12v\n" +
-	"\x19requested_assurance_level\x18\x02 \x01(\x0e20.m8.platform.iam.v1.AuthenticationAssuranceLevelB\b\xbaH\x05\x82\x01\x02\x10\x01R\x17requestedAssuranceLevel\x12B\n" +
-	"\x18login_experience_version\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\x16loginExperienceVersion\x12z\n" +
-	"\x1frequested_authentication_method\x18\x04 \x01(\x0e2(.m8.platform.iam.v1.AuthenticationMethodB\b\xbaH\x05\x82\x01\x02\x10\x01R\x1drequestedAuthenticationMethod\x128\n" +
-	"\x13requested_method_id\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x11requestedMethodId\x12<\n" +
-	"\x15requested_provider_id\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x13requestedProviderId\x120\n" +
-	"\n" +
-	"acr_values\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10\x10\"\ar\x05\x10\x01\x18\x80\x01R\tacrValues2\xf3\x18\n" +
-	"\x15AuthenticationService\x12\xa3\x03\n" +
-	"\x13StartAuthentication\x12..m8.platform.iam.v1.StartAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\xbc\x02\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaA,client_id,subject,request_id,idempotency_key\xbaG\x99\x01\x12\x14Start authentication\x1alStarts asynchronous authentication command processing and returns command-level operation tracking metadata.*\x13StartAuthentication\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/iam/authentications:start\x90\x02\x02\x12\xb3\x02\n" +
-	"\x11GetAuthentication\x12,.m8.platform.iam.v1.GetAuthenticationRequest\x1a\".m8.platform.iam.v1.Authentication\"\xcb\x01\xdaA#authentication_id,interaction_token\xbaGl\x12\x12Get authentication\x1aCReturns the latest public-safe authentication snapshot for polling.*\x11GetAuthentication\x82\xd3\xe4\x93\x02-\x12+/v1/iam/authentications/{authentication_id}\x90\x02\x01\x12\xdf\x02\n" +
-	"\x1bGetAuthenticationExperience\x126.m8.platform.iam.v1.GetAuthenticationExperienceRequest\x1a,.m8.platform.iam.v1.AuthenticationExperience\"\xd9\x01\xdaA\tclient_id\xbaG\x97\x01\x12\x1dGet authentication experience\x1aYReturns dynamic login UI configuration, provider options, and public-safe method options.*\x1bGetAuthenticationExperience\x82\xd3\xe4\x93\x02):\x01*\"$/v1/iam/authenticationExperience:get\x90\x02\x01\x12\x89\x04\n" +
-	"\x1dSelectAuthenticationChallenge\x128.m8.platform.iam.v1.SelectAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\x8e\x03\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaA[authentication_id,interaction_token,method,method_id,provider_id,request_id,idempotency_key\xbaG\x9e\x01\x12\x10Select challenge\x1akSelects an allowed authentication method or provider and returns command-level operation tracking metadata.*\x1dSelectAuthenticationChallenge\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/authentications/{authentication_id}:selectChallenge\x90\x02\x02\x12\xe2\x03\n" +
-	"\x1dResendAuthenticationChallenge\x128.m8.platform.iam.v1.ResendAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\xe7\x02\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaAKauthentication_id,interaction_token,challenge_id,request_id,idempotency_key\xbaG\x87\x01\x12\x10Resend challenge\x1aTResends the current challenge and returns command-level operation tracking metadata.*\x1dResendAuthenticationChallenge\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/authentications/{authentication_id}:resendChallenge\x90\x02\x02\x12\xe1\x03\n" +
-	"\x1dSubmitAuthenticationChallenge\x128.m8.platform.iam.v1.SubmitAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\xe6\x02\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaAKauthentication_id,interaction_token,challenge_id,request_id,idempotency_key\xbaG\x86\x01\x12\x10Submit challenge\x1aSSubmits a challenge response and returns command-level operation tracking metadata.*\x1dSubmitAuthenticationChallenge\x82\xd3\xe4\x93\x02@:\x01*\";/v1/iam/authentications/{authentication_id}:submitChallenge\x90\x02\x02\x12\xb9\x03\n" +
-	"\x14CancelAuthentication\x12/.m8.platform.iam.v1.CancelAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\xd0\x02\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaA>authentication_id,interaction_token,request_id,idempotency_key\xbaG\x86\x01\x12\x15Cancel authentication\x1aWCancels an active authentication and returns command-level operation tracking metadata.*\x14CancelAuthentication\x82\xd3\xe4\x93\x027:\x01*\"2/v1/iam/authentications/{authentication_id}:cancel\x90\x02\x02\x1a\x8a\x01\x92\xb5\x18\x85\x01Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state.2\xdc\x04\n" +
-	"%AuthenticationProviderCallbackService\x12\xe4\x03\n" +
-	"\x1cHandleAuthenticationCallback\x127.m8.platform.iam.v1.HandleAuthenticationCallbackRequest\x1a\x1d.google.longrunning.Operation\"\xeb\x02\xcaAB\n" +
-	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\xdaA8provider_id,authentication_id,request_id,idempotency_key\xbaG\xb3\x01\x12\x18Handle provider callback\x1ayInternal normalized API that processes external provider callbacks without exposing provider secrets in public snapshots.*\x1cHandleAuthenticationCallback\x82\xd3\xe4\x93\x02+:\x01*\"&/v1/iam/authenticationCallbacks:handle\x90\x02\x02\x1aL\x92\xb5\x18HUse this internal API to process normalized external provider callbacks.B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"\x0eauthentication\x18\x01 \x01(\v2\".m8.platform.iam.v1.AuthenticationB\x03\xe0A\x03R\x0eauthentication\"i\n" +
+	"\x15AuthenticationOptions\x12%\n" +
+	"\tmethod_id\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\bmethodId\x12)\n" +
+	"\vprovider_id\x18\x06 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
+	"providerId2\xbf\t\n" +
+	"\x15AuthenticationService\x12\xc8\x01\n" +
+	"\x06Create\x12/.m8.platform.iam.v1.CreateAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"n\xcaAB\n" +
+	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/iam/v1/authentications:create\x12\xdd\x01\n" +
+	"\x06Cancel\x12/.m8.platform.iam.v1.CancelAuthenticationRequest\x1a\x1d.google.longrunning.Operation\"\x82\x01\xcaAB\n" +
+	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\x82\xd3\xe4\x93\x027:\x01*\"2/iam/v1/authentications/{authentication_id}:cancel\x12\xfa\x01\n" +
+	"\x0fSelectChallenge\x128.m8.platform.iam.v1.SelectAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\x8d\x01\xcaAB\n" +
+	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02B:\x01*\"=/iam/v1/authentications/{authentication_id}/challenges:select\x12\xfa\x01\n" +
+	"\x0fResendChallenge\x128.m8.platform.iam.v1.ResendAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\x8d\x01\xcaAB\n" +
+	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02B:\x01*\"=/iam/v1/authentications/{authentication_id}/challenges:resend\x12\xfa\x01\n" +
+	"\x0fVerifyChallenge\x128.m8.platform.iam.v1.VerifyAuthenticationChallengeRequest\x1a\x1d.google.longrunning.Operation\"\x8d\x01\xcaAB\n" +
+	"\x1fAuthenticationOperationResponse\x12\x1fAuthenticationOperationMetadata\x82\xd3\xe4\x93\x02B:\x01*\"=/iam/v1/authentications/{authentication_id}/challenges:verify\x1a\x04\x92\xb5\x18\x00B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_service_proto_rawDescOnce sync.Once
@@ -1723,89 +526,46 @@ func file_m8_platform_iam_v1_authentication_service_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_service_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_service_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_m8_platform_iam_v1_authentication_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_m8_platform_iam_v1_authentication_service_proto_goTypes = []any{
-	(*AuthenticationOperationMetadata)(nil),      // 0: m8.platform.iam.v1.AuthenticationOperationMetadata
-	(*AuthenticationOperationResponse)(nil),      // 1: m8.platform.iam.v1.AuthenticationOperationResponse
-	(*StartAuthenticationRequest)(nil),           // 2: m8.platform.iam.v1.StartAuthenticationRequest
-	(*GetAuthenticationRequest)(nil),             // 3: m8.platform.iam.v1.GetAuthenticationRequest
-	(*GetAuthenticationExperienceRequest)(nil),   // 4: m8.platform.iam.v1.GetAuthenticationExperienceRequest
-	(*AuthenticationExperience)(nil),             // 5: m8.platform.iam.v1.AuthenticationExperience
-	(*IdentityProviderOption)(nil),               // 6: m8.platform.iam.v1.IdentityProviderOption
-	(*SelectAuthenticationChallengeRequest)(nil), // 7: m8.platform.iam.v1.SelectAuthenticationChallengeRequest
-	(*ResendAuthenticationChallengeRequest)(nil), // 8: m8.platform.iam.v1.ResendAuthenticationChallengeRequest
-	(*SubmitAuthenticationChallengeRequest)(nil), // 9: m8.platform.iam.v1.SubmitAuthenticationChallengeRequest
-	(*CancelAuthenticationRequest)(nil),          // 10: m8.platform.iam.v1.CancelAuthenticationRequest
-	(*HandleAuthenticationCallbackRequest)(nil),  // 11: m8.platform.iam.v1.HandleAuthenticationCallbackRequest
-	(*OidcAuthenticationCallback)(nil),           // 12: m8.platform.iam.v1.OidcAuthenticationCallback
-	(*SamlAuthenticationCallback)(nil),           // 13: m8.platform.iam.v1.SamlAuthenticationCallback
-	(*GenericProviderCallback)(nil),              // 14: m8.platform.iam.v1.GenericProviderCallback
-	(*AuthenticationStartOptions)(nil),           // 15: m8.platform.iam.v1.AuthenticationStartOptions
-	nil,                                          // 16: m8.platform.iam.v1.GenericProviderCallback.QueryEntry
-	nil,                                          // 17: m8.platform.iam.v1.GenericProviderCallback.FormEntry
-	(AuthenticationOperationType)(0),             // 18: m8.platform.iam.v1.AuthenticationOperationType
-	(*timestamppb.Timestamp)(nil),                // 19: google.protobuf.Timestamp
-	(*Authentication)(nil),                       // 20: m8.platform.iam.v1.Authentication
-	(*AuthenticationInteraction)(nil),            // 21: m8.platform.iam.v1.AuthenticationInteraction
-	(*AuthenticationSubject)(nil),                // 22: m8.platform.iam.v1.AuthenticationSubject
-	(*AuthenticationStartContext)(nil),           // 23: m8.platform.iam.v1.AuthenticationStartContext
-	(AuthenticationView)(0),                      // 24: m8.platform.iam.v1.AuthenticationView
-	(LoginExperienceMode)(0),                     // 25: m8.platform.iam.v1.LoginExperienceMode
-	(AuthenticationSubject_Type)(0),              // 26: m8.platform.iam.v1.AuthenticationSubject.Type
-	(*AuthenticationChallengeOption)(nil),        // 27: m8.platform.iam.v1.AuthenticationChallengeOption
-	(AuthenticationMethod)(0),                    // 28: m8.platform.iam.v1.AuthenticationMethod
-	(*AuthenticationChallengeResponse)(nil),      // 29: m8.platform.iam.v1.AuthenticationChallengeResponse
-	(AuthenticationPurpose)(0),                   // 30: m8.platform.iam.v1.AuthenticationPurpose
-	(AuthenticationAssuranceLevel)(0),            // 31: m8.platform.iam.v1.AuthenticationAssuranceLevel
-	(*longrunningpb.Operation)(nil),              // 32: google.longrunning.Operation
+	(*CreateAuthenticationRequest)(nil),          // 0: m8.platform.iam.v1.CreateAuthenticationRequest
+	(*ResendAuthenticationChallengeRequest)(nil), // 1: m8.platform.iam.v1.ResendAuthenticationChallengeRequest
+	(*SelectAuthenticationChallengeRequest)(nil), // 2: m8.platform.iam.v1.SelectAuthenticationChallengeRequest
+	(*VerifyAuthenticationChallengeRequest)(nil), // 3: m8.platform.iam.v1.VerifyAuthenticationChallengeRequest
+	(*CancelAuthenticationRequest)(nil),          // 4: m8.platform.iam.v1.CancelAuthenticationRequest
+	(*AuthenticationOperationMetadata)(nil),      // 5: m8.platform.iam.v1.AuthenticationOperationMetadata
+	(*AuthenticationOperationResponse)(nil),      // 6: m8.platform.iam.v1.AuthenticationOperationResponse
+	(*AuthenticationOptions)(nil),                // 7: m8.platform.iam.v1.AuthenticationOptions
+	(*AuthenticationSubject)(nil),                // 8: m8.platform.iam.v1.AuthenticationSubject
+	(*AuthenticationContext)(nil),                // 9: m8.platform.iam.v1.AuthenticationContext
+	(*AuthenticationChallengeResponse)(nil),      // 10: m8.platform.iam.v1.AuthenticationChallengeResponse
+	(*timestamppb.Timestamp)(nil),                // 11: google.protobuf.Timestamp
+	(*Authentication)(nil),                       // 12: m8.platform.iam.v1.Authentication
+	(*longrunningpb.Operation)(nil),              // 13: google.longrunning.Operation
 }
 var file_m8_platform_iam_v1_authentication_service_proto_depIdxs = []int32{
-	18, // 0: m8.platform.iam.v1.AuthenticationOperationMetadata.operation_type:type_name -> m8.platform.iam.v1.AuthenticationOperationType
-	19, // 1: m8.platform.iam.v1.AuthenticationOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	19, // 2: m8.platform.iam.v1.AuthenticationOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
-	20, // 3: m8.platform.iam.v1.AuthenticationOperationResponse.authentication:type_name -> m8.platform.iam.v1.Authentication
-	21, // 4: m8.platform.iam.v1.AuthenticationOperationResponse.interaction:type_name -> m8.platform.iam.v1.AuthenticationInteraction
-	22, // 5: m8.platform.iam.v1.StartAuthenticationRequest.subject:type_name -> m8.platform.iam.v1.AuthenticationSubject
-	23, // 6: m8.platform.iam.v1.StartAuthenticationRequest.context:type_name -> m8.platform.iam.v1.AuthenticationStartContext
-	15, // 7: m8.platform.iam.v1.StartAuthenticationRequest.options:type_name -> m8.platform.iam.v1.AuthenticationStartOptions
-	24, // 8: m8.platform.iam.v1.GetAuthenticationRequest.view:type_name -> m8.platform.iam.v1.AuthenticationView
-	23, // 9: m8.platform.iam.v1.GetAuthenticationExperienceRequest.context:type_name -> m8.platform.iam.v1.AuthenticationStartContext
-	25, // 10: m8.platform.iam.v1.AuthenticationExperience.mode:type_name -> m8.platform.iam.v1.LoginExperienceMode
-	26, // 11: m8.platform.iam.v1.AuthenticationExperience.allowed_subject_types:type_name -> m8.platform.iam.v1.AuthenticationSubject.Type
-	27, // 12: m8.platform.iam.v1.AuthenticationExperience.available_challenges:type_name -> m8.platform.iam.v1.AuthenticationChallengeOption
-	6,  // 13: m8.platform.iam.v1.AuthenticationExperience.identity_providers:type_name -> m8.platform.iam.v1.IdentityProviderOption
-	28, // 14: m8.platform.iam.v1.SelectAuthenticationChallengeRequest.method:type_name -> m8.platform.iam.v1.AuthenticationMethod
-	29, // 15: m8.platform.iam.v1.SubmitAuthenticationChallengeRequest.response:type_name -> m8.platform.iam.v1.AuthenticationChallengeResponse
-	12, // 16: m8.platform.iam.v1.HandleAuthenticationCallbackRequest.oidc:type_name -> m8.platform.iam.v1.OidcAuthenticationCallback
-	13, // 17: m8.platform.iam.v1.HandleAuthenticationCallbackRequest.saml:type_name -> m8.platform.iam.v1.SamlAuthenticationCallback
-	14, // 18: m8.platform.iam.v1.HandleAuthenticationCallbackRequest.generic:type_name -> m8.platform.iam.v1.GenericProviderCallback
-	23, // 19: m8.platform.iam.v1.HandleAuthenticationCallbackRequest.context:type_name -> m8.platform.iam.v1.AuthenticationStartContext
-	16, // 20: m8.platform.iam.v1.GenericProviderCallback.query:type_name -> m8.platform.iam.v1.GenericProviderCallback.QueryEntry
-	17, // 21: m8.platform.iam.v1.GenericProviderCallback.form:type_name -> m8.platform.iam.v1.GenericProviderCallback.FormEntry
-	30, // 22: m8.platform.iam.v1.AuthenticationStartOptions.purpose:type_name -> m8.platform.iam.v1.AuthenticationPurpose
-	31, // 23: m8.platform.iam.v1.AuthenticationStartOptions.requested_assurance_level:type_name -> m8.platform.iam.v1.AuthenticationAssuranceLevel
-	28, // 24: m8.platform.iam.v1.AuthenticationStartOptions.requested_authentication_method:type_name -> m8.platform.iam.v1.AuthenticationMethod
-	2,  // 25: m8.platform.iam.v1.AuthenticationService.StartAuthentication:input_type -> m8.platform.iam.v1.StartAuthenticationRequest
-	3,  // 26: m8.platform.iam.v1.AuthenticationService.GetAuthentication:input_type -> m8.platform.iam.v1.GetAuthenticationRequest
-	4,  // 27: m8.platform.iam.v1.AuthenticationService.GetAuthenticationExperience:input_type -> m8.platform.iam.v1.GetAuthenticationExperienceRequest
-	7,  // 28: m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge:input_type -> m8.platform.iam.v1.SelectAuthenticationChallengeRequest
-	8,  // 29: m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge:input_type -> m8.platform.iam.v1.ResendAuthenticationChallengeRequest
-	9,  // 30: m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge:input_type -> m8.platform.iam.v1.SubmitAuthenticationChallengeRequest
-	10, // 31: m8.platform.iam.v1.AuthenticationService.CancelAuthentication:input_type -> m8.platform.iam.v1.CancelAuthenticationRequest
-	11, // 32: m8.platform.iam.v1.AuthenticationProviderCallbackService.HandleAuthenticationCallback:input_type -> m8.platform.iam.v1.HandleAuthenticationCallbackRequest
-	32, // 33: m8.platform.iam.v1.AuthenticationService.StartAuthentication:output_type -> google.longrunning.Operation
-	20, // 34: m8.platform.iam.v1.AuthenticationService.GetAuthentication:output_type -> m8.platform.iam.v1.Authentication
-	5,  // 35: m8.platform.iam.v1.AuthenticationService.GetAuthenticationExperience:output_type -> m8.platform.iam.v1.AuthenticationExperience
-	32, // 36: m8.platform.iam.v1.AuthenticationService.SelectAuthenticationChallenge:output_type -> google.longrunning.Operation
-	32, // 37: m8.platform.iam.v1.AuthenticationService.ResendAuthenticationChallenge:output_type -> google.longrunning.Operation
-	32, // 38: m8.platform.iam.v1.AuthenticationService.SubmitAuthenticationChallenge:output_type -> google.longrunning.Operation
-	32, // 39: m8.platform.iam.v1.AuthenticationService.CancelAuthentication:output_type -> google.longrunning.Operation
-	32, // 40: m8.platform.iam.v1.AuthenticationProviderCallbackService.HandleAuthenticationCallback:output_type -> google.longrunning.Operation
-	33, // [33:41] is the sub-list for method output_type
-	25, // [25:33] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	8,  // 0: m8.platform.iam.v1.CreateAuthenticationRequest.subject:type_name -> m8.platform.iam.v1.AuthenticationSubject
+	9,  // 1: m8.platform.iam.v1.CreateAuthenticationRequest.context:type_name -> m8.platform.iam.v1.AuthenticationContext
+	7,  // 2: m8.platform.iam.v1.CreateAuthenticationRequest.options:type_name -> m8.platform.iam.v1.AuthenticationOptions
+	10, // 3: m8.platform.iam.v1.VerifyAuthenticationChallengeRequest.response:type_name -> m8.platform.iam.v1.AuthenticationChallengeResponse
+	11, // 4: m8.platform.iam.v1.AuthenticationOperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	11, // 5: m8.platform.iam.v1.AuthenticationOperationMetadata.update_time:type_name -> google.protobuf.Timestamp
+	12, // 6: m8.platform.iam.v1.AuthenticationOperationResponse.authentication:type_name -> m8.platform.iam.v1.Authentication
+	0,  // 7: m8.platform.iam.v1.AuthenticationService.Create:input_type -> m8.platform.iam.v1.CreateAuthenticationRequest
+	4,  // 8: m8.platform.iam.v1.AuthenticationService.Cancel:input_type -> m8.platform.iam.v1.CancelAuthenticationRequest
+	2,  // 9: m8.platform.iam.v1.AuthenticationService.SelectChallenge:input_type -> m8.platform.iam.v1.SelectAuthenticationChallengeRequest
+	1,  // 10: m8.platform.iam.v1.AuthenticationService.ResendChallenge:input_type -> m8.platform.iam.v1.ResendAuthenticationChallengeRequest
+	3,  // 11: m8.platform.iam.v1.AuthenticationService.VerifyChallenge:input_type -> m8.platform.iam.v1.VerifyAuthenticationChallengeRequest
+	13, // 12: m8.platform.iam.v1.AuthenticationService.Create:output_type -> google.longrunning.Operation
+	13, // 13: m8.platform.iam.v1.AuthenticationService.Cancel:output_type -> google.longrunning.Operation
+	13, // 14: m8.platform.iam.v1.AuthenticationService.SelectChallenge:output_type -> google.longrunning.Operation
+	13, // 15: m8.platform.iam.v1.AuthenticationService.ResendChallenge:output_type -> google.longrunning.Operation
+	13, // 16: m8.platform.iam.v1.AuthenticationService.VerifyChallenge:output_type -> google.longrunning.Operation
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_iam_v1_authentication_service_proto_init() }
@@ -1818,20 +578,15 @@ func file_m8_platform_iam_v1_authentication_service_proto_init() {
 	file_m8_platform_iam_v1_authentication_common_proto_init()
 	file_m8_platform_iam_v1_authentication_context_proto_init()
 	file_m8_platform_iam_v1_authentication_subject_proto_init()
-	file_m8_platform_iam_v1_authentication_service_proto_msgTypes[11].OneofWrappers = []any{
-		(*HandleAuthenticationCallbackRequest_Oidc)(nil),
-		(*HandleAuthenticationCallbackRequest_Saml)(nil),
-		(*HandleAuthenticationCallbackRequest_Generic)(nil),
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_service_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   8,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_m8_platform_iam_v1_authentication_service_proto_goTypes,
 		DependencyIndexes: file_m8_platform_iam_v1_authentication_service_proto_depIdxs,
