@@ -5,14 +5,14 @@ package m8.platform.resourcemanager.v1;
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/common/extension/v1/extension.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 // Workspace stores canonical metadata for a workspace resource within an organization.
 message Workspace {
   // Kafka topic that receives workspace aggregate change events.
-  option (m8.platform.extension.v1.topic) = "m8.platform.resourcemanager.workspaces.v1";
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.resourcemanager.workspaces.v1";
 
   // State describes the lifecycle state of a workspace resource.
   enum State {

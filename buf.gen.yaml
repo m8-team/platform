@@ -16,8 +16,8 @@ plugins:
     out: api/generate/go
     opt:
       - paths=source_relative
-  - remote: buf.build/bufbuild/es:v2.11.0
-    out: api/generate/es
+  #- remote: buf.build/bufbuild/es:v2.11.0
+  #  out: api/generate/es
   - remote: buf.build/community/google-gnostic-openapi
     out: api/generate/openapi
     opt:

@@ -482,7 +482,7 @@ var File_m8_platform_resourcemanager_v1_workspace_service_proto protoreflect.Fil
 
 const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\n" +
-	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"2\n" +
+	"6m8/platform/resourcemanager/v1/workspace_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"2\n" +
 	"\x13GetWorkspaceRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x9a\x02\n" +
 	"\x15ListWorkspacesRequest\x124\n" +

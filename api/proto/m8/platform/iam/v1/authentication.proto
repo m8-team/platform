@@ -5,7 +5,7 @@ package m8.platform.iam.v1;
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_common.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
@@ -15,7 +15,7 @@ import "m8/platform/iam/v1/authentication_subject.proto";
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
 message Authentication {
-  option (m8.platform.extension.v1.topic) = "m8.platform.iam.authentications.v1";
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.iam.authentications.v1";
 
   string id = 1 [
     (google.api.field_behavior) = IDENTIFIER,
@@ -29,7 +29,7 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  AuthenticationSubjectSnapshot subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  AuthenticationSubject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   AuthenticationPurpose purpose = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,

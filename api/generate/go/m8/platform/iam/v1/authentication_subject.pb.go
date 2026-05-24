@@ -9,7 +9,6 @@ package iam
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v1 "github.com/m8-team/go-genproto/m8/platform/type/v1"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -148,99 +147,19 @@ func (*AuthenticationSubject_Phone) isAuthenticationSubject_Identifier() {}
 
 func (*AuthenticationSubject_Username) isAuthenticationSubject_Identifier() {}
 
-// AuthenticationSubjectSnapshot is the public-safe subject projection returned
-// in Authentication snapshots.
-type AuthenticationSubjectSnapshot struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Resolved user identifier, when policy allows exposing it.
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// Masked subject value safe for UI display.
-	MaskedValue string `protobuf:"bytes,2,opt,name=masked_value,json=maskedValue,proto3" json:"masked_value,omitempty"`
-	// Provider id for provider-scoped hints, when safe to expose.
-	ProviderId string `protobuf:"bytes,3,opt,name=provider_id,json=providerId,proto3" json:"provider_id,omitempty"`
-	// Whether the server resolved the subject.
-	Resolved      bool `protobuf:"varint,4,opt,name=resolved,proto3" json:"resolved,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthenticationSubjectSnapshot) Reset() {
-	*x = AuthenticationSubjectSnapshot{}
-	mi := &file_m8_platform_iam_v1_authentication_subject_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthenticationSubjectSnapshot) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthenticationSubjectSnapshot) ProtoMessage() {}
-
-func (x *AuthenticationSubjectSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_iam_v1_authentication_subject_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthenticationSubjectSnapshot.ProtoReflect.Descriptor instead.
-func (*AuthenticationSubjectSnapshot) Descriptor() ([]byte, []int) {
-	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *AuthenticationSubjectSnapshot) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
-}
-
-func (x *AuthenticationSubjectSnapshot) GetMaskedValue() string {
-	if x != nil {
-		return x.MaskedValue
-	}
-	return ""
-}
-
-func (x *AuthenticationSubjectSnapshot) GetProviderId() string {
-	if x != nil {
-		return x.ProviderId
-	}
-	return ""
-}
-
-func (x *AuthenticationSubjectSnapshot) GetResolved() bool {
-	if x != nil {
-		return x.Resolved
-	}
-	return false
-}
-
 var File_m8_platform_iam_v1_authentication_subject_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_subject_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a&m8/platform/type/v1/phone_number.proto\"\xed\x01\n" +
+	"/m8/platform/iam/v1/authentication_subject.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a-m8/platform/common/type/v1/phone_number.proto\"\xf4\x01\n" +
 	"\x15AuthenticationSubject\x12#\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x06userId\x12\"\n" +
 	"\x05email\x18\x02 \x01(\tB\n" +
-	"\xbaH\ar\x05(\xfe\x01`\x01H\x00R\x05email\x128\n" +
-	"\x05phone\x18\x03 \x01(\v2 .m8.platform.type.v1.PhoneNumberH\x00R\x05phone\x12<\n" +
+	"\xbaH\ar\x05(\xfe\x01`\x01H\x00R\x05email\x12?\n" +
+	"\x05phone\x18\x03 \x01(\v2'.m8.platform.common.type.v1.PhoneNumberH\x00R\x05phone\x12<\n" +
 	"\busername\x18\x04 \x01(\tB\x1e\xbaH\x1br\x19\x10\x03\x18\x80\x012\x12^[a-zA-Z0-9._@-]+$H\x00R\busernameB\x13\n" +
 	"\n" +
-	"identifier\x12\x05\xbaH\x02\b\x01\"\xc7\x01\n" +
-	"\x1dAuthenticationSubjectSnapshot\x12'\n" +
-	"\auser_id\x18\x01 \x01(\tB\x0e\xe0A\x03\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06userId\x12.\n" +
-	"\fmasked_value\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x04R\vmaskedValue\x12,\n" +
-	"\vprovider_id\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\xff\x01R\n" +
-	"providerId\x12\x1f\n" +
-	"\bresolved\x18\x04 \x01(\bB\x03\xe0A\x03R\bresolvedB7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
+	"identifier\x12\x05\xbaH\x02\b\x01B7Z5github.com/m8-team/go-genproto/m8/platform/iam/v1;iamb\x06proto3"
 
 var (
 	file_m8_platform_iam_v1_authentication_subject_proto_rawDescOnce sync.Once
@@ -254,14 +173,13 @@ func file_m8_platform_iam_v1_authentication_subject_proto_rawDescGZIP() []byte {
 	return file_m8_platform_iam_v1_authentication_subject_proto_rawDescData
 }
 
-var file_m8_platform_iam_v1_authentication_subject_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_m8_platform_iam_v1_authentication_subject_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_m8_platform_iam_v1_authentication_subject_proto_goTypes = []any{
-	(*AuthenticationSubject)(nil),         // 0: m8.platform.iam.v1.AuthenticationSubject
-	(*AuthenticationSubjectSnapshot)(nil), // 1: m8.platform.iam.v1.AuthenticationSubjectSnapshot
-	(*v1.PhoneNumber)(nil),                // 2: m8.platform.type.v1.PhoneNumber
+	(*AuthenticationSubject)(nil), // 0: m8.platform.iam.v1.AuthenticationSubject
+	(*v1.PhoneNumber)(nil),        // 1: m8.platform.common.type.v1.PhoneNumber
 }
 var file_m8_platform_iam_v1_authentication_subject_proto_depIdxs = []int32{
-	2, // 0: m8.platform.iam.v1.AuthenticationSubject.phone:type_name -> m8.platform.type.v1.PhoneNumber
+	1, // 0: m8.platform.iam.v1.AuthenticationSubject.phone:type_name -> m8.platform.common.type.v1.PhoneNumber
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -286,7 +204,7 @@ func file_m8_platform_iam_v1_authentication_subject_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_iam_v1_authentication_subject_proto_rawDesc), len(file_m8_platform_iam_v1_authentication_subject_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

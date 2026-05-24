@@ -5,6 +5,7 @@
 package resourcemanagerconnect
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
@@ -62,7 +63,7 @@ type OrganizationServiceClient interface {
 	// Returns a page of organizations available to the caller.
 	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
 	// Creates a new organization from the provided payload.
-	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing organization.
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
 	// Archives an organization without deleting it permanently.
@@ -95,11 +96,10 @@ func NewOrganizationServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(organizationServiceMethods.ByName("ListOrganizations")),
 			connect.WithClientOptions(opts...),
 		),
-		createOrganization: connect.NewClient[v1.CreateOrganizationRequest, v1.Organization](
+		createOrganization: connect.NewClient[v1.CreateOrganizationRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+OrganizationServiceCreateOrganizationProcedure,
 			connect.WithSchema(organizationServiceMethods.ByName("CreateOrganization")),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		updateOrganization: connect.NewClient[v1.UpdateOrganizationRequest, v1.Organization](
@@ -127,7 +127,7 @@ func NewOrganizationServiceClient(httpClient connect.HTTPClient, baseURL string,
 type organizationServiceClient struct {
 	getOrganization      *connect.Client[v1.GetOrganizationRequest, v1.Organization]
 	listOrganizations    *connect.Client[v1.ListOrganizationsRequest, v1.ListOrganizationsResponse]
-	createOrganization   *connect.Client[v1.CreateOrganizationRequest, v1.Organization]
+	createOrganization   *connect.Client[v1.CreateOrganizationRequest, longrunningpb.Operation]
 	updateOrganization   *connect.Client[v1.UpdateOrganizationRequest, v1.Organization]
 	deleteOrganization   *connect.Client[v1.DeleteOrganizationRequest, emptypb.Empty]
 	undeleteOrganization *connect.Client[v1.UndeleteOrganizationRequest, v1.Organization]
@@ -144,7 +144,7 @@ func (c *organizationServiceClient) ListOrganizations(ctx context.Context, req *
 }
 
 // CreateOrganization calls m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization.
-func (c *organizationServiceClient) CreateOrganization(ctx context.Context, req *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (c *organizationServiceClient) CreateOrganization(ctx context.Context, req *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.createOrganization.CallUnary(ctx, req)
 }
 
@@ -172,7 +172,7 @@ type OrganizationServiceHandler interface {
 	// Returns a page of organizations available to the caller.
 	ListOrganizations(context.Context, *connect.Request[v1.ListOrganizationsRequest]) (*connect.Response[v1.ListOrganizationsResponse], error)
 	// Creates a new organization from the provided payload.
-	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing organization.
 	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
 	// Archives an organization without deleting it permanently.
@@ -204,7 +204,6 @@ func NewOrganizationServiceHandler(svc OrganizationServiceHandler, opts ...conne
 		OrganizationServiceCreateOrganizationProcedure,
 		svc.CreateOrganization,
 		connect.WithSchema(organizationServiceMethods.ByName("CreateOrganization")),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	organizationServiceUpdateOrganizationHandler := connect.NewUnaryHandler(
@@ -256,7 +255,7 @@ func (UnimplementedOrganizationServiceHandler) ListOrganizations(context.Context
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations is not implemented"))
 }
 
-func (UnimplementedOrganizationServiceHandler) CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (UnimplementedOrganizationServiceHandler) CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization is not implemented"))
 }
 

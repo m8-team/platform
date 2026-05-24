@@ -3,16 +3,13 @@ syntax = "proto3";
 package m8.platform.iam.v1;
 
 import "buf/validate/validate.proto";
-import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
-import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/longrunning/operations.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/iam/v1/authentication.proto";
 import "m8/platform/iam/v1/authentication_challenge.proto";
-import "m8/platform/iam/v1/authentication_common.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 
@@ -21,7 +18,7 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 service AuthenticationService {
   option (m8.platform.common.extension.v1.description) = "";
 
-  rpc Create(CreateAuthenticationRequest) returns (google.longrunning.Operation) {
+  rpc Create(CreateRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/iam/v1/authentications:create"
       body: "*"
@@ -32,7 +29,7 @@ service AuthenticationService {
     };
   }
 
-  rpc Cancel(CancelAuthenticationRequest) returns (google.longrunning.Operation) {
+  rpc Cancel(CancelRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/iam/v1/authentications/{authentication_id}:cancel"
       body: "*"
@@ -43,7 +40,7 @@ service AuthenticationService {
     };
   }
 
-  rpc SelectChallenge(SelectAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
+  rpc SelectChallenge(SelectChallengeRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:select"
       body: "*"
@@ -54,7 +51,7 @@ service AuthenticationService {
     };
   }
 
-  rpc ResendChallenge(ResendAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
+  rpc ResendChallenge(ResendChallengeRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:resend"
       body: "*"
@@ -65,7 +62,7 @@ service AuthenticationService {
     };
   }
 
-  rpc VerifyChallenge(VerifyAuthenticationChallengeRequest) returns (google.longrunning.Operation) {
+  rpc VerifyChallenge(VerifyChallengeRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:verify"
       body: "*"
@@ -78,7 +75,7 @@ service AuthenticationService {
 }
 
 
-message CreateAuthenticationRequest {
+message CreateRequest {
   string client_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
@@ -92,7 +89,7 @@ message CreateAuthenticationRequest {
   AuthenticationOptions options = 4;
 }
 
-message ResendAuthenticationChallengeRequest {
+message ResendChallengeRequest {
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
@@ -106,7 +103,7 @@ message ResendAuthenticationChallengeRequest {
   ];
 }
 
-message SelectAuthenticationChallengeRequest {
+message SelectChallengeRequest {
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
@@ -120,7 +117,7 @@ message SelectAuthenticationChallengeRequest {
   ];
 }
 
-message VerifyAuthenticationChallengeRequest {
+message VerifyChallengeRequest {
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,
@@ -139,7 +136,7 @@ message VerifyAuthenticationChallengeRequest {
   ];
 }
 
-message CancelAuthenticationRequest {
+message CancelRequest {
   string authentication_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true,

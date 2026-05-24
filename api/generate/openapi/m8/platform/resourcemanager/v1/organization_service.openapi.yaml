@@ -7,7 +7,7 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/resourcemanager/organizations:
+    /v1/resource-manager/organizations:
         get:
             tags:
                 - OrganizationService
@@ -80,8 +80,8 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Organization'
-    /v1/resourcemanager/organizations/{id}:
+                                $ref: '#/components/schemas/Operation'
+    /v1/resource-manager/organizations/{id}:
         get:
             tags:
                 - OrganizationService
@@ -104,6 +104,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Organization'
+    /v1/resourcemanager/organizations/{id}:
         delete:
             tags:
                 - OrganizationService
@@ -196,6 +197,14 @@ paths:
                                 $ref: '#/components/schemas/Organization'
 components:
     schemas:
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
         ListOrganizationsResponse:
             type: object
             properties:
@@ -214,6 +223,48 @@ components:
                     description: The total number of organizations that match the request.
                     format: int32
             description: One page of organizations returned by ListOrganizations.
+        Operation:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: |-
+                        The server-assigned name, which is only unique within the same service that
+                         originally returns it. If you use the default HTTP mapping, the
+                         `name` should be a resource name ending with `operations/{unique_id}`.
+                metadata:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: |-
+                        Service-specific metadata associated with the operation.  It typically
+                         contains progress information and common metadata such as create time.
+                         Some services might not provide such metadata.  Any method that returns a
+                         long-running operation should document the metadata type, if any.
+                done:
+                    type: boolean
+                    description: |-
+                        If the value is `false`, it means the operation is still in progress.
+                         If `true`, the operation is completed, and either `error` or `response` is
+                         available.
+                error:
+                    allOf:
+                        - $ref: '#/components/schemas/Status'
+                    description: The error result of the operation in case of failure or cancellation.
+                response:
+                    allOf:
+                        - $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: |-
+                        The normal, successful response of the operation.  If the original
+                         method returns no data on success, such as `Delete`, the response is
+                         `google.protobuf.Empty`.  If the original method is standard
+                         `Get`/`Create`/`Update`, the response should be the resource.  For other
+                         methods, the response should have the type `XxxResponse`, where `Xxx`
+                         is the original method name.  For example, if the original method name
+                         is `TakeSnapshot()`, the inferred response type is
+                         `TakeSnapshotResponse`.
+            description: |-
+                This resource represents a long-running operation that is the result of a
+                 network API call.
         Organization:
             type: object
             properties:
@@ -285,5 +336,21 @@ components:
                          Use namespaced keys such as "example.com/key" to avoid collisions between
                          independent producers of annotations.
             description: Organization stores canonical metadata for a top-level organization resource.
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
 tags:
     - name: OrganizationService

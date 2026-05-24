@@ -247,7 +247,7 @@ var File_m8_platform_resourcemanager_v1_workspace_proto protoreflect.FileDescrip
 
 const file_m8_platform_resourcemanager_v1_workspace_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xe8\x06\n" +
+	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xe8\x06\n" +
 	"\tWorkspace\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x124\n" +
 	"\x0forganization_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12T\n" +

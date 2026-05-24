@@ -7,6 +7,7 @@
 package resourcemanager
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -40,7 +41,7 @@ type OrganizationServiceClient interface {
 	// Returns a page of organizations available to the caller.
 	ListOrganizations(ctx context.Context, in *ListOrganizationsRequest, opts ...grpc.CallOption) (*ListOrganizationsResponse, error)
 	// Creates a new organization from the provided payload.
-	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
+	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing organization.
 	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
 	// Archives an organization without deleting it permanently.
@@ -77,9 +78,9 @@ func (c *organizationServiceClient) ListOrganizations(ctx context.Context, in *L
 	return out, nil
 }
 
-func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
+func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, OrganizationService_CreateOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -129,7 +130,7 @@ type OrganizationServiceServer interface {
 	// Returns a page of organizations available to the caller.
 	ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error)
 	// Creates a new organization from the provided payload.
-	CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error)
+	CreateOrganization(context.Context, *CreateOrganizationRequest) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing organization.
 	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
 	// Archives an organization without deleting it permanently.
@@ -152,7 +153,7 @@ func (UnimplementedOrganizationServiceServer) GetOrganization(context.Context, *
 func (UnimplementedOrganizationServiceServer) ListOrganizations(context.Context, *ListOrganizationsRequest) (*ListOrganizationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOrganizations not implemented")
 }
-func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*Organization, error) {
+func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrganization not implemented")
 }
 func (UnimplementedOrganizationServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error) {

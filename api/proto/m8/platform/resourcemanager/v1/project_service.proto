@@ -9,7 +9,7 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
-import "m8/platform/extension/v1/extension.proto";
+import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
@@ -17,7 +17,7 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/
 // ProjectService manages projects inside workspaces: it lets clients create,
 // read, list, update, archive, and restore them.
 service ProjectService {
-  option (m8.platform.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete projects.";
+  option (m8.platform.common.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete projects.";
 
   // Returns one project by its UUID.
   rpc GetProject(GetProjectRequest) returns (Project) {

@@ -8,6 +8,7 @@ package resourcemanager
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "github.com/m8-team/go-genproto/m8/platform/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -461,7 +462,7 @@ var File_m8_platform_resourcemanager_v1_organization_service_proto protoreflect.
 
 const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "" +
 	"\n" +
-	"9m8/platform/resourcemanager/v1/organization_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\"5\n" +
+	"9m8/platform/resourcemanager/v1/organization_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a#google/longrunning/operations.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\"5\n" +
 	"\x16GetOrganizationRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xe7\x01\n" +
 	"\x18ListOrganizationsRequest\x12*\n" +
@@ -487,11 +488,12 @@ const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "
 	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\":\n" +
 	"\x1bUndeleteOrganizationRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xc6\r\n" +
-	"\x13OrganizationService\x12\xf1\x01\n" +
-	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"x\xdaA\x02id\xbaGB\x12\x03Get\x1a*Returns a single organization by its UUID.*\x0fGetOrganization\x82\xd3\xe4\x93\x02(\x12&/v1/resourcemanager/organizations/{id}\x12\x94\x02\n" +
-	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"\x89\x01\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02#\x12!/v1/resourcemanager/organizations\x12\x85\x02\n" +
-	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x85\x01\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x021:\forganization\"!/v1/resourcemanager/organizations\x90\x02\x02\x12\xb8\x02\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xf8\r\n" +
+	"\x13OrganizationService\x12\xf2\x01\n" +
+	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"y\xdaA\x02id\xbaGB\x12\x03Get\x1a*Returns a single organization by its UUID.*\x0fGetOrganization\x82\xd3\xe4\x93\x02)\x12'/v1/resource-manager/organizations/{id}\x12\x95\x02\n" +
+	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"\x8a\x01\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02$\x12\"/v1/resource-manager/organizations\x12\xb5\x02\n" +
+	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a\x1d.google.longrunning.Operation\"\xc4\x01\xcaA>\n" +
+	"\x1dOrganizationOperationResponse\x12\x1dOrganizationOperationMetadata\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x022:\forganization\"\"/v1/resource-manager/organizations\x12\xb8\x02\n" +
 	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xb8\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x02C:\forganization23/v1/resourcemanager/organizations/{organization.id}\x12\xee\x01\n" +
 	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\"\x84\x01\xdaA\x15id,etag,allow_missing\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x02(*&/v1/resourcemanager/organizations/{id}\x12\x95\x02\n" +
 	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x91\x01\xdaA\x02id\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x021\"//v1/resourcemanager/organizations/{id}:undelete\x1aX\x92\xb5\x18TUse this API to create, list, view, update, soft-delete, and undelete organizations.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
@@ -519,7 +521,8 @@ var file_m8_platform_resourcemanager_v1_organization_service_proto_goTypes = []a
 	(*UndeleteOrganizationRequest)(nil), // 6: m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
 	(*Organization)(nil),                // 7: m8.platform.resourcemanager.v1.Organization
 	(*fieldmaskpb.FieldMask)(nil),       // 8: google.protobuf.FieldMask
-	(*emptypb.Empty)(nil),               // 9: google.protobuf.Empty
+	(*longrunningpb.Operation)(nil),     // 9: google.longrunning.Operation
+	(*emptypb.Empty)(nil),               // 10: google.protobuf.Empty
 }
 var file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = []int32{
 	7,  // 0: m8.platform.resourcemanager.v1.ListOrganizationsResponse.organizations:type_name -> m8.platform.resourcemanager.v1.Organization
@@ -534,9 +537,9 @@ var file_m8_platform_resourcemanager_v1_organization_service_proto_depIdxs = []i
 	6,  // 9: m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization:input_type -> m8.platform.resourcemanager.v1.UndeleteOrganizationRequest
 	7,  // 10: m8.platform.resourcemanager.v1.OrganizationService.GetOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
 	2,  // 11: m8.platform.resourcemanager.v1.OrganizationService.ListOrganizations:output_type -> m8.platform.resourcemanager.v1.ListOrganizationsResponse
-	7,  // 12: m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
+	9,  // 12: m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization:output_type -> google.longrunning.Operation
 	7,  // 13: m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
-	9,  // 14: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
+	10, // 14: m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization:output_type -> google.protobuf.Empty
 	7,  // 15: m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization:output_type -> m8.platform.resourcemanager.v1.Organization
 	10, // [10:16] is the sub-list for method output_type
 	4,  // [4:10] is the sub-list for method input_type

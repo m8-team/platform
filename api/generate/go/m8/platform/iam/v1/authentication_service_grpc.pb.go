@@ -31,11 +31,11 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthenticationServiceClient interface {
-	Create(ctx context.Context, in *CreateAuthenticationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
-	Cancel(ctx context.Context, in *CancelAuthenticationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
-	SelectChallenge(ctx context.Context, in *SelectAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
-	ResendChallenge(ctx context.Context, in *ResendAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
-	VerifyChallenge(ctx context.Context, in *VerifyAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	SelectChallenge(ctx context.Context, in *SelectChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	ResendChallenge(ctx context.Context, in *ResendChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
+	VerifyChallenge(ctx context.Context, in *VerifyChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 }
 
 type authenticationServiceClient struct {
@@ -46,7 +46,7 @@ func NewAuthenticationServiceClient(cc grpc.ClientConnInterface) AuthenticationS
 	return &authenticationServiceClient{cc}
 }
 
-func (c *authenticationServiceClient) Create(ctx context.Context, in *CreateAuthenticationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+func (c *authenticationServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, AuthenticationService_Create_FullMethodName, in, out, cOpts...)
@@ -56,7 +56,7 @@ func (c *authenticationServiceClient) Create(ctx context.Context, in *CreateAuth
 	return out, nil
 }
 
-func (c *authenticationServiceClient) Cancel(ctx context.Context, in *CancelAuthenticationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+func (c *authenticationServiceClient) Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, AuthenticationService_Cancel_FullMethodName, in, out, cOpts...)
@@ -66,7 +66,7 @@ func (c *authenticationServiceClient) Cancel(ctx context.Context, in *CancelAuth
 	return out, nil
 }
 
-func (c *authenticationServiceClient) SelectChallenge(ctx context.Context, in *SelectAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+func (c *authenticationServiceClient) SelectChallenge(ctx context.Context, in *SelectChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, AuthenticationService_SelectChallenge_FullMethodName, in, out, cOpts...)
@@ -76,7 +76,7 @@ func (c *authenticationServiceClient) SelectChallenge(ctx context.Context, in *S
 	return out, nil
 }
 
-func (c *authenticationServiceClient) ResendChallenge(ctx context.Context, in *ResendAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+func (c *authenticationServiceClient) ResendChallenge(ctx context.Context, in *ResendChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, AuthenticationService_ResendChallenge_FullMethodName, in, out, cOpts...)
@@ -86,7 +86,7 @@ func (c *authenticationServiceClient) ResendChallenge(ctx context.Context, in *R
 	return out, nil
 }
 
-func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, in *VerifyAuthenticationChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
+func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, in *VerifyChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, AuthenticationService_VerifyChallenge_FullMethodName, in, out, cOpts...)
@@ -100,11 +100,11 @@ func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, in *V
 // All implementations must embed UnimplementedAuthenticationServiceServer
 // for forward compatibility.
 type AuthenticationServiceServer interface {
-	Create(context.Context, *CreateAuthenticationRequest) (*longrunningpb.Operation, error)
-	Cancel(context.Context, *CancelAuthenticationRequest) (*longrunningpb.Operation, error)
-	SelectChallenge(context.Context, *SelectAuthenticationChallengeRequest) (*longrunningpb.Operation, error)
-	ResendChallenge(context.Context, *ResendAuthenticationChallengeRequest) (*longrunningpb.Operation, error)
-	VerifyChallenge(context.Context, *VerifyAuthenticationChallengeRequest) (*longrunningpb.Operation, error)
+	Create(context.Context, *CreateRequest) (*longrunningpb.Operation, error)
+	Cancel(context.Context, *CancelRequest) (*longrunningpb.Operation, error)
+	SelectChallenge(context.Context, *SelectChallengeRequest) (*longrunningpb.Operation, error)
+	ResendChallenge(context.Context, *ResendChallengeRequest) (*longrunningpb.Operation, error)
+	VerifyChallenge(context.Context, *VerifyChallengeRequest) (*longrunningpb.Operation, error)
 	mustEmbedUnimplementedAuthenticationServiceServer()
 }
 
@@ -115,19 +115,19 @@ type AuthenticationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthenticationServiceServer struct{}
 
-func (UnimplementedAuthenticationServiceServer) Create(context.Context, *CreateAuthenticationRequest) (*longrunningpb.Operation, error) {
+func (UnimplementedAuthenticationServiceServer) Create(context.Context, *CreateRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedAuthenticationServiceServer) Cancel(context.Context, *CancelAuthenticationRequest) (*longrunningpb.Operation, error) {
+func (UnimplementedAuthenticationServiceServer) Cancel(context.Context, *CancelRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Cancel not implemented")
 }
-func (UnimplementedAuthenticationServiceServer) SelectChallenge(context.Context, *SelectAuthenticationChallengeRequest) (*longrunningpb.Operation, error) {
+func (UnimplementedAuthenticationServiceServer) SelectChallenge(context.Context, *SelectChallengeRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method SelectChallenge not implemented")
 }
-func (UnimplementedAuthenticationServiceServer) ResendChallenge(context.Context, *ResendAuthenticationChallengeRequest) (*longrunningpb.Operation, error) {
+func (UnimplementedAuthenticationServiceServer) ResendChallenge(context.Context, *ResendChallengeRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResendChallenge not implemented")
 }
-func (UnimplementedAuthenticationServiceServer) VerifyChallenge(context.Context, *VerifyAuthenticationChallengeRequest) (*longrunningpb.Operation, error) {
+func (UnimplementedAuthenticationServiceServer) VerifyChallenge(context.Context, *VerifyChallengeRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method VerifyChallenge not implemented")
 }
 func (UnimplementedAuthenticationServiceServer) mustEmbedUnimplementedAuthenticationServiceServer() {}
@@ -152,7 +152,7 @@ func RegisterAuthenticationServiceServer(s grpc.ServiceRegistrar, srv Authentica
 }
 
 func _AuthenticationService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAuthenticationRequest)
+	in := new(CreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -164,13 +164,13 @@ func _AuthenticationService_Create_Handler(srv interface{}, ctx context.Context,
 		FullMethod: AuthenticationService_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).Create(ctx, req.(*CreateAuthenticationRequest))
+		return srv.(AuthenticationServiceServer).Create(ctx, req.(*CreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthenticationService_Cancel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CancelAuthenticationRequest)
+	in := new(CancelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -182,13 +182,13 @@ func _AuthenticationService_Cancel_Handler(srv interface{}, ctx context.Context,
 		FullMethod: AuthenticationService_Cancel_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).Cancel(ctx, req.(*CancelAuthenticationRequest))
+		return srv.(AuthenticationServiceServer).Cancel(ctx, req.(*CancelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthenticationService_SelectChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SelectAuthenticationChallengeRequest)
+	in := new(SelectChallengeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -200,13 +200,13 @@ func _AuthenticationService_SelectChallenge_Handler(srv interface{}, ctx context
 		FullMethod: AuthenticationService_SelectChallenge_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).SelectChallenge(ctx, req.(*SelectAuthenticationChallengeRequest))
+		return srv.(AuthenticationServiceServer).SelectChallenge(ctx, req.(*SelectChallengeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthenticationService_ResendChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ResendAuthenticationChallengeRequest)
+	in := new(ResendChallengeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -218,13 +218,13 @@ func _AuthenticationService_ResendChallenge_Handler(srv interface{}, ctx context
 		FullMethod: AuthenticationService_ResendChallenge_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).ResendChallenge(ctx, req.(*ResendAuthenticationChallengeRequest))
+		return srv.(AuthenticationServiceServer).ResendChallenge(ctx, req.(*ResendChallengeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthenticationService_VerifyChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyAuthenticationChallengeRequest)
+	in := new(VerifyChallengeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -236,7 +236,7 @@ func _AuthenticationService_VerifyChallenge_Handler(srv interface{}, ctx context
 		FullMethod: AuthenticationService_VerifyChallenge_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServiceServer).VerifyChallenge(ctx, req.(*VerifyAuthenticationChallengeRequest))
+		return srv.(AuthenticationServiceServer).VerifyChallenge(ctx, req.(*VerifyChallengeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

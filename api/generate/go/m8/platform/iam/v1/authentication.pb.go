@@ -87,7 +87,7 @@ type Authentication struct {
 	state                   protoimpl.MessageState           `protogen:"open.v1"`
 	Id                      string                           `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	ClientId                string                           `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	Subject                 *AuthenticationSubjectSnapshot   `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
+	Subject                 *AuthenticationSubject           `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
 	Purpose                 AuthenticationPurpose            `protobuf:"varint,4,opt,name=purpose,proto3,enum=m8.platform.iam.v1.AuthenticationPurpose" json:"purpose,omitempty"`
 	State                   AuthenticationState              `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.iam.v1.AuthenticationState" json:"state,omitempty"`
 	StateReason             AuthenticationStateReason        `protobuf:"varint,6,opt,name=state_reason,json=stateReason,proto3,enum=m8.platform.iam.v1.AuthenticationStateReason" json:"state_reason,omitempty"`
@@ -150,7 +150,7 @@ func (x *Authentication) GetClientId() string {
 	return ""
 }
 
-func (x *Authentication) GetSubject() *AuthenticationSubjectSnapshot {
+func (x *Authentication) GetSubject() *AuthenticationSubject {
 	if x != nil {
 		return x.Subject
 	}
@@ -471,12 +471,12 @@ var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a-m8/platform/iam/v1/authentication_error.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\x8c\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a-m8/platform/iam/v1/authentication_error.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\x84\n" +
 	"\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12+\n" +
-	"\tclient_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12P\n" +
-	"\asubject\x18\x03 \x01(\v21.m8.platform.iam.v1.AuthenticationSubjectSnapshotB\x03\xe0A\x03R\asubject\x12P\n" +
+	"\tclient_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12H\n" +
+	"\asubject\x18\x03 \x01(\v2).m8.platform.iam.v1.AuthenticationSubjectB\x03\xe0A\x03R\asubject\x12P\n" +
 	"\apurpose\x18\x04 \x01(\x0e2).m8.platform.iam.v1.AuthenticationPurposeB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\apurpose\x12L\n" +
 	"\x05state\x18\x05 \x01(\x0e2'.m8.platform.iam.v1.AuthenticationStateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12]\n" +
 	"\fstate_reason\x18\x06 \x01(\x0e2-.m8.platform.iam.v1.AuthenticationStateReasonB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\vstateReason\x12a\n" +
@@ -545,7 +545,7 @@ var file_m8_platform_iam_v1_authentication_proto_goTypes = []any{
 	(*AuthenticationInteraction)(nil),     // 2: m8.platform.iam.v1.AuthenticationInteraction
 	(*AuthenticationResult)(nil),          // 3: m8.platform.iam.v1.AuthenticationResult
 	(*AuthenticationHandoff)(nil),         // 4: m8.platform.iam.v1.AuthenticationHandoff
-	(*AuthenticationSubjectSnapshot)(nil), // 5: m8.platform.iam.v1.AuthenticationSubjectSnapshot
+	(*AuthenticationSubject)(nil),         // 5: m8.platform.iam.v1.AuthenticationSubject
 	(AuthenticationPurpose)(0),            // 6: m8.platform.iam.v1.AuthenticationPurpose
 	(AuthenticationState)(0),              // 7: m8.platform.iam.v1.AuthenticationState
 	(AuthenticationStateReason)(0),        // 8: m8.platform.iam.v1.AuthenticationStateReason
@@ -558,7 +558,7 @@ var file_m8_platform_iam_v1_authentication_proto_goTypes = []any{
 	(AuthenticationMethod)(0),             // 15: m8.platform.iam.v1.AuthenticationMethod
 }
 var file_m8_platform_iam_v1_authentication_proto_depIdxs = []int32{
-	5,  // 0: m8.platform.iam.v1.Authentication.subject:type_name -> m8.platform.iam.v1.AuthenticationSubjectSnapshot
+	5,  // 0: m8.platform.iam.v1.Authentication.subject:type_name -> m8.platform.iam.v1.AuthenticationSubject
 	6,  // 1: m8.platform.iam.v1.Authentication.purpose:type_name -> m8.platform.iam.v1.AuthenticationPurpose
 	7,  // 2: m8.platform.iam.v1.Authentication.state:type_name -> m8.platform.iam.v1.AuthenticationState
 	8,  // 3: m8.platform.iam.v1.Authentication.state_reason:type_name -> m8.platform.iam.v1.AuthenticationStateReason

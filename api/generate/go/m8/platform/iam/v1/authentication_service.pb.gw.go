@@ -37,7 +37,7 @@ var (
 
 func request_AuthenticationService_Create_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CreateAuthenticationRequest
+		protoReq CreateRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -52,7 +52,7 @@ func request_AuthenticationService_Create_0(ctx context.Context, marshaler runti
 
 func local_request_AuthenticationService_Create_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CreateAuthenticationRequest
+		protoReq CreateRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -64,7 +64,7 @@ func local_request_AuthenticationService_Create_0(ctx context.Context, marshaler
 
 func request_AuthenticationService_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CancelAuthenticationRequest
+		protoReq CancelRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -88,7 +88,7 @@ func request_AuthenticationService_Cancel_0(ctx context.Context, marshaler runti
 
 func local_request_AuthenticationService_Cancel_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CancelAuthenticationRequest
+		protoReq CancelRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -109,7 +109,7 @@ func local_request_AuthenticationService_Cancel_0(ctx context.Context, marshaler
 
 func request_AuthenticationService_SelectChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SelectAuthenticationChallengeRequest
+		protoReq SelectChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -126,6 +126,14 @@ func request_AuthenticationService_SelectChallenge_0(ctx context.Context, marsha
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
 	}
 	msg, err := client.SelectChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -133,7 +141,7 @@ func request_AuthenticationService_SelectChallenge_0(ctx context.Context, marsha
 
 func local_request_AuthenticationService_SelectChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SelectAuthenticationChallengeRequest
+		protoReq SelectChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -147,6 +155,14 @@ func local_request_AuthenticationService_SelectChallenge_0(ctx context.Context, 
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
 	}
 	msg, err := server.SelectChallenge(ctx, &protoReq)
 	return msg, metadata, err
@@ -154,7 +170,7 @@ func local_request_AuthenticationService_SelectChallenge_0(ctx context.Context, 
 
 func request_AuthenticationService_ResendChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ResendAuthenticationChallengeRequest
+		protoReq ResendChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -171,6 +187,14 @@ func request_AuthenticationService_ResendChallenge_0(ctx context.Context, marsha
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
 	}
 	msg, err := client.ResendChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -178,7 +202,7 @@ func request_AuthenticationService_ResendChallenge_0(ctx context.Context, marsha
 
 func local_request_AuthenticationService_ResendChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ResendAuthenticationChallengeRequest
+		protoReq ResendChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -193,13 +217,21 @@ func local_request_AuthenticationService_ResendChallenge_0(ctx context.Context, 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
+	}
 	msg, err := server.ResendChallenge(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AuthenticationService_VerifyChallenge_0(ctx context.Context, marshaler runtime.Marshaler, client AuthenticationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq VerifyAuthenticationChallengeRequest
+		protoReq VerifyChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -217,13 +249,21 @@ func request_AuthenticationService_VerifyChallenge_0(ctx context.Context, marsha
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
 	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
+	}
 	msg, err := client.VerifyChallenge(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AuthenticationService_VerifyChallenge_0(ctx context.Context, marshaler runtime.Marshaler, server AuthenticationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq VerifyAuthenticationChallengeRequest
+		protoReq VerifyChallengeRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -237,6 +277,14 @@ func local_request_AuthenticationService_VerifyChallenge_0(ctx context.Context, 
 	protoReq.AuthenticationId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "authentication_id", err)
+	}
+	val, ok = pathParams["challenge_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "challenge_id")
+	}
+	protoReq.ChallengeId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "challenge_id", err)
 	}
 	msg, err := server.VerifyChallenge(ctx, &protoReq)
 	return msg, metadata, err
@@ -294,7 +342,7 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SelectChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:select"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SelectChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:select"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -314,7 +362,7 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:resend"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:resend"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -334,7 +382,7 @@ func RegisterAuthenticationServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/VerifyChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:verify"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/VerifyChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -426,7 +474,7 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SelectChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:select"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/SelectChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:select"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -443,7 +491,7 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:resend"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/ResendChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:resend"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -460,7 +508,7 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/VerifyChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges:verify"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.iam.v1.AuthenticationService/VerifyChallenge", runtime.WithHTTPPathPattern("/iam/v1/authentications/{authentication_id}/challenges/{challenge_id}:verify"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -479,9 +527,9 @@ func RegisterAuthenticationServiceHandlerClient(ctx context.Context, mux *runtim
 var (
 	pattern_AuthenticationService_Create_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"iam", "v1", "authentications"}, "create"))
 	pattern_AuthenticationService_Cancel_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"iam", "v1", "authentications", "authentication_id"}, "cancel"))
-	pattern_AuthenticationService_SelectChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"iam", "v1", "authentications", "authentication_id", "challenges"}, "select"))
-	pattern_AuthenticationService_ResendChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"iam", "v1", "authentications", "authentication_id", "challenges"}, "resend"))
-	pattern_AuthenticationService_VerifyChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"iam", "v1", "authentications", "authentication_id", "challenges"}, "verify"))
+	pattern_AuthenticationService_SelectChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"iam", "v1", "authentications", "authentication_id", "challenges", "challenge_id"}, "select"))
+	pattern_AuthenticationService_ResendChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"iam", "v1", "authentications", "authentication_id", "challenges", "challenge_id"}, "resend"))
+	pattern_AuthenticationService_VerifyChallenge_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"iam", "v1", "authentications", "authentication_id", "challenges", "challenge_id"}, "verify"))
 )
 
 var (

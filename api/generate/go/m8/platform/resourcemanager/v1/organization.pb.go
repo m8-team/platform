@@ -236,7 +236,7 @@ var File_m8_platform_resourcemanager_v1_organization_proto protoreflect.FileDesc
 
 const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(m8/platform/extension/v1/extension.proto\"\xbe\x06\n" +
+	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xbe\x06\n" +
 	"\fOrganization\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12W\n" +
 	"\x05state\x18\x02 \x01(\x0e22.m8.platform.resourcemanager.v1.Organization.StateB\r\xe0A\x03\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12\x1f\n" +
