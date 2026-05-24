@@ -1,0 +1,41 @@
+{
+  "name": "m8-platform",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [
+    2136,
+    8765,
+    7233,
+    8233
+  ],
+  "portsAttributes": {
+    "8765": {
+      "label": "YDB Embedded UI"
+    },
+    "8233": {
+      "label": "Temporal UI"
+    },
+    "7233": {
+      "label": "Temporal gRPC"
+    },
+    "2136": {
+      "label": "YDB gRPC"
+    }
+  },
+  "postCreateCommand": "go mod download || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "bufbuild.vscode-buf",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "go.useLanguageServer": true
+      }
+    }
+  }
+}
