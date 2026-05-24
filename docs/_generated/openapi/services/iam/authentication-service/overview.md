@@ -2,17 +2,14 @@
 
 # Authentication API: REST reference
 
-Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state.
+HTTP API specifications generated from protobuf contracts.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| [Handle provider callback](./operations/HandleAuthenticationCallback.md) | Internal normalized API that processes external provider callbacks without exposing provider secrets in public snapshots. |
-| [Get authentication experience](./operations/GetAuthenticationExperience.md) | Returns dynamic login UI configuration, provider options, and public-safe method options. |
-| [Get authentication](./operations/GetAuthentication.md) | Returns the latest public-safe authentication snapshot for polling. |
-| [Cancel authentication](./operations/CancelAuthentication.md) | Cancels an active authentication and returns command-level operation tracking metadata. |
-| [Resend challenge](./operations/ResendAuthenticationChallenge.md) | Resends the current challenge and returns command-level operation tracking metadata. |
-| [Select challenge](./operations/SelectAuthenticationChallenge.md) | Selects an allowed authentication method or provider and returns command-level operation tracking metadata. |
-| [Submit challenge](./operations/SubmitAuthenticationChallenge.md) | Submits a challenge response and returns command-level operation tracking metadata. |
-| [Start authentication](./operations/StartAuthentication.md) | Starts asynchronous authentication command processing and returns command-level operation tracking metadata. |
+| [AuthenticationService_ResendChallenge](./AuthenticationService_ResendChallenge.md) | No description. |
+| [AuthenticationService_SelectChallenge](./AuthenticationService_SelectChallenge.md) | No description. |
+| [AuthenticationService_VerifyChallenge](./AuthenticationService_VerifyChallenge.md) | No description. |
+| [AuthenticationService_Cancel](./AuthenticationService_Cancel.md) | No description. |
+| [AuthenticationService_Create](./AuthenticationService_Create.md) | No description. |

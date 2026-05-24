@@ -8,4 +8,4 @@
 
 | Service | Description |
 | --- | --- |
-| [Authentication](./authentication/index.md) | Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state. |
+| [Authentication](./authentication/index.md) | HTTP API specifications generated from protobuf contracts. |

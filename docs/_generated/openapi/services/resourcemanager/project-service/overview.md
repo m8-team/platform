@@ -2,7 +2,7 @@
 
 # Project API: REST reference
 
-Use this API to create, list, view, update, soft-delete, and undelete projects.
+ProjectService manages projects inside workspaces: it lets clients create, read, list, update, archive, and restore them.
 
 ## Methods
 

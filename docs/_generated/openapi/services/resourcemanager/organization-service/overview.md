@@ -2,7 +2,7 @@
 
 # Organization API: REST reference
 
-Use this API to create, list, view, update, soft-delete, and undelete organizations.
+OrganizationService manages organizations: it lets clients create, read, list, update, archive, and restore them.
 
 ## Methods
 
@@ -11,6 +11,6 @@ Use this API to create, list, view, update, soft-delete, and undelete organizati
 | [List](./ListOrganizations.md) | Returns a paginated list of organizations available to the caller. |
 | [Create](./CreateOrganization.md) | Creates a new organization. |
 | [Get](./GetOrganization.md) | Returns a single organization by its UUID. |
+| [Update](./UpdateOrganization.md) | Updates mutable fields of an existing organization. |
 | [Delete](./DeleteOrganization.md) | Soft-deletes an organization. |
 | [Undelete](./UndeleteOrganization.md) | Restores a previously soft-deleted organization. |
-| [Update](./UpdateOrganization.md) | Updates mutable fields of an existing organization. |

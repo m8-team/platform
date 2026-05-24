@@ -2,7 +2,7 @@
 
 # Workspace API: REST reference
 
-Use this API to create, list, view, update, soft-delete, and undelete workspaces.
+WorkspaceService manages workspaces inside organizations: it lets clients create, read, list, update, archive, and restore them.
 
 ## Methods
 

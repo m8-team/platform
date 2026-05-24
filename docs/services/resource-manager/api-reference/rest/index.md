@@ -8,6 +8,6 @@
 
 | Service | Description |
 | --- | --- |
-| [Organization](./organization/index.md) | Use this API to create, list, view, update, soft-delete, and undelete organizations. |
-| [Project](./project/index.md) | Use this API to create, list, view, update, soft-delete, and undelete projects. |
-| [Workspace](./workspace/index.md) | Use this API to create, list, view, update, soft-delete, and undelete workspaces. |
+| [Organization](./organization/index.md) | OrganizationService manages organizations: it lets clients create, read, list, update, archive, and restore them. |
+| [Project](./project/index.md) | ProjectService manages projects inside workspaces: it lets clients create, read, list, update, archive, and restore them. |
+| [Workspace](./workspace/index.md) | WorkspaceService manages workspaces inside organizations: it lets clients create, read, list, update, archive, and restore them. |

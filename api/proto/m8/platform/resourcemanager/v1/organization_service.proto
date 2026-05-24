@@ -22,8 +22,8 @@ service OrganizationService {
 
   // Returns one organization by its UUID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {get: "/v1/resource-manager/organizations/{id}"};
-    option (google.api.method_signature) = "id";
+    option (google.api.http) = {get: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
       description: "Returns a single organization by its UUID."
@@ -62,7 +62,7 @@ service OrganizationService {
   // Updates the editable fields of an existing organization.
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization) {
     option (google.api.http) = {
-      patch: "/v1/resourcemanager/organizations/{organization.id}"
+      patch: "/v1/resource-manager/organizations/{organization.id}"
       body: "organization"
     };
     option (google.api.method_signature) = "organization,update_mask";
@@ -75,8 +75,8 @@ service OrganizationService {
 
   // Archives an organization without deleting it permanently.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/resourcemanager/organizations/{id}"};
-    option (google.api.method_signature) = "id,etag,allow_missing";
+    option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.api.method_signature) = "organization_id,etag,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
@@ -86,8 +86,8 @@ service OrganizationService {
 
   // Restores an organization that was previously archived.
   rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {post: "/v1/resourcemanager/organizations/{id}:undelete"};
-    option (google.api.method_signature) = "id";
+    option (google.api.http) = {post: "/v1/resource-manager/organizations/{organization_id}:undelete"};
+    option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"
       description: "Restores a previously soft-deleted organization."
@@ -100,7 +100,7 @@ service OrganizationService {
 message GetOrganizationRequest {
   // Required. Stable unique identifier of the organization to retrieve.
   // The value must be a valid UUID string.
-  string id = 1 [
+  string organization_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
@@ -201,7 +201,7 @@ message UpdateOrganizationRequest {
 message DeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to delete.
   // The value must be a valid UUID string.
-  string id = 1 [
+  string organization_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
@@ -219,7 +219,7 @@ message DeleteOrganizationRequest {
 message UndeleteOrganizationRequest {
   // Required. Stable unique identifier of the organization to restore.
   // The value must be a valid UUID string.
-  string id = 1 [
+  string organization_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];

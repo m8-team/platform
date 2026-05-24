@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Workspace API
-  description: Use this API to create, list, view, update, soft-delete, and undelete workspaces.
+  description: 'WorkspaceService manages workspaces inside organizations: it lets clients create, read, list, update, archive, and restore them.'
   version: v1
 paths:
   /v1/resourcemanager/workspaces:

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Project API
-  description: Use this API to create, list, view, update, soft-delete, and undelete projects.
+  description: 'ProjectService manages projects inside workspaces: it lets clients create, read, list, update, archive, and restore them.'
   version: v1
 paths:
   /v1/resourcemanager/projects:

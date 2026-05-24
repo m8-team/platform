@@ -8,4 +8,4 @@ This section contains generated OpenAPI references for the services in this grou
 
 | Service | Description |
 | --- | --- |
-| [Authentication](./authentication-service/overview.md) | Use this API to start authentication workflows, render dynamic login UI, drive challenges, and poll public-safe authentication state. |
+| [Authentication](./authentication-service/overview.md) | HTTP API specifications generated from protobuf contracts. |
