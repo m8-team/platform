@@ -32,6 +32,14 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
+              - name: gRPC
+                items:
+                  - name: Overview
+                    href: services/iam/api-reference/grpc/index.md
+                  - name: Authentication
+                    include:
+                      path: services/iam/api-reference/grpc/authentication/toc.yaml
+                      mode: link
       - name: Resource Manager
         href: services/resource-manager/index.md
         items:
@@ -93,3 +101,19 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
+              - name: gRPC
+                items:
+                  - name: Overview
+                    href: services/resource-manager/api-reference/grpc/index.md
+                  - name: Organization
+                    include:
+                      path: services/resource-manager/api-reference/grpc/organization/toc.yaml
+                      mode: link
+                  - name: Workspace
+                    include:
+                      path: services/resource-manager/api-reference/grpc/workspace/toc.yaml
+                      mode: link
+                  - name: Project
+                    include:
+                      path: services/resource-manager/api-reference/grpc/project/toc.yaml
+                      mode: link

@@ -3,13 +3,14 @@
 Документация в `docs/` разделена на два слоя:
 
 - ручной контент в `docs/services`, `docs/index.md`, `docs/toc.yaml`;
-- автогенерируемый OpenAPI-контент в `docs/_generated/openapi`.
+- автогенерируемый OpenAPI-контент в `docs/_generated/openapi`;
+- автогенерируемый gRPC reference в `docs/services/*/api-reference/grpc`.
 
 ## Команды
 
 ```bash
 npm install
-npm run sync:openapi
+npm run sync:api
 npm run build
 ```
 
@@ -19,7 +20,7 @@ npm run build
 npm run dev
 ```
 
-## Обновление OpenAPI Reference
+## Обновление API Reference
 
 1. Перегенерировать protobuf-артефакты и OpenAPI:
 
@@ -30,10 +31,13 @@ buf generate
 2. Обновить сервисные разделы Diplodoc:
 
 ```bash
-npm run sync:openapi
+npm run sync:api
 ```
 
-Команда `sync:openapi` изменяет только `docs/_generated/openapi`.
+Команда `sync:api` запускает:
+
+- `sync:openapi`, который обновляет REST reference из OpenAPI-файлов;
+- `sync:grpc`, который строит protobuf descriptor через `buf build` и генерирует gRPC reference из комментариев `.proto`.
 
 3. Собрать сайт:
 
