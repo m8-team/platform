@@ -207,7 +207,7 @@ message ResourceRef {
   // For external/provider resources this may be provider-specific.
   string id = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string.uuid = true
   ];
 
   // Optional. Full resource name.
@@ -239,7 +239,7 @@ message WorkflowRef {
   // Output only. Workflow run id.
   string run_id = 3 [
     (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string.uuid = true
   ];
 
   // Output only. Task queue or worker queue name.
