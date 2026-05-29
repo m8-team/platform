@@ -7,8 +7,13 @@ Updates mutable fields of an existing workspace.
 ## gRPC request
 
 ```proto
-rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (Workspace)
+rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `WorkspaceOperationResponse`
+- Metadata type: `WorkspaceOperationMetadata`
 
 ## UpdateWorkspaceRequest
 
@@ -39,6 +44,20 @@ Request to update an existing workspace.
 | --- | --- | --- |
 | workspace | Workspace | Required. The workspace to update.<br/><br/>The `workspace.id` field identifies the resource to update and must be a<br/>valid UUID string. The identifier is immutable and cannot be changed.<br/>Output-only fields are ignored except for `version`, which may be provided for<br/>optimistic concurrency control. |
 | update_mask | FieldMask | Required. The field mask that selects which mutable fields to update.<br/>Paths in the mask should refer only to fields that clients are allowed to modify. |
+
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
+
+```json
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
+```
 
 ## Workspace
 

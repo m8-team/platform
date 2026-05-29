@@ -7,8 +7,8 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/longrunning/operations.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/workspace.proto";
 
@@ -44,10 +44,14 @@ service WorkspaceService {
 
   // Creates a new workspace inside the specified organization.
   // In the HTTP API, the organization UUID is passed in the query string.
-  rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/v1/resource-manager/workspaces"
       body: "workspace"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "WorkspaceOperationResponse"
+      metadata_type: "WorkspaceOperationMetadata"
     };
     option (google.api.method_signature) = "organization_id,workspace";
     option (gnostic.openapi.v3.operation) = {
@@ -58,10 +62,14 @@ service WorkspaceService {
   }
 
   // Updates the editable fields of an existing workspace.
-  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (Workspace) {
+  rpc UpdateWorkspace(UpdateWorkspaceRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       patch: "/v1/resource-manager/workspaces/{workspace.id}"
       body: "workspace"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "WorkspaceOperationResponse"
+      metadata_type: "WorkspaceOperationMetadata"
     };
     option (google.api.method_signature) = "workspace,update_mask";
     option (gnostic.openapi.v3.operation) = {
@@ -72,8 +80,12 @@ service WorkspaceService {
   }
 
   // Archives a workspace without deleting it permanently.
-  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
+  rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {delete: "/v1/resource-manager/workspaces/{id}"};
+    option (google.longrunning.operation_info) = {
+      response_type: "WorkspaceOperationResponse"
+      metadata_type: "WorkspaceOperationMetadata"
+    };
     option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
@@ -83,8 +95,12 @@ service WorkspaceService {
   }
 
   // Restores a workspace that was previously archived.
-  rpc UndeleteWorkspace(UndeleteWorkspaceRequest) returns (Workspace) {
+  rpc UndeleteWorkspace(UndeleteWorkspaceRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {post: "/v1/resource-manager/workspaces/{id}:undelete"};
+    option (google.longrunning.operation_info) = {
+      response_type: "WorkspaceOperationResponse"
+      metadata_type: "WorkspaceOperationMetadata"
+    };
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"

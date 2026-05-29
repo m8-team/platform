@@ -7,11 +7,11 @@
 package resourcemanager
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -42,13 +42,13 @@ type ProjectServiceClient interface {
 	ListProjects(ctx context.Context, in *ListProjectsRequest, opts ...grpc.CallOption) (*ListProjectsResponse, error)
 	// Creates a new project inside the specified workspace.
 	// In the HTTP API, the workspace UUID is passed in the query string.
-	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing project.
-	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Archives a project without deleting it permanently.
-	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Restores a project that was previously archived.
-	UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 }
 
 type projectServiceClient struct {
@@ -79,9 +79,9 @@ func (c *projectServiceClient) ListProjects(ctx context.Context, in *ListProject
 	return out, nil
 }
 
-func (c *projectServiceClient) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+func (c *projectServiceClient) CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Project)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, ProjectService_CreateProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -89,9 +89,9 @@ func (c *projectServiceClient) CreateProject(ctx context.Context, in *CreateProj
 	return out, nil
 }
 
-func (c *projectServiceClient) UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+func (c *projectServiceClient) UpdateProject(ctx context.Context, in *UpdateProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Project)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, ProjectService_UpdateProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -99,9 +99,9 @@ func (c *projectServiceClient) UpdateProject(ctx context.Context, in *UpdateProj
 	return out, nil
 }
 
-func (c *projectServiceClient) DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *projectServiceClient) DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, ProjectService_DeleteProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -109,9 +109,9 @@ func (c *projectServiceClient) DeleteProject(ctx context.Context, in *DeleteProj
 	return out, nil
 }
 
-func (c *projectServiceClient) UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+func (c *projectServiceClient) UndeleteProject(ctx context.Context, in *UndeleteProjectRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Project)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, ProjectService_UndeleteProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -133,13 +133,13 @@ type ProjectServiceServer interface {
 	ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error)
 	// Creates a new project inside the specified workspace.
 	// In the HTTP API, the workspace UUID is passed in the query string.
-	CreateProject(context.Context, *CreateProjectRequest) (*Project, error)
+	CreateProject(context.Context, *CreateProjectRequest) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing project.
-	UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error)
+	UpdateProject(context.Context, *UpdateProjectRequest) (*longrunningpb.Operation, error)
 	// Archives a project without deleting it permanently.
-	DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error)
+	DeleteProject(context.Context, *DeleteProjectRequest) (*longrunningpb.Operation, error)
 	// Restores a project that was previously archived.
-	UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error)
+	UndeleteProject(context.Context, *UndeleteProjectRequest) (*longrunningpb.Operation, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -156,16 +156,16 @@ func (UnimplementedProjectServiceServer) GetProject(context.Context, *GetProject
 func (UnimplementedProjectServiceServer) ListProjects(context.Context, *ListProjectsRequest) (*ListProjectsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListProjects not implemented")
 }
-func (UnimplementedProjectServiceServer) CreateProject(context.Context, *CreateProjectRequest) (*Project, error) {
+func (UnimplementedProjectServiceServer) CreateProject(context.Context, *CreateProjectRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateProject not implemented")
 }
-func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *UpdateProjectRequest) (*Project, error) {
+func (UnimplementedProjectServiceServer) UpdateProject(context.Context, *UpdateProjectRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProject not implemented")
 }
-func (UnimplementedProjectServiceServer) DeleteProject(context.Context, *DeleteProjectRequest) (*emptypb.Empty, error) {
+func (UnimplementedProjectServiceServer) DeleteProject(context.Context, *DeleteProjectRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteProject not implemented")
 }
-func (UnimplementedProjectServiceServer) UndeleteProject(context.Context, *UndeleteProjectRequest) (*Project, error) {
+func (UnimplementedProjectServiceServer) UndeleteProject(context.Context, *UndeleteProjectRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UndeleteProject not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}

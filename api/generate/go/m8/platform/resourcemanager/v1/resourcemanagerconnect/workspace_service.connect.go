@@ -5,11 +5,11 @@
 package resourcemanagerconnect
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
 	v1 "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -64,13 +64,13 @@ type WorkspaceServiceClient interface {
 	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
-	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing workspace.
-	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives a workspace without deleting it permanently.
-	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores a workspace that was previously archived.
-	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewWorkspaceServiceClient constructs a client for the
@@ -97,25 +97,25 @@ func NewWorkspaceServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(workspaceServiceMethods.ByName("ListWorkspaces")),
 			connect.WithClientOptions(opts...),
 		),
-		createWorkspace: connect.NewClient[v1.CreateWorkspaceRequest, v1.Workspace](
+		createWorkspace: connect.NewClient[v1.CreateWorkspaceRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+WorkspaceServiceCreateWorkspaceProcedure,
 			connect.WithSchema(workspaceServiceMethods.ByName("CreateWorkspace")),
 			connect.WithClientOptions(opts...),
 		),
-		updateWorkspace: connect.NewClient[v1.UpdateWorkspaceRequest, v1.Workspace](
+		updateWorkspace: connect.NewClient[v1.UpdateWorkspaceRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+WorkspaceServiceUpdateWorkspaceProcedure,
 			connect.WithSchema(workspaceServiceMethods.ByName("UpdateWorkspace")),
 			connect.WithClientOptions(opts...),
 		),
-		deleteWorkspace: connect.NewClient[v1.DeleteWorkspaceRequest, emptypb.Empty](
+		deleteWorkspace: connect.NewClient[v1.DeleteWorkspaceRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+WorkspaceServiceDeleteWorkspaceProcedure,
 			connect.WithSchema(workspaceServiceMethods.ByName("DeleteWorkspace")),
 			connect.WithClientOptions(opts...),
 		),
-		undeleteWorkspace: connect.NewClient[v1.UndeleteWorkspaceRequest, v1.Workspace](
+		undeleteWorkspace: connect.NewClient[v1.UndeleteWorkspaceRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+WorkspaceServiceUndeleteWorkspaceProcedure,
 			connect.WithSchema(workspaceServiceMethods.ByName("UndeleteWorkspace")),
@@ -128,10 +128,10 @@ func NewWorkspaceServiceClient(httpClient connect.HTTPClient, baseURL string, op
 type workspaceServiceClient struct {
 	getWorkspace      *connect.Client[v1.GetWorkspaceRequest, v1.Workspace]
 	listWorkspaces    *connect.Client[v1.ListWorkspacesRequest, v1.ListWorkspacesResponse]
-	createWorkspace   *connect.Client[v1.CreateWorkspaceRequest, v1.Workspace]
-	updateWorkspace   *connect.Client[v1.UpdateWorkspaceRequest, v1.Workspace]
-	deleteWorkspace   *connect.Client[v1.DeleteWorkspaceRequest, emptypb.Empty]
-	undeleteWorkspace *connect.Client[v1.UndeleteWorkspaceRequest, v1.Workspace]
+	createWorkspace   *connect.Client[v1.CreateWorkspaceRequest, longrunningpb.Operation]
+	updateWorkspace   *connect.Client[v1.UpdateWorkspaceRequest, longrunningpb.Operation]
+	deleteWorkspace   *connect.Client[v1.DeleteWorkspaceRequest, longrunningpb.Operation]
+	undeleteWorkspace *connect.Client[v1.UndeleteWorkspaceRequest, longrunningpb.Operation]
 }
 
 // GetWorkspace calls m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace.
@@ -145,22 +145,22 @@ func (c *workspaceServiceClient) ListWorkspaces(ctx context.Context, req *connec
 }
 
 // CreateWorkspace calls m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace.
-func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, req *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, req *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.createWorkspace.CallUnary(ctx, req)
 }
 
 // UpdateWorkspace calls m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace.
-func (c *workspaceServiceClient) UpdateWorkspace(ctx context.Context, req *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (c *workspaceServiceClient) UpdateWorkspace(ctx context.Context, req *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.updateWorkspace.CallUnary(ctx, req)
 }
 
 // DeleteWorkspace calls m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace.
-func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, req *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error) {
+func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, req *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.deleteWorkspace.CallUnary(ctx, req)
 }
 
 // UndeleteWorkspace calls m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace.
-func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, req *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, req *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.undeleteWorkspace.CallUnary(ctx, req)
 }
 
@@ -174,13 +174,13 @@ type WorkspaceServiceHandler interface {
 	ListWorkspaces(context.Context, *connect.Request[v1.ListWorkspacesRequest]) (*connect.Response[v1.ListWorkspacesResponse], error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
-	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing workspace.
-	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives a workspace without deleting it permanently.
-	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores a workspace that was previously archived.
-	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error)
+	UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewWorkspaceServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -257,18 +257,18 @@ func (UnimplementedWorkspaceServiceHandler) ListWorkspaces(context.Context, *con
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces is not implemented"))
 }
 
-func (UnimplementedWorkspaceServiceHandler) CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (UnimplementedWorkspaceServiceHandler) CreateWorkspace(context.Context, *connect.Request[v1.CreateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace is not implemented"))
 }
 
-func (UnimplementedWorkspaceServiceHandler) UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (UnimplementedWorkspaceServiceHandler) UpdateWorkspace(context.Context, *connect.Request[v1.UpdateWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace is not implemented"))
 }
 
-func (UnimplementedWorkspaceServiceHandler) DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[emptypb.Empty], error) {
+func (UnimplementedWorkspaceServiceHandler) DeleteWorkspace(context.Context, *connect.Request[v1.DeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace is not implemented"))
 }
 
-func (UnimplementedWorkspaceServiceHandler) UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[v1.Workspace], error) {
+func (UnimplementedWorkspaceServiceHandler) UndeleteWorkspace(context.Context, *connect.Request[v1.UndeleteWorkspaceRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace is not implemented"))
 }

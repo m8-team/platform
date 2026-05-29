@@ -7,8 +7,13 @@ Soft-deletes a project by its UUID.
 ## gRPC request
 
 ```proto
-rpc DeleteProject (DeleteProjectRequest) returns (Empty)
+rpc DeleteProject (DeleteProjectRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `ProjectOperationResponse`
+- Metadata type: `ProjectOperationMetadata`
 
 ## DeleteProjectRequest
 
@@ -28,8 +33,16 @@ Request to archive a project by UUID.
 | version | int64 | Optional. The version of the project.<br/>If provided, the value must exactly match the current server-side version. |
 | allow_missing | bool | Optional. If true, the request succeeds even if the project does not<br/>exist or has already been soft-deleted. |
 
-## google.protobuf.Empty
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
 
 ```json
-{}
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
 ```

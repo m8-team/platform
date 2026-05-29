@@ -7,8 +7,13 @@ Creates a new workspace under the specified organization UUID.
 ## gRPC request
 
 ```proto
-rpc CreateWorkspace (CreateWorkspaceRequest) returns (Workspace)
+rpc CreateWorkspace (CreateWorkspaceRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `WorkspaceOperationResponse`
+- Metadata type: `WorkspaceOperationMetadata`
 
 ## CreateWorkspaceRequest
 
@@ -39,6 +44,20 @@ Request to create a new workspace in an organization.
 | --- | --- | --- |
 | organization_id | string | Required. Stable unique identifier of the parent organization.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
 | workspace | Workspace | Required. The workspace to create.<br/>Client-specified values in `workspace.id`, `workspace.organization_id`,<br/>`workspace.state`, `workspace.create_time`, `workspace.update_time`,<br/>`workspace.delete_time`, `workspace.purge_time`, and `workspace.version`<br/>must not be set by the client. The server assigns those fields. |
+
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
+
+```json
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
+```
 
 ## Workspace
 

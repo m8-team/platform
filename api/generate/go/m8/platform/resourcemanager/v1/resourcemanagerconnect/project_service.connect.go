@@ -5,11 +5,11 @@
 package resourcemanagerconnect
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
 	v1 "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -63,13 +63,13 @@ type ProjectServiceClient interface {
 	ListProjects(context.Context, *connect.Request[v1.ListProjectsRequest]) (*connect.Response[v1.ListProjectsResponse], error)
 	// Creates a new project inside the specified workspace.
 	// In the HTTP API, the workspace UUID is passed in the query string.
-	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error)
+	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing project.
-	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error)
+	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives a project without deleting it permanently.
-	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores a project that was previously archived.
-	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error)
+	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewProjectServiceClient constructs a client for the m8.platform.resourcemanager.v1.ProjectService
@@ -95,25 +95,25 @@ func NewProjectServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(projectServiceMethods.ByName("ListProjects")),
 			connect.WithClientOptions(opts...),
 		),
-		createProject: connect.NewClient[v1.CreateProjectRequest, v1.Project](
+		createProject: connect.NewClient[v1.CreateProjectRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+ProjectServiceCreateProjectProcedure,
 			connect.WithSchema(projectServiceMethods.ByName("CreateProject")),
 			connect.WithClientOptions(opts...),
 		),
-		updateProject: connect.NewClient[v1.UpdateProjectRequest, v1.Project](
+		updateProject: connect.NewClient[v1.UpdateProjectRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+ProjectServiceUpdateProjectProcedure,
 			connect.WithSchema(projectServiceMethods.ByName("UpdateProject")),
 			connect.WithClientOptions(opts...),
 		),
-		deleteProject: connect.NewClient[v1.DeleteProjectRequest, emptypb.Empty](
+		deleteProject: connect.NewClient[v1.DeleteProjectRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+ProjectServiceDeleteProjectProcedure,
 			connect.WithSchema(projectServiceMethods.ByName("DeleteProject")),
 			connect.WithClientOptions(opts...),
 		),
-		undeleteProject: connect.NewClient[v1.UndeleteProjectRequest, v1.Project](
+		undeleteProject: connect.NewClient[v1.UndeleteProjectRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+ProjectServiceUndeleteProjectProcedure,
 			connect.WithSchema(projectServiceMethods.ByName("UndeleteProject")),
@@ -126,10 +126,10 @@ func NewProjectServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type projectServiceClient struct {
 	getProject      *connect.Client[v1.GetProjectRequest, v1.Project]
 	listProjects    *connect.Client[v1.ListProjectsRequest, v1.ListProjectsResponse]
-	createProject   *connect.Client[v1.CreateProjectRequest, v1.Project]
-	updateProject   *connect.Client[v1.UpdateProjectRequest, v1.Project]
-	deleteProject   *connect.Client[v1.DeleteProjectRequest, emptypb.Empty]
-	undeleteProject *connect.Client[v1.UndeleteProjectRequest, v1.Project]
+	createProject   *connect.Client[v1.CreateProjectRequest, longrunningpb.Operation]
+	updateProject   *connect.Client[v1.UpdateProjectRequest, longrunningpb.Operation]
+	deleteProject   *connect.Client[v1.DeleteProjectRequest, longrunningpb.Operation]
+	undeleteProject *connect.Client[v1.UndeleteProjectRequest, longrunningpb.Operation]
 }
 
 // GetProject calls m8.platform.resourcemanager.v1.ProjectService.GetProject.
@@ -143,22 +143,22 @@ func (c *projectServiceClient) ListProjects(ctx context.Context, req *connect.Re
 }
 
 // CreateProject calls m8.platform.resourcemanager.v1.ProjectService.CreateProject.
-func (c *projectServiceClient) CreateProject(ctx context.Context, req *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error) {
+func (c *projectServiceClient) CreateProject(ctx context.Context, req *connect.Request[v1.CreateProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.createProject.CallUnary(ctx, req)
 }
 
 // UpdateProject calls m8.platform.resourcemanager.v1.ProjectService.UpdateProject.
-func (c *projectServiceClient) UpdateProject(ctx context.Context, req *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error) {
+func (c *projectServiceClient) UpdateProject(ctx context.Context, req *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.updateProject.CallUnary(ctx, req)
 }
 
 // DeleteProject calls m8.platform.resourcemanager.v1.ProjectService.DeleteProject.
-func (c *projectServiceClient) DeleteProject(ctx context.Context, req *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error) {
+func (c *projectServiceClient) DeleteProject(ctx context.Context, req *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.deleteProject.CallUnary(ctx, req)
 }
 
 // UndeleteProject calls m8.platform.resourcemanager.v1.ProjectService.UndeleteProject.
-func (c *projectServiceClient) UndeleteProject(ctx context.Context, req *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error) {
+func (c *projectServiceClient) UndeleteProject(ctx context.Context, req *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.undeleteProject.CallUnary(ctx, req)
 }
 
@@ -172,13 +172,13 @@ type ProjectServiceHandler interface {
 	ListProjects(context.Context, *connect.Request[v1.ListProjectsRequest]) (*connect.Response[v1.ListProjectsResponse], error)
 	// Creates a new project inside the specified workspace.
 	// In the HTTP API, the workspace UUID is passed in the query string.
-	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error)
+	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing project.
-	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error)
+	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives a project without deleting it permanently.
-	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores a project that was previously archived.
-	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error)
+	UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewProjectServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -255,18 +255,18 @@ func (UnimplementedProjectServiceHandler) ListProjects(context.Context, *connect
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.ProjectService.ListProjects is not implemented"))
 }
 
-func (UnimplementedProjectServiceHandler) CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.Project], error) {
+func (UnimplementedProjectServiceHandler) CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.ProjectService.CreateProject is not implemented"))
 }
 
-func (UnimplementedProjectServiceHandler) UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.Project], error) {
+func (UnimplementedProjectServiceHandler) UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.ProjectService.UpdateProject is not implemented"))
 }
 
-func (UnimplementedProjectServiceHandler) DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[emptypb.Empty], error) {
+func (UnimplementedProjectServiceHandler) DeleteProject(context.Context, *connect.Request[v1.DeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.ProjectService.DeleteProject is not implemented"))
 }
 
-func (UnimplementedProjectServiceHandler) UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[v1.Project], error) {
+func (UnimplementedProjectServiceHandler) UndeleteProject(context.Context, *connect.Request[v1.UndeleteProjectRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.ProjectService.UndeleteProject is not implemented"))
 }

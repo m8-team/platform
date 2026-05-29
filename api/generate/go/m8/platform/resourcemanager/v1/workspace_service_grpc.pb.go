@@ -7,11 +7,11 @@
 package resourcemanager
 
 import (
+	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -42,13 +42,13 @@ type WorkspaceServiceClient interface {
 	ListWorkspaces(ctx context.Context, in *ListWorkspacesRequest, opts ...grpc.CallOption) (*ListWorkspacesResponse, error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
-	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
+	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing workspace.
-	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
+	UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Archives a workspace without deleting it permanently.
-	DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Restores a workspace that was previously archived.
-	UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
+	UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 }
 
 type workspaceServiceClient struct {
@@ -79,9 +79,9 @@ func (c *workspaceServiceClient) ListWorkspaces(ctx context.Context, in *ListWor
 	return out, nil
 }
 
-func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error) {
+func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Workspace)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, WorkspaceService_CreateWorkspace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -89,9 +89,9 @@ func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, in *Create
 	return out, nil
 }
 
-func (c *workspaceServiceClient) UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error) {
+func (c *workspaceServiceClient) UpdateWorkspace(ctx context.Context, in *UpdateWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Workspace)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, WorkspaceService_UpdateWorkspace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -99,9 +99,9 @@ func (c *workspaceServiceClient) UpdateWorkspace(ctx context.Context, in *Update
 	return out, nil
 }
 
-func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, in *DeleteWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, WorkspaceService_DeleteWorkspace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -109,9 +109,9 @@ func (c *workspaceServiceClient) DeleteWorkspace(ctx context.Context, in *Delete
 	return out, nil
 }
 
-func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error) {
+func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *UndeleteWorkspaceRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Workspace)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, WorkspaceService_UndeleteWorkspace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -133,13 +133,13 @@ type WorkspaceServiceServer interface {
 	ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
-	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error)
+	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing workspace.
-	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error)
+	UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*longrunningpb.Operation, error)
 	// Archives a workspace without deleting it permanently.
-	DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error)
+	DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*longrunningpb.Operation, error)
 	// Restores a workspace that was previously archived.
-	UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error)
+	UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*longrunningpb.Operation, error)
 	mustEmbedUnimplementedWorkspaceServiceServer()
 }
 
@@ -156,16 +156,16 @@ func (UnimplementedWorkspaceServiceServer) GetWorkspace(context.Context, *GetWor
 func (UnimplementedWorkspaceServiceServer) ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListWorkspaces not implemented")
 }
-func (UnimplementedWorkspaceServiceServer) CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error) {
+func (UnimplementedWorkspaceServiceServer) CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateWorkspace not implemented")
 }
-func (UnimplementedWorkspaceServiceServer) UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*Workspace, error) {
+func (UnimplementedWorkspaceServiceServer) UpdateWorkspace(context.Context, *UpdateWorkspaceRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateWorkspace not implemented")
 }
-func (UnimplementedWorkspaceServiceServer) DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*emptypb.Empty, error) {
+func (UnimplementedWorkspaceServiceServer) DeleteWorkspace(context.Context, *DeleteWorkspaceRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteWorkspace not implemented")
 }
-func (UnimplementedWorkspaceServiceServer) UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*Workspace, error) {
+func (UnimplementedWorkspaceServiceServer) UndeleteWorkspace(context.Context, *UndeleteWorkspaceRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UndeleteWorkspace not implemented")
 }
 func (UnimplementedWorkspaceServiceServer) mustEmbedUnimplementedWorkspaceServiceServer() {}

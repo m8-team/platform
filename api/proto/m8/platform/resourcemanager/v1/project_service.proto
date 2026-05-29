@@ -7,8 +7,8 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/longrunning/operations.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
@@ -44,10 +44,14 @@ service ProjectService {
 
   // Creates a new project inside the specified workspace.
   // In the HTTP API, the workspace UUID is passed in the query string.
-  rpc CreateProject(CreateProjectRequest) returns (Project) {
+  rpc CreateProject(CreateProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       post: "/v1/resource-manager/projects"
       body: "project"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "ProjectOperationResponse"
+      metadata_type: "ProjectOperationMetadata"
     };
     option (google.api.method_signature) = "workspace_id,project";
     option (gnostic.openapi.v3.operation) = {
@@ -58,10 +62,14 @@ service ProjectService {
   }
 
   // Updates the editable fields of an existing project.
-  rpc UpdateProject(UpdateProjectRequest) returns (Project) {
+  rpc UpdateProject(UpdateProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
       patch: "/v1/resource-manager/projects/{project.id}"
       body: "project"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "ProjectOperationResponse"
+      metadata_type: "ProjectOperationMetadata"
     };
     option (google.api.method_signature) = "project,update_mask";
     option (gnostic.openapi.v3.operation) = {
@@ -72,8 +80,12 @@ service ProjectService {
   }
 
   // Archives a project without deleting it permanently.
-  rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
+  rpc DeleteProject(DeleteProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {delete: "/v1/resource-manager/projects/{id}"};
+    option (google.longrunning.operation_info) = {
+      response_type: "ProjectOperationResponse"
+      metadata_type: "ProjectOperationMetadata"
+    };
     option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
@@ -83,8 +95,12 @@ service ProjectService {
   }
 
   // Restores a project that was previously archived.
-  rpc UndeleteProject(UndeleteProjectRequest) returns (Project) {
+  rpc UndeleteProject(UndeleteProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {post: "/v1/resource-manager/projects/{id}:undelete"};
+    option (google.longrunning.operation_info) = {
+      response_type: "ProjectOperationResponse"
+      metadata_type: "ProjectOperationMetadata"
+    };
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"

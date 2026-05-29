@@ -7,8 +7,13 @@ Creates a new project under the specified workspace UUID.
 ## gRPC request
 
 ```proto
-rpc CreateProject (CreateProjectRequest) returns (Project)
+rpc CreateProject (CreateProjectRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `ProjectOperationResponse`
+- Metadata type: `ProjectOperationMetadata`
 
 ## CreateProjectRequest
 
@@ -39,6 +44,20 @@ Request to create a new project in a workspace.
 | --- | --- | --- |
 | workspace_id | string | Required. Stable unique identifier of the parent workspace.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
 | project | Project | Required. The project to create.<br/>Client-specified values in `project.id`, `project.workspace_id`,<br/>`project.state`, `project.create_time`, `project.update_time`,<br/>`project.delete_time`, `project.purge_time`, and `project.version` must not<br/>be set by the client. The server assigns those fields. |
+
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
+
+```json
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
+```
 
 ## Project
 
