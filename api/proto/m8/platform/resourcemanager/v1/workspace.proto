@@ -86,11 +86,14 @@ message Workspace {
   // Output only. Time when the soft-deleted workspace is scheduled to be purged.
   google.protobuf.Timestamp purge_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Optional. Opaque concurrency token for the workspace.
+  // Optional. Resource version used for optimistic concurrency control.
   // If this value is provided on update or delete, it must exactly match the
-  // current server-side etag or the request is rejected. Clients must not set
+  // current server-side version or the request is rejected. Clients must not set
   // this field when creating a workspace.
-  string etag = 10 [(google.api.field_behavior) = OPTIONAL];
+  int64 version = 10 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int64.gte = 0
+  ];
 
   // Optional. Client-provided metadata for tooling and integrations.
   // Use namespaced keys such as "example.com/key" to avoid collisions between

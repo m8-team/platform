@@ -74,7 +74,7 @@ service WorkspaceService {
   // Archives a workspace without deleting it permanently.
   rpc DeleteWorkspace(DeleteWorkspaceRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/resourcemanager/workspaces/{id}"};
-    option (google.api.method_signature) = "id,etag,allow_missing";
+    option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes a workspace by its UUID."
@@ -181,7 +181,7 @@ message CreateWorkspaceRequest {
   // Required. The workspace to create.
   // Client-specified values in `workspace.id`, `workspace.organization_id`,
   // `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-  // `workspace.delete_time`, `workspace.purge_time`, and `workspace.etag`
+  // `workspace.delete_time`, `workspace.purge_time`, and `workspace.version`
   // must not be set by the client. The server assigns those fields.
   Workspace workspace = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -195,7 +195,7 @@ message UpdateWorkspaceRequest {
   //
   // The `workspace.id` field identifies the resource to update and must be a
   // valid UUID string. The identifier is immutable and cannot be changed.
-  // Output-only fields are ignored except for `etag`, which may be provided for
+  // Output-only fields are ignored except for `version`, which may be provided for
   // optimistic concurrency control.
   Workspace workspace = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -219,9 +219,12 @@ message DeleteWorkspaceRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. The etag of the workspace.
-  // If provided, the value must exactly match the current server-side etag.
-  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The version of the workspace.
+  // If provided, the value must exactly match the current server-side version.
+  int64 version = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int64.gte = 0
+  ];
 
   // Optional. If true, the request succeeds even if the workspace does not
   // exist or has already been soft-deleted.

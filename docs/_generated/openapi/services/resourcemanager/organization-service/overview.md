@@ -10,7 +10,7 @@ OrganizationService manages organizations: it lets clients create, read, list, u
 | --- | --- |
 | [List](./ListOrganizations.md) | Returns a paginated list of organizations available to the caller. |
 | [Create](./CreateOrganization.md) | Creates a new organization. |
-| [Get](./GetOrganization.md) | Returns a single organization by its UUID. |
 | [Update](./UpdateOrganization.md) | Updates mutable fields of an existing organization. |
+| [Get](./GetOrganization.md) | Returns a single organization by its UUID. |
 | [Delete](./DeleteOrganization.md) | Soft-deletes an organization. |
 | [Undelete](./UndeleteOrganization.md) | Restores a previously soft-deleted organization. |

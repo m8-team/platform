@@ -51,7 +51,7 @@ One page of projects returned by ListProjects.
       "update_time": "string",
       "delete_time": "string",
       "purge_time": "string",
-      "etag": "string",
+      "version": 0,
       "annotations": {
         "key": "string"
       }
@@ -83,7 +83,7 @@ Project stores canonical metadata for a project resource within a workspace.
   "update_time": "string",
   "delete_time": "string",
   "purge_time": "string",
-  "etag": "string",
+  "version": 0,
   "annotations": {
     "key": "string"
   }
@@ -101,7 +101,7 @@ Project stores canonical metadata for a project resource within a workspace.
 | update_time | Timestamp | Output only. Time when the project was most recently updated. |
 | delete_time | Timestamp | Output only. Time when the project was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted project is scheduled to be purged. |
-| etag | string | Optional. Opaque concurrency token for the project.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side etag or the request is rejected. Clients must not set<br/>this field when creating a project. |
+| version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating a project. |
 | annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
 
 ## State

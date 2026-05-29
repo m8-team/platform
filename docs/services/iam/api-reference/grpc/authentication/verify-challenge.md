@@ -308,7 +308,6 @@ Long-running operation returned by asynchronous API methods.
     "create_time": "string",
     "update_time": "string",
     "expire_time": "string",
-    "etag": "string",
     "requested_assurance_level": "AuthenticationAssuranceLevel",
     "version": 0
   }
@@ -612,7 +611,6 @@ Long-running operation returned by asynchronous API methods.
   "create_time": "string",
   "update_time": "string",
   "expire_time": "string",
-  "etag": "string",
   "requested_assurance_level": "AuthenticationAssuranceLevel",
   "version": 0
 }
@@ -634,7 +632,6 @@ Long-running operation returned by asynchronous API methods.
 | create_time | Timestamp | No description. |
 | update_time | Timestamp | No description. |
 | expire_time | Timestamp | No description. |
-| etag | string | No description. |
 | requested_assurance_level | enum AuthenticationAssuranceLevel | No description.<br/><br/>Available values: `AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL0`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL1`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL2`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL3`. |
 | version | int64 | No description. |
 

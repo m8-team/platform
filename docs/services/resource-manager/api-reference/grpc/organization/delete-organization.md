@@ -17,7 +17,7 @@ Request to archive an organization by UUID.
 ```json
 {
   "organization_id": "string",
-  "etag": "string",
+  "version": 0,
   "allow_missing": true
 }
 ```
@@ -25,7 +25,7 @@ Request to archive an organization by UUID.
 | Field | Type | Description |
 | --- | --- | --- |
 | organization_id | string | Required. Stable unique identifier of the organization to delete.<br/>The value must be a valid UUID string. |
-| etag | string | Optional. The etag of the organization.<br/>If provided, the value must exactly match the current server-side etag. |
+| version | int64 | Optional. The version of the organization.<br/>If provided, the value must exactly match the current server-side version. |
 | allow_missing | bool | Optional. If true, the request succeeds even if the organization does not<br/>exist or has already been deleted. |
 
 ## google.protobuf.Empty

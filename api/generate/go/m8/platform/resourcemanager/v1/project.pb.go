@@ -123,11 +123,11 @@ type Project struct {
 	DeleteTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
 	// Output only. Time when the soft-deleted project is scheduled to be purged.
 	PurgeTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=purge_time,json=purgeTime,proto3" json:"purge_time,omitempty"`
-	// Optional. Opaque concurrency token for the project.
+	// Optional. Resource version used for optimistic concurrency control.
 	// If this value is provided on update or delete, it must exactly match the
-	// current server-side etag or the request is rejected. Clients must not set
+	// current server-side version or the request is rejected. Clients must not set
 	// this field when creating a project.
-	Etag string `protobuf:"bytes,10,opt,name=etag,proto3" json:"etag,omitempty"`
+	Version int64 `protobuf:"varint,10,opt,name=version,proto3" json:"version,omitempty"`
 	// Optional. Client-provided metadata for tooling and integrations.
 	// Use namespaced keys such as "example.com/key" to avoid collisions between
 	// independent producers of annotations.
@@ -229,11 +229,11 @@ func (x *Project) GetPurgeTime() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Project) GetEtag() string {
+func (x *Project) GetVersion() int64 {
 	if x != nil {
-		return x.Etag
+		return x.Version
 	}
-	return ""
+	return 0
 }
 
 func (x *Project) GetAnnotations() map[string]string {
@@ -247,7 +247,7 @@ var File_m8_platform_resourcemanager_v1_project_proto protoreflect.FileDescripto
 
 const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"\n" +
-	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xd9\x06\n" +
+	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xe6\x06\n" +
 	"\aProject\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12.\n" +
 	"\fworkspace_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12R\n" +
@@ -261,9 +261,10 @@ const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"\vdelete_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"deleteTime\x12>\n" +
 	"\n" +
-	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12\x17\n" +
-	"\x04etag\x18\n" +
-	" \x01(\tB\x03\xe0A\x01R\x04etag\x12_\n" +
+	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12$\n" +
+	"\aversion\x18\n" +
+	" \x01(\x03B\n" +
+	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12_\n" +
 	"\vannotations\x18\v \x03(\v28.m8.platform.resourcemanager.v1.Project.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +

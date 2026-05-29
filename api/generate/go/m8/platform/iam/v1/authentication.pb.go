@@ -99,9 +99,8 @@ type Authentication struct {
 	CreateTime              *timestamppb.Timestamp           `protobuf:"bytes,12,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime              *timestamppb.Timestamp           `protobuf:"bytes,13,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	ExpireTime              *timestamppb.Timestamp           `protobuf:"bytes,14,opt,name=expire_time,json=expireTime,proto3" json:"expire_time,omitempty"`
-	Etag                    string                           `protobuf:"bytes,15,opt,name=etag,proto3" json:"etag,omitempty"`
-	RequestedAssuranceLevel AuthenticationAssuranceLevel     `protobuf:"varint,16,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
-	Version                 int64                            `protobuf:"varint,17,opt,name=version,proto3" json:"version,omitempty"`
+	RequestedAssuranceLevel AuthenticationAssuranceLevel     `protobuf:"varint,15,opt,name=requested_assurance_level,json=requestedAssuranceLevel,proto3,enum=m8.platform.iam.v1.AuthenticationAssuranceLevel" json:"requested_assurance_level,omitempty"`
+	Version                 int64                            `protobuf:"varint,16,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -232,13 +231,6 @@ func (x *Authentication) GetExpireTime() *timestamppb.Timestamp {
 		return x.ExpireTime
 	}
 	return nil
-}
-
-func (x *Authentication) GetEtag() string {
-	if x != nil {
-		return x.Etag
-	}
-	return ""
 }
 
 func (x *Authentication) GetRequestedAssuranceLevel() AuthenticationAssuranceLevel {
@@ -471,8 +463,7 @@ var File_m8_platform_iam_v1_authentication_proto protoreflect.FileDescriptor
 
 const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\n" +
-	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a-m8/platform/iam/v1/authentication_error.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\x84\n" +
-	"\n" +
+	"'m8/platform/iam/v1/authentication.proto\x12\x12m8.platform.iam.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a1m8/platform/iam/v1/authentication_challenge.proto\x1a.m8/platform/iam/v1/authentication_common.proto\x1a/m8/platform/iam/v1/authentication_context.proto\x1a-m8/platform/iam/v1/authentication_error.proto\x1a/m8/platform/iam/v1/authentication_subject.proto\"\xe3\t\n" +
 	"\x0eAuthentication\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12+\n" +
 	"\tclient_id\x18\x02 \x01(\tB\x0e\xe0A\x03\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\bclientId\x12H\n" +
@@ -491,10 +482,9 @@ const file_m8_platform_iam_v1_authentication_proto_rawDesc = "" +
 	"\vupdate_time\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12@\n" +
 	"\vexpire_time\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
-	"expireTime\x12\x1f\n" +
-	"\x04etag\x18\x0f \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\x04etag\x12y\n" +
-	"\x19requested_assurance_level\x18\x10 \x01(\x0e20.m8.platform.iam.v1.AuthenticationAssuranceLevelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x17requestedAssuranceLevel\x12$\n" +
-	"\aversion\x18\x11 \x01(\x03B\n" +
+	"expireTime\x12y\n" +
+	"\x19requested_assurance_level\x18\x0f \x01(\x0e20.m8.platform.iam.v1.AuthenticationAssuranceLevelB\v\xe0A\x03\xbaH\x05\x82\x01\x02\x10\x01R\x17requestedAssuranceLevel\x12$\n" +
+	"\aversion\x18\x10 \x01(\x03B\n" +
 	"\xe0A\x03\xbaH\x04\"\x02(\x00R\aversion:&\x8a\xb5\x18\"m8.platform.iam.authentications.v1\"\xd3\x01\n" +
 	"\x19AuthenticationInteraction\x128\n" +
 	"\x11authentication_id\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x10authenticationId\x12:\n" +

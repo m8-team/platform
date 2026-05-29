@@ -27,7 +27,7 @@ Request to create a new project in a workspace.
     "update_time": "string",
     "delete_time": "string",
     "purge_time": "string",
-    "etag": "string",
+    "version": 0,
     "annotations": {
       "key": "string"
     }
@@ -38,7 +38,7 @@ Request to create a new project in a workspace.
 | Field | Type | Description |
 | --- | --- | --- |
 | workspace_id | string | Required. Stable unique identifier of the parent workspace.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
-| project | Project | Required. The project to create.<br/>Client-specified values in `project.id`, `project.workspace_id`,<br/>`project.state`, `project.create_time`, `project.update_time`,<br/>`project.delete_time`, `project.purge_time`, and `project.etag` must not<br/>be set by the client. The server assigns those fields. |
+| project | Project | Required. The project to create.<br/>Client-specified values in `project.id`, `project.workspace_id`,<br/>`project.state`, `project.create_time`, `project.update_time`,<br/>`project.delete_time`, `project.purge_time`, and `project.version` must not<br/>be set by the client. The server assigns those fields. |
 
 ## Project
 
@@ -55,7 +55,7 @@ Project stores canonical metadata for a project resource within a workspace.
   "update_time": "string",
   "delete_time": "string",
   "purge_time": "string",
-  "etag": "string",
+  "version": 0,
   "annotations": {
     "key": "string"
   }
@@ -73,7 +73,7 @@ Project stores canonical metadata for a project resource within a workspace.
 | update_time | Timestamp | Output only. Time when the project was most recently updated. |
 | delete_time | Timestamp | Output only. Time when the project was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted project is scheduled to be purged. |
-| etag | string | Optional. Opaque concurrency token for the project.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side etag or the request is rejected. Clients must not set<br/>this field when creating a project. |
+| version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating a project. |
 | annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
 
 ## State

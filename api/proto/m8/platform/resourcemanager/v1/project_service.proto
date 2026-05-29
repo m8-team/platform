@@ -74,7 +74,7 @@ service ProjectService {
   // Archives a project without deleting it permanently.
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/resourcemanager/projects/{id}"};
-    option (google.api.method_signature) = "id,etag,allow_missing";
+    option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes a project by its UUID."
@@ -181,7 +181,7 @@ message CreateProjectRequest {
   // Required. The project to create.
   // Client-specified values in `project.id`, `project.workspace_id`,
   // `project.state`, `project.create_time`, `project.update_time`,
-  // `project.delete_time`, `project.purge_time`, and `project.etag` must not
+  // `project.delete_time`, `project.purge_time`, and `project.version` must not
   // be set by the client. The server assigns those fields.
   Project project = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -195,7 +195,7 @@ message UpdateProjectRequest {
   //
   // The `project.id` field identifies the resource to update and must be a
   // valid UUID string. The identifier is immutable and cannot be changed.
-  // Output-only fields are ignored except for `etag`, which may be provided for
+  // Output-only fields are ignored except for `version`, which may be provided for
   // optimistic concurrency control.
   Project project = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -219,9 +219,12 @@ message DeleteProjectRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. The etag of the project.
-  // If provided, the value must exactly match the current server-side etag.
-  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The version of the project.
+  // If provided, the value must exactly match the current server-side version.
+  int64 version = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int64.gte = 0
+  ];
 
   // Optional. If true, the request succeeds even if the project does not
   // exist or has already been soft-deleted.

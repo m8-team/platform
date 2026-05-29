@@ -26,7 +26,7 @@ Request to update an existing workspace.
     "update_time": "string",
     "delete_time": "string",
     "purge_time": "string",
-    "etag": "string",
+    "version": 0,
     "annotations": {
       "key": "string"
     }
@@ -37,7 +37,7 @@ Request to update an existing workspace.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| workspace | Workspace | Required. The workspace to update.<br/><br/>The `workspace.id` field identifies the resource to update and must be a<br/>valid UUID string. The identifier is immutable and cannot be changed.<br/>Output-only fields are ignored except for `etag`, which may be provided for<br/>optimistic concurrency control. |
+| workspace | Workspace | Required. The workspace to update.<br/><br/>The `workspace.id` field identifies the resource to update and must be a<br/>valid UUID string. The identifier is immutable and cannot be changed.<br/>Output-only fields are ignored except for `version`, which may be provided for<br/>optimistic concurrency control. |
 | update_mask | FieldMask | Required. The field mask that selects which mutable fields to update.<br/>Paths in the mask should refer only to fields that clients are allowed to modify. |
 
 ## Workspace
@@ -55,7 +55,7 @@ Workspace stores canonical metadata for a workspace resource within an organizat
   "update_time": "string",
   "delete_time": "string",
   "purge_time": "string",
-  "etag": "string",
+  "version": 0,
   "annotations": {
     "key": "string"
   }
@@ -73,7 +73,7 @@ Workspace stores canonical metadata for a workspace resource within an organizat
 | update_time | Timestamp | Output only. Time when the workspace was most recently updated. |
 | delete_time | Timestamp | Output only. Time when the workspace was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted workspace is scheduled to be purged. |
-| etag | string | Optional. Opaque concurrency token for the workspace.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side etag or the request is rejected. Clients must not set<br/>this field when creating a workspace. |
+| version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating a workspace. |
 | annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
 
 ## State

@@ -74,28 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/organizations/{organizationId}:
-    get:
-      summary: Get
-      description: Returns a single organization by its UUID.
-      operationId: GetOrganization
-      parameters:
-        - name: organizationId
-          in: path
-          description: |-
-            Required. Stable unique identifier of the organization to retrieve.
-             The value must be a valid UUID string.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-  /v1/resourcemanager/organizations/{organization.id}:
+  /v1/resource-manager/organizations/{organization.id}:
     patch:
       summary: Update
       description: Updates mutable fields of an existing organization.
@@ -127,7 +106,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Organization'
-  /v1/resourcemanager/organizations/{organizationId}:
+  /v1/resource-manager/organizations/{organizationId}:
+    get:
+      summary: Get
+      description: Returns a single organization by its UUID.
+      operationId: GetOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: |-
+            Required. Stable unique identifier of the organization to retrieve.
+             The value must be a valid UUID string.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
     delete:
       summary: Delete
       description: Soft-deletes an organization.
@@ -141,11 +140,11 @@ paths:
           required: true
           schema:
             type: string
-        - name: etag
+        - name: version
           in: query
           description: |-
-            Optional. The etag of the organization.
-             If provided, the value must exactly match the current server-side etag.
+            Optional. The version of the organization.
+             If provided, the value must exactly match the current server-side version.
           schema:
             type: string
         - name: allowMissing
@@ -159,7 +158,7 @@ paths:
         '200':
           description: OK
           content: {}
-  /v1/resourcemanager/organizations/{organizationId}:undelete:
+  /v1/resource-manager/organizations/{organizationId}:undelete:
     post:
       summary: Undelete
       description: Restores a previously soft-deleted organization.
@@ -305,12 +304,12 @@ components:
           type: string
           description: Output only. Time when the soft-deleted organization is scheduled to be purged.
           format: date-time
-        etag:
+        version:
           type: string
           description: |-
-            Optional. Opaque concurrency token for the organization.
+            Optional. Resource version used for optimistic concurrency control.
              If this value is provided on update or delete, it must exactly match the
-             current server-side etag or the request is rejected. Clients must not set
+             current server-side version or the request is rejected. Clients must not set
              this field when creating an organization.
         annotations:
           type: object

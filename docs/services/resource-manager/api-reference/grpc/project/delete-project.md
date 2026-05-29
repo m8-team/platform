@@ -17,7 +17,7 @@ Request to archive a project by UUID.
 ```json
 {
   "id": "string",
-  "etag": "string",
+  "version": 0,
   "allow_missing": true
 }
 ```
@@ -25,7 +25,7 @@ Request to archive a project by UUID.
 | Field | Type | Description |
 | --- | --- | --- |
 | id | string | Required. Stable unique identifier of the project to delete.<br/>The value must be a valid UUID string. |
-| etag | string | Optional. The etag of the project.<br/>If provided, the value must exactly match the current server-side etag. |
+| version | int64 | Optional. The version of the project.<br/>If provided, the value must exactly match the current server-side version. |
 | allow_missing | bool | Optional. If true, the request succeeds even if the project does not<br/>exist or has already been soft-deleted. |
 
 ## google.protobuf.Empty

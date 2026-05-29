@@ -71,17 +71,12 @@ message Authentication {
 
   google.protobuf.Timestamp expire_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  string etag = 15 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
-  ];
-
-  AuthenticationAssuranceLevel requested_assurance_level = 16 [
+  AuthenticationAssuranceLevel requested_assurance_level = 15 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).enum.defined_only = true
   ];
 
-  int64 version = 17 [
+  int64 version = 16 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int64.gte = 0
   ];

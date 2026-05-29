@@ -239,7 +239,7 @@ type CreateOrganizationRequest struct {
 	// Client-specified values in `organization.id`,
 	// `organization.state`, `organization.create_time`, `organization.update_time`,
 	// `organization.delete_time`, `organization.purge_time`, and
-	// `organization.etag` must not be set by the client. The server assigns
+	// `organization.version` must not be set by the client. The server assigns
 	// those fields.
 	Organization  *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -290,7 +290,7 @@ type UpdateOrganizationRequest struct {
 	//
 	// The `organization.id` field identifies the resource to update and must be
 	// a valid UUID string. The identifier is immutable and cannot be changed.
-	// Output-only fields are ignored except for `etag`, which may be provided for
+	// Output-only fields are ignored except for `version`, which may be provided for
 	// optimistic concurrency control.
 	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
 	// Required. The field mask that selects which mutable fields to update.
@@ -350,9 +350,9 @@ type DeleteOrganizationRequest struct {
 	// Required. Stable unique identifier of the organization to delete.
 	// The value must be a valid UUID string.
 	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	// Optional. The etag of the organization.
-	// If provided, the value must exactly match the current server-side etag.
-	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Optional. The version of the organization.
+	// If provided, the value must exactly match the current server-side version.
+	Version int64 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
 	// Optional. If true, the request succeeds even if the organization does not
 	// exist or has already been deleted.
 	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
@@ -397,11 +397,11 @@ func (x *DeleteOrganizationRequest) GetOrganizationId() string {
 	return ""
 }
 
-func (x *DeleteOrganizationRequest) GetEtag() string {
+func (x *DeleteOrganizationRequest) GetVersion() int64 {
 	if x != nil {
-		return x.Etag
+		return x.Version
 	}
-	return ""
+	return 0
 }
 
 func (x *DeleteOrganizationRequest) GetAllowMissing() bool {
@@ -482,21 +482,22 @@ const file_m8_platform_resourcemanager_v1_organization_service_proto_rawDesc = "
 	"\x19UpdateOrganizationRequest\x12[\n" +
 	"\forganization\x18\x01 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\forganization\x12F\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
-	"updateMask\"\x94\x01\n" +
+	"updateMask\"\xa1\x01\n" +
 	"\x19DeleteOrganizationRequest\x124\n" +
-	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12\x17\n" +
-	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12$\n" +
+	"\aversion\x18\x02 \x01(\x03B\n" +
+	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"S\n" +
 	"\x1bUndeleteOrganizationRequest\x124\n" +
-	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId2\xc7\x0e\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId2\xcd\x0e\n" +
 	"\x13OrganizationService\x12\x8d\x02\n" +
 	"\x0fGetOrganization\x126.m8.platform.resourcemanager.v1.GetOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\x93\x01\xdaA\x0forganization_id\xbaGB\x12\x03Get\x1a*Returns a single organization by its UUID.*\x0fGetOrganization\x82\xd3\xe4\x93\x026\x124/v1/resource-manager/organizations/{organization_id}\x12\x95\x02\n" +
 	"\x11ListOrganizations\x128.m8.platform.resourcemanager.v1.ListOrganizationsRequest\x1a9.m8.platform.resourcemanager.v1.ListOrganizationsResponse\"\x8a\x01\xbaG]\x12\x04List\x1aBReturns a paginated list of organizations available to the caller.*\x11ListOrganizations\x82\xd3\xe4\x93\x02$\x12\"/v1/resource-manager/organizations\x12\xb5\x02\n" +
 	"\x12CreateOrganization\x129.m8.platform.resourcemanager.v1.CreateOrganizationRequest\x1a\x1d.google.longrunning.Operation\"\xc4\x01\xcaA>\n" +
-	"\x1dOrganizationOperationResponse\x12\x1dOrganizationOperationMetadata\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x022:\forganization\"\"/v1/resource-manager/organizations\x12\xb8\x02\n" +
-	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xb8\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x02C:\forganization23/v1/resourcemanager/organizations/{organization.id}\x12\x88\x02\n" +
-	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\"\x9e\x01\xdaA\"organization_id,etag,allow_missing\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x025*3/v1/resourcemanager/organizations/{organization_id}\x12\xaf\x02\n" +
-	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xab\x01\xdaA\x0forganization_id\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02>\"</v1/resourcemanager/organizations/{organization_id}:undelete\x1aX\x92\xb5\x18TUse this API to create, list, view, update, soft-delete, and undelete organizations.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x1dOrganizationOperationResponse\x12\x1dOrganizationOperationMetadata\xdaA\forganization\xbaG9\x12\x06Create\x1a\x1bCreates a new organization.*\x12CreateOrganization\x82\xd3\xe4\x93\x022:\forganization\"\"/v1/resource-manager/organizations\x12\xb9\x02\n" +
+	"\x12UpdateOrganization\x129.m8.platform.resourcemanager.v1.UpdateOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xb9\x01\xdaA\x18organization,update_mask\xbaGQ\x12\x06Update\x1a3Updates mutable fields of an existing organization.*\x12UpdateOrganization\x82\xd3\xe4\x93\x02D:\forganization24/v1/resource-manager/organizations/{organization.id}\x12\x8c\x02\n" +
+	"\x12DeleteOrganization\x129.m8.platform.resourcemanager.v1.DeleteOrganizationRequest\x1a\x16.google.protobuf.Empty\"\xa2\x01\xdaA%organization_id,version,allow_missing\xbaG;\x12\x06Delete\x1a\x1dSoft-deletes an organization.*\x12DeleteOrganization\x82\xd3\xe4\x93\x026*4/v1/resource-manager/organizations/{organization_id}\x12\xb0\x02\n" +
+	"\x14UndeleteOrganization\x12;.m8.platform.resourcemanager.v1.UndeleteOrganizationRequest\x1a,.m8.platform.resourcemanager.v1.Organization\"\xac\x01\xdaA\x0forganization_id\xbaGR\x12\bUndelete\x1a0Restores a previously soft-deleted organization.*\x14UndeleteOrganization\x82\xd3\xe4\x93\x02?\"=/v1/resource-manager/organizations/{organization_id}:undelete\x1aX\x92\xb5\x18TUse this API to create, list, view, update, soft-delete, and undelete organizations.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_organization_service_proto_rawDescOnce sync.Once

@@ -30,7 +30,7 @@ Request to create a new organization.
     "update_time": "string",
     "delete_time": "string",
     "purge_time": "string",
-    "etag": "string",
+    "version": 0,
     "annotations": {
       "key": "string"
     }
@@ -40,7 +40,7 @@ Request to create a new organization.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| organization | Organization | Required. The organization to create.<br/>Client-specified values in `organization.id`,<br/>`organization.state`, `organization.create_time`, `organization.update_time`,<br/>`organization.delete_time`, `organization.purge_time`, and<br/>`organization.etag` must not be set by the client. The server assigns<br/>those fields. |
+| organization | Organization | Required. The organization to create.<br/>Client-specified values in `organization.id`,<br/>`organization.state`, `organization.create_time`, `organization.update_time`,<br/>`organization.delete_time`, `organization.purge_time`, and<br/>`organization.version` must not be set by the client. The server assigns<br/>those fields. |
 
 ## google.longrunning.Operation
 
@@ -70,7 +70,7 @@ Organization stores canonical metadata for a top-level organization resource.
   "update_time": "string",
   "delete_time": "string",
   "purge_time": "string",
-  "etag": "string",
+  "version": 0,
   "annotations": {
     "key": "string"
   }
@@ -87,7 +87,7 @@ Organization stores canonical metadata for a top-level organization resource.
 | update_time | Timestamp | Output only. Time when the organization was most recently updated. |
 | delete_time | Timestamp | Output only. Time when the organization was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted organization is scheduled to be purged. |
-| etag | string | Optional. Opaque concurrency token for the organization.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side etag or the request is rejected. Clients must not set<br/>this field when creating an organization. |
+| version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating an organization. |
 | annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
 
 ## State

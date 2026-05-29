@@ -41,7 +41,7 @@ Resource Manager is in scope for the following responsibilities:
 - canonical parent-child hierarchy between these resources
 - lifecycle management for these resources
 - soft-delete and undelete semantics
-- optimistic concurrency through `etag`
+- optimistic concurrency through `version`
 - emission of resource domain events for downstream consumers
 - list/get query semantics for control plane and read models
 
@@ -102,7 +102,7 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 - Parent link is immutable after creation.
 - Child creation requires an existing, non-deleted parent.
 - Undelete of a child requires an existing, non-deleted parent.
-- `etag` changes on every successful mutating write.
+- `version` changes on every successful mutating write.
 - `show_deleted=false` excludes soft-deleted resources from list responses.
 - There is no hidden recursive delete in v1.
 

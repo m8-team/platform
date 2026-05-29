@@ -76,7 +76,7 @@ service OrganizationService {
   // Archives an organization without deleting it permanently.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
-    option (google.api.method_signature) = "organization_id,etag,allow_missing";
+    option (google.api.method_signature) = "organization_id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
       description: "Soft-deletes an organization."
@@ -168,7 +168,7 @@ message CreateOrganizationRequest {
   // Client-specified values in `organization.id`,
   // `organization.state`, `organization.create_time`, `organization.update_time`,
   // `organization.delete_time`, `organization.purge_time`, and
-  // `organization.etag` must not be set by the client. The server assigns
+  // `organization.version` must not be set by the client. The server assigns
   // those fields.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -182,7 +182,7 @@ message UpdateOrganizationRequest {
   //
   // The `organization.id` field identifies the resource to update and must be
   // a valid UUID string. The identifier is immutable and cannot be changed.
-  // Output-only fields are ignored except for `etag`, which may be provided for
+  // Output-only fields are ignored except for `version`, which may be provided for
   // optimistic concurrency control.
   Organization organization = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -206,9 +206,12 @@ message DeleteOrganizationRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Optional. The etag of the organization.
-  // If provided, the value must exactly match the current server-side etag.
-  string etag = 2 [(google.api.field_behavior) = OPTIONAL];
+  // Optional. The version of the organization.
+  // If provided, the value must exactly match the current server-side version.
+  int64 version = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int64.gte = 0
+  ];
 
   // Optional. If true, the request succeeds even if the organization does not
   // exist or has already been deleted.

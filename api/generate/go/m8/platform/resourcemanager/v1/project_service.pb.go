@@ -252,7 +252,7 @@ type CreateProjectRequest struct {
 	// Required. The project to create.
 	// Client-specified values in `project.id`, `project.workspace_id`,
 	// `project.state`, `project.create_time`, `project.update_time`,
-	// `project.delete_time`, `project.purge_time`, and `project.etag` must not
+	// `project.delete_time`, `project.purge_time`, and `project.version` must not
 	// be set by the client. The server assigns those fields.
 	Project       *Project `protobuf:"bytes,2,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -310,7 +310,7 @@ type UpdateProjectRequest struct {
 	//
 	// The `project.id` field identifies the resource to update and must be a
 	// valid UUID string. The identifier is immutable and cannot be changed.
-	// Output-only fields are ignored except for `etag`, which may be provided for
+	// Output-only fields are ignored except for `version`, which may be provided for
 	// optimistic concurrency control.
 	Project *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	// Required. The field mask that selects which mutable fields to update.
@@ -370,9 +370,9 @@ type DeleteProjectRequest struct {
 	// Required. Stable unique identifier of the project to delete.
 	// The value must be a valid UUID string.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Optional. The etag of the project.
-	// If provided, the value must exactly match the current server-side etag.
-	Etag string `protobuf:"bytes,2,opt,name=etag,proto3" json:"etag,omitempty"`
+	// Optional. The version of the project.
+	// If provided, the value must exactly match the current server-side version.
+	Version int64 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
 	// Optional. If true, the request succeeds even if the project does not
 	// exist or has already been soft-deleted.
 	AllowMissing  bool `protobuf:"varint,3,opt,name=allow_missing,json=allowMissing,proto3" json:"allow_missing,omitempty"`
@@ -417,11 +417,11 @@ func (x *DeleteProjectRequest) GetId() string {
 	return ""
 }
 
-func (x *DeleteProjectRequest) GetEtag() string {
+func (x *DeleteProjectRequest) GetVersion() int64 {
 	if x != nil {
-		return x.Etag
+		return x.Version
 	}
-	return ""
+	return 0
 }
 
 func (x *DeleteProjectRequest) GetAllowMissing() bool {
@@ -504,21 +504,22 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\x14UpdateProjectRequest\x12L\n" +
 	"\aproject\x18\x01 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\aproject\x12F\n" +
 	"\vupdate_mask\x18\x02 \x01(\v2\x1a.google.protobuf.FieldMaskB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\n" +
-	"updateMask\"v\n" +
+	"updateMask\"\x83\x01\n" +
 	"\x14DeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x17\n" +
-	"\x04etag\x18\x02 \x01(\tB\x03\xe0A\x01R\x04etag\x12(\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12$\n" +
+	"\aversion\x18\x02 \x01(\x03B\n" +
+	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xc6\f\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xc9\f\n" +
 	"\x0eProjectService\x12\xd3\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"i\xdaA\x02id\xbaG8\x12\x03Get\x1a%Returns a single project by its UUID.*\n" +
 	"GetProject\x82\xd3\xe4\x93\x02#\x12!/v1/resourcemanager/projects/{id}\x12\x90\x02\n" +
 	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x94\x01\xdaA\fworkspace_id\xbaG^\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\fListProjects\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/resourcemanager/projects\x12\x8a\x02\n" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x99\x01\xdaA\x14workspace_id,project\xbaGR\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\rCreateProject\x82\xd3\xe4\x93\x02':\aproject\"\x1c/v1/resourcemanager/projects\x12\x8b\x02\n" +
-	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x9a\x01\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x024:\aproject2)/v1/resourcemanager/projects/{project.id}\x12\xe0\x01\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"\x80\x01\xdaA\x15id,etag,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02#*!/v1/resourcemanager/projects/{id}\x12\xf7\x01\n" +
+	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x9a\x01\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x024:\aproject2)/v1/resourcemanager/projects/{project.id}\x12\xe3\x01\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x16.google.protobuf.Empty\"\x83\x01\xdaA\x18id,version,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02#*!/v1/resourcemanager/projects/{id}\x12\xf7\x01\n" +
 	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"\x82\x01\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02,\"*/v1/resourcemanager/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
