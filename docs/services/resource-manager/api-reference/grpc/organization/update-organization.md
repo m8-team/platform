@@ -7,8 +7,13 @@ Updates mutable fields of an existing organization.
 ## gRPC request
 
 ```proto
-rpc UpdateOrganization (UpdateOrganizationRequest) returns (Organization)
+rpc UpdateOrganization (UpdateOrganizationRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `OrganizationOperationResponse`
+- Metadata type: `OrganizationOperationMetadata`
 
 ## UpdateOrganizationRequest
 
@@ -38,6 +43,20 @@ Request to update an existing organization.
 | --- | --- | --- |
 | organization | Organization | Required. The organization to update.<br/><br/>The `organization.id` field identifies the resource to update and must be<br/>a valid UUID string. The identifier is immutable and cannot be changed.<br/>Output-only fields are ignored except for `version`, which may be provided for<br/>optimistic concurrency control. |
 | update_mask | FieldMask | Required. The field mask that selects which mutable fields to update.<br/>Paths in the mask should refer only to fields that clients are allowed to modify. |
+
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
+
+```json
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
+```
 
 ## Organization
 

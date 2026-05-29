@@ -105,7 +105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
+                $ref: '#/components/schemas/Operation'
   /v1/resource-manager/organizations/{organizationId}:
     get:
       summary: Get
@@ -157,7 +157,10 @@ paths:
       responses:
         '200':
           description: OK
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Operation'
   /v1/resource-manager/organizations/{organizationId}:undelete:
     post:
       summary: Undelete
@@ -178,7 +181,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
+                $ref: '#/components/schemas/Operation'
 components:
   schemas:
     GoogleProtobufAny:

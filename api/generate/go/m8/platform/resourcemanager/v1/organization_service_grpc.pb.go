@@ -12,7 +12,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -43,11 +42,11 @@ type OrganizationServiceClient interface {
 	// Creates a new organization from the provided payload.
 	CreateOrganization(ctx context.Context, in *CreateOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing organization.
-	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
+	UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Archives an organization without deleting it permanently.
-	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	// Restores an organization that was previously archived.
-	UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error)
+	UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 }
 
 type organizationServiceClient struct {
@@ -88,9 +87,9 @@ func (c *organizationServiceClient) CreateOrganization(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
+func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, in *UpdateOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, OrganizationService_UpdateOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -98,9 +97,9 @@ func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, in *DeleteOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, OrganizationService_DeleteOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -108,9 +107,9 @@ func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*Organization, error) {
+func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, in *UndeleteOrganizationRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Organization)
+	out := new(longrunningpb.Operation)
 	err := c.cc.Invoke(ctx, OrganizationService_UndeleteOrganization_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -132,11 +131,11 @@ type OrganizationServiceServer interface {
 	// Creates a new organization from the provided payload.
 	CreateOrganization(context.Context, *CreateOrganizationRequest) (*longrunningpb.Operation, error)
 	// Updates the editable fields of an existing organization.
-	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error)
+	UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*longrunningpb.Operation, error)
 	// Archives an organization without deleting it permanently.
-	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*emptypb.Empty, error)
+	DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*longrunningpb.Operation, error)
 	// Restores an organization that was previously archived.
-	UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*Organization, error)
+	UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*longrunningpb.Operation, error)
 	mustEmbedUnimplementedOrganizationServiceServer()
 }
 
@@ -156,13 +155,13 @@ func (UnimplementedOrganizationServiceServer) ListOrganizations(context.Context,
 func (UnimplementedOrganizationServiceServer) CreateOrganization(context.Context, *CreateOrganizationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrganization not implemented")
 }
-func (UnimplementedOrganizationServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*Organization, error) {
+func (UnimplementedOrganizationServiceServer) UpdateOrganization(context.Context, *UpdateOrganizationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateOrganization not implemented")
 }
-func (UnimplementedOrganizationServiceServer) DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*emptypb.Empty, error) {
+func (UnimplementedOrganizationServiceServer) DeleteOrganization(context.Context, *DeleteOrganizationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteOrganization not implemented")
 }
-func (UnimplementedOrganizationServiceServer) UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*Organization, error) {
+func (UnimplementedOrganizationServiceServer) UndeleteOrganization(context.Context, *UndeleteOrganizationRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method UndeleteOrganization not implemented")
 }
 func (UnimplementedOrganizationServiceServer) mustEmbedUnimplementedOrganizationServiceServer() {}

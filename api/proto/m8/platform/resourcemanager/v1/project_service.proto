@@ -21,7 +21,7 @@ service ProjectService {
 
   // Returns one project by its UUID.
   rpc GetProject(GetProjectRequest) returns (Project) {
-    option (google.api.http) = {get: "/v1/resourcemanager/projects/{id}"};
+    option (google.api.http) = {get: "/v1/resource-manager/projects/{id}"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -33,7 +33,7 @@ service ProjectService {
   // Returns a page of projects for the specified workspace.
   // In the HTTP API, the workspace UUID is passed in the query string.
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
-    option (google.api.http) = {get: "/v1/resourcemanager/projects"};
+    option (google.api.http) = {get: "/v1/resource-manager/projects"};
     option (google.api.method_signature) = "workspace_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
@@ -46,7 +46,7 @@ service ProjectService {
   // In the HTTP API, the workspace UUID is passed in the query string.
   rpc CreateProject(CreateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      post: "/v1/resourcemanager/projects"
+      post: "/v1/resource-manager/projects"
       body: "project"
     };
     option (google.api.method_signature) = "workspace_id,project";
@@ -60,7 +60,7 @@ service ProjectService {
   // Updates the editable fields of an existing project.
   rpc UpdateProject(UpdateProjectRequest) returns (Project) {
     option (google.api.http) = {
-      patch: "/v1/resourcemanager/projects/{project.id}"
+      patch: "/v1/resource-manager/projects/{project.id}"
       body: "project"
     };
     option (google.api.method_signature) = "project,update_mask";
@@ -73,7 +73,7 @@ service ProjectService {
 
   // Archives a project without deleting it permanently.
   rpc DeleteProject(DeleteProjectRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {delete: "/v1/resourcemanager/projects/{id}"};
+    option (google.api.http) = {delete: "/v1/resource-manager/projects/{id}"};
     option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
       summary: "Delete"
@@ -84,7 +84,7 @@ service ProjectService {
 
   // Restores a project that was previously archived.
   rpc UndeleteProject(UndeleteProjectRequest) returns (Project) {
-    option (google.api.http) = {post: "/v1/resourcemanager/projects/{id}:undelete"};
+    option (google.api.http) = {post: "/v1/resource-manager/projects/{id}:undelete"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Undelete"

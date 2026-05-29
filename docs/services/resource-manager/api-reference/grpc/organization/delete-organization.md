@@ -7,8 +7,13 @@ Soft-deletes an organization.
 ## gRPC request
 
 ```proto
-rpc DeleteOrganization (DeleteOrganizationRequest) returns (Empty)
+rpc DeleteOrganization (DeleteOrganizationRequest) returns (Operation)
 ```
+
+The method starts a long-running operation.
+
+- Response type: `OrganizationOperationResponse`
+- Metadata type: `OrganizationOperationMetadata`
 
 ## DeleteOrganizationRequest
 
@@ -28,8 +33,16 @@ Request to archive an organization by UUID.
 | version | int64 | Optional. The version of the organization.<br/>If provided, the value must exactly match the current server-side version. |
 | allow_missing | bool | Optional. If true, the request succeeds even if the organization does not<br/>exist or has already been deleted. |
 
-## google.protobuf.Empty
+## google.longrunning.Operation
+
+Long-running operation returned by asynchronous API methods.
 
 ```json
-{}
+{
+  "name": "string",
+  "metadata": {},
+  "done": true,
+  "error": {},
+  "response": {}
+}
 ```

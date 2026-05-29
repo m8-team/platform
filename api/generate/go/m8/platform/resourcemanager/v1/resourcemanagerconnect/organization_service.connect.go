@@ -10,7 +10,6 @@ import (
 	context "context"
 	errors "errors"
 	v1 "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -65,11 +64,11 @@ type OrganizationServiceClient interface {
 	// Creates a new organization from the provided payload.
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing organization.
-	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives an organization without deleting it permanently.
-	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores an organization that was previously archived.
-	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewOrganizationServiceClient constructs a client for the
@@ -102,19 +101,19 @@ func NewOrganizationServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(organizationServiceMethods.ByName("CreateOrganization")),
 			connect.WithClientOptions(opts...),
 		),
-		updateOrganization: connect.NewClient[v1.UpdateOrganizationRequest, v1.Organization](
+		updateOrganization: connect.NewClient[v1.UpdateOrganizationRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+OrganizationServiceUpdateOrganizationProcedure,
 			connect.WithSchema(organizationServiceMethods.ByName("UpdateOrganization")),
 			connect.WithClientOptions(opts...),
 		),
-		deleteOrganization: connect.NewClient[v1.DeleteOrganizationRequest, emptypb.Empty](
+		deleteOrganization: connect.NewClient[v1.DeleteOrganizationRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+OrganizationServiceDeleteOrganizationProcedure,
 			connect.WithSchema(organizationServiceMethods.ByName("DeleteOrganization")),
 			connect.WithClientOptions(opts...),
 		),
-		undeleteOrganization: connect.NewClient[v1.UndeleteOrganizationRequest, v1.Organization](
+		undeleteOrganization: connect.NewClient[v1.UndeleteOrganizationRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+OrganizationServiceUndeleteOrganizationProcedure,
 			connect.WithSchema(organizationServiceMethods.ByName("UndeleteOrganization")),
@@ -128,9 +127,9 @@ type organizationServiceClient struct {
 	getOrganization      *connect.Client[v1.GetOrganizationRequest, v1.Organization]
 	listOrganizations    *connect.Client[v1.ListOrganizationsRequest, v1.ListOrganizationsResponse]
 	createOrganization   *connect.Client[v1.CreateOrganizationRequest, longrunningpb.Operation]
-	updateOrganization   *connect.Client[v1.UpdateOrganizationRequest, v1.Organization]
-	deleteOrganization   *connect.Client[v1.DeleteOrganizationRequest, emptypb.Empty]
-	undeleteOrganization *connect.Client[v1.UndeleteOrganizationRequest, v1.Organization]
+	updateOrganization   *connect.Client[v1.UpdateOrganizationRequest, longrunningpb.Operation]
+	deleteOrganization   *connect.Client[v1.DeleteOrganizationRequest, longrunningpb.Operation]
+	undeleteOrganization *connect.Client[v1.UndeleteOrganizationRequest, longrunningpb.Operation]
 }
 
 // GetOrganization calls m8.platform.resourcemanager.v1.OrganizationService.GetOrganization.
@@ -149,18 +148,18 @@ func (c *organizationServiceClient) CreateOrganization(ctx context.Context, req 
 }
 
 // UpdateOrganization calls m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization.
-func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, req *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (c *organizationServiceClient) UpdateOrganization(ctx context.Context, req *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.updateOrganization.CallUnary(ctx, req)
 }
 
 // DeleteOrganization calls m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization.
-func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, req *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error) {
+func (c *organizationServiceClient) DeleteOrganization(ctx context.Context, req *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.deleteOrganization.CallUnary(ctx, req)
 }
 
 // UndeleteOrganization calls
 // m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization.
-func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, req *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (c *organizationServiceClient) UndeleteOrganization(ctx context.Context, req *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return c.undeleteOrganization.CallUnary(ctx, req)
 }
 
@@ -174,11 +173,11 @@ type OrganizationServiceHandler interface {
 	// Creates a new organization from the provided payload.
 	CreateOrganization(context.Context, *connect.Request[v1.CreateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Updates the editable fields of an existing organization.
-	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Archives an organization without deleting it permanently.
-	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error)
+	DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 	// Restores an organization that was previously archived.
-	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error)
+	UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error)
 }
 
 // NewOrganizationServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -259,14 +258,14 @@ func (UnimplementedOrganizationServiceHandler) CreateOrganization(context.Contex
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.CreateOrganization is not implemented"))
 }
 
-func (UnimplementedOrganizationServiceHandler) UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (UnimplementedOrganizationServiceHandler) UpdateOrganization(context.Context, *connect.Request[v1.UpdateOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.UpdateOrganization is not implemented"))
 }
 
-func (UnimplementedOrganizationServiceHandler) DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[emptypb.Empty], error) {
+func (UnimplementedOrganizationServiceHandler) DeleteOrganization(context.Context, *connect.Request[v1.DeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.DeleteOrganization is not implemented"))
 }
 
-func (UnimplementedOrganizationServiceHandler) UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[v1.Organization], error) {
+func (UnimplementedOrganizationServiceHandler) UndeleteOrganization(context.Context, *connect.Request[v1.UndeleteOrganizationRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.resourcemanager.v1.OrganizationService.UndeleteOrganization is not implemented"))
 }
