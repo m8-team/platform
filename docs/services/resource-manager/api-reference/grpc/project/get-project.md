@@ -40,7 +40,7 @@ Project stores canonical metadata for a project resource within a workspace.
   "delete_time": "string",
   "purge_time": "string",
   "version": 0,
-  "annotations": {
+  "labels": {
     "key": "string"
   }
 }
@@ -58,7 +58,7 @@ Project stores canonical metadata for a project resource within a workspace.
 | delete_time | Timestamp | Output only. Time when the project was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted project is scheduled to be purged. |
 | version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating a project. |
-| annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
+| labels | map<string, string> | Optional. Client-provided labels for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of labels. |
 
 ## State
 

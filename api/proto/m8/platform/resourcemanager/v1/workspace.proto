@@ -95,8 +95,8 @@ message Workspace {
     (buf.validate.field).int64.gte = 0
   ];
 
-  // Optional. Client-provided metadata for tooling and integrations.
+  // Optional. Client-provided labels for tooling and integrations.
   // Use namespaced keys such as "example.com/key" to avoid collisions between
-  // independent producers of annotations.
-  map<string, string> annotations = 11 [(google.api.field_behavior) = OPTIONAL];
+  // independent producers of labels.
+  map<string, string> labels = 11 [(google.api.field_behavior) = OPTIONAL];
 }

@@ -39,63 +39,23 @@ message OperationMetadata {
     CANCELLED = 7;
   }
 
-  // Required. Stable identifier of the operation.
+  // Required. Stable UUID of the operation.
   //
-  // Usually the same identifier as in google.longrunning.Operation.name:
-  // operations/{operation_id}
+  // google.longrunning.Operation.name usually has the form:
+  //   operations/{operation_id}
   string operation_id = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
-  ];
-
-  // Required. Service that owns and executes this operation.
-  //
-  // Examples:
-  //   resourcemanager
-  //   provisioning
-  //   identity
-  //   authentication
-  //   access
-  string service = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string = {
-      min_len: 2
-      max_len: 64
-      pattern: "^[a-z][a-z0-9_]*[a-z0-9]$"
-    }
-  ];
-
-  // Required. Logical action executed by this operation.
-  //
-  // This field is intentionally not an enum so that all M8 services can define
-  // their own action names without changing this common package.
-  //
-  // Recommended format:
-  //   {service}.{resource}.{verb}
-  //
-  // Examples:
-  //   resourcemanager.organization.create
-  //   resourcemanager.workspace.delete
-  //   provisioning.kafka_topic.create
-  //   identity.user.import
-  //   access.relation.rebuild
-  string action = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string = {
-      min_len: 3
-      max_len: 128
-      pattern: "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*[a-z0-9])+$"
-    }
   ];
 
   // Optional. Primary resource affected by the operation.
   //
   // Some operations may not have a single resource at the beginning,
   // for example bulk import or scheduled purge.
-  ResourceRef resource = 4 [(google.api.field_behavior) = OPTIONAL];
+  ResourceRef resource = 2 [(google.api.field_behavior) = OPTIONAL];
 
   // Required. Current execution state of the operation.
-  State state = 5 [
+  State state = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
       defined_only: true
@@ -103,78 +63,17 @@ message OperationMetadata {
     }
   ];
 
-  // Output only. Current operation progress.
-  OperationProgress progress = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   // Output only. Time when the operation was created.
-  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation started execution.
-  google.protobuf.Timestamp start_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp start_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation was most recently updated.
-  google.protobuf.Timestamp update_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation finished.
-  google.protobuf.Timestamp end_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Output only. Workflow reference if this operation is backed by an orchestrator.
-  //
-  // For M8 this will usually point to Temporal.
-  WorkflowRef workflow = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
-
-  // Optional. Additional non-sensitive labels.
-  //
-  // Examples:
-  //   environment = prod
-  //   region = eu-central-1
-  //   provider = yandex
-  map<string, string> labels = 12 [(google.api.field_behavior) = OPTIONAL];
-}
-
-// OperationProgress describes the current progress of a long-running operation.
-message OperationProgress {
-  // Output only. Machine-readable current stage.
-  //
-  // Examples:
-  //   VALIDATING
-  //   CREATING_RESOURCE
-  //   WAITING_FOR_PROVIDER
-  //   PUBLISHING_EVENTS
-  string stage = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string = {
-      max_len: 128
-      pattern: "^$|^[A-Z][A-Z0-9_]*[A-Z0-9]$"
-    }
-  ];
-
-  // Output only. Human-readable status message.
-  string message = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 1024
-  ];
-
-  // Output only. Progress from 0 to 100.
-  int32 percent = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int32 = {
-      gte: 0
-      lte: 100
-    }
-  ];
-
-  // Output only. Number of completed steps, if known.
-  int32 completed_steps = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int32.gte = 0
-  ];
-
-  // Output only. Total number of steps, if known.
-  int32 total_steps = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int32.gte = 0
-  ];
+  google.protobuf.Timestamp end_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // ResourceRef is a generic reference to any M8 Platform resource.
@@ -217,35 +116,6 @@ message ResourceRef {
   string name = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 512
-  ];
-}
-
-// WorkflowRef points to the workflow engine behind the operation.
-message WorkflowRef {
-  // Output only. Workflow namespace.
-  //
-  // For Temporal this is the Temporal namespace.
-  string namespace = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 128
-  ];
-
-  // Output only. Workflow id.
-  string workflow_id = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 256
-  ];
-
-  // Output only. Workflow run id.
-  string run_id = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.uuid = true
-  ];
-
-  // Output only. Task queue or worker queue name.
-  string task_queue = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 256
   ];
 }
 

@@ -128,10 +128,10 @@ type Project struct {
 	// current server-side version or the request is rejected. Clients must not set
 	// this field when creating a project.
 	Version int64 `protobuf:"varint,10,opt,name=version,proto3" json:"version,omitempty"`
-	// Optional. Client-provided metadata for tooling and integrations.
+	// Optional. Client-provided labels for tooling and integrations.
 	// Use namespaced keys such as "example.com/key" to avoid collisions between
-	// independent producers of annotations.
-	Annotations   map[string]string `protobuf:"bytes,11,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// independent producers of labels.
+	Labels        map[string]string `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -236,9 +236,9 @@ func (x *Project) GetVersion() int64 {
 	return 0
 }
 
-func (x *Project) GetAnnotations() map[string]string {
+func (x *Project) GetLabels() map[string]string {
 	if x != nil {
-		return x.Annotations
+		return x.Labels
 	}
 	return nil
 }
@@ -247,7 +247,7 @@ var File_m8_platform_resourcemanager_v1_project_proto protoreflect.FileDescripto
 
 const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"\n" +
-	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xe6\x06\n" +
+	",m8/platform/resourcemanager/v1/project.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\xd2\x06\n" +
 	"\aProject\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12.\n" +
 	"\fworkspace_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\vworkspaceId\x12R\n" +
@@ -264,9 +264,9 @@ const file_m8_platform_resourcemanager_v1_project_proto_rawDesc = "" +
 	"purge_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tpurgeTime\x12$\n" +
 	"\aversion\x18\n" +
 	" \x01(\x03B\n" +
-	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12_\n" +
-	"\vannotations\x18\v \x03(\v28.m8.platform.resourcemanager.v1.Project.AnnotationsEntryB\x03\xe0A\x01R\vannotations\x1a>\n" +
-	"\x10AnnotationsEntry\x12\x10\n" +
+	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12P\n" +
+	"\x06labels\x18\v \x03(\v23.m8.platform.resourcemanager.v1.Project.LabelsEntryB\x03\xe0A\x01R\x06labels\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"m\n" +
 	"\x05State\x12\x15\n" +
@@ -297,7 +297,7 @@ var file_m8_platform_resourcemanager_v1_project_proto_msgTypes = make([]protoimp
 var file_m8_platform_resourcemanager_v1_project_proto_goTypes = []any{
 	(Project_State)(0),            // 0: m8.platform.resourcemanager.v1.Project.State
 	(*Project)(nil),               // 1: m8.platform.resourcemanager.v1.Project
-	nil,                           // 2: m8.platform.resourcemanager.v1.Project.AnnotationsEntry
+	nil,                           // 2: m8.platform.resourcemanager.v1.Project.LabelsEntry
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_project_proto_depIdxs = []int32{
@@ -306,7 +306,7 @@ var file_m8_platform_resourcemanager_v1_project_proto_depIdxs = []int32{
 	3, // 2: m8.platform.resourcemanager.v1.Project.update_time:type_name -> google.protobuf.Timestamp
 	3, // 3: m8.platform.resourcemanager.v1.Project.delete_time:type_name -> google.protobuf.Timestamp
 	3, // 4: m8.platform.resourcemanager.v1.Project.purge_time:type_name -> google.protobuf.Timestamp
-	2, // 5: m8.platform.resourcemanager.v1.Project.annotations:type_name -> m8.platform.resourcemanager.v1.Project.AnnotationsEntry
+	2, // 5: m8.platform.resourcemanager.v1.Project.labels:type_name -> m8.platform.resourcemanager.v1.Project.LabelsEntry
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name

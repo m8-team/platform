@@ -102,67 +102,27 @@ func (OperationMetadata_State) EnumDescriptor() ([]byte, []int) {
 // across M8 Platform services.
 type OperationMetadata struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Stable identifier of the operation.
+	// Required. Stable UUID of the operation.
 	//
-	// Usually the same identifier as in google.longrunning.Operation.name:
-	// operations/{operation_id}
+	// google.longrunning.Operation.name usually has the form:
+	//
+	//	operations/{operation_id}
 	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
-	// Required. Service that owns and executes this operation.
-	//
-	// Examples:
-	//
-	//	resourcemanager
-	//	provisioning
-	//	identity
-	//	authentication
-	//	access
-	Service string `protobuf:"bytes,2,opt,name=service,proto3" json:"service,omitempty"`
-	// Required. Logical action executed by this operation.
-	//
-	// This field is intentionally not an enum so that all M8 services can define
-	// their own action names without changing this common package.
-	//
-	// Recommended format:
-	//
-	//	{service}.{resource}.{verb}
-	//
-	// Examples:
-	//
-	//	resourcemanager.organization.create
-	//	resourcemanager.workspace.delete
-	//	provisioning.kafka_topic.create
-	//	identity.user.import
-	//	access.relation.rebuild
-	Action string `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
 	// Optional. Primary resource affected by the operation.
 	//
 	// Some operations may not have a single resource at the beginning,
 	// for example bulk import or scheduled purge.
-	Resource *ResourceRef `protobuf:"bytes,4,opt,name=resource,proto3" json:"resource,omitempty"`
+	Resource *ResourceRef `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
 	// Required. Current execution state of the operation.
-	State OperationMetadata_State `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.common.operation.v1.OperationMetadata_State" json:"state,omitempty"`
-	// Output only. Current operation progress.
-	Progress *OperationProgress `protobuf:"bytes,6,opt,name=progress,proto3" json:"progress,omitempty"`
+	State OperationMetadata_State `protobuf:"varint,3,opt,name=state,proto3,enum=m8.platform.common.operation.v1.OperationMetadata_State" json:"state,omitempty"`
 	// Output only. Time when the operation was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	// Output only. Time when the operation started execution.
-	StartTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
 	// Output only. Time when the operation was most recently updated.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// Output only. Time when the operation finished.
-	EndTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	// Output only. Workflow reference if this operation is backed by an orchestrator.
-	//
-	// For M8 this will usually point to Temporal.
-	Workflow *WorkflowRef `protobuf:"bytes,11,opt,name=workflow,proto3" json:"workflow,omitempty"`
-	// Optional. Additional non-sensitive labels.
-	//
-	// Examples:
-	//
-	//	environment = prod
-	//	region = eu-central-1
-	//	provider = yandex
-	Labels        map[string]string `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	EndTime       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -204,20 +164,6 @@ func (x *OperationMetadata) GetOperationId() string {
 	return ""
 }
 
-func (x *OperationMetadata) GetService() string {
-	if x != nil {
-		return x.Service
-	}
-	return ""
-}
-
-func (x *OperationMetadata) GetAction() string {
-	if x != nil {
-		return x.Action
-	}
-	return ""
-}
-
 func (x *OperationMetadata) GetResource() *ResourceRef {
 	if x != nil {
 		return x.Resource
@@ -230,13 +176,6 @@ func (x *OperationMetadata) GetState() OperationMetadata_State {
 		return x.State
 	}
 	return OperationMetadata_STATE_UNSPECIFIED
-}
-
-func (x *OperationMetadata) GetProgress() *OperationProgress {
-	if x != nil {
-		return x.Progress
-	}
-	return nil
 }
 
 func (x *OperationMetadata) GetCreateTime() *timestamppb.Timestamp {
@@ -265,109 +204,6 @@ func (x *OperationMetadata) GetEndTime() *timestamppb.Timestamp {
 		return x.EndTime
 	}
 	return nil
-}
-
-func (x *OperationMetadata) GetWorkflow() *WorkflowRef {
-	if x != nil {
-		return x.Workflow
-	}
-	return nil
-}
-
-func (x *OperationMetadata) GetLabels() map[string]string {
-	if x != nil {
-		return x.Labels
-	}
-	return nil
-}
-
-// OperationProgress describes the current progress of a long-running operation.
-type OperationProgress struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Machine-readable current stage.
-	//
-	// Examples:
-	//
-	//	VALIDATING
-	//	CREATING_RESOURCE
-	//	WAITING_FOR_PROVIDER
-	//	PUBLISHING_EVENTS
-	Stage string `protobuf:"bytes,1,opt,name=stage,proto3" json:"stage,omitempty"`
-	// Output only. Human-readable status message.
-	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	// Output only. Progress from 0 to 100.
-	Percent int32 `protobuf:"varint,3,opt,name=percent,proto3" json:"percent,omitempty"`
-	// Output only. Number of completed steps, if known.
-	CompletedSteps int32 `protobuf:"varint,4,opt,name=completed_steps,json=completedSteps,proto3" json:"completed_steps,omitempty"`
-	// Output only. Total number of steps, if known.
-	TotalSteps    int32 `protobuf:"varint,5,opt,name=total_steps,json=totalSteps,proto3" json:"total_steps,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OperationProgress) Reset() {
-	*x = OperationProgress{}
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OperationProgress) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OperationProgress) ProtoMessage() {}
-
-func (x *OperationProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OperationProgress.ProtoReflect.Descriptor instead.
-func (*OperationProgress) Descriptor() ([]byte, []int) {
-	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *OperationProgress) GetStage() string {
-	if x != nil {
-		return x.Stage
-	}
-	return ""
-}
-
-func (x *OperationProgress) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *OperationProgress) GetPercent() int32 {
-	if x != nil {
-		return x.Percent
-	}
-	return 0
-}
-
-func (x *OperationProgress) GetCompletedSteps() int32 {
-	if x != nil {
-		return x.CompletedSteps
-	}
-	return 0
-}
-
-func (x *OperationProgress) GetTotalSteps() int32 {
-	if x != nil {
-		return x.TotalSteps
-	}
-	return 0
 }
 
 // ResourceRef is a generic reference to any M8 Platform resource.
@@ -406,7 +242,7 @@ type ResourceRef struct {
 
 func (x *ResourceRef) Reset() {
 	*x = ResourceRef{}
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[2]
+	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -418,7 +254,7 @@ func (x *ResourceRef) String() string {
 func (*ResourceRef) ProtoMessage() {}
 
 func (x *ResourceRef) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[2]
+	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -431,7 +267,7 @@ func (x *ResourceRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceRef.ProtoReflect.Descriptor instead.
 func (*ResourceRef) Descriptor() ([]byte, []int) {
-	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ResourceRef) GetType() string {
@@ -455,81 +291,6 @@ func (x *ResourceRef) GetName() string {
 	return ""
 }
 
-// WorkflowRef points to the workflow engine behind the operation.
-type WorkflowRef struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Output only. Workflow namespace.
-	//
-	// For Temporal this is the Temporal namespace.
-	Namespace string `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	// Output only. Workflow id.
-	WorkflowId string `protobuf:"bytes,2,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
-	// Output only. Workflow run id.
-	RunId string `protobuf:"bytes,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	// Output only. Task queue or worker queue name.
-	TaskQueue     string `protobuf:"bytes,4,opt,name=task_queue,json=taskQueue,proto3" json:"task_queue,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WorkflowRef) Reset() {
-	*x = WorkflowRef{}
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WorkflowRef) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WorkflowRef) ProtoMessage() {}
-
-func (x *WorkflowRef) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WorkflowRef.ProtoReflect.Descriptor instead.
-func (*WorkflowRef) Descriptor() ([]byte, []int) {
-	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *WorkflowRef) GetNamespace() string {
-	if x != nil {
-		return x.Namespace
-	}
-	return ""
-}
-
-func (x *WorkflowRef) GetWorkflowId() string {
-	if x != nil {
-		return x.WorkflowId
-	}
-	return ""
-}
-
-func (x *WorkflowRef) GetRunId() string {
-	if x != nil {
-		return x.RunId
-	}
-	return ""
-}
-
-func (x *WorkflowRef) GetTaskQueue() string {
-	if x != nil {
-		return x.TaskQueue
-	}
-	return ""
-}
-
 // OperationResponse is a generic response for operations that do not need to
 // return a full typed resource.
 type OperationResponse struct {
@@ -542,7 +303,7 @@ type OperationResponse struct {
 
 func (x *OperationResponse) Reset() {
 	*x = OperationResponse{}
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[4]
+	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -554,7 +315,7 @@ func (x *OperationResponse) String() string {
 func (*OperationResponse) ProtoMessage() {}
 
 func (x *OperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[4]
+	mi := &file_m8_platform_common_operation_v1_operation_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +328,7 @@ func (x *OperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OperationResponse.ProtoReflect.Descriptor instead.
 func (*OperationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{4}
+	return file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *OperationResponse) GetResource() *ResourceRef {
@@ -581,27 +342,18 @@ var File_m8_platform_common_operation_v1_operation_proto protoreflect.FileDescri
 
 const file_m8_platform_common_operation_v1_operation_proto_rawDesc = "" +
 	"\n" +
-	"/m8/platform/common/operation/v1/operation.proto\x12\x1fm8.platform.common.operation.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\b\n" +
+	"/m8/platform/common/operation/v1/operation.proto\x12\x1fm8.platform.common.operation.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf1\x04\n" +
 	"\x11OperationMetadata\x12.\n" +
-	"\foperation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\voperationId\x12A\n" +
-	"\aservice\x18\x02 \x01(\tB'\xe0A\x02\xbaH!r\x1f\x10\x02\x18@2\x19^[a-z][a-z0-9_]*[a-z0-9]$R\aservice\x12S\n" +
-	"\x06action\x18\x03 \x01(\tB;\xe0A\x02\xbaH5r3\x10\x03\x18\x80\x012,^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*[a-z0-9])+$R\x06action\x12M\n" +
-	"\bresource\x18\x04 \x01(\v2,.m8.platform.common.operation.v1.ResourceRefB\x03\xe0A\x01R\bresource\x12]\n" +
-	"\x05state\x18\x05 \x01(\x0e28.m8.platform.common.operation.v1.OperationMetadata.StateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12S\n" +
-	"\bprogress\x18\x06 \x01(\v22.m8.platform.common.operation.v1.OperationProgressB\x03\xe0A\x03R\bprogress\x12@\n" +
-	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"\foperation_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\voperationId\x12M\n" +
+	"\bresource\x18\x02 \x01(\v2,.m8.platform.common.operation.v1.ResourceRefB\x03\xe0A\x01R\bresource\x12]\n" +
+	"\x05state\x18\x03 \x01(\x0e28.m8.platform.common.operation.v1.OperationMetadata.StateB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05state\x12@\n" +
+	"\vcreate_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime\x12>\n" +
 	"\n" +
-	"start_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tstartTime\x12@\n" +
-	"\vupdate_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
+	"start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\tstartTime\x12@\n" +
+	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"updateTime\x12:\n" +
-	"\bend_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\aendTime\x12M\n" +
-	"\bworkflow\x18\v \x01(\v2,.m8.platform.common.operation.v1.WorkflowRefB\x03\xe0A\x03R\bworkflow\x12[\n" +
-	"\x06labels\x18\f \x03(\v2>.m8.platform.common.operation.v1.OperationMetadata.LabelsEntryB\x03\xe0A\x01R\x06labels\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"~\n" +
+	"\bend_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\aendTime\"~\n" +
 	"\x05State\x12\x15\n" +
 	"\x11STATE_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +
@@ -613,27 +365,11 @@ const file_m8_platform_common_operation_v1_operation_proto_rawDesc = "" +
 	"\tSUCCEEDED\x10\x05\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x06\x12\r\n" +
-	"\tCANCELLED\x10\a\"\x85\x02\n" +
-	"\x11OperationProgress\x12?\n" +
-	"\x05stage\x18\x01 \x01(\tB)\xe0A\x03\xbaH#r!\x18\x80\x012\x1c^$|^[A-Z][A-Z0-9_]*[A-Z0-9]$R\x05stage\x12%\n" +
-	"\amessage\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\bR\amessage\x12&\n" +
-	"\apercent\x18\x03 \x01(\x05B\f\xe0A\x03\xbaH\x06\x1a\x04\x18d(\x00R\apercent\x123\n" +
-	"\x0fcompleted_steps\x18\x04 \x01(\x05B\n" +
-	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\x0ecompletedSteps\x12+\n" +
-	"\vtotal_steps\x18\x05 \x01(\x05B\n" +
-	"\xe0A\x03\xbaH\x04\x1a\x02(\x00R\n" +
-	"totalSteps\"\x9c\x01\n" +
+	"\tCANCELLED\x10\a\"\x9c\x01\n" +
 	"\vResourceRef\x12O\n" +
 	"\x04type\x18\x01 \x01(\tB;\xe0A\x02\xbaH5r3\x10\x03\x18\x80\x012,^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*[a-z0-9])+$R\x04type\x12\x1b\n" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1f\n" +
-	"\x04name\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x04name\"\xb6\x01\n" +
-	"\vWorkflowRef\x12)\n" +
-	"\tnamespace\x18\x01 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x01R\tnamespace\x12,\n" +
-	"\vworkflow_id\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x02R\n" +
-	"workflowId\x12\"\n" +
-	"\x06run_id\x18\x03 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\xb0\x01\x01R\x05runId\x12*\n" +
-	"\n" +
-	"task_queue\x18\x04 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80\x02R\ttaskQueue\"b\n" +
+	"\x04name\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x04name\"b\n" +
 	"\x11OperationResponse\x12M\n" +
 	"\bresource\x18\x01 \x01(\v2,.m8.platform.common.operation.v1.ResourceRefB\x03\xe0A\x03R\bresourceBJZHgithub.com/m8-team/go-genproto/m8/platform/common/operation/v1;operationb\x06proto3"
 
@@ -650,33 +386,27 @@ func file_m8_platform_common_operation_v1_operation_proto_rawDescGZIP() []byte {
 }
 
 var file_m8_platform_common_operation_v1_operation_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_m8_platform_common_operation_v1_operation_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_m8_platform_common_operation_v1_operation_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_m8_platform_common_operation_v1_operation_proto_goTypes = []any{
 	(OperationMetadata_State)(0),  // 0: m8.platform.common.operation.v1.OperationMetadata.State
 	(*OperationMetadata)(nil),     // 1: m8.platform.common.operation.v1.OperationMetadata
-	(*OperationProgress)(nil),     // 2: m8.platform.common.operation.v1.OperationProgress
-	(*ResourceRef)(nil),           // 3: m8.platform.common.operation.v1.ResourceRef
-	(*WorkflowRef)(nil),           // 4: m8.platform.common.operation.v1.WorkflowRef
-	(*OperationResponse)(nil),     // 5: m8.platform.common.operation.v1.OperationResponse
-	nil,                           // 6: m8.platform.common.operation.v1.OperationMetadata.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*ResourceRef)(nil),           // 2: m8.platform.common.operation.v1.ResourceRef
+	(*OperationResponse)(nil),     // 3: m8.platform.common.operation.v1.OperationResponse
+	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
 }
 var file_m8_platform_common_operation_v1_operation_proto_depIdxs = []int32{
-	3,  // 0: m8.platform.common.operation.v1.OperationMetadata.resource:type_name -> m8.platform.common.operation.v1.ResourceRef
-	0,  // 1: m8.platform.common.operation.v1.OperationMetadata.state:type_name -> m8.platform.common.operation.v1.OperationMetadata.State
-	2,  // 2: m8.platform.common.operation.v1.OperationMetadata.progress:type_name -> m8.platform.common.operation.v1.OperationProgress
-	7,  // 3: m8.platform.common.operation.v1.OperationMetadata.create_time:type_name -> google.protobuf.Timestamp
-	7,  // 4: m8.platform.common.operation.v1.OperationMetadata.start_time:type_name -> google.protobuf.Timestamp
-	7,  // 5: m8.platform.common.operation.v1.OperationMetadata.update_time:type_name -> google.protobuf.Timestamp
-	7,  // 6: m8.platform.common.operation.v1.OperationMetadata.end_time:type_name -> google.protobuf.Timestamp
-	4,  // 7: m8.platform.common.operation.v1.OperationMetadata.workflow:type_name -> m8.platform.common.operation.v1.WorkflowRef
-	6,  // 8: m8.platform.common.operation.v1.OperationMetadata.labels:type_name -> m8.platform.common.operation.v1.OperationMetadata.LabelsEntry
-	3,  // 9: m8.platform.common.operation.v1.OperationResponse.resource:type_name -> m8.platform.common.operation.v1.ResourceRef
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	2, // 0: m8.platform.common.operation.v1.OperationMetadata.resource:type_name -> m8.platform.common.operation.v1.ResourceRef
+	0, // 1: m8.platform.common.operation.v1.OperationMetadata.state:type_name -> m8.platform.common.operation.v1.OperationMetadata.State
+	4, // 2: m8.platform.common.operation.v1.OperationMetadata.create_time:type_name -> google.protobuf.Timestamp
+	4, // 3: m8.platform.common.operation.v1.OperationMetadata.start_time:type_name -> google.protobuf.Timestamp
+	4, // 4: m8.platform.common.operation.v1.OperationMetadata.update_time:type_name -> google.protobuf.Timestamp
+	4, // 5: m8.platform.common.operation.v1.OperationMetadata.end_time:type_name -> google.protobuf.Timestamp
+	2, // 6: m8.platform.common.operation.v1.OperationResponse.resource:type_name -> m8.platform.common.operation.v1.ResourceRef
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_common_operation_v1_operation_proto_init() }
@@ -690,7 +420,7 @@ func file_m8_platform_common_operation_v1_operation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_common_operation_v1_operation_proto_rawDesc), len(file_m8_platform_common_operation_v1_operation_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

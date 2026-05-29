@@ -65,7 +65,7 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 - type: UUID string
 - assigned by server
 - immutable after creation
-- mutable fields: `name`, `description`, `annotations`
+- mutable fields: `name`, `description`, `labels`
 - server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
 - delete is soft-delete only
 - delete is blocked while there are non-deleted workspaces
@@ -76,7 +76,7 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 - parent field: `organization_id`
 - type: UUID string
 - parent link is immutable after creation
-- mutable fields: `name`, `description`, `annotations`
+- mutable fields: `name`, `description`, `labels`
 - server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
 - delete is soft-delete only
 - delete is blocked while there are non-deleted projects
@@ -88,7 +88,7 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 - parent field: `workspace_id`
 - type: UUID string
 - parent link is immutable after creation
-- mutable fields: `name`, `description`, `annotations`
+- mutable fields: `name`, `description`, `labels`
 - server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
 - delete is soft-delete only
 - undelete requires existing non-deleted parent workspace

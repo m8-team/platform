@@ -31,7 +31,7 @@ Request to create a new organization.
     "delete_time": "string",
     "purge_time": "string",
     "version": 0,
-    "annotations": {
+    "labels": {
       "key": "string"
     }
   }
@@ -72,7 +72,7 @@ Response returned by completed organization long-running operations.
     "delete_time": "string",
     "purge_time": "string",
     "version": 0,
-    "annotations": {
+    "labels": {
       "key": "string"
     }
   }
@@ -91,51 +91,28 @@ across M8 Platform services.
 ```json
 {
   "operation_id": "string",
-  "service": "string",
-  "action": "string",
   "resource": {
     "type": "string",
     "id": "string",
     "name": "string"
   },
   "state": "State",
-  "progress": {
-    "stage": "string",
-    "message": "string",
-    "percent": 0,
-    "completed_steps": 0,
-    "total_steps": 0
-  },
   "create_time": "string",
   "start_time": "string",
   "update_time": "string",
-  "end_time": "string",
-  "workflow": {
-    "namespace": "string",
-    "workflow_id": "string",
-    "run_id": "string",
-    "task_queue": "string"
-  },
-  "labels": {
-    "key": "string"
-  }
+  "end_time": "string"
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| operation_id | string | Required. Stable identifier of the operation.<br/><br/>Usually the same identifier as in google.longrunning.Operation.name:<br/>operations/{operation_id} |
-| service | string | Required. Service that owns and executes this operation.<br/><br/>Examples:<br/>resourcemanager<br/>provisioning<br/>identity<br/>authentication<br/>access |
-| action | string | Required. Logical action executed by this operation.<br/><br/>This field is intentionally not an enum so that all M8 services can define<br/>their own action names without changing this common package.<br/><br/>Recommended format:<br/>{service}.{resource}.{verb}<br/><br/>Examples:<br/>resourcemanager.organization.create<br/>resourcemanager.workspace.delete<br/>provisioning.kafka_topic.create<br/>identity.user.import<br/>access.relation.rebuild |
+| operation_id | string | Required. Stable UUID of the operation.<br/><br/>google.longrunning.Operation.name usually has the form:<br/>operations/{operation_id} |
 | resource | ResourceRef | Optional. Primary resource affected by the operation.<br/><br/>Some operations may not have a single resource at the beginning,<br/>for example bulk import or scheduled purge. |
 | state | enum State | Required. Current execution state of the operation.<br/><br/>Available values: `STATE_UNSPECIFIED`, `QUEUED`, `RUNNING`, `WAITING`, `CANCELLING`, `SUCCEEDED`, `FAILED`, `CANCELLED`. |
-| progress | OperationProgress | Output only. Current operation progress. |
 | create_time | Timestamp | Output only. Time when the operation was created. |
 | start_time | Timestamp | Output only. Time when the operation started execution. |
 | update_time | Timestamp | Output only. Time when the operation was most recently updated. |
 | end_time | Timestamp | Output only. Time when the operation finished. |
-| workflow | WorkflowRef | Output only. Workflow reference if this operation is backed by an orchestrator.<br/><br/>For M8 this will usually point to Temporal. |
-| labels | map<string, string> | Optional. Additional non-sensitive labels.<br/><br/>Examples:<br/>environment = prod<br/>region = eu-central-1<br/>provider = yandex |
 
 ## Organization
 
@@ -152,7 +129,7 @@ Organization stores canonical metadata for a top-level organization resource.
   "delete_time": "string",
   "purge_time": "string",
   "version": 0,
-  "annotations": {
+  "labels": {
     "key": "string"
   }
 }
@@ -169,7 +146,7 @@ Organization stores canonical metadata for a top-level organization resource.
 | delete_time | Timestamp | Output only. Time when the organization was soft-deleted. |
 | purge_time | Timestamp | Output only. Time when the soft-deleted organization is scheduled to be purged. |
 | version | int64 | Optional. Resource version used for optimistic concurrency control.<br/>If this value is provided on update or delete, it must exactly match the<br/>current server-side version or the request is rejected. Clients must not set<br/>this field when creating an organization. |
-| annotations | map<string, string> | Optional. Client-provided metadata for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of annotations. |
+| labels | map<string, string> | Optional. Client-provided labels for tooling and integrations.<br/>Use namespaced keys such as "example.com/key" to avoid collisions between<br/>independent producers of labels. |
 
 ## ResourceRef
 
@@ -203,48 +180,6 @@ State describes the generic execution state of a long-running operation.
 | SUCCEEDED | 5 | The operation completed successfully. |
 | FAILED | 6 | The operation failed. |
 | CANCELLED | 7 | The operation was cancelled. |
-
-## OperationProgress
-
-OperationProgress describes the current progress of a long-running operation.
-
-```json
-{
-  "stage": "string",
-  "message": "string",
-  "percent": 0,
-  "completed_steps": 0,
-  "total_steps": 0
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| stage | string | Output only. Machine-readable current stage.<br/><br/>Examples:<br/>VALIDATING<br/>CREATING_RESOURCE<br/>WAITING_FOR_PROVIDER<br/>PUBLISHING_EVENTS |
-| message | string | Output only. Human-readable status message. |
-| percent | int32 | Output only. Progress from 0 to 100. |
-| completed_steps | int32 | Output only. Number of completed steps, if known. |
-| total_steps | int32 | Output only. Total number of steps, if known. |
-
-## WorkflowRef
-
-WorkflowRef points to the workflow engine behind the operation.
-
-```json
-{
-  "namespace": "string",
-  "workflow_id": "string",
-  "run_id": "string",
-  "task_queue": "string"
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| namespace | string | Output only. Workflow namespace.<br/><br/>For Temporal this is the Temporal namespace. |
-| workflow_id | string | Output only. Workflow id. |
-| run_id | string | Output only. Workflow run id. |
-| task_queue | string | Output only. Task queue or worker queue name. |
 
 ## State
 
