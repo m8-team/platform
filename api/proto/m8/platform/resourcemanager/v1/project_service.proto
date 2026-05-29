@@ -51,7 +51,7 @@ service ProjectService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "ProjectOperationResponse"
-      metadata_type: "ProjectOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "workspace_id,project";
     option (gnostic.openapi.v3.operation) = {
@@ -69,7 +69,7 @@ service ProjectService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "ProjectOperationResponse"
-      metadata_type: "ProjectOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "project,update_mask";
     option (gnostic.openapi.v3.operation) = {
@@ -84,7 +84,7 @@ service ProjectService {
     option (google.api.http) = {delete: "/v1/resource-manager/projects/{id}"};
     option (google.longrunning.operation_info) = {
       response_type: "ProjectOperationResponse"
-      metadata_type: "ProjectOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
@@ -99,7 +99,7 @@ service ProjectService {
     option (google.api.http) = {post: "/v1/resource-manager/projects/{id}:undelete"};
     option (google.longrunning.operation_info) = {
       response_type: "ProjectOperationResponse"
-      metadata_type: "ProjectOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {

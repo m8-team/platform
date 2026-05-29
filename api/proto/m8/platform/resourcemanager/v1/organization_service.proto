@@ -48,7 +48,7 @@ service OrganizationService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "OrganizationOperationResponse"
-      metadata_type: "OrganizationOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization";
     option (gnostic.openapi.v3.operation) = {
@@ -66,7 +66,7 @@ service OrganizationService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "OrganizationOperationResponse"
-      metadata_type: "OrganizationOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization,update_mask";
     option (gnostic.openapi.v3.operation) = {
@@ -81,7 +81,7 @@ service OrganizationService {
     option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
     option (google.longrunning.operation_info) = {
       response_type: "OrganizationOperationResponse"
-      metadata_type: "OrganizationOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization_id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
@@ -96,7 +96,7 @@ service OrganizationService {
     option (google.api.http) = {post: "/v1/resource-manager/organizations/{organization_id}:undelete"};
     option (google.longrunning.operation_info) = {
       response_type: "OrganizationOperationResponse"
-      metadata_type: "OrganizationOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
@@ -237,4 +237,10 @@ message UndeleteOrganizationRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
+}
+
+// Response returned by completed organization long-running operations.
+message OrganizationOperationResponse {
+  // Output only. Organization affected by the operation.
+  Organization organization = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

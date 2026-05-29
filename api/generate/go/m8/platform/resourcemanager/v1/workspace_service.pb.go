@@ -513,18 +513,18 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"7\n" +
 	"\x18UndeleteWorkspaceRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xfe\x0e\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xda\x0f\n" +
 	"\x10WorkspaceService\x12\xe0\x01\n" +
 	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"p\xdaA\x02id\xbaG<\x12\x03Get\x1a'Returns a single workspace by its UUID.*\fGetWorkspace\x82\xd3\xe4\x93\x02&\x12$/v1/resource-manager/workspaces/{id}\x12\xa3\x02\n" +
-	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\xa1\x01\xdaA\x0forganization_id\xbaGe\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x0eListWorkspaces\x82\xd3\xe4\x93\x02!\x12\x1f/v1/resource-manager/workspaces\x12\xd0\x02\n" +
-	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xe5\x01\xcaA8\n" +
-	"\x1aWorkspaceOperationResponse\x12\x1aWorkspaceOperationMetadata\xdaA\x19organization_id,workspace\xbaGY\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x0fCreateWorkspace\x82\xd3\xe4\x93\x02,:\tworkspace\"\x1f/v1/resource-manager/workspaces\x12\xcd\x02\n" +
-	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xe2\x01\xcaA8\n" +
-	"\x1aWorkspaceOperationResponse\x12\x1aWorkspaceOperationMetadata\xdaA\x15workspace,update_mask\xbaGK\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x0fUpdateWorkspace\x82\xd3\xe4\x93\x02;:\tworkspace2./v1/resource-manager/workspaces/{workspace.id}\x12\xb0\x02\n" +
-	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xc5\x01\xcaA8\n" +
-	"\x1aWorkspaceOperationResponse\x12\x1aWorkspaceOperationMetadata\xdaA\x18id,version,allow_missing\xbaG@\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x0fDeleteWorkspace\x82\xd3\xe4\x93\x02&*$/v1/resource-manager/workspaces/{id}\x12\xb3\x02\n" +
-	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xc4\x01\xcaA8\n" +
-	"\x1aWorkspaceOperationResponse\x12\x1aWorkspaceOperationMetadata\xdaA\x02id\xbaGL\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\x11UndeleteWorkspace\x82\xd3\xe4\x93\x02/\"-/v1/resource-manager/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\xa1\x01\xdaA\x0forganization_id\xbaGe\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x0eListWorkspaces\x82\xd3\xe4\x93\x02!\x12\x1f/v1/resource-manager/workspaces\x12\xe7\x02\n" +
+	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xfc\x01\xcaAO\n" +
+	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x19organization_id,workspace\xbaGY\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x0fCreateWorkspace\x82\xd3\xe4\x93\x02,:\tworkspace\"\x1f/v1/resource-manager/workspaces\x12\xe4\x02\n" +
+	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xf9\x01\xcaAO\n" +
+	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x15workspace,update_mask\xbaGK\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x0fUpdateWorkspace\x82\xd3\xe4\x93\x02;:\tworkspace2./v1/resource-manager/workspaces/{workspace.id}\x12\xc7\x02\n" +
+	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xdc\x01\xcaAO\n" +
+	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG@\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x0fDeleteWorkspace\x82\xd3\xe4\x93\x02&*$/v1/resource-manager/workspaces/{id}\x12\xca\x02\n" +
+	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xdb\x01\xcaAO\n" +
+	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x02id\xbaGL\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\x11UndeleteWorkspace\x82\xd3\xe4\x93\x02/\"-/v1/resource-manager/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescOnce sync.Once

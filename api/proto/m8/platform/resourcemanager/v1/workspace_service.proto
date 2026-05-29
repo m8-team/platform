@@ -51,7 +51,7 @@ service WorkspaceService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "WorkspaceOperationResponse"
-      metadata_type: "WorkspaceOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization_id,workspace";
     option (gnostic.openapi.v3.operation) = {
@@ -69,7 +69,7 @@ service WorkspaceService {
     };
     option (google.longrunning.operation_info) = {
       response_type: "WorkspaceOperationResponse"
-      metadata_type: "WorkspaceOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "workspace,update_mask";
     option (gnostic.openapi.v3.operation) = {
@@ -84,7 +84,7 @@ service WorkspaceService {
     option (google.api.http) = {delete: "/v1/resource-manager/workspaces/{id}"};
     option (google.longrunning.operation_info) = {
       response_type: "WorkspaceOperationResponse"
-      metadata_type: "WorkspaceOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "id,version,allow_missing";
     option (gnostic.openapi.v3.operation) = {
@@ -99,7 +99,7 @@ service WorkspaceService {
     option (google.api.http) = {post: "/v1/resource-manager/workspaces/{id}:undelete"};
     option (google.longrunning.operation_info) = {
       response_type: "WorkspaceOperationResponse"
-      metadata_type: "WorkspaceOperationMetadata"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {

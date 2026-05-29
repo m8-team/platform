@@ -511,20 +511,20 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\x94\x0e\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xf8\x0e\n" +
 	"\x0eProjectService\x12\xd4\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"j\xdaA\x02id\xbaG8\x12\x03Get\x1a%Returns a single project by its UUID.*\n" +
 	"GetProject\x82\xd3\xe4\x93\x02$\x12\"/v1/resource-manager/projects/{id}\x12\x91\x02\n" +
-	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x95\x01\xdaA\fworkspace_id\xbaG^\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\fListProjects\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/resource-manager/projects\x12\xb8\x02\n" +
-	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd1\x01\xcaA4\n" +
-	"\x18ProjectOperationResponse\x12\x18ProjectOperationMetadata\xdaA\x14workspace_id,project\xbaGR\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\rCreateProject\x82\xd3\xe4\x93\x02(:\aproject\"\x1d/v1/resource-manager/projects\x12\xb9\x02\n" +
-	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd2\x01\xcaA4\n" +
-	"\x18ProjectOperationResponse\x12\x18ProjectOperationMetadata\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x025:\aproject2*/v1/resource-manager/projects/{project.id}\x12\xa2\x02\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xbb\x01\xcaA4\n" +
-	"\x18ProjectOperationResponse\x12\x18ProjectOperationMetadata\xdaA\x18id,version,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02$*\"/v1/resource-manager/projects/{id}\x12\xa5\x02\n" +
-	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xba\x01\xcaA4\n" +
-	"\x18ProjectOperationResponse\x12\x18ProjectOperationMetadata\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02-\"+/v1/resource-manager/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\fListProjects\x123.m8.platform.resourcemanager.v1.ListProjectsRequest\x1a4.m8.platform.resourcemanager.v1.ListProjectsResponse\"\x95\x01\xdaA\fworkspace_id\xbaG^\x12\x04List\x1aHReturns a paginated list of projects under the specified workspace UUID.*\fListProjects\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/resource-manager/projects\x12\xd1\x02\n" +
+	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xea\x01\xcaAM\n" +
+	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x14workspace_id,project\xbaGR\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\rCreateProject\x82\xd3\xe4\x93\x02(:\aproject\"\x1d/v1/resource-manager/projects\x12\xd2\x02\n" +
+	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xeb\x01\xcaAM\n" +
+	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x025:\aproject2*/v1/resource-manager/projects/{project.id}\x12\xbb\x02\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd4\x01\xcaAM\n" +
+	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02$*\"/v1/resource-manager/projects/{id}\x12\xbe\x02\n" +
+	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd3\x01\xcaAM\n" +
+	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02-\"+/v1/resource-manager/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_project_service_proto_rawDescOnce sync.Once
