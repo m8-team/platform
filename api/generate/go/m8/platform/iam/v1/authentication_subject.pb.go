@@ -8,7 +8,7 @@ package iam
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v1 "github.com/m8-team/go-genproto/m8/platform/type/v1"
+	v1 "github.com/m8-team/go-genproto/m8/platform/common/type/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

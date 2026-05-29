@@ -84,7 +84,7 @@ const file_m8_platform_common_type_v1_phone_number_proto_rawDesc = "" +
 	"\n" +
 	"-m8/platform/common/type/v1/phone_number.proto\x12\x1am8.platform.common.type.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\">\n" +
 	"\vPhoneNumber\x12/\n" +
-	"\x04e164\x18\x01 \x01(\tB\x1b\xe0A\x02\xbaH\x15r\x132\x11^\\+[1-9]\\d{1,14}$R\x04e164B;Z9github.com/m8-team/go-genproto/m8/platform/type/v1;typepbb\x06proto3"
+	"\x04e164\x18\x01 \x01(\tB\x1b\xe0A\x02\xbaH\x15r\x132\x11^\\+[1-9]\\d{1,14}$R\x04e164BBZ@github.com/m8-team/go-genproto/m8/platform/common/type/v1;typepbb\x06proto3"
 
 var (
 	file_m8_platform_common_type_v1_phone_number_proto_rawDescOnce sync.Once
