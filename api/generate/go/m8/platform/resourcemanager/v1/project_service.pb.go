@@ -478,6 +478,52 @@ func (x *UndeleteProjectRequest) GetId() string {
 	return ""
 }
 
+// Response returned by completed project long-running operations.
+type ProjectOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Project affected by the operation.
+	Project       *Project `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectOperationResponse) Reset() {
+	*x = ProjectOperationResponse{}
+	mi := &file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectOperationResponse) ProtoMessage() {}
+
+func (x *ProjectOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectOperationResponse.ProtoReflect.Descriptor instead.
+func (*ProjectOperationResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ProjectOperationResponse) GetProject() *Project {
+	if x != nil {
+		return x.Project
+	}
+	return nil
+}
+
 var File_m8_platform_resourcemanager_v1_project_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
@@ -511,7 +557,9 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"5\n" +
 	"\x16UndeleteProjectRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xf8\x0e\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"b\n" +
+	"\x18ProjectOperationResponse\x12F\n" +
+	"\aproject\x18\x01 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectB\x03\xe0A\x03R\aproject2\x91\x0f\n" +
 	"\x0eProjectService\x12\xd4\x01\n" +
 	"\n" +
 	"GetProject\x121.m8.platform.resourcemanager.v1.GetProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\"j\xdaA\x02id\xbaG8\x12\x03Get\x1a%Returns a single project by its UUID.*\n" +
@@ -520,9 +568,9 @@ const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\rCreateProject\x124.m8.platform.resourcemanager.v1.CreateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xea\x01\xcaAM\n" +
 	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x14workspace_id,project\xbaGR\x12\x06Create\x1a9Creates a new project under the specified workspace UUID.*\rCreateProject\x82\xd3\xe4\x93\x02(:\aproject\"\x1d/v1/resource-manager/projects\x12\xd2\x02\n" +
 	"\rUpdateProject\x124.m8.platform.resourcemanager.v1.UpdateProjectRequest\x1a\x1d.google.longrunning.Operation\"\xeb\x01\xcaAM\n" +
-	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x025:\aproject2*/v1/resource-manager/projects/{project.id}\x12\xbb\x02\n" +
-	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd4\x01\xcaAM\n" +
-	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02$*\"/v1/resource-manager/projects/{id}\x12\xbe\x02\n" +
+	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x13project,update_mask\xbaGG\x12\x06Update\x1a.Updates mutable fields of an existing project.*\rUpdateProject\x82\xd3\xe4\x93\x025:\aproject2*/v1/resource-manager/projects/{project.id}\x12\xd4\x02\n" +
+	"\rDeleteProject\x124.m8.platform.resourcemanager.v1.DeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xed\x01\xcaAf\n" +
+	"1m8.platform.common.operation.v1.OperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG<\x12\x06Delete\x1a#Soft-deletes a project by its UUID.*\rDeleteProject\x82\xd3\xe4\x93\x02$*\"/v1/resource-manager/projects/{id}\x12\xbe\x02\n" +
 	"\x0fUndeleteProject\x126.m8.platform.resourcemanager.v1.UndeleteProjectRequest\x1a\x1d.google.longrunning.Operation\"\xd3\x01\xcaAM\n" +
 	"\x18ProjectOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x02id\xbaGH\x12\bUndelete\x1a+Restores a previously soft-deleted project.*\x0fUndeleteProject\x82\xd3\xe4\x93\x02-\"+/v1/resource-manager/projects/{id}:undelete\x1aS\x92\xb5\x18OUse this API to create, list, view, update, soft-delete, and undelete projects.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
@@ -538,41 +586,43 @@ func file_m8_platform_resourcemanager_v1_project_service_proto_rawDescGZIP() []b
 	return file_m8_platform_resourcemanager_v1_project_service_proto_rawDescData
 }
 
-var file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_m8_platform_resourcemanager_v1_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_m8_platform_resourcemanager_v1_project_service_proto_goTypes = []any{
-	(*GetProjectRequest)(nil),       // 0: m8.platform.resourcemanager.v1.GetProjectRequest
-	(*ListProjectsRequest)(nil),     // 1: m8.platform.resourcemanager.v1.ListProjectsRequest
-	(*ListProjectsResponse)(nil),    // 2: m8.platform.resourcemanager.v1.ListProjectsResponse
-	(*CreateProjectRequest)(nil),    // 3: m8.platform.resourcemanager.v1.CreateProjectRequest
-	(*UpdateProjectRequest)(nil),    // 4: m8.platform.resourcemanager.v1.UpdateProjectRequest
-	(*DeleteProjectRequest)(nil),    // 5: m8.platform.resourcemanager.v1.DeleteProjectRequest
-	(*UndeleteProjectRequest)(nil),  // 6: m8.platform.resourcemanager.v1.UndeleteProjectRequest
-	(*Project)(nil),                 // 7: m8.platform.resourcemanager.v1.Project
-	(*fieldmaskpb.FieldMask)(nil),   // 8: google.protobuf.FieldMask
-	(*longrunningpb.Operation)(nil), // 9: google.longrunning.Operation
+	(*GetProjectRequest)(nil),        // 0: m8.platform.resourcemanager.v1.GetProjectRequest
+	(*ListProjectsRequest)(nil),      // 1: m8.platform.resourcemanager.v1.ListProjectsRequest
+	(*ListProjectsResponse)(nil),     // 2: m8.platform.resourcemanager.v1.ListProjectsResponse
+	(*CreateProjectRequest)(nil),     // 3: m8.platform.resourcemanager.v1.CreateProjectRequest
+	(*UpdateProjectRequest)(nil),     // 4: m8.platform.resourcemanager.v1.UpdateProjectRequest
+	(*DeleteProjectRequest)(nil),     // 5: m8.platform.resourcemanager.v1.DeleteProjectRequest
+	(*UndeleteProjectRequest)(nil),   // 6: m8.platform.resourcemanager.v1.UndeleteProjectRequest
+	(*ProjectOperationResponse)(nil), // 7: m8.platform.resourcemanager.v1.ProjectOperationResponse
+	(*Project)(nil),                  // 8: m8.platform.resourcemanager.v1.Project
+	(*fieldmaskpb.FieldMask)(nil),    // 9: google.protobuf.FieldMask
+	(*longrunningpb.Operation)(nil),  // 10: google.longrunning.Operation
 }
 var file_m8_platform_resourcemanager_v1_project_service_proto_depIdxs = []int32{
-	7,  // 0: m8.platform.resourcemanager.v1.ListProjectsResponse.projects:type_name -> m8.platform.resourcemanager.v1.Project
-	7,  // 1: m8.platform.resourcemanager.v1.CreateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
-	7,  // 2: m8.platform.resourcemanager.v1.UpdateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
-	8,  // 3: m8.platform.resourcemanager.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 4: m8.platform.resourcemanager.v1.ProjectService.GetProject:input_type -> m8.platform.resourcemanager.v1.GetProjectRequest
-	1,  // 5: m8.platform.resourcemanager.v1.ProjectService.ListProjects:input_type -> m8.platform.resourcemanager.v1.ListProjectsRequest
-	3,  // 6: m8.platform.resourcemanager.v1.ProjectService.CreateProject:input_type -> m8.platform.resourcemanager.v1.CreateProjectRequest
-	4,  // 7: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:input_type -> m8.platform.resourcemanager.v1.UpdateProjectRequest
-	5,  // 8: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:input_type -> m8.platform.resourcemanager.v1.DeleteProjectRequest
-	6,  // 9: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:input_type -> m8.platform.resourcemanager.v1.UndeleteProjectRequest
-	7,  // 10: m8.platform.resourcemanager.v1.ProjectService.GetProject:output_type -> m8.platform.resourcemanager.v1.Project
-	2,  // 11: m8.platform.resourcemanager.v1.ProjectService.ListProjects:output_type -> m8.platform.resourcemanager.v1.ListProjectsResponse
-	9,  // 12: m8.platform.resourcemanager.v1.ProjectService.CreateProject:output_type -> google.longrunning.Operation
-	9,  // 13: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:output_type -> google.longrunning.Operation
-	9,  // 14: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:output_type -> google.longrunning.Operation
-	9,  // 15: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:output_type -> google.longrunning.Operation
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	8,  // 0: m8.platform.resourcemanager.v1.ListProjectsResponse.projects:type_name -> m8.platform.resourcemanager.v1.Project
+	8,  // 1: m8.platform.resourcemanager.v1.CreateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
+	8,  // 2: m8.platform.resourcemanager.v1.UpdateProjectRequest.project:type_name -> m8.platform.resourcemanager.v1.Project
+	9,  // 3: m8.platform.resourcemanager.v1.UpdateProjectRequest.update_mask:type_name -> google.protobuf.FieldMask
+	8,  // 4: m8.platform.resourcemanager.v1.ProjectOperationResponse.project:type_name -> m8.platform.resourcemanager.v1.Project
+	0,  // 5: m8.platform.resourcemanager.v1.ProjectService.GetProject:input_type -> m8.platform.resourcemanager.v1.GetProjectRequest
+	1,  // 6: m8.platform.resourcemanager.v1.ProjectService.ListProjects:input_type -> m8.platform.resourcemanager.v1.ListProjectsRequest
+	3,  // 7: m8.platform.resourcemanager.v1.ProjectService.CreateProject:input_type -> m8.platform.resourcemanager.v1.CreateProjectRequest
+	4,  // 8: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:input_type -> m8.platform.resourcemanager.v1.UpdateProjectRequest
+	5,  // 9: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:input_type -> m8.platform.resourcemanager.v1.DeleteProjectRequest
+	6,  // 10: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:input_type -> m8.platform.resourcemanager.v1.UndeleteProjectRequest
+	8,  // 11: m8.platform.resourcemanager.v1.ProjectService.GetProject:output_type -> m8.platform.resourcemanager.v1.Project
+	2,  // 12: m8.platform.resourcemanager.v1.ProjectService.ListProjects:output_type -> m8.platform.resourcemanager.v1.ListProjectsResponse
+	10, // 13: m8.platform.resourcemanager.v1.ProjectService.CreateProject:output_type -> google.longrunning.Operation
+	10, // 14: m8.platform.resourcemanager.v1.ProjectService.UpdateProject:output_type -> google.longrunning.Operation
+	10, // 15: m8.platform.resourcemanager.v1.ProjectService.DeleteProject:output_type -> google.longrunning.Operation
+	10, // 16: m8.platform.resourcemanager.v1.ProjectService.UndeleteProject:output_type -> google.longrunning.Operation
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_project_service_proto_init() }
@@ -587,7 +637,7 @@ func file_m8_platform_resourcemanager_v1_project_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

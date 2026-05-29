@@ -59,6 +59,34 @@ Long-running operation returned by asynchronous API methods.
 }
 ```
 
+## WorkspaceOperationResponse
+
+Response returned by completed workspace long-running operations.
+
+```json
+{
+  "workspace": {
+    "id": "string",
+    "organization_id": "string",
+    "state": "State",
+    "name": "string",
+    "description": "string",
+    "create_time": "string",
+    "update_time": "string",
+    "delete_time": "string",
+    "purge_time": "string",
+    "version": 0,
+    "annotations": {
+      "key": "string"
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| workspace | Workspace | Output only. Workspace affected by the operation. |
+
 ## OperationMetadata
 
 OperationMetadata is a common metadata payload for long-running operations

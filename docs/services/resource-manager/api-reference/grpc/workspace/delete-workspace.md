@@ -12,7 +12,7 @@ rpc DeleteWorkspace (DeleteWorkspaceRequest) returns (Operation)
 
 The method starts a long-running operation.
 
-- Response type: `WorkspaceOperationResponse`
+- Response type: `m8.platform.common.operation.v1.OperationResponse`
 - Metadata type: `m8.platform.common.operation.v1.OperationMetadata`
 
 ## DeleteWorkspaceRequest
@@ -46,6 +46,25 @@ Long-running operation returned by asynchronous API methods.
   "response": {}
 }
 ```
+
+## OperationResponse
+
+OperationResponse is a generic response for operations that do not need to
+return a full typed resource.
+
+```json
+{
+  "resource": {
+    "type": "string",
+    "id": "string",
+    "name": "string"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| resource | ResourceRef | Output only. Primary resource affected by the operation. |
 
 ## OperationMetadata
 

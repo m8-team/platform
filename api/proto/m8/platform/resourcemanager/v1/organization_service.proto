@@ -80,7 +80,7 @@ service OrganizationService {
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
     option (google.longrunning.operation_info) = {
-      response_type: "OrganizationOperationResponse"
+      response_type: "m8.platform.common.operation.v1.OperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "organization_id,version,allow_missing";

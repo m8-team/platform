@@ -59,6 +59,34 @@ Long-running operation returned by asynchronous API methods.
 }
 ```
 
+## ProjectOperationResponse
+
+Response returned by completed project long-running operations.
+
+```json
+{
+  "project": {
+    "id": "string",
+    "workspace_id": "string",
+    "state": "State",
+    "name": "string",
+    "description": "string",
+    "create_time": "string",
+    "update_time": "string",
+    "delete_time": "string",
+    "purge_time": "string",
+    "version": 0,
+    "annotations": {
+      "key": "string"
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| project | Project | Output only. Project affected by the operation. |
+
 ## OperationMetadata
 
 OperationMetadata is a common metadata payload for long-running operations

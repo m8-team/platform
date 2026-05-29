@@ -83,7 +83,7 @@ service ProjectService {
   rpc DeleteProject(DeleteProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {delete: "/v1/resource-manager/projects/{id}"};
     option (google.longrunning.operation_info) = {
-      response_type: "ProjectOperationResponse"
+      response_type: "m8.platform.common.operation.v1.OperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
     };
     option (google.api.method_signature) = "id,version,allow_missing";
@@ -255,4 +255,10 @@ message UndeleteProjectRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
+}
+
+// Response returned by completed project long-running operations.
+message ProjectOperationResponse {
+  // Output only. Project affected by the operation.
+  Project project = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

@@ -478,6 +478,52 @@ func (x *UndeleteWorkspaceRequest) GetId() string {
 	return ""
 }
 
+// Response returned by completed workspace long-running operations.
+type WorkspaceOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Workspace affected by the operation.
+	Workspace     *Workspace `protobuf:"bytes,1,opt,name=workspace,proto3" json:"workspace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WorkspaceOperationResponse) Reset() {
+	*x = WorkspaceOperationResponse{}
+	mi := &file_m8_platform_resourcemanager_v1_workspace_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WorkspaceOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WorkspaceOperationResponse) ProtoMessage() {}
+
+func (x *WorkspaceOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_workspace_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WorkspaceOperationResponse.ProtoReflect.Descriptor instead.
+func (*WorkspaceOperationResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *WorkspaceOperationResponse) GetWorkspace() *Workspace {
+	if x != nil {
+		return x.Workspace
+	}
+	return nil
+}
+
 var File_m8_platform_resourcemanager_v1_workspace_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
@@ -513,16 +559,18 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\xe0A\x01\xbaH\x04\"\x02(\x00R\aversion\x12(\n" +
 	"\rallow_missing\x18\x03 \x01(\bB\x03\xe0A\x01R\fallowMissing\"7\n" +
 	"\x18UndeleteWorkspaceRequest\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id2\xda\x0f\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"j\n" +
+	"\x1aWorkspaceOperationResponse\x12L\n" +
+	"\tworkspace\x18\x01 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\x03\xe0A\x03R\tworkspace2\xf1\x0f\n" +
 	"\x10WorkspaceService\x12\xe0\x01\n" +
 	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"p\xdaA\x02id\xbaG<\x12\x03Get\x1a'Returns a single workspace by its UUID.*\fGetWorkspace\x82\xd3\xe4\x93\x02&\x12$/v1/resource-manager/workspaces/{id}\x12\xa3\x02\n" +
 	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\xa1\x01\xdaA\x0forganization_id\xbaGe\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x0eListWorkspaces\x82\xd3\xe4\x93\x02!\x12\x1f/v1/resource-manager/workspaces\x12\xe7\x02\n" +
 	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xfc\x01\xcaAO\n" +
 	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x19organization_id,workspace\xbaGY\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x0fCreateWorkspace\x82\xd3\xe4\x93\x02,:\tworkspace\"\x1f/v1/resource-manager/workspaces\x12\xe4\x02\n" +
 	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xf9\x01\xcaAO\n" +
-	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x15workspace,update_mask\xbaGK\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x0fUpdateWorkspace\x82\xd3\xe4\x93\x02;:\tworkspace2./v1/resource-manager/workspaces/{workspace.id}\x12\xc7\x02\n" +
-	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xdc\x01\xcaAO\n" +
-	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG@\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x0fDeleteWorkspace\x82\xd3\xe4\x93\x02&*$/v1/resource-manager/workspaces/{id}\x12\xca\x02\n" +
+	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x15workspace,update_mask\xbaGK\x12\x06Update\x1a0Updates mutable fields of an existing workspace.*\x0fUpdateWorkspace\x82\xd3\xe4\x93\x02;:\tworkspace2./v1/resource-manager/workspaces/{workspace.id}\x12\xde\x02\n" +
+	"\x0fDeleteWorkspace\x126.m8.platform.resourcemanager.v1.DeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xf3\x01\xcaAf\n" +
+	"1m8.platform.common.operation.v1.OperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x18id,version,allow_missing\xbaG@\x12\x06Delete\x1a%Soft-deletes a workspace by its UUID.*\x0fDeleteWorkspace\x82\xd3\xe4\x93\x02&*$/v1/resource-manager/workspaces/{id}\x12\xca\x02\n" +
 	"\x11UndeleteWorkspace\x128.m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xdb\x01\xcaAO\n" +
 	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x02id\xbaGL\x12\bUndelete\x1a-Restores a previously soft-deleted workspace.*\x11UndeleteWorkspace\x82\xd3\xe4\x93\x02/\"-/v1/resource-manager/workspaces/{id}:undelete\x1aU\x92\xb5\x18QUse this API to create, list, view, update, soft-delete, and undelete workspaces.BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
@@ -538,41 +586,43 @@ func file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescGZIP() [
 	return file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDescData
 }
 
-var file_m8_platform_resourcemanager_v1_workspace_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_m8_platform_resourcemanager_v1_workspace_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_m8_platform_resourcemanager_v1_workspace_service_proto_goTypes = []any{
-	(*GetWorkspaceRequest)(nil),      // 0: m8.platform.resourcemanager.v1.GetWorkspaceRequest
-	(*ListWorkspacesRequest)(nil),    // 1: m8.platform.resourcemanager.v1.ListWorkspacesRequest
-	(*ListWorkspacesResponse)(nil),   // 2: m8.platform.resourcemanager.v1.ListWorkspacesResponse
-	(*CreateWorkspaceRequest)(nil),   // 3: m8.platform.resourcemanager.v1.CreateWorkspaceRequest
-	(*UpdateWorkspaceRequest)(nil),   // 4: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest
-	(*DeleteWorkspaceRequest)(nil),   // 5: m8.platform.resourcemanager.v1.DeleteWorkspaceRequest
-	(*UndeleteWorkspaceRequest)(nil), // 6: m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest
-	(*Workspace)(nil),                // 7: m8.platform.resourcemanager.v1.Workspace
-	(*fieldmaskpb.FieldMask)(nil),    // 8: google.protobuf.FieldMask
-	(*longrunningpb.Operation)(nil),  // 9: google.longrunning.Operation
+	(*GetWorkspaceRequest)(nil),        // 0: m8.platform.resourcemanager.v1.GetWorkspaceRequest
+	(*ListWorkspacesRequest)(nil),      // 1: m8.platform.resourcemanager.v1.ListWorkspacesRequest
+	(*ListWorkspacesResponse)(nil),     // 2: m8.platform.resourcemanager.v1.ListWorkspacesResponse
+	(*CreateWorkspaceRequest)(nil),     // 3: m8.platform.resourcemanager.v1.CreateWorkspaceRequest
+	(*UpdateWorkspaceRequest)(nil),     // 4: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest
+	(*DeleteWorkspaceRequest)(nil),     // 5: m8.platform.resourcemanager.v1.DeleteWorkspaceRequest
+	(*UndeleteWorkspaceRequest)(nil),   // 6: m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest
+	(*WorkspaceOperationResponse)(nil), // 7: m8.platform.resourcemanager.v1.WorkspaceOperationResponse
+	(*Workspace)(nil),                  // 8: m8.platform.resourcemanager.v1.Workspace
+	(*fieldmaskpb.FieldMask)(nil),      // 9: google.protobuf.FieldMask
+	(*longrunningpb.Operation)(nil),    // 10: google.longrunning.Operation
 }
 var file_m8_platform_resourcemanager_v1_workspace_service_proto_depIdxs = []int32{
-	7,  // 0: m8.platform.resourcemanager.v1.ListWorkspacesResponse.workspaces:type_name -> m8.platform.resourcemanager.v1.Workspace
-	7,  // 1: m8.platform.resourcemanager.v1.CreateWorkspaceRequest.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
-	7,  // 2: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
-	8,  // 3: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 4: m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace:input_type -> m8.platform.resourcemanager.v1.GetWorkspaceRequest
-	1,  // 5: m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces:input_type -> m8.platform.resourcemanager.v1.ListWorkspacesRequest
-	3,  // 6: m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace:input_type -> m8.platform.resourcemanager.v1.CreateWorkspaceRequest
-	4,  // 7: m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace:input_type -> m8.platform.resourcemanager.v1.UpdateWorkspaceRequest
-	5,  // 8: m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace:input_type -> m8.platform.resourcemanager.v1.DeleteWorkspaceRequest
-	6,  // 9: m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace:input_type -> m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest
-	7,  // 10: m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace:output_type -> m8.platform.resourcemanager.v1.Workspace
-	2,  // 11: m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces:output_type -> m8.platform.resourcemanager.v1.ListWorkspacesResponse
-	9,  // 12: m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace:output_type -> google.longrunning.Operation
-	9,  // 13: m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace:output_type -> google.longrunning.Operation
-	9,  // 14: m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace:output_type -> google.longrunning.Operation
-	9,  // 15: m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace:output_type -> google.longrunning.Operation
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	8,  // 0: m8.platform.resourcemanager.v1.ListWorkspacesResponse.workspaces:type_name -> m8.platform.resourcemanager.v1.Workspace
+	8,  // 1: m8.platform.resourcemanager.v1.CreateWorkspaceRequest.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
+	8,  // 2: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
+	9,  // 3: m8.platform.resourcemanager.v1.UpdateWorkspaceRequest.update_mask:type_name -> google.protobuf.FieldMask
+	8,  // 4: m8.platform.resourcemanager.v1.WorkspaceOperationResponse.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
+	0,  // 5: m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace:input_type -> m8.platform.resourcemanager.v1.GetWorkspaceRequest
+	1,  // 6: m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces:input_type -> m8.platform.resourcemanager.v1.ListWorkspacesRequest
+	3,  // 7: m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace:input_type -> m8.platform.resourcemanager.v1.CreateWorkspaceRequest
+	4,  // 8: m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace:input_type -> m8.platform.resourcemanager.v1.UpdateWorkspaceRequest
+	5,  // 9: m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace:input_type -> m8.platform.resourcemanager.v1.DeleteWorkspaceRequest
+	6,  // 10: m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace:input_type -> m8.platform.resourcemanager.v1.UndeleteWorkspaceRequest
+	8,  // 11: m8.platform.resourcemanager.v1.WorkspaceService.GetWorkspace:output_type -> m8.platform.resourcemanager.v1.Workspace
+	2,  // 12: m8.platform.resourcemanager.v1.WorkspaceService.ListWorkspaces:output_type -> m8.platform.resourcemanager.v1.ListWorkspacesResponse
+	10, // 13: m8.platform.resourcemanager.v1.WorkspaceService.CreateWorkspace:output_type -> google.longrunning.Operation
+	10, // 14: m8.platform.resourcemanager.v1.WorkspaceService.UpdateWorkspace:output_type -> google.longrunning.Operation
+	10, // 15: m8.platform.resourcemanager.v1.WorkspaceService.DeleteWorkspace:output_type -> google.longrunning.Operation
+	10, // 16: m8.platform.resourcemanager.v1.WorkspaceService.UndeleteWorkspace:output_type -> google.longrunning.Operation
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_workspace_service_proto_init() }
@@ -587,7 +637,7 @@ func file_m8_platform_resourcemanager_v1_workspace_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
