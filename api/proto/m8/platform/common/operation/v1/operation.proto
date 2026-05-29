@@ -104,18 +104,25 @@ message OperationMetadata {
   ResourceRef resource = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // Output only. Time when the operation was created.
-  google.protobuf.Timestamp create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation started execution.
-  google.protobuf.Timestamp start_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp start_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation was most recently updated.
-  google.protobuf.Timestamp update_time = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Time when the operation finished.
-  google.protobuf.Timestamp end_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp end_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  string stage = 12 [
+  // Output only. Machine-readable current stage.
+  //
+  // Examples:
+  //   VALIDATING
+  //   CREATING_RESOURCE
+  //   WAITING_FOR_PROVIDER
+  //   PUBLISHING_EVENTS
+  string stage = 10 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string = {
       max_len: 128
@@ -124,13 +131,13 @@ message OperationMetadata {
   ];
 
   // Output only. Human-readable status message.
-  string message = 14 [
+  string message = 11 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 1024
   ];
 
   // Output only. Progress from 0 to 100.
-  int32 progress_percent = 15 [
+  int32 progress_percent = 12 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32 = {
       gte: 0
@@ -139,13 +146,13 @@ message OperationMetadata {
   ];
 
   // Output only. Number of completed steps, if known.
-  int32 completed_steps = 16 [
+  int32 completed_steps = 13 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
 
   // Output only. Total number of steps, if known.
-  int32 total_steps = 17 [
+  int32 total_steps = 14 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
@@ -153,7 +160,7 @@ message OperationMetadata {
   // Output only. Workflow reference if this operation is backed by an orchestrator.
   //
   // For M8 this will usually point to Temporal.
-  WorkflowRef workflow = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
+  WorkflowRef workflow = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Optional. Additional non-sensitive labels.
   //
@@ -161,7 +168,7 @@ message OperationMetadata {
   //   environment = prod
   //   region = eu-central-1
   //   provider = yandex
-  map<string, string> labels = 23 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> labels = 16 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // ResourceRef is a generic reference to any M8 Platform resource.
