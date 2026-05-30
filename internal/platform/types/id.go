@@ -19,28 +19,16 @@ func NewID() ID {
 }
 
 func NewIDFromUUID(value uuid.UUID) (ID, error) {
-	id := ID(value)
-
-	if err := id.Validate(); err != nil {
-		return ID{}, err
-	}
-
-	return id, nil
+	return idFromUUID(value)
 }
 
 func ParseID(value string) (ID, error) {
 	parsed, err := uuid.Parse(value)
 	if err != nil {
-		return ID{}, fmt.Errorf("%w: %q", ErrInvalidID, value)
+		return ID{}, fmt.Errorf("%w: %q: %w", ErrInvalidID, value, err)
 	}
 
-	id := ID(parsed)
-
-	if err := id.Validate(); err != nil {
-		return ID{}, err
-	}
-
-	return id, nil
+	return idFromUUID(parsed)
 }
 
 func MustParseID(value string) ID {
@@ -52,16 +40,26 @@ func MustParseID(value string) ID {
 	return id
 }
 
+func idFromUUID(value uuid.UUID) (ID, error) {
+	id := ID(value)
+
+	if err := id.Validate(); err != nil {
+		return ID{}, err
+	}
+
+	return id, nil
+}
+
 func (id ID) UUID() uuid.UUID {
 	return uuid.UUID(id)
 }
 
 func (id ID) String() string {
-	return uuid.UUID(id).String()
+	return id.UUID().String()
 }
 
 func (id ID) IsZero() bool {
-	return uuid.UUID(id) == uuid.Nil
+	return id.UUID() == uuid.Nil
 }
 
 func (id ID) Validate() error {
