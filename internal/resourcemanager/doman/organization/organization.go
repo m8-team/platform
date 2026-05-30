@@ -1,26 +1,51 @@
 package organization
 
 import (
-	"time"
-
-	"github.com/m8platform/platform/pkg/platform"
+	"github.com/m8platform/platform/internal/platform/doman/types"
 )
 
 const ResourceType = "resourcemanager.organization"
 
 type Organization struct {
-	id          ID
+	id          types.ID
 	state       State
 	name        string
 	description string
-	labels      Labels
+}
 
-	createTime time.Time
-	updateTime time.Time
-	deleteTime *time.Time
-	purgeTime  *time.Time
+func (o *Organization) Id() types.ID {
+	return o.id
+}
 
-	version platform.Version
+func (o *Organization) State() State {
+	return o.state
+}
 
-	events []Event
+func (o *Organization) Name() string {
+	return o.name
+}
+
+func (o *Organization) Description() string {
+	return o.description
+}
+
+func NewOrganization(id, state string, name, description string) *Organization {
+	return &Organization{
+		id:          types.NewID(),
+		state:       StateCreating,
+		name:        name,
+		description: description,
+	}
+}
+
+func NewOrganizationFrom(id, state string, name, description string) *Organization {
+	return &Organization{
+		state:       StateCreating,
+		name:        name,
+		description: description,
+	}
+}
+
+func (o *Organization) Update(name, description string) {
+
 }
