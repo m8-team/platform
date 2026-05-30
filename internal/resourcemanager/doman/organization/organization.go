@@ -1,8 +1,6 @@
 package organization
 
-import (
-	"github.com/m8platform/platform/internal/platform/doman/types"
-)
+import "github.com/m8platform/platform/internal/platform/types"
 
 const ResourceType = "resourcemanager.organization"
 
@@ -13,39 +11,36 @@ type Organization struct {
 	description string
 }
 
-func (o *Organization) Id() types.ID {
-	return o.id
+func NewOrganization(name, description string) *Organization {
+	return NewOrganizationFrom(types.NewID(), StateCreating, name, description)
 }
 
-func (o *Organization) State() State {
-	return o.state
-}
-
-func (o *Organization) Name() string {
-	return o.name
-}
-
-func (o *Organization) Description() string {
-	return o.description
-}
-
-func NewOrganization(id, state string, name, description string) *Organization {
+func NewOrganizationFrom(id types.ID, state State, name, description string) *Organization {
 	return &Organization{
-		id:          types.NewID(),
-		state:       StateCreating,
+		id:          id,
+		state:       state,
 		name:        name,
 		description: description,
 	}
 }
 
-func NewOrganizationFrom(id, state string, name, description string) *Organization {
-	return &Organization{
-		state:       StateCreating,
-		name:        name,
-		description: description,
-	}
+func (org *Organization) ID() types.ID {
+	return org.id
 }
 
-func (o *Organization) Update(name, description string) {
+func (org *Organization) State() State {
+	return org.state
+}
 
+func (org *Organization) Name() string {
+	return org.name
+}
+
+func (org *Organization) Description() string {
+	return org.description
+}
+
+func (org *Organization) Update(name, description string) {
+	org.name = name
+	org.description = description
 }
