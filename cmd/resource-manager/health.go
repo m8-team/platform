@@ -9,8 +9,11 @@ import (
 
 	"github.com/m8platform/platform/internal/platform/health"
 	healthhttp "github.com/m8platform/platform/internal/platform/health/adapters/http"
+	"github.com/m8platform/platform/internal/platform/health/checks"
 	"go.uber.org/fx"
 )
+
+const yaRuHealthCheckName = "resource-manager.ya-ru"
 
 type HealthHTTPConfig struct {
 	Address string
@@ -20,8 +23,23 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 	return fx.Module(
 		"resource-manager-health-http",
 		fx.Supply(cfg.normalized()),
+		fx.Invoke(registerResourceManagerHealthChecks),
 		fx.Invoke(registerHealthHTTPServer),
 	)
+}
+
+func registerResourceManagerHealthChecks(registry health.Registry) error {
+	return health.RegisterChecks(registry, health.Check{
+		Name: yaRuHealthCheckName,
+		Target: health.Target{
+			Kind:   health.TargetDependency,
+			Name:   "ya.ru",
+			Module: "resource-manager",
+		},
+		Kinds:       []health.CheckKind{health.CheckKindDeep},
+		Criticality: health.CriticalityOptional,
+		Checker:     checks.NewHTTPChecker("ya.ru", http.DefaultClient, "http://ya.ru"),
+	})
 }
 
 func registerHealthHTTPServer(lifecycle fx.Lifecycle, registry health.Registry, cfg HealthHTTPConfig) error {
