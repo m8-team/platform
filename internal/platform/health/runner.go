@@ -11,7 +11,7 @@ import (
 
 func runChecks(ctx context.Context, checks []Check) []Result {
 	if len(checks) == 0 {
-		return nil
+		return []Result{}
 	}
 	if ctx == nil {
 		ctx = context.Background()

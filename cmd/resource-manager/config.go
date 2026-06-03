@@ -8,12 +8,18 @@ import (
 	"strings"
 )
 
-const envDebug = "M8_DEBUG"
+const (
+	envDebug             = "M8_DEBUG"
+	envHealthHTTPAddress = "M8_HEALTH_HTTP_ADDR"
+)
+
+const defaultHealthHTTPAddress = ":8080"
 
 var ErrInvalidConfigValue = errors.New("invalid config value")
 
 type Config struct {
-	Debug bool
+	Debug      bool
+	HealthHTTP HealthHTTPConfig
 }
 
 func LoadConfig() (Config, error) {
@@ -25,10 +31,23 @@ func loadConfig(lookup func(string) (string, bool)) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	healthHTTPAddress := stringEnv(lookup, envHealthHTTPAddress, defaultHealthHTTPAddress)
 
 	return Config{
 		Debug: debug,
+		HealthHTTP: HealthHTTPConfig{
+			Address: healthHTTPAddress,
+		},
 	}, nil
+}
+
+func stringEnv(lookup func(string) (string, bool), name string, defaultValue string) string {
+	value, ok := lookup(name)
+	if !ok || strings.TrimSpace(value) == "" {
+		return defaultValue
+	}
+
+	return strings.TrimSpace(value)
 }
 
 func boolEnv(lookup func(string) (string, bool), name string, defaultValue bool) (bool, error) {
