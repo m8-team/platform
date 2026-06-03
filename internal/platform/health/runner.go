@@ -9,25 +9,25 @@ import (
 	"time"
 )
 
-func runChecks(ctx context.Context, checks []Check) []Result {
-	if len(checks) == 0 {
+func runChecks(ctx context.Context, registrations []Check) []Result {
+	if len(registrations) == 0 {
 		return []Result{}
 	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
-	results := make([]Result, len(checks))
+	results := make([]Result, len(registrations))
 	var wait sync.WaitGroup
-	wait.Add(len(checks))
+	wait.Add(len(registrations))
 
-	for i, check := range checks {
+	for i, registration := range registrations {
 		i := i
-		check := check
+		registration := registration
 
 		go func() {
 			defer wait.Done()
-			results[i] = runCheck(ctx, check)
+			results[i] = runCheck(ctx, registration)
 		}()
 	}
 
@@ -39,75 +39,80 @@ func runChecks(ctx context.Context, checks []Check) []Result {
 	return results
 }
 
-func runCheck(parent context.Context, check Check) Result {
+func runCheck(parent context.Context, registration Check) Result {
 	if parent == nil {
 		parent = context.Background()
 	}
 
+	spec := registration.Spec
 	startedAt := time.Now()
-	ctx, cancel := context.WithTimeout(parent, check.Timeout)
+	ctx, cancel := context.WithTimeout(parent, spec.Timeout)
 	defer cancel()
 
 	done := make(chan Result, 1)
 	go func() {
 		defer func() {
 			if recovered := recover(); recovered != nil {
-				done <- failedResult(check, "health check panicked", fmt.Sprint(recovered), startedAt)
+				done <- failedResult(spec, "health check panicked", fmt.Sprint(recovered), startedAt)
 			}
 		}()
 
-		if check.Checker == nil {
-			done <- failedResult(check, "health check checker is not configured", ErrCheckCheckerRequired.Error(), startedAt)
+		if registration.Checker == nil {
+			done <- failedResult(spec, "health check checker is not configured", ErrCheckCheckerRequired.Error(), startedAt)
 			return
 		}
 
-		done <- normalizeResult(check, check.Checker.Check(ctx), startedAt)
+		done <- normalizeResult(spec, registration.Checker.Check(ctx), startedAt)
 	}()
 
 	select {
 	case result := <-done:
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) && time.Since(startedAt) >= check.Timeout {
-			return timeoutResult(check, startedAt)
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) && time.Since(startedAt) >= spec.Timeout {
+			return timeoutResult(spec, startedAt)
 		}
 
 		return result
 	case <-ctx.Done():
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return timeoutResult(check, startedAt)
+			return timeoutResult(spec, startedAt)
 		}
 
-		return failedResult(check, "health check canceled", ctx.Err().Error(), startedAt)
+		return failedResult(spec, "health check canceled", ctx.Err().Error(), startedAt)
 	}
 }
 
-func normalizeResult(check Check, result Result, startedAt time.Time) Result {
-	result.Name = check.Name
+func normalizeResult(spec CheckSpec, result Result, startedAt time.Time) Result {
+	result.Name = spec.Name
 	result.Status = normalizeStatus(result.Status)
-	result.Latency = time.Since(startedAt)
+	result.Latency = latencyMillisecondsSince(startedAt)
 	result.CheckedAt = time.Now().UTC()
-	result.Target = check.Target
-	result.Criticality = normalizeCriticality(check.Criticality)
+	result.Target = spec.Target
+	result.Criticality = normalizeCriticality(spec.Criticality)
 	return result
 }
 
-func timeoutResult(check Check, startedAt time.Time) Result {
+func timeoutResult(spec CheckSpec, startedAt time.Time) Result {
 	return failedResult(
-		check,
-		fmt.Sprintf("health check timed out after %s", check.Timeout),
+		spec,
+		fmt.Sprintf("health check timed out after %s", spec.Timeout),
 		context.DeadlineExceeded.Error(),
 		startedAt,
 	)
 }
 
-func failedResult(check Check, message string, err string, startedAt time.Time) Result {
+func failedResult(spec CheckSpec, message string, err string, startedAt time.Time) Result {
 	return Result{
-		Name:        check.Name,
+		Name:        spec.Name,
 		Status:      StatusUnhealthy,
 		Message:     message,
 		Error:       err,
-		Latency:     time.Since(startedAt),
+		Latency:     latencyMillisecondsSince(startedAt),
 		CheckedAt:   time.Now().UTC(),
-		Target:      check.Target,
-		Criticality: normalizeCriticality(check.Criticality),
+		Target:      spec.Target,
+		Criticality: normalizeCriticality(spec.Criticality),
 	}
+}
+
+func latencyMillisecondsSince(startedAt time.Time) time.Duration {
+	return time.Duration(time.Since(startedAt).Milliseconds())
 }

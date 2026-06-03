@@ -88,6 +88,6 @@ func (r fakeRegistry) Register(platformhealth.Check) error {
 	return nil
 }
 
-func (r fakeRegistry) Snapshot(context.Context, platformhealth.CheckKind) platformhealth.Snapshot {
+func (r fakeRegistry) Snapshot(context.Context, platformhealth.Kind) platformhealth.Snapshot {
 	return platformhealth.Snapshot{Status: r.status}
 }

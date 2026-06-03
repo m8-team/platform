@@ -9,7 +9,7 @@ Domain modules may expose `HealthChecks() []health.Check`. They should not know 
 - `/livez` uses `CheckKindLiveness`. Use it for process-local checks only. Do not register external dependencies as liveness checks by default.
 - `/readyz` uses `CheckKindReadiness`. Use it for checks that decide whether the service can receive traffic.
 - `/startupz` uses `CheckKindStartup`. Use it for startup gating checks.
-- `/healthz` uses `CheckKindDeep`. Use it as a diagnostic endpoint for deeper dependency checks.
+- `/healthz` uses `CheckKindReadiness`. Use it as a diagnostic endpoint for readiness checks.
 
 ## Aggregation
 
@@ -24,18 +24,17 @@ Domain modules may expose `HealthChecks() []health.Check`. They should not know 
 func (m *ResourceManager) HealthChecks() []health.Check {
     return []health.Check{
         {
-            Name: "resource-manager.storage",
-            Target: health.Target{
-                Kind:   health.TargetDependency,
-                Name:   "postgres",
-                Module: "resource-manager",
+            Spec: health.CheckSpec{
+                Name: "resource-manager.storage",
+                Target: health.Target{
+                    Kind:   health.TargetKindDependency,
+                    Name:   "postgres",
+                    Module: "resource-manager",
+                },
+                Kinds:       []health.Kind{health.CheckKindReadiness},
+                Criticality: health.CriticalityRequired,
             },
-            Kinds: []health.CheckKind{
-                health.CheckKindReadiness,
-                health.CheckKindDeep,
-            },
-            Criticality: health.CriticalityRequired,
-            Checker:     checks.NewPingChecker("postgres", m.db.PingContext),
+            Checker: checks.NewPingChecker("postgres", m.db.PingContext),
         },
     }
 }
@@ -46,25 +45,29 @@ registry := health.NewRegistry()
 
 err := health.RegisterChecks(registry,
     health.Check{
-        Name: "postgres",
-        Target: health.Target{
-            Kind:   health.TargetDependency,
-            Name:   "postgres",
-            Module: "resource-manager",
+        Spec: health.CheckSpec{
+            Name: "postgres",
+            Target: health.Target{
+                Kind:   health.TargetKindDependency,
+                Name:   "postgres",
+                Module: "resource-manager",
+            },
+            Kinds:       []health.Kind{health.CheckKindReadiness},
+            Criticality: health.CriticalityRequired,
         },
-        Kinds:       []health.CheckKind{health.CheckKindReadiness, health.CheckKindDeep},
-        Criticality: health.CriticalityRequired,
         Checker: checks.NewPingChecker("postgres", postgres.PingContext),
     },
     health.Check{
-        Name: "kafka",
-        Target: health.Target{
-            Kind:   health.TargetDependency,
-            Name:   "kafka",
-            Module: "resource-manager",
+        Spec: health.CheckSpec{
+            Name: "kafka",
+            Target: health.Target{
+                Kind:   health.TargetKindDependency,
+                Name:   "kafka",
+                Module: "resource-manager",
+            },
+            Kinds:       []health.Kind{health.CheckKindReadiness},
+            Criticality: health.CriticalityOptional,
         },
-        Kinds:       []health.CheckKind{health.CheckKindReadiness, health.CheckKindDeep},
-        Criticality: health.CriticalityOptional,
         Checker: checks.NewPingChecker("kafka", kafka.Ping),
     },
 )

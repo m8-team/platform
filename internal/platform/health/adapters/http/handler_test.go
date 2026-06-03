@@ -12,7 +12,7 @@ import (
 
 func TestHandlerLivezReturnsJSONSnapshot(t *testing.T) {
 	registry := health.NewRegistry()
-	if err := registry.Register(check("app", health.CheckKindLiveness, health.StatusHealthy, health.CriticalityRequired)); err != nil {
+	if err := registry.Register(check("app", health.KindLiveness, health.StatusHealthy, health.CriticalityRequired)); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
 
@@ -28,8 +28,8 @@ func TestHandlerLivezReturnsJSONSnapshot(t *testing.T) {
 	if err := json.Unmarshal(resp.Body.Bytes(), &snapshot); err != nil {
 		t.Fatalf("JSON decode error = %v", err)
 	}
-	if snapshot.Kind != health.CheckKindLiveness {
-		t.Fatalf("Snapshot kind = %s, want %s", snapshot.Kind, health.CheckKindLiveness)
+	if snapshot.Kind != health.KindLiveness {
+		t.Fatalf("Snapshot kind = %s, want %s", snapshot.Kind, health.KindLiveness)
 	}
 	if snapshot.Status != health.StatusHealthy {
 		t.Fatalf("Snapshot status = %s, want %s", snapshot.Status, health.StatusHealthy)
@@ -70,7 +70,7 @@ func TestHandlerStatusCodes(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			registry := health.NewRegistry()
-			if err := registry.Register(check("dependency", health.CheckKindReadiness, tt.checkStatus, tt.criticality)); err != nil {
+			if err := registry.Register(check("dependency", health.KindReadiness, tt.checkStatus, tt.criticality)); err != nil {
 				t.Fatalf("Register() error = %v", err)
 			}
 
@@ -105,8 +105,8 @@ func TestHandlerUnsupportedMethod(t *testing.T) {
 	if err := json.Unmarshal(resp.Body.Bytes(), &snapshot); err != nil {
 		t.Fatalf("JSON decode error = %v", err)
 	}
-	if snapshot.Kind != health.CheckKindLiveness {
-		t.Fatalf("Snapshot kind = %s, want %s", snapshot.Kind, health.CheckKindLiveness)
+	if snapshot.Kind != health.KindLiveness {
+		t.Fatalf("Snapshot kind = %s, want %s", snapshot.Kind, health.KindLiveness)
 	}
 }
 
@@ -120,11 +120,13 @@ func request(registry health.Registry, method string, path string) *httptest.Res
 	return resp
 }
 
-func check(name string, kind health.CheckKind, status health.Status, criticality health.Criticality) health.Check {
+func check(name string, kind health.Kind, status health.Status, criticality health.Criticality) health.Check {
 	return health.Check{
-		Name:        name,
-		Kinds:       []health.CheckKind{kind},
-		Criticality: criticality,
+		Spec: health.CheckSpec{
+			Name:        name,
+			Kinds:       []health.Kind{kind},
+			Criticality: criticality,
+		},
 		Checker: health.CheckerFunc(func(context.Context) health.Result {
 			return health.Result{Status: status}
 		}),

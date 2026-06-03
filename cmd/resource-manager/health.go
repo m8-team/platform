@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/m8platform/platform/internal/platform/health"
 	healthhttp "github.com/m8platform/platform/internal/platform/health/adapters/http"
@@ -30,15 +31,19 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 
 func registerResourceManagerHealthChecks(registry health.Registry) error {
 	return health.RegisterChecks(registry, health.Check{
-		Name: yaRuHealthCheckName,
-		Target: health.Target{
-			Kind:   health.TargetDependency,
-			Name:   "ya.ru",
-			Module: "resource-manager",
+		Spec: health.CheckSpec{
+			Name: yaRuHealthCheckName,
+			Target: health.Target{
+				Kind:   health.TargetKindModule,
+				Name:   "11ya.ru",
+				Module: "resource-manager",
+			},
+			Kinds:       []health.Kind{health.KindReadiness, health.KindLiveness, health.KindStartup},
+			Criticality: health.CriticalityOptional,
+			Timeout:     1 * time.Second,
+			Interval:    10 * time.Second,
 		},
-		Kinds:       []health.CheckKind{health.CheckKindDeep},
-		Criticality: health.CriticalityOptional,
-		Checker:     checks.NewHTTPChecker("ya.ru", http.DefaultClient, "http://ya.ru"),
+		Checker: checks.NewHTTPChecker("ya.ru", http.DefaultClient, "https://google.com"),
 	})
 }
 

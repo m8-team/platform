@@ -14,43 +14,44 @@ func TestRegisterResourceManagerHealthChecks(t *testing.T) {
 		t.Fatalf("registerResourceManagerHealthChecks() error = %v", err)
 	}
 
-	if len(registry.checks) != 1 {
-		t.Fatalf("checks len = %d, want 1", len(registry.checks))
+	if len(registry.registrations) != 1 {
+		t.Fatalf("registrations len = %d, want 1", len(registry.registrations))
 	}
 
-	check := registry.checks[0]
-	if check.Name != yaRuHealthCheckName {
-		t.Fatalf("Name = %q, want %q", check.Name, yaRuHealthCheckName)
+	registration := registry.registrations[0]
+	spec := registration.Spec
+	if spec.Name != yaRuHealthCheckName {
+		t.Fatalf("Name = %q, want %q", spec.Name, yaRuHealthCheckName)
 	}
-	if check.Target.Kind != health.TargetDependency {
-		t.Fatalf("Target.Kind = %s, want %s", check.Target.Kind, health.TargetDependency)
+	if spec.Target.Kind != health.TargetKindDependency {
+		t.Fatalf("Target.Kind = %s, want %s", spec.Target.Kind, health.TargetKindDependency)
 	}
-	if check.Target.Name != "ya.ru" {
-		t.Fatalf("Target.Name = %q, want ya.ru", check.Target.Name)
+	if spec.Target.Name != "ya.ru" {
+		t.Fatalf("Target.Name = %q, want ya.ru", spec.Target.Name)
 	}
-	if check.Target.Module != "resource-manager" {
-		t.Fatalf("Target.Module = %q, want resource-manager", check.Target.Module)
+	if spec.Target.Module != "resource-manager" {
+		t.Fatalf("Target.Module = %q, want resource-manager", spec.Target.Module)
 	}
-	if check.Criticality != health.CriticalityOptional {
-		t.Fatalf("Criticality = %s, want %s", check.Criticality, health.CriticalityOptional)
+	if spec.Criticality != health.CriticalityOptional {
+		t.Fatalf("Criticality = %s, want %s", spec.Criticality, health.CriticalityOptional)
 	}
-	if len(check.Kinds) != 1 || check.Kinds[0] != health.CheckKindDeep {
-		t.Fatalf("Kinds = %+v, want [%s]", check.Kinds, health.CheckKindDeep)
+	if len(spec.Kinds) != 1 || spec.Kinds[0] != health.KindReadiness {
+		t.Fatalf("Kinds = %+v, want [%s]", spec.Kinds, health.KindReadiness)
 	}
-	if check.Checker == nil {
+	if registration.Checker == nil {
 		t.Fatal("Checker is nil")
 	}
 }
 
 type capturingHealthRegistry struct {
-	checks []health.Check
+	registrations []health.Check
 }
 
-func (r *capturingHealthRegistry) Register(check health.Check) error {
-	r.checks = append(r.checks, check)
+func (r *capturingHealthRegistry) Register(registration health.Check) error {
+	r.registrations = append(r.registrations, registration)
 	return nil
 }
 
-func (r *capturingHealthRegistry) Snapshot(context.Context, health.CheckKind) health.Snapshot {
+func (r *capturingHealthRegistry) Snapshot(context.Context, health.Kind) health.Snapshot {
 	return health.Snapshot{}
 }

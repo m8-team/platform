@@ -13,7 +13,7 @@ import (
 func TestRegistryRegisterValidCheck(t *testing.T) {
 	registry := NewRegistry()
 
-	if err := registry.Register(testCheck("postgres", CheckKindReadiness, StatusHealthy)); err != nil {
+	if err := registry.Register(testCheck("postgres", KindReadiness, StatusHealthy)); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
 }
@@ -22,8 +22,10 @@ func TestRegistryRejectsEmptyName(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Name:    " ",
-		Kinds:   []CheckKind{CheckKindReadiness},
+		Spec: CheckSpec{
+			Name:  " ",
+			Kinds: []Kind{KindReadiness},
+		},
 		Checker: CheckerFunc(func(context.Context) Result { return Result{Status: StatusHealthy} }),
 	})
 	if !errors.Is(err, ErrCheckNameRequired) {
@@ -35,8 +37,10 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Name:  "postgres",
-		Kinds: []CheckKind{CheckKindReadiness},
+		Spec: CheckSpec{
+			Name:  "postgres",
+			Kinds: []Kind{KindReadiness},
+		},
 	})
 	if !errors.Is(err, ErrCheckCheckerRequired) {
 		t.Fatalf("Register() error = %v, want %v", err, ErrCheckCheckerRequired)
@@ -44,8 +48,10 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 
 	var checker CheckerFunc
 	err = registry.Register(Check{
-		Name:    "typed-nil",
-		Kinds:   []CheckKind{CheckKindReadiness},
+		Spec: CheckSpec{
+			Name:  "typed-nil",
+			Kinds: []Kind{KindReadiness},
+		},
 		Checker: checker,
 	})
 	if !errors.Is(err, ErrCheckCheckerRequired) {
@@ -56,11 +62,11 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 func TestRegistryRejectsDuplicateName(t *testing.T) {
 	registry := NewRegistry()
 
-	if err := registry.Register(testCheck("postgres", CheckKindReadiness, StatusHealthy)); err != nil {
+	if err := registry.Register(testCheck("postgres", KindReadiness, StatusHealthy)); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
 
-	err := registry.Register(testCheck("postgres", CheckKindDeep, StatusHealthy))
+	err := registry.Register(testCheck("postgres", KindReadiness, StatusHealthy))
 	if !errors.Is(err, ErrDuplicateCheck) {
 		t.Fatalf("Register() error = %v, want %v", err, ErrDuplicateCheck)
 	}
@@ -69,19 +75,19 @@ func TestRegistryRejectsDuplicateName(t *testing.T) {
 func TestRegistryDefaults(t *testing.T) {
 	registry := NewRegistry().(*registry)
 
-	if err := registry.Register(testCheck("postgres", CheckKindReadiness, StatusHealthy)); err != nil {
+	if err := registry.Register(testCheck("postgres", KindReadiness, StatusHealthy)); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
 
 	registered := registry.checks["postgres"]
-	if registered.Criticality != CriticalityRequired {
-		t.Fatalf("Criticality = %s, want %s", registered.Criticality, CriticalityRequired)
+	if registered.Spec.Criticality != CriticalityRequired {
+		t.Fatalf("Criticality = %s, want %s", registered.Spec.Criticality, CriticalityRequired)
 	}
-	if registered.Timeout != defaultTimeout {
-		t.Fatalf("Timeout = %s, want %s", registered.Timeout, defaultTimeout)
+	if registered.Spec.Timeout != defaultTimeout {
+		t.Fatalf("Timeout = %s, want %s", registered.Spec.Timeout, defaultTimeout)
 	}
-	if registered.Interval != defaultInterval {
-		t.Fatalf("Interval = %s, want %s", registered.Interval, defaultInterval)
+	if registered.Spec.Interval != defaultInterval {
+		t.Fatalf("Interval = %s, want %s", registered.Spec.Interval, defaultInterval)
 	}
 }
 
@@ -92,16 +98,20 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 
 	if err := RegisterChecks(registry,
 		Check{
-			Name:  "readiness",
-			Kinds: []CheckKind{CheckKindReadiness},
+			Spec: CheckSpec{
+				Name:  "readiness",
+				Kinds: []Kind{KindReadiness},
+			},
 			Checker: CheckerFunc(func(context.Context) Result {
 				readinessRan = true
 				return Result{Status: StatusHealthy}
 			}),
 		},
 		Check{
-			Name:  "liveness",
-			Kinds: []CheckKind{CheckKindLiveness},
+			Spec: CheckSpec{
+				Name:  "liveness",
+				Kinds: []Kind{KindLiveness},
+			},
 			Checker: CheckerFunc(func(context.Context) Result {
 				livenessRan = true
 				return Result{Status: StatusHealthy}
@@ -111,7 +121,7 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 		t.Fatalf("RegisterChecks() error = %v", err)
 	}
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if snapshot.Status != StatusHealthy {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusHealthy)
 	}
@@ -130,9 +140,11 @@ func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Name:    "slow",
-		Kinds:   []CheckKind{CheckKindReadiness},
-		Timeout: 5 * time.Millisecond,
+		Spec: CheckSpec{
+			Name:    "slow",
+			Kinds:   []Kind{KindReadiness},
+			Timeout: 5 * time.Millisecond,
+		},
 		Checker: CheckerFunc(func(context.Context) Result {
 			time.Sleep(50 * time.Millisecond)
 			return Result{Status: StatusHealthy}
@@ -142,7 +154,7 @@ func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 		t.Fatalf("Register() error = %v", err)
 	}
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if snapshot.Status != StatusUnhealthy {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusUnhealthy)
 	}
@@ -162,8 +174,10 @@ func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Name:  "panic",
-		Kinds: []CheckKind{CheckKindReadiness},
+		Spec: CheckSpec{
+			Name:  "panic",
+			Kinds: []Kind{KindReadiness},
+		},
 		Checker: CheckerFunc(func(context.Context) Result {
 			panic("boom")
 		}),
@@ -172,7 +186,7 @@ func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 		t.Fatalf("Register() error = %v", err)
 	}
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if snapshot.Status != StatusUnhealthy {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusUnhealthy)
 	}
@@ -191,13 +205,13 @@ func TestRegistrySnapshotSortsResultsByName(t *testing.T) {
 	registry := NewRegistry()
 
 	if err := RegisterChecks(registry,
-		testCheck("b", CheckKindReadiness, StatusHealthy),
-		testCheck("a", CheckKindReadiness, StatusHealthy),
+		testCheck("b", KindReadiness, StatusHealthy),
+		testCheck("a", KindReadiness, StatusHealthy),
 	); err != nil {
 		t.Fatalf("RegisterChecks() error = %v", err)
 	}
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if len(snapshot.Results) != 2 {
 		t.Fatalf("Results len = %d, want 2", len(snapshot.Results))
 	}
@@ -210,20 +224,49 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 	registry := NewRegistry()
 
 	if err := RegisterChecks(registry,
-		testCheck("postgres", CheckKindReadiness, StatusHealthy),
+		testCheck("postgres", KindReadiness, StatusHealthy),
 		Check{
-			Name:        "redis",
-			Kinds:       []CheckKind{CheckKindReadiness},
-			Criticality: CriticalityOptional,
-			Checker:     CheckerFunc(func(context.Context) Result { return Result{Status: StatusUnhealthy} }),
+			Spec: CheckSpec{
+				Name:        "redis",
+				Kinds:       []Kind{KindReadiness},
+				Criticality: CriticalityOptional,
+			},
+			Checker: CheckerFunc(func(context.Context) Result { return Result{Status: StatusUnhealthy} }),
 		},
 	); err != nil {
 		t.Fatalf("RegisterChecks() error = %v", err)
 	}
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if snapshot.Status != StatusDegraded {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusDegraded)
+	}
+}
+
+func TestRegistrySnapshotLatencyUsesMilliseconds(t *testing.T) {
+	registry := NewRegistry()
+
+	if err := registry.Register(Check{
+		Spec: CheckSpec{
+			Name:  "slow",
+			Kinds: []Kind{KindReadiness},
+		},
+		Checker: CheckerFunc(func(context.Context) Result {
+			time.Sleep(15 * time.Millisecond)
+			return Result{Status: StatusHealthy}
+		}),
+	}); err != nil {
+		t.Fatalf("Register() error = %v", err)
+	}
+
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
+	if len(snapshot.Results) != 1 {
+		t.Fatalf("Results len = %d, want 1", len(snapshot.Results))
+	}
+
+	latency := int64(snapshot.Results[0].Latency)
+	if latency < 10 || latency > 500 {
+		t.Fatalf("Latency = %d, want milliseconds", latency)
 	}
 }
 
@@ -236,7 +279,7 @@ func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
 		go func(i int) {
 			defer wait.Done()
 
-			_ = registry.Register(testCheck(fmt.Sprintf("check-%03d", i), CheckKindReadiness, StatusHealthy))
+			_ = registry.Register(testCheck(fmt.Sprintf("check-%03d", i), KindReadiness, StatusHealthy))
 		}(i)
 	}
 
@@ -245,13 +288,13 @@ func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
 		go func() {
 			defer wait.Done()
 
-			_ = registry.Snapshot(context.Background(), CheckKindReadiness)
+			_ = registry.Snapshot(context.Background(), KindReadiness)
 		}()
 	}
 
 	wait.Wait()
 
-	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	snapshot := registry.Snapshot(context.Background(), KindReadiness)
 	if snapshot.Status != StatusHealthy {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusHealthy)
 	}
@@ -262,10 +305,12 @@ func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
 	}
 }
 
-func testCheck(name string, kind CheckKind, status Status) Check {
+func testCheck(name string, kind Kind, status Status) Check {
 	return Check{
-		Name:  name,
-		Kinds: []CheckKind{kind},
+		Spec: CheckSpec{
+			Name:  name,
+			Kinds: []Kind{kind},
+		},
 		Checker: CheckerFunc(func(context.Context) Result {
 			return Result{Status: status}
 		}),

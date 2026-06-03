@@ -78,7 +78,7 @@ func (a *Adapter) Start(ctx context.Context) {
 func (a *Adapter) update(ctx context.Context) {
 	status := grpcStatus(platformhealth.StatusUnhealthy)
 	if a.registry != nil {
-		status = grpcStatus(a.registry.Snapshot(ctx, platformhealth.CheckKindReadiness).Status)
+		status = grpcStatus(a.registry.Snapshot(ctx, platformhealth.KindReadiness).Status)
 	}
 
 	a.server.SetServingStatus("", status)

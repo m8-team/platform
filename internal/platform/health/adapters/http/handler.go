@@ -17,13 +17,13 @@ func NewHandler(registry health.Registry) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(mux *nethttp.ServeMux) {
-	mux.HandleFunc("/livez", h.handle(health.CheckKindLiveness))
-	mux.HandleFunc("/readyz", h.handle(health.CheckKindReadiness))
-	mux.HandleFunc("/startupz", h.handle(health.CheckKindStartup))
-	mux.HandleFunc("/healthz", h.handle(health.CheckKindDeep))
+	mux.HandleFunc("/livez", h.handle(health.KindLiveness))
+	mux.HandleFunc("/readyz", h.handle(health.KindReadiness))
+	mux.HandleFunc("/startupz", h.handle(health.KindStartup))
+	mux.HandleFunc("/healthz", h.handle(health.KindReadiness))
 }
 
-func (h *Handler) handle(kind health.CheckKind) nethttp.HandlerFunc {
+func (h *Handler) handle(kind health.Kind) nethttp.HandlerFunc {
 	return func(w nethttp.ResponseWriter, r *nethttp.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -41,7 +41,7 @@ func (h *Handler) handle(kind health.CheckKind) nethttp.HandlerFunc {
 	}
 }
 
-func methodNotAllowedSnapshot(kind health.CheckKind) health.Snapshot {
+func methodNotAllowedSnapshot(kind health.Kind) health.Snapshot {
 	return health.Snapshot{
 		Status:    health.StatusUnknown,
 		Kind:      kind,
@@ -50,7 +50,7 @@ func methodNotAllowedSnapshot(kind health.CheckKind) health.Snapshot {
 	}
 }
 
-func (h *Handler) snapshot(r *nethttp.Request, kind health.CheckKind) health.Snapshot {
+func (h *Handler) snapshot(r *nethttp.Request, kind health.Kind) health.Snapshot {
 	if h.registry != nil {
 		return h.registry.Snapshot(r.Context(), kind)
 	}
@@ -66,7 +66,7 @@ func (h *Handler) snapshot(r *nethttp.Request, kind health.CheckKind) health.Sna
 				Message:     "health registry is not configured",
 				Error:       health.ErrRegistryRequired.Error(),
 				CheckedAt:   time.Now().UTC(),
-				Target:      health.Target{Kind: health.TargetApplication, Name: "platform-health"},
+				Target:      health.Target{Kind: health.TargetKindApplication, Name: "platform-health"},
 				Criticality: health.CriticalityRequired,
 			},
 		},

@@ -26,8 +26,8 @@ var (
 )
 
 type Registry interface {
-	Register(check Check) error
-	Snapshot(ctx context.Context, kind CheckKind) Snapshot
+	Register(registration Check) error
+	Snapshot(ctx context.Context, kind Kind) Snapshot
 }
 
 type registry struct {
@@ -41,12 +41,12 @@ func NewRegistry() Registry {
 	}
 }
 
-func (r *registry) Register(check Check) error {
+func (r *registry) Register(registration Check) error {
 	if r == nil {
 		return ErrRegistryRequired
 	}
 
-	registered, err := normalizeCheck(check)
+	registered, err := normalizeCheck(registration)
 	if err != nil {
 		return err
 	}
@@ -54,15 +54,15 @@ func (r *registry) Register(check Check) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if _, exists := r.checks[registered.Name]; exists {
-		return fmt.Errorf("%w: %s", ErrDuplicateCheck, registered.Name)
+	if _, exists := r.checks[registered.Spec.Name]; exists {
+		return fmt.Errorf("%w: %s", ErrDuplicateCheck, registered.Spec.Name)
 	}
 
-	r.checks[registered.Name] = registered
+	r.checks[registered.Spec.Name] = registered
 	return nil
 }
 
-func (r *registry) Snapshot(ctx context.Context, kind CheckKind) Snapshot {
+func (r *registry) Snapshot(ctx context.Context, kind Kind) Snapshot {
 	if r == nil {
 		return Snapshot{
 			Status:    StatusUnhealthy,
@@ -75,7 +75,7 @@ func (r *registry) Snapshot(ctx context.Context, kind CheckKind) Snapshot {
 					Message:     "health registry is not configured",
 					Error:       ErrRegistryRequired.Error(),
 					CheckedAt:   time.Now().UTC(),
-					Target:      Target{Kind: TargetApplication, Name: "platform-health"},
+					Target:      Target{Kind: TargetKindApplication, Name: "platform-health"},
 					Criticality: CriticalityRequired,
 				},
 			},
@@ -93,31 +93,31 @@ func (r *registry) Snapshot(ctx context.Context, kind CheckKind) Snapshot {
 	}
 }
 
-func (r *registry) checksForKind(kind CheckKind) []Check {
+func (r *registry) checksForKind(kind Kind) []Check {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	checks := make([]Check, 0, len(r.checks))
-	for _, check := range r.checks {
-		if checkHasKind(check, kind) {
-			checks = append(checks, copyCheck(check))
+	for _, registration := range r.checks {
+		if checkHasKind(registration.Spec, kind) {
+			checks = append(checks, copyCheck(registration))
 		}
 	}
 
 	sort.Slice(checks, func(i, j int) bool {
-		return checks[i].Name < checks[j].Name
+		return checks[i].Spec.Name < checks[j].Spec.Name
 	})
 
 	return checks
 }
 
-func RegisterChecks(registry Registry, checks ...Check) error {
+func RegisterChecks(registry Registry, registrations ...Check) error {
 	if registry == nil {
 		return ErrRegistryRequired
 	}
 
-	for _, check := range checks {
-		if err := registry.Register(check); err != nil {
+	for _, registration := range registrations {
+		if err := registry.Register(registration); err != nil {
 			return err
 		}
 	}
@@ -125,32 +125,34 @@ func RegisterChecks(registry Registry, checks ...Check) error {
 	return nil
 }
 
-func normalizeCheck(check Check) (Check, error) {
-	check.Name = strings.TrimSpace(check.Name)
-	if check.Name == "" {
+func normalizeCheck(registration Check) (Check, error) {
+	spec := registration.Spec
+	spec.Name = strings.TrimSpace(spec.Name)
+	if spec.Name == "" {
 		return Check{}, ErrCheckNameRequired
 	}
-	if isNilChecker(check.Checker) {
-		return Check{}, fmt.Errorf("%w: %s", ErrCheckCheckerRequired, check.Name)
+	if isNilChecker(registration.Checker) {
+		return Check{}, fmt.Errorf("%w: %s", ErrCheckCheckerRequired, spec.Name)
 	}
-	if len(check.Kinds) == 0 {
-		return Check{}, fmt.Errorf("%w: %s", ErrCheckKindsRequired, check.Name)
+	if len(spec.Kinds) == 0 {
+		return Check{}, fmt.Errorf("%w: %s", ErrCheckKindsRequired, spec.Name)
 	}
-	if check.Criticality == "" {
-		check.Criticality = CriticalityRequired
+	if spec.Criticality == "" {
+		spec.Criticality = CriticalityRequired
 	}
-	if check.Criticality != CriticalityRequired && check.Criticality != CriticalityOptional {
-		return Check{}, fmt.Errorf("%w: %s", ErrInvalidCriticality, check.Criticality)
+	if spec.Criticality != CriticalityRequired && spec.Criticality != CriticalityOptional {
+		return Check{}, fmt.Errorf("%w: %s", ErrInvalidCriticality, spec.Criticality)
 	}
-	if check.Timeout <= 0 {
-		check.Timeout = defaultTimeout
+	if spec.Timeout <= 0 {
+		spec.Timeout = defaultTimeout
 	}
-	if check.Interval <= 0 {
-		check.Interval = defaultInterval
+	if spec.Interval <= 0 {
+		spec.Interval = defaultInterval
 	}
 
-	check.Kinds = append([]CheckKind(nil), check.Kinds...)
-	return check, nil
+	spec.Kinds = append([]Kind(nil), spec.Kinds...)
+	registration.Spec = spec
+	return registration, nil
 }
 
 func isNilChecker(checker Checker) bool {
@@ -167,13 +169,13 @@ func isNilChecker(checker Checker) bool {
 	}
 }
 
-func copyCheck(check Check) Check {
-	check.Kinds = append([]CheckKind(nil), check.Kinds...)
-	return check
+func copyCheck(registration Check) Check {
+	registration.Spec.Kinds = append([]Kind(nil), registration.Spec.Kinds...)
+	return registration
 }
 
-func checkHasKind(check Check, kind CheckKind) bool {
-	for _, candidate := range check.Kinds {
+func checkHasKind(spec CheckSpec, kind Kind) bool {
+	for _, candidate := range spec.Kinds {
 		if candidate == kind {
 			return true
 		}
