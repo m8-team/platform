@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"testing"
+	"time"
 
 	platformhealth "github.com/m8platform/platform/internal/platform/health"
 	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -49,6 +50,33 @@ func TestAdapterGRPCStatusMapping(t *testing.T) {
 				t.Fatalf("Serving status = %s, want %s", resp.GetStatus(), tt.want)
 			}
 		})
+	}
+}
+
+func TestAdapterInvalidPeriodUsesDefault(t *testing.T) {
+	adapter := NewAdapter(fakeRegistry{status: platformhealth.StatusHealthy}, WithPeriod(0))
+
+	if adapter.period != defaultPeriod {
+		t.Fatalf("period = %s, want %s", adapter.period, defaultPeriod)
+	}
+}
+
+func TestAdapterStartStopsOnContextDone(t *testing.T) {
+	adapter := NewAdapter(fakeRegistry{status: platformhealth.StatusHealthy}, WithPeriod(time.Millisecond))
+	ctx, cancel := context.WithCancel(context.Background())
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		adapter.Start(ctx)
+	}()
+
+	cancel()
+
+	select {
+	case <-done:
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("Start() did not stop after context cancellation")
 	}
 }
 

@@ -97,6 +97,17 @@ func TestHandlerUnsupportedMethod(t *testing.T) {
 	if resp.Code != nethttp.StatusMethodNotAllowed {
 		t.Fatalf("status code = %d, want %d", resp.Code, nethttp.StatusMethodNotAllowed)
 	}
+	if got := resp.Header().Get("Content-Type"); got != "application/json" {
+		t.Fatalf("Content-Type = %q, want application/json", got)
+	}
+
+	var snapshot health.Snapshot
+	if err := json.Unmarshal(resp.Body.Bytes(), &snapshot); err != nil {
+		t.Fatalf("JSON decode error = %v", err)
+	}
+	if snapshot.Kind != health.CheckKindLiveness {
+		t.Fatalf("Snapshot kind = %s, want %s", snapshot.Kind, health.CheckKindLiveness)
+	}
 }
 
 func request(registry health.Registry, method string, path string) *httptest.ResponseRecorder {

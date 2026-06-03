@@ -7,7 +7,7 @@ import (
 	"github.com/m8platform/platform/internal/platform/health"
 )
 
-var ErrPingFuncRequired = errors.New("ping function is required")
+var errPingFuncRequired = errors.New("ping function is required")
 
 type PingFunc func(ctx context.Context) error
 
@@ -26,7 +26,7 @@ func (c *pingChecker) Check(ctx context.Context) health.Result {
 			Name:    c.name,
 			Status:  health.StatusUnhealthy,
 			Message: "ping function is not configured",
-			Error:   ErrPingFuncRequired.Error(),
+			Error:   errPingFuncRequired.Error(),
 		}
 	}
 

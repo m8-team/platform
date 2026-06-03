@@ -10,7 +10,7 @@ import (
 	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-const defaultPeriod = 10 * time.Second
+const defaultPeriod = 5 * time.Second
 
 type Adapter struct {
 	registry     platformhealth.Registry

@@ -8,7 +8,7 @@ import (
 	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-var ErrGRPCHealthClientRequired = errors.New("grpc health client is required")
+var errGRPCHealthClientRequired = errors.New("grpc health client is required")
 
 type grpcHealthChecker struct {
 	name    string
@@ -30,7 +30,7 @@ func (c *grpcHealthChecker) Check(ctx context.Context) health.Result {
 			Name:    c.name,
 			Status:  health.StatusUnhealthy,
 			Message: "grpc health client is not configured",
-			Error:   ErrGRPCHealthClientRequired.Error(),
+			Error:   errGRPCHealthClientRequired.Error(),
 		}
 	}
 

@@ -21,6 +21,27 @@ Domain modules may expose `HealthChecks() []health.Check`. They should not know 
 ## Register Dependency Checks
 
 ```go
+func (m *ResourceManager) HealthChecks() []health.Check {
+    return []health.Check{
+        {
+            Name: "resource-manager.storage",
+            Target: health.Target{
+                Kind:   health.TargetDependency,
+                Name:   "postgres",
+                Module: "resource-manager",
+            },
+            Kinds: []health.CheckKind{
+                health.CheckKindReadiness,
+                health.CheckKindDeep,
+            },
+            Criticality: health.CriticalityRequired,
+            Checker:     checks.NewPingChecker("postgres", m.db.PingContext),
+        },
+    }
+}
+```
+
+```go
 registry := health.NewRegistry()
 
 err := health.RegisterChecks(registry,

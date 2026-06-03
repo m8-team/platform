@@ -30,6 +30,7 @@ func (h *Handler) handle(kind health.CheckKind) nethttp.HandlerFunc {
 		if r.Method != nethttp.MethodGet {
 			w.Header().Set("Allow", nethttp.MethodGet)
 			w.WriteHeader(nethttp.StatusMethodNotAllowed)
+			_ = json.NewEncoder(w).Encode(methodNotAllowedSnapshot(kind))
 			return
 		}
 
@@ -37,6 +38,15 @@ func (h *Handler) handle(kind health.CheckKind) nethttp.HandlerFunc {
 		w.WriteHeader(statusCode(snapshot.Status))
 
 		_ = json.NewEncoder(w).Encode(snapshot)
+	}
+}
+
+func methodNotAllowedSnapshot(kind health.CheckKind) health.Snapshot {
+	return health.Snapshot{
+		Status:    health.StatusUnknown,
+		Kind:      kind,
+		CheckedAt: time.Now().UTC(),
+		Results:   []health.Result{},
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -11,8 +12,8 @@ import (
 )
 
 const (
-	DefaultTimeout  = 2 * time.Second
-	DefaultInterval = 10 * time.Second
+	defaultTimeout  = 2 * time.Second
+	defaultInterval = 10 * time.Second
 )
 
 var (
@@ -29,18 +30,18 @@ type Registry interface {
 	Snapshot(ctx context.Context, kind CheckKind) Snapshot
 }
 
-type DefaultRegistry struct {
+type registry struct {
 	mu     sync.RWMutex
 	checks map[string]Check
 }
 
 func NewRegistry() Registry {
-	return &DefaultRegistry{
+	return &registry{
 		checks: make(map[string]Check),
 	}
 }
 
-func (r *DefaultRegistry) Register(check Check) error {
+func (r *registry) Register(check Check) error {
 	if r == nil {
 		return ErrRegistryRequired
 	}
@@ -61,7 +62,7 @@ func (r *DefaultRegistry) Register(check Check) error {
 	return nil
 }
 
-func (r *DefaultRegistry) Snapshot(ctx context.Context, kind CheckKind) Snapshot {
+func (r *registry) Snapshot(ctx context.Context, kind CheckKind) Snapshot {
 	if r == nil {
 		return Snapshot{
 			Status:    StatusUnhealthy,
@@ -92,7 +93,7 @@ func (r *DefaultRegistry) Snapshot(ctx context.Context, kind CheckKind) Snapshot
 	}
 }
 
-func (r *DefaultRegistry) checksForKind(kind CheckKind) []Check {
+func (r *registry) checksForKind(kind CheckKind) []Check {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -129,7 +130,7 @@ func normalizeCheck(check Check) (Check, error) {
 	if check.Name == "" {
 		return Check{}, ErrCheckNameRequired
 	}
-	if check.Checker == nil {
+	if isNilChecker(check.Checker) {
 		return Check{}, fmt.Errorf("%w: %s", ErrCheckCheckerRequired, check.Name)
 	}
 	if len(check.Kinds) == 0 {
@@ -142,14 +143,28 @@ func normalizeCheck(check Check) (Check, error) {
 		return Check{}, fmt.Errorf("%w: %s", ErrInvalidCriticality, check.Criticality)
 	}
 	if check.Timeout <= 0 {
-		check.Timeout = DefaultTimeout
+		check.Timeout = defaultTimeout
 	}
 	if check.Interval <= 0 {
-		check.Interval = DefaultInterval
+		check.Interval = defaultInterval
 	}
 
 	check.Kinds = append([]CheckKind(nil), check.Kinds...)
 	return check, nil
+}
+
+func isNilChecker(checker Checker) bool {
+	if checker == nil {
+		return true
+	}
+
+	value := reflect.ValueOf(checker)
+	switch value.Kind() {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
 }
 
 func copyCheck(check Check) Check {

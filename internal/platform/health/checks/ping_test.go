@@ -36,7 +36,7 @@ func TestPingCheckerNilPing(t *testing.T) {
 	if result.Status != health.StatusUnhealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusUnhealthy)
 	}
-	if !errors.Is(ErrPingFuncRequired, ErrPingFuncRequired) || result.Error != ErrPingFuncRequired.Error() {
-		t.Fatalf("Error = %q, want %q", result.Error, ErrPingFuncRequired.Error())
+	if result.Error != errPingFuncRequired.Error() {
+		t.Fatalf("Error = %q, want %q", result.Error, errPingFuncRequired.Error())
 	}
 }

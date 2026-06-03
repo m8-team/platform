@@ -3,7 +3,9 @@ package health
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -39,6 +41,16 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 	if !errors.Is(err, ErrCheckCheckerRequired) {
 		t.Fatalf("Register() error = %v, want %v", err, ErrCheckCheckerRequired)
 	}
+
+	var checker CheckerFunc
+	err = registry.Register(Check{
+		Name:    "typed-nil",
+		Kinds:   []CheckKind{CheckKindReadiness},
+		Checker: checker,
+	})
+	if !errors.Is(err, ErrCheckCheckerRequired) {
+		t.Fatalf("Register() typed nil error = %v, want %v", err, ErrCheckCheckerRequired)
+	}
 }
 
 func TestRegistryRejectsDuplicateName(t *testing.T) {
@@ -55,7 +67,7 @@ func TestRegistryRejectsDuplicateName(t *testing.T) {
 }
 
 func TestRegistryDefaults(t *testing.T) {
-	registry := NewRegistry().(*DefaultRegistry)
+	registry := NewRegistry().(*registry)
 
 	if err := registry.Register(testCheck("postgres", CheckKindReadiness, StatusHealthy)); err != nil {
 		t.Fatalf("Register() error = %v", err)
@@ -65,11 +77,11 @@ func TestRegistryDefaults(t *testing.T) {
 	if registered.Criticality != CriticalityRequired {
 		t.Fatalf("Criticality = %s, want %s", registered.Criticality, CriticalityRequired)
 	}
-	if registered.Timeout != DefaultTimeout {
-		t.Fatalf("Timeout = %s, want %s", registered.Timeout, DefaultTimeout)
+	if registered.Timeout != defaultTimeout {
+		t.Fatalf("Timeout = %s, want %s", registered.Timeout, defaultTimeout)
 	}
-	if registered.Interval != DefaultInterval {
-		t.Fatalf("Interval = %s, want %s", registered.Interval, DefaultInterval)
+	if registered.Interval != defaultInterval {
+		t.Fatalf("Interval = %s, want %s", registered.Interval, defaultInterval)
 	}
 }
 
@@ -212,6 +224,41 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
 	if snapshot.Status != StatusDegraded {
 		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusDegraded)
+	}
+}
+
+func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
+	registry := NewRegistry()
+
+	var wait sync.WaitGroup
+	for i := 0; i < 50; i++ {
+		wait.Add(1)
+		go func(i int) {
+			defer wait.Done()
+
+			_ = registry.Register(testCheck(fmt.Sprintf("check-%03d", i), CheckKindReadiness, StatusHealthy))
+		}(i)
+	}
+
+	for i := 0; i < 50; i++ {
+		wait.Add(1)
+		go func() {
+			defer wait.Done()
+
+			_ = registry.Snapshot(context.Background(), CheckKindReadiness)
+		}()
+	}
+
+	wait.Wait()
+
+	snapshot := registry.Snapshot(context.Background(), CheckKindReadiness)
+	if snapshot.Status != StatusHealthy {
+		t.Fatalf("Snapshot().Status = %s, want %s", snapshot.Status, StatusHealthy)
+	}
+	for i := 1; i < len(snapshot.Results); i++ {
+		if snapshot.Results[i-1].Name > snapshot.Results[i].Name {
+			t.Fatalf("results are not sorted: %s before %s", snapshot.Results[i-1].Name, snapshot.Results[i].Name)
+		}
 	}
 }
 
