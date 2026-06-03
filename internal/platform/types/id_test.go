@@ -17,16 +17,16 @@ func TestIDCreationAndMethods(t *testing.T) {
 		t.Fatalf("NewIDFromUUID() error = %v", err)
 	}
 
-	parsed, err := ParseID(validID)
+	parsed, err := Parse(validID)
 	if err != nil {
-		t.Fatalf("ParseID() error = %v", err)
+		t.Fatalf("Parse() error = %v", err)
 	}
 
 	ids := map[string]ID{
 		"new":        NewID(),
 		"from uuid":  fromUUID,
 		"parsed":     parsed,
-		"must parse": MustParseID(validID),
+		"must parse": MustParse(validID),
 	}
 
 	for name, id := range ids {
@@ -64,12 +64,12 @@ func TestIDErrors(t *testing.T) {
 	}{
 		{
 			name:    "parse invalid uuid",
-			run:     func() error { _, err := ParseID("not-a-uuid"); return err },
+			run:     func() error { _, err := Parse("not-a-uuid"); return err },
 			wantErr: ErrInvalidID,
 		},
 		{
 			name:    "parse zero uuid",
-			run:     func() error { _, err := ParseID(uuid.Nil.String()); return err },
+			run:     func() error { _, err := Parse(uuid.Nil.String()); return err },
 			wantErr: ErrZeroID,
 		},
 		{
@@ -97,12 +97,12 @@ func TestIDErrors(t *testing.T) {
 	}
 }
 
-func TestMustParseIDPanics(t *testing.T) {
+func TestMustParsePanics(t *testing.T) {
 	defer func() {
 		if recover() == nil {
 			t.Fatal("panic = nil, want non-nil")
 		}
 	}()
 
-	MustParseID("not-a-uuid")
+	MustParse("not-a-uuid")
 }

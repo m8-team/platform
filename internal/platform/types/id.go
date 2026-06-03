@@ -22,7 +22,7 @@ func NewIDFromUUID(value uuid.UUID) (ID, error) {
 	return idFromUUID(value)
 }
 
-func ParseID(value string) (ID, error) {
+func Parse(value string) (ID, error) {
 	parsed, err := uuid.Parse(value)
 	if err != nil {
 		return ID{}, fmt.Errorf("%w: %q: %w", ErrInvalidID, value, err)
@@ -31,8 +31,8 @@ func ParseID(value string) (ID, error) {
 	return idFromUUID(parsed)
 }
 
-func MustParseID(value string) ID {
-	id, err := ParseID(value)
+func MustParse(value string) ID {
+	id, err := Parse(value)
 	if err != nil {
 		panic(err)
 	}
@@ -41,13 +41,11 @@ func MustParseID(value string) ID {
 }
 
 func idFromUUID(value uuid.UUID) (ID, error) {
-	id := ID(value)
-
-	if err := id.Validate(); err != nil {
-		return ID{}, err
+	if value == uuid.Nil {
+		return ID{}, ErrZeroID
 	}
 
-	return id, nil
+	return ID(value), nil
 }
 
 func (id ID) UUID() uuid.UUID {
