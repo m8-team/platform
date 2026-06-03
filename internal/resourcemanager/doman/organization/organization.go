@@ -1,6 +1,8 @@
 package organization
 
 import (
+	"time"
+
 	"github.com/m8platform/platform/internal/platform/types"
 )
 
@@ -12,5 +14,11 @@ type Organization struct {
 	name        string
 	description string
 
+	createdAt time.Time
+	updatedAt time.Time
+	deletedAt time.Time
+	purgeAt   time.Time
+
 	version types.Version
+	labels  map[string]string
 }

@@ -12,7 +12,7 @@ const validID = "018f3f16-9950-7a48-9d12-9fb6d8f4c8f2"
 func TestIDCreationAndMethods(t *testing.T) {
 	raw := uuid.MustParse(validID)
 
-	fromUUID, err := NewIDFromUUID(raw)
+	fromUUID, err := NewFromUUID(raw)
 	if err != nil {
 		t.Fatalf("NewIDFromUUID() error = %v", err)
 	}
@@ -23,7 +23,7 @@ func TestIDCreationAndMethods(t *testing.T) {
 	}
 
 	ids := map[string]ID{
-		"new":        NewID(),
+		"new":        New(),
 		"from uuid":  fromUUID,
 		"parsed":     parsed,
 		"must parse": MustParse(validID),
@@ -49,7 +49,7 @@ func TestIDCreationAndMethods(t *testing.T) {
 	if !parsed.Equal(fromUUID) {
 		t.Fatal("Equal() = false, want true")
 	}
-	if parsed.Equal(NewID()) {
+	if parsed.Equal(New()) {
 		t.Fatal("Equal() = true, want false")
 	}
 }
@@ -74,7 +74,7 @@ func TestIDErrors(t *testing.T) {
 		},
 		{
 			name:    "create from zero uuid",
-			run:     func() error { _, err := NewIDFromUUID(uuid.Nil); return err },
+			run:     func() error { _, err := NewFromUUID(uuid.Nil); return err },
 			wantErr: ErrZeroID,
 		},
 		{

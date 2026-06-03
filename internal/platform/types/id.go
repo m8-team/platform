@@ -14,11 +14,11 @@ var (
 	ErrZeroID    = errors.New("id is zero")
 )
 
-func NewID() ID {
+func New() ID {
 	return ID(uuid.New())
 }
 
-func NewIDFromUUID(value uuid.UUID) (ID, error) {
+func NewFromUUID(value uuid.UUID) (ID, error) {
 	return idFromUUID(value)
 }
 
