@@ -1,0 +1,96 @@
+# Platform Health
+
+`internal/platform/health` is the reusable M8 Platform health module. It is technical platform foundation code and is not owned by any business module.
+
+Domain modules may expose `HealthChecks() []health.Check`. They should not know about HTTP, gRPC, Kubernetes probes, or adapter packages.
+
+## Probe Kinds
+
+- `/livez` uses `CheckKindLiveness`. Use it for process-local checks only. Do not register external dependencies as liveness checks by default.
+- `/readyz` uses `CheckKindReadiness`. Use it for checks that decide whether the service can receive traffic.
+- `/startupz` uses `CheckKindStartup`. Use it for startup gating checks.
+- `/healthz` uses `CheckKindDeep`. Use it as a diagnostic endpoint for deeper dependency checks.
+
+## Aggregation
+
+- Empty results are `HEALTHY`.
+- A required dependency with `UNHEALTHY` or `UNKNOWN` makes the snapshot `UNHEALTHY`.
+- An optional dependency with `UNHEALTHY` or `UNKNOWN` makes the snapshot `DEGRADED` unless a required check failed.
+- Any `DEGRADED` check makes the snapshot `DEGRADED` unless a required check failed.
+
+## Register Dependency Checks
+
+```go
+registry := health.NewRegistry()
+
+err := health.RegisterChecks(registry,
+    health.Check{
+        Name: "postgres",
+        Target: health.Target{
+            Kind:   health.TargetDependency,
+            Name:   "postgres",
+            Module: "resource-manager",
+        },
+        Kinds:       []health.CheckKind{health.CheckKindReadiness, health.CheckKindDeep},
+        Criticality: health.CriticalityRequired,
+        Checker: checks.NewPingChecker("postgres", postgres.PingContext),
+    },
+    health.Check{
+        Name: "kafka",
+        Target: health.Target{
+            Kind:   health.TargetDependency,
+            Name:   "kafka",
+            Module: "resource-manager",
+        },
+        Kinds:       []health.CheckKind{health.CheckKindReadiness, health.CheckKindDeep},
+        Criticality: health.CriticalityOptional,
+        Checker: checks.NewPingChecker("kafka", kafka.Ping),
+    },
+)
+if err != nil {
+    return err
+}
+```
+
+## HTTP Adapter
+
+```go
+registry := health.NewRegistry()
+mux := http.NewServeMux()
+
+healthhttp.NewHandler(registry).RegisterRoutes(mux)
+```
+
+The HTTP adapter returns JSON snapshots. `HEALTHY` and `DEGRADED` return HTTP 200. `UNHEALTHY` and `UNKNOWN` return HTTP 503.
+
+## gRPC Adapter
+
+```go
+adapter := healthgrpc.NewAdapter(
+    registry,
+    healthgrpc.WithPeriod(5*time.Second),
+    healthgrpc.WithServiceNames("m8.resource-manager.v1.ProjectService"),
+)
+
+grpc_health_v1.RegisterHealthServer(grpcServer, adapter.Server())
+go adapter.Start(ctx)
+```
+
+The adapter evaluates readiness. `HEALTHY` and `DEGRADED` map to `SERVING`; `UNHEALTHY` maps to `NOT_SERVING`; `UNKNOWN` maps to `UNKNOWN`.
+
+## Fx
+
+```go
+var ResourceManagerModule = fx.Module(
+    "resource-manager",
+    fx.Provide(NewResourceManager),
+    fx.Invoke(func(registry health.Registry, m *ResourceManager) error {
+        return health.RegisterChecks(registry, m.HealthChecks()...)
+    }),
+)
+
+app := fx.New(
+    health.FxModule,
+    ResourceManagerModule,
+)
+```
