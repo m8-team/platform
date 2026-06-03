@@ -16,7 +16,7 @@ const (
 	StateFailed                   // FAILED
 )
 
-var _ types.State = State(StateUnspecified)
+var _ types.State = StateUnspecified
 
 func (s State) IsValid() bool {
 	switch s {
