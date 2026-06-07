@@ -174,7 +174,7 @@ func copyCheck(registration Check) Check {
 	return registration
 }
 
-func checkHasKind(spec CheckSpec, kind Kind) bool {
+func checkHasKind(spec Config, kind Kind) bool {
 	for _, candidate := range spec.Kinds {
 		if candidate == kind {
 			return true

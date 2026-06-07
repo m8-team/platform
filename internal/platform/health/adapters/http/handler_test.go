@@ -122,7 +122,7 @@ func request(registry health.Registry, method string, path string) *httptest.Res
 
 func check(name string, kind health.Kind, status health.Status, criticality health.Criticality) health.Check {
 	return health.Check{
-		Spec: health.CheckSpec{
+		Spec: health.Config{
 			Name:        name,
 			Kinds:       []health.Kind{kind},
 			Criticality: criticality,

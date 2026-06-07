@@ -24,7 +24,7 @@ Domain modules may expose `HealthChecks() []health.Check`. They should not know 
 func (m *ResourceManager) HealthChecks() []health.Check {
     return []health.Check{
         {
-            Spec: health.CheckSpec{
+            Spec: health.Config{
                 Name: "resource-manager.storage",
                 Target: health.Target{
                     Kind:   health.TargetKindDependency,
@@ -45,7 +45,7 @@ registry := health.NewRegistry()
 
 err := health.Register(registry,
     health.Check{
-        Spec: health.CheckSpec{
+        Spec: health.Config{
             Name: "postgres",
             Target: health.Target{
                 Kind:   health.TargetKindDependency,
@@ -58,7 +58,7 @@ err := health.Register(registry,
         Checker: checks.NewPingChecker("postgres", postgres.PingContext),
     },
     health.Check{
-        Spec: health.CheckSpec{
+        Spec: health.Config{
             Name: "kafka",
             Target: health.Target{
                 Kind:   health.TargetKindDependency,

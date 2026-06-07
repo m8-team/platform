@@ -81,7 +81,7 @@ func runCheck(parent context.Context, registration Check) Result {
 	}
 }
 
-func normalizeResult(spec CheckSpec, result Result, startedAt time.Time) Result {
+func normalizeResult(spec Config, result Result, startedAt time.Time) Result {
 	result.Name = spec.Name
 	result.Status = normalizeStatus(result.Status)
 	result.Latency = latencyMillisecondsSince(startedAt)
@@ -91,7 +91,7 @@ func normalizeResult(spec CheckSpec, result Result, startedAt time.Time) Result 
 	return result
 }
 
-func timeoutResult(spec CheckSpec, startedAt time.Time) Result {
+func timeoutResult(spec Config, startedAt time.Time) Result {
 	return failedResult(
 		spec,
 		fmt.Sprintf("health check timed out after %s", spec.Timeout),
@@ -100,7 +100,7 @@ func timeoutResult(spec CheckSpec, startedAt time.Time) Result {
 	)
 }
 
-func failedResult(spec CheckSpec, message string, err string, startedAt time.Time) Result {
+func failedResult(spec Config, message string, err string, startedAt time.Time) Result {
 	return Result{
 		Name:        spec.Name,
 		Status:      StatusUnhealthy,

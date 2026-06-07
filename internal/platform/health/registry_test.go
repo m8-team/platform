@@ -22,7 +22,7 @@ func TestRegistryRejectsEmptyName(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  " ",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -37,7 +37,7 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  "postgres",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -48,7 +48,7 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 
 	var checker CheckerFunc
 	err = registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  "typed-nil",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -98,7 +98,7 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 
 	if err := Register(registry,
 		Check{
-			Spec: CheckSpec{
+			Spec: Config{
 				Name:  "readiness",
 				Kinds: []Kind{KindReadiness},
 			},
@@ -108,7 +108,7 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 			}),
 		},
 		Check{
-			Spec: CheckSpec{
+			Spec: Config{
 				Name:  "liveness",
 				Kinds: []Kind{KindLiveness},
 			},
@@ -140,7 +140,7 @@ func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:    "slow",
 			Kinds:   []Kind{KindReadiness},
 			Timeout: 5 * time.Millisecond,
@@ -174,7 +174,7 @@ func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  "panic",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -226,7 +226,7 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 	if err := Register(registry,
 		testCheck("postgres", KindReadiness, StatusHealthy),
 		Check{
-			Spec: CheckSpec{
+			Spec: Config{
 				Name:        "redis",
 				Kinds:       []Kind{KindReadiness},
 				Criticality: CriticalityOptional,
@@ -247,7 +247,7 @@ func TestRegistrySnapshotLatencyUsesMilliseconds(t *testing.T) {
 	registry := NewRegistry()
 
 	if err := registry.Register(Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  "slow",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -307,7 +307,7 @@ func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
 
 func testCheck(name string, kind Kind, status Status) Check {
 	return Check{
-		Spec: CheckSpec{
+		Spec: Config{
 			Name:  name,
 			Kinds: []Kind{kind},
 		},
