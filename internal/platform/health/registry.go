@@ -111,7 +111,7 @@ func (r *registry) checksForKind(kind Kind) []Check {
 	return checks
 }
 
-func RegisterChecks(registry Registry, registrations ...Check) error {
+func Register(registry Registry, registrations ...Check) error {
 	if registry == nil {
 		return ErrRegistryRequired
 	}

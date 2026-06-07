@@ -96,7 +96,7 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 	readinessRan := false
 	livenessRan := false
 
-	if err := RegisterChecks(registry,
+	if err := Register(registry,
 		Check{
 			Spec: CheckSpec{
 				Name:  "readiness",
@@ -118,7 +118,7 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 			}),
 		},
 	); err != nil {
-		t.Fatalf("RegisterChecks() error = %v", err)
+		t.Fatalf("Register() error = %v", err)
 	}
 
 	snapshot := registry.Snapshot(context.Background(), KindReadiness)
@@ -204,11 +204,11 @@ func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 func TestRegistrySnapshotSortsResultsByName(t *testing.T) {
 	registry := NewRegistry()
 
-	if err := RegisterChecks(registry,
+	if err := Register(registry,
 		testCheck("b", KindReadiness, StatusHealthy),
 		testCheck("a", KindReadiness, StatusHealthy),
 	); err != nil {
-		t.Fatalf("RegisterChecks() error = %v", err)
+		t.Fatalf("Register() error = %v", err)
 	}
 
 	snapshot := registry.Snapshot(context.Background(), KindReadiness)
@@ -223,7 +223,7 @@ func TestRegistrySnapshotSortsResultsByName(t *testing.T) {
 func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 	registry := NewRegistry()
 
-	if err := RegisterChecks(registry,
+	if err := Register(registry,
 		testCheck("postgres", KindReadiness, StatusHealthy),
 		Check{
 			Spec: CheckSpec{
@@ -234,7 +234,7 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 			Checker: CheckerFunc(func(context.Context) Result { return Result{Status: StatusUnhealthy} }),
 		},
 	); err != nil {
-		t.Fatalf("RegisterChecks() error = %v", err)
+		t.Fatalf("Register() error = %v", err)
 	}
 
 	snapshot := registry.Snapshot(context.Background(), KindReadiness)

@@ -13,5 +13,5 @@ func RegisterModuleChecks(registry Registry, module Module) error {
 		return ErrModuleRequired
 	}
 
-	return RegisterChecks(registry, module.HealthChecks()...)
+	return Register(registry, module.HealthChecks()...)
 }

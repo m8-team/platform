@@ -30,7 +30,7 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 }
 
 func registerResourceManagerHealthChecks(registry health.Registry) error {
-	return health.RegisterChecks(registry, health.Check{
+	return health.Register(registry, health.Check{
 		Spec: health.CheckSpec{
 			Name: yaRuHealthCheckName,
 			Target: health.Target{

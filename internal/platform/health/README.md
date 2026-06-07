@@ -43,7 +43,7 @@ func (m *ResourceManager) HealthChecks() []health.Check {
 ```go
 registry := health.NewRegistry()
 
-err := health.RegisterChecks(registry,
+err := health.Register(registry,
     health.Check{
         Spec: health.CheckSpec{
             Name: "postgres",
@@ -109,7 +109,7 @@ var ResourceManagerModule = fx.Module(
     "resource-manager",
     fx.Provide(NewResourceManager),
     fx.Invoke(func(registry health.Registry, m *ResourceManager) error {
-        return health.RegisterChecks(registry, m.HealthChecks()...)
+        return health.Register(registry, m.HealthChecks()...)
     }),
 )
 
