@@ -2,14 +2,14 @@
 
 `internal/platform/health` is the reusable M8 Platform health module. It is technical platform foundation code and is not owned by any business module.
 
-Domain modules may expose `HealthChecks() []health.Check`. They should not know about HTTP, gRPC, Kubernetes probes, or adapter packages.
+Domain modules may expose `HealthChecks() []health.Config`. They should not know about HTTP, gRPC, Kubernetes probes, or adapter packages.
 
 ## Probe Kinds
 
-- `/livez` uses `CheckKindLiveness`. Use it for process-local checks only. Do not register external dependencies as liveness checks by default.
-- `/readyz` uses `CheckKindReadiness`. Use it for checks that decide whether the service can receive traffic.
-- `/startupz` uses `CheckKindStartup`. Use it for startup gating checks.
-- `/healthz` uses `CheckKindReadiness`. Use it as a diagnostic endpoint for readiness checks.
+- `/livez` uses `KindLiveness`. Use it for process-local checks only. Do not register external dependencies as liveness checks by default.
+- `/readyz` uses `KindReadiness`. Use it for checks that decide whether the service can receive traffic.
+- `/startupz` uses `KindStartup`. Use it for startup gating checks.
+- `/healthz` uses `KindReadiness`. Use it as a diagnostic endpoint for readiness checks.
 
 ## Aggregation
 
@@ -21,17 +21,17 @@ Domain modules may expose `HealthChecks() []health.Check`. They should not know 
 ## Register Dependency Checks
 
 ```go
-func (m *ResourceManager) HealthChecks() []health.Check {
-    return []health.Check{
+func (m *ResourceManager) HealthChecks() []health.Config {
+    return []health.Config{
         {
-            Spec: health.Config{
+            Spec: health.Spec{
                 Name: "resource-manager.storage",
                 Target: health.Target{
                     Kind:   health.TargetKindDependency,
                     Name:   "postgres",
                     Module: "resource-manager",
                 },
-                Kinds:       []health.Kind{health.CheckKindReadiness},
+                Kinds:       []health.Kind{health.KindReadiness},
                 Criticality: health.CriticalityRequired,
             },
             Checker: checks.NewPingChecker("postgres", m.db.PingContext),
@@ -44,28 +44,28 @@ func (m *ResourceManager) HealthChecks() []health.Check {
 registry := health.NewRegistry()
 
 err := health.Register(registry,
-    health.Check{
-        Spec: health.Config{
+    health.Config{
+        Spec: health.Spec{
             Name: "postgres",
             Target: health.Target{
                 Kind:   health.TargetKindDependency,
                 Name:   "postgres",
                 Module: "resource-manager",
             },
-            Kinds:       []health.Kind{health.CheckKindReadiness},
+            Kinds:       []health.Kind{health.KindReadiness},
             Criticality: health.CriticalityRequired,
         },
         Checker: checks.NewPingChecker("postgres", postgres.PingContext),
     },
-    health.Check{
-        Spec: health.Config{
+    health.Config{
+        Spec: health.Spec{
             Name: "kafka",
             Target: health.Target{
                 Kind:   health.TargetKindDependency,
                 Name:   "kafka",
                 Module: "resource-manager",
             },
-            Kinds:       []health.Kind{health.CheckKindReadiness},
+            Kinds:       []health.Kind{health.KindReadiness},
             Criticality: health.CriticalityOptional,
         },
         Checker: checks.NewPingChecker("kafka", kafka.Ping),

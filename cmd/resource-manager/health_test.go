@@ -44,10 +44,10 @@ func TestRegisterResourceManagerHealthChecks(t *testing.T) {
 }
 
 type capturingHealthRegistry struct {
-	registrations []health.Check
+	registrations []health.Config
 }
 
-func (r *capturingHealthRegistry) Register(registration health.Check) error {
+func (r *capturingHealthRegistry) Register(registration health.Config) error {
 	r.registrations = append(r.registrations, registration)
 	return nil
 }

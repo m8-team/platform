@@ -84,7 +84,7 @@ type fakeRegistry struct {
 	status platformhealth.Status
 }
 
-func (r fakeRegistry) Register(platformhealth.Check) error {
+func (r fakeRegistry) Register(platformhealth.Config) error {
 	return nil
 }
 

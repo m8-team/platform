@@ -21,8 +21,8 @@ func TestRegistryRegisterValidCheck(t *testing.T) {
 func TestRegistryRejectsEmptyName(t *testing.T) {
 	registry := NewRegistry()
 
-	err := registry.Register(Check{
-		Spec: Config{
+	err := registry.Register(Config{
+		Spec: Spec{
 			Name:  " ",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -36,8 +36,8 @@ func TestRegistryRejectsEmptyName(t *testing.T) {
 func TestRegistryRejectsNilChecker(t *testing.T) {
 	registry := NewRegistry()
 
-	err := registry.Register(Check{
-		Spec: Config{
+	err := registry.Register(Config{
+		Spec: Spec{
 			Name:  "postgres",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -47,8 +47,8 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 	}
 
 	var checker CheckerFunc
-	err = registry.Register(Check{
-		Spec: Config{
+	err = registry.Register(Config{
+		Spec: Spec{
 			Name:  "typed-nil",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -97,8 +97,8 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 	livenessRan := false
 
 	if err := Register(registry,
-		Check{
-			Spec: Config{
+		Config{
+			Spec: Spec{
 				Name:  "readiness",
 				Kinds: []Kind{KindReadiness},
 			},
@@ -107,8 +107,8 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 				return Result{Status: StatusHealthy}
 			}),
 		},
-		Check{
-			Spec: Config{
+		Config{
+			Spec: Spec{
 				Name:  "liveness",
 				Kinds: []Kind{KindLiveness},
 			},
@@ -139,8 +139,8 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 	registry := NewRegistry()
 
-	err := registry.Register(Check{
-		Spec: Config{
+	err := registry.Register(Config{
+		Spec: Spec{
 			Name:    "slow",
 			Kinds:   []Kind{KindReadiness},
 			Timeout: 5 * time.Millisecond,
@@ -173,8 +173,8 @@ func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 	registry := NewRegistry()
 
-	err := registry.Register(Check{
-		Spec: Config{
+	err := registry.Register(Config{
+		Spec: Spec{
 			Name:  "panic",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -225,8 +225,8 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 
 	if err := Register(registry,
 		testCheck("postgres", KindReadiness, StatusHealthy),
-		Check{
-			Spec: Config{
+		Config{
+			Spec: Spec{
 				Name:        "redis",
 				Kinds:       []Kind{KindReadiness},
 				Criticality: CriticalityOptional,
@@ -246,8 +246,8 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 func TestRegistrySnapshotLatencyUsesMilliseconds(t *testing.T) {
 	registry := NewRegistry()
 
-	if err := registry.Register(Check{
-		Spec: Config{
+	if err := registry.Register(Config{
+		Spec: Spec{
 			Name:  "slow",
 			Kinds: []Kind{KindReadiness},
 		},
@@ -305,9 +305,9 @@ func TestRegistryConcurrentRegisterAndSnapshot(t *testing.T) {
 	}
 }
 
-func testCheck(name string, kind Kind, status Status) Check {
-	return Check{
-		Spec: Config{
+func testCheck(name string, kind Kind, status Status) Config {
+	return Config{
+		Spec: Spec{
 			Name:  name,
 			Kinds: []Kind{kind},
 		},

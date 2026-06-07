@@ -11,12 +11,12 @@ const (
 	StatusUnhealthy Status = "UNHEALTHY"
 )
 
-type Check struct {
-	Spec    Config
+type Config struct {
+	Spec    Spec
 	Checker Checker
 }
 
-type Config struct {
+type Spec struct {
 	Name        string
 	Target      Target
 	Kinds       []Kind

@@ -5,7 +5,7 @@ import "errors"
 var ErrModuleRequired = errors.New("health module is required")
 
 type Module interface {
-	HealthChecks() []Check
+	HealthChecks() []Config
 }
 
 func RegisterModuleChecks(registry Registry, module Module) error {

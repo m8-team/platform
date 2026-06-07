@@ -120,9 +120,9 @@ func request(registry health.Registry, method string, path string) *httptest.Res
 	return resp
 }
 
-func check(name string, kind health.Kind, status health.Status, criticality health.Criticality) health.Check {
-	return health.Check{
-		Spec: health.Config{
+func check(name string, kind health.Kind, status health.Status, criticality health.Criticality) health.Config {
+	return health.Config{
+		Spec: health.Spec{
 			Name:        name,
 			Kinds:       []health.Kind{kind},
 			Criticality: criticality,

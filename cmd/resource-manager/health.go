@@ -14,8 +14,6 @@ import (
 	"go.uber.org/fx"
 )
 
-const yaRuHealthCheckName = "resource-manager.ya-ru"
-
 type HealthHTTPConfig struct {
 	Address string
 }
@@ -30,15 +28,19 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 }
 
 func registerResourceManagerHealthChecks(registry health.Registry) error {
-	return health.Register(registry, health.Check{
-		Spec: health.Config{
-			Name: yaRuHealthCheckName,
+	return health.Register(registry, health.Config{
+		Spec: health.Spec{
+			Name: "Ping ya.ru",
 			Target: health.Target{
 				Kind:   health.TargetKindModule,
 				Name:   "11ya.ru",
 				Module: "resource-manager",
 			},
-			Kinds:       []health.Kind{health.KindReadiness, health.KindLiveness, health.KindStartup},
+			Kinds: []health.Kind{
+				health.KindReadiness,
+				health.KindLiveness,
+				health.KindStartup,
+			},
 			Criticality: health.CriticalityOptional,
 			Timeout:     1 * time.Second,
 			Interval:    10 * time.Second,
