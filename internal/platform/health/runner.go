@@ -57,12 +57,12 @@ func runCheck(parent context.Context, registration Config) Result {
 			}
 		}()
 
-		if registration.Checker == nil {
-			done <- failedResult(spec, "health check checker is not configured", ErrCheckCheckerRequired.Error(), startedAt)
+		if registration.Check == nil {
+			done <- failedResult(spec, "health check function is not configured", ErrCheckRequired.Error(), startedAt)
 			return
 		}
 
-		done <- normalizeResult(spec, registration.Checker.Check(ctx), startedAt)
+		done <- normalizeResult(spec, registration.Check(ctx), startedAt)
 	}()
 
 	select {

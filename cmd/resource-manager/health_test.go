@@ -38,8 +38,8 @@ func TestRegisterResourceManagerHealthChecks(t *testing.T) {
 	if len(spec.Kinds) != 1 || spec.Kinds[0] != health.KindReadiness {
 		t.Fatalf("Kinds = %+v, want [%s]", spec.Kinds, health.KindReadiness)
 	}
-	if registration.Checker == nil {
-		t.Fatal("Checker is nil")
+	if registration.Check == nil {
+		t.Fatal("Check is nil")
 	}
 }
 

@@ -12,8 +12,8 @@ const (
 )
 
 type Config struct {
-	Spec    Spec
-	Checker Checker
+	Spec  Spec
+	Check Check
 }
 
 type Spec struct {
@@ -63,15 +63,14 @@ const (
 )
 
 type Result struct {
-	Name        string            `json:"name"`
-	Status      Status            `json:"status"`
-	Message     string            `json:"message,omitempty"`
-	Error       string            `json:"error,omitempty"`
-	Latency     time.Duration     `json:"latency"`
-	CheckedAt   time.Time         `json:"checked_at"`
-	Target      Target            `json:"target"`
-	Criticality Criticality       `json:"criticality"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	Name        string        `json:"name"`
+	Status      Status        `json:"status"`
+	Message     string        `json:"message,omitempty"`
+	Error       string        `json:"error,omitempty"`
+	Latency     time.Duration `json:"latency"`
+	CheckedAt   time.Time     `json:"checked_at"`
+	Target      Target        `json:"target"`
+	Criticality Criticality   `json:"criticality"`
 }
 
 type Snapshot struct {

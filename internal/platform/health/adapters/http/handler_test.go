@@ -127,8 +127,8 @@ func check(name string, kind health.Kind, status health.Status, criticality heal
 			Kinds:       []health.Kind{kind},
 			Criticality: criticality,
 		},
-		Checker: health.CheckerFunc(func(context.Context) health.Result {
+		Check: func(context.Context) health.Result {
 			return health.Result{Status: status}
-		}),
+		},
 	}
 }

@@ -45,7 +45,7 @@ func registerResourceManagerHealthChecks(registry health.Registry) error {
 			Timeout:     1 * time.Second,
 			Interval:    10 * time.Second,
 		},
-		Checker: checks.NewHTTPChecker("ya.ru", http.DefaultClient, "https://google.com"),
+		Check: checks.NewHTTPCheck("ya.ru", http.DefaultClient, "https://google.com"),
 	})
 }
 

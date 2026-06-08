@@ -34,7 +34,7 @@ func (m *ResourceManager) HealthChecks() []health.Config {
                 Kinds:       []health.Kind{health.KindReadiness},
                 Criticality: health.CriticalityRequired,
             },
-            Checker: checks.NewPingChecker("postgres", m.db.PingContext),
+            Check: checks.NewPingCheck("postgres", m.db.PingContext),
         },
     }
 }
@@ -55,7 +55,7 @@ err := health.Register(registry,
             Kinds:       []health.Kind{health.KindReadiness},
             Criticality: health.CriticalityRequired,
         },
-        Checker: checks.NewPingChecker("postgres", postgres.PingContext),
+        Check: checks.NewPingCheck("postgres", postgres.PingContext),
     },
     health.Config{
         Spec: health.Spec{
@@ -68,7 +68,7 @@ err := health.Register(registry,
             Kinds:       []health.Kind{health.KindReadiness},
             Criticality: health.CriticalityOptional,
         },
-        Checker: checks.NewPingChecker("kafka", kafka.Ping),
+        Check: checks.NewPingCheck("kafka", kafka.Ping),
     },
 )
 if err != nil {

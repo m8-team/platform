@@ -8,19 +8,19 @@ import (
 	"github.com/m8platform/platform/internal/platform/health"
 )
 
-func TestPingCheckerSuccess(t *testing.T) {
-	checker := NewPingChecker("postgres", func(context.Context) error { return nil })
+func TestPingCheckSuccess(t *testing.T) {
+	check := NewPingCheck("postgres", func(context.Context) error { return nil })
 
-	result := checker.Check(context.Background())
+	result := check(context.Background())
 	if result.Status != health.StatusHealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusHealthy)
 	}
 }
 
-func TestPingCheckerError(t *testing.T) {
-	checker := NewPingChecker("postgres", func(context.Context) error { return errors.New("down") })
+func TestPingCheckError(t *testing.T) {
+	check := NewPingCheck("postgres", func(context.Context) error { return errors.New("down") })
 
-	result := checker.Check(context.Background())
+	result := check(context.Background())
 	if result.Status != health.StatusUnhealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusUnhealthy)
 	}
@@ -29,10 +29,10 @@ func TestPingCheckerError(t *testing.T) {
 	}
 }
 
-func TestPingCheckerNilPing(t *testing.T) {
-	checker := NewPingChecker("postgres", nil)
+func TestPingCheckNilPing(t *testing.T) {
+	check := NewPingCheck("postgres", nil)
 
-	result := checker.Check(context.Background())
+	result := check(context.Background())
 	if result.Status != health.StatusUnhealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusUnhealthy)
 	}

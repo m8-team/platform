@@ -10,7 +10,7 @@ import (
 	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-func TestGRPCHealthCheckerStatuses(t *testing.T) {
+func TestGRPCHealthCheckStatuses(t *testing.T) {
 	tests := []struct {
 		name   string
 		status grpc_health_v1.HealthCheckResponse_ServingStatus
@@ -24,8 +24,8 @@ func TestGRPCHealthCheckerStatuses(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			checker := NewGRPCHealthChecker("dependency", fakeHealthClient{status: tt.status}, "svc")
-			result := checker.Check(context.Background())
+			check := NewGRPCHealthCheck("dependency", fakeHealthClient{status: tt.status}, "svc")
+			result := check(context.Background())
 			if result.Status != tt.want {
 				t.Fatalf("Status = %s, want %s", result.Status, tt.want)
 			}
@@ -33,10 +33,10 @@ func TestGRPCHealthCheckerStatuses(t *testing.T) {
 	}
 }
 
-func TestGRPCHealthCheckerError(t *testing.T) {
-	checker := NewGRPCHealthChecker("dependency", fakeHealthClient{err: errors.New("down")}, "svc")
+func TestGRPCHealthCheckError(t *testing.T) {
+	check := NewGRPCHealthCheck("dependency", fakeHealthClient{err: errors.New("down")}, "svc")
 
-	result := checker.Check(context.Background())
+	result := check(context.Background())
 	if result.Status != health.StatusUnhealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusUnhealthy)
 	}
@@ -45,10 +45,10 @@ func TestGRPCHealthCheckerError(t *testing.T) {
 	}
 }
 
-func TestGRPCHealthCheckerNilClient(t *testing.T) {
-	checker := NewGRPCHealthChecker("dependency", nil, "svc")
+func TestGRPCHealthCheckNilClient(t *testing.T) {
+	check := NewGRPCHealthCheck("dependency", nil, "svc")
 
-	result := checker.Check(context.Background())
+	result := check(context.Background())
 	if result.Status != health.StatusUnhealthy {
 		t.Fatalf("Status = %s, want %s", result.Status, health.StatusUnhealthy)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -17,16 +16,16 @@ const (
 )
 
 var (
-	ErrRegistryRequired     = errors.New("health registry is required")
-	ErrCheckNameRequired    = errors.New("health check name is required")
-	ErrCheckCheckerRequired = errors.New("health check checker is required")
-	ErrCheckKindsRequired   = errors.New("health check kind is required")
-	ErrDuplicateCheck       = errors.New("health check already registered")
-	ErrInvalidCriticality   = errors.New("invalid health check criticality")
+	ErrRegistryRequired   = errors.New("health registry is required")
+	ErrCheckNameRequired  = errors.New("health check name is required")
+	ErrCheckRequired      = errors.New("health check function is required")
+	ErrCheckKindsRequired = errors.New("health check kind is required")
+	ErrDuplicateCheck     = errors.New("health check already registered")
+	ErrInvalidCriticality = errors.New("invalid health check criticality")
 )
 
 type Registry interface {
-	Register(registration Config) error
+	Register(config Config) error
 	Snapshot(ctx context.Context, kind Kind) Snapshot
 }
 
@@ -41,12 +40,12 @@ func NewRegistry() Registry {
 	}
 }
 
-func (r *registry) Register(registration Config) error {
+func (r *registry) Register(config Config) error {
 	if r == nil {
 		return ErrRegistryRequired
 	}
 
-	registered, err := normalizeCheck(registration)
+	check, err := normalize(config)
 	if err != nil {
 		return err
 	}
@@ -54,11 +53,12 @@ func (r *registry) Register(registration Config) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if _, exists := r.checks[registered.Spec.Name]; exists {
-		return fmt.Errorf("%w: %s", ErrDuplicateCheck, registered.Spec.Name)
+	if _, exists := r.checks[check.Spec.Name]; exists {
+		return fmt.Errorf("%w: %s", ErrDuplicateCheck, check.Spec.Name)
 	}
 
-	r.checks[registered.Spec.Name] = registered
+	r.checks[check.Spec.Name] = check
+
 	return nil
 }
 
@@ -70,12 +70,15 @@ func (r *registry) Snapshot(ctx context.Context, kind Kind) Snapshot {
 			CheckedAt: time.Now().UTC(),
 			Results: []Result{
 				{
-					Name:        "health-registry",
-					Status:      StatusUnhealthy,
-					Message:     "health registry is not configured",
-					Error:       ErrRegistryRequired.Error(),
-					CheckedAt:   time.Now().UTC(),
-					Target:      Target{Kind: TargetKindApplication, Name: "platform-health"},
+					Name:      "health-registry",
+					Status:    StatusUnhealthy,
+					Message:   "health registry is not configured",
+					Error:     ErrRegistryRequired.Error(),
+					CheckedAt: time.Now().UTC(),
+					Target: Target{
+						Kind: TargetKindApplication,
+						Name: "platform-health",
+					},
 					Criticality: CriticalityRequired,
 				},
 			},
@@ -125,14 +128,14 @@ func Register(registry Registry, registrations ...Config) error {
 	return nil
 }
 
-func normalizeCheck(registration Config) (Config, error) {
-	spec := registration.Spec
+func normalize(c Config) (Config, error) {
+	spec := c.Spec
 	spec.Name = strings.TrimSpace(spec.Name)
 	if spec.Name == "" {
 		return Config{}, ErrCheckNameRequired
 	}
-	if isNilChecker(registration.Checker) {
-		return Config{}, fmt.Errorf("%w: %s", ErrCheckCheckerRequired, spec.Name)
+	if c.Check == nil {
+		return Config{}, fmt.Errorf("%w: %s", ErrCheckRequired, spec.Name)
 	}
 	if len(spec.Kinds) == 0 {
 		return Config{}, fmt.Errorf("%w: %s", ErrCheckKindsRequired, spec.Name)
@@ -151,22 +154,8 @@ func normalizeCheck(registration Config) (Config, error) {
 	}
 
 	spec.Kinds = append([]Kind(nil), spec.Kinds...)
-	registration.Spec = spec
-	return registration, nil
-}
-
-func isNilChecker(checker Checker) bool {
-	if checker == nil {
-		return true
-	}
-
-	value := reflect.ValueOf(checker)
-	switch value.Kind() {
-	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
-		return value.IsNil()
-	default:
-		return false
-	}
+	c.Spec = spec
+	return c, nil
 }
 
 func copyCheck(registration Config) Config {

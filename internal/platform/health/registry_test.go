@@ -26,14 +26,14 @@ func TestRegistryRejectsEmptyName(t *testing.T) {
 			Name:  " ",
 			Kinds: []Kind{KindReadiness},
 		},
-		Checker: CheckerFunc(func(context.Context) Result { return Result{Status: StatusHealthy} }),
+		Check: func(context.Context) Result { return Result{Status: StatusHealthy} },
 	})
 	if !errors.Is(err, ErrCheckNameRequired) {
 		t.Fatalf("Register() error = %v, want %v", err, ErrCheckNameRequired)
 	}
 }
 
-func TestRegistryRejectsNilChecker(t *testing.T) {
+func TestRegistryRejectsNilCheck(t *testing.T) {
 	registry := NewRegistry()
 
 	err := registry.Register(Config{
@@ -42,20 +42,20 @@ func TestRegistryRejectsNilChecker(t *testing.T) {
 			Kinds: []Kind{KindReadiness},
 		},
 	})
-	if !errors.Is(err, ErrCheckCheckerRequired) {
-		t.Fatalf("Register() error = %v, want %v", err, ErrCheckCheckerRequired)
+	if !errors.Is(err, ErrCheckRequired) {
+		t.Fatalf("Register() error = %v, want %v", err, ErrCheckRequired)
 	}
 
-	var checker CheckerFunc
+	var checker Check
 	err = registry.Register(Config{
 		Spec: Spec{
 			Name:  "typed-nil",
 			Kinds: []Kind{KindReadiness},
 		},
-		Checker: checker,
+		Check: checker,
 	})
-	if !errors.Is(err, ErrCheckCheckerRequired) {
-		t.Fatalf("Register() typed nil error = %v, want %v", err, ErrCheckCheckerRequired)
+	if !errors.Is(err, ErrCheckRequired) {
+		t.Fatalf("Register() typed nil error = %v, want %v", err, ErrCheckRequired)
 	}
 }
 
@@ -102,20 +102,20 @@ func TestRegistrySnapshotRunsOnlyMatchingKind(t *testing.T) {
 				Name:  "readiness",
 				Kinds: []Kind{KindReadiness},
 			},
-			Checker: CheckerFunc(func(context.Context) Result {
+			Check: func(context.Context) Result {
 				readinessRan = true
 				return Result{Status: StatusHealthy}
-			}),
+			},
 		},
 		Config{
 			Spec: Spec{
 				Name:  "liveness",
 				Kinds: []Kind{KindLiveness},
 			},
-			Checker: CheckerFunc(func(context.Context) Result {
+			Check: func(context.Context) Result {
 				livenessRan = true
 				return Result{Status: StatusHealthy}
-			}),
+			},
 		},
 	); err != nil {
 		t.Fatalf("Register() error = %v", err)
@@ -145,10 +145,10 @@ func TestRegistrySnapshotHandlesTimeout(t *testing.T) {
 			Kinds:   []Kind{KindReadiness},
 			Timeout: 5 * time.Millisecond,
 		},
-		Checker: CheckerFunc(func(context.Context) Result {
+		Check: func(context.Context) Result {
 			time.Sleep(50 * time.Millisecond)
 			return Result{Status: StatusHealthy}
-		}),
+		},
 	})
 	if err != nil {
 		t.Fatalf("Register() error = %v", err)
@@ -178,9 +178,9 @@ func TestRegistrySnapshotHandlesPanic(t *testing.T) {
 			Name:  "panic",
 			Kinds: []Kind{KindReadiness},
 		},
-		Checker: CheckerFunc(func(context.Context) Result {
+		Check: func(context.Context) Result {
 			panic("boom")
-		}),
+		},
 	})
 	if err != nil {
 		t.Fatalf("Register() error = %v", err)
@@ -231,7 +231,7 @@ func TestRegistrySnapshotAggregatesStatus(t *testing.T) {
 				Kinds:       []Kind{KindReadiness},
 				Criticality: CriticalityOptional,
 			},
-			Checker: CheckerFunc(func(context.Context) Result { return Result{Status: StatusUnhealthy} }),
+			Check: func(context.Context) Result { return Result{Status: StatusUnhealthy} },
 		},
 	); err != nil {
 		t.Fatalf("Register() error = %v", err)
@@ -251,10 +251,10 @@ func TestRegistrySnapshotLatencyUsesMilliseconds(t *testing.T) {
 			Name:  "slow",
 			Kinds: []Kind{KindReadiness},
 		},
-		Checker: CheckerFunc(func(context.Context) Result {
+		Check: func(context.Context) Result {
 			time.Sleep(15 * time.Millisecond)
 			return Result{Status: StatusHealthy}
-		}),
+		},
 	}); err != nil {
 		t.Fatalf("Register() error = %v", err)
 	}
@@ -311,8 +311,8 @@ func testCheck(name string, kind Kind, status Status) Config {
 			Name:  name,
 			Kinds: []Kind{kind},
 		},
-		Checker: CheckerFunc(func(context.Context) Result {
+		Check: func(context.Context) Result {
 			return Result{Status: status}
-		}),
+		},
 	}
 }

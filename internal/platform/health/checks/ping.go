@@ -11,36 +11,29 @@ var errPingFuncRequired = errors.New("ping function is required")
 
 type PingFunc func(ctx context.Context) error
 
-type pingChecker struct {
-	name string
-	ping PingFunc
-}
-
-func NewPingChecker(name string, ping PingFunc) health.Checker {
-	return &pingChecker{name: name, ping: ping}
-}
-
-func (c *pingChecker) Check(ctx context.Context) health.Result {
-	if c.ping == nil {
-		return health.Result{
-			Name:    c.name,
-			Status:  health.StatusUnhealthy,
-			Message: "ping function is not configured",
-			Error:   errPingFuncRequired.Error(),
+func NewPingCheck(name string, ping PingFunc) health.Check {
+	return func(ctx context.Context) health.Result {
+		if ping == nil {
+			return health.Result{
+				Name:    name,
+				Status:  health.StatusUnhealthy,
+				Message: "ping function is not configured",
+				Error:   errPingFuncRequired.Error(),
+			}
 		}
-	}
 
-	if err := c.ping(ctx); err != nil {
-		return health.Result{
-			Name:    c.name,
-			Status:  health.StatusUnhealthy,
-			Message: "ping failed",
-			Error:   err.Error(),
+		if err := ping(ctx); err != nil {
+			return health.Result{
+				Name:    name,
+				Status:  health.StatusUnhealthy,
+				Message: "ping failed",
+				Error:   err.Error(),
+			}
 		}
-	}
 
-	return health.Result{
-		Name:   c.name,
-		Status: health.StatusHealthy,
+		return health.Result{
+			Name:   name,
+			Status: health.StatusHealthy,
+		}
 	}
 }
