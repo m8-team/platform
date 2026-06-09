@@ -7,10 +7,13 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
+import "m8/platform/common/extension/v1/extension.proto";
 
 option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
 
 service AccessService {
+  option (m8.platform.common.extension.v1.description) = "";
+
   rpc EvaluateAccess(EvaluateAccessRequest) returns (EvaluateAccessResponse) {
     option (google.api.http) = {
       post: "/access/v1/evaluation"
@@ -110,7 +113,9 @@ message EvaluateAccessBatchRequest {
 }
 
 message EvaluateAccessBatchResponse {
-  repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated EvaluateAccessResponse evaluations = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }
 
 message EvaluateAccessBatchOptions {
@@ -150,7 +155,89 @@ message SearchResourcesRequest {
   ];
 }
 
+message SearchResourcesResponse {
+  repeated Resource results = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  PageResponse page = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Struct context = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message SearchSubjectsRequest {
+  Subject subject = 1 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  Action action = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Resource resource = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  google.protobuf.Struct context = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message SearchSubjectsResponse {
+  repeated Subject results = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  PageResponse page = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Struct context = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
 message GetConfigurationRequest {}
+
+message SearchActionsRequest {
+  Subject subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Resource resource = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  PageRequest page = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+message SearchActionsResponse {
+  repeated Action results = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  PageResponse page = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Struct context = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
 
 message ConfigurationResponse {
   string policy_decision_point = 1 [
@@ -201,13 +288,23 @@ message PageRequest {
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
+
+  google.protobuf.Struct properties = 3 [
+    (google.api.field_behavior) = OPTIONAL]
+  ;
 }
 
 message PageResponse {
-  int32 count = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int32 count = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   string next_token = 2 [
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 4096
+  ];
+
+  google.protobuf.Struct properties = 3 [
+    (google.api.field_behavior) = OPTIONAL
   ];
 }

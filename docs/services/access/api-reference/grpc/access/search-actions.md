@@ -12,8 +12,6 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 ## SearchActionsRequest
 
-SearchActionsRequest asks which actions the subject can perform on the resource.
-
 ```json
 {
   "subject": {
@@ -29,21 +27,20 @@ SearchActionsRequest asks which actions the subject can perform on the resource.
   "context": {},
   "page": {
     "limit": 0,
-    "token": "string"
+    "token": "string",
+    "properties": {}
   }
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | Subject whose allowed actions are searched. |
-| resource | Resource | Resource on which actions are evaluated. |
-| context | Struct | Arbitrary request context for policy evaluation. |
-| page | PageRequest | Pagination controls. |
+| subject | Subject | No description. |
+| resource | Resource | No description. |
+| context | Struct | No description. |
+| page | PageRequest | No description. |
 
 ## SearchActionsResponse
-
-SearchActionsResponse returns actions the subject can perform on the resource.
 
 ```json
 {
@@ -55,7 +52,8 @@ SearchActionsResponse returns actions the subject can perform on the resource.
   ],
   "page": {
     "count": 0,
-    "next_token": "string"
+    "next_token": "string",
+    "properties": {}
   },
   "context": {}
 }
@@ -63,14 +61,12 @@ SearchActionsResponse returns actions the subject can perform on the resource.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| results[] | Action | Matching actions. |
-| page | PageResponse | Pagination information for the returned actions. |
-| context | Struct | Response context, including optional decision metadata under context.m8. |
+| results[] | Action | No description. |
+| page | PageResponse | No description. |
+| context | Struct | No description. |
 
 ## Subject
 
-Subject is the AuthZEN subject object. Example: user:usr_01JZ...
-
 ```json
 {
   "type": "string",
@@ -81,14 +77,12 @@ Subject is the AuthZEN subject object. Example: user:usr_01JZ...
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | Subject type, for example "user". Types are strings to stay extensible across M8 modules. |
-| id | string | Subject identifier, for example "usr_01JZ...". |
-| properties | Struct | AuthZEN-compatible arbitrary subject properties. |
+| type | string | No description. |
+| id | string | No description. |
+| properties | Struct | No description. |
 
 ## Resource
 
-Resource is the AuthZEN resource object. Example: project:prj_01JZ...
-
 ```json
 {
   "type": "string",
@@ -99,29 +93,27 @@ Resource is the AuthZEN resource object. Example: project:prj_01JZ...
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | Resource type, for example "project". Resource types are strings to stay extensible across M8 modules. |
-| id | string | Resource identifier, for example "prj_01JZ...". |
-| properties | Struct | AuthZEN-compatible arbitrary resource properties. |
+| type | string | No description. |
+| id | string | No description. |
+| properties | Struct | No description. |
 
 ## PageRequest
-
-PageRequest controls forward pagination for list and search APIs.
 
 ```json
 {
   "limit": 0,
-  "token": "string"
+  "token": "string",
+  "properties": {}
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| limit | int32 | Maximum number of results to return. Zero lets the server choose a default. |
-| token | string | Opaque pagination token returned by a previous response. |
+| limit | int32 | No description. |
+| token | string | No description. |
+| properties | Struct | No description. |
 
 ## Action
-
-Action is the AuthZEN action object. Example: project.delete.
 
 ```json
 {
@@ -132,21 +124,21 @@ Action is the AuthZEN action object. Example: project.delete.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | Action name, for example "project.delete". Action names remain strings for cross-module extensibility. |
-| properties | Struct | AuthZEN-compatible arbitrary action properties. |
+| name | string | No description. |
+| properties | Struct | No description. |
 
 ## PageResponse
-
-PageResponse describes the page returned by a list or search API.
 
 ```json
 {
   "count": 0,
-  "next_token": "string"
+  "next_token": "string",
+  "properties": {}
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| count | int32 | Number of results returned in this page. |
-| next_token | string | Opaque token for the next page. Empty means there are no more results. |
+| count | int32 | No description. |
+| next_token | string | No description. |
+| properties | Struct | No description. |

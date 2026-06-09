@@ -242,5 +242,7 @@ message UndeleteOrganizationRequest {
 // Response returned by completed organization long-running operations.
 message OrganizationOperationResponse {
   // Output only. Organization affected by the operation.
-  Organization organization = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  Organization organization = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }

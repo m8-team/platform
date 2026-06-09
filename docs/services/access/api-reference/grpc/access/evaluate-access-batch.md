@@ -82,8 +82,6 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 ## Subject
 
-Subject is the AuthZEN subject object. Example: user:usr_01JZ...
-
 ```json
 {
   "type": "string",
@@ -94,13 +92,11 @@ Subject is the AuthZEN subject object. Example: user:usr_01JZ...
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | Subject type, for example "user". Types are strings to stay extensible across M8 modules. |
-| id | string | Subject identifier, for example "usr_01JZ...". |
-| properties | Struct | AuthZEN-compatible arbitrary subject properties. |
+| type | string | No description. |
+| id | string | No description. |
+| properties | Struct | No description. |
 
 ## Action
-
-Action is the AuthZEN action object. Example: project.delete.
 
 ```json
 {
@@ -111,12 +107,10 @@ Action is the AuthZEN action object. Example: project.delete.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | Action name, for example "project.delete". Action names remain strings for cross-module extensibility. |
-| properties | Struct | AuthZEN-compatible arbitrary action properties. |
+| name | string | No description. |
+| properties | Struct | No description. |
 
 ## Resource
-
-Resource is the AuthZEN resource object. Example: project:prj_01JZ...
 
 ```json
 {
@@ -128,9 +122,9 @@ Resource is the AuthZEN resource object. Example: project:prj_01JZ...
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | Resource type, for example "project". Resource types are strings to stay extensible across M8 modules. |
-| id | string | Resource identifier, for example "prj_01JZ...". |
-| properties | Struct | AuthZEN-compatible arbitrary resource properties. |
+| type | string | No description. |
+| id | string | No description. |
+| properties | Struct | No description. |
 
 ## EvaluateAccessBatchOptions
 
@@ -145,8 +139,6 @@ Resource is the AuthZEN resource object. Example: project:prj_01JZ...
 | evaluations_semantic | string | No description. |
 
 ## Evaluation
-
-Evaluation is one item in a batch access evaluation request.
 
 ```json
 {
@@ -170,10 +162,10 @@ Evaluation is one item in a batch access evaluation request.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | Item-level subject. If set, it overrides the batch-level default subject. |
-| action | Action | Item-level action. If set, it overrides the batch-level default action. |
-| resource | Resource | Item-level resource. If set, it overrides the batch-level default resource. |
-| context | Struct | Item-level context. If set, it overrides or extends the batch-level default context according to server policy. |
+| subject | Subject | No description. |
+| action | Action | No description. |
+| resource | Resource | No description. |
+| context | Struct | No description. |
 
 ## EvaluateAccessResponse
 
