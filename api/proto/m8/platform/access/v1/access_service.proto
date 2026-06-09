@@ -189,12 +189,16 @@ message ConfigurationResponse {
 }
 
 message PageRequest {
-  int32 limit = 1 [(buf.validate.field).int32 = {
-    gte: 0
-    lte: 1000
-  }];
+  int32 limit = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int32 = {
+      gte: 0
+      lte: 1000
+    }
+  ];
 
   string token = 2 [
+    (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
 }
