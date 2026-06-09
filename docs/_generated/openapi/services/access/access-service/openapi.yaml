@@ -1,0 +1,389 @@
+openapi: 3.0.3
+info:
+  title: Access API
+  description: HTTP API specifications generated from protobuf contracts.
+  version: v1
+paths:
+  /.well-known/authzen-configuration:
+    get:
+      operationId: AccessService_GetConfiguration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationResponse'
+  /access/v1/evaluation:
+    post:
+      operationId: AccessService_EvaluateAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateAccessRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateAccessResponse'
+  /access/v1/evaluations:
+    post:
+      operationId: AccessService_EvaluateAccessBatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateAccessBatchRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateAccessBatchResponse'
+  /access/v1/search/action:
+    post:
+      operationId: AccessService_SearchActions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchActionsRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchActionsResponse'
+  /access/v1/search/resource:
+    post:
+      operationId: AccessService_SearchResources
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchResourcesRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResourcesResponse'
+  /access/v1/search/subject:
+    post:
+      operationId: AccessService_SearchSubjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchSubjectsRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchSubjectsResponse'
+components:
+  schemas:
+    Action:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Action name, for example "project.delete". Action names remain strings for cross-module extensibility.
+        properties:
+          type: object
+          description: AuthZEN-compatible arbitrary action properties.
+      description: 'Action is the AuthZEN action object. Example: project.delete.'
+    ConfigurationResponse:
+      type: object
+      properties:
+        policyDecisionPoint:
+          type: string
+        accessEvaluationEndpoint:
+          type: string
+        accessEvaluationsEndpoint:
+          type: string
+        searchResourceEndpoint:
+          type: string
+        searchSubjectEndpoint:
+          type: string
+        searchActionEndpoint:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+    EvaluateAccessBatchOptions:
+      type: object
+      properties:
+        evaluationsSemantic:
+          type: string
+    EvaluateAccessBatchRequest:
+      type: object
+      properties:
+        subject:
+          $ref: '#/components/schemas/Subject'
+        action:
+          $ref: '#/components/schemas/Action'
+        resource:
+          $ref: '#/components/schemas/Resource'
+        context:
+          type: object
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Evaluation'
+        options:
+          $ref: '#/components/schemas/EvaluateAccessBatchOptions'
+    EvaluateAccessBatchResponse:
+      type: object
+      properties:
+        evaluations:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluateAccessResponse'
+    EvaluateAccessRequest:
+      required:
+        - subject
+        - action
+        - resource
+      type: object
+      properties:
+        subject:
+          $ref: '#/components/schemas/Subject'
+        action:
+          $ref: '#/components/schemas/Action'
+        resource:
+          $ref: '#/components/schemas/Resource'
+        context:
+          type: object
+    EvaluateAccessResponse:
+      type: object
+      properties:
+        decision:
+          readOnly: true
+          type: boolean
+        context:
+          readOnly: true
+          type: object
+    Evaluation:
+      type: object
+      properties:
+        subject:
+          allOf:
+            - $ref: '#/components/schemas/Subject'
+          description: Item-level subject. If set, it overrides the batch-level default subject.
+        action:
+          allOf:
+            - $ref: '#/components/schemas/Action'
+          description: Item-level action. If set, it overrides the batch-level default action.
+        resource:
+          allOf:
+            - $ref: '#/components/schemas/Resource'
+          description: Item-level resource. If set, it overrides the batch-level default resource.
+        context:
+          type: object
+          description: Item-level context. If set, it overrides or extends the batch-level default context according to server policy.
+      description: Evaluation is one item in a batch access evaluation request.
+    PageRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Maximum number of results to return. Zero lets the server choose a default.
+          format: int32
+        token:
+          type: string
+          description: Opaque pagination token returned by a previous response.
+      description: PageRequest controls forward pagination for list and search APIs.
+    PageResponse:
+      type: object
+      properties:
+        count:
+          readOnly: true
+          type: integer
+          description: Number of results returned in this page.
+          format: int32
+        nextToken:
+          readOnly: true
+          type: string
+          description: Opaque token for the next page. Empty means there are no more results.
+      description: PageResponse describes the page returned by a list or search API.
+    Resource:
+      required:
+        - type
+        - id
+      type: object
+      properties:
+        type:
+          type: string
+          description: Resource type, for example "project". Resource types are strings to stay extensible across M8 modules.
+        id:
+          type: string
+          description: Resource identifier, for example "prj_01JZ...".
+        properties:
+          type: object
+          description: AuthZEN-compatible arbitrary resource properties.
+      description: 'Resource is the AuthZEN resource object. Example: project:prj_01JZ...'
+    SearchActionsRequest:
+      required:
+        - subject
+        - resource
+      type: object
+      properties:
+        subject:
+          allOf:
+            - $ref: '#/components/schemas/Subject'
+          description: Subject whose allowed actions are searched.
+        resource:
+          allOf:
+            - $ref: '#/components/schemas/Resource'
+          description: Resource on which actions are evaluated.
+        context:
+          type: object
+          description: Arbitrary request context for policy evaluation.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/PageRequest'
+          description: Pagination controls.
+      description: SearchActionsRequest asks which actions the subject can perform on the resource.
+    SearchActionsResponse:
+      type: object
+      properties:
+        results:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+          description: Matching actions.
+        page:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: Pagination information for the returned actions.
+        context:
+          readOnly: true
+          type: object
+          description: Response context, including optional decision metadata under context.m8.
+      description: SearchActionsResponse returns actions the subject can perform on the resource.
+    SearchResourcesRequest:
+      required:
+        - subject
+        - action
+      type: object
+      properties:
+        subject:
+          allOf:
+            - $ref: '#/components/schemas/Subject'
+          description: Subject whose accessible resources are searched.
+        action:
+          allOf:
+            - $ref: '#/components/schemas/Action'
+          description: Action that must be permitted on returned resources.
+        resource:
+          allOf:
+            - $ref: '#/components/schemas/Resource'
+          description: Resource selector. The type is usually set while id may be omitted by clients using JSON.
+        context:
+          type: object
+          description: Arbitrary request context for policy evaluation.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/PageRequest'
+          description: Pagination controls.
+      description: SearchResourcesRequest asks which resources of a given type the subject can access for the action.
+    SearchResourcesResponse:
+      type: object
+      properties:
+        results:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+          description: Matching resources.
+        page:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: Pagination information for the returned resources.
+        context:
+          readOnly: true
+          type: object
+          description: Response context, including optional decision metadata under context.m8.
+      description: SearchResourcesResponse returns resources accessible to a subject for an action.
+    SearchSubjectsRequest:
+      required:
+        - action
+        - resource
+      type: object
+      properties:
+        subject:
+          allOf:
+            - $ref: '#/components/schemas/Subject'
+          description: Subject selector. The type is usually set while id may be omitted by clients using JSON.
+        action:
+          allOf:
+            - $ref: '#/components/schemas/Action'
+          description: Action that returned subjects must be allowed to perform.
+        resource:
+          allOf:
+            - $ref: '#/components/schemas/Resource'
+          description: Resource that returned subjects may access.
+        context:
+          type: object
+          description: Arbitrary request context for policy evaluation.
+        page:
+          allOf:
+            - $ref: '#/components/schemas/PageRequest'
+          description: Pagination controls.
+      description: SearchSubjectsRequest asks which subjects of a given type can perform the action on the resource.
+    SearchSubjectsResponse:
+      type: object
+      properties:
+        results:
+          readOnly: true
+          type: array
+          items:
+            $ref: '#/components/schemas/Subject'
+          description: Matching subjects.
+        page:
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/PageResponse'
+          description: Pagination information for the returned subjects.
+        context:
+          readOnly: true
+          type: object
+          description: Response context, including optional decision metadata under context.m8.
+      description: SearchSubjectsResponse returns subjects that can perform an action on a resource.
+    Subject:
+      required:
+        - type
+        - id
+      type: object
+      properties:
+        type:
+          type: string
+          description: Subject type, for example "user". Types are strings to stay extensible across M8 modules.
+        id:
+          type: string
+          description: Subject identifier, for example "usr_01JZ...".
+        properties:
+          type: object
+          description: AuthZEN-compatible arbitrary subject properties.
+      description: 'Subject is the AuthZEN subject object. Example: user:usr_01JZ...'
