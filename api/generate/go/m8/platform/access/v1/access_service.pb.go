@@ -144,65 +144,21 @@ func (x *EvaluateAccessResponse) GetContext() *structpb.Struct {
 	return nil
 }
 
-type EvaluateAccessBatchResponse struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	Evaluations   []*EvaluateAccessResponse `protobuf:"bytes,1,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *EvaluateAccessBatchResponse) Reset() {
-	*x = EvaluateAccessBatchResponse{}
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *EvaluateAccessBatchResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*EvaluateAccessBatchResponse) ProtoMessage() {}
-
-func (x *EvaluateAccessBatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use EvaluateAccessBatchResponse.ProtoReflect.Descriptor instead.
-func (*EvaluateAccessBatchResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *EvaluateAccessBatchResponse) GetEvaluations() []*EvaluateAccessResponse {
-	if x != nil {
-		return x.Evaluations
-	}
-	return nil
-}
-
 type EvaluateAccessBatchRequest struct {
 	state         protoimpl.MessageState      `protogen:"open.v1"`
 	Subject       *Subject                    `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	Action        *Action                     `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	Resource      *Resource                   `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
 	Context       *structpb.Struct            `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	Evaluations   []*Evaluation               `protobuf:"bytes,5,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
-	Options       *EvaluateAccessBatchOptions `protobuf:"bytes,6,opt,name=options,proto3" json:"options,omitempty"`
+	Options       *EvaluateAccessBatchOptions `protobuf:"bytes,5,opt,name=options,proto3" json:"options,omitempty"`
+	Evaluations   []*Evaluation               `protobuf:"bytes,6,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EvaluateAccessBatchRequest) Reset() {
 	*x = EvaluateAccessBatchRequest{}
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[3]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -214,7 +170,7 @@ func (x *EvaluateAccessBatchRequest) String() string {
 func (*EvaluateAccessBatchRequest) ProtoMessage() {}
 
 func (x *EvaluateAccessBatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[3]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +183,7 @@ func (x *EvaluateAccessBatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EvaluateAccessBatchRequest.ProtoReflect.Descriptor instead.
 func (*EvaluateAccessBatchRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{3}
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *EvaluateAccessBatchRequest) GetSubject() *Subject {
@@ -258,6 +214,13 @@ func (x *EvaluateAccessBatchRequest) GetContext() *structpb.Struct {
 	return nil
 }
 
+func (x *EvaluateAccessBatchRequest) GetOptions() *EvaluateAccessBatchOptions {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
 func (x *EvaluateAccessBatchRequest) GetEvaluations() []*Evaluation {
 	if x != nil {
 		return x.Evaluations
@@ -265,9 +228,46 @@ func (x *EvaluateAccessBatchRequest) GetEvaluations() []*Evaluation {
 	return nil
 }
 
-func (x *EvaluateAccessBatchRequest) GetOptions() *EvaluateAccessBatchOptions {
+type EvaluateAccessBatchResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Evaluations   []*EvaluateAccessResponse `protobuf:"bytes,1,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EvaluateAccessBatchResponse) Reset() {
+	*x = EvaluateAccessBatchResponse{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EvaluateAccessBatchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EvaluateAccessBatchResponse) ProtoMessage() {}
+
+func (x *EvaluateAccessBatchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[3]
 	if x != nil {
-		return x.Options
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EvaluateAccessBatchResponse.ProtoReflect.Descriptor instead.
+func (*EvaluateAccessBatchResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *EvaluateAccessBatchResponse) GetEvaluations() []*EvaluateAccessResponse {
+	if x != nil {
+		return x.Evaluations
 	}
 	return nil
 }
@@ -456,16 +456,16 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\"q\n" +
 	"\x16EvaluateAccessResponse\x12\x1f\n" +
 	"\bdecision\x18\x01 \x01(\bB\x03\xe0A\x03R\bdecision\x126\n" +
-	"\acontext\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"s\n" +
-	"\x1bEvaluateAccessBatchResponse\x12T\n" +
-	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\xb5\x03\n" +
+	"\acontext\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xb5\x03\n" +
 	"\x1aEvaluateAccessBatchRequest\x12=\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x01R\asubject\x12:\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\x03\xe0A\x01R\x06action\x12@\n" +
 	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12P\n" +
-	"\vevaluations\x18\x05 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x01\x10\xe8\aR\vevaluations\x12P\n" +
-	"\aoptions\x18\x06 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\"\x92\x01\n" +
+	"\aoptions\x18\x05 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\x12P\n" +
+	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x01\x10\xe8\aR\vevaluations\"s\n" +
+	"\x1bEvaluateAccessBatchResponse\x12T\n" +
+	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\x92\x01\n" +
 	"\x1aEvaluateAccessBatchOptions\x12t\n" +
 	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitR\x13evaluationsSemantic\"\x19\n" +
 	"\x17GetConfigurationRequest\"\xe4\x03\n" +
@@ -501,8 +501,8 @@ var file_m8_platform_access_v1_access_service_proto_msgTypes = make([]protoimpl.
 var file_m8_platform_access_v1_access_service_proto_goTypes = []any{
 	(*EvaluateAccessRequest)(nil),       // 0: m8.platform.access.v1.EvaluateAccessRequest
 	(*EvaluateAccessResponse)(nil),      // 1: m8.platform.access.v1.EvaluateAccessResponse
-	(*EvaluateAccessBatchResponse)(nil), // 2: m8.platform.access.v1.EvaluateAccessBatchResponse
-	(*EvaluateAccessBatchRequest)(nil),  // 3: m8.platform.access.v1.EvaluateAccessBatchRequest
+	(*EvaluateAccessBatchRequest)(nil),  // 2: m8.platform.access.v1.EvaluateAccessBatchRequest
+	(*EvaluateAccessBatchResponse)(nil), // 3: m8.platform.access.v1.EvaluateAccessBatchResponse
 	(*EvaluateAccessBatchOptions)(nil),  // 4: m8.platform.access.v1.EvaluateAccessBatchOptions
 	(*GetConfigurationRequest)(nil),     // 5: m8.platform.access.v1.GetConfigurationRequest
 	(*ConfigurationResponse)(nil),       // 6: m8.platform.access.v1.ConfigurationResponse
@@ -524,21 +524,21 @@ var file_m8_platform_access_v1_access_service_proto_depIdxs = []int32{
 	9,  // 2: m8.platform.access.v1.EvaluateAccessRequest.resource:type_name -> m8.platform.access.v1.Resource
 	10, // 3: m8.platform.access.v1.EvaluateAccessRequest.context:type_name -> google.protobuf.Struct
 	10, // 4: m8.platform.access.v1.EvaluateAccessResponse.context:type_name -> google.protobuf.Struct
-	1,  // 5: m8.platform.access.v1.EvaluateAccessBatchResponse.evaluations:type_name -> m8.platform.access.v1.EvaluateAccessResponse
-	7,  // 6: m8.platform.access.v1.EvaluateAccessBatchRequest.subject:type_name -> m8.platform.access.v1.Subject
-	8,  // 7: m8.platform.access.v1.EvaluateAccessBatchRequest.action:type_name -> m8.platform.access.v1.Action
-	9,  // 8: m8.platform.access.v1.EvaluateAccessBatchRequest.resource:type_name -> m8.platform.access.v1.Resource
-	10, // 9: m8.platform.access.v1.EvaluateAccessBatchRequest.context:type_name -> google.protobuf.Struct
+	7,  // 5: m8.platform.access.v1.EvaluateAccessBatchRequest.subject:type_name -> m8.platform.access.v1.Subject
+	8,  // 6: m8.platform.access.v1.EvaluateAccessBatchRequest.action:type_name -> m8.platform.access.v1.Action
+	9,  // 7: m8.platform.access.v1.EvaluateAccessBatchRequest.resource:type_name -> m8.platform.access.v1.Resource
+	10, // 8: m8.platform.access.v1.EvaluateAccessBatchRequest.context:type_name -> google.protobuf.Struct
+	4,  // 9: m8.platform.access.v1.EvaluateAccessBatchRequest.options:type_name -> m8.platform.access.v1.EvaluateAccessBatchOptions
 	11, // 10: m8.platform.access.v1.EvaluateAccessBatchRequest.evaluations:type_name -> m8.platform.access.v1.Evaluation
-	4,  // 11: m8.platform.access.v1.EvaluateAccessBatchRequest.options:type_name -> m8.platform.access.v1.EvaluateAccessBatchOptions
+	1,  // 11: m8.platform.access.v1.EvaluateAccessBatchResponse.evaluations:type_name -> m8.platform.access.v1.EvaluateAccessResponse
 	0,  // 12: m8.platform.access.v1.AccessService.EvaluateAccess:input_type -> m8.platform.access.v1.EvaluateAccessRequest
-	3,  // 13: m8.platform.access.v1.AccessService.EvaluateAccessBatch:input_type -> m8.platform.access.v1.EvaluateAccessBatchRequest
+	2,  // 13: m8.platform.access.v1.AccessService.EvaluateAccessBatch:input_type -> m8.platform.access.v1.EvaluateAccessBatchRequest
 	12, // 14: m8.platform.access.v1.AccessService.SearchResources:input_type -> m8.platform.access.v1.SearchResourcesRequest
 	13, // 15: m8.platform.access.v1.AccessService.SearchSubjects:input_type -> m8.platform.access.v1.SearchSubjectsRequest
 	14, // 16: m8.platform.access.v1.AccessService.SearchActions:input_type -> m8.platform.access.v1.SearchActionsRequest
 	5,  // 17: m8.platform.access.v1.AccessService.GetConfiguration:input_type -> m8.platform.access.v1.GetConfigurationRequest
 	1,  // 18: m8.platform.access.v1.AccessService.EvaluateAccess:output_type -> m8.platform.access.v1.EvaluateAccessResponse
-	2,  // 19: m8.platform.access.v1.AccessService.EvaluateAccessBatch:output_type -> m8.platform.access.v1.EvaluateAccessBatchResponse
+	3,  // 19: m8.platform.access.v1.AccessService.EvaluateAccessBatch:output_type -> m8.platform.access.v1.EvaluateAccessBatchResponse
 	15, // 20: m8.platform.access.v1.AccessService.SearchResources:output_type -> m8.platform.access.v1.SearchResourcesResponse
 	16, // 21: m8.platform.access.v1.AccessService.SearchSubjects:output_type -> m8.platform.access.v1.SearchSubjectsResponse
 	17, // 22: m8.platform.access.v1.AccessService.SearchActions:output_type -> m8.platform.access.v1.SearchActionsResponse

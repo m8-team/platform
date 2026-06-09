@@ -158,12 +158,12 @@ components:
                     $ref: '#/components/schemas/Resource'
                 context:
                     type: object
+                options:
+                    $ref: '#/components/schemas/EvaluateAccessBatchOptions'
                 evaluations:
                     type: array
                     items:
                         $ref: '#/components/schemas/Evaluation'
-                options:
-                    $ref: '#/components/schemas/EvaluateAccessBatchOptions'
         EvaluateAccessBatchResponse:
             type: object
             properties:
