@@ -8,6 +8,7 @@ package access
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/m8-team/go-genproto/m8/platform/common/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -316,6 +317,278 @@ func (x *EvaluateAccessBatchOptions) GetEvaluationsSemantic() string {
 	return ""
 }
 
+type SearchResourcesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	Page          *PageRequest           `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchResourcesRequest) Reset() {
+	*x = SearchResourcesRequest{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchResourcesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchResourcesRequest) ProtoMessage() {}
+
+func (x *SearchResourcesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchResourcesRequest.ProtoReflect.Descriptor instead.
+func (*SearchResourcesRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SearchResourcesRequest) GetSubject() *Subject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *SearchResourcesRequest) GetAction() *Action {
+	if x != nil {
+		return x.Action
+	}
+	return nil
+}
+
+func (x *SearchResourcesRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *SearchResourcesRequest) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *SearchResourcesRequest) GetPage() *PageRequest {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type SearchResourcesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Results       []*Resource            `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchResourcesResponse) Reset() {
+	*x = SearchResourcesResponse{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchResourcesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchResourcesResponse) ProtoMessage() {}
+
+func (x *SearchResourcesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchResourcesResponse.ProtoReflect.Descriptor instead.
+func (*SearchResourcesResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SearchResourcesResponse) GetResults() []*Resource {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+func (x *SearchResourcesResponse) GetPage() *PageResponse {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+func (x *SearchResourcesResponse) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+type SearchSubjectsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	Page          *PageRequest           `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchSubjectsRequest) Reset() {
+	*x = SearchSubjectsRequest{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchSubjectsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchSubjectsRequest) ProtoMessage() {}
+
+func (x *SearchSubjectsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchSubjectsRequest.ProtoReflect.Descriptor instead.
+func (*SearchSubjectsRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SearchSubjectsRequest) GetSubject() *Subject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *SearchSubjectsRequest) GetAction() *Action {
+	if x != nil {
+		return x.Action
+	}
+	return nil
+}
+
+func (x *SearchSubjectsRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *SearchSubjectsRequest) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *SearchSubjectsRequest) GetPage() *PageRequest {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type SearchSubjectsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Results       []*Subject             `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchSubjectsResponse) Reset() {
+	*x = SearchSubjectsResponse{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchSubjectsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchSubjectsResponse) ProtoMessage() {}
+
+func (x *SearchSubjectsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchSubjectsResponse.ProtoReflect.Descriptor instead.
+func (*SearchSubjectsResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SearchSubjectsResponse) GetResults() []*Subject {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+func (x *SearchSubjectsResponse) GetPage() *PageResponse {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+func (x *SearchSubjectsResponse) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
 type GetConfigurationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -324,7 +597,7 @@ type GetConfigurationRequest struct {
 
 func (x *GetConfigurationRequest) Reset() {
 	*x = GetConfigurationRequest{}
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[5]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -336,7 +609,7 @@ func (x *GetConfigurationRequest) String() string {
 func (*GetConfigurationRequest) ProtoMessage() {}
 
 func (x *GetConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[5]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -349,7 +622,135 @@ func (x *GetConfigurationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*GetConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{5}
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{9}
+}
+
+type SearchActionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	Resource      *Resource              `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	Page          *PageRequest           `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchActionsRequest) Reset() {
+	*x = SearchActionsRequest{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchActionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchActionsRequest) ProtoMessage() {}
+
+func (x *SearchActionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchActionsRequest.ProtoReflect.Descriptor instead.
+func (*SearchActionsRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *SearchActionsRequest) GetSubject() *Subject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *SearchActionsRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *SearchActionsRequest) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *SearchActionsRequest) GetPage() *PageRequest {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+type SearchActionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Results       []*Action              `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SearchActionsResponse) Reset() {
+	*x = SearchActionsResponse{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SearchActionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SearchActionsResponse) ProtoMessage() {}
+
+func (x *SearchActionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SearchActionsResponse.ProtoReflect.Descriptor instead.
+func (*SearchActionsResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *SearchActionsResponse) GetResults() []*Action {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+func (x *SearchActionsResponse) GetPage() *PageResponse {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+func (x *SearchActionsResponse) GetContext() *structpb.Struct {
+	if x != nil {
+		return x.Context
+	}
+	return nil
 }
 
 type ConfigurationResponse struct {
@@ -367,7 +768,7 @@ type ConfigurationResponse struct {
 
 func (x *ConfigurationResponse) Reset() {
 	*x = ConfigurationResponse{}
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[6]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -379,7 +780,7 @@ func (x *ConfigurationResponse) String() string {
 func (*ConfigurationResponse) ProtoMessage() {}
 
 func (x *ConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[6]
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +793,7 @@ func (x *ConfigurationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*ConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{6}
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ConfigurationResponse) GetPolicyDecisionPoint() string {
@@ -444,11 +845,131 @@ func (x *ConfigurationResponse) GetCapabilities() []string {
 	return nil
 }
 
+type PageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageRequest) Reset() {
+	*x = PageRequest{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageRequest) ProtoMessage() {}
+
+func (x *PageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageRequest.ProtoReflect.Descriptor instead.
+func (*PageRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *PageRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *PageRequest) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *PageRequest) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+type PageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Count         int32                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	NextToken     string                 `protobuf:"bytes,2,opt,name=next_token,json=nextToken,proto3" json:"next_token,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageResponse) Reset() {
+	*x = PageResponse{}
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageResponse) ProtoMessage() {}
+
+func (x *PageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageResponse.ProtoReflect.Descriptor instead.
+func (*PageResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *PageResponse) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *PageResponse) GetNextToken() string {
+	if x != nil {
+		return x.NextToken
+	}
+	return ""
+}
+
+func (x *PageResponse) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
 var File_m8_platform_access_v1_access_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\n" +
-	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\"\x9e\x02\n" +
+	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\x9e\x02\n" +
 	"\x15EvaluateAccessRequest\x12C\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12F\n" +
@@ -467,8 +988,37 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x1bEvaluateAccessBatchResponse\x12T\n" +
 	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\x92\x01\n" +
 	"\x1aEvaluateAccessBatchOptions\x12t\n" +
-	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitR\x13evaluationsSemantic\"\x19\n" +
-	"\x17GetConfigurationRequest\"\xe4\x03\n" +
+	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitR\x13evaluationsSemantic\"\xd6\x02\n" +
+	"\x16SearchResourcesRequest\x12C\n" +
+	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
+	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12@\n" +
+	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
+	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
+	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcf\x01\n" +
+	"\x17SearchResourcesResponse\x12>\n" +
+	"\aresults\x18\x01 \x03(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xd5\x02\n" +
+	"\x15SearchSubjectsRequest\x12=\n" +
+	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x01R\asubject\x12@\n" +
+	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12F\n" +
+	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x126\n" +
+	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
+	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcd\x01\n" +
+	"\x16SearchSubjectsResponse\x12=\n" +
+	"\aresults\x18\x01 \x03(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\x19\n" +
+	"\x17GetConfigurationRequest\"\x98\x02\n" +
+	"\x14SearchActionsRequest\x12C\n" +
+	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12F\n" +
+	"\bresource\x18\x02 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x126\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
+	"\x04page\x18\x04 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcb\x01\n" +
+	"\x15SearchActionsResponse\x12<\n" +
+	"\aresults\x18\x01 \x03(\v2\x1d.m8.platform.access.v1.ActionB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xe4\x03\n" +
 	"\x15ConfigurationResponse\x12<\n" +
 	"\x15policy_decision_point\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x13policyDecisionPoint\x12F\n" +
 	"\x1aaccess_evaluation_endpoint\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x18accessEvaluationEndpoint\x12H\n" +
@@ -476,14 +1026,27 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x18search_resource_endpoint\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x16searchResourceEndpoint\x12@\n" +
 	"\x17search_subject_endpoint\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x15searchSubjectEndpoint\x12>\n" +
 	"\x16search_action_endpoint\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x14searchActionEndpoint\x125\n" +
-	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities2\xa4\a\n" +
+	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities\"\x93\x01\n" +
+	"\vPageRequest\x12#\n" +
+	"\x05limit\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\x05limit\x12!\n" +
+	"\x05token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\x05token\x12<\n" +
+	"\n" +
+	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
+	"properties\"\x93\x01\n" +
+	"\fPageResponse\x12\x19\n" +
+	"\x05count\x18\x01 \x01(\x05B\x03\xe0A\x03R\x05count\x12*\n" +
+	"\n" +
+	"next_token\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\x12<\n" +
+	"\n" +
+	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
+	"properties2\xaa\a\n" +
 	"\rAccessService\x12\x8f\x01\n" +
 	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/access/v1/evaluation\x12\x9f\x01\n" +
 	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/access/v1/evaluations\x12\x97\x01\n" +
 	"\x0fSearchResources\x12-.m8.platform.access.v1.SearchResourcesRequest\x1a..m8.platform.access.v1.SearchResourcesResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/access/v1/search/resource\x12\x93\x01\n" +
 	"\x0eSearchSubjects\x12,.m8.platform.access.v1.SearchSubjectsRequest\x1a-.m8.platform.access.v1.SearchSubjectsResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/access/v1/search/subject\x12\x8f\x01\n" +
 	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/access/v1/search/action\x12\x9c\x01\n" +
-	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/.well-known/authzen-configurationB?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
+	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/.well-known/authzen-configuration\x1a\x04\x92\xb5\x18\x00B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_access_service_proto_rawDescOnce sync.Once
@@ -497,57 +1060,84 @@ func file_m8_platform_access_v1_access_service_proto_rawDescGZIP() []byte {
 	return file_m8_platform_access_v1_access_service_proto_rawDescData
 }
 
-var file_m8_platform_access_v1_access_service_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_m8_platform_access_v1_access_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_m8_platform_access_v1_access_service_proto_goTypes = []any{
 	(*EvaluateAccessRequest)(nil),       // 0: m8.platform.access.v1.EvaluateAccessRequest
 	(*EvaluateAccessResponse)(nil),      // 1: m8.platform.access.v1.EvaluateAccessResponse
 	(*EvaluateAccessBatchRequest)(nil),  // 2: m8.platform.access.v1.EvaluateAccessBatchRequest
 	(*EvaluateAccessBatchResponse)(nil), // 3: m8.platform.access.v1.EvaluateAccessBatchResponse
 	(*EvaluateAccessBatchOptions)(nil),  // 4: m8.platform.access.v1.EvaluateAccessBatchOptions
-	(*GetConfigurationRequest)(nil),     // 5: m8.platform.access.v1.GetConfigurationRequest
-	(*ConfigurationResponse)(nil),       // 6: m8.platform.access.v1.ConfigurationResponse
-	(*Subject)(nil),                     // 7: m8.platform.access.v1.Subject
-	(*Action)(nil),                      // 8: m8.platform.access.v1.Action
-	(*Resource)(nil),                    // 9: m8.platform.access.v1.Resource
-	(*structpb.Struct)(nil),             // 10: google.protobuf.Struct
-	(*Evaluation)(nil),                  // 11: m8.platform.access.v1.Evaluation
-	(*SearchResourcesRequest)(nil),      // 12: m8.platform.access.v1.SearchResourcesRequest
-	(*SearchSubjectsRequest)(nil),       // 13: m8.platform.access.v1.SearchSubjectsRequest
-	(*SearchActionsRequest)(nil),        // 14: m8.platform.access.v1.SearchActionsRequest
-	(*SearchResourcesResponse)(nil),     // 15: m8.platform.access.v1.SearchResourcesResponse
-	(*SearchSubjectsResponse)(nil),      // 16: m8.platform.access.v1.SearchSubjectsResponse
-	(*SearchActionsResponse)(nil),       // 17: m8.platform.access.v1.SearchActionsResponse
+	(*SearchResourcesRequest)(nil),      // 5: m8.platform.access.v1.SearchResourcesRequest
+	(*SearchResourcesResponse)(nil),     // 6: m8.platform.access.v1.SearchResourcesResponse
+	(*SearchSubjectsRequest)(nil),       // 7: m8.platform.access.v1.SearchSubjectsRequest
+	(*SearchSubjectsResponse)(nil),      // 8: m8.platform.access.v1.SearchSubjectsResponse
+	(*GetConfigurationRequest)(nil),     // 9: m8.platform.access.v1.GetConfigurationRequest
+	(*SearchActionsRequest)(nil),        // 10: m8.platform.access.v1.SearchActionsRequest
+	(*SearchActionsResponse)(nil),       // 11: m8.platform.access.v1.SearchActionsResponse
+	(*ConfigurationResponse)(nil),       // 12: m8.platform.access.v1.ConfigurationResponse
+	(*PageRequest)(nil),                 // 13: m8.platform.access.v1.PageRequest
+	(*PageResponse)(nil),                // 14: m8.platform.access.v1.PageResponse
+	(*Subject)(nil),                     // 15: m8.platform.access.v1.Subject
+	(*Action)(nil),                      // 16: m8.platform.access.v1.Action
+	(*Resource)(nil),                    // 17: m8.platform.access.v1.Resource
+	(*structpb.Struct)(nil),             // 18: google.protobuf.Struct
+	(*Evaluation)(nil),                  // 19: m8.platform.access.v1.Evaluation
 }
 var file_m8_platform_access_v1_access_service_proto_depIdxs = []int32{
-	7,  // 0: m8.platform.access.v1.EvaluateAccessRequest.subject:type_name -> m8.platform.access.v1.Subject
-	8,  // 1: m8.platform.access.v1.EvaluateAccessRequest.action:type_name -> m8.platform.access.v1.Action
-	9,  // 2: m8.platform.access.v1.EvaluateAccessRequest.resource:type_name -> m8.platform.access.v1.Resource
-	10, // 3: m8.platform.access.v1.EvaluateAccessRequest.context:type_name -> google.protobuf.Struct
-	10, // 4: m8.platform.access.v1.EvaluateAccessResponse.context:type_name -> google.protobuf.Struct
-	7,  // 5: m8.platform.access.v1.EvaluateAccessBatchRequest.subject:type_name -> m8.platform.access.v1.Subject
-	8,  // 6: m8.platform.access.v1.EvaluateAccessBatchRequest.action:type_name -> m8.platform.access.v1.Action
-	9,  // 7: m8.platform.access.v1.EvaluateAccessBatchRequest.resource:type_name -> m8.platform.access.v1.Resource
-	10, // 8: m8.platform.access.v1.EvaluateAccessBatchRequest.context:type_name -> google.protobuf.Struct
+	15, // 0: m8.platform.access.v1.EvaluateAccessRequest.subject:type_name -> m8.platform.access.v1.Subject
+	16, // 1: m8.platform.access.v1.EvaluateAccessRequest.action:type_name -> m8.platform.access.v1.Action
+	17, // 2: m8.platform.access.v1.EvaluateAccessRequest.resource:type_name -> m8.platform.access.v1.Resource
+	18, // 3: m8.platform.access.v1.EvaluateAccessRequest.context:type_name -> google.protobuf.Struct
+	18, // 4: m8.platform.access.v1.EvaluateAccessResponse.context:type_name -> google.protobuf.Struct
+	15, // 5: m8.platform.access.v1.EvaluateAccessBatchRequest.subject:type_name -> m8.platform.access.v1.Subject
+	16, // 6: m8.platform.access.v1.EvaluateAccessBatchRequest.action:type_name -> m8.platform.access.v1.Action
+	17, // 7: m8.platform.access.v1.EvaluateAccessBatchRequest.resource:type_name -> m8.platform.access.v1.Resource
+	18, // 8: m8.platform.access.v1.EvaluateAccessBatchRequest.context:type_name -> google.protobuf.Struct
 	4,  // 9: m8.platform.access.v1.EvaluateAccessBatchRequest.options:type_name -> m8.platform.access.v1.EvaluateAccessBatchOptions
-	11, // 10: m8.platform.access.v1.EvaluateAccessBatchRequest.evaluations:type_name -> m8.platform.access.v1.Evaluation
+	19, // 10: m8.platform.access.v1.EvaluateAccessBatchRequest.evaluations:type_name -> m8.platform.access.v1.Evaluation
 	1,  // 11: m8.platform.access.v1.EvaluateAccessBatchResponse.evaluations:type_name -> m8.platform.access.v1.EvaluateAccessResponse
-	0,  // 12: m8.platform.access.v1.AccessService.EvaluateAccess:input_type -> m8.platform.access.v1.EvaluateAccessRequest
-	2,  // 13: m8.platform.access.v1.AccessService.EvaluateAccessBatch:input_type -> m8.platform.access.v1.EvaluateAccessBatchRequest
-	12, // 14: m8.platform.access.v1.AccessService.SearchResources:input_type -> m8.platform.access.v1.SearchResourcesRequest
-	13, // 15: m8.platform.access.v1.AccessService.SearchSubjects:input_type -> m8.platform.access.v1.SearchSubjectsRequest
-	14, // 16: m8.platform.access.v1.AccessService.SearchActions:input_type -> m8.platform.access.v1.SearchActionsRequest
-	5,  // 17: m8.platform.access.v1.AccessService.GetConfiguration:input_type -> m8.platform.access.v1.GetConfigurationRequest
-	1,  // 18: m8.platform.access.v1.AccessService.EvaluateAccess:output_type -> m8.platform.access.v1.EvaluateAccessResponse
-	3,  // 19: m8.platform.access.v1.AccessService.EvaluateAccessBatch:output_type -> m8.platform.access.v1.EvaluateAccessBatchResponse
-	15, // 20: m8.platform.access.v1.AccessService.SearchResources:output_type -> m8.platform.access.v1.SearchResourcesResponse
-	16, // 21: m8.platform.access.v1.AccessService.SearchSubjects:output_type -> m8.platform.access.v1.SearchSubjectsResponse
-	17, // 22: m8.platform.access.v1.AccessService.SearchActions:output_type -> m8.platform.access.v1.SearchActionsResponse
-	6,  // 23: m8.platform.access.v1.AccessService.GetConfiguration:output_type -> m8.platform.access.v1.ConfigurationResponse
-	18, // [18:24] is the sub-list for method output_type
-	12, // [12:18] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	15, // 12: m8.platform.access.v1.SearchResourcesRequest.subject:type_name -> m8.platform.access.v1.Subject
+	16, // 13: m8.platform.access.v1.SearchResourcesRequest.action:type_name -> m8.platform.access.v1.Action
+	17, // 14: m8.platform.access.v1.SearchResourcesRequest.resource:type_name -> m8.platform.access.v1.Resource
+	18, // 15: m8.platform.access.v1.SearchResourcesRequest.context:type_name -> google.protobuf.Struct
+	13, // 16: m8.platform.access.v1.SearchResourcesRequest.page:type_name -> m8.platform.access.v1.PageRequest
+	17, // 17: m8.platform.access.v1.SearchResourcesResponse.results:type_name -> m8.platform.access.v1.Resource
+	14, // 18: m8.platform.access.v1.SearchResourcesResponse.page:type_name -> m8.platform.access.v1.PageResponse
+	18, // 19: m8.platform.access.v1.SearchResourcesResponse.context:type_name -> google.protobuf.Struct
+	15, // 20: m8.platform.access.v1.SearchSubjectsRequest.subject:type_name -> m8.platform.access.v1.Subject
+	16, // 21: m8.platform.access.v1.SearchSubjectsRequest.action:type_name -> m8.platform.access.v1.Action
+	17, // 22: m8.platform.access.v1.SearchSubjectsRequest.resource:type_name -> m8.platform.access.v1.Resource
+	18, // 23: m8.platform.access.v1.SearchSubjectsRequest.context:type_name -> google.protobuf.Struct
+	13, // 24: m8.platform.access.v1.SearchSubjectsRequest.page:type_name -> m8.platform.access.v1.PageRequest
+	15, // 25: m8.platform.access.v1.SearchSubjectsResponse.results:type_name -> m8.platform.access.v1.Subject
+	14, // 26: m8.platform.access.v1.SearchSubjectsResponse.page:type_name -> m8.platform.access.v1.PageResponse
+	18, // 27: m8.platform.access.v1.SearchSubjectsResponse.context:type_name -> google.protobuf.Struct
+	15, // 28: m8.platform.access.v1.SearchActionsRequest.subject:type_name -> m8.platform.access.v1.Subject
+	17, // 29: m8.platform.access.v1.SearchActionsRequest.resource:type_name -> m8.platform.access.v1.Resource
+	18, // 30: m8.platform.access.v1.SearchActionsRequest.context:type_name -> google.protobuf.Struct
+	13, // 31: m8.platform.access.v1.SearchActionsRequest.page:type_name -> m8.platform.access.v1.PageRequest
+	16, // 32: m8.platform.access.v1.SearchActionsResponse.results:type_name -> m8.platform.access.v1.Action
+	14, // 33: m8.platform.access.v1.SearchActionsResponse.page:type_name -> m8.platform.access.v1.PageResponse
+	18, // 34: m8.platform.access.v1.SearchActionsResponse.context:type_name -> google.protobuf.Struct
+	18, // 35: m8.platform.access.v1.PageRequest.properties:type_name -> google.protobuf.Struct
+	18, // 36: m8.platform.access.v1.PageResponse.properties:type_name -> google.protobuf.Struct
+	0,  // 37: m8.platform.access.v1.AccessService.EvaluateAccess:input_type -> m8.platform.access.v1.EvaluateAccessRequest
+	2,  // 38: m8.platform.access.v1.AccessService.EvaluateAccessBatch:input_type -> m8.platform.access.v1.EvaluateAccessBatchRequest
+	5,  // 39: m8.platform.access.v1.AccessService.SearchResources:input_type -> m8.platform.access.v1.SearchResourcesRequest
+	7,  // 40: m8.platform.access.v1.AccessService.SearchSubjects:input_type -> m8.platform.access.v1.SearchSubjectsRequest
+	10, // 41: m8.platform.access.v1.AccessService.SearchActions:input_type -> m8.platform.access.v1.SearchActionsRequest
+	9,  // 42: m8.platform.access.v1.AccessService.GetConfiguration:input_type -> m8.platform.access.v1.GetConfigurationRequest
+	1,  // 43: m8.platform.access.v1.AccessService.EvaluateAccess:output_type -> m8.platform.access.v1.EvaluateAccessResponse
+	3,  // 44: m8.platform.access.v1.AccessService.EvaluateAccessBatch:output_type -> m8.platform.access.v1.EvaluateAccessBatchResponse
+	6,  // 45: m8.platform.access.v1.AccessService.SearchResources:output_type -> m8.platform.access.v1.SearchResourcesResponse
+	8,  // 46: m8.platform.access.v1.AccessService.SearchSubjects:output_type -> m8.platform.access.v1.SearchSubjectsResponse
+	11, // 47: m8.platform.access.v1.AccessService.SearchActions:output_type -> m8.platform.access.v1.SearchActionsResponse
+	12, // 48: m8.platform.access.v1.AccessService.GetConfiguration:output_type -> m8.platform.access.v1.ConfigurationResponse
+	43, // [43:49] is the sub-list for method output_type
+	37, // [37:43] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_access_v1_access_service_proto_init() }
@@ -562,7 +1152,7 @@ func file_m8_platform_access_v1_access_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_access_v1_access_service_proto_rawDesc), len(file_m8_platform_access_v1_access_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
