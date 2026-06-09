@@ -126,6 +126,30 @@ message EvaluateAccessBatchOptions {
   ];
 }
 
+message SearchResourcesRequest {
+  Subject subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Action action = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Resource resource = 3 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  google.protobuf.Struct context = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  PageRequest page = 5 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
 message GetConfigurationRequest {}
 
 message ConfigurationResponse {
@@ -162,4 +186,24 @@ message ConfigurationResponse {
       }
     }
   }];
+}
+
+message PageRequest {
+  int32 limit = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
+
+  string token = 2 [
+    (buf.validate.field).string.max_len = 4096
+  ];
+}
+
+message PageResponse {
+  int32 count = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  string next_token = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
 }

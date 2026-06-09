@@ -88,28 +88,7 @@ message Evaluation {
 // EvaluateAccessBatchRequest evaluates multiple access decisions in one request.
 
 // SearchResourcesRequest asks which resources of a given type the subject can access for the action.
-message SearchResourcesRequest {
-  // Subject whose accessible resources are searched.
-  Subject subject = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
 
-  // Action that must be permitted on returned resources.
-  Action action = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
-
-  // Resource selector. The type is usually set while id may be omitted by clients using JSON.
-  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
-
-  // Arbitrary request context for policy evaluation.
-  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
-
-  // Pagination controls.
-  PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
-}
 
 // SearchResourcesResponse returns resources accessible to a subject for an action.
 message SearchResourcesResponse {

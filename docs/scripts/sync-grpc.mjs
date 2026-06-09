@@ -17,6 +17,14 @@ const operationInfoOption = '[google.longrunning.operation_info]';
 
 const groupConfigs = new Map([
   [
+    'access',
+    {
+      docsSegments: ['access'],
+      title: 'Access',
+      intro: 'Этот gRPC reference организован по сервисам `Access`.',
+    },
+  ],
+  [
     'iam',
     {
       docsSegments: ['iam'],
