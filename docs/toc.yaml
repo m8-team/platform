@@ -28,22 +28,6 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
-                  - name: Admin
-                    include:
-                      path: services/access/api-reference/rest/access-admin
-                      includers:
-                        - name: openapi
-                          input: _generated/openapi/services/access/access-admin-service/openapi.yaml
-                          leadingPage:
-                            name: Overview
-                            spec:
-                              renderMode: hidden
-                          tags:
-                            __root__:
-                              name: Overview
-                              path: overview.md
-                              alias: overview
-                    mode: link
               - name: gRPC
                 items:
                   - name: Overview
