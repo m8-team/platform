@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: m8/platform/access/v1/common.proto
 
-package accessv1
+package access
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -133,143 +133,6 @@ func (x *PageResponse) GetNextToken() string {
 	return ""
 }
 
-// AuthzenConfiguration is returned from the AuthZEN discovery endpoint.
-type AuthzenConfiguration struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Absolute URI of this Policy Decision Point.
-	PolicyDecisionPoint string `protobuf:"bytes,1,opt,name=policy_decision_point,json=policyDecisionPoint,proto3" json:"policy_decision_point,omitempty"`
-	// Absolute URI of the single access evaluation endpoint.
-	AccessEvaluationEndpoint string `protobuf:"bytes,2,opt,name=access_evaluation_endpoint,json=accessEvaluationEndpoint,proto3" json:"access_evaluation_endpoint,omitempty"`
-	// Absolute URI of the batch access evaluations endpoint.
-	AccessEvaluationsEndpoint string `protobuf:"bytes,3,opt,name=access_evaluations_endpoint,json=accessEvaluationsEndpoint,proto3" json:"access_evaluations_endpoint,omitempty"`
-	// Absolute URI of the resource search endpoint.
-	SearchResourceEndpoint string `protobuf:"bytes,4,opt,name=search_resource_endpoint,json=searchResourceEndpoint,proto3" json:"search_resource_endpoint,omitempty"`
-	// Absolute URI of the subject search endpoint.
-	SearchSubjectEndpoint string `protobuf:"bytes,5,opt,name=search_subject_endpoint,json=searchSubjectEndpoint,proto3" json:"search_subject_endpoint,omitempty"`
-	// Absolute URI of the action search endpoint.
-	SearchActionEndpoint string `protobuf:"bytes,6,opt,name=search_action_endpoint,json=searchActionEndpoint,proto3" json:"search_action_endpoint,omitempty"`
-	// AuthZEN capabilities supported by this PDP facade.
-	Capabilities  []string `protobuf:"bytes,7,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AuthzenConfiguration) Reset() {
-	*x = AuthzenConfiguration{}
-	mi := &file_m8_platform_access_v1_common_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AuthzenConfiguration) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthzenConfiguration) ProtoMessage() {}
-
-func (x *AuthzenConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_common_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthzenConfiguration.ProtoReflect.Descriptor instead.
-func (*AuthzenConfiguration) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_common_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *AuthzenConfiguration) GetPolicyDecisionPoint() string {
-	if x != nil {
-		return x.PolicyDecisionPoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetAccessEvaluationEndpoint() string {
-	if x != nil {
-		return x.AccessEvaluationEndpoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetAccessEvaluationsEndpoint() string {
-	if x != nil {
-		return x.AccessEvaluationsEndpoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetSearchResourceEndpoint() string {
-	if x != nil {
-		return x.SearchResourceEndpoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetSearchSubjectEndpoint() string {
-	if x != nil {
-		return x.SearchSubjectEndpoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetSearchActionEndpoint() string {
-	if x != nil {
-		return x.SearchActionEndpoint
-	}
-	return ""
-}
-
-func (x *AuthzenConfiguration) GetCapabilities() []string {
-	if x != nil {
-		return x.Capabilities
-	}
-	return nil
-}
-
-// GetAuthzenConfigurationRequest is the empty request for AuthZEN discovery.
-type GetAuthzenConfigurationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAuthzenConfigurationRequest) Reset() {
-	*x = GetAuthzenConfigurationRequest{}
-	mi := &file_m8_platform_access_v1_common_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAuthzenConfigurationRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAuthzenConfigurationRequest) ProtoMessage() {}
-
-func (x *GetAuthzenConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_common_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAuthzenConfigurationRequest.ProtoReflect.Descriptor instead.
-func (*GetAuthzenConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_common_proto_rawDescGZIP(), []int{3}
-}
-
 var File_m8_platform_access_v1_common_proto protoreflect.FileDescriptor
 
 const file_m8_platform_access_v1_common_proto_rawDesc = "" +
@@ -282,16 +145,7 @@ const file_m8_platform_access_v1_common_proto_rawDesc = "" +
 	"\fPageResponse\x12\x19\n" +
 	"\x05count\x18\x01 \x01(\x05B\x03\xe0A\x03R\x05count\x12*\n" +
 	"\n" +
-	"next_token\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\"\xe3\x03\n" +
-	"\x14AuthzenConfiguration\x12<\n" +
-	"\x15policy_decision_point\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x13policyDecisionPoint\x12F\n" +
-	"\x1aaccess_evaluation_endpoint\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x18accessEvaluationEndpoint\x12H\n" +
-	"\x1baccess_evaluations_endpoint\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x19accessEvaluationsEndpoint\x12B\n" +
-	"\x18search_resource_endpoint\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x16searchResourceEndpoint\x12@\n" +
-	"\x17search_subject_endpoint\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x15searchSubjectEndpoint\x12>\n" +
-	"\x16search_action_endpoint\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x14searchActionEndpoint\x125\n" +
-	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities\" \n" +
-	"\x1eGetAuthzenConfigurationRequestBAZ?github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessv1b\x06proto3"
+	"next_token\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextTokenB?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_common_proto_rawDescOnce sync.Once
@@ -305,12 +159,10 @@ func file_m8_platform_access_v1_common_proto_rawDescGZIP() []byte {
 	return file_m8_platform_access_v1_common_proto_rawDescData
 }
 
-var file_m8_platform_access_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_m8_platform_access_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_m8_platform_access_v1_common_proto_goTypes = []any{
-	(*PageRequest)(nil),                    // 0: m8.platform.access.v1.PageRequest
-	(*PageResponse)(nil),                   // 1: m8.platform.access.v1.PageResponse
-	(*AuthzenConfiguration)(nil),           // 2: m8.platform.access.v1.AuthzenConfiguration
-	(*GetAuthzenConfigurationRequest)(nil), // 3: m8.platform.access.v1.GetAuthzenConfigurationRequest
+	(*PageRequest)(nil),  // 0: m8.platform.access.v1.PageRequest
+	(*PageResponse)(nil), // 1: m8.platform.access.v1.PageResponse
 }
 var file_m8_platform_access_v1_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -331,7 +183,7 @@ func file_m8_platform_access_v1_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_access_v1_common_proto_rawDesc), len(file_m8_platform_access_v1_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -4,6 +4,7 @@ package m8.platform.access.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/common.proto";
 
 option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
@@ -67,9 +68,7 @@ message Resource {
 
 // EvaluateAccessRequest is the AuthZEN-compatible request for a single access decision.
 
-
 // EvaluateAccessResponse is the AuthZEN-compatible response for a single access decision.
-
 
 // Evaluation is one item in a batch access evaluation request.
 message Evaluation {
@@ -87,13 +86,6 @@ message Evaluation {
 }
 
 // EvaluateAccessBatchRequest evaluates multiple access decisions in one request.
-
-
-// EvaluateAccessBatchResponse returns one decision per batch evaluation item.
-message EvaluateAccessBatchResponse {
-  // Evaluation responses in the same order as the request evaluations.
-  repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-}
 
 // SearchResourcesRequest asks which resources of a given type the subject can access for the action.
 message SearchResourcesRequest {

@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package m8.platform.access.v1;
 
-import "google/api/annotations.proto";
-import "google/protobuf/struct.proto";
-import "google/api/field_behavior.proto";
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
 
 option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
@@ -101,10 +101,29 @@ message EvaluateAccessBatchRequest {
     (google.api.field_behavior) = OPTIONAL
   ];
 
-  repeated Evaluation evaluations = 5 [(buf.validate.field).repeated = {
+  EvaluateAccessBatchOptions options = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  repeated Evaluation evaluations = 6 [(buf.validate.field).repeated = {
     min_items: 1
     max_items: 1000
   }];
+}
+
+message EvaluateAccessBatchResponse {
+  repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message EvaluateAccessBatchOptions {
+  string evaluations_semantic = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string = {
+      in: [
+        "execute_all",
+        "deny_on_first_deny",
+        "permit_on_first_permit"
+      ]
+    }
+  ];
 }
 
 message GetConfigurationRequest {}
