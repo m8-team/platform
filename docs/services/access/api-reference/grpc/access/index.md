@@ -2,15 +2,15 @@
 
 # Access API, gRPC: AccessService
 
-Access Service gRPC API.
+Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
-| [EvaluateAccess](./evaluate-access.md) | No description. |
-| [EvaluateAccessBatch](./evaluate-access-batch.md) | No description. |
-| [SearchResources](./search-resources.md) | No description. |
-| [SearchSubjects](./search-subjects.md) | No description. |
-| [SearchActions](./search-actions.md) | No description. |
-| [GetConfiguration](./get-configuration.md) | No description. |
+| [EvaluateAccess](./evaluate-access.md) | Evaluates a single AuthZEN-compatible access decision. |
+| [EvaluateAccessBatch](./evaluate-access-batch.md) | Evaluates multiple AuthZEN-compatible access decisions in request order. |
+| [SearchResources](./search-resources.md) | Searches resources the subject can access for the requested action. |
+| [SearchSubjects](./search-subjects.md) | Searches subjects that can perform the requested action on the resource. |
+| [SearchActions](./search-actions.md) | Searches actions the subject can perform on the resource. |
+| [GetConfiguration](./get-configuration.md) | Returns the AuthZEN discovery configuration for this Policy Decision Point. |

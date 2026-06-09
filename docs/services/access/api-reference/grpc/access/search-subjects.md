@@ -2,7 +2,7 @@
 
 # Access API, gRPC: AccessService.SearchSubjects
 
-No description.
+Searches subjects that can perform the requested action on the resource.
 
 ## gRPC request
 

@@ -8,4 +8,4 @@
 
 | Service | Description |
 | --- | --- |
-| [Access](./access/index.md) | Access Service gRPC API. |
+| [Access](./access/index.md) | Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration. |

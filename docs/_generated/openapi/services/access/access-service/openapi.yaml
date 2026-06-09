@@ -6,7 +6,9 @@ info:
 paths:
   /.well-known/authzen-configuration:
     get:
-      operationId: AccessService_GetConfiguration
+      summary: Get configuration
+      description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
+      operationId: GetConfiguration
       responses:
         '200':
           description: OK
@@ -16,7 +18,9 @@ paths:
                 $ref: '#/components/schemas/ConfigurationResponse'
   /access/v1/evaluation:
     post:
-      operationId: AccessService_EvaluateAccess
+      summary: Evaluate
+      description: Evaluates a single AuthZEN-compatible access decision.
+      operationId: EvaluateAccess
       requestBody:
         content:
           application/json:
@@ -32,7 +36,9 @@ paths:
                 $ref: '#/components/schemas/EvaluateAccessResponse'
   /access/v1/evaluations:
     post:
-      operationId: AccessService_EvaluateAccessBatch
+      summary: Evaluate batch
+      description: Evaluates multiple AuthZEN-compatible access decisions in request order.
+      operationId: EvaluateAccessBatch
       requestBody:
         content:
           application/json:
@@ -48,7 +54,9 @@ paths:
                 $ref: '#/components/schemas/EvaluateAccessBatchResponse'
   /access/v1/search/action:
     post:
-      operationId: AccessService_SearchActions
+      summary: Search actions
+      description: Searches actions the subject can perform on the resource.
+      operationId: SearchActions
       requestBody:
         content:
           application/json:
@@ -64,7 +72,9 @@ paths:
                 $ref: '#/components/schemas/SearchActionsResponse'
   /access/v1/search/resource:
     post:
-      operationId: AccessService_SearchResources
+      summary: Search resources
+      description: Searches resources the subject can access for the requested action.
+      operationId: SearchResources
       requestBody:
         content:
           application/json:
@@ -80,7 +90,9 @@ paths:
                 $ref: '#/components/schemas/SearchResourcesResponse'
   /access/v1/search/subject:
     post:
-      operationId: AccessService_SearchSubjects
+      summary: Search subjects
+      description: Searches subjects that can perform the requested action on the resource.
+      operationId: SearchSubjects
       requestBody:
         content:
           application/json:

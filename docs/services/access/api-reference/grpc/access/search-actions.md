@@ -2,7 +2,7 @@
 
 # Access API, gRPC: AccessService.SearchActions
 
-No description.
+Searches actions the subject can perform on the resource.
 
 ## gRPC request
 

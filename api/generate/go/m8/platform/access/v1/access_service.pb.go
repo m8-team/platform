@@ -8,6 +8,7 @@ package access
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/google/gnostic/openapiv3"
 	_ "github.com/m8-team/go-genproto/m8/platform/common/extension/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -969,7 +970,7 @@ var File_m8_platform_access_v1_access_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\n" +
-	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\x9e\x02\n" +
+	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\x9e\x02\n" +
 	"\x15EvaluateAccessRequest\x12C\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12F\n" +
@@ -1039,14 +1040,14 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"next_token\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties2\xaa\a\n" +
-	"\rAccessService\x12\x8f\x01\n" +
-	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/access/v1/evaluation\x12\x9f\x01\n" +
-	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/access/v1/evaluations\x12\x97\x01\n" +
-	"\x0fSearchResources\x12-.m8.platform.access.v1.SearchResourcesRequest\x1a..m8.platform.access.v1.SearchResourcesResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/access/v1/search/resource\x12\x93\x01\n" +
-	"\x0eSearchSubjects\x12,.m8.platform.access.v1.SearchSubjectsRequest\x1a-.m8.platform.access.v1.SearchSubjectsResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/access/v1/search/subject\x12\x8f\x01\n" +
-	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/access/v1/search/action\x12\x9c\x01\n" +
-	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/.well-known/authzen-configuration\x1a\x04\x92\xb5\x18\x00B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
+	"properties2\xc2\r\n" +
+	"\rAccessService\x12\xe4\x01\n" +
+	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\"u\xbaGR\x12\bEvaluate\x1a6Evaluates a single AuthZEN-compatible access decision.*\x0eEvaluateAccess\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/access/v1/evaluation\x12\x92\x02\n" +
+	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"\x93\x01\xbaGo\x12\x0eEvaluate batch\x1aHEvaluates multiple AuthZEN-compatible access decisions in request order.*\x13EvaluateAccessBatch\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/access/v1/evaluations\x12\x83\x02\n" +
+	"\x0fSearchResources\x12-.m8.platform.access.v1.SearchResourcesRequest\x1a..m8.platform.access.v1.SearchResourcesResponse\"\x90\x01\xbaGh\x12\x10Search resources\x1aCSearches resources the subject can access for the requested action.*\x0fSearchResources\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/access/v1/search/resource\x12\x82\x02\n" +
+	"\x0eSearchSubjects\x12,.m8.platform.access.v1.SearchSubjectsRequest\x1a-.m8.platform.access.v1.SearchSubjectsResponse\"\x92\x01\xbaGk\x12\x0fSearch subjects\x1aHSearches subjects that can perform the requested action on the resource.*\x0eSearchSubjects\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/access/v1/search/subject\x12\xed\x01\n" +
+	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"\x80\x01\xbaGZ\x12\x0eSearch actions\x1a9Searches actions the subject can perform on the resource.*\rSearchActions\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/access/v1/search/action\x12\x92\x02\n" +
+	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"\x9f\x01\xbaGr\x12\x11Get configuration\x1aKReturns the AuthZEN discovery configuration for this Policy Decision Point.*\x10GetConfiguration\x82\xd3\xe4\x93\x02$\x12\"/.well-known/authzen-configuration\x1a\xa4\x01\x92\xb5\x18\x9f\x01Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_access_service_proto_rawDescOnce sync.Once

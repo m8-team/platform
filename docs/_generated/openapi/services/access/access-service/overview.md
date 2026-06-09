@@ -8,9 +8,9 @@ HTTP API specifications generated from protobuf contracts.
 
 | Method | Description |
 | --- | --- |
-| [AccessService_GetConfiguration](./AccessService_GetConfiguration.md) | No description. |
-| [AccessService_EvaluateAccess](./AccessService_EvaluateAccess.md) | No description. |
-| [AccessService_EvaluateAccessBatch](./AccessService_EvaluateAccessBatch.md) | No description. |
-| [AccessService_SearchActions](./AccessService_SearchActions.md) | No description. |
-| [AccessService_SearchResources](./AccessService_SearchResources.md) | No description. |
-| [AccessService_SearchSubjects](./AccessService_SearchSubjects.md) | No description. |
+| [Get configuration](./GetConfiguration.md) | Returns the AuthZEN discovery configuration for this Policy Decision Point. |
+| [Evaluate](./EvaluateAccess.md) | Evaluates a single AuthZEN-compatible access decision. |
+| [Evaluate batch](./EvaluateAccessBatch.md) | Evaluates multiple AuthZEN-compatible access decisions in request order. |
+| [Search actions](./SearchActions.md) | Searches actions the subject can perform on the resource. |
+| [Search resources](./SearchResources.md) | Searches resources the subject can access for the requested action. |
+| [Search subjects](./SearchSubjects.md) | Searches subjects that can perform the requested action on the resource. |

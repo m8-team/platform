@@ -2,7 +2,7 @@
 
 # Access API, gRPC: AccessService.EvaluateAccess
 
-No description.
+Evaluates a single AuthZEN-compatible access decision.
 
 ## gRPC request
 

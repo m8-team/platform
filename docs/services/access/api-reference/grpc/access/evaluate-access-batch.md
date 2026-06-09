@@ -2,7 +2,7 @@
 
 # Access API, gRPC: AccessService.EvaluateAccessBatch
 
-No description.
+Evaluates multiple AuthZEN-compatible access decisions in request order.
 
 ## gRPC request
 

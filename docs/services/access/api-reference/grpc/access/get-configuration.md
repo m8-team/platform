@@ -2,7 +2,7 @@
 
 # Access API, gRPC: AccessService.GetConfiguration
 
-No description.
+Returns the AuthZEN discovery configuration for this Policy Decision Point.
 
 ## gRPC request
 

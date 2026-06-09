@@ -11,7 +11,9 @@ paths:
         get:
             tags:
                 - AccessService
-            operationId: AccessService_GetConfiguration
+            summary: Get configuration
+            description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
+            operationId: GetConfiguration
             responses:
                 "200":
                     description: OK
@@ -23,7 +25,9 @@ paths:
         post:
             tags:
                 - AccessService
-            operationId: AccessService_EvaluateAccess
+            summary: Evaluate
+            description: Evaluates a single AuthZEN-compatible access decision.
+            operationId: EvaluateAccess
             requestBody:
                 content:
                     application/json:
@@ -41,7 +45,9 @@ paths:
         post:
             tags:
                 - AccessService
-            operationId: AccessService_EvaluateAccessBatch
+            summary: Evaluate batch
+            description: Evaluates multiple AuthZEN-compatible access decisions in request order.
+            operationId: EvaluateAccessBatch
             requestBody:
                 content:
                     application/json:
@@ -59,7 +65,9 @@ paths:
         post:
             tags:
                 - AccessService
-            operationId: AccessService_SearchActions
+            summary: Search actions
+            description: Searches actions the subject can perform on the resource.
+            operationId: SearchActions
             requestBody:
                 content:
                     application/json:
@@ -77,7 +85,9 @@ paths:
         post:
             tags:
                 - AccessService
-            operationId: AccessService_SearchResources
+            summary: Search resources
+            description: Searches resources the subject can access for the requested action.
+            operationId: SearchResources
             requestBody:
                 content:
                     application/json:
@@ -95,7 +105,9 @@ paths:
         post:
             tags:
                 - AccessService
-            operationId: AccessService_SearchSubjects
+            summary: Search subjects
+            description: Searches subjects that can perform the requested action on the resource.
+            operationId: SearchSubjects
             requestBody:
                 content:
                     application/json:
