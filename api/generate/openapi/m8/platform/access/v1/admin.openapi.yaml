@@ -1,0 +1,671 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /m8/access/admin/v1/actions:
+        get:
+            tags:
+                - AccessAdminService
+            description: Lists action definitions.
+            operationId: AccessAdminService_ListActions
+            parameters:
+                - name: resourceType
+                  in: query
+                  description: Optional resource type filter.
+                  schema:
+                    type: string
+                - name: page.limit
+                  in: query
+                  description: Maximum number of results to return. Zero lets the server choose a default.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page.token
+                  in: query
+                  description: Opaque pagination token returned by a previous response.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListActionsResponse'
+        post:
+            tags:
+                - AccessAdminService
+            description: Creates a new action definition.
+            operationId: AccessAdminService_CreateAction
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ActionDefinition'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ActionDefinition'
+    /m8/access/admin/v1/actions/{action.name}:
+        patch:
+            tags:
+                - AccessAdminService
+            description: Updates a mutable action definition.
+            operationId: AccessAdminService_UpdateAction
+            parameters:
+                - name: action.name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: updateMask
+                  in: query
+                  description: Field mask selecting fields to update.
+                  schema:
+                    type: string
+                    format: field-mask
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ActionDefinition'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ActionDefinition'
+    /m8/access/admin/v1/actions/{name}:
+        get:
+            tags:
+                - AccessAdminService
+            description: Returns one action definition by name.
+            operationId: AccessAdminService_GetAction
+            parameters:
+                - name: name
+                  in: path
+                  description: Action name, for example "project.delete".
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ActionDefinition'
+        delete:
+            tags:
+                - AccessAdminService
+            description: Deletes an action definition by name.
+            operationId: AccessAdminService_DeleteAction
+            parameters:
+                - name: name
+                  in: path
+                  description: Action name, for example "project.delete".
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteActionResponse'
+    /m8/access/admin/v1/resource-types:
+        get:
+            tags:
+                - AccessAdminService
+            description: Lists resource type definitions.
+            operationId: AccessAdminService_ListResourceTypes
+            parameters:
+                - name: page.limit
+                  in: query
+                  description: Maximum number of results to return. Zero lets the server choose a default.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page.token
+                  in: query
+                  description: Opaque pagination token returned by a previous response.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListResourceTypesResponse'
+        post:
+            tags:
+                - AccessAdminService
+            description: Creates a new resource type definition.
+            operationId: AccessAdminService_CreateResourceType
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResourceTypeDefinition'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceTypeDefinition'
+    /m8/access/admin/v1/resource-types/{type}:
+        get:
+            tags:
+                - AccessAdminService
+            description: Returns one resource type definition by type.
+            operationId: AccessAdminService_GetResourceType
+            parameters:
+                - name: type
+                  in: path
+                  description: Resource type, for example "project".
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceTypeDefinition'
+    /m8/access/admin/v1/role-bindings:
+        get:
+            tags:
+                - AccessAdminService
+            description: Lists role bindings.
+            operationId: AccessAdminService_ListRoleBindings
+            parameters:
+                - name: subject.type
+                  in: query
+                  description: Subject type, for example "user". Types are strings to stay extensible across M8 modules.
+                  schema:
+                    type: string
+                - name: subject.id
+                  in: query
+                  description: Subject identifier, for example "usr_01JZ...".
+                  schema:
+                    type: string
+                - name: resource.type
+                  in: query
+                  description: Resource type, for example "project". Resource types are strings to stay extensible across M8 modules.
+                  schema:
+                    type: string
+                - name: resource.id
+                  in: query
+                  description: Resource identifier, for example "prj_01JZ...".
+                  schema:
+                    type: string
+                - name: role
+                  in: query
+                  description: Optional role filter.
+                  schema:
+                    type: string
+                - name: page.limit
+                  in: query
+                  description: Maximum number of results to return. Zero lets the server choose a default.
+                  schema:
+                    type: integer
+                    format: int32
+                - name: page.token
+                  in: query
+                  description: Opaque pagination token returned by a previous response.
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListRoleBindingsResponse'
+        post:
+            tags:
+                - AccessAdminService
+            description: Creates a role binding.
+            operationId: AccessAdminService_CreateRoleBinding
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoleBinding'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoleBinding'
+    /m8/access/admin/v1/role-bindings/{id}:
+        delete:
+            tags:
+                - AccessAdminService
+            description: Deletes a role binding by identifier.
+            operationId: AccessAdminService_DeleteRoleBinding
+            parameters:
+                - name: id
+                  in: path
+                  description: Role binding identifier.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteRoleBindingResponse'
+    /m8/access/admin/v1/simulate:
+        post:
+            tags:
+                - AccessAdminService
+            description: Simulates one access decision and optionally returns a trace.
+            operationId: AccessAdminService_SimulateAccess
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SimulateAccessRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SimulateAccessResponse'
+components:
+    schemas:
+        Action:
+            required:
+                - name
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Action name, for example "project.delete". Action names remain strings for cross-module extensibility.
+                properties:
+                    type: object
+                    description: AuthZEN-compatible arbitrary action properties.
+            description: 'Action is the AuthZEN action object. Example: project.delete.'
+        ActionDefinition:
+            required:
+                - resourceType
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Action name, for example "project.delete".
+                resourceType:
+                    type: string
+                    description: Resource type this action applies to, for example "project".
+                title:
+                    type: string
+                    description: Human-readable action title.
+                description:
+                    type: string
+                    description: Human-readable action description.
+                spicedb:
+                    allOf:
+                        - $ref: '#/components/schemas/SpiceDbPermissionMapping'
+                    description: SpiceDB permission mapping for this action.
+                risk:
+                    allOf:
+                        - $ref: '#/components/schemas/RiskPolicy'
+                    description: Risk policy used before or after authorization checks.
+                audit:
+                    allOf:
+                        - $ref: '#/components/schemas/AuditPolicy'
+                    description: Audit policy for this action.
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels for filtering and ownership metadata.
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Server time when the action definition was created.
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    description: Server time when the action definition was most recently updated.
+                    format: date-time
+            description: ActionDefinition registers an M8 action and its policy integration metadata.
+        AuditPolicy:
+            type: object
+            properties:
+                eventType:
+                    type: string
+                    description: Audit event type, for example "m8.access.project.delete.v1".
+                enabled:
+                    type: boolean
+                    description: Whether audit event emission is enabled for the action.
+            description: AuditPolicy describes how a registered action should emit audit events.
+        DecisionTraceStep:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Step name, for example "spicedb.check" or "risk.step_up".
+                status:
+                    enum:
+                        - DECISION_TRACE_STATUS_UNSPECIFIED
+                        - DECISION_TRACE_STATUS_ALLOWED
+                        - DECISION_TRACE_STATUS_DENIED
+                        - DECISION_TRACE_STATUS_SKIPPED
+                        - DECISION_TRACE_STATUS_ERROR
+                    type: string
+                    description: Step outcome.
+                    format: enum
+                message:
+                    type: string
+                    description: Human-readable step message.
+                details:
+                    readOnly: true
+                    type: object
+                    description: Structured step details. SpiceDB debug data may appear here for internal callers.
+            description: DecisionTraceStep explains one step of simulated decision evaluation.
+        DeleteActionResponse:
+            type: object
+            properties:
+                deleted:
+                    readOnly: true
+                    type: boolean
+                    description: Whether an action definition was deleted.
+            description: DeleteActionResponse is returned after deleting an action definition.
+        DeleteRoleBindingResponse:
+            type: object
+            properties:
+                deleted:
+                    readOnly: true
+                    type: boolean
+                    description: Whether a role binding was deleted.
+            description: DeleteRoleBindingResponse is returned after deleting a role binding.
+        EvaluateAccessRequest:
+            required:
+                - subject
+                - action
+                - resource
+            type: object
+            properties:
+                subject:
+                    allOf:
+                        - $ref: '#/components/schemas/Subject'
+                    description: 'Subject requesting access. Example: user:usr_01JZ...'
+                action:
+                    allOf:
+                        - $ref: '#/components/schemas/Action'
+                    description: 'Action being requested. Example: project.delete.'
+                resource:
+                    allOf:
+                        - $ref: '#/components/schemas/Resource'
+                    description: 'Resource being accessed. Example: project:prj_01JZ...'
+                context:
+                    type: object
+                    description: AuthZEN-compatible arbitrary request context. Put M8 data in context.m8, risk data in context.risk, and request metadata in context.request.
+            description: EvaluateAccessRequest is the AuthZEN-compatible request for a single access decision.
+        EvaluateAccessResponse:
+            type: object
+            properties:
+                decision:
+                    readOnly: true
+                    type: boolean
+                    description: Access decision. True means access is allowed; false means access is denied.
+                context:
+                    readOnly: true
+                    type: object
+                    description: AuthZEN-compatible arbitrary response context. Put decision metadata in context.m8, for example context.m8.reason = "MISSING_PERMISSION" or "STEP_UP_REQUIRED".
+            description: EvaluateAccessResponse is the AuthZEN-compatible response for a single access decision.
+        ListActionsResponse:
+            type: object
+            properties:
+                actions:
+                    readOnly: true
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ActionDefinition'
+                    description: Action definitions in the current page.
+                page:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/PageResponse'
+                    description: Pagination information for the returned action definitions.
+            description: ListActionsResponse returns action definitions.
+        ListResourceTypesResponse:
+            type: object
+            properties:
+                resourceTypes:
+                    readOnly: true
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResourceTypeDefinition'
+                    description: Resource type definitions in the current page.
+                page:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/PageResponse'
+                    description: Pagination information for the returned resource type definitions.
+            description: ListResourceTypesResponse returns resource type definitions.
+        ListRoleBindingsResponse:
+            type: object
+            properties:
+                roleBindings:
+                    readOnly: true
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RoleBinding'
+                    description: Role bindings in the current page.
+                page:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/PageResponse'
+                    description: Pagination information for the returned role bindings.
+            description: ListRoleBindingsResponse returns role bindings.
+        PageResponse:
+            type: object
+            properties:
+                count:
+                    readOnly: true
+                    type: integer
+                    description: Number of results returned in this page.
+                    format: int32
+                nextToken:
+                    readOnly: true
+                    type: string
+                    description: Opaque token for the next page. Empty means there are no more results.
+            description: PageResponse describes the page returned by a list or search API.
+        Resource:
+            required:
+                - type
+                - id
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Resource type, for example "project". Resource types are strings to stay extensible across M8 modules.
+                id:
+                    type: string
+                    description: Resource identifier, for example "prj_01JZ...".
+                properties:
+                    type: object
+                    description: AuthZEN-compatible arbitrary resource properties.
+            description: 'Resource is the AuthZEN resource object. Example: project:prj_01JZ...'
+        ResourceTypeDefinition:
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Resource type, for example "project".
+                title:
+                    type: string
+                    description: Human-readable resource type title.
+                description:
+                    type: string
+                    description: Human-readable resource type description.
+                spicedbObjectType:
+                    type: string
+                    description: SpiceDB object type backing this resource type.
+                parentResourceType:
+                    type: string
+                    description: Parent resource type in the hierarchy, if any.
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels for filtering and ownership metadata.
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Server time when the resource type definition was created.
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    description: Server time when the resource type definition was most recently updated.
+                    format: date-time
+            description: ResourceTypeDefinition registers a resource type known to access control.
+        RiskPolicy:
+            type: object
+            properties:
+                level:
+                    enum:
+                        - RISK_LEVEL_UNSPECIFIED
+                        - RISK_LEVEL_LOW
+                        - RISK_LEVEL_MEDIUM
+                        - RISK_LEVEL_HIGH
+                        - RISK_LEVEL_CRITICAL
+                    type: string
+                    description: Risk level assigned to the action.
+                    format: enum
+                requiresStepUp:
+                    type: boolean
+                    description: Whether this action requires step-up authentication when risk policy says so.
+                requiredAssuranceLevel:
+                    enum:
+                        - ASSURANCE_LEVEL_UNSPECIFIED
+                        - ASSURANCE_LEVEL_AAL1
+                        - ASSURANCE_LEVEL_AAL2
+                        - ASSURANCE_LEVEL_AAL3
+                    type: string
+                    description: Minimum authentication assurance level required for this action.
+                    format: enum
+            description: RiskPolicy declares risk and assurance requirements for an action.
+        RoleBinding:
+            required:
+                - subject
+                - resource
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Stable role binding identifier.
+                subject:
+                    allOf:
+                        - $ref: '#/components/schemas/Subject'
+                    description: Subject receiving the role binding.
+                resource:
+                    allOf:
+                        - $ref: '#/components/schemas/Resource'
+                    description: Resource receiving the relationship.
+                role:
+                    type: string
+                    description: M8 role name, for example "project.admin".
+                spicedbRelation:
+                    type: string
+                    description: SpiceDB relation. The binding maps to resource.type:resource.id#spicedb_relation@subject.type:subject.id.
+                condition:
+                    type: object
+                    description: Optional caveat context. If set, it may map to a SpiceDB caveat context.
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels for filtering and ownership metadata.
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Server time when the role binding was created.
+                    format: date-time
+            description: RoleBinding grants a role or relationship from a subject to a resource.
+        SimulateAccessRequest:
+            required:
+                - request
+            type: object
+            properties:
+                request:
+                    allOf:
+                        - $ref: '#/components/schemas/EvaluateAccessRequest'
+                    description: AuthZEN-compatible decision request to simulate.
+                includeTrace:
+                    type: boolean
+                    description: Whether to include a decision trace in the response.
+                includeSpicedbDebug:
+                    type: boolean
+                    description: Whether to include SpiceDB debug details in trace steps.
+            description: SimulateAccessRequest runs an access decision in diagnostic mode.
+        SimulateAccessResponse:
+            type: object
+            properties:
+                response:
+                    readOnly: true
+                    allOf:
+                        - $ref: '#/components/schemas/EvaluateAccessResponse'
+                    description: Simulated AuthZEN-compatible decision response.
+                trace:
+                    readOnly: true
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/DecisionTraceStep'
+                    description: Decision trace steps, returned when requested by include_trace.
+            description: SimulateAccessResponse returns a simulated decision and optional trace.
+        SpiceDbPermissionMapping:
+            type: object
+            properties:
+                objectType:
+                    type: string
+                    description: SpiceDB object type, for example "project".
+                permission:
+                    type: string
+                    description: SpiceDB permission, for example "delete".
+            description: SpiceDbPermissionMapping maps an M8 action to a SpiceDB object permission.
+        Subject:
+            required:
+                - type
+                - id
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Subject type, for example "user". Types are strings to stay extensible across M8 modules.
+                id:
+                    type: string
+                    description: Subject identifier, for example "usr_01JZ...".
+                properties:
+                    type: object
+                    description: AuthZEN-compatible arbitrary subject properties.
+            description: 'Subject is the AuthZEN subject object. Example: user:usr_01JZ...'
+tags:
+    - name: AccessAdminService

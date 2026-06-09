@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package m8.platform.access.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/access/v1/common.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
+
+// Subject is the AuthZEN subject object. Example: user:usr_01JZ...
+message Subject {
+  // Subject type, for example "user". Types are strings to stay extensible across M8 modules.
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      max_len: 64
+      pattern: "^[a-z][a-z0-9_]*$"
+    }
+  ];
+
+  // Subject identifier, for example "usr_01JZ...".
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // AuthZEN-compatible arbitrary subject properties.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Action is the AuthZEN action object. Example: project.delete.
+message Action {
+  // Action name, for example "project.delete". Action names remain strings for cross-module extensibility.
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      max_len: 128
+      pattern: "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+    }
+  ];
+
+  // AuthZEN-compatible arbitrary action properties.
+  google.protobuf.Struct properties = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Resource is the AuthZEN resource object. Example: project:prj_01JZ...
+message Resource {
+  // Resource type, for example "project". Resource types are strings to stay extensible across M8 modules.
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      max_len: 64
+      pattern: "^[a-z][a-z0-9_]*$"
+    }
+  ];
+
+  // Resource identifier, for example "prj_01JZ...".
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // AuthZEN-compatible arbitrary resource properties.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// EvaluateAccessRequest is the AuthZEN-compatible request for a single access decision.
+
+
+// EvaluateAccessResponse is the AuthZEN-compatible response for a single access decision.
+
+
+// Evaluation is one item in a batch access evaluation request.
+message Evaluation {
+  // Item-level subject. If set, it overrides the batch-level default subject.
+  Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Item-level action. If set, it overrides the batch-level default action.
+  Action action = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Item-level resource. If set, it overrides the batch-level default resource.
+  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Item-level context. If set, it overrides or extends the batch-level default context according to server policy.
+  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// EvaluateAccessBatchRequest evaluates multiple access decisions in one request.
+
+
+// EvaluateAccessBatchResponse returns one decision per batch evaluation item.
+message EvaluateAccessBatchResponse {
+  // Evaluation responses in the same order as the request evaluations.
+  repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SearchResourcesRequest asks which resources of a given type the subject can access for the action.
+message SearchResourcesRequest {
+  // Subject whose accessible resources are searched.
+  Subject subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Action that must be permitted on returned resources.
+  Action action = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Resource selector. The type is usually set while id may be omitted by clients using JSON.
+  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Arbitrary request context for policy evaluation.
+  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Pagination controls.
+  PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SearchResourcesResponse returns resources accessible to a subject for an action.
+message SearchResourcesResponse {
+  // Matching resources.
+  repeated Resource results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Pagination information for the returned resources.
+  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Response context, including optional decision metadata under context.m8.
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SearchSubjectsRequest asks which subjects of a given type can perform the action on the resource.
+message SearchSubjectsRequest {
+  // Subject selector. The type is usually set while id may be omitted by clients using JSON.
+  Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Action that returned subjects must be allowed to perform.
+  Action action = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Resource that returned subjects may access.
+  Resource resource = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Arbitrary request context for policy evaluation.
+  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // Pagination controls.
+  PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SearchSubjectsResponse returns subjects that can perform an action on a resource.
+message SearchSubjectsResponse {
+  // Matching subjects.
+  repeated Subject results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Pagination information for the returned subjects.
+  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Response context, including optional decision metadata under context.m8.
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// SearchActionsRequest asks which actions the subject can perform on the resource.
+message SearchActionsRequest {
+  // Subject whose allowed actions are searched.
+  Subject subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Resource on which actions are evaluated.
+  Resource resource = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Arbitrary request context for policy evaluation.
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Pagination controls.
+  PageRequest page = 4 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SearchActionsResponse returns actions the subject can perform on the resource.
+message SearchActionsResponse {
+  // Matching actions.
+  repeated Action results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Pagination information for the returned actions.
+  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Response context, including optional decision metadata under context.m8.
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

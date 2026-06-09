@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package m8.platform.access.v1;
+
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessv1";
+
+// PageRequest controls forward pagination for list and search APIs.
+message PageRequest {
+  // Maximum number of results to return. Zero lets the server choose a default.
+  int32 limit = 1 [(buf.validate.field).int32 = {
+    gte: 0
+    lte: 1000
+  }];
+
+  // Opaque pagination token returned by a previous response.
+  string token = 2 [(buf.validate.field).string.max_len = 4096];
+}
+
+// PageResponse describes the page returned by a list or search API.
+message PageResponse {
+  // Number of results returned in this page.
+  int32 count = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Opaque token for the next page. Empty means there are no more results.
+  string next_token = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
+}
+
+// AuthzenConfiguration is returned from the AuthZEN discovery endpoint.
+
+

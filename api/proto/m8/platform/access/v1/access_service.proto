@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package m8.platform.access.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/api/field_behavior.proto";
+import "buf/validate/validate.proto";
+import "m8/platform/access/v1/access.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
+
+service AccessService {
+  rpc EvaluateAccess(EvaluateAccessRequest) returns (EvaluateAccessResponse) {
+    option (google.api.http) = {
+      post: "/access/v1/evaluation"
+      body: "*"
+    };
+  }
+
+  rpc EvaluateAccessBatch(EvaluateAccessBatchRequest) returns (EvaluateAccessBatchResponse) {
+    option (google.api.http) = {
+      post: "/access/v1/evaluations"
+      body: "*"
+    };
+  }
+
+  rpc SearchResources(SearchResourcesRequest) returns (SearchResourcesResponse) {
+    option (google.api.http) = {
+      post: "/access/v1/search/resource"
+      body: "*"
+    };
+  }
+
+  rpc SearchSubjects(SearchSubjectsRequest) returns (SearchSubjectsResponse) {
+    option (google.api.http) = {
+      post: "/access/v1/search/subject"
+      body: "*"
+    };
+  }
+
+  rpc SearchActions(SearchActionsRequest) returns (SearchActionsResponse) {
+    option (google.api.http) = {
+      post: "/access/v1/search/action"
+      body: "*"
+    };
+  }
+
+  rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
+    option (google.api.http) = {
+      get: "/.well-known/authzen-configuration"
+    };
+  }
+}
+
+message EvaluateAccessRequest {
+  Subject subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Action action = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  Resource resource = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  google.protobuf.Struct context = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+message EvaluateAccessResponse {
+  bool decision = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Struct context = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message EvaluateAccessBatchRequest {
+  Subject subject = 1 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  Action action = 2 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  Resource resource = 3 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  google.protobuf.Struct context = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+
+  repeated Evaluation evaluations = 5 [(buf.validate.field).repeated = {
+    min_items: 1
+    max_items: 1000
+  }];
+}
+
+message GetConfigurationRequest {}
+
+message ConfigurationResponse {
+  string policy_decision_point = 1 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  string access_evaluation_endpoint = 2 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  string access_evaluations_endpoint = 3 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  string search_resource_endpoint = 4 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  string search_subject_endpoint = 5 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  string search_action_endpoint = 6 [
+    (buf.validate.field).string.uri = true
+  ];
+
+  repeated string capabilities = 7 [(buf.validate.field).repeated = {
+    max_items: 64
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+}
