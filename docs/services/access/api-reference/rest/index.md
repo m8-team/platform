@@ -9,4 +9,3 @@
 | Service | Description |
 | --- | --- |
 | [Access](./access/index.md) | HTTP API specifications generated from protobuf contracts. |
-| [Access Admin](./access-admin/index.md) | HTTP API specifications generated from protobuf contracts. |

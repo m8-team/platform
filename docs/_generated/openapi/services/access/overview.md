@@ -9,4 +9,3 @@ This section contains generated OpenAPI references for the services in this grou
 | Service | Description |
 | --- | --- |
 | [Access](./access-service/overview.md) | HTTP API specifications generated from protobuf contracts. |
-| [Access Admin](./access-admin-service/overview.md) | HTTP API specifications generated from protobuf contracts. |

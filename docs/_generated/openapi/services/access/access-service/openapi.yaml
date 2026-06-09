@@ -103,11 +103,8 @@ components:
       properties:
         name:
           type: string
-          description: Action name, for example "project.delete". Action names remain strings for cross-module extensibility.
         properties:
           type: object
-          description: AuthZEN-compatible arbitrary action properties.
-      description: 'Action is the AuthZEN action object. Example: project.delete.'
     ConfigurationResponse:
       type: object
       properties:
@@ -185,45 +182,35 @@ components:
       type: object
       properties:
         subject:
-          allOf:
-            - $ref: '#/components/schemas/Subject'
-          description: Item-level subject. If set, it overrides the batch-level default subject.
+          $ref: '#/components/schemas/Subject'
         action:
-          allOf:
-            - $ref: '#/components/schemas/Action'
-          description: Item-level action. If set, it overrides the batch-level default action.
+          $ref: '#/components/schemas/Action'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Resource'
-          description: Item-level resource. If set, it overrides the batch-level default resource.
+          $ref: '#/components/schemas/Resource'
         context:
           type: object
-          description: Item-level context. If set, it overrides or extends the batch-level default context according to server policy.
-      description: Evaluation is one item in a batch access evaluation request.
     PageRequest:
       type: object
       properties:
         limit:
           type: integer
-          description: Maximum number of results to return. Zero lets the server choose a default.
           format: int32
         token:
           type: string
-          description: Opaque pagination token returned by a previous response.
-      description: PageRequest controls forward pagination for list and search APIs.
+        properties:
+          type: object
     PageResponse:
       type: object
       properties:
         count:
           readOnly: true
           type: integer
-          description: Number of results returned in this page.
           format: int32
         nextToken:
           readOnly: true
           type: string
-          description: Opaque token for the next page. Empty means there are no more results.
-      description: PageResponse describes the page returned by a list or search API.
+        properties:
+          type: object
     Resource:
       required:
         - type
@@ -232,14 +219,10 @@ components:
       properties:
         type:
           type: string
-          description: Resource type, for example "project". Resource types are strings to stay extensible across M8 modules.
         id:
           type: string
-          description: Resource identifier, for example "prj_01JZ...".
         properties:
           type: object
-          description: AuthZEN-compatible arbitrary resource properties.
-      description: 'Resource is the AuthZEN resource object. Example: project:prj_01JZ...'
     SearchActionsRequest:
       required:
         - subject
@@ -247,21 +230,13 @@ components:
       type: object
       properties:
         subject:
-          allOf:
-            - $ref: '#/components/schemas/Subject'
-          description: Subject whose allowed actions are searched.
+          $ref: '#/components/schemas/Subject'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Resource'
-          description: Resource on which actions are evaluated.
+          $ref: '#/components/schemas/Resource'
         context:
           type: object
-          description: Arbitrary request context for policy evaluation.
         page:
-          allOf:
-            - $ref: '#/components/schemas/PageRequest'
-          description: Pagination controls.
-      description: SearchActionsRequest asks which actions the subject can perform on the resource.
+          $ref: '#/components/schemas/PageRequest'
     SearchActionsResponse:
       type: object
       properties:
@@ -270,17 +245,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Action'
-          description: Matching actions.
         page:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/PageResponse'
-          description: Pagination information for the returned actions.
         context:
           readOnly: true
           type: object
-          description: Response context, including optional decision metadata under context.m8.
-      description: SearchActionsResponse returns actions the subject can perform on the resource.
     SearchResourcesRequest:
       required:
         - subject
@@ -288,25 +259,15 @@ components:
       type: object
       properties:
         subject:
-          allOf:
-            - $ref: '#/components/schemas/Subject'
-          description: Subject whose accessible resources are searched.
+          $ref: '#/components/schemas/Subject'
         action:
-          allOf:
-            - $ref: '#/components/schemas/Action'
-          description: Action that must be permitted on returned resources.
+          $ref: '#/components/schemas/Action'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Resource'
-          description: Resource selector. The type is usually set while id may be omitted by clients using JSON.
+          $ref: '#/components/schemas/Resource'
         context:
           type: object
-          description: Arbitrary request context for policy evaluation.
         page:
-          allOf:
-            - $ref: '#/components/schemas/PageRequest'
-          description: Pagination controls.
-      description: SearchResourcesRequest asks which resources of a given type the subject can access for the action.
+          $ref: '#/components/schemas/PageRequest'
     SearchResourcesResponse:
       type: object
       properties:
@@ -315,17 +276,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Resource'
-          description: Matching resources.
         page:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/PageResponse'
-          description: Pagination information for the returned resources.
         context:
           readOnly: true
           type: object
-          description: Response context, including optional decision metadata under context.m8.
-      description: SearchResourcesResponse returns resources accessible to a subject for an action.
     SearchSubjectsRequest:
       required:
         - action
@@ -333,25 +290,15 @@ components:
       type: object
       properties:
         subject:
-          allOf:
-            - $ref: '#/components/schemas/Subject'
-          description: Subject selector. The type is usually set while id may be omitted by clients using JSON.
+          $ref: '#/components/schemas/Subject'
         action:
-          allOf:
-            - $ref: '#/components/schemas/Action'
-          description: Action that returned subjects must be allowed to perform.
+          $ref: '#/components/schemas/Action'
         resource:
-          allOf:
-            - $ref: '#/components/schemas/Resource'
-          description: Resource that returned subjects may access.
+          $ref: '#/components/schemas/Resource'
         context:
           type: object
-          description: Arbitrary request context for policy evaluation.
         page:
-          allOf:
-            - $ref: '#/components/schemas/PageRequest'
-          description: Pagination controls.
-      description: SearchSubjectsRequest asks which subjects of a given type can perform the action on the resource.
+          $ref: '#/components/schemas/PageRequest'
     SearchSubjectsResponse:
       type: object
       properties:
@@ -360,17 +307,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Subject'
-          description: Matching subjects.
         page:
           readOnly: true
           allOf:
             - $ref: '#/components/schemas/PageResponse'
-          description: Pagination information for the returned subjects.
         context:
           readOnly: true
           type: object
-          description: Response context, including optional decision metadata under context.m8.
-      description: SearchSubjectsResponse returns subjects that can perform an action on a resource.
     Subject:
       required:
         - type
@@ -379,11 +322,7 @@ components:
       properties:
         type:
           type: string
-          description: Subject type, for example "user". Types are strings to stay extensible across M8 modules.
         id:
           type: string
-          description: Subject identifier, for example "usr_01JZ...".
         properties:
           type: object
-          description: AuthZEN-compatible arbitrary subject properties.
-      description: 'Subject is the AuthZEN subject object. Example: user:usr_01JZ...'
