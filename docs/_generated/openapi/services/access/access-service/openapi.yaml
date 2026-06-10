@@ -6,7 +6,7 @@ info:
 paths:
   /.well-known/authzen-configuration:
     get:
-      summary: Get configuration
+      summary: Configuration
       description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
       operationId: GetConfiguration
       responses:
@@ -36,7 +36,7 @@ paths:
                 $ref: '#/components/schemas/EvaluateAccessResponse'
   /access/v1/evaluations:
     post:
-      summary: Evaluate batch
+      summary: EvaluateBatch
       description: Evaluates multiple AuthZEN-compatible access decisions in request order.
       operationId: EvaluateAccessBatch
       requestBody:
@@ -54,7 +54,7 @@ paths:
                 $ref: '#/components/schemas/EvaluateAccessBatchResponse'
   /access/v1/search/action:
     post:
-      summary: Search actions
+      summary: SearchActions
       description: Searches actions the subject can perform on the resource.
       operationId: SearchActions
       requestBody:
@@ -72,7 +72,7 @@ paths:
                 $ref: '#/components/schemas/SearchActionsResponse'
   /access/v1/search/resource:
     post:
-      summary: Search resources
+      summary: SearchResources
       description: Searches resources the subject can access for the requested action.
       operationId: SearchResources
       requestBody:
@@ -90,7 +90,7 @@ paths:
                 $ref: '#/components/schemas/SearchResourcesResponse'
   /access/v1/search/subject:
     post:
-      summary: Search subjects
+      summary: SearchSubjects
       description: Searches subjects that can perform the requested action on the resource.
       operationId: SearchSubjects
       requestBody:

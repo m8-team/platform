@@ -33,7 +33,7 @@ service AccessService {
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
-      summary: "Evaluate batch"
+      summary: "EvaluateBatch"
       description: "Evaluates multiple AuthZEN-compatible access decisions in request order."
       operation_id: "EvaluateAccessBatch"
     };
@@ -45,7 +45,7 @@ service AccessService {
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
-      summary: "Search resources"
+      summary: "SearchResources"
       description: "Searches resources the subject can access for the requested action."
       operation_id: "SearchResources"
     };
@@ -57,7 +57,7 @@ service AccessService {
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
-      summary: "Search subjects"
+      summary: "SearchSubjects"
       description: "Searches subjects that can perform the requested action on the resource."
       operation_id: "SearchSubjects"
     };
@@ -69,7 +69,7 @@ service AccessService {
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
-      summary: "Search actions"
+      summary: "SearchActions"
       description: "Searches actions the subject can perform on the resource."
       operation_id: "SearchActions"
     };
@@ -78,7 +78,7 @@ service AccessService {
   rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
     option (google.api.http) = {get: "/.well-known/authzen-configuration"};
     option (gnostic.openapi.v3.operation) = {
-      summary: "Get configuration"
+      summary: "Configuration"
       description: "Returns the AuthZEN discovery configuration for this Policy Decision Point."
       operation_id: "GetConfiguration"
     };
