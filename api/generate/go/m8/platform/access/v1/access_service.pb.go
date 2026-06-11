@@ -908,8 +908,9 @@ func (x *PageRequest) GetProperties() *structpb.Struct {
 
 type PageResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Count         int32                  `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
 	NextToken     string                 `protobuf:"bytes,2,opt,name=next_token,json=nextToken,proto3" json:"next_token,omitempty"`
+	Count         *int32                 `protobuf:"varint,1,opt,name=count,proto3,oneof" json:"count,omitempty"`
+	Total         *int32                 `protobuf:"varint,4,opt,name=total,proto3,oneof" json:"total,omitempty"`
 	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -945,18 +946,25 @@ func (*PageResponse) Descriptor() ([]byte, []int) {
 	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *PageResponse) GetCount() int32 {
-	if x != nil {
-		return x.Count
-	}
-	return 0
-}
-
 func (x *PageResponse) GetNextToken() string {
 	if x != nil {
 		return x.NextToken
 	}
 	return ""
+}
+
+func (x *PageResponse) GetCount() int32 {
+	if x != nil && x.Count != nil {
+		return *x.Count
+	}
+	return 0
+}
+
+func (x *PageResponse) GetTotal() int32 {
+	if x != nil && x.Total != nil {
+		return *x.Total
+	}
+	return 0
 }
 
 func (x *PageResponse) GetProperties() *structpb.Struct {
@@ -985,7 +993,7 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12P\n" +
 	"\aoptions\x18\x05 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\x12P\n" +
-	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x01\x10\xe8\aR\vevaluations\"s\n" +
+	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x00\x10\xe8\aR\vevaluations\"s\n" +
 	"\x1bEvaluateAccessBatchResponse\x12T\n" +
 	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\x92\x01\n" +
 	"\x1aEvaluateAccessBatchOptions\x12t\n" +
@@ -1033,14 +1041,17 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\x05token\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties\"\x93\x01\n" +
-	"\fPageResponse\x12\x19\n" +
-	"\x05count\x18\x01 \x01(\x05B\x03\xe0A\x03R\x05count\x12*\n" +
+	"properties\"\xe6\x01\n" +
+	"\fPageResponse\x12-\n" +
 	"\n" +
-	"next_token\x18\x02 \x01(\tB\v\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\x12<\n" +
+	"next_token\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\x12(\n" +
+	"\x05count\x18\x01 \x01(\x05B\r\xe0A\x01\xe0A\x03\xbaH\x04\x1a\x02(\x00H\x00R\x05count\x88\x01\x01\x12(\n" +
+	"\x05total\x18\x04 \x01(\x05B\r\xe0A\x01\xe0A\x03\xbaH\x04\x1a\x02(\x00H\x01R\x05total\x88\x01\x01\x12?\n" +
 	"\n" +
-	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties2\xb9\r\n" +
+	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x06\xe0A\x01\xe0A\x03R\n" +
+	"propertiesB\b\n" +
+	"\x06_countB\b\n" +
+	"\x06_total2\xb9\r\n" +
 	"\rAccessService\x12\xe4\x01\n" +
 	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\"u\xbaGR\x12\bEvaluate\x1a6Evaluates a single AuthZEN-compatible access decision.*\x0eEvaluateAccess\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/access/v1/evaluation\x12\x91\x02\n" +
 	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"\x92\x01\xbaGn\x12\rEvaluateBatch\x1aHEvaluates multiple AuthZEN-compatible access decisions in request order.*\x13EvaluateAccessBatch\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/access/v1/evaluations\x12\x82\x02\n" +
@@ -1147,6 +1158,7 @@ func file_m8_platform_access_v1_access_service_proto_init() {
 		return
 	}
 	file_m8_platform_access_v1_access_proto_init()
+	file_m8_platform_access_v1_access_service_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

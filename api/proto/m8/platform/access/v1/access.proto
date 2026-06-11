@@ -12,8 +12,8 @@ message Subject {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
+      min_len: 3
       max_len: 64
-      pattern: "^[a-z][a-z0-9_]*$"
     }
   ];
 
@@ -31,8 +31,8 @@ message Action {
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
+      min_len: 3
       max_len: 128
-      pattern: "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
     }
   ];
 
@@ -45,8 +45,8 @@ message Resource {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
+      min_len: 3
       max_len: 64
-      pattern: "^[a-z][a-z0-9_]*$"
     }
   ];
 

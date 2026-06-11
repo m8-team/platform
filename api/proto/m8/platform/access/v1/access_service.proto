@@ -122,7 +122,7 @@ message EvaluateAccessBatchRequest {
   EvaluateAccessBatchOptions options = 5 [(google.api.field_behavior) = OPTIONAL];
 
   repeated Evaluation evaluations = 6 [(buf.validate.field).repeated = {
-    min_items: 1
+    min_items: 0
     max_items: 1000
   }];
 }
@@ -260,16 +260,31 @@ message PageRequest {
     (buf.validate.field).string.max_len = 4096
   ];
 
-  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+  google.protobuf.Struct properties = 3 [
+    (google.api.field_behavior) = OPTIONAL]
+  ;
 }
 
 message PageResponse {
-  int32 count = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-
   string next_token = 2 [
+    (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 4096
   ];
 
-  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+  optional int32 count = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  optional int32 total = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  google.protobuf.Struct properties = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 }

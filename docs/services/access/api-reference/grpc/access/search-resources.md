@@ -57,8 +57,9 @@ rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse)
     }
   ],
   "page": {
-    "count": 0,
     "next_token": "string",
+    "count": 0,
+    "total": 0,
     "properties": {}
   },
   "context": {}
@@ -137,14 +138,16 @@ rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse)
 
 ```json
 {
-  "count": 0,
   "next_token": "string",
+  "count": 0,
+  "total": 0,
   "properties": {}
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
-| count | int32 | No description. |
 | next_token | string | No description. |
+| count | int32 | No description. |
+| total | int32 | No description. |
 | properties | Struct | No description. |

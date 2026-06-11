@@ -227,16 +227,23 @@ components:
                 properties:
                     type: object
         PageResponse:
+            required:
+                - nextToken
             type: object
             properties:
+                nextToken:
+                    readOnly: true
+                    type: string
                 count:
                     readOnly: true
                     type: integer
                     format: int32
-                nextToken:
+                total:
                     readOnly: true
-                    type: string
+                    type: integer
+                    format: int32
                 properties:
+                    readOnly: true
                     type: object
         Resource:
             required:

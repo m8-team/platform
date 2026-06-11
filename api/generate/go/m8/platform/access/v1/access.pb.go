@@ -268,9 +268,9 @@ var File_m8_platform_access_v1_access_proto protoreflect.FileDescriptor
 
 const file_m8_platform_access_v1_access_proto_rawDesc = "" +
 	"\n" +
-	"\"m8/platform/access/v1/access.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x97\x01\n" +
-	"\aSubject\x121\n" +
-	"\x04type\x18\x01 \x01(\tB\x1d\xe0A\x02\xbaH\x17r\x15\x18@2\x11^[a-z][a-z0-9_]*$R\x04type\x12\x1b\n" +
+	"\"m8/platform/access/v1/access.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\"\x86\x01\n" +
+	"\aSubject\x12 \n" +
+	"\x04type\x18\x01 \x01(\tB\f\xe0A\x02\xbaH\x06r\x04\x10\x03\x18@R\x04type\x12\x1b\n" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\x18\x80\x02R\x02id\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
