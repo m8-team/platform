@@ -21,7 +21,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ConfigurationResponse'
-    /access/v1/evaluation:
+    /v1/access/evaluation:
         post:
             tags:
                 - AccessService
@@ -41,7 +41,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/EvaluateAccessResponse'
-    /access/v1/evaluations:
+    /v1/access/evaluations:
         post:
             tags:
                 - AccessService
@@ -61,7 +61,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/EvaluateAccessBatchResponse'
-    /access/v1/search/action:
+    /v1/access/search/action:
         post:
             tags:
                 - AccessService
@@ -81,7 +81,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchActionsResponse'
-    /access/v1/search/resource:
+    /v1/access/search/resource:
         post:
             tags:
                 - AccessService
@@ -101,7 +101,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchResourcesResponse'
-    /access/v1/search/subject:
+    /v1/access/search/subject:
         post:
             tags:
                 - AccessService
