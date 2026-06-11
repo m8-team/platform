@@ -2,7 +2,7 @@
 
 # Access API: REST reference
 
-HTTP API specifications generated from protobuf contracts.
+AccessService exposes AuthZEN-compatible authorization decision APIs.
 
 ## Methods
 

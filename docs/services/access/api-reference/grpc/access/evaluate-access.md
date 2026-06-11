@@ -12,6 +12,8 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 ## EvaluateAccessRequest
 
+EvaluateAccessRequest is the AuthZEN Access Evaluation API request.
+
 ```json
 {
   "subject": {
@@ -34,12 +36,14 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | No description. |
-| action | Action | No description. |
-| resource | Resource | No description. |
-| context | Struct | No description. |
+| subject | Subject | Required. Principal for which access is evaluated. |
+| action | Action | Required. Action to evaluate. |
+| resource | Resource | Required. Resource on which the action is evaluated. |
+| context | Struct | Optional. Request context such as time, environment, or request metadata. |
 
 ## EvaluateAccessResponse
+
+EvaluateAccessResponse is the AuthZEN Access Evaluation API response.
 
 ```json
 {
@@ -50,10 +54,12 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| decision | bool | No description. |
-| context | Struct | No description. |
+| decision | bool | Output only. Access decision; true means permit, false means deny. |
+| context | Struct | Output only. Decision context, including optional reasons or error details. |
 
 ## Subject
+
+Subject identifies the principal for an AuthZEN access evaluation.
 
 ```json
 {
@@ -65,11 +71,13 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Subject type, for example "user" or "service_account". |
+| id | string | Required. Subject identifier scoped to type, for example "alice@example.com". |
+| properties | Struct | Optional. Additional AuthZEN-compatible subject attributes. |
 
 ## Action
+
+Action identifies the operation being authorized.
 
 ```json
 {
@@ -80,10 +88,12 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | No description. |
-| properties | Struct | No description. |
+| name | string | Required. Action name, for example "can_read", "read", or "project.delete". |
+| properties | Struct | Optional. Additional AuthZEN-compatible action attributes. |
 
 ## Resource
+
+Resource identifies the target object for an AuthZEN access evaluation.
 
 ```json
 {
@@ -95,6 +105,6 @@ rpc EvaluateAccess (EvaluateAccessRequest) returns (EvaluateAccessResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Resource type, for example "account", "document", or "project". |
+| id | string | Required. Resource identifier scoped to type. |
+| properties | Struct | Optional. Additional AuthZEN-compatible resource attributes. |

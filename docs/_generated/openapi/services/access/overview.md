@@ -8,4 +8,4 @@ This section contains generated OpenAPI references for the services in this grou
 
 | Service | Description |
 | --- | --- |
-| [Access](./access-service/overview.md) | HTTP API specifications generated from protobuf contracts. |
+| [Access](./access-service/overview.md) | AccessService exposes AuthZEN-compatible authorization decision APIs. |

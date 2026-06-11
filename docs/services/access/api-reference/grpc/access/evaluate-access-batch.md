@@ -12,6 +12,8 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 ## EvaluateAccessBatchRequest
 
+EvaluateAccessBatchRequest evaluates one or more access decisions.
+
 ```json
 {
   "subject": {
@@ -56,14 +58,16 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | No description. |
-| action | Action | No description. |
-| resource | Resource | No description. |
-| context | Struct | No description. |
-| options | EvaluateAccessBatchOptions | No description. |
-| evaluations[] | Evaluation | No description. |
+| subject | Subject | Optional. Default subject for evaluations that do not set an item-level subject. |
+| action | Action | Optional. Default action for evaluations that do not set an item-level action. |
+| resource | Resource | Optional. Default resource for evaluations that do not set an item-level resource. |
+| context | Struct | Optional. Default context for evaluations that do not set an item-level context. |
+| options | EvaluateAccessBatchOptions | Optional. Batch execution options. |
+| evaluations[] | Evaluation | Optional. Item-level evaluations. An empty list is equivalent to a single evaluation using defaults. |
 
 ## EvaluateAccessBatchResponse
+
+EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
 
 ```json
 {
@@ -78,9 +82,11 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| evaluations[] | EvaluateAccessResponse | No description. |
+| evaluations[] | EvaluateAccessResponse | Output only. Evaluation results; order matches the request evaluation order. |
 
 ## Subject
+
+Subject identifies the principal for an AuthZEN access evaluation.
 
 ```json
 {
@@ -92,11 +98,13 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Subject type, for example "user" or "service_account". |
+| id | string | Required. Subject identifier scoped to type, for example "alice@example.com". |
+| properties | Struct | Optional. Additional AuthZEN-compatible subject attributes. |
 
 ## Action
+
+Action identifies the operation being authorized.
 
 ```json
 {
@@ -107,10 +115,12 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | No description. |
-| properties | Struct | No description. |
+| name | string | Required. Action name, for example "can_read", "read", or "project.delete". |
+| properties | Struct | Optional. Additional AuthZEN-compatible action attributes. |
 
 ## Resource
+
+Resource identifies the target object for an AuthZEN access evaluation.
 
 ```json
 {
@@ -122,11 +132,13 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Resource type, for example "account", "document", or "project". |
+| id | string | Required. Resource identifier scoped to type. |
+| properties | Struct | Optional. Additional AuthZEN-compatible resource attributes. |
 
 ## EvaluateAccessBatchOptions
+
+EvaluateAccessBatchOptions controls batch evaluation execution semantics.
 
 ```json
 {
@@ -136,9 +148,11 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| evaluations_semantic | string | No description. |
+| evaluations_semantic | string | Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit. |
 
 ## Evaluation
+
+Evaluation is one item in a batch evaluation request.
 
 ```json
 {
@@ -162,12 +176,14 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | No description. |
-| action | Action | No description. |
-| resource | Resource | No description. |
-| context | Struct | No description. |
+| subject | Subject | Optional. Item-level subject; overrides the batch-level subject when set. |
+| action | Action | Optional. Item-level action; overrides the batch-level action when set. |
+| resource | Resource | Optional. Item-level resource; overrides the batch-level resource when set. |
+| context | Struct | Optional. Item-level context; combined with or overrides batch-level context by PDP policy. |
 
 ## EvaluateAccessResponse
+
+EvaluateAccessResponse is the AuthZEN Access Evaluation API response.
 
 ```json
 {
@@ -178,5 +194,5 @@ rpc EvaluateAccessBatch (EvaluateAccessBatchRequest) returns (EvaluateAccessBatc
 
 | Field | Type | Description |
 | --- | --- | --- |
-| decision | bool | No description. |
-| context | Struct | No description. |
+| decision | bool | Output only. Access decision; true means permit, false means deny. |
+| context | Struct | Output only. Decision context, including optional reasons or error details. |

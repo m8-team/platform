@@ -12,9 +12,11 @@ import "m8/platform/common/extension/v1/extension.proto";
 
 option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
 
+// AccessService exposes AuthZEN-compatible authorization decision APIs.
 service AccessService {
   option (m8.platform.common.extension.v1.description) = "Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.";
 
+  // Evaluates a single AuthZEN-compatible access decision.
   rpc EvaluateAccess(EvaluateAccessRequest) returns (EvaluateAccessResponse) {
     option (google.api.http) = {
       post: "/access/v1/evaluation"
@@ -27,6 +29,7 @@ service AccessService {
     };
   }
 
+  // Evaluates multiple AuthZEN-compatible access decisions in request order.
   rpc EvaluateAccessBatch(EvaluateAccessBatchRequest) returns (EvaluateAccessBatchResponse) {
     option (google.api.http) = {
       post: "/access/v1/evaluations"
@@ -39,6 +42,7 @@ service AccessService {
     };
   }
 
+  // Searches resources the subject can access for the requested action.
   rpc SearchResources(SearchResourcesRequest) returns (SearchResourcesResponse) {
     option (google.api.http) = {
       post: "/access/v1/search/resource"
@@ -51,6 +55,7 @@ service AccessService {
     };
   }
 
+  // Searches subjects that can perform the requested action on the resource.
   rpc SearchSubjects(SearchSubjectsRequest) returns (SearchSubjectsResponse) {
     option (google.api.http) = {
       post: "/access/v1/search/subject"
@@ -63,6 +68,7 @@ service AccessService {
     };
   }
 
+  // Searches actions the subject can perform on the resource.
   rpc SearchActions(SearchActionsRequest) returns (SearchActionsResponse) {
     option (google.api.http) = {
       post: "/access/v1/search/action"
@@ -75,6 +81,7 @@ service AccessService {
     };
   }
 
+  // Returns the AuthZEN discovery configuration for this Policy Decision Point.
   rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
     option (google.api.http) = {get: "/.well-known/authzen-configuration"};
     option (gnostic.openapi.v3.operation) = {
@@ -85,53 +92,72 @@ service AccessService {
   }
 }
 
+// EvaluateAccessRequest is the AuthZEN Access Evaluation API request.
 message EvaluateAccessRequest {
+  // Required. Principal for which access is evaluated.
   Subject subject = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Action to evaluate.
   Action action = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Resource on which the action is evaluated.
   Resource resource = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Optional. Request context such as time, environment, or request metadata.
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// EvaluateAccessResponse is the AuthZEN Access Evaluation API response.
 message EvaluateAccessResponse {
+  // Output only. Access decision; true means permit, false means deny.
   bool decision = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Decision context, including optional reasons or error details.
   google.protobuf.Struct context = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// EvaluateAccessBatchRequest evaluates one or more access decisions.
 message EvaluateAccessBatchRequest {
+  // Optional. Default subject for evaluations that do not set an item-level subject.
   Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Default action for evaluations that do not set an item-level action.
   Action action = 2 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Default resource for evaluations that do not set an item-level resource.
   Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Default context for evaluations that do not set an item-level context.
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Batch execution options.
   EvaluateAccessBatchOptions options = 5 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Item-level evaluations. An empty list is equivalent to a single evaluation using defaults.
   repeated Evaluation evaluations = 6 [(buf.validate.field).repeated = {
     min_items: 0
     max_items: 1000
   }];
 }
 
+// EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
 message EvaluateAccessBatchResponse {
+  // Output only. Evaluation results; order matches the request evaluation order.
   repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// EvaluateAccessBatchOptions controls batch evaluation execution semantics.
 message EvaluateAccessBatchOptions {
+  // Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.
   string evaluations_semantic = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string = {
@@ -144,112 +170,150 @@ message EvaluateAccessBatchOptions {
   ];
 }
 
+// SearchResourcesRequest asks which resources of a type are accessible.
 message SearchResourcesRequest {
+  // Required. Subject for which permitted resources are searched.
   Subject subject = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Action the subject must be allowed to perform.
   Action action = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Resource selector. The type is required; id should be omitted and is ignored if present.
   ResourceSelector resource = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Optional. Contextual data for the search request.
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Pagination request.
   PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// SearchResourcesResponse returns resources accessible to the subject.
 message SearchResourcesResponse {
+  // Required. Matching resources. The array may be empty.
   repeated Resource results = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
+  // Output only. Pagination response. Present when pagination metadata is returned.
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// SearchSubjectsRequest asks which subjects of a type may access the resource.
 message SearchSubjectsRequest {
+  // Required. Subject selector. The type is required; id should be omitted and is ignored if present.
   SubjectSelector subject = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Action returned subjects must be allowed to perform.
   Action action = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Resource on which the action is evaluated.
   Resource resource = 3 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Optional. Contextual data for the search request.
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Pagination request.
   PageRequest page = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// SearchSubjectsResponse returns subjects allowed to perform the action.
 message SearchSubjectsResponse {
+  // Required. Matching subjects. The array may be empty.
   repeated Subject results = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
+  // Output only. Pagination response. Present when pagination metadata is returned.
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// GetConfigurationRequest is empty for AuthZEN metadata discovery.
 message GetConfigurationRequest {}
 
+// SearchActionsRequest asks which actions the subject may perform on the resource.
 message SearchActionsRequest {
+  // Required. Subject for which permitted actions are searched.
   Subject subject = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Required. Resource on which actions are searched.
   Resource resource = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
 
+  // Optional. Contextual data for the search request.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OPTIONAL];
 
+  // Optional. Pagination request.
   PageRequest page = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// SearchActionsResponse returns actions the subject may perform.
 message SearchActionsResponse {
+  // Required. Matching actions. The array may be empty.
   repeated Action results = 1 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
+  // Output only. Pagination response. Present when pagination metadata is returned.
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
+  // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 message ConfigurationResponse {
+  // Required. HTTPS Policy Decision Point identifier without query or fragment components.
   string policy_decision_point = 1 [(buf.validate.field).string.uri = true];
 
+  // Required. URL of the Access Evaluation API endpoint.
   string access_evaluation_endpoint = 2 [(buf.validate.field).string.uri = true];
 
+  // Optional. URL of the Access Evaluations API endpoint.
   string access_evaluations_endpoint = 3 [(buf.validate.field).string.uri = true];
 
+  // Optional. URL of the Resource Search API endpoint.
   string search_resource_endpoint = 4 [(buf.validate.field).string.uri = true];
 
+  // Optional. URL of the Subject Search API endpoint.
   string search_subject_endpoint = 5 [(buf.validate.field).string.uri = true];
 
+  // Optional. URL of the Action Search API endpoint.
   string search_action_endpoint = 6 [(buf.validate.field).string.uri = true];
 
+  // Optional. Capability URNs supported by this PDP.
   repeated string capabilities = 7 [(buf.validate.field).repeated = {
     max_items: 64
     items: {
@@ -261,7 +325,9 @@ message ConfigurationResponse {
   }];
 }
 
+// PageRequest requests a subset of a larger Search API result set.
 message PageRequest {
+  // Optional. Maximum number of results to return.
   int32 limit = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).int32 = {
@@ -270,33 +336,41 @@ message PageRequest {
     }
   ];
 
+  // Optional. Opaque token from the previous response page.next_token.
   string token = 2 [
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.max_len = 4096
   ];
 
+  // Optional. Additional implementation-specific pagination request attributes.
   google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
+// PageResponse describes pagination metadata returned by a Search API response.
 message PageResponse {
+  // Required. Opaque next-page token; empty string means there are no more results.
   string next_token = 2 [
+    json_name = "next_token",
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).string.max_len = 4096
   ];
 
+  // Optional. Number of results included in this response.
   optional int32 count = 1 [
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
 
+  // Optional. Total matching results at request time, if known.
   optional int32 total = 4 [
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int32.gte = 0
   ];
 
+  // Optional. Additional implementation-specific pagination response attributes.
   google.protobuf.Struct properties = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = OUTPUT_ONLY

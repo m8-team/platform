@@ -55,11 +55,17 @@ const (
 
 // AccessServiceClient is a client for the m8.platform.access.v1.AccessService service.
 type AccessServiceClient interface {
+	// Evaluates a single AuthZEN-compatible access decision.
 	EvaluateAccess(context.Context, *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error)
+	// Evaluates multiple AuthZEN-compatible access decisions in request order.
 	EvaluateAccessBatch(context.Context, *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error)
+	// Searches resources the subject can access for the requested action.
 	SearchResources(context.Context, *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error)
+	// Searches subjects that can perform the requested action on the resource.
 	SearchSubjects(context.Context, *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error)
+	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
+	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
 	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 
@@ -155,11 +161,17 @@ func (c *accessServiceClient) GetConfiguration(ctx context.Context, req *connect
 
 // AccessServiceHandler is an implementation of the m8.platform.access.v1.AccessService service.
 type AccessServiceHandler interface {
+	// Evaluates a single AuthZEN-compatible access decision.
 	EvaluateAccess(context.Context, *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error)
+	// Evaluates multiple AuthZEN-compatible access decisions in request order.
 	EvaluateAccessBatch(context.Context, *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error)
+	// Searches resources the subject can access for the requested action.
 	SearchResources(context.Context, *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error)
+	// Searches subjects that can perform the requested action on the resource.
 	SearchSubjects(context.Context, *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error)
+	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
+	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
 	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 

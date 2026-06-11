@@ -12,11 +12,15 @@ rpc GetConfiguration (GetConfigurationRequest) returns (ConfigurationResponse)
 
 ## GetConfigurationRequest
 
+GetConfigurationRequest is empty for AuthZEN metadata discovery.
+
 ```json
 {}
 ```
 
 ## ConfigurationResponse
+
+ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 
 ```json
 {
@@ -34,10 +38,10 @@ rpc GetConfiguration (GetConfigurationRequest) returns (ConfigurationResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| policy_decision_point | string | No description. |
-| access_evaluation_endpoint | string | No description. |
-| access_evaluations_endpoint | string | No description. |
-| search_resource_endpoint | string | No description. |
-| search_subject_endpoint | string | No description. |
-| search_action_endpoint | string | No description. |
-| capabilities[] | string | No description. |
+| policy_decision_point | string | Required. HTTPS Policy Decision Point identifier without query or fragment components. |
+| access_evaluation_endpoint | string | Required. URL of the Access Evaluation API endpoint. |
+| access_evaluations_endpoint | string | Optional. URL of the Access Evaluations API endpoint. |
+| search_resource_endpoint | string | Optional. URL of the Resource Search API endpoint. |
+| search_subject_endpoint | string | Optional. URL of the Subject Search API endpoint. |
+| search_action_endpoint | string | Optional. URL of the Action Search API endpoint. |
+| capabilities[] | string | Optional. Capability URNs supported by this PDP. |

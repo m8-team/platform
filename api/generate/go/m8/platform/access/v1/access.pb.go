@@ -24,11 +24,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Subject identifies the principal for an AuthZEN access evaluation.
 type Subject struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Subject type, for example "user" or "service_account".
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Required. Subject identifier scoped to type, for example "alice@example.com".
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Optional. Additional AuthZEN-compatible subject attributes.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -84,11 +88,15 @@ func (x *Subject) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// SubjectSelector selects subjects by type for the Subject Search API.
 type SubjectSelector struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Subject type to search for, for example "user".
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Optional. Subject Search callers SHOULD omit id; if present, the PDP ignores it.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Optional. Additional selector attributes understood by the PDP.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -144,10 +152,13 @@ func (x *SubjectSelector) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// Action identifies the operation being authorized.
 type Action struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Action name, for example "can_read", "read", or "project.delete".
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Optional. Additional AuthZEN-compatible action attributes.
+	Properties    *structpb.Struct `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -196,11 +207,15 @@ func (x *Action) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// Resource identifies the target object for an AuthZEN access evaluation.
 type Resource struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Resource type, for example "account", "document", or "project".
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Required. Resource identifier scoped to type.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Optional. Additional AuthZEN-compatible resource attributes.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -256,11 +271,15 @@ func (x *Resource) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// ResourceSelector selects resources by type for the Resource Search API.
 type ResourceSelector struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Resource type to search for, for example "account".
+	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	// Optional. Resource Search callers SHOULD omit id; if present, the PDP ignores it.
+	Id string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	// Optional. Additional selector attributes understood by the PDP.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -316,12 +335,17 @@ func (x *ResourceSelector) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// Evaluation is one item in a batch evaluation request.
 type Evaluation struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Item-level subject; overrides the batch-level subject when set.
+	Subject *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Optional. Item-level action; overrides the batch-level action when set.
+	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// Optional. Item-level resource; overrides the batch-level resource when set.
+	Resource *Resource `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+	Context       *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

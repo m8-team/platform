@@ -30,12 +30,20 @@ const (
 // AccessServiceClient is the client API for AccessService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// AccessService exposes AuthZEN-compatible authorization decision APIs.
 type AccessServiceClient interface {
+	// Evaluates a single AuthZEN-compatible access decision.
 	EvaluateAccess(ctx context.Context, in *EvaluateAccessRequest, opts ...grpc.CallOption) (*EvaluateAccessResponse, error)
+	// Evaluates multiple AuthZEN-compatible access decisions in request order.
 	EvaluateAccessBatch(ctx context.Context, in *EvaluateAccessBatchRequest, opts ...grpc.CallOption) (*EvaluateAccessBatchResponse, error)
+	// Searches resources the subject can access for the requested action.
 	SearchResources(ctx context.Context, in *SearchResourcesRequest, opts ...grpc.CallOption) (*SearchResourcesResponse, error)
+	// Searches subjects that can perform the requested action on the resource.
 	SearchSubjects(ctx context.Context, in *SearchSubjectsRequest, opts ...grpc.CallOption) (*SearchSubjectsResponse, error)
+	// Searches actions the subject can perform on the resource.
 	SearchActions(ctx context.Context, in *SearchActionsRequest, opts ...grpc.CallOption) (*SearchActionsResponse, error)
+	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
 	GetConfiguration(ctx context.Context, in *GetConfigurationRequest, opts ...grpc.CallOption) (*ConfigurationResponse, error)
 }
 
@@ -110,12 +118,20 @@ func (c *accessServiceClient) GetConfiguration(ctx context.Context, in *GetConfi
 // AccessServiceServer is the server API for AccessService service.
 // All implementations must embed UnimplementedAccessServiceServer
 // for forward compatibility.
+//
+// AccessService exposes AuthZEN-compatible authorization decision APIs.
 type AccessServiceServer interface {
+	// Evaluates a single AuthZEN-compatible access decision.
 	EvaluateAccess(context.Context, *EvaluateAccessRequest) (*EvaluateAccessResponse, error)
+	// Evaluates multiple AuthZEN-compatible access decisions in request order.
 	EvaluateAccessBatch(context.Context, *EvaluateAccessBatchRequest) (*EvaluateAccessBatchResponse, error)
+	// Searches resources the subject can access for the requested action.
 	SearchResources(context.Context, *SearchResourcesRequest) (*SearchResourcesResponse, error)
+	// Searches subjects that can perform the requested action on the resource.
 	SearchSubjects(context.Context, *SearchSubjectsRequest) (*SearchSubjectsResponse, error)
+	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *SearchActionsRequest) (*SearchActionsResponse, error)
+	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
 	GetConfiguration(context.Context, *GetConfigurationRequest) (*ConfigurationResponse, error)
 	mustEmbedUnimplementedAccessServiceServer()
 }

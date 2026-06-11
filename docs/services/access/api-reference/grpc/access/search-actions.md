@@ -12,6 +12,8 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 ## SearchActionsRequest
 
+SearchActionsRequest asks which actions the subject may perform on the resource.
+
 ```json
 {
   "subject": {
@@ -35,12 +37,14 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | No description. |
-| resource | Resource | No description. |
-| context | Struct | No description. |
-| page | PageRequest | No description. |
+| subject | Subject | Required. Subject for which permitted actions are searched. |
+| resource | Resource | Required. Resource on which actions are searched. |
+| context | Struct | Optional. Contextual data for the search request. |
+| page | PageRequest | Optional. Pagination request. |
 
 ## SearchActionsResponse
+
+SearchActionsResponse returns actions the subject may perform.
 
 ```json
 {
@@ -62,12 +66,14 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| results[] | Action | No description. |
-| page | PageResponse | No description. |
-| context | Struct | No description. |
+| results[] | Action | Required. Matching actions. The array may be empty. |
+| page | PageResponse | Output only. Pagination response. Present when pagination metadata is returned. |
+| context | Struct | Output only. Additional response context, such as query diagnostics. |
 
 ## Subject
 
+Subject identifies the principal for an AuthZEN access evaluation.
+
 ```json
 {
   "type": "string",
@@ -78,12 +84,14 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Subject type, for example "user" or "service_account". |
+| id | string | Required. Subject identifier scoped to type, for example "alice@example.com". |
+| properties | Struct | Optional. Additional AuthZEN-compatible subject attributes. |
 
 ## Resource
 
+Resource identifies the target object for an AuthZEN access evaluation.
+
 ```json
 {
   "type": "string",
@@ -94,11 +102,13 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | No description. |
-| id | string | No description. |
-| properties | Struct | No description. |
+| type | string | Required. Resource type, for example "account", "document", or "project". |
+| id | string | Required. Resource identifier scoped to type. |
+| properties | Struct | Optional. Additional AuthZEN-compatible resource attributes. |
 
 ## PageRequest
+
+PageRequest requests a subset of a larger Search API result set.
 
 ```json
 {
@@ -110,11 +120,13 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| limit | int32 | No description. |
-| token | string | No description. |
-| properties | Struct | No description. |
+| limit | int32 | Optional. Maximum number of results to return. |
+| token | string | Optional. Opaque token from the previous response page.next_token. |
+| properties | Struct | Optional. Additional implementation-specific pagination request attributes. |
 
 ## Action
+
+Action identifies the operation being authorized.
 
 ```json
 {
@@ -125,10 +137,12 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| name | string | No description. |
-| properties | Struct | No description. |
+| name | string | Required. Action name, for example "can_read", "read", or "project.delete". |
+| properties | Struct | Optional. Additional AuthZEN-compatible action attributes. |
 
 ## PageResponse
+
+PageResponse describes pagination metadata returned by a Search API response.
 
 ```json
 {
@@ -141,7 +155,7 @@ rpc SearchActions (SearchActionsRequest) returns (SearchActionsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| next_token | string | No description. |
-| count | int32 | No description. |
-| total | int32 | No description. |
-| properties | Struct | No description. |
+| next_token | string | Required. Opaque next-page token; empty string means there are no more results. |
+| count | int32 | Optional. Number of results included in this response. |
+| total | int32 | Optional. Total matching results at request time, if known. |
+| properties | Struct | Optional. Additional implementation-specific pagination response attributes. |

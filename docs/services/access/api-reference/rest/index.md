@@ -8,4 +8,4 @@
 
 | Service | Description |
 | --- | --- |
-| [Access](./access/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Access](./access/index.md) | AccessService exposes AuthZEN-compatible authorization decision APIs. |

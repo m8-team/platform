@@ -26,12 +26,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// EvaluateAccessRequest is the AuthZEN Access Evaluation API request.
 type EvaluateAccessRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Principal for which access is evaluated.
+	Subject *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Required. Action to evaluate.
+	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// Required. Resource on which the action is evaluated.
+	Resource *Resource `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Request context such as time, environment, or request metadata.
+	Context       *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -94,10 +99,13 @@ func (x *EvaluateAccessRequest) GetContext() *structpb.Struct {
 	return nil
 }
 
+// EvaluateAccessResponse is the AuthZEN Access Evaluation API response.
 type EvaluateAccessResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Decision      bool                   `protobuf:"varint,1,opt,name=decision,proto3" json:"decision,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,2,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Access decision; true means permit, false means deny.
+	Decision bool `protobuf:"varint,1,opt,name=decision,proto3" json:"decision,omitempty"`
+	// Output only. Decision context, including optional reasons or error details.
+	Context       *structpb.Struct `protobuf:"bytes,2,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -146,14 +154,21 @@ func (x *EvaluateAccessResponse) GetContext() *structpb.Struct {
 	return nil
 }
 
+// EvaluateAccessBatchRequest evaluates one or more access decisions.
 type EvaluateAccessBatchRequest struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Subject       *Subject                    `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        *Action                     `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *Resource                   `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct            `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	Options       *EvaluateAccessBatchOptions `protobuf:"bytes,5,opt,name=options,proto3" json:"options,omitempty"`
-	Evaluations   []*Evaluation               `protobuf:"bytes,6,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Default subject for evaluations that do not set an item-level subject.
+	Subject *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Optional. Default action for evaluations that do not set an item-level action.
+	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// Optional. Default resource for evaluations that do not set an item-level resource.
+	Resource *Resource `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Default context for evaluations that do not set an item-level context.
+	Context *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	// Optional. Batch execution options.
+	Options *EvaluateAccessBatchOptions `protobuf:"bytes,5,opt,name=options,proto3" json:"options,omitempty"`
+	// Optional. Item-level evaluations. An empty list is equivalent to a single evaluation using defaults.
+	Evaluations   []*Evaluation `protobuf:"bytes,6,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,8 +245,10 @@ func (x *EvaluateAccessBatchRequest) GetEvaluations() []*Evaluation {
 	return nil
 }
 
+// EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
 type EvaluateAccessBatchResponse struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Output only. Evaluation results; order matches the request evaluation order.
 	Evaluations   []*EvaluateAccessResponse `protobuf:"bytes,1,rep,name=evaluations,proto3" json:"evaluations,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -274,9 +291,11 @@ func (x *EvaluateAccessBatchResponse) GetEvaluations() []*EvaluateAccessResponse
 	return nil
 }
 
+// EvaluateAccessBatchOptions controls batch evaluation execution semantics.
 type EvaluateAccessBatchOptions struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	EvaluationsSemantic string                 `protobuf:"bytes,1,opt,name=evaluations_semantic,json=evaluationsSemantic,proto3" json:"evaluations_semantic,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.
+	EvaluationsSemantic string `protobuf:"bytes,1,opt,name=evaluations_semantic,json=evaluationsSemantic,proto3" json:"evaluations_semantic,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -318,13 +337,19 @@ func (x *EvaluateAccessBatchOptions) GetEvaluationsSemantic() string {
 	return ""
 }
 
+// SearchResourcesRequest asks which resources of a type are accessible.
 type SearchResourcesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *ResourceSelector      `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	Page          *PageRequest           `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Subject for which permitted resources are searched.
+	Subject *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Required. Action the subject must be allowed to perform.
+	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// Required. Resource selector. The type is required; id should be omitted and is ignored if present.
+	Resource *ResourceSelector `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Contextual data for the search request.
+	Context *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	// Optional. Pagination request.
+	Page          *PageRequest `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -394,11 +419,15 @@ func (x *SearchResourcesRequest) GetPage() *PageRequest {
 	return nil
 }
 
+// SearchResourcesResponse returns resources accessible to the subject.
 type SearchResourcesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*Resource            `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Matching resources. The array may be empty.
+	Results []*Resource `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	// Output only. Pagination response. Present when pagination metadata is returned.
+	Page *PageResponse `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	// Output only. Additional response context, such as query diagnostics.
+	Context       *structpb.Struct `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -454,13 +483,19 @@ func (x *SearchResourcesResponse) GetContext() *structpb.Struct {
 	return nil
 }
 
+// SearchSubjectsRequest asks which subjects of a type may access the resource.
 type SearchSubjectsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *SubjectSelector       `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
-	Page          *PageRequest           `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Subject selector. The type is required; id should be omitted and is ignored if present.
+	Subject *SubjectSelector `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Required. Action returned subjects must be allowed to perform.
+	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
+	// Required. Resource on which the action is evaluated.
+	Resource *Resource `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Contextual data for the search request.
+	Context *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	// Optional. Pagination request.
+	Page          *PageRequest `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -530,11 +565,15 @@ func (x *SearchSubjectsRequest) GetPage() *PageRequest {
 	return nil
 }
 
+// SearchSubjectsResponse returns subjects allowed to perform the action.
 type SearchSubjectsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*Subject             `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Matching subjects. The array may be empty.
+	Results []*Subject `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	// Output only. Pagination response. Present when pagination metadata is returned.
+	Page *PageResponse `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	// Output only. Additional response context, such as query diagnostics.
+	Context       *structpb.Struct `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -590,6 +629,7 @@ func (x *SearchSubjectsResponse) GetContext() *structpb.Struct {
 	return nil
 }
 
+// GetConfigurationRequest is empty for AuthZEN metadata discovery.
 type GetConfigurationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -626,12 +666,17 @@ func (*GetConfigurationRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{9}
 }
 
+// SearchActionsRequest asks which actions the subject may perform on the resource.
 type SearchActionsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	Resource      *Resource              `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
-	Page          *PageRequest           `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Subject for which permitted actions are searched.
+	Subject *Subject `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	// Required. Resource on which actions are searched.
+	Resource *Resource `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Optional. Contextual data for the search request.
+	Context *structpb.Struct `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	// Optional. Pagination request.
+	Page          *PageRequest `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -694,11 +739,15 @@ func (x *SearchActionsRequest) GetPage() *PageRequest {
 	return nil
 }
 
+// SearchActionsResponse returns actions the subject may perform.
 type SearchActionsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Results       []*Action              `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
-	Page          *PageResponse          `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
-	Context       *structpb.Struct       `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Matching actions. The array may be empty.
+	Results []*Action `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	// Output only. Pagination response. Present when pagination metadata is returned.
+	Page *PageResponse `protobuf:"bytes,2,opt,name=page,proto3" json:"page,omitempty"`
+	// Output only. Additional response context, such as query diagnostics.
+	Context       *structpb.Struct `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -754,17 +803,25 @@ func (x *SearchActionsResponse) GetContext() *structpb.Struct {
 	return nil
 }
 
+// ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 type ConfigurationResponse struct {
-	state                     protoimpl.MessageState `protogen:"open.v1"`
-	PolicyDecisionPoint       string                 `protobuf:"bytes,1,opt,name=policy_decision_point,json=policyDecisionPoint,proto3" json:"policy_decision_point,omitempty"`
-	AccessEvaluationEndpoint  string                 `protobuf:"bytes,2,opt,name=access_evaluation_endpoint,json=accessEvaluationEndpoint,proto3" json:"access_evaluation_endpoint,omitempty"`
-	AccessEvaluationsEndpoint string                 `protobuf:"bytes,3,opt,name=access_evaluations_endpoint,json=accessEvaluationsEndpoint,proto3" json:"access_evaluations_endpoint,omitempty"`
-	SearchResourceEndpoint    string                 `protobuf:"bytes,4,opt,name=search_resource_endpoint,json=searchResourceEndpoint,proto3" json:"search_resource_endpoint,omitempty"`
-	SearchSubjectEndpoint     string                 `protobuf:"bytes,5,opt,name=search_subject_endpoint,json=searchSubjectEndpoint,proto3" json:"search_subject_endpoint,omitempty"`
-	SearchActionEndpoint      string                 `protobuf:"bytes,6,opt,name=search_action_endpoint,json=searchActionEndpoint,proto3" json:"search_action_endpoint,omitempty"`
-	Capabilities              []string               `protobuf:"bytes,7,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. HTTPS Policy Decision Point identifier without query or fragment components.
+	PolicyDecisionPoint string `protobuf:"bytes,1,opt,name=policy_decision_point,json=policyDecisionPoint,proto3" json:"policy_decision_point,omitempty"`
+	// Required. URL of the Access Evaluation API endpoint.
+	AccessEvaluationEndpoint string `protobuf:"bytes,2,opt,name=access_evaluation_endpoint,json=accessEvaluationEndpoint,proto3" json:"access_evaluation_endpoint,omitempty"`
+	// Optional. URL of the Access Evaluations API endpoint.
+	AccessEvaluationsEndpoint string `protobuf:"bytes,3,opt,name=access_evaluations_endpoint,json=accessEvaluationsEndpoint,proto3" json:"access_evaluations_endpoint,omitempty"`
+	// Optional. URL of the Resource Search API endpoint.
+	SearchResourceEndpoint string `protobuf:"bytes,4,opt,name=search_resource_endpoint,json=searchResourceEndpoint,proto3" json:"search_resource_endpoint,omitempty"`
+	// Optional. URL of the Subject Search API endpoint.
+	SearchSubjectEndpoint string `protobuf:"bytes,5,opt,name=search_subject_endpoint,json=searchSubjectEndpoint,proto3" json:"search_subject_endpoint,omitempty"`
+	// Optional. URL of the Action Search API endpoint.
+	SearchActionEndpoint string `protobuf:"bytes,6,opt,name=search_action_endpoint,json=searchActionEndpoint,proto3" json:"search_action_endpoint,omitempty"`
+	// Optional. Capability URNs supported by this PDP.
+	Capabilities  []string `protobuf:"bytes,7,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfigurationResponse) Reset() {
@@ -846,11 +903,15 @@ func (x *ConfigurationResponse) GetCapabilities() []string {
 	return nil
 }
 
+// PageRequest requests a subset of a larger Search API result set.
 type PageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Token         string                 `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional. Maximum number of results to return.
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Optional. Opaque token from the previous response page.next_token.
+	Token string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
+	// Optional. Additional implementation-specific pagination request attributes.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -906,12 +967,17 @@ func (x *PageRequest) GetProperties() *structpb.Struct {
 	return nil
 }
 
+// PageResponse describes pagination metadata returned by a Search API response.
 type PageResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NextToken     string                 `protobuf:"bytes,2,opt,name=next_token,json=nextToken,proto3" json:"next_token,omitempty"`
-	Count         *int32                 `protobuf:"varint,1,opt,name=count,proto3,oneof" json:"count,omitempty"`
-	Total         *int32                 `protobuf:"varint,4,opt,name=total,proto3,oneof" json:"total,omitempty"`
-	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. Opaque next-page token; empty string means there are no more results.
+	NextToken string `protobuf:"bytes,2,opt,name=next_token,proto3" json:"next_token,omitempty"`
+	// Optional. Number of results included in this response.
+	Count *int32 `protobuf:"varint,1,opt,name=count,proto3,oneof" json:"count,omitempty"`
+	// Optional. Total matching results at request time, if known.
+	Total *int32 `protobuf:"varint,4,opt,name=total,proto3,oneof" json:"total,omitempty"`
+	// Optional. Additional implementation-specific pagination response attributes.
+	Properties    *structpb.Struct `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1041,10 +1107,11 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x05token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\x05token\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties\"\xe6\x01\n" +
-	"\fPageResponse\x12-\n" +
+	"properties\"\xe7\x01\n" +
+	"\fPageResponse\x12.\n" +
 	"\n" +
-	"next_token\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x03\xbaH\x05r\x03\x18\x80 R\tnextToken\x12(\n" +
+	"next_token\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x03\xbaH\x05r\x03\x18\x80 R\n" +
+	"next_token\x12(\n" +
 	"\x05count\x18\x01 \x01(\x05B\r\xe0A\x01\xe0A\x03\xbaH\x04\x1a\x02(\x00H\x00R\x05count\x88\x01\x01\x12(\n" +
 	"\x05total\x18\x04 \x01(\x05B\r\xe0A\x01\xe0A\x03\xbaH\x04\x1a\x02(\x00H\x01R\x05total\x88\x01\x01\x12?\n" +
 	"\n" +
