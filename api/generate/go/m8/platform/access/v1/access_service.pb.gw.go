@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -172,7 +173,7 @@ func local_request_AccessService_SearchActions_0(ctx context.Context, marshaler 
 
 func request_AccessService_GetConfiguration_0(ctx context.Context, marshaler runtime.Marshaler, client AccessServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq GetConfigurationRequest
+		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
@@ -184,7 +185,7 @@ func request_AccessService_GetConfiguration_0(ctx context.Context, marshaler run
 
 func local_request_AccessService_GetConfiguration_0(ctx context.Context, marshaler runtime.Marshaler, server AccessServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq GetConfigurationRequest
+		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
 	)
 	msg, err := server.GetConfiguration(ctx, &protoReq)

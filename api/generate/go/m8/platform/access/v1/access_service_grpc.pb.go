@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -44,7 +45,7 @@ type AccessServiceClient interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(ctx context.Context, in *SearchActionsRequest, opts ...grpc.CallOption) (*SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(ctx context.Context, in *GetConfigurationRequest, opts ...grpc.CallOption) (*ConfigurationResponse, error)
+	GetConfiguration(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigurationResponse, error)
 }
 
 type accessServiceClient struct {
@@ -105,7 +106,7 @@ func (c *accessServiceClient) SearchActions(ctx context.Context, in *SearchActio
 	return out, nil
 }
 
-func (c *accessServiceClient) GetConfiguration(ctx context.Context, in *GetConfigurationRequest, opts ...grpc.CallOption) (*ConfigurationResponse, error) {
+func (c *accessServiceClient) GetConfiguration(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigurationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConfigurationResponse)
 	err := c.cc.Invoke(ctx, AccessService_GetConfiguration_FullMethodName, in, out, cOpts...)
@@ -132,7 +133,7 @@ type AccessServiceServer interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *SearchActionsRequest) (*SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(context.Context, *GetConfigurationRequest) (*ConfigurationResponse, error)
+	GetConfiguration(context.Context, *emptypb.Empty) (*ConfigurationResponse, error)
 	mustEmbedUnimplementedAccessServiceServer()
 }
 
@@ -158,7 +159,7 @@ func (UnimplementedAccessServiceServer) SearchSubjects(context.Context, *SearchS
 func (UnimplementedAccessServiceServer) SearchActions(context.Context, *SearchActionsRequest) (*SearchActionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SearchActions not implemented")
 }
-func (UnimplementedAccessServiceServer) GetConfiguration(context.Context, *GetConfigurationRequest) (*ConfigurationResponse, error) {
+func (UnimplementedAccessServiceServer) GetConfiguration(context.Context, *emptypb.Empty) (*ConfigurationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetConfiguration not implemented")
 }
 func (UnimplementedAccessServiceServer) mustEmbedUnimplementedAccessServiceServer() {}
@@ -273,7 +274,7 @@ func _AccessService_SearchActions_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _AccessService_GetConfiguration_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetConfigurationRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -285,7 +286,7 @@ func _AccessService_GetConfiguration_Handler(srv interface{}, ctx context.Contex
 		FullMethod: AccessService_GetConfiguration_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccessServiceServer).GetConfiguration(ctx, req.(*GetConfigurationRequest))
+		return srv.(AccessServiceServer).GetConfiguration(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

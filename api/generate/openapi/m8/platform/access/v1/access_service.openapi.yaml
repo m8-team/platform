@@ -138,22 +138,22 @@ components:
         ConfigurationResponse:
             type: object
             properties:
-                policyDecisionPoint:
+                policy_decision_point:
                     type: string
                     description: Required. HTTPS Policy Decision Point identifier without query or fragment components.
-                accessEvaluationEndpoint:
+                access_evaluation_endpoint:
                     type: string
                     description: Required. URL of the Access Evaluation API endpoint.
-                accessEvaluationsEndpoint:
+                access_evaluations_endpoint:
                     type: string
                     description: Optional. URL of the Access Evaluations API endpoint.
-                searchResourceEndpoint:
+                search_resource_endpoint:
                     type: string
                     description: Optional. URL of the Resource Search API endpoint.
-                searchSubjectEndpoint:
+                search_subject_endpoint:
                     type: string
                     description: Optional. URL of the Subject Search API endpoint.
-                searchActionEndpoint:
+                search_action_endpoint:
                     type: string
                     description: Optional. URL of the Action Search API endpoint.
                 capabilities:
@@ -161,11 +161,14 @@ components:
                     items:
                         type: string
                     description: Optional. Capability URNs supported by this PDP.
+                signed_metadata:
+                    type: string
+                    description: Optional. Signed metadata JWT that cryptographically protects metadata contents.
             description: ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
         EvaluateAccessBatchOptions:
             type: object
             properties:
-                evaluationsSemantic:
+                evaluations_semantic:
                     type: string
                     description: 'Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.'
             description: EvaluateAccessBatchOptions controls batch evaluation execution semantics.

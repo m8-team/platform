@@ -6,6 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
 import "m8/platform/common/extension/v1/extension.proto";
@@ -82,7 +83,7 @@ service AccessService {
   }
 
   // Returns the AuthZEN discovery configuration for this Policy Decision Point.
-  rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
+  rpc GetConfiguration(google.protobuf.Empty) returns (ConfigurationResponse) {
     option (google.api.http) = {get: "/.well-known/authzen-configuration"};
     option (gnostic.openapi.v3.operation) = {
       summary: "Configuration"
@@ -143,22 +144,28 @@ message EvaluateAccessBatchRequest {
   EvaluateAccessBatchOptions options = 5 [(google.api.field_behavior) = OPTIONAL];
 
   // Optional. Item-level evaluations. An empty list is equivalent to a single evaluation using defaults.
-  repeated Evaluation evaluations = 6 [(buf.validate.field).repeated = {
-    min_items: 0
-    max_items: 1000
-  }];
+  repeated Evaluation evaluations = 6 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).repeated = {
+      min_items: 0
+      max_items: 1000
+    }
+  ];
 }
 
 // EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
 message EvaluateAccessBatchResponse {
-  // Output only. Evaluation results; order matches the request evaluation order.
+  // Output only. Evaluation results in execution order.
+  // For execute_all, order matches the full request evaluation order.
+  // For short-circuit semantics, the array may contain only the evaluated prefix
   repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EvaluateAccessBatchOptions controls batch evaluation execution semantics.
 message EvaluateAccessBatchOptions {
   // Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.
-  string evaluations_semantic = 1 [
+  optional string evaluations_semantic = 1 [
+    json_name = "evaluations_semantic",
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string = {
       in: [
@@ -254,9 +261,6 @@ message SearchSubjectsResponse {
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
-// GetConfigurationRequest is empty for AuthZEN metadata discovery.
-message GetConfigurationRequest {}
-
 // SearchActionsRequest asks which actions the subject may perform on the resource.
 message SearchActionsRequest {
   // Required. Subject for which permitted actions are searched.
@@ -296,22 +300,43 @@ message SearchActionsResponse {
 // ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 message ConfigurationResponse {
   // Required. HTTPS Policy Decision Point identifier without query or fragment components.
-  string policy_decision_point = 1 [(buf.validate.field).string.uri = true];
+  string policy_decision_point = 1 [
+    json_name = "policy_decision_point",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Required. URL of the Access Evaluation API endpoint.
-  string access_evaluation_endpoint = 2 [(buf.validate.field).string.uri = true];
+  string access_evaluation_endpoint = 2 [
+    json_name = "access_evaluation_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Access Evaluations API endpoint.
-  string access_evaluations_endpoint = 3 [(buf.validate.field).string.uri = true];
+  optional string access_evaluations_endpoint = 3 [
+    json_name = "access_evaluations_endpoint",
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Resource Search API endpoint.
-  string search_resource_endpoint = 4 [(buf.validate.field).string.uri = true];
+  optional string search_resource_endpoint = 4 [
+    json_name = "search_resource_endpoint",
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Subject Search API endpoint.
-  string search_subject_endpoint = 5 [(buf.validate.field).string.uri = true];
+  optional string search_subject_endpoint = 5 [
+    json_name = "search_subject_endpoint",
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Action Search API endpoint.
-  string search_action_endpoint = 6 [(buf.validate.field).string.uri = true];
+  optional string search_action_endpoint = 6 [
+    json_name = "search_action_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. Capability URNs supported by this PDP.
   repeated string capabilities = 7 [(buf.validate.field).repeated = {
@@ -323,6 +348,12 @@ message ConfigurationResponse {
       }
     }
   }];
+
+  // Optional. Signed metadata JWT that cryptographically protects metadata contents.
+  optional string signed_metadata = 8 [
+    json_name = "signed_metadata",
+    (google.api.field_behavior) = OPTIONAL
+  ];
 }
 
 // PageRequest requests a subset of a larger Search API result set.
