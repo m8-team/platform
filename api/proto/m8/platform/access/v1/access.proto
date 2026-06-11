@@ -14,7 +14,7 @@ message Subject {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
-      min_len: 3
+      min_len: 1
       max_len: 64
     }
   ];
@@ -22,7 +22,10 @@ message Subject {
   // Required. Subject identifier scoped to type, for example "alice@example.com".
   string id = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 256
+    }
   ];
 
   // Optional. Additional AuthZEN-compatible subject attributes.
@@ -35,7 +38,7 @@ message SubjectSelector {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
-      min_len: 3
+      min_len: 1
       max_len: 64
     }
   ];
@@ -53,7 +56,7 @@ message Action {
   string name = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
-      min_len: 3
+      min_len: 1
       max_len: 128
     }
   ];
@@ -68,7 +71,7 @@ message Resource {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
-      min_len: 3
+      min_len: 1
       max_len: 64
     }
   ];
@@ -76,7 +79,10 @@ message Resource {
   // Required. Resource identifier scoped to type.
   string id = 2 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.max_len = 256
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 256
+    }
   ];
 
   // Optional. Additional AuthZEN-compatible resource attributes.
@@ -89,7 +95,7 @@ message ResourceSelector {
   string type = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string = {
-      min_len: 3
+      min_len: 1
       max_len: 64
     }
   ];

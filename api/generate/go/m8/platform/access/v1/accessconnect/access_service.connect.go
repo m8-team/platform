@@ -9,6 +9,7 @@ import (
 	context "context"
 	errors "errors"
 	v1 "github.com/m8-platform/m8/gen/go/m8/platform/access/v1"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	http "net/http"
 	strings "strings"
 )
@@ -66,7 +67,8 @@ type AccessServiceClient interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
+	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+	GetConfiguration(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 
 // NewAccessServiceClient constructs a client for the m8.platform.access.v1.AccessService service.
@@ -110,7 +112,7 @@ func NewAccessServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(accessServiceMethods.ByName("SearchActions")),
 			connect.WithClientOptions(opts...),
 		),
-		getConfiguration: connect.NewClient[v1.GetConfigurationRequest, v1.ConfigurationResponse](
+		getConfiguration: connect.NewClient[emptypb.Empty, v1.ConfigurationResponse](
 			httpClient,
 			baseURL+AccessServiceGetConfigurationProcedure,
 			connect.WithSchema(accessServiceMethods.ByName("GetConfiguration")),
@@ -126,7 +128,7 @@ type accessServiceClient struct {
 	searchResources     *connect.Client[v1.SearchResourcesRequest, v1.SearchResourcesResponse]
 	searchSubjects      *connect.Client[v1.SearchSubjectsRequest, v1.SearchSubjectsResponse]
 	searchActions       *connect.Client[v1.SearchActionsRequest, v1.SearchActionsResponse]
-	getConfiguration    *connect.Client[v1.GetConfigurationRequest, v1.ConfigurationResponse]
+	getConfiguration    *connect.Client[emptypb.Empty, v1.ConfigurationResponse]
 }
 
 // EvaluateAccess calls m8.platform.access.v1.AccessService.EvaluateAccess.
@@ -155,7 +157,7 @@ func (c *accessServiceClient) SearchActions(ctx context.Context, req *connect.Re
 }
 
 // GetConfiguration calls m8.platform.access.v1.AccessService.GetConfiguration.
-func (c *accessServiceClient) GetConfiguration(ctx context.Context, req *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error) {
+func (c *accessServiceClient) GetConfiguration(ctx context.Context, req *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error) {
 	return c.getConfiguration.CallUnary(ctx, req)
 }
 
@@ -172,7 +174,8 @@ type AccessServiceHandler interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
+	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+	GetConfiguration(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 
 // NewAccessServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -261,6 +264,6 @@ func (UnimplementedAccessServiceHandler) SearchActions(context.Context, *connect
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.SearchActions is not implemented"))
 }
 
-func (UnimplementedAccessServiceHandler) GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error) {
+func (UnimplementedAccessServiceHandler) GetConfiguration(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.GetConfiguration is not implemented"))
 }
