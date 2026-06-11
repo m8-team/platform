@@ -5,8 +5,8 @@ package m8.platform.access.v1;
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
 import "m8/platform/common/extension/v1/extension.proto";
@@ -83,8 +83,12 @@ service AccessService {
   }
 
   // Returns the AuthZEN discovery configuration for this Policy Decision Point.
-  rpc GetConfiguration(google.protobuf.Empty) returns (ConfigurationResponse) {
-    option (google.api.http) = {get: "/.well-known/authzen-configuration"};
+  rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
+    option (google.api.http) = {
+      get: "/v1/access/configuration"
+      additional_bindings: {get: "/.well-known/authzen-configuration"}
+    };
+    option (google.api.method_signature) = "name";
     option (gnostic.openapi.v3.operation) = {
       summary: "Configuration"
       description: "Returns the AuthZEN discovery configuration for this Policy Decision Point."
@@ -296,6 +300,9 @@ message SearchActionsResponse {
   // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
+
+// GetConfigurationRequest requests the singleton Access configuration resource.
+message GetConfigurationRequest {}
 
 // ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 message ConfigurationResponse {

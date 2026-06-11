@@ -14,3 +14,4 @@ AccessService exposes AuthZEN-compatible authorization decision APIs.
 | [SearchActions](./SearchActions.md) | Searches actions the subject can perform on the resource. |
 | [SearchResources](./SearchResources.md) | Searches resources the subject can access for the requested action. |
 | [SearchSubjects](./SearchSubjects.md) | Searches subjects that can perform the requested action on the resource. |
+| [Configuration](./GetConfiguration.md) | Returns the AuthZEN discovery configuration for this Policy Decision Point. |
