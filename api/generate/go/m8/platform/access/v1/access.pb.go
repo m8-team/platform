@@ -84,6 +84,66 @@ func (x *Subject) GetProperties() *structpb.Struct {
 	return nil
 }
 
+type SubjectSelector struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubjectSelector) Reset() {
+	*x = SubjectSelector{}
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubjectSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubjectSelector) ProtoMessage() {}
+
+func (x *SubjectSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubjectSelector.ProtoReflect.Descriptor instead.
+func (*SubjectSelector) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SubjectSelector) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *SubjectSelector) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SubjectSelector) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
 type Action struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -94,7 +154,7 @@ type Action struct {
 
 func (x *Action) Reset() {
 	*x = Action{}
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[1]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -106,7 +166,7 @@ func (x *Action) String() string {
 func (*Action) ProtoMessage() {}
 
 func (x *Action) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[1]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -119,7 +179,7 @@ func (x *Action) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Action.ProtoReflect.Descriptor instead.
 func (*Action) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{1}
+	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Action) GetName() string {
@@ -147,7 +207,7 @@ type Resource struct {
 
 func (x *Resource) Reset() {
 	*x = Resource{}
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[2]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -159,7 +219,7 @@ func (x *Resource) String() string {
 func (*Resource) ProtoMessage() {}
 
 func (x *Resource) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[2]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -172,7 +232,7 @@ func (x *Resource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Resource.ProtoReflect.Descriptor instead.
 func (*Resource) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{2}
+	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Resource) GetType() string {
@@ -196,6 +256,66 @@ func (x *Resource) GetProperties() *structpb.Struct {
 	return nil
 }
 
+type ResourceSelector struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,3,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResourceSelector) Reset() {
+	*x = ResourceSelector{}
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResourceSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResourceSelector) ProtoMessage() {}
+
+func (x *ResourceSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResourceSelector.ProtoReflect.Descriptor instead.
+func (*ResourceSelector) Descriptor() ([]byte, []int) {
+	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ResourceSelector) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ResourceSelector) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ResourceSelector) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
 type Evaluation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
@@ -208,7 +328,7 @@ type Evaluation struct {
 
 func (x *Evaluation) Reset() {
 	*x = Evaluation{}
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[3]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -220,7 +340,7 @@ func (x *Evaluation) String() string {
 func (*Evaluation) ProtoMessage() {}
 
 func (x *Evaluation) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_access_v1_access_proto_msgTypes[3]
+	mi := &file_m8_platform_access_v1_access_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -233,7 +353,7 @@ func (x *Evaluation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Evaluation.ProtoReflect.Descriptor instead.
 func (*Evaluation) Descriptor() ([]byte, []int) {
-	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{3}
+	return file_m8_platform_access_v1_access_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Evaluation) GetSubject() *Subject {
@@ -274,15 +394,27 @@ const file_m8_platform_access_v1_access_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\x18\x80\x02R\x02id\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties\"\x8e\x01\n" +
-	"\x06Action\x12F\n" +
-	"\x04name\x18\x01 \x01(\tB2\xe0A\x02\xbaH,r*\x18\x80\x012%^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$R\x04name\x12<\n" +
+	"properties\"\x8b\x01\n" +
+	"\x0fSubjectSelector\x12 \n" +
+	"\x04type\x18\x01 \x01(\tB\f\xe0A\x02\xbaH\x06r\x04\x10\x03\x18@R\x04type\x12\x18\n" +
+	"\x02id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\x02id\x12<\n" +
+	"\n" +
+	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
+	"properties\"i\n" +
+	"\x06Action\x12!\n" +
+	"\x04name\x18\x01 \x01(\tB\r\xe0A\x02\xbaH\ar\x05\x10\x03\x18\x80\x01R\x04name\x12<\n" +
 	"\n" +
 	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties\"\x98\x01\n" +
-	"\bResource\x121\n" +
-	"\x04type\x18\x01 \x01(\tB\x1d\xe0A\x02\xbaH\x17r\x15\x18@2\x11^[a-z][a-z0-9_]*$R\x04type\x12\x1b\n" +
+	"properties\"\x87\x01\n" +
+	"\bResource\x12 \n" +
+	"\x04type\x18\x01 \x01(\tB\f\xe0A\x02\xbaH\x06r\x04\x10\x03\x18@R\x04type\x12\x1b\n" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\x18\x80\x02R\x02id\x12<\n" +
+	"\n" +
+	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
+	"properties\"\x8c\x01\n" +
+	"\x10ResourceSelector\x12 \n" +
+	"\x04type\x18\x01 \x01(\tB\f\xe0A\x02\xbaH\x06r\x04\x10\x03\x18@R\x04type\x12\x18\n" +
+	"\x02id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x02R\x02id\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
 	"properties\"\x81\x02\n" +
@@ -305,27 +437,31 @@ func file_m8_platform_access_v1_access_proto_rawDescGZIP() []byte {
 	return file_m8_platform_access_v1_access_proto_rawDescData
 }
 
-var file_m8_platform_access_v1_access_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_m8_platform_access_v1_access_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_m8_platform_access_v1_access_proto_goTypes = []any{
-	(*Subject)(nil),         // 0: m8.platform.access.v1.Subject
-	(*Action)(nil),          // 1: m8.platform.access.v1.Action
-	(*Resource)(nil),        // 2: m8.platform.access.v1.Resource
-	(*Evaluation)(nil),      // 3: m8.platform.access.v1.Evaluation
-	(*structpb.Struct)(nil), // 4: google.protobuf.Struct
+	(*Subject)(nil),          // 0: m8.platform.access.v1.Subject
+	(*SubjectSelector)(nil),  // 1: m8.platform.access.v1.SubjectSelector
+	(*Action)(nil),           // 2: m8.platform.access.v1.Action
+	(*Resource)(nil),         // 3: m8.platform.access.v1.Resource
+	(*ResourceSelector)(nil), // 4: m8.platform.access.v1.ResourceSelector
+	(*Evaluation)(nil),       // 5: m8.platform.access.v1.Evaluation
+	(*structpb.Struct)(nil),  // 6: google.protobuf.Struct
 }
 var file_m8_platform_access_v1_access_proto_depIdxs = []int32{
-	4, // 0: m8.platform.access.v1.Subject.properties:type_name -> google.protobuf.Struct
-	4, // 1: m8.platform.access.v1.Action.properties:type_name -> google.protobuf.Struct
-	4, // 2: m8.platform.access.v1.Resource.properties:type_name -> google.protobuf.Struct
-	0, // 3: m8.platform.access.v1.Evaluation.subject:type_name -> m8.platform.access.v1.Subject
-	1, // 4: m8.platform.access.v1.Evaluation.action:type_name -> m8.platform.access.v1.Action
-	2, // 5: m8.platform.access.v1.Evaluation.resource:type_name -> m8.platform.access.v1.Resource
-	4, // 6: m8.platform.access.v1.Evaluation.context:type_name -> google.protobuf.Struct
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	6, // 0: m8.platform.access.v1.Subject.properties:type_name -> google.protobuf.Struct
+	6, // 1: m8.platform.access.v1.SubjectSelector.properties:type_name -> google.protobuf.Struct
+	6, // 2: m8.platform.access.v1.Action.properties:type_name -> google.protobuf.Struct
+	6, // 3: m8.platform.access.v1.Resource.properties:type_name -> google.protobuf.Struct
+	6, // 4: m8.platform.access.v1.ResourceSelector.properties:type_name -> google.protobuf.Struct
+	0, // 5: m8.platform.access.v1.Evaluation.subject:type_name -> m8.platform.access.v1.Subject
+	2, // 6: m8.platform.access.v1.Evaluation.action:type_name -> m8.platform.access.v1.Action
+	3, // 7: m8.platform.access.v1.Evaluation.resource:type_name -> m8.platform.access.v1.Resource
+	6, // 8: m8.platform.access.v1.Evaluation.context:type_name -> google.protobuf.Struct
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_access_v1_access_proto_init() }
@@ -339,7 +475,7 @@ func file_m8_platform_access_v1_access_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_access_v1_access_proto_rawDesc), len(file_m8_platform_access_v1_access_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

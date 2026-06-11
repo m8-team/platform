@@ -155,7 +155,10 @@ message SearchResourcesRequest {
     (buf.validate.field).required = true
   ];
 
-  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
+  ResourceSelector resource = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
 
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 
@@ -163,7 +166,10 @@ message SearchResourcesRequest {
 }
 
 message SearchResourcesResponse {
-  repeated Resource results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated Resource results = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -171,7 +177,10 @@ message SearchResourcesResponse {
 }
 
 message SearchSubjectsRequest {
-  Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
+  SubjectSelector subject = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
 
   Action action = 2 [
     (google.api.field_behavior) = REQUIRED,
@@ -189,7 +198,10 @@ message SearchSubjectsRequest {
 }
 
 message SearchSubjectsResponse {
-  repeated Subject results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated Subject results = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -215,7 +227,10 @@ message SearchActionsRequest {
 }
 
 message SearchActionsResponse {
-  repeated Action results = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  repeated Action results = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
@@ -260,9 +275,7 @@ message PageRequest {
     (buf.validate.field).string.max_len = 4096
   ];
 
-  google.protobuf.Struct properties = 3 [
-    (google.api.field_behavior) = OPTIONAL]
-  ;
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message PageResponse {
@@ -285,6 +298,7 @@ message PageResponse {
   ];
 
   google.protobuf.Struct properties = 3 [
+    (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
 }

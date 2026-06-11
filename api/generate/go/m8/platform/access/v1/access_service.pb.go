@@ -322,7 +322,7 @@ type SearchResourcesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
-	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
+	Resource      *ResourceSelector      `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
 	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
 	Page          *PageRequest           `protobuf:"bytes,5,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -373,7 +373,7 @@ func (x *SearchResourcesRequest) GetAction() *Action {
 	return nil
 }
 
-func (x *SearchResourcesRequest) GetResource() *Resource {
+func (x *SearchResourcesRequest) GetResource() *ResourceSelector {
 	if x != nil {
 		return x.Resource
 	}
@@ -456,7 +456,7 @@ func (x *SearchResourcesResponse) GetContext() *structpb.Struct {
 
 type SearchSubjectsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	Subject       *SubjectSelector       `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
 	Action        *Action                `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	Resource      *Resource              `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
 	Context       *structpb.Struct       `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
@@ -495,7 +495,7 @@ func (*SearchSubjectsRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *SearchSubjectsRequest) GetSubject() *Subject {
+func (x *SearchSubjectsRequest) GetSubject() *SubjectSelector {
 	if x != nil {
 		return x.Subject
 	}
@@ -997,25 +997,25 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x1bEvaluateAccessBatchResponse\x12T\n" +
 	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\x92\x01\n" +
 	"\x1aEvaluateAccessBatchOptions\x12t\n" +
-	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitR\x13evaluationsSemantic\"\xd6\x02\n" +
+	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitR\x13evaluationsSemantic\"\xe4\x02\n" +
 	"\x16SearchResourcesRequest\x12C\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
-	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12@\n" +
-	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
+	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12N\n" +
+	"\bresource\x18\x03 \x01(\v2'.m8.platform.access.v1.ResourceSelectorB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x126\n" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
-	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcf\x01\n" +
-	"\x17SearchResourcesResponse\x12>\n" +
-	"\aresults\x18\x01 \x03(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xd2\x01\n" +
+	"\x17SearchResourcesResponse\x12A\n" +
+	"\aresults\x18\x01 \x03(\v2\x1f.m8.platform.access.v1.ResourceB\x06\xe0A\x02\xe0A\x03R\aresults\x12<\n" +
 	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
-	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xd5\x02\n" +
-	"\x15SearchSubjectsRequest\x12=\n" +
-	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x01R\asubject\x12@\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xe3\x02\n" +
+	"\x15SearchSubjectsRequest\x12K\n" +
+	"\asubject\x18\x01 \x01(\v2&.m8.platform.access.v1.SubjectSelectorB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12F\n" +
 	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x126\n" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
-	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcd\x01\n" +
-	"\x16SearchSubjectsResponse\x12=\n" +
-	"\aresults\x18\x01 \x03(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x05 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xd0\x01\n" +
+	"\x16SearchSubjectsResponse\x12@\n" +
+	"\aresults\x18\x01 \x03(\v2\x1e.m8.platform.access.v1.SubjectB\x06\xe0A\x02\xe0A\x03R\aresults\x12<\n" +
 	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
 	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\x19\n" +
 	"\x17GetConfigurationRequest\"\x98\x02\n" +
@@ -1023,9 +1023,9 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12F\n" +
 	"\bresource\x18\x02 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bresource\x126\n" +
 	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12;\n" +
-	"\x04page\x18\x04 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xcb\x01\n" +
-	"\x15SearchActionsResponse\x12<\n" +
-	"\aresults\x18\x01 \x03(\v2\x1d.m8.platform.access.v1.ActionB\x03\xe0A\x03R\aresults\x12<\n" +
+	"\x04page\x18\x04 \x01(\v2\".m8.platform.access.v1.PageRequestB\x03\xe0A\x01R\x04page\"\xce\x01\n" +
+	"\x15SearchActionsResponse\x12?\n" +
+	"\aresults\x18\x01 \x03(\v2\x1d.m8.platform.access.v1.ActionB\x06\xe0A\x02\xe0A\x03R\aresults\x12<\n" +
 	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
 	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xe4\x03\n" +
 	"\x15ConfigurationResponse\x12<\n" +
@@ -1094,6 +1094,8 @@ var file_m8_platform_access_v1_access_service_proto_goTypes = []any{
 	(*Resource)(nil),                    // 17: m8.platform.access.v1.Resource
 	(*structpb.Struct)(nil),             // 18: google.protobuf.Struct
 	(*Evaluation)(nil),                  // 19: m8.platform.access.v1.Evaluation
+	(*ResourceSelector)(nil),            // 20: m8.platform.access.v1.ResourceSelector
+	(*SubjectSelector)(nil),             // 21: m8.platform.access.v1.SubjectSelector
 }
 var file_m8_platform_access_v1_access_service_proto_depIdxs = []int32{
 	15, // 0: m8.platform.access.v1.EvaluateAccessRequest.subject:type_name -> m8.platform.access.v1.Subject
@@ -1110,13 +1112,13 @@ var file_m8_platform_access_v1_access_service_proto_depIdxs = []int32{
 	1,  // 11: m8.platform.access.v1.EvaluateAccessBatchResponse.evaluations:type_name -> m8.platform.access.v1.EvaluateAccessResponse
 	15, // 12: m8.platform.access.v1.SearchResourcesRequest.subject:type_name -> m8.platform.access.v1.Subject
 	16, // 13: m8.platform.access.v1.SearchResourcesRequest.action:type_name -> m8.platform.access.v1.Action
-	17, // 14: m8.platform.access.v1.SearchResourcesRequest.resource:type_name -> m8.platform.access.v1.Resource
+	20, // 14: m8.platform.access.v1.SearchResourcesRequest.resource:type_name -> m8.platform.access.v1.ResourceSelector
 	18, // 15: m8.platform.access.v1.SearchResourcesRequest.context:type_name -> google.protobuf.Struct
 	13, // 16: m8.platform.access.v1.SearchResourcesRequest.page:type_name -> m8.platform.access.v1.PageRequest
 	17, // 17: m8.platform.access.v1.SearchResourcesResponse.results:type_name -> m8.platform.access.v1.Resource
 	14, // 18: m8.platform.access.v1.SearchResourcesResponse.page:type_name -> m8.platform.access.v1.PageResponse
 	18, // 19: m8.platform.access.v1.SearchResourcesResponse.context:type_name -> google.protobuf.Struct
-	15, // 20: m8.platform.access.v1.SearchSubjectsRequest.subject:type_name -> m8.platform.access.v1.Subject
+	21, // 20: m8.platform.access.v1.SearchSubjectsRequest.subject:type_name -> m8.platform.access.v1.SubjectSelector
 	16, // 21: m8.platform.access.v1.SearchSubjectsRequest.action:type_name -> m8.platform.access.v1.Action
 	17, // 22: m8.platform.access.v1.SearchSubjectsRequest.resource:type_name -> m8.platform.access.v1.Resource
 	18, // 23: m8.platform.access.v1.SearchSubjectsRequest.context:type_name -> google.protobuf.Struct

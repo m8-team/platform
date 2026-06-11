@@ -41,7 +41,7 @@ rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse)
 | --- | --- | --- |
 | subject | Subject | No description. |
 | action | Action | No description. |
-| resource | Resource | No description. |
+| resource | ResourceSelector | No description. |
 | context | Struct | No description. |
 | page | PageRequest | No description. |
 
@@ -102,7 +102,7 @@ rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse)
 | name | string | No description. |
 | properties | Struct | No description. |
 
-## Resource
+## ResourceSelector
 
 ```json
 {
@@ -132,6 +132,22 @@ rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse)
 | --- | --- | --- |
 | limit | int32 | No description. |
 | token | string | No description. |
+| properties | Struct | No description. |
+
+## Resource
+
+```json
+{
+  "type": "string",
+  "id": "string",
+  "properties": {}
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| type | string | No description. |
+| id | string | No description. |
 | properties | Struct | No description. |
 
 ## PageResponse

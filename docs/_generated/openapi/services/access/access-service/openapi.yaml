@@ -242,6 +242,17 @@ components:
           type: string
         properties:
           type: object
+    ResourceSelector:
+      required:
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+        properties:
+          type: object
     SearchActionsRequest:
       required:
         - subject
@@ -257,6 +268,8 @@ components:
         page:
           $ref: '#/components/schemas/PageRequest'
     SearchActionsResponse:
+      required:
+        - results
       type: object
       properties:
         results:
@@ -275,6 +288,7 @@ components:
       required:
         - subject
         - action
+        - resource
       type: object
       properties:
         subject:
@@ -282,12 +296,14 @@ components:
         action:
           $ref: '#/components/schemas/Action'
         resource:
-          $ref: '#/components/schemas/Resource'
+          $ref: '#/components/schemas/ResourceSelector'
         context:
           type: object
         page:
           $ref: '#/components/schemas/PageRequest'
     SearchResourcesResponse:
+      required:
+        - results
       type: object
       properties:
         results:
@@ -304,12 +320,13 @@ components:
           type: object
     SearchSubjectsRequest:
       required:
+        - subject
         - action
         - resource
       type: object
       properties:
         subject:
-          $ref: '#/components/schemas/Subject'
+          $ref: '#/components/schemas/SubjectSelector'
         action:
           $ref: '#/components/schemas/Action'
         resource:
@@ -319,6 +336,8 @@ components:
         page:
           $ref: '#/components/schemas/PageRequest'
     SearchSubjectsResponse:
+      required:
+        - results
       type: object
       properties:
         results:
@@ -337,6 +356,17 @@ components:
       required:
         - type
         - id
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+        properties:
+          type: object
+    SubjectSelector:
+      required:
+        - type
       type: object
       properties:
         type:

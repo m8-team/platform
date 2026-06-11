@@ -39,7 +39,7 @@ rpc SearchSubjects (SearchSubjectsRequest) returns (SearchSubjectsResponse)
 
 | Field | Type | Description |
 | --- | --- | --- |
-| subject | Subject | No description. |
+| subject | SubjectSelector | No description. |
 | action | Action | No description. |
 | resource | Resource | No description. |
 | context | Struct | No description. |
@@ -72,7 +72,7 @@ rpc SearchSubjects (SearchSubjectsRequest) returns (SearchSubjectsResponse)
 | page | PageResponse | No description. |
 | context | Struct | No description. |
 
-## Subject
+## SubjectSelector
 
 ```json
 {
@@ -132,6 +132,22 @@ rpc SearchSubjects (SearchSubjectsRequest) returns (SearchSubjectsResponse)
 | --- | --- | --- |
 | limit | int32 | No description. |
 | token | string | No description. |
+| properties | Struct | No description. |
+
+## Subject
+
+```json
+{
+  "type": "string",
+  "id": "string",
+  "properties": {}
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| type | string | No description. |
+| id | string | No description. |
 | properties | Struct | No description. |
 
 ## PageResponse

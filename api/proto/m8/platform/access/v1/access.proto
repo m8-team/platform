@@ -22,9 +22,21 @@ message Subject {
     (buf.validate.field).string.max_len = 256
   ];
 
-  google.protobuf.Struct properties = 3 [
-    (google.api.field_behavior) = OPTIONAL
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message SubjectSelector {
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
   ];
+
+  string id = 2 [(buf.validate.field).string.max_len = 256];
+
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message Action {
@@ -36,9 +48,7 @@ message Action {
     }
   ];
 
-  google.protobuf.Struct properties = 2 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  google.protobuf.Struct properties = 2 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message Resource {
@@ -55,25 +65,29 @@ message Resource {
     (buf.validate.field).string.max_len = 256
   ];
 
-  google.protobuf.Struct properties = 3 [
-    (google.api.field_behavior) = OPTIONAL
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message ResourceSelector {
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
   ];
+
+  string id = 2 [(buf.validate.field).string.max_len = 256];
+
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message Evaluation {
-  Subject subject = 1 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
 
-  Action action = 2 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  Action action = 2 [(google.api.field_behavior) = OPTIONAL];
 
-  Resource resource = 3 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  google.protobuf.Struct context = 4 [
-    (google.api.field_behavior) = OPTIONAL
-  ];
+  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 }
