@@ -344,7 +344,7 @@ type Evaluation struct {
 	Action *Action `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	// Optional. Item-level resource; overrides the batch-level resource when set.
 	Resource *Resource `protobuf:"bytes,3,opt,name=resource,proto3" json:"resource,omitempty"`
-	// Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+	// Optional. Item-level context; overrides the batch-level context when set.
 	Context       *structpb.Struct `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

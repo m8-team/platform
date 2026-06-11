@@ -124,6 +124,6 @@ message Evaluation {
   // Optional. Item-level resource; overrides the batch-level resource when set.
   Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
 
-  // Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+  // Optional. Item-level context; overrides the batch-level context when set.
   google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
 }

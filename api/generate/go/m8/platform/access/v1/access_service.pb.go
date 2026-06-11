@@ -245,7 +245,7 @@ func (x *EvaluateAccessBatchRequest) GetEvaluations() []*Evaluation {
 	return nil
 }
 
-// EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
+// EvaluateAccessBatchResponse returns evaluation decisions in execution order.
 type EvaluateAccessBatchResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Output only. Evaluation results in execution order.
@@ -770,10 +770,7 @@ func (x *SearchActionsResponse) GetContext() *structpb.Struct {
 
 // GetConfigurationRequest requests the singleton Access configuration resource.
 type GetConfigurationRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Name of the singleton Access configuration.
-	// Format: access/configuration.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -806,13 +803,6 @@ func (x *GetConfigurationRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*GetConfigurationRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_access_v1_access_service_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GetConfigurationRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
 }
 
 // ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
@@ -928,7 +918,7 @@ func (x *ConfigurationResponse) GetSignedMetadata() string {
 type PageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. Maximum number of results to return.
-	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit *int32 `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	// Optional. Opaque token from the previous response page.next_token.
 	Token string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 	// Optional. Additional implementation-specific pagination request attributes.
@@ -968,8 +958,8 @@ func (*PageRequest) Descriptor() ([]byte, []int) {
 }
 
 func (x *PageRequest) GetLimit() int32 {
-	if x != nil {
-		return x.Limit
+	if x != nil && x.Limit != nil {
+		return *x.Limit
 	}
 	return 0
 }
@@ -1065,7 +1055,7 @@ var File_m8_platform_access_v1_access_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\n" +
-	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\x9e\x02\n" +
+	"*m8/platform/access/v1/access_service.proto\x12\x15m8.platform.access.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\"m8/platform/access/v1/access.proto\x1a/m8/platform/common/extension/v1/extension.proto\"\x9e\x02\n" +
 	"\x15EvaluateAccessRequest\x12C\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\x06action\x12F\n" +
@@ -1114,29 +1104,29 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x15SearchActionsResponse\x12?\n" +
 	"\aresults\x18\x01 \x03(\v2\x1d.m8.platform.access.v1.ActionB\x06\xe0A\x02\xe0A\x03R\aresults\x12<\n" +
 	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
-	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"M\n" +
-	"\x17GetConfigurationRequest\x122\n" +
-	"\x04name\x18\x01 \x01(\tB\x1e\xe0A\x02\xbaH\x18r\x16R\x14access/configurationR\x04name\"\xc9\x05\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\x19\n" +
+	"\x17GetConfigurationRequest\"\xcc\x05\n" +
 	"\x15ConfigurationResponse\x12>\n" +
 	"\x15policy_decision_point\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x15policy_decision_point\x12H\n" +
 	"\x1aaccess_evaluation_endpoint\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x1aaccess_evaluation_endpoint\x12R\n" +
 	"\x1baccess_evaluations_endpoint\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x88\x01\x01H\x00R\x1baccess_evaluations_endpoint\x88\x01\x01\x12L\n" +
 	"\x18search_resource_endpoint\x18\x04 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x88\x01\x01H\x01R\x18search_resource_endpoint\x88\x01\x01\x12J\n" +
-	"\x17search_subject_endpoint\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x88\x01\x01H\x02R\x17search_subject_endpoint\x88\x01\x01\x12E\n" +
-	"\x16search_action_endpoint\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01H\x03R\x16search_action_endpoint\x88\x01\x01\x125\n" +
+	"\x17search_subject_endpoint\x18\x05 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x88\x01\x01H\x02R\x17search_subject_endpoint\x88\x01\x01\x12H\n" +
+	"\x16search_action_endpoint\x18\x06 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x88\x01\x01H\x03R\x16search_action_endpoint\x88\x01\x01\x125\n" +
 	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities\x122\n" +
 	"\x0fsigned_metadata\x18\b \x01(\tB\x03\xe0A\x01H\x04R\x0fsigned_metadata\x88\x01\x01B\x1e\n" +
 	"\x1c_access_evaluations_endpointB\x1b\n" +
 	"\x19_search_resource_endpointB\x1a\n" +
 	"\x18_search_subject_endpointB\x19\n" +
 	"\x17_search_action_endpointB\x12\n" +
-	"\x10_signed_metadata\"\x93\x01\n" +
-	"\vPageRequest\x12#\n" +
-	"\x05limit\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\x05limit\x12!\n" +
+	"\x10_signed_metadata\"\xa2\x01\n" +
+	"\vPageRequest\x12(\n" +
+	"\x05limit\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00H\x00R\x05limit\x88\x01\x01\x12!\n" +
 	"\x05token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\x05token\x12<\n" +
 	"\n" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\n" +
-	"properties\"\xe7\x01\n" +
+	"propertiesB\b\n" +
+	"\x06_limit\"\xe7\x01\n" +
 	"\fPageResponse\x12.\n" +
 	"\n" +
 	"next_token\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x03\xbaH\x05r\x03\x18\x80 R\n" +
@@ -1147,14 +1137,14 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x06\xe0A\x01\xe0A\x03R\n" +
 	"propertiesB\b\n" +
 	"\x06_countB\b\n" +
-	"\x06_total2\xe3\r\n" +
+	"\x06_total2\xd5\r\n" +
 	"\rAccessService\x12\xe4\x01\n" +
 	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\"u\xbaGR\x12\bEvaluate\x1a6Evaluates a single AuthZEN-compatible access decision.*\x0eEvaluateAccess\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/access/evaluation\x12\x91\x02\n" +
 	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"\x92\x01\xbaGn\x12\rEvaluateBatch\x1aHEvaluates multiple AuthZEN-compatible access decisions in request order.*\x13EvaluateAccessBatch\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/access/evaluations\x12\x82\x02\n" +
 	"\x0fSearchResources\x12-.m8.platform.access.v1.SearchResourcesRequest\x1a..m8.platform.access.v1.SearchResourcesResponse\"\x8f\x01\xbaGg\x12\x0fSearchResources\x1aCSearches resources the subject can access for the requested action.*\x0fSearchResources\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/access/search/resource\x12\x81\x02\n" +
 	"\x0eSearchSubjects\x12,.m8.platform.access.v1.SearchSubjectsRequest\x1a-.m8.platform.access.v1.SearchSubjectsResponse\"\x91\x01\xbaGj\x12\x0eSearchSubjects\x1aHSearches subjects that can perform the requested action on the resource.*\x0eSearchSubjects\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/access/search/subject\x12\xeb\x01\n" +
-	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"\x7f\xbaGY\x12\rSearchActions\x1a9Searches actions the subject can perform on the resource.*\rSearchActions\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/access/search/action\x12\xb8\x02\n" +
-	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"\xc5\x01\xdaA\x04name\xbaGn\x12\rConfiguration\x1aKReturns the AuthZEN discovery configuration for this Policy Decision Point.*\x10GetConfiguration\x82\xd3\xe4\x93\x02GZ$\x12\"/.well-known/authzen-configuration\x12\x1f/v1/{name=access/configuration}\x1a\xa4\x01\x92\xb5\x18\x9f\x01Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
+	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"\x7f\xbaGY\x12\rSearchActions\x1a9Searches actions the subject can perform on the resource.*\rSearchActions\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/access/search/action\x12\xaa\x02\n" +
+	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"\xb7\x01\xbaGn\x12\rConfiguration\x1aKReturns the AuthZEN discovery configuration for this Policy Decision Point.*\x10GetConfiguration\x82\xd3\xe4\x93\x02@Z\x1a\x12\x18/v1/access/configuration\x12\"/.well-known/authzen-configuration\x1a\xa4\x01\x92\xb5\x18\x9f\x01Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_access_service_proto_rawDescOnce sync.Once
@@ -1258,6 +1248,7 @@ func file_m8_platform_access_v1_access_service_proto_init() {
 	file_m8_platform_access_v1_access_proto_init()
 	file_m8_platform_access_v1_access_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_m8_platform_access_v1_access_service_proto_msgTypes[12].OneofWrappers = []any{}
+	file_m8_platform_access_v1_access_service_proto_msgTypes[13].OneofWrappers = []any{}
 	file_m8_platform_access_v1_access_service_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

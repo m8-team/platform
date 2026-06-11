@@ -174,18 +174,9 @@ func request_AccessService_GetConfiguration_0(ctx context.Context, marshaler run
 	var (
 		protoReq GetConfigurationRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	protoReq.Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
 	}
 	msg, err := client.GetConfiguration(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -195,21 +186,10 @@ func local_request_AccessService_GetConfiguration_0(ctx context.Context, marshal
 	var (
 		protoReq GetConfigurationRequest
 		metadata runtime.ServerMetadata
-		err      error
 	)
-	val, ok := pathParams["name"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
-	}
-	protoReq.Name, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
-	}
 	msg, err := server.GetConfiguration(ctx, &protoReq)
 	return msg, metadata, err
 }
-
-var filter_AccessService_GetConfiguration_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_AccessService_GetConfiguration_1(ctx context.Context, marshaler runtime.Marshaler, client AccessServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
@@ -218,12 +198,6 @@ func request_AccessService_GetConfiguration_1(ctx context.Context, marshaler run
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccessService_GetConfiguration_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := client.GetConfiguration(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -234,12 +208,6 @@ func local_request_AccessService_GetConfiguration_1(ctx context.Context, marshal
 		protoReq GetConfigurationRequest
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccessService_GetConfiguration_1); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 	msg, err := server.GetConfiguration(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -356,7 +324,7 @@ func RegisterAccessServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/v1/{name=access/configuration}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/.well-known/authzen-configuration"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -376,7 +344,7 @@ func RegisterAccessServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/.well-known/authzen-configuration"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/v1/access/configuration"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -519,7 +487,7 @@ func RegisterAccessServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/v1/{name=access/configuration}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/.well-known/authzen-configuration"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -536,7 +504,7 @@ func RegisterAccessServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/.well-known/authzen-configuration"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.access.v1.AccessService/GetConfiguration", runtime.WithHTTPPathPattern("/v1/access/configuration"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -558,8 +526,8 @@ var (
 	pattern_AccessService_SearchResources_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "access", "search", "resource"}, ""))
 	pattern_AccessService_SearchSubjects_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "access", "search", "subject"}, ""))
 	pattern_AccessService_SearchActions_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "access", "search", "action"}, ""))
-	pattern_AccessService_GetConfiguration_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 4, 2, 5, 3}, []string{"v1", "access", "configuration", "name"}, ""))
-	pattern_AccessService_GetConfiguration_1    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{".well-known", "authzen-configuration"}, ""))
+	pattern_AccessService_GetConfiguration_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{".well-known", "authzen-configuration"}, ""))
+	pattern_AccessService_GetConfiguration_1    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "access", "configuration"}, ""))
 )
 
 var (

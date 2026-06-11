@@ -14,14 +14,20 @@ paths:
             summary: Configuration
             description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
             operationId: GetConfiguration
-            parameters:
-                - name: name
-                  in: query
-                  description: |-
-                    Required. Name of the singleton Access configuration.
-                     Format: access/configuration.
-                  schema:
-                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConfigurationResponse'
+    /v1/access/configuration:
+        get:
+            tags:
+                - AccessService
+            summary: Configuration
+            description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
+            operationId: GetConfiguration
             responses:
                 "200":
                     description: OK
@@ -129,27 +135,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchSubjectsResponse'
-    /v1/access/{acces}:
-        get:
-            tags:
-                - AccessService
-            summary: Configuration
-            description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
-            operationId: GetConfiguration
-            parameters:
-                - name: acces
-                  in: path
-                  description: The acces id.
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfigurationResponse'
 components:
     schemas:
         Action:
@@ -241,7 +226,7 @@ components:
                         Output only. Evaluation results in execution order.
                          For execute_all, order matches the full request evaluation order.
                          For short-circuit semantics, the array may contain only the evaluated prefix
-            description: EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
+            description: EvaluateAccessBatchResponse returns evaluation decisions in execution order.
         EvaluateAccessRequest:
             required:
                 - subject
@@ -294,7 +279,7 @@ components:
                     description: Optional. Item-level resource; overrides the batch-level resource when set.
                 context:
                     type: object
-                    description: Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+                    description: Optional. Item-level context; overrides the batch-level context when set.
             description: Evaluation is one item in a batch evaluation request.
         PageRequest:
             type: object
