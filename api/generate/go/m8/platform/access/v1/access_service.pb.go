@@ -296,7 +296,7 @@ func (x *EvaluateAccessBatchResponse) GetEvaluations() []*EvaluateAccessResponse
 type EvaluateAccessBatchOptions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.
-	EvaluationsSemantic *string `protobuf:"bytes,1,opt,name=evaluations_semantic,json=evaluationsSemantic,proto3,oneof" json:"evaluations_semantic,omitempty"`
+	EvaluationsSemantic *string `protobuf:"bytes,1,opt,name=evaluations_semantic,proto3,oneof" json:"evaluations_semantic,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -771,21 +771,21 @@ func (x *SearchActionsResponse) GetContext() *structpb.Struct {
 type ConfigurationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Required. HTTPS Policy Decision Point identifier without query or fragment components.
-	PolicyDecisionPoint string `protobuf:"bytes,1,opt,name=policy_decision_point,json=policyDecisionPoint,proto3" json:"policy_decision_point,omitempty"`
+	PolicyDecisionPoint string `protobuf:"bytes,1,opt,name=policy_decision_point,proto3" json:"policy_decision_point,omitempty"`
 	// Required. URL of the Access Evaluation API endpoint.
-	AccessEvaluationEndpoint string `protobuf:"bytes,2,opt,name=access_evaluation_endpoint,json=accessEvaluationEndpoint,proto3" json:"access_evaluation_endpoint,omitempty"`
+	AccessEvaluationEndpoint string `protobuf:"bytes,2,opt,name=access_evaluation_endpoint,proto3" json:"access_evaluation_endpoint,omitempty"`
 	// Optional. URL of the Access Evaluations API endpoint.
-	AccessEvaluationsEndpoint string `protobuf:"bytes,3,opt,name=access_evaluations_endpoint,json=accessEvaluationsEndpoint,proto3" json:"access_evaluations_endpoint,omitempty"`
+	AccessEvaluationsEndpoint string `protobuf:"bytes,3,opt,name=access_evaluations_endpoint,proto3" json:"access_evaluations_endpoint,omitempty"`
 	// Optional. URL of the Resource Search API endpoint.
-	SearchResourceEndpoint string `protobuf:"bytes,4,opt,name=search_resource_endpoint,json=searchResourceEndpoint,proto3" json:"search_resource_endpoint,omitempty"`
+	SearchResourceEndpoint string `protobuf:"bytes,4,opt,name=search_resource_endpoint,proto3" json:"search_resource_endpoint,omitempty"`
 	// Optional. URL of the Subject Search API endpoint.
-	SearchSubjectEndpoint string `protobuf:"bytes,5,opt,name=search_subject_endpoint,json=searchSubjectEndpoint,proto3" json:"search_subject_endpoint,omitempty"`
+	SearchSubjectEndpoint string `protobuf:"bytes,5,opt,name=search_subject_endpoint,proto3" json:"search_subject_endpoint,omitempty"`
 	// Optional. URL of the Action Search API endpoint.
-	SearchActionEndpoint string `protobuf:"bytes,6,opt,name=search_action_endpoint,json=searchActionEndpoint,proto3" json:"search_action_endpoint,omitempty"`
+	SearchActionEndpoint string `protobuf:"bytes,6,opt,name=search_action_endpoint,proto3" json:"search_action_endpoint,omitempty"`
 	// Optional. Capability URNs supported by this PDP.
 	Capabilities []string `protobuf:"bytes,7,rep,name=capabilities,proto3" json:"capabilities,omitempty"`
 	// Optional. Signed metadata JWT that cryptographically protects metadata contents.
-	SignedMetadata string `protobuf:"bytes,8,opt,name=signed_metadata,json=signedMetadata,proto3" json:"signed_metadata,omitempty"`
+	SignedMetadata string `protobuf:"bytes,8,opt,name=signed_metadata,proto3" json:"signed_metadata,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1034,9 +1034,9 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\aoptions\x18\x05 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\x12P\n" +
 	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x00\x10\xe8\aR\vevaluations\"s\n" +
 	"\x1bEvaluateAccessBatchResponse\x12T\n" +
-	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\xb0\x01\n" +
-	"\x1aEvaluateAccessBatchOptions\x12y\n" +
-	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitH\x00R\x13evaluationsSemantic\x88\x01\x01B\x17\n" +
+	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\xb1\x01\n" +
+	"\x1aEvaluateAccessBatchOptions\x12z\n" +
+	"\x14evaluations_semantic\x18\x01 \x01(\tBA\xe0A\x01\xbaH;r9R\vexecute_allR\x12deny_on_first_denyR\x16permit_on_first_permitH\x00R\x14evaluations_semantic\x88\x01\x01B\x17\n" +
 	"\x15_evaluations_semantic\"\xe4\x02\n" +
 	"\x16SearchResourcesRequest\x12C\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\asubject\x12@\n" +
@@ -1066,16 +1066,16 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\x15SearchActionsResponse\x12?\n" +
 	"\aresults\x18\x01 \x03(\v2\x1d.m8.platform.access.v1.ActionB\x06\xe0A\x02\xe0A\x03R\aresults\x12<\n" +
 	"\x04page\x18\x02 \x01(\v2#.m8.platform.access.v1.PageResponseB\x03\xe0A\x03R\x04page\x126\n" +
-	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\x92\x04\n" +
-	"\x15ConfigurationResponse\x12<\n" +
-	"\x15policy_decision_point\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x13policyDecisionPoint\x12F\n" +
-	"\x1aaccess_evaluation_endpoint\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x18accessEvaluationEndpoint\x12H\n" +
-	"\x1baccess_evaluations_endpoint\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x19accessEvaluationsEndpoint\x12B\n" +
-	"\x18search_resource_endpoint\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x16searchResourceEndpoint\x12@\n" +
-	"\x17search_subject_endpoint\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x15searchSubjectEndpoint\x12>\n" +
-	"\x16search_action_endpoint\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x14searchActionEndpoint\x125\n" +
-	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities\x12,\n" +
-	"\x0fsigned_metadata\x18\b \x01(\tB\x03\xe0A\x01R\x0esignedMetadata\"\x93\x01\n" +
+	"\acontext\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\x9f\x04\n" +
+	"\x15ConfigurationResponse\x12>\n" +
+	"\x15policy_decision_point\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x15policy_decision_point\x12H\n" +
+	"\x1aaccess_evaluation_endpoint\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x1aaccess_evaluation_endpoint\x12J\n" +
+	"\x1baccess_evaluations_endpoint\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x1baccess_evaluations_endpoint\x12D\n" +
+	"\x18search_resource_endpoint\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x18search_resource_endpoint\x12B\n" +
+	"\x17search_subject_endpoint\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x17search_subject_endpoint\x12@\n" +
+	"\x16search_action_endpoint\x18\x06 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01R\x16search_action_endpoint\x125\n" +
+	"\fcapabilities\x18\a \x03(\tB\x11\xbaH\x0e\x92\x01\v\x10@\"\ar\x05\x10\x01\x18\x80\x01R\fcapabilities\x12-\n" +
+	"\x0fsigned_metadata\x18\b \x01(\tB\x03\xe0A\x01R\x0fsigned_metadata\"\x93\x01\n" +
 	"\vPageRequest\x12#\n" +
 	"\x05limit\x18\x01 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\x05limit\x12!\n" +
 	"\x05token\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80 R\x05token\x12<\n" +

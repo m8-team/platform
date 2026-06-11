@@ -160,6 +160,7 @@ message EvaluateAccessBatchResponse {
 message EvaluateAccessBatchOptions {
   // Optional. Evaluation semantic: execute_all, deny_on_first_deny, or permit_on_first_permit.
   optional string evaluations_semantic = 1 [
+    json_name = "evaluations_semantic",
     (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string = {
       in: [
@@ -294,22 +295,40 @@ message SearchActionsResponse {
 // ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 message ConfigurationResponse {
   // Required. HTTPS Policy Decision Point identifier without query or fragment components.
-  string policy_decision_point = 1 [(buf.validate.field).string.uri = true];
+  string policy_decision_point = 1 [
+    json_name = "policy_decision_point",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Required. URL of the Access Evaluation API endpoint.
-  string access_evaluation_endpoint = 2 [(buf.validate.field).string.uri = true];
+  string access_evaluation_endpoint = 2 [
+    json_name = "access_evaluation_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Access Evaluations API endpoint.
-  string access_evaluations_endpoint = 3 [(buf.validate.field).string.uri = true];
+  string access_evaluations_endpoint = 3 [
+    json_name = "access_evaluations_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Resource Search API endpoint.
-  string search_resource_endpoint = 4 [(buf.validate.field).string.uri = true];
+  string search_resource_endpoint = 4 [
+    json_name = "search_resource_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Subject Search API endpoint.
-  string search_subject_endpoint = 5 [(buf.validate.field).string.uri = true];
+  string search_subject_endpoint = 5 [
+    json_name = "search_subject_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. URL of the Action Search API endpoint.
-  string search_action_endpoint = 6 [(buf.validate.field).string.uri = true];
+  string search_action_endpoint = 6 [
+    json_name = "search_action_endpoint",
+    (buf.validate.field).string.uri = true
+  ];
 
   // Optional. Capability URNs supported by this PDP.
   repeated string capabilities = 7 [(buf.validate.field).repeated = {
@@ -323,7 +342,10 @@ message ConfigurationResponse {
   }];
 
   // Optional. Signed metadata JWT that cryptographically protects metadata contents.
-  string signed_metadata = 8 [(google.api.field_behavior) = OPTIONAL];
+  string signed_metadata = 8 [
+    json_name = "signed_metadata",
+    (google.api.field_behavior) = OPTIONAL
+  ];
 }
 
 // PageRequest requests a subset of a larger Search API result set.
