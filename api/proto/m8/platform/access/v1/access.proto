@@ -44,7 +44,10 @@ message SubjectSelector {
   ];
 
   // Optional. Subject Search callers SHOULD omit id; if present, the PDP ignores it.
-  string id = 2 [(buf.validate.field).string.max_len = 256];
+  string id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 256
+  ];
 
   // Optional. Additional selector attributes understood by the PDP.
   google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
@@ -101,7 +104,10 @@ message ResourceSelector {
   ];
 
   // Optional. Resource Search callers SHOULD omit id; if present, the PDP ignores it.
-  string id = 2 [(buf.validate.field).string.max_len = 256];
+  string id = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 256
+  ];
 
   // Optional. Additional selector attributes understood by the PDP.
   google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];

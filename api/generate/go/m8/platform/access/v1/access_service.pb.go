@@ -1025,14 +1025,14 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\"q\n" +
 	"\x16EvaluateAccessResponse\x12\x1f\n" +
 	"\bdecision\x18\x01 \x01(\bB\x03\xe0A\x03R\bdecision\x126\n" +
-	"\acontext\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xb5\x03\n" +
+	"\acontext\x18\x02 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x03R\acontext\"\xb8\x03\n" +
 	"\x1aEvaluateAccessBatchRequest\x12=\n" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x01R\asubject\x12:\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\x03\xe0A\x01R\x06action\x12@\n" +
 	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
 	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontext\x12P\n" +
-	"\aoptions\x18\x05 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\x12P\n" +
-	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\v\xbaH\b\x92\x01\x05\b\x00\x10\xe8\aR\vevaluations\"s\n" +
+	"\aoptions\x18\x05 \x01(\v21.m8.platform.access.v1.EvaluateAccessBatchOptionsB\x03\xe0A\x01R\aoptions\x12S\n" +
+	"\vevaluations\x18\x06 \x03(\v2!.m8.platform.access.v1.EvaluationB\x0e\xe0A\x01\xbaH\b\x92\x01\x05\b\x00\x10\xe8\aR\vevaluations\"s\n" +
 	"\x1bEvaluateAccessBatchResponse\x12T\n" +
 	"\vevaluations\x18\x01 \x03(\v2-.m8.platform.access.v1.EvaluateAccessResponseB\x03\xe0A\x03R\vevaluations\"\xb1\x01\n" +
 	"\x1aEvaluateAccessBatchOptions\x12z\n" +
