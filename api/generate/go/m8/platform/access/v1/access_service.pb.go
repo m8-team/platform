@@ -1137,14 +1137,14 @@ const file_m8_platform_access_v1_access_service_proto_rawDesc = "" +
 	"properties\x18\x03 \x01(\v2\x17.google.protobuf.StructB\x06\xe0A\x01\xe0A\x03R\n" +
 	"propertiesB\b\n" +
 	"\x06_countB\b\n" +
-	"\x06_total2\xd5\r\n" +
+	"\x06_total2\xb9\r\n" +
 	"\rAccessService\x12\xe4\x01\n" +
 	"\x0eEvaluateAccess\x12,.m8.platform.access.v1.EvaluateAccessRequest\x1a-.m8.platform.access.v1.EvaluateAccessResponse\"u\xbaGR\x12\bEvaluate\x1a6Evaluates a single AuthZEN-compatible access decision.*\x0eEvaluateAccess\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/access/evaluation\x12\x91\x02\n" +
 	"\x13EvaluateAccessBatch\x121.m8.platform.access.v1.EvaluateAccessBatchRequest\x1a2.m8.platform.access.v1.EvaluateAccessBatchResponse\"\x92\x01\xbaGn\x12\rEvaluateBatch\x1aHEvaluates multiple AuthZEN-compatible access decisions in request order.*\x13EvaluateAccessBatch\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/access/evaluations\x12\x82\x02\n" +
 	"\x0fSearchResources\x12-.m8.platform.access.v1.SearchResourcesRequest\x1a..m8.platform.access.v1.SearchResourcesResponse\"\x8f\x01\xbaGg\x12\x0fSearchResources\x1aCSearches resources the subject can access for the requested action.*\x0fSearchResources\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/access/search/resource\x12\x81\x02\n" +
 	"\x0eSearchSubjects\x12,.m8.platform.access.v1.SearchSubjectsRequest\x1a-.m8.platform.access.v1.SearchSubjectsResponse\"\x91\x01\xbaGj\x12\x0eSearchSubjects\x1aHSearches subjects that can perform the requested action on the resource.*\x0eSearchSubjects\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/access/search/subject\x12\xeb\x01\n" +
-	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"\x7f\xbaGY\x12\rSearchActions\x1a9Searches actions the subject can perform on the resource.*\rSearchActions\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/access/search/action\x12\xaa\x02\n" +
-	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"\xb7\x01\xbaGn\x12\rConfiguration\x1aKReturns the AuthZEN discovery configuration for this Policy Decision Point.*\x10GetConfiguration\x82\xd3\xe4\x93\x02@Z\x1a\x12\x18/v1/access/configuration\x12\"/.well-known/authzen-configuration\x1a\xa4\x01\x92\xb5\x18\x9f\x01Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
+	"\rSearchActions\x12+.m8.platform.access.v1.SearchActionsRequest\x1a,.m8.platform.access.v1.SearchActionsResponse\"\x7f\xbaGY\x12\rSearchActions\x1a9Searches actions the subject can perform on the resource.*\rSearchActions\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/access/search/action\x12\x8e\x02\n" +
+	"\x10GetConfiguration\x12..m8.platform.access.v1.GetConfigurationRequest\x1a,.m8.platform.access.v1.ConfigurationResponse\"\x9b\x01\xbaGn\x12\rConfiguration\x1aKReturns the AuthZEN discovery configuration for this Policy Decision Point.*\x10GetConfiguration\x82\xd3\xe4\x93\x02$\x12\"/.well-known/authzen-configuration\x1a\xa4\x01\x92\xb5\x18\x9f\x01Use this API to evaluate access decisions, run batch evaluations, search accessible resources, subjects, and actions, and read AuthZEN discovery configuration.B?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_access_service_proto_rawDescOnce sync.Once

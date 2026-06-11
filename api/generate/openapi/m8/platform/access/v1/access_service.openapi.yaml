@@ -21,20 +21,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ConfigurationResponse'
-    /v1/access/configuration:
-        get:
-            tags:
-                - AccessService
-            summary: Configuration
-            description: Returns the AuthZEN discovery configuration for this Policy Decision Point.
-            operationId: GetConfiguration
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfigurationResponse'
     /v1/access/evaluation:
         post:
             tags:

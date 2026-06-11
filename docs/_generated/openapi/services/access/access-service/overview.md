@@ -9,7 +9,6 @@ AccessService exposes AuthZEN-compatible authorization decision APIs.
 | Method | Description |
 | --- | --- |
 | [Configuration](./GetConfiguration.md) | Returns the AuthZEN discovery configuration for this Policy Decision Point. |
-| [Configuration](./GetConfiguration.md) | Returns the AuthZEN discovery configuration for this Policy Decision Point. |
 | [Evaluate](./EvaluateAccess.md) | Evaluates a single AuthZEN-compatible access decision. |
 | [EvaluateBatch](./EvaluateAccessBatch.md) | Evaluates multiple AuthZEN-compatible access decisions in request order. |
 | [SearchActions](./SearchActions.md) | Searches actions the subject can perform on the resource. |

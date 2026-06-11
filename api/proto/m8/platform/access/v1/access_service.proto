@@ -85,7 +85,6 @@ service AccessService {
   rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
     option (google.api.http) = {
       get: "/.well-known/authzen-configuration"
-      additional_bindings: {get: "/v1/access/configuration"}
     };
     option (gnostic.openapi.v3.operation) = {
       summary: "Configuration"
