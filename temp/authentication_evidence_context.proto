@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_assurance_context.proto";
+import "m8/platform/iam/v1/authentication_assurance_level.proto";
+import "m8/platform/iam/v1/authentication_provider_context.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// EvidenceContext captures reusable authentication evidence for audit and downstream evaluation.
+//
+// Example:
+// - previous authentication id used for max_age
+// - achieved acr/amr after successful challenge
+// - external provider evidence stored by reference
+message EvidenceContext {
+  // Previous authentication identifiers relevant to this decision.
+  repeated string previous_authentication_ids = 1;
+
+  // Authentication operation identifier that produced this evidence.
+  string authentication_id = 2;
+
+  // Achieved OIDC-compatible acr value.
+  string achieved_acr = 3;
+
+  // Achieved OIDC-compatible amr values.
+  repeated string achieved_amr = 4;
+
+  // Achieved normalized method references.
+  repeated AuthenticationMethodReference achieved_method_references = 5;
+
+  // Time when authentication occurred.
+  google.protobuf.Timestamp auth_time = 6;
+
+  // External evidence represented by safe references.
+  ExternalEvidence external = 7;
+
+  // Whether this evidence may be reused for future decisions.
+  bool reusable = 8;
+}
+
+// ExternalEvidence represents evidence from a provider without storing raw tokens or secrets.
+message ExternalEvidence {
+  // External provider identifier.
+  string provider_id = 1;
+
+  // External provider type.
+  ProviderType provider_type = 2;
+
+  // Provider evidence identifier.
+  string evidence_id = 3;
+
+  // Opaque reference to stored evidence.
+  string evidence_ref = 4;
+
+  // Time when the evidence was issued.
+  google.protobuf.Timestamp issued_at = 5;
+
+  // Time when the evidence expires.
+  google.protobuf.Timestamp expires_at = 6;
+
+  // Assurance level asserted by the provider.
+  AuthenticationAssuranceLevel assurance_level = 7;
+
+  // OIDC-compatible amr values asserted by the provider.
+  repeated string amr = 8;
+
+  // Additional non-sensitive evidence attributes.
+  map<string, string> attributes = 9;
+}

@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_challenge.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Source from which an authentication request entered the platform.
+enum RequestSource {
+  // Request source is not specified.
+  REQUEST_SOURCE_UNSPECIFIED = 0;
+
+  // Request originated from a browser-based web application.
+  REQUEST_SOURCE_WEB = 1;
+
+  // Request originated from a native mobile application.
+  REQUEST_SOURCE_MOBILE_APP = 2;
+
+  // Request originated from a backend API integration.
+  REQUEST_SOURCE_API = 3;
+
+  // Request originated from an internal back-office system.
+  REQUEST_SOURCE_BACKOFFICE = 4;
+
+  // Request originated from a retail or point-of-sale channel.
+  REQUEST_SOURCE_RETAIL = 5;
+
+  // Request originated from a partner integration.
+  REQUEST_SOURCE_PARTNER = 6;
+
+  // Request originated from an internal system workflow.
+  REQUEST_SOURCE_SYSTEM = 7;
+}
+
+// RequestMetadata describes how the authentication request entered the platform.
+//
+// Example:
+// - browser login request from web
+// - backchannel CIBA request from an OAuth client
+// - internal retry from an authentication workflow
+message RequestMetadata {
+  // Request identifier used for idempotency and correlation.
+  string request_id = 1;
+
+  // Source channel that submitted the request.
+  RequestSource source = 2;
+
+  // Source-specific identifier such as storefront, mobile app, or integration id.
+  string source_id = 3;
+
+  // Client-provided idempotency key if available.
+  string idempotency_key = 4;
+
+  // Correlation identifier propagated across services.
+  string correlation_id = 5;
+
+  // Time when the request was received.
+  google.protobuf.Timestamp request_time = 6;
+
+  // Requested locale or language tag.
+  string locale = 7;
+
+  // Hash of the user agent string; raw user agent may be stored outside this context.
+  string user_agent_hash = 8;
+
+  // Additional non-sensitive request attributes.
+  map<string, string> attributes = 9;
+}
+
+// AuthenticationIntent captures why authentication is being requested.
+//
+// Example:
+// - primary sign-in
+// - step-up before changing payment details
+// - delegated authentication for a CIBA transaction
+message AuthenticationIntent {
+  // Business purpose of the authentication operation.
+  string purpose = 1;
+
+  // Operation or workflow name that requires authentication.
+  string operation = 2;
+
+  // Challenges requested or preferred by the caller.
+  repeated AuthenticationChallenge requested_challenges = 3;
+
+  // Requested OIDC-compatible acr values from the caller.
+  repeated string requested_acr_values = 4;
+
+  // Scopes requested by the client or operation.
+  repeated string requested_scopes = 5;
+
+  // Whether the requested flow should avoid password entry when possible.
+  bool passwordless = 6;
+
+  // Whether authentication is delegated to an external provider.
+  bool delegated = 7;
+
+  // Whether the caller explicitly requested step-up authentication.
+  bool step_up_requested = 8;
+
+  // Additional non-sensitive intent attributes.
+  map<string, string> attributes = 9;
+}

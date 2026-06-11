@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package m8.platform.common.operation.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/common/operation/v1;operation";
+
+// OperationMetadata is a common metadata payload for long-running operations
+// across M8 Platform services.
+message OperationMetadata {
+  // State describes the generic execution state of a long-running operation.
+  enum State {
+    // Invalid value. Stored operations and API responses must not use this state.
+    STATE_UNSPECIFIED = 0;
+
+    // The operation was accepted but has not started yet.
+    QUEUED = 1;
+
+    // The operation is currently running.
+    RUNNING = 2;
+
+    // The operation is waiting for an external dependency, retry delay,
+    // approval, lock, quota, or another asynchronous condition.
+    WAITING = 3;
+
+    // The operation is being cancelled.
+    CANCELLING = 4;
+
+    // The operation completed successfully.
+    SUCCEEDED = 5;
+
+    // The operation failed.
+    FAILED = 6;
+
+    // The operation was cancelled.
+    CANCELLED = 7;
+  }
+
+  // Required. Stable UUID of the operation.
+  //
+  // google.longrunning.Operation.name usually has the form:
+  //   operations/{operation_id}
+  string operation_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Primary resource affected by the operation.
+  //
+  // Some operations may not have a single resource at the beginning,
+  // for example bulk import or scheduled purge.
+  ResourceRef resource = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Required. Current execution state of the operation.
+  State state = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Output only. Time when the operation was created.
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the operation started execution.
+  google.protobuf.Timestamp start_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the operation was most recently updated.
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Time when the operation finished.
+  google.protobuf.Timestamp end_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// ResourceRef is a generic reference to any M8 Platform resource.
+message ResourceRef {
+  // Required. Resource type.
+  //
+  // Recommended format:
+  //   {service}.{resource}
+  //
+  // Examples:
+  //   resourcemanager.organization
+  //   resourcemanager.workspace
+  //   resourcemanager.project
+  //   provisioning.kafka_topic
+  //   provisioning.database
+  //   identity.user
+  //   access.permission_schema
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 128
+      pattern: "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_]*[a-z0-9])+$"
+    }
+  ];
+
+  // Required. Stable resource identifier.
+  //
+  // For Resource Manager resources this is usually UUID.
+  // For external/provider resources this may be provider-specific.
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. Full resource name.
+  //
+  // Examples:
+  //   organizations/{organization_id}
+  string name = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
+// OperationResponse is a generic response for operations that do not need to
+// return a full typed resource.
+message OperationResponse {
+  // Output only. Primary resource affected by the operation.
+  ResourceRef resource = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

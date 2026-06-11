@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Type of device observed during authentication.
+enum DeviceType {
+  // Device type is not specified.
+  DEVICE_TYPE_UNSPECIFIED = 0;
+
+  // Device type is unknown.
+  DEVICE_TYPE_UNKNOWN = 1;
+
+  // Desktop or laptop device.
+  DEVICE_TYPE_DESKTOP = 2;
+
+  // Mobile phone device.
+  DEVICE_TYPE_MOBILE = 3;
+
+  // Tablet device.
+  DEVICE_TYPE_TABLET = 4;
+
+  // Server-side device or workload.
+  DEVICE_TYPE_SERVER = 5;
+
+  // Browser-only device context.
+  DEVICE_TYPE_BROWSER = 6;
+
+  // Embedded or IoT device.
+  DEVICE_TYPE_IOT = 7;
+}
+
+// Trust level assigned to the device.
+enum DeviceTrustLevel {
+  // Device trust level is not specified.
+  DEVICE_TRUST_LEVEL_UNSPECIFIED = 0;
+
+  // Device trust is unknown.
+  DEVICE_TRUST_LEVEL_UNKNOWN = 1;
+
+  // Device is not trusted.
+  DEVICE_TRUST_LEVEL_UNTRUSTED = 2;
+
+  // Device is known but not fully trusted.
+  DEVICE_TRUST_LEVEL_KNOWN = 3;
+
+  // Device is trusted by the tenant or platform.
+  DEVICE_TRUST_LEVEL_TRUSTED = 4;
+
+  // Device is managed by an enterprise control plane.
+  DEVICE_TRUST_LEVEL_MANAGED = 5;
+
+  // Device is suspected or confirmed compromised.
+  DEVICE_TRUST_LEVEL_COMPROMISED = 6;
+}
+
+// DeviceContext describes the device involved in authentication.
+//
+// Example:
+// - known managed laptop
+// - new mobile device with a hashed fingerprint
+// - browser context with a device key reference
+message DeviceContext {
+  // Stable device identifier or opaque device reference.
+  string device_id = 1;
+
+  // Device type.
+  DeviceType type = 2;
+
+  // Trust level assigned to the device.
+  DeviceTrustLevel trust_level = 3;
+
+  // Hash of the device fingerprint.
+  string fingerprint_hash = 4;
+
+  // Hash of the user agent.
+  string user_agent_hash = 5;
+
+  // Platform name such as iOS, Android, macOS, Windows, or Linux.
+  string platform = 6;
+
+  // Operating system family.
+  string os_family = 7;
+
+  // Browser family.
+  string browser_family = 8;
+
+  // Whether the device is enterprise-managed.
+  bool managed = 9;
+
+  // Whether the device is trusted.
+  bool trusted = 10;
+
+  // Whether the device is suspected or confirmed compromised.
+  bool compromised = 11;
+
+  // Additional non-sensitive device attributes.
+  map<string, string> attributes = 12;
+}
+
+// NetworkContext describes network observations relevant to authentication evaluation.
+//
+// Example:
+// - hashed IP address with country and ASN
+// - proxy or VPN detection
+// - network reputation score from an external source
+message NetworkContext {
+  // Hash of the client IP address.
+  string ip_hash = 1;
+
+  // Coarse network prefix when it is safe to store.
+  string ip_prefix = 2;
+
+  // ISO 3166 country code inferred from the network.
+  string country_code = 3;
+
+  // Autonomous system number.
+  int64 asn = 4;
+
+  // Autonomous system organization name.
+  string autonomous_system = 5;
+
+  // Whether the request appears to use a VPN.
+  bool vpn = 6;
+
+  // Whether the request appears to use a proxy.
+  bool proxy = 7;
+
+  // Whether the request appears to use Tor.
+  bool tor = 8;
+
+  // Network reputation score.
+  double reputation_score = 9;
+
+  // Additional non-sensitive network attributes.
+  map<string, string> attributes = 10;
+}
+
+// RuntimeContext describes workflow and service execution metadata.
+//
+// Example:
+// - Temporal workflow and run identifiers
+// - tracing identifiers for cross-service debugging
+// - deadline used by provider calls
+message RuntimeContext {
+  // Workflow identifier.
+  string workflow_id = 1;
+
+  // Workflow run identifier.
+  string run_id = 2;
+
+  // Distributed trace identifier.
+  string trace_id = 3;
+
+  // Distributed tracing span identifier.
+  string span_id = 4;
+
+  // Service that produced the context.
+  string service_name = 5;
+
+  // Service version that produced the context.
+  string service_version = 6;
+
+  // Runtime region.
+  string region = 7;
+
+  // Runtime environment such as prod, stage, or dev.
+  string environment = 8;
+
+  // Time when processing started.
+  google.protobuf.Timestamp started_at = 9;
+
+  // Processing deadline for the operation.
+  google.protobuf.Timestamp deadline_at = 10;
+
+  // Additional non-sensitive runtime attributes.
+  map<string, string> attributes = 11;
+}

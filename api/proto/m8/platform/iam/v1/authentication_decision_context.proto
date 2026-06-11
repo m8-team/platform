@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+enum AuthenticationChallenge {
+  AUTHENTICATION_CHALLENGE_UNSPECIFIED = 0;
+
+  AUTHENTICATION_CHALLENGE_PASSWORD = 1;
+
+  AUTHENTICATION_CHALLENGE_OTP = 2;
+
+  AUTHENTICATION_CHALLENGE_MOBILE_ID = 3;
+
+  AUTHENTICATION_CHALLENGE_WEBAUTHN = 4;
+
+  AUTHENTICATION_CHALLENGE_OIDC = 5;
+
+  AUTHENTICATION_CHALLENGE_SAML = 6;
+}
+
+enum ChallengeDeliveryChannel {
+  CHALLENGE_DELIVERY_CHANNEL_UNSPECIFIED = 0;
+
+  CHALLENGE_DELIVERY_CHANNEL_SMS = 1;
+
+  CHALLENGE_DELIVERY_CHANNEL_EMAIL = 2;
+
+  CHALLENGE_DELIVERY_CHANNEL_PUSH = 3;
+
+  CHALLENGE_DELIVERY_CHANNEL_TELEGRAM = 4;
+
+  CHALLENGE_DELIVERY_CHANNEL_VK = 5;
+
+  CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SIM_PUSH = 6;
+
+  CHALLENGE_DELIVERY_CHANNEL_MOBILE_ID_SMS = 7;
+
+  CHALLENGE_DELIVERY_CHANNEL_WEBAUTHN = 8;
+
+  CHALLENGE_DELIVERY_CHANNEL_OIDC_REDIRECT = 9;
+
+  CHALLENGE_DELIVERY_CHANNEL_SAML_REDIRECT = 10;
+}
+
+enum AuthenticationMethodReference {
+  AUTHENTICATION_METHOD_REFERENCE_UNSPECIFIED = 0;
+
+  AUTHENTICATION_METHOD_REFERENCE_PASSWORD = 1;
+
+  AUTHENTICATION_METHOD_REFERENCE_OTP = 2;
+
+  AUTHENTICATION_METHOD_REFERENCE_SMS = 3;
+
+  AUTHENTICATION_METHOD_REFERENCE_EMAIL = 4;
+
+  AUTHENTICATION_METHOD_REFERENCE_MFA = 5;
+
+  AUTHENTICATION_METHOD_REFERENCE_RISK_BASED = 6;
+
+  AUTHENTICATION_METHOD_REFERENCE_APPROVAL = 7;
+
+  AUTHENTICATION_METHOD_REFERENCE_PUSH = 8;
+
+  AUTHENTICATION_METHOD_REFERENCE_TRUSTED_DEVICE = 9;
+
+  AUTHENTICATION_METHOD_REFERENCE_DEVICE_KEY = 10;
+
+  AUTHENTICATION_METHOD_REFERENCE_MOBILE_ID = 11;
+
+  AUTHENTICATION_METHOD_REFERENCE_SIM_PUSH = 12;
+
+  AUTHENTICATION_METHOD_REFERENCE_OPERATOR_VERIFIED = 13;
+
+  AUTHENTICATION_METHOD_REFERENCE_WEBAUTHN = 14;
+
+  AUTHENTICATION_METHOD_REFERENCE_PASSKEY = 15;
+
+  AUTHENTICATION_METHOD_REFERENCE_SECURITY_KEY = 16;
+
+  AUTHENTICATION_METHOD_REFERENCE_USER_PRESENCE = 17;
+
+  AUTHENTICATION_METHOD_REFERENCE_USER_VERIFICATION = 18;
+
+  AUTHENTICATION_METHOD_REFERENCE_OIDC = 19;
+
+  AUTHENTICATION_METHOD_REFERENCE_SAML = 20;
+
+  AUTHENTICATION_METHOD_REFERENCE_FEDERATED = 21;
+
+  AUTHENTICATION_METHOD_REFERENCE_TELEGRAM = 22;
+
+  AUTHENTICATION_METHOD_REFERENCE_VK = 23;
+}
+
+enum ProviderType {
+  PROVIDER_TYPE_UNSPECIFIED = 0;
+
+  PROVIDER_TYPE_OTP = 1;
+
+  PROVIDER_TYPE_APPROVAL = 2;
+
+  PROVIDER_TYPE_MOBILE_ID = 3;
+
+  PROVIDER_TYPE_WEBAUTHN = 4;
+
+  PROVIDER_TYPE_OIDC = 5;
+
+  PROVIDER_TYPE_SAML = 6;
+
+  PROVIDER_TYPE_PASSWORD = 7;
+
+  PROVIDER_TYPE_NOTIFICATION = 8;
+}
+
+enum ProviderHealth {
+  PROVIDER_HEALTH_UNSPECIFIED = 0;
+
+  PROVIDER_HEALTH_UNKNOWN = 1;
+
+  PROVIDER_HEALTH_HEALTHY = 2;
+
+  PROVIDER_HEALTH_DEGRADED = 3;
+
+  PROVIDER_HEALTH_UNAVAILABLE = 4;
+
+  PROVIDER_HEALTH_DISABLED = 5;
+}
+
+enum MobileIdMode {
+  MOBILE_ID_MODE_UNSPECIFIED = 0;
+
+  MOBILE_ID_MODE_AUTO = 1;
+
+  MOBILE_ID_MODE_SIM_PUSH = 2;
+
+  MOBILE_ID_MODE_SMS_OTP = 3;
+
+  MOBILE_ID_MODE_SILENT = 4;
+
+  MOBILE_ID_MODE_UNSUPPORTED = 5;
+}
+
+message AuthenticationDecisionContext {
+  string id = 1;
+
+  map<string, string> attributes = 2;
+}
+
+message ProviderDecisionContext {
+  string channel_id = 1;
+
+  string provider_id = 2;
+
+  ProviderType provider_type = 3;
+
+  ProviderHealth health = 4;
+
+  string provider_transaction_id = 5;
+
+  MobileIdMode mobile_id_mode = 6;
+
+  MobileNetworkContext mobile_network = 7;
+
+  ProviderMetrics metrics = 8;
+
+  map<string, string> attributes = 9;
+}
+
+message MobileNetworkContext {
+  string mcc = 1;
+
+  string mnc = 2;
+
+  string operator_name = 3;
+
+  string country_code = 4;
+
+  string msisdn_hash = 5;
+
+  bool roaming = 6;
+
+  int64 sim_swap_age_seconds = 7;
+
+  map<string, string> attributes = 8;
+}
+
+message ProviderMetrics {
+  int64 latency_ms = 1;
+
+  double error_rate = 2;
+
+  double success_rate = 3;
+
+  google.protobuf.Timestamp last_success_at = 4;
+
+  google.protobuf.Timestamp last_failure_at = 5;
+
+  int32 consecutive_failures = 6;
+}

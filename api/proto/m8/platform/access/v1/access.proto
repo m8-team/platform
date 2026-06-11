@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package m8.platform.access.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
+
+// Subject identifies the principal for an AuthZEN access evaluation.
+message Subject {
+  // Required. Subject type, for example "user" or "service_account".
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
+  ];
+
+  // Required. Subject identifier scoped to type, for example "alice@example.com".
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Optional. Additional AuthZEN-compatible subject attributes.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// SubjectSelector selects subjects by type for the Subject Search API.
+message SubjectSelector {
+  // Required. Subject type to search for, for example "user".
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
+  ];
+
+  // Optional. Subject Search callers SHOULD omit id; if present, the PDP ignores it.
+  string id = 2 [(buf.validate.field).string.max_len = 256];
+
+  // Optional. Additional selector attributes understood by the PDP.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Action identifies the operation being authorized.
+message Action {
+  // Required. Action name, for example "can_read", "read", or "project.delete".
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 128
+    }
+  ];
+
+  // Optional. Additional AuthZEN-compatible action attributes.
+  google.protobuf.Struct properties = 2 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Resource identifies the target object for an AuthZEN access evaluation.
+message Resource {
+  // Required. Resource type, for example "account", "document", or "project".
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
+  ];
+
+  // Required. Resource identifier scoped to type.
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  // Optional. Additional AuthZEN-compatible resource attributes.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// ResourceSelector selects resources by type for the Resource Search API.
+message ResourceSelector {
+  // Required. Resource type to search for, for example "account".
+  string type = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+    }
+  ];
+
+  // Optional. Resource Search callers SHOULD omit id; if present, the PDP ignores it.
+  string id = 2 [(buf.validate.field).string.max_len = 256];
+
+  // Optional. Additional selector attributes understood by the PDP.
+  google.protobuf.Struct properties = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Evaluation is one item in a batch evaluation request.
+message Evaluation {
+  // Optional. Item-level subject; overrides the batch-level subject when set.
+  Subject subject = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Item-level action; overrides the batch-level action when set.
+  Action action = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Item-level resource; overrides the batch-level resource when set.
+  Resource resource = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+  google.protobuf.Struct context = 4 [(google.api.field_behavior) = OPTIONAL];
+}

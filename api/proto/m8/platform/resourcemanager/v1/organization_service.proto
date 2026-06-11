@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "google/longrunning/operations.proto";
+import "m8/platform/common/extension/v1/extension.proto";
+import "m8/platform/resourcemanager/v1/organization.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// OrganizationService manages organizations: it lets clients create, read,
+// list, update, archive, and restore them.
+service OrganizationService {
+  option (m8.platform.common.extension.v1.description) = "Use this API to create, list, view, update, soft-delete, and undelete organizations.";
+
+  // Returns one organization by its UUID.
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
+    option (google.api.http) = {get: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.api.method_signature) = "organization_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Get"
+      description: "Returns a single organization by its UUID."
+      operation_id: "GetOrganization"
+    };
+  }
+
+  // Returns a page of organizations available to the caller.
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
+    option (google.api.http) = {get: "/v1/resource-manager/organizations"};
+    option (gnostic.openapi.v3.operation) = {
+      summary: "List"
+      description: "Returns a paginated list of organizations available to the caller."
+      operation_id: "ListOrganizations"
+    };
+  }
+
+  // Creates a new organization from the provided payload.
+  rpc CreateOrganization(CreateOrganizationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/v1/resource-manager/organizations"
+      body: "organization"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "OrganizationOperationResponse"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
+    };
+    option (google.api.method_signature) = "organization";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Create"
+      description: "Creates a new organization."
+      operation_id: "CreateOrganization"
+    };
+  }
+
+  // Updates the editable fields of an existing organization.
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      patch: "/v1/resource-manager/organizations/{organization.id}"
+      body: "organization"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "OrganizationOperationResponse"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
+    };
+    option (google.api.method_signature) = "organization,update_mask";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Update"
+      description: "Updates mutable fields of an existing organization."
+      operation_id: "UpdateOrganization"
+    };
+  }
+
+  // Archives an organization without deleting it permanently.
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.longrunning.operation_info) = {
+      response_type: "m8.platform.common.operation.v1.OperationResponse"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
+    };
+    option (google.api.method_signature) = "organization_id,version,allow_missing";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Delete"
+      description: "Soft-deletes an organization."
+      operation_id: "DeleteOrganization"
+    };
+  }
+
+  // Restores an organization that was previously archived.
+  rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {post: "/v1/resource-manager/organizations/{organization_id}:undelete"};
+    option (google.longrunning.operation_info) = {
+      response_type: "OrganizationOperationResponse"
+      metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
+    };
+    option (google.api.method_signature) = "organization_id";
+    option (gnostic.openapi.v3.operation) = {
+      summary: "Undelete"
+      description: "Restores a previously soft-deleted organization."
+      operation_id: "UndeleteOrganization"
+    };
+  }
+}
+
+// Request to read one organization by UUID.
+message GetOrganizationRequest {
+  // Required. Stable unique identifier of the organization to retrieve.
+  // The value must be a valid UUID string.
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+// Request to list organizations with pagination and optional filtering.
+message ListOrganizationsRequest {
+  // Optional. The maximum number of organizations to return.
+  // Valid values are in the range 0 to 1000.
+  // If omitted, the service returns up to 50 organizations.
+  // The service may return fewer results than requested.
+  int32 page_size = 1 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int32 = {
+      gte: 0
+      lte: 1000
+    }
+  ];
+
+  // Optional. A page token returned by a previous `ListOrganizations` call.
+  // Use this field to retrieve the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListOrganizations`
+  // must match the call that produced the page token.
+  // The token must not exceed 1024 characters.
+  string page_token = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-160 style filter expression.
+  // The expression must not exceed 1024 characters.
+  string filter = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  // Optional. AIP-132 style ordering expression.
+  // The expression must not exceed 128 characters.
+  string order_by = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  // Optional. If true, soft-deleted organizations are included in the response.
+  bool show_deleted = 5 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// One page of organizations returned by ListOrganizations.
+message ListOrganizationsResponse {
+  // Organizations returned for the current page.
+  repeated Organization organizations = 1;
+
+  // Token to retrieve the next page.
+  // This field is empty when there are no more results.
+  string next_page_token = 2;
+
+  // The total number of organizations that match the request.
+  int32 total_size = 3;
+}
+
+// Request to create a new organization.
+message CreateOrganizationRequest {
+  // Required. The organization to create.
+  // Client-specified values in `organization.id`,
+  // `organization.state`, `organization.create_time`, `organization.update_time`,
+  // `organization.delete_time`, `organization.purge_time`, and
+  // `organization.version` must not be set by the client. The server assigns
+  // those fields.
+  Organization organization = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+// Request to update an existing organization.
+message UpdateOrganizationRequest {
+  // Required. The organization to update.
+  //
+  // The `organization.id` field identifies the resource to update and must be
+  // a valid UUID string. The identifier is immutable and cannot be changed.
+  // Output-only fields are ignored except for `version`, which may be provided for
+  // optimistic concurrency control.
+  Organization organization = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Required. The field mask that selects which mutable fields to update.
+  // Paths in the mask should refer only to fields that clients are allowed to modify.
+  google.protobuf.FieldMask update_mask = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+}
+
+// Request to archive an organization by UUID.
+message DeleteOrganizationRequest {
+  // Required. Stable unique identifier of the organization to delete.
+  // The value must be a valid UUID string.
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Optional. The version of the organization.
+  // If provided, the value must exactly match the current server-side version.
+  int64 version = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).int64.gte = 0
+  ];
+
+  // Optional. If true, the request succeeds even if the organization does not
+  // exist or has already been deleted.
+  bool allow_missing = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// Request to restore an archived organization.
+message UndeleteOrganizationRequest {
+  // Required. Stable unique identifier of the organization to restore.
+  // The value must be a valid UUID string.
+  string organization_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+// Response returned by completed organization long-running operations.
+message OrganizationOperationResponse {
+  // Output only. Organization affected by the operation.
+  Organization organization = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

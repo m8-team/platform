@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package m8.platform.riskdecision.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_decision_context.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
+
+enum RiskLevel {
+  RISK_LEVEL_UNSPECIFIED = 0;
+
+  RISK_LEVEL_LOW = 1;
+
+  RISK_LEVEL_MEDIUM = 2;
+
+  RISK_LEVEL_HIGH = 3;
+
+  RISK_LEVEL_CRITICAL = 4;
+}
+
+enum AuthenticationDecisionAction {
+  AUTHENTICATION_DECISION_ACTION_UNSPECIFIED = 0;
+
+  AUTHENTICATION_DECISION_ACTION_ALLOW = 1;
+
+  AUTHENTICATION_DECISION_ACTION_DENY = 2;
+
+  AUTHENTICATION_DECISION_ACTION_CHALLENGE = 3;
+
+  AUTHENTICATION_DECISION_ACTION_STEP_UP = 4;
+
+  AUTHENTICATION_DECISION_ACTION_FALLBACK = 5;
+
+  AUTHENTICATION_DECISION_ACTION_REVIEW = 6;
+}
+
+message AuthenticationDecision {
+  string decision_id = 1;
+
+  AuthenticationDecisionAction action = 2;
+
+  m8.platform.iam.v1.AuthenticationChallenge selected_challenge = 3;
+
+  m8.platform.iam.v1.AuthenticationChallenge current_challenge = 4;
+
+  m8.platform.iam.v1.ChallengeDeliveryChannel delivery_channel = 5;
+
+  string required_acr = 6;
+
+  repeated string expected_amr = 7;
+
+  repeated m8.platform.iam.v1.AuthenticationMethodReference expected_method_references = 8;
+
+  repeated m8.platform.iam.v1.AuthenticationChallenge fallback_challenges = 9;
+
+  repeated string reasons = 10;
+
+  double risk_score = 11;
+
+  RiskLevel risk_level = 12;
+
+  string policy_id = 13;
+
+  string policy_version = 14;
+
+  google.protobuf.Timestamp decision_time = 15;
+
+  map<string, string> attributes = 16;
+}

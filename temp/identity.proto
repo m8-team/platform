@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+// Номер телефона в формате E.164
+message Phone {
+  string e164_number = 1 [
+    (validate.rules).string = { pattern: "^\\+[1-9]\\d{1,14}$" }
+  ];
+}
+
+// Способ идентификации пользователя
+message Identity {
+  oneof value {
+    // Телефон (E.164)
+    Phone phone = 1;
+
+    // E-mail
+    string email = 2 [(validate.rules).string.email = true];
+  }
+}

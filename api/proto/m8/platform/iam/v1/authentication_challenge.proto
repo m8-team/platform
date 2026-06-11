@@ -1,0 +1,623 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+enum AuthenticationMethod {
+  AUTHENTICATION_METHOD_UNSPECIFIED = 0;
+
+  AUTHENTICATION_METHOD_PASSWORD = 1;
+
+  AUTHENTICATION_METHOD_SMS_OTP = 2;
+
+  AUTHENTICATION_METHOD_EMAIL_OTP = 3;
+
+  AUTHENTICATION_METHOD_TOTP = 4;
+
+  AUTHENTICATION_METHOD_PUSH_APPROVAL = 5;
+
+  AUTHENTICATION_METHOD_PUSH_OTP = 6;
+
+  AUTHENTICATION_METHOD_SIM_PUSH = 7;
+
+  AUTHENTICATION_METHOD_MOBILE_ID = 8;
+
+  AUTHENTICATION_METHOD_WEBAUTHN_PASSKEY = 9;
+
+  AUTHENTICATION_METHOD_OIDC = 10;
+
+  AUTHENTICATION_METHOD_SAML = 11;
+}
+
+enum AuthenticationChallengeKind {
+  AUTHENTICATION_CHALLENGE_KIND_UNSPECIFIED = 0;
+
+  AUTHENTICATION_CHALLENGE_KIND_PASSWORD_INPUT = 1;
+
+  AUTHENTICATION_CHALLENGE_KIND_OTP_INPUT = 2;
+
+  AUTHENTICATION_CHALLENGE_KIND_APPROVAL = 3;
+
+  AUTHENTICATION_CHALLENGE_KIND_REDIRECT = 4;
+
+  AUTHENTICATION_CHALLENGE_KIND_WEBAUTHN_ASSERTION = 5;
+
+  AUTHENTICATION_CHALLENGE_KIND_PROVIDER_CALLBACK = 6;
+}
+
+enum AuthenticationDeliveryChannel {
+  AUTHENTICATION_DELIVERY_CHANNEL_UNSPECIFIED = 0;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_CLIENT = 1;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_SMS = 2;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_EMAIL = 3;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_AUTHENTICATOR_APP = 4;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_PUSH = 5;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_SIM_PUSH = 6;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_MOBILE_ID = 7;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_WEBAUTHN = 8;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_OIDC = 9;
+
+  AUTHENTICATION_DELIVERY_CHANNEL_SAML = 10;
+}
+
+enum AuthenticationChallengeAction {
+  AUTHENTICATION_CHALLENGE_ACTION_UNSPECIFIED = 0;
+
+  AUTHENTICATION_CHALLENGE_ACTION_SUBMIT = 1;
+
+  AUTHENTICATION_CHALLENGE_ACTION_RESEND = 2;
+
+  AUTHENTICATION_CHALLENGE_ACTION_CANCEL = 3;
+
+  AUTHENTICATION_CHALLENGE_ACTION_SELECT_ANOTHER_METHOD = 4;
+}
+
+enum AuthenticationChallengeCapability {
+  AUTHENTICATION_CHALLENGE_CAPABILITY_UNSPECIFIED = 0;
+
+  AUTHENTICATION_CHALLENGE_CAPABILITY_SUBMIT = 1;
+
+  AUTHENTICATION_CHALLENGE_CAPABILITY_RESEND = 2;
+
+  AUTHENTICATION_CHALLENGE_CAPABILITY_AUTOFILL = 3;
+
+  AUTHENTICATION_CHALLENGE_CAPABILITY_PASSKEY_CONDITIONAL_UI = 4;
+
+  AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD = 5;
+}
+
+
+enum ApprovalChannel {
+  APPROVAL_CHANNEL_UNSPECIFIED = 0;
+
+  APPROVAL_CHANNEL_PUSH = 1;
+
+  APPROVAL_CHANNEL_SIM_PUSH = 2;
+
+  APPROVAL_CHANNEL_MOBILE_ID = 3;
+
+  APPROVAL_CHANNEL_BANK_ID = 4;
+}
+
+enum UserVerificationRequirement {
+  USER_VERIFICATION_REQUIREMENT_UNSPECIFIED = 0;
+
+  USER_VERIFICATION_REQUIREMENT_REQUIRED = 1;
+
+  USER_VERIFICATION_REQUIREMENT_PREFERRED = 2;
+
+  USER_VERIFICATION_REQUIREMENT_DISCOURAGED = 3;
+}
+
+enum WebAuthnDiscoveryMode {
+  WEB_AUTHN_DISCOVERY_MODE_UNSPECIFIED = 0;
+
+  WEB_AUTHN_DISCOVERY_MODE_ALLOWED = 1;
+
+  WEB_AUTHN_DISCOVERY_MODE_REQUIRED = 2;
+
+  WEB_AUTHN_DISCOVERY_MODE_DISABLED = 3;
+}
+
+message AuthenticationChallengeOption {
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_option.provider_required"
+    message: "external provider methods require provider_id"
+    expression: "!(this.method in [7, 8, 10, 11]) || this.provider_id != ''"
+  };
+
+  AuthenticationMethod method = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  string method_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string provider_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  AuthenticationChallengeKind kind = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  string display_name = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  int32 priority = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  bool available = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  string unavailable_reason = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  string masked_destination = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  AuthenticationDeliveryChannel delivery_channel = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  repeated AuthenticationChallengeCapability capabilities = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  repeated string custom_capabilities = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+    }
+  ];
+
+  map<string, string> hints = 13 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).map = {
+      max_pairs: 32
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+      values: {
+        string: {max_len: 256}
+      }
+    }
+  ];
+
+  bool recommended = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message AuthenticationChallengeInfo {
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.otp_parameters_required"
+    message: "OTP_INPUT challenges require otp parameters"
+    expression: "this.kind != 2 || has(this.otp)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.redirect_parameters_required"
+    message: "REDIRECT challenges require redirect parameters"
+    expression: "this.kind != 4 || has(this.redirect)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.webauthn_parameters_required"
+    message: "WEBAUTHN_ASSERTION challenges require webauthn parameters"
+    expression: "this.kind != 5 || has(this.webauthn)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.approval_parameters_required"
+    message: "APPROVAL challenges require approval parameters"
+    expression: "this.kind != 3 || has(this.approval) || has(this.mobile_id)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.password_parameters_required"
+    message: "PASSWORD_INPUT challenges require password parameters"
+    expression: "this.kind != 1 || has(this.password)"
+  };
+  option (buf.validate.message).cel = {
+    id: "authentication_challenge_info.provider_required"
+    message: "external provider methods require provider_id"
+    expression: "!(this.method in [7, 8, 10, 11]) || this.provider_id != ''"
+  };
+
+  string id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  AuthenticationChallengeKind kind = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  AuthenticationMethod method = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  string method_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string provider_id = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  AuthenticationDeliveryChannel delivery_channel = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  string masked_destination = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  google.protobuf.Timestamp expire_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  google.protobuf.Timestamp resend_available_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  int32 attempt_count = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  int32 remaining_attempts = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  repeated AuthenticationChallengeAction actions = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 20
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  repeated AuthenticationChallengeCapability capabilities = 13 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        enum: {
+          defined_only: true
+          not_in: [0]
+        }
+      }
+    }
+  ];
+
+  repeated string custom_capabilities = 14 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 64
+        }
+      }
+    }
+  ];
+
+  oneof public_parameters {
+    PasswordChallenge password = 20 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    OtpChallenge otp = 21 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    WebAuthnChallenge webauthn = 22 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    RedirectChallenge redirect = 23 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    ApprovalChallenge approval = 24 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    MobileIdChallenge mobile_id = 25 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    ProviderCallbackChallenge provider_callback = 26 [(google.api.field_behavior) = OUTPUT_ONLY];
+  }
+}
+
+message PasswordChallenge {
+  string policy_hint = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
+message OtpChallenge {
+  int32 length = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32 = {
+      gte: 4
+      lte: 12
+    }
+  ];
+
+  AuthenticationDeliveryChannel delivery_channel = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  string masked_destination = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
+
+message WebAuthnAllowedCredential {
+  string type = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  repeated string transports = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {max_len: 64}
+      }
+    }
+  ];
+}
+
+message WebAuthnChallenge {
+  string challenge = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  string rp_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  int32 timeout_ms = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+
+  UserVerificationRequirement user_verification = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  WebAuthnDiscoveryMode discovery_mode = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  repeated WebAuthnAllowedCredential allow_credentials = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {max_items: 100}
+  ];
+}
+
+message RedirectChallenge {
+  string authorization_url = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  string provider_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string provider_display_name = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  bool callback_expected = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message ApprovalChallenge {
+  string binding_message = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  ApprovalChannel approval_channel = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  string approval_device_hint = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  int32 expires_in_seconds = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int32.gte = 0
+  ];
+}
+
+message MobileIdChallenge {
+  string transaction_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string binding_message = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  string phone_hint = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
+
+message ProviderCallbackChallenge {
+  string provider_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string state_hint = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
+message AuthenticationChallengeResponse {
+  oneof response {
+    option (buf.validate.oneof).required = true;
+
+    OtpChallengeResponse otp = 1;
+
+    PasswordChallengeResponse password = 2;
+
+    WebAuthnAssertionResponse webauthn = 3;
+
+    ApprovalChallengeResponse approval = 4;
+  }
+}
+
+message OtpChallengeResponse {
+  string code = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 4
+      max_len: 12
+    }
+  ];
+}
+
+message PasswordChallengeResponse {
+  string password = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 4096
+    }
+  ];
+}
+
+message WebAuthnAssertionResponse {
+  string credential_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  string client_data_json = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  string authenticator_data = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  string signature = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  string user_handle = 5 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
+  ];
+}
+
+message ApprovalChallengeResponse {
+  option (buf.validate.message).cel = {
+    id: "approval_challenge_response.proof_required"
+    message: "approved approval responses require approval_token or proof"
+    expression: "!this.approved || this.approval_token != '' || this.proof != ''"
+  };
+
+  bool approved = 1 [(google.api.field_behavior) = REQUIRED];
+
+  string approval_token = 2 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 4096
+  ];
+
+  string proof = 3 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 65536
+  ];
+
+  string denial_reason = 4 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).string.max_len = 512
+  ];
+}

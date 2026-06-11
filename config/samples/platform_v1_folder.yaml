@@ -1,9 +1,0 @@
-apiVersion: platform.m8.team/v1
-kind: Folder
-metadata:
-  labels:
-    app.kubernetes.io/name: platform
-    app.kubernetes.io/managed-by: kustomize
-  name: folder-sample
-spec:
-  # TODO(user): Add fields here

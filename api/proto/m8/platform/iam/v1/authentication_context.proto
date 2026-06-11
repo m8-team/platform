@@ -1,0 +1,804 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_common.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+message AuthenticationStartContext {
+  RequestHint request = 1 [(google.api.field_behavior) = OPTIONAL];
+
+  SessionHint session = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  ResourceHint resource = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  InteractionHint interaction = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  DeviceHint device = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  NetworkHint network = 6 [(google.api.field_behavior) = OPTIONAL];
+
+  OidcRequestHint oidc = 7 [(google.api.field_behavior) = OPTIONAL];
+
+  CibaRequestHint ciba = 8 [(google.api.field_behavior) = OPTIONAL];
+
+  TransactionHint transaction = 9 [(google.api.field_behavior) = OPTIONAL];
+}
+
+message AuthenticationContext {
+  RequestContext request = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  SessionContext session = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  ResourceContext resource = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  InteractionContext interaction = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  DeviceContext device = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  NetworkContext network = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  OidcContext oidc = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  CibaContext ciba = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  TransactionContext transaction = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message InternalAuthenticationContext {
+  AuthenticationContext public_context = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  RiskContext risk = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  repeated string policy_ids = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 64
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  repeated string risk_reason_codes = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 64
+      items: {
+        string: {
+          min_len: 1
+          max_len: 256
+        }
+      }
+    }
+  ];
+}
+
+message RequestHint {
+  string request_id = 1 [(buf.validate.field).string.max_len = 255];
+
+  string correlation_id = 2 [(buf.validate.field).string.max_len = 255];
+
+  string trace_id = 3 [(buf.validate.field).string.max_len = 255];
+
+  string source_service = 4 [(buf.validate.field).string.max_len = 128];
+
+  string user_agent = 5 [(buf.validate.field).string.max_len = 1024];
+
+  string locale = 6 [(buf.validate.field).string.max_len = 35];
+
+  string timezone = 7 [(buf.validate.field).string.max_len = 64];
+
+  string accept_language = 8 [(buf.validate.field).string.max_len = 256];
+}
+
+message RequestContext {
+  string request_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string correlation_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string trace_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string source_service = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string user_agent = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 1024
+  ];
+
+  string locale = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 35
+  ];
+
+  string timezone = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  google.protobuf.Timestamp received_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message SessionHint {
+  string existing_session_id = 1 [(buf.validate.field).string.max_len = 128];
+
+  string previous_authentication_id = 2 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  google.protobuf.Timestamp auth_time = 3;
+
+  google.protobuf.Duration max_age = 4;
+
+  AuthenticationAssuranceLevel requested_assurance_level = 5 [(buf.validate.field).enum.defined_only = true];
+}
+
+message SessionContext {
+  enum StepUpReason {
+    STEP_UP_REASON_UNSPECIFIED = 0;
+
+    STEP_UP_REASON_SENSITIVE_OPERATION = 1;
+
+    STEP_UP_REASON_RISK_POLICY = 2;
+
+    STEP_UP_REASON_SESSION_TOO_OLD = 3;
+
+    STEP_UP_REASON_ASSURANCE_LEVEL_TOO_LOW = 4;
+
+    STEP_UP_REASON_USER_REQUESTED = 5;
+
+    STEP_UP_REASON_ADMIN_POLICY = 6;
+  }
+
+  string existing_session_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string previous_authentication_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  AuthenticationAssuranceLevel previous_assurance_level = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  google.protobuf.Timestamp auth_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  google.protobuf.Duration max_age = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  StepUpReason step_up_reason = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  AuthenticationAssuranceLevel requested_assurance_level = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+}
+
+message ResourceHint {
+  string requested_resource = 1 [(buf.validate.field).string.max_len = 512];
+
+  string requested_operation = 2 [(buf.validate.field).string.max_len = 128];
+
+  repeated string audience = 3 [(buf.validate.field).repeated = {
+    max_items: 32
+    items: {
+      string: {
+        min_len: 1
+        max_len: 256
+      }
+    }
+  }];
+}
+
+message ResourceContext {
+  string organization_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  string workspace_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  string project_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  string user_pool_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  string requested_resource = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  string requested_operation = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  repeated string audience = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 32
+      items: {
+        string: {
+          min_len: 1
+          max_len: 256
+        }
+      }
+    }
+  ];
+}
+
+message InteractionHint {
+  InteractionContext.UiMode ui_mode = 1 [(buf.validate.field).enum.defined_only = true];
+
+  InteractionContext.LoginHintSource login_hint_source = 2 [(buf.validate.field).enum.defined_only = true];
+
+  string preferred_locale = 3 [(buf.validate.field).string.max_len = 35];
+
+  InteractionContext.DisplayMode display = 4 [(buf.validate.field).enum.defined_only = true];
+
+  repeated string prompts = 5 [(buf.validate.field).repeated = {
+    max_items: 8
+    items: {
+      string: {
+        min_len: 1
+        max_len: 32
+      }
+    }
+  }];
+
+  bool passkey_capable_client = 6;
+
+  bool user_verification_supported = 7;
+}
+
+message InteractionContext {
+  enum UiMode {
+    UI_MODE_UNSPECIFIED = 0;
+
+    UI_MODE_REDIRECT = 1;
+
+    UI_MODE_EMBEDDED = 2;
+
+    UI_MODE_API = 3;
+
+    UI_MODE_DEVICE_CODE = 4;
+
+    UI_MODE_CIBA = 5;
+  }
+
+  enum LoginHintSource {
+    LOGIN_HINT_SOURCE_UNSPECIFIED = 0;
+
+    LOGIN_HINT_SOURCE_USER_INPUT = 1;
+
+    LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT = 2;
+
+    LOGIN_HINT_SOURCE_SESSION = 3;
+
+    LOGIN_HINT_SOURCE_INVITATION = 4;
+
+    LOGIN_HINT_SOURCE_ADMIN_SELECTED = 5;
+
+    LOGIN_HINT_SOURCE_IDP_CALLBACK = 6;
+  }
+
+  enum DisplayMode {
+    DISPLAY_MODE_UNSPECIFIED = 0;
+
+    DISPLAY_MODE_PAGE = 1;
+
+    DISPLAY_MODE_POPUP = 2;
+
+    DISPLAY_MODE_TOUCH = 3;
+
+    DISPLAY_MODE_WAP = 4;
+  }
+
+  UiMode ui_mode = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  LoginHintSource login_hint_source = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  string preferred_locale = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 35
+  ];
+
+  DisplayMode display = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  repeated string prompts = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 8
+      items: {
+        string: {
+          min_len: 1
+          max_len: 32
+        }
+      }
+    }
+  ];
+
+  bool passkey_capable_client = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  bool user_verification_supported = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message DeviceHint {
+  string device_id = 1 [(buf.validate.field).string.max_len = 128];
+
+  string trusted_device_id = 2 [(buf.validate.field).string.max_len = 128];
+
+  string device_fingerprint_id = 3 [(buf.validate.field).string.max_len = 128];
+
+  string platform = 4 [(buf.validate.field).string.max_len = 64];
+
+  string os = 5 [(buf.validate.field).string.max_len = 64];
+
+  string os_version = 6 [(buf.validate.field).string.max_len = 64];
+
+  string browser = 7 [(buf.validate.field).string.max_len = 64];
+
+  string browser_version = 8 [(buf.validate.field).string.max_len = 64];
+
+  string app_version = 9 [(buf.validate.field).string.max_len = 64];
+
+  string sdk_name = 10 [(buf.validate.field).string.max_len = 64];
+
+  string sdk_version = 11 [(buf.validate.field).string.max_len = 64];
+
+  bool webauthn_available = 12;
+
+  bool passkey_available_hint = 13;
+}
+
+message DeviceContext {
+  string device_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string trusted_device_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string device_fingerprint_id = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string platform = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string os = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string os_version = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string browser = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string browser_version = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string app_version = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string sdk_name = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  string sdk_version = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 64
+  ];
+
+  bool webauthn_available = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  bool passkey_available_hint = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message NetworkHint {
+  string ip = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.ip = true
+  ];
+
+  repeated string forwarded_for = 2 [(buf.validate.field).repeated = {
+    max_items: 16
+    items: {
+      string: {ip: true}
+    }
+  }];
+}
+
+message NetworkContext {
+  enum NetworkRiskLevel {
+    NETWORK_RISK_LEVEL_UNSPECIFIED = 0;
+
+    NETWORK_RISK_LEVEL_LOW = 1;
+
+    NETWORK_RISK_LEVEL_MEDIUM = 2;
+
+    NETWORK_RISK_LEVEL_HIGH = 3;
+
+    NETWORK_RISK_LEVEL_CRITICAL = 4;
+  }
+
+  string ip = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.ip = true
+  ];
+
+  repeated string forwarded_for = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {ip: true}
+      }
+    }
+  ];
+
+  string country_code = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      len: 2
+      pattern: "^[A-Z]{2}$"
+    }
+  ];
+
+  string region = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string city = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  uint32 asn = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  string isp = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 256
+  ];
+
+  bool is_proxy = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  bool is_vpn = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  bool is_tor = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  NetworkRiskLevel risk_level = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+}
+
+message OidcRequestHint {
+  repeated string scope = 1 [(buf.validate.field).repeated = {
+    max_items: 64
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+
+  repeated string acr_values = 2 [(buf.validate.field).repeated = {
+    max_items: 16
+    items: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+  }];
+
+  repeated string prompt = 3 [(buf.validate.field).repeated = {
+    max_items: 8
+    items: {
+      string: {
+        min_len: 1
+        max_len: 32
+      }
+    }
+  }];
+
+  google.protobuf.Duration max_age = 4;
+
+  string nonce = 5 [(buf.validate.field).string.max_len = 512];
+
+  string state = 6 [(buf.validate.field).string.max_len = 512];
+
+  string code_challenge = 7 [(buf.validate.field).string.max_len = 256];
+
+  string code_challenge_method = 8 [(buf.validate.field).string.max_len = 32];
+
+  string response_type = 9 [(buf.validate.field).string.max_len = 128];
+
+  string response_mode = 10 [(buf.validate.field).string.max_len = 64];
+
+  string login_hint = 11 [(buf.validate.field).string.max_len = 512];
+
+  repeated string resource = 12 [(buf.validate.field).repeated = {
+    max_items: 32
+    items: {
+      string: {
+        min_len: 1
+        max_len: 512
+      }
+    }
+  }];
+
+  repeated string audience = 13 [(buf.validate.field).repeated = {
+    max_items: 32
+    items: {
+      string: {
+        min_len: 1
+        max_len: 256
+      }
+    }
+  }];
+
+  string redirect_uri = 14 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 2048
+      uri_ref: true
+    }
+  ];
+}
+
+message OidcContext {
+  repeated string scope = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 64
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  repeated string acr_values = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 16
+      items: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+    }
+  ];
+
+  repeated string prompt = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).repeated = {
+      max_items: 8
+      items: {
+        string: {
+          min_len: 1
+          max_len: 32
+        }
+      }
+    }
+  ];
+
+  google.protobuf.Duration max_age = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  string redirect_uri = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      max_len: 2048
+      uri_ref: true
+    }
+  ];
+
+  string state_id = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
+
+message CibaRequestHint {
+  string login_hint_token = 1 [(buf.validate.field).string.max_len = 4096];
+
+  string id_token_hint = 2 [(buf.validate.field).string.max_len = 8192];
+
+  string binding_message = 3 [(buf.validate.field).string.max_len = 512];
+
+  google.protobuf.Duration requested_expiry = 4;
+}
+
+message CibaContext {
+  string binding_message = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  google.protobuf.Timestamp expire_time = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  google.protobuf.Duration interval = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  string client_notification_token_id = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
+
+message TransactionHint {
+  string transaction_id = 1 [(buf.validate.field).string.max_len = 255];
+
+  string type = 2 [(buf.validate.field).string.max_len = 128];
+
+  string amount = 3 [(buf.validate.field).string.max_len = 128];
+
+  string currency = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      len: 3
+      pattern: "^[A-Z]{3}$"
+    }
+  ];
+
+  string counterparty = 5 [(buf.validate.field).string.max_len = 512];
+
+  string binding_message = 6 [(buf.validate.field).string.max_len = 512];
+}
+
+message TransactionContext {
+  string transaction_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+
+  string type = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string amount = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string currency = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string = {
+      len: 3
+      pattern: "^[A-Z]{3}$"
+    }
+  ];
+
+  string counterparty_masked = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+
+  string binding_message = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 512
+  ];
+}
+
+message RiskContext {
+  enum RiskLevel {
+    RISK_LEVEL_UNSPECIFIED = 0;
+
+    RISK_LEVEL_LOW = 1;
+
+    RISK_LEVEL_MEDIUM = 2;
+
+    RISK_LEVEL_HIGH = 3;
+
+    RISK_LEVEL_CRITICAL = 4;
+  }
+
+  enum RiskAction {
+    RISK_ACTION_UNSPECIFIED = 0;
+
+    RISK_ACTION_ALLOW = 1;
+
+    RISK_ACTION_CHALLENGE = 2;
+
+    RISK_ACTION_STEP_UP = 3;
+
+    RISK_ACTION_DENY = 4;
+  }
+
+  string risk_session_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  string decision_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 128
+  ];
+
+  RiskLevel risk_level = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  RiskAction recommended_action = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+}

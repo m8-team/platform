@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package m8.platform.iam.v1;
+
+import "google/protobuf/timestamp.proto";
+import "m8/platform/iam/v1/authentication_assurance_context.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Status of the subject in the identity system.
+enum UserStatus {
+  // User status is not specified.
+  USER_STATUS_UNSPECIFIED = 0;
+
+  // User is active.
+  USER_STATUS_ACTIVE = 1;
+
+  // User is locked.
+  USER_STATUS_LOCKED = 2;
+
+  // User is disabled.
+  USER_STATUS_DISABLED = 3;
+
+  // User is pending activation or enrollment.
+  USER_STATUS_PENDING = 4;
+
+  // User is suspended by identity configuration or administration.
+  USER_STATUS_SUSPENDED = 5;
+
+  // User has been deleted.
+  USER_STATUS_DELETED = 6;
+}
+
+// SubjectContext describes the user or workload being authenticated without raw sensitive PII.
+// M8 Identity remains the source of truth for users, identity links, authenticators, and user status.
+//
+// Example:
+// - internal subject id
+// - masked email and masked phone for audit display
+// - hash or reference values instead of raw identifiers
+message SubjectContext {
+  // Stable platform subject identifier.
+  string subject_id = 1;
+
+  // External subject reference or pairwise subject identifier.
+  string external_subject_ref = 2;
+
+  // Hash of the login hint when raw login hint must not be stored.
+  string login_hint_hash = 3;
+
+  // Masked email address for safe audit display.
+  string email_masked = 4;
+
+  // Masked phone number for safe audit display.
+  string phone_masked = 5;
+
+  // Subject status from the identity system.
+  UserStatus status = 6;
+
+  // Identity-owned subject segment or reference used as safe decision input.
+  string identity_segment_ref = 7;
+
+  // Reference to a tenant-local user record.
+  string tenant_user_ref = 8;
+
+  // Additional non-sensitive subject attributes.
+  map<string, string> attributes = 9;
+}
+
+// SessionContext describes an existing session that may satisfy or constrain authentication.
+//
+// Example:
+// - previous authentication is fresh enough for max_age
+// - current session has AAL1 and needs AAL3 step-up
+// - remembered device participates in assurance evaluation
+message SessionContext {
+  // Current session identifier or reference.
+  string session_id = 1;
+
+  // Previous session identifier or reference if session rotation occurred.
+  string previous_session_id = 2;
+
+  // Time when the current session was authenticated.
+  google.protobuf.Timestamp auth_time = 3;
+
+  // Last authentication operation that established the session.
+  string last_authentication_id = 4;
+
+  // Current OIDC-compatible acr value of the session.
+  string current_acr = 5;
+
+  // Current OIDC-compatible amr values of the session.
+  repeated string current_amr = 6;
+
+  // Normalized method references used by the session.
+  repeated AuthenticationMethodReference current_method_references = 7;
+
+  // Whether the session is already authenticated.
+  bool authenticated = 8;
+
+  // Whether the device was remembered for this session.
+  bool remember_device = 9;
+
+  // Session age in seconds at decision time.
+  int64 age_seconds = 10;
+
+  // Additional non-sensitive session attributes.
+  map<string, string> attributes = 11;
+}

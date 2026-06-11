@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package m8.platform.riskdecision.v1;
+
+import "m8/platform/iam/v1/authentication_challenge.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
+
+// Policy execution mode used for a decision.
+enum PolicyMode {
+  // Policy mode is not specified.
+  POLICY_MODE_UNSPECIFIED = 0;
+
+  // Policy is enforced.
+  POLICY_MODE_ENFORCE = 1;
+
+  // Policy is evaluated but not enforced.
+  POLICY_MODE_SHADOW = 2;
+
+  // Policy is evaluated as a dry run.
+  POLICY_MODE_DRY_RUN = 3;
+
+  // Policy is disabled.
+  POLICY_MODE_DISABLED = 4;
+}
+
+// Strategy used to combine policy and risk decisions.
+enum DecisionStrategy {
+  // Decision strategy is not specified.
+  DECISION_STRATEGY_UNSPECIFIED = 0;
+
+  // First matching policy rule wins.
+  DECISION_STRATEGY_FIRST_MATCH = 1;
+
+  // Highest risk result wins.
+  DECISION_STRATEGY_HIGHEST_RISK = 2;
+
+  // Most restrictive result wins.
+  DECISION_STRATEGY_MOST_RESTRICTIVE = 3;
+
+  // Weighted scoring decides the result.
+  DECISION_STRATEGY_WEIGHTED = 4;
+
+  // Rule tree decides the result.
+  DECISION_STRATEGY_RULE_TREE = 5;
+}
+
+// PolicyContext captures Risk Decision policy requirements applied to an authentication decision.
+// It must not model business authorization permissions, roles, or relationships owned by M8 Access.
+//
+// Example:
+// - policy requires m8:aal3
+// - policy denies password for privileged operations
+// - policy allows Mobile ID SMS fallback
+message PolicyContext {
+  // Policy identifier.
+  string policy_id = 1;
+
+  // Policy version.
+  string policy_version = 2;
+
+  // Policy execution mode.
+  PolicyMode mode = 3;
+
+  // Strategy used to combine policy rules.
+  DecisionStrategy strategy = 4;
+
+  // Required OIDC-compatible acr value.
+  string required_acr = 5;
+
+  // Challenges allowed by policy.
+  repeated m8.platform.iam.v1.AuthenticationChallenge allowed_challenges = 6;
+
+  // Challenges denied by policy.
+  repeated m8.platform.iam.v1.AuthenticationChallenge denied_challenges = 7;
+
+  // Whether fallback is allowed.
+  bool fallback_allowed = 8;
+
+  // Whether anti-enumeration behavior is required.
+  bool anti_enumeration_required = 9;
+
+  // Whether transaction binding is required.
+  bool transaction_binding_required = 10;
+
+  // Whether phishing-resistant authentication is required.
+  bool phishing_resistant_required = 11;
+
+  // Additional non-sensitive policy attributes.
+  map<string, string> attributes = 12;
+}

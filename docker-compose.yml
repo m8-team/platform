@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: m8-app-dev
+    command: sleep infinity
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:cached
+      - go-cache:/go
+    environment:
+      APP_ENV: local
+
+      # Inside docker network
+      YDB_CONNECTION_STRING: grpc://ydb:2136/local
+      YDB_ENDPOINT: grpc://ydb:2136
+      YDB_DATABASE: /local
+      YDB_AUTH_MODE: anonymous
+
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_NAMESPACE: default
+
+    depends_on:
+      - ydb
+      - temporal
+
+  ydb:
+    image: ydbplatform/local-ydb:latest
+    container_name: ydb
+
+    ports:
+      - "2136:2136" # YDB gRPC
+      - "8765:8765" # YDB Embedded UI
+      - "5432:5432" # Optional: PostgreSQL compatibility
+      - "9092:9092" # Optional: Kafka API compatibility
+    environment:
+      GRPC_PORT: 2136
+      GRPC_TLS_PORT: 2135
+      MON_PORT: 8765
+      YDB_KAFKA_PROXY_PORT: 9092
+
+      # Useful for Apple Silicon without Rosetta / for lightweight local dev
+      YDB_USE_IN_MEMORY_PDISKS: "true"
+
+    volumes:
+      - ydb-data:/ydb_data
+      - ydb-certs:/ydb_certs
+
+  temporal:
+    image: temporalio/temporal:latest
+    container_name: temporal
+    command: server start-dev --ip 0.0.0.0 --db-filename /home/temporal/temporal.db
+    ports:
+      - "7233:7233" # Temporal gRPC
+      - "8233:8233" # Temporal UI for dev server
+    volumes:
+      - temporal-data:/home/temporal
+
+volumes:
+  go-cache:
+  ydb-data:
+  ydb-certs:
+  temporal-data:

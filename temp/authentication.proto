@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+import "zenden/cloud/auth/authentication/v1/identity.proto";
+import "zenden/cloud/auth/authentication/v1/authentication_state.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+// Аутентификация
+message Authentication {
+
+  // Способ идентификации пользователя
+  Identity identity = 6 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+ 
+
+  // Оставшееся кол-во попыток ввода OTP
+  // Может быть null, если количество попыток ещё не устанавливалось.
+  google.protobuf.Int32Value remaining_attempts = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (validate.rules).int32 = { gte: 0 }
+  ];
+
+  // Информация о причине сбоя, если state = ERROR
+  FailReason fail_reason = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Детальная информация о причине ошибки аутентификации
+  message FailReason {
+    // Код ошибки
+    ErrorCode code = 1 [
+      (validate.rules).enum = { defined_only: true, not_in: [0] }
+    ];
+    
+    // Описание ошибки (опционально, для подробного разъяснения)
+    string description = 2;
+    
+    // Коды ошибок аутентификации
+    enum ErrorCode {
+      // Неопределенная ошибка
+      ERROR_CODE_UNSPECIFIED = 0;
+      
+      // Неверный OTP код
+      OTP_INVALID = 1;
+      
+      // Код OTP истек
+      OTP_EXPIRED = 2;
+      
+      // Невозможно отправить OTP
+      OTP_DELIVERY_FAILED = 3;
+      
+      // Технический сбой системы
+      UNKNOWN = 4;
+    }
+  }
+}

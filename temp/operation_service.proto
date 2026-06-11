@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "google/api/annotations.proto";
+import "google/longrunning/operations.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+// Сервис для работы с долгосрочными операциями
+service OperationService {
+  // Получение информации об операции по идентификатору
+  rpc GetOperation(google.longrunning.GetOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/operations/{name=**}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.operation.read";
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticateResponse"
+      metadata_type: "AuthenticateOperationMetadata"
+    };
+  }
+}

@@ -1,0 +1,235 @@
+syntax = "proto3";
+
+package zenden.cloud.auth.authentication.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
+import "google/longrunning/operations.proto";
+import "google/api/field_behavior.proto";
+import "zenden/cloud/auth/authentication/v1/identity.proto";
+import "zenden/cloud/extension/v1/extension.proto";
+import "zenden/cloud/auth/authentication/v1/authentication_state.proto";
+
+option go_package = "zenden.gitlab.yandexcloud.net/zenden-cloud/go-genproto/zenden/cloud/auth/authentication/v1;authentication";
+
+// Сервис аутентификации
+service AuthenticationService {
+  // Единый bidirectional streaming метод
+  rpc StreamAuthenticate(stream StreamAuthenticateRequest) returns (stream google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/authentications:stream"
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.authenticate";
+  }
+
+  // Начать процесс аутентификации
+  rpc Authenticate(AuthenticateRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/authentications:authenticate"
+      body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticateResponse"
+      metadata_type: "AuthenticateOperationMetadata"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.authenticate";
+  }
+
+  // Подтвердить аутентификацию вводом OTP (если процесс аутентификации в статусе "OTP_SENT")
+  rpc Verify(VerifyRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/authentications/{id}:verify"
+      body: "*"
+    };
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticateResponse"
+      metadata_type: "AuthenticateOperationMetadata"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.authenticate";
+  }
+
+  // Подсмотреть OTP
+  rpc Peek(PeekRequest) returns (PeekResponse) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/authentications/{id}:peek"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.peek";
+  }
+
+  // Перевести в FAILED зависшие (stale) аутентификации по заданным критериям.
+  rpc FailStuckAuthentications(FailStuckAuthenticationsRequest) returns (FailStuckAuthenticationsResponse) {
+    option (google.api.http) = {
+      post: "/auth/authentication/v1/authentications:failStuck"
+      body: "*"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.admin";
+  }
+
+  rpc GetOperation(google.longrunning.GetOperationRequest) returns (google.longrunning.Operation) {
+    option (google.api.http) = {
+      get: "/auth/authentication/v1/operations/{name=**}"
+    };
+    option (zenden.cloud.extension.v1.scopes) = "auth.authentication.operation.read";
+    option (google.longrunning.operation_info) = {
+      response_type: "AuthenticateResponse"
+      metadata_type: "AuthenticateOperationMetadata"
+    };
+  }
+}
+
+// StreamAuthenticateRequest — обёртка для запросов в bidirectional streaming RPC.
+// Позволяет в одном потоке как начинать аутентификацию, так и отправлять OTP для проверки.
+message StreamAuthenticateRequest {
+  oneof request {
+    // Старт аутентификации (аналог одиночного метода Authenticate)
+    AuthenticateRequest authenticate_request = 1;
+    // Отправка OTP для проверки (аналог одиночного метода Verify)
+    VerifyRequest verify_request = 2;
+  }
+}
+
+message AuthenticateRequest {
+  // Способ идентификации (часть идентификатора БП)
+  Identity identity = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+
+  // UUID соединения (часть идентификатора БП)
+  string channel_id = 2 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // UUID провайдера
+  string provider_id = 3 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // IP адрес исходного клиента
+  string client_ip = 4 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.ip = true];
+
+  // Источник
+  string source_type = 5 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}]; // web / mobile / retail
+
+  // Источник
+  string source_id = 6 [(google.api.field_behavior) = REQUIRED, (validate.rules).string = {min_len: 1, max_len: 50}]; // zenden.ru|zenden_mobile|corp|uuid
+
+  // Метаданные
+  map<string, string> metadata = 7 [(validate.rules).map = {ignore_empty: true, max_pairs: 32, keys: {string: {max_len: 64}}, values: {string: {max_len: 256}}}];
+}
+
+// Метаданные операции создания аутентификации
+message AuthenticateOperationMetadata {
+  // ID процесса аутентификации
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // Статус аутентификации
+  AuthenticationState state = 2 [
+    (validate.rules).enum = { defined_only: true, not_in: [0] },
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Время жизни сессии аутентификации (в секундах). Значение приходит от провайдера
+  // (например, Mobile ID) на этапе authorize и отражает срок действия текущей сессии.
+  // Может использоваться клиентом для отображения таймера и сервером для обработки истечения.
+  // Может быть null, если expire_time неизвестен/не задан.
+  google.protobuf.Int32Value expires_in = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Оставшееся кол-во попыток ввода OTP
+  // Может быть null, если количество попыток ещё не устанавливалось.
+  google.protobuf.Int32Value remaining_attempts = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Время создания операции
+  google.protobuf.Timestamp create_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Время обновления состояния операции
+  google.protobuf.Timestamp update_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  
+  // Дата истечения сессии аутентификации
+  google.protobuf.Timestamp expire_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message AuthenticateResponse {
+  // Аутентифицированный identity
+  Identity identity = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).message.required = true];
+}
+
+// Проверка OTP
+message VerifyRequest {
+  // UUID процесса аутентификации
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+
+  // OTP
+  string otp = 2 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.min_len = 3, (validate.rules).string.max_len = 63];
+}
+
+// Подсмотреть OTP
+message PeekRequest {
+  // UUID процесса аутентификации
+  string id = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.uuid = true];
+}
+
+// Подсмотреть OTP
+message PeekResponse {
+  // OTP
+  string otp = 1 [(google.api.field_behavior) = REQUIRED, (validate.rules).string.min_len = 3, (validate.rules).string.max_len = 63];
+}
+
+// Запрос на перевод зависших аутентификаций в FAILED.
+message FailStuckAuthenticationsRequest {
+	// Минимальное время "зависания" аутентификации для попадания в выборку.
+	// Например, PT15M (15 минут) или PT1H.
+	google.protobuf.Duration stale_for = 1 [(google.api.field_behavior) = REQUIRED];
+
+	// Максимальное количество аутентификаций, обрабатываемое за один вызов (1-100).
+	int32 limit = 2 [
+		(google.api.field_behavior) = REQUIRED,
+		(validate.rules).int32 = {gt: 0, lte: 100}
+	];
+
+	// Если true — выполняется только dry-run: сервис считает кандидатов и
+	// возвращает их в ответе, но не меняет состояние аутентификаций.
+	// В этом режиме processed_count всегда 0.
+	bool dry_run = 3;
+}
+
+// Детализированное изменение статуса в рамках FailStuckAuthentications.
+message FailStuckAuthenticationsStatusChange {
+  // Идентификатор аутентификации.
+  string id = 1 [(validate.rules).string.uuid = true];
+
+  // Текущее состояние перед выполнением операции.
+  AuthenticationState current_state = 2;
+
+  // Время создания аутентификации.
+  google.protobuf.Timestamp current_create_time = 3;
+
+  // Текущее время последнего обновления аутентификации.
+  google.protobuf.Timestamp current_update_time = 4;
+
+  // Текущее время истечения аутентификации (если задано).
+  google.protobuf.Timestamp current_expire_time = 5;
+
+  // Если обработка не удалась, содержит описание технической ошибки (deadlock, timeout БД и т.п.).
+  // Если пусто — обработка успешна (аутентификация переведена в FAILED).
+  // Не заполняется для race condition или валидных бизнес-переходов.
+  string error_message = 6;
+}
+
+// Результат операции FailStuckAuthentications.
+message FailStuckAuthenticationsResponse {
+  // Детализация по всем обработанным аутентификациям (или кандидатам при dry-run).
+  repeated FailStuckAuthenticationsStatusChange status_changes = 1;
+
+  // Причина FAIL, одинаковая для всех аутентификаций (например, STUCK_TIMEOUT).
+  string fail_reason_code = 2 [(validate.rules).string = {min_len: 1, max_len: 64}];
+
+  // Текстовое описание причины FAIL.
+  string fail_reason_description = 3 [(validate.rules).string = {min_len: 1, max_len: 256}];
+
+  // Общее количество найденных кандидатов по критериям stale_for (может быть > limit).
+  // Показывает полный масштаб проблемы независимо от размера обрабатываемой выборки.
+  int64 total_candidates = 4;
+
+  // Количество успешно обработанных аутентификаций (реально переведённых в FAILED).
+  // Равно числу элементов в status_changes с пустым error_message.
+  // При dry_run всегда 0 (изменения не применяются).
+  int64 processed_count = 5;
+}

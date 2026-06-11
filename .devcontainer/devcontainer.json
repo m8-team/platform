@@ -1,35 +1,41 @@
 {
-  "name": "Kubebuilder DevContainer",
-  "image": "golang:1.25",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "moby": false,
-      "dockerDefaultAddressPool": "base=172.30.0.0/16,size=24"
+  "name": "m8-platform",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [
+    2136,
+    8765,
+    7233,
+    8233
+  ],
+  "portsAttributes": {
+    "8765": {
+      "label": "YDB Embedded UI"
     },
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "upgradePackages": true
+    "8233": {
+      "label": "Temporal UI"
+    },
+    "7233": {
+      "label": "Temporal gRPC"
+    },
+    "2136": {
+      "label": "YDB gRPC"
     }
   },
-
-  "runArgs": ["--privileged", "--init"],
-
+  "postCreateCommand": "go mod download || true",
   "customizations": {
     "vscode": {
-      "settings": {
-        "terminal.integrated.shell.linux": "/bin/bash"
-      },
       "extensions": [
-        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "golang.go",
+        "bufbuild.vscode-buf",
         "ms-azuretools.vscode-docker"
-      ]
+      ],
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "go.useLanguageServer": true
+      }
     }
-  },
-
-  "remoteEnv": {
-    "GO111MODULE": "on"
-  },
-
-  "onCreateCommand": "bash .devcontainer/post-install.sh"
+  }
 }
-
