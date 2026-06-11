@@ -146,6 +146,9 @@ components:
           items:
             type: string
           description: Optional. Capability URNs supported by this PDP.
+        signedMetadata:
+          type: string
+          description: Optional. Signed metadata JWT that cryptographically protects metadata contents.
       description: ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
     EvaluateAccessBatchOptions:
       type: object

@@ -20,7 +20,7 @@ service AccessService {
   // Evaluates a single AuthZEN-compatible access decision.
   rpc EvaluateAccess(EvaluateAccessRequest) returns (EvaluateAccessResponse) {
     option (google.api.http) = {
-      post: "/access/v1/evaluation"
+      post: "/v1/access/evaluation"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -33,7 +33,7 @@ service AccessService {
   // Evaluates multiple AuthZEN-compatible access decisions in request order.
   rpc EvaluateAccessBatch(EvaluateAccessBatchRequest) returns (EvaluateAccessBatchResponse) {
     option (google.api.http) = {
-      post: "/access/v1/evaluations"
+      post: "/v1/access/evaluations"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -46,7 +46,7 @@ service AccessService {
   // Searches resources the subject can access for the requested action.
   rpc SearchResources(SearchResourcesRequest) returns (SearchResourcesResponse) {
     option (google.api.http) = {
-      post: "/access/v1/search/resource"
+      post: "/v1/access/search/resource"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -59,7 +59,7 @@ service AccessService {
   // Searches subjects that can perform the requested action on the resource.
   rpc SearchSubjects(SearchSubjectsRequest) returns (SearchSubjectsResponse) {
     option (google.api.http) = {
-      post: "/access/v1/search/subject"
+      post: "/v1/access/search/subject"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -72,7 +72,7 @@ service AccessService {
   // Searches actions the subject can perform on the resource.
   rpc SearchActions(SearchActionsRequest) returns (SearchActionsResponse) {
     option (google.api.http) = {
-      post: "/access/v1/search/action"
+      post: "/v1/access/search/action"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {

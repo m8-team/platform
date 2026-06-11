@@ -67,7 +67,6 @@ type AccessServiceClient interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
 	GetConfiguration(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 
@@ -174,7 +173,6 @@ type AccessServiceHandler interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
 	GetConfiguration(context.Context, *connect.Request[emptypb.Empty]) (*connect.Response[v1.ConfigurationResponse], error)
 }
 

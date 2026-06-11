@@ -45,7 +45,6 @@ type AccessServiceClient interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(ctx context.Context, in *SearchActionsRequest, opts ...grpc.CallOption) (*SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
 	GetConfiguration(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigurationResponse, error)
 }
 
@@ -134,7 +133,6 @@ type AccessServiceServer interface {
 	// Searches actions the subject can perform on the resource.
 	SearchActions(context.Context, *SearchActionsRequest) (*SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	// buf:lint:ignore RPC_REQUEST_STANDARD_NAME
 	GetConfiguration(context.Context, *emptypb.Empty) (*ConfigurationResponse, error)
 	mustEmbedUnimplementedAccessServiceServer()
 }
