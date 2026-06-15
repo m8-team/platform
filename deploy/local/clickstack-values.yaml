@@ -1,0 +1,143 @@
+# Local ClickStack values for M8 kind development.
+#
+# This is intentionally small and self-contained:
+# - ClickStack UI/API via HyperDX
+# - ClickHouse + MongoDB managed by the ClickStack operators
+# - OpenTelemetry Collector as a DaemonSet for local Kubernetes logs and metrics
+# - OTLP gRPC/HTTP receivers for application traces, metrics and logs
+
+hyperdx:
+  config:
+    FRONTEND_URL: "http://localhost:8080"
+    HYPERDX_LOG_LEVEL: "info"
+    USAGE_STATS_ENABLED: "false"
+  secrets:
+    HYPERDX_API_KEY: "m8-local-clickstack-api-key"
+    CLICKHOUSE_PASSWORD: "m8-local-otelcollector"
+    CLICKHOUSE_APP_PASSWORD: "m8-local-hyperdx"
+    MONGODB_PASSWORD: "m8-local-hyperdx"
+  deployment:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+mongodb:
+  spec:
+    members: 1
+
+clickhouse:
+  keeper:
+    spec:
+      replicas: 1
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  cluster:
+    spec:
+      replicas: 1
+      shards: 1
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+
+otel-collector:
+  mode: daemonset
+  service:
+    enabled: true
+    type: ClusterIP
+  presets:
+    logsCollection:
+      enabled: true
+      includeCollectorLogs: false
+    hostMetrics:
+      enabled: true
+    kubeletMetrics:
+      enabled: true
+    clusterMetrics:
+      enabled: true
+    kubernetesAttributes:
+      enabled: true
+      extractAllPodLabels: true
+      extractAllPodAnnotations: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  config:
+    exporters:
+      clickhouse:
+        endpoint: ${env:CLICKHOUSE_ENDPOINT}
+        username: ${env:CLICKHOUSE_USER}
+        password: ${env:CLICKHOUSE_PASSWORD}
+        database: ${env:HYPERDX_OTEL_EXPORTER_CLICKHOUSE_DATABASE}
+        async_insert: true
+        compress: lz4
+        create_schema: true
+        logs_table_name: otel_logs
+        traces_table_name: otel_traces
+        timeout: 5s
+        metrics_tables:
+          gauge:
+            name: otel_metrics_gauge
+          sum:
+            name: otel_metrics_sum
+          summary:
+            name: otel_metrics_summary
+          histogram:
+            name: otel_metrics_histogram
+          exponential_histogram:
+            name: otel_metrics_exp_histogram
+        retry_on_failure:
+          enabled: true
+          initial_interval: 5s
+          max_interval: 30s
+          max_elapsed_time: 300s
+        sending_queue:
+          enabled: true
+          num_consumers: 4
+          queue_size: 1000
+    service:
+      pipelines:
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - k8sattributes
+            - batch
+          exporters:
+            - clickhouse
+        metrics:
+          receivers:
+            - otlp
+            - prometheus
+          processors:
+            - memory_limiter
+            - k8sattributes
+            - batch
+          exporters:
+            - clickhouse
+        traces:
+          receivers:
+            - otlp
+            - jaeger
+            - zipkin
+          processors:
+            - memory_limiter
+            - k8sattributes
+            - batch
+          exporters:
+            - clickhouse

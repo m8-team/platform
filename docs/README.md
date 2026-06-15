@@ -3,6 +3,7 @@
 Документация в `docs/` разделена на два слоя:
 
 - ручной контент в `docs/services`, `docs/index.md`, `docs/toc.yaml`;
+- локальные developer guides, например `docs/local-clickstack.md`;
 - автогенерируемый OpenAPI-контент в `docs/_generated/openapi`;
 - автогенерируемый gRPC reference в `docs/services/*/api-reference/grpc`.
 
