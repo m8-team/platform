@@ -124,6 +124,7 @@ install_clickstack() {
     --wait \
     --timeout "$CLICKSTACK_TIMEOUT"
 
+  restart_collector
   wait_clickstack
   print_endpoints
 }
@@ -167,6 +168,15 @@ wait_clickstack() {
   kubectl_cmd rollout status "daemonset/${CLICKSTACK_RELEASE}-otel-collector-agent" \
     --namespace "$CLICKSTACK_NAMESPACE" \
     --timeout "$CLICKSTACK_TIMEOUT"
+}
+
+restart_collector() {
+  local daemonset="${CLICKSTACK_RELEASE}-otel-collector-agent"
+
+  if kubectl_cmd get "daemonset/${daemonset}" --namespace "$CLICKSTACK_NAMESPACE" >/dev/null 2>&1; then
+    log "Restarting ClickStack collector to apply local collector config."
+    kubectl_cmd rollout restart "daemonset/${daemonset}" --namespace "$CLICKSTACK_NAMESPACE" >/dev/null
+  fi
 }
 
 status_clickstack() {

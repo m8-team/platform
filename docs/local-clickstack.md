@@ -41,6 +41,13 @@ m8-local-clickstack-api-key
 The local collector runs as a DaemonSet and collects Kubernetes pod logs, host metrics,
 kubelet metrics, cluster metrics and OTLP telemetry sent by M8 services.
 
+The ClickStack collector uses supervisor/OpAMP mode. Local Kubernetes receivers are
+added through `CUSTOM_OTELCOL_CONFIG_FILE` instead of replacing the base collector
+configuration. The collector image is pinned to the ClickStack app version to keep
+OpAMP config and the embedded ClickHouse exporter compatible. `make clickstack:install`
+restarts the collector DaemonSet after Helm upgrade so mounted custom collector config
+changes are applied reliably.
+
 ClickStack operators are installed into `clickstack-system` by default and are configured
 to watch the ClickStack namespace. This matters because the bundled MongoDB operator
 only reconciles watched namespaces; without that override, the ClickStack app waits
