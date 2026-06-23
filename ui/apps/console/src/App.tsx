@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import {
   Alert,
   Button,
@@ -15,8 +15,6 @@ import {
 } from '@gravity-ui/uikit'
 import {ActionBar, AsideHeader} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup} from '@gravity-ui/navigation'
-import {Table, useTable} from '@gravity-ui/table'
-import type {ColumnDef} from '@gravity-ui/table/tanstack'
 import {
   Check,
   Clock,
@@ -60,6 +58,7 @@ interface Project {
 }
 
 const initialLanguage = 'en'
+const navigationCompactStorageKey = 'm8.console.navigation.compact'
 
 const workspaceOptions = [
   {value: 'ws_prod-eu1', content: 'ws_prod-eu1'},
@@ -194,9 +193,9 @@ const projects: Project[] = [
 ]
 
 const menuGroups: MenuGroup[] = [
-  {id: 'core', title: 'Core modules'},
-  {id: 'operations', title: 'Platform operations'},
-  {id: 'governance', title: 'Governance'},
+  {id: 'core', title: 'Core modules', icon: Database},
+  {id: 'operations', title: 'Platform operations', icon: Cloud},
+  {id: 'governance', title: 'Governance', icon: Shield},
 ]
 
 const menuItems: AsideHeaderItem[] = [
@@ -218,101 +217,73 @@ configure({
   fallbackLang: 'en',
 })
 
+function readInitialNavigationCompact() {
+  if (typeof window === 'undefined') {
+    return false
+  }
+
+  try {
+    return window.localStorage.getItem(navigationCompactStorageKey) === 'true'
+  } catch {
+    return false
+  }
+}
+
 function App() {
-  const [compact, setCompact] = useState(false)
+  const [compact, setCompact] = useState(readInitialNavigationCompact)
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
   const [projectId, setProjectId] = useState('prj_8f3a91c2e7b04d6a')
   const [status, setStatus] = useState('all')
   const [owner, setOwner] = useState('all')
   const [search, setSearch] = useState('')
 
+  const handleNavigationCompactChange = useCallback((nextCompact: boolean) => {
+    setCompact(nextCompact)
+
+    try {
+      window.localStorage.setItem(navigationCompactStorageKey, String(nextCompact))
+    } catch {
+      // Storage can be unavailable in private or restricted browser contexts.
+    }
+  }, [])
+
   useEffect(() => {
     document.documentElement.lang = initialLanguage
   }, [])
 
-  const selectedProject = projects.find((project) => project.projectId === projectId) ?? projects[0]
-  const projectOptions = projects
-    .filter((project) => project.workspace === workspace || workspace === 'ws_prod-eu1')
-    .map((project) => ({
-      value: project.projectId,
-      content: `${project.name} / ${project.projectId}`,
-    }))
-
-  const visibleProjects = projects.filter((project) => {
-    const searchValue = search.trim().toLowerCase()
-    const matchesSearch =
-      searchValue.length === 0 ||
-      [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
-        value.toLowerCase().includes(searchValue),
-      )
-
-    return (
-      matchesSearch &&
-      project.workspace === workspace &&
-      (status === 'all' || project.status === status) &&
-      (owner === 'all' || project.owner === owner)
-    )
-  })
-
-  const columns = useMemo<ColumnDef<Project>[]>(
-    () => [
-      {
-        accessorKey: 'name',
-        header: 'Project',
-        size: 220,
-        cell: ({row}) => (
-          <div className="m8-project-cell">
-            <span className={`m8-status-dot m8-status-dot_${row.original.status.toLowerCase()}`} />
-            <div>
-              <Text variant="body-2">{row.original.name}</Text>
-              <Text variant="caption-2" color="secondary">
-                {row.original.projectId}
-              </Text>
-            </div>
-          </div>
-        ),
-      },
-      {
-        accessorKey: 'projectId',
-        header: 'Project ID',
-        size: 230,
-        cell: ({row}) => <span className="m8-mono">{row.original.projectId}</span>,
-      },
-      {
-        accessorKey: 'workspace',
-        header: 'Workspace',
-        size: 150,
-        cell: ({row}) => <span className="m8-mono">{row.original.workspace}</span>,
-      },
-      {
-        accessorKey: 'organization',
-        header: 'Organization',
-        size: 210,
-        cell: ({row}) => <span className="m8-mono">{row.original.organization}</span>,
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        size: 140,
-        cell: ({row}) => <StatusLabel status={row.original.status} />,
-      },
-      {accessorKey: 'desiredState', header: 'Desired State', size: 150},
-      {accessorKey: 'actualState', header: 'Actual State', size: 150},
-      {accessorKey: 'updated', header: 'Updated', size: 160},
-      {
-        accessorKey: 'owner',
-        header: 'Owner',
-        size: 170,
-        cell: ({row}) => <span className="m8-mono">{row.original.owner}</span>,
-      },
-    ],
-    [],
+  const selectedProject = useMemo(
+    () => projects.find((project) => project.projectId === projectId) ?? projects[0],
+    [projectId],
+  )
+  const projectOptions = useMemo(
+    () =>
+      projects
+        .filter((project) => project.workspace === workspace || workspace === 'ws_prod-eu1')
+        .map((project) => ({
+          value: project.projectId,
+          content: `${project.name} / ${project.projectId}`,
+        })),
+    [workspace],
   )
 
-  const table = useTable({
-    columns,
-    data: visibleProjects,
-  })
+  const visibleProjects = useMemo(() => {
+    const searchValue = search.trim().toLowerCase()
+
+    return projects.filter((project) => {
+      const matchesSearch =
+        searchValue.length === 0 ||
+        [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
+          value.toLowerCase().includes(searchValue),
+        )
+
+      return (
+        matchesSearch &&
+        project.workspace === workspace &&
+        (status === 'all' || project.status === status) &&
+        (owner === 'all' || project.owner === owner)
+      )
+    })
+  }, [owner, search, status, workspace])
 
   return (
     <ThemeProvider theme="light" lang={initialLanguage} fallbackLang="en">
@@ -322,7 +293,7 @@ function App() {
         menuItems={menuItems}
         menuGroups={menuGroups}
         menuOverflow="scroll"
-        onChangeCompact={setCompact}
+        onChangeCompact={handleNavigationCompactChange}
         renderContent={() => (
           <div className="m8-page">
             <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
@@ -457,9 +428,11 @@ function App() {
                       </div>
                     </div>
 
-                    <div className="m8-table-shell">
-                      <Table table={table} />
-                    </div>
+                    <ProjectTable
+                      projects={visibleProjects}
+                      selectedProjectId={selectedProject.projectId}
+                      onSelectProject={setProjectId}
+                    />
                   </Card>
 
                   <ProjectDetails project={selectedProject} />
@@ -470,6 +443,78 @@ function App() {
         )}
       />
     </ThemeProvider>
+  )
+}
+
+function ProjectTable({
+  projects,
+  selectedProjectId,
+  onSelectProject,
+}: {
+  projects: Project[]
+  selectedProjectId: string
+  onSelectProject: (projectId: string) => void
+}) {
+  if (projects.length === 0) {
+    return (
+      <div className="m8-empty-table">
+        <Text variant="body-2">No projects match the current filters.</Text>
+        <Text variant="caption-2" color="secondary">
+          Adjust workspace, status, owner, or search criteria.
+        </Text>
+      </div>
+    )
+  }
+
+  return (
+    <div className="m8-table-shell">
+      <table className="m8-project-table">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Project ID</th>
+            <th>Workspace</th>
+            <th>Organization</th>
+            <th>Status</th>
+            <th>Desired State</th>
+            <th>Actual State</th>
+            <th>Updated</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <tr
+              key={project.projectId}
+              className={project.projectId === selectedProjectId ? 'm8-project-table__row_selected' : undefined}
+              onClick={() => onSelectProject(project.projectId)}
+            >
+              <td>
+                <div className="m8-project-cell">
+                  <span className={`m8-status-dot m8-status-dot_${project.status.toLowerCase()}`} />
+                  <div>
+                    <Text variant="body-2">{project.name}</Text>
+                    <Text variant="caption-2" color="secondary">
+                      {project.lastOperation}
+                    </Text>
+                  </div>
+                </div>
+              </td>
+              <td className="m8-mono">{project.projectId}</td>
+              <td className="m8-mono">{project.workspace}</td>
+              <td className="m8-mono">{project.organization}</td>
+              <td>
+                <StatusLabel status={project.status} />
+              </td>
+              <td>{project.desiredState}</td>
+              <td>{project.actualState}</td>
+              <td>{project.updated}</td>
+              <td className="m8-mono">{project.owner}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 

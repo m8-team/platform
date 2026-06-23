@@ -114,8 +114,50 @@
   border-top: 1px solid var(--g-color-line-generic);
 }
 
-.m8-table-shell table {
+.m8-project-table {
+  width: 100%;
   min-width: 1380px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.m8-project-table th,
+.m8-project-table td {
+  overflow: hidden;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--g-color-line-generic);
+  text-align: left;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.m8-project-table th {
+  background: var(--g-color-base-generic);
+  color: var(--g-color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.m8-project-table tbody tr {
+  cursor: default;
+}
+
+.m8-project-table tbody tr:hover {
+  background: var(--g-color-base-simple-hover);
+}
+
+.m8-project-table__row_selected {
+  background: var(--g-color-base-selection);
+  box-shadow: inset 3px 0 0 var(--g-color-line-brand);
+}
+
+.m8-empty-table {
+  display: grid;
+  gap: 4px;
+  padding: 28px 14px;
+  border-top: 1px solid var(--g-color-line-generic);
+  color: var(--g-color-text-secondary);
 }
 
 .m8-project-cell {
