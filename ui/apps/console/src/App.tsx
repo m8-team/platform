@@ -1,13 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {
-  Alert,
   Button,
   Card,
   configure,
-  DefinitionList,
   Icon,
   Label,
-  Progress,
   Select,
   Text,
   TextInput,
@@ -16,17 +13,23 @@ import {
 import {ActionBar, AsideHeader} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup} from '@gravity-ui/navigation'
 import {
+  ArrowShapeRightFromLine,
   Check,
   Clock,
   Cloud,
+  Code,
   Database,
+  Fingerprint,
   Gear,
   ListUl,
   Magnifier,
+  NodesRight,
   Person,
+  Persons,
   Plus,
   Rocket,
   Shield,
+  Speedometer,
   TriangleExclamation,
   ArrowRotateRight,
 } from '@gravity-ui/icons'
@@ -45,25 +48,21 @@ interface Project {
   actualState: string
   updated: string
   owner: string
-  version: string
-  etag: string
   lastOperation: string
-  conditions: Array<{
-    label: string
-    value: number
-    text: string
-    tone: 'success' | 'default' | 'warning' | 'danger'
-  }>
-  auditSummary: string
 }
 
 const initialLanguage = 'en'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
 
+const organizationOptions = [
+  {value: 'org_m8_finance_6b21d0', content: 'Acme'},
+  {value: 'org_m8_billing_91f2c5', content: 'Billing'},
+]
+
 const workspaceOptions = [
-  {value: 'ws_prod-eu1', content: 'ws_prod-eu1'},
-  {value: 'ws_shared-eu1', content: 'ws_shared-eu1'},
-  {value: 'ws_legacy-eu1', content: 'ws_legacy-eu1'},
+  {value: 'ws_prod-eu1', content: 'Platform'},
+  {value: 'ws_shared-eu1', content: 'Shared Services'},
+  {value: 'ws_legacy-eu1', content: 'Legacy'},
 ]
 
 const statusOptions = [
@@ -77,36 +76,13 @@ const statusOptions = [
 
 const ownerOptions = [
   {value: 'all', content: 'All owners'},
-  {value: 'usr_7ac391e2_ops', content: 'usr_7ac391e2_ops'},
   {value: 'usr_19bd4027_sre', content: 'usr_19bd4027_sre'},
   {value: 'usr_2f0c81aa_sec', content: 'usr_2f0c81aa_sec'},
 ]
 
 const projects: Project[] = [
   {
-    name: 'payments-ledger',
-    projectId: 'prj_8f3a91c2e7b04d6a',
-    workspace: 'ws_prod-eu1',
-    organization: 'org_m8_finance_6b21d0',
-    status: 'Active',
-    desiredState: 'Running',
-    actualState: 'Running',
-    updated: '2026-06-23 09:42',
-    owner: 'usr_7ac391e2_ops',
-    version: '42',
-    etag: 'etag_prj_8f3a91c2e7b04d6a_v42',
-    lastOperation: 'op_0c91b6f33e2a4d1b',
-    conditions: [
-      {label: 'Ready', value: 100, text: 'True', tone: 'success'},
-      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
-      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
-      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
-    ],
-    auditSummary:
-      '18 events in 24h. Last actor usr_7ac391e2_ops updated runtime policy through op_0c91b6f33e2a4d1b.',
-  },
-  {
-    name: 'risk-scoring',
+    name: 'IAM',
     projectId: 'prj_2e41d7a9c0bf4e55',
     workspace: 'ws_prod-eu1',
     organization: 'org_m8_finance_6b21d0',
@@ -115,17 +91,7 @@ const projects: Project[] = [
     actualState: 'Provisioning',
     updated: '2026-06-23 09:31',
     owner: 'usr_19bd4027_sre',
-    version: '17',
-    etag: 'etag_prj_2e41d7a9c0bf4e55_v17',
     lastOperation: 'op_9fe2304db1a44e88',
-    conditions: [
-      {label: 'Ready', value: 48, text: 'False', tone: 'warning'},
-      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
-      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
-      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
-    ],
-    auditSummary:
-      '11 events in 24h. Provisioning operation op_9fe2304db1a44e88 is still applying runtime descriptors.',
   },
   {
     name: 'partner-settlement',
@@ -137,16 +103,7 @@ const projects: Project[] = [
     actualState: 'Suspended',
     updated: '2026-06-22 18:07',
     owner: 'usr_2f0c81aa_sec',
-    version: '29',
-    etag: 'etag_prj_6d90aa31f48c4b8e_v29',
     lastOperation: 'op_63ab7e02d4104ba1',
-    conditions: [
-      {label: 'Ready', value: 0, text: 'False', tone: 'warning'},
-      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
-      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
-      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
-    ],
-    auditSummary: '7 events in 24h. Suspension was requested by usr_2f0c81aa_sec.',
   },
   {
     name: 'invoice-export',
@@ -158,16 +115,7 @@ const projects: Project[] = [
     actualState: 'Failed',
     updated: '2026-06-23 08:55',
     owner: 'usr_8b17d6f0_ops',
-    version: '8',
-    etag: 'etag_prj_41c2de83b7764a09_v8',
     lastOperation: 'op_3a7c8a2148ff47a2',
-    conditions: [
-      {label: 'Ready', value: 0, text: 'False', tone: 'danger'},
-      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
-      {label: 'Quota healthy', value: 32, text: 'Degraded', tone: 'warning'},
-      {label: 'Drift detected', value: 100, text: 'True', tone: 'danger'},
-    ],
-    auditSummary: '23 events in 24h. Last reconciliation failed after provider timeout.',
   },
   {
     name: 'legacy-reports',
@@ -179,37 +127,64 @@ const projects: Project[] = [
     actualState: 'Deleting',
     updated: '2026-06-23 07:14',
     owner: 'usr_64ea18c2_admin',
-    version: '61',
-    etag: 'etag_prj_9aa4c11d0e744f3a_v61',
     lastOperation: 'op_bdc4221d8b714c9d',
-    conditions: [
-      {label: 'Ready', value: 0, text: 'False', tone: 'warning'},
-      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
-      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
-      {label: 'Finalizers cleared', value: 66, text: 'Partial', tone: 'warning'},
-    ],
-    auditSummary: '14 events in 24h. Delete operation is waiting for finalizers.',
   },
 ]
 
 const menuGroups: MenuGroup[] = [
-  {id: 'core', title: 'Core modules', icon: Database},
-  {id: 'operations', title: 'Platform operations', icon: Cloud},
-  {id: 'governance', title: 'Governance', icon: Shield},
+  {id: 'overview', title: 'Overview', icon: Rocket},
+  {id: 'resources', title: 'Resources', icon: Database},
+  {id: 'identity-access', title: 'Identity & Access', icon: Person},
+  {id: 'authentication', title: 'Authentication', icon: Shield},
+  {id: 'gateway', title: 'Gateway', icon: Cloud},
+  {id: 'security', title: 'Security', icon: Check},
+  {id: 'observability', title: 'Observability', icon: Clock},
+  {id: 'audit', title: 'Audit', icon: ListUl},
+  {id: 'settings', title: 'Settings', icon: Gear},
 ]
 
 const menuItems: AsideHeaderItem[] = [
-  {id: 'resource-manager', title: 'Resource Manager', icon: Database, current: true, groupId: 'core'},
-  {id: 'identity', title: 'Identity', icon: Person, groupId: 'core'},
-  {id: 'authentication', title: 'Authentication', icon: Shield, groupId: 'core'},
-  {id: 'access', title: 'Access', icon: Gear, groupId: 'core'},
-  {id: 'provisioning', title: 'Provisioning', icon: Plus, groupId: 'operations'},
-  {id: 'runtime', title: 'Runtime', icon: Cloud, groupId: 'operations'},
-  {id: 'delivery', title: 'Delivery', icon: Rocket, groupId: 'operations'},
-  {id: 'operations', title: 'Operations', icon: Clock, groupId: 'operations'},
-  {id: 'audit', title: 'Audit', icon: ListUl, groupId: 'governance'},
-  {id: 'compliance', title: 'Compliance', icon: Check, groupId: 'governance'},
-  {id: 'settings', title: 'Settings', icon: Gear, groupId: 'governance'},
+  {id: 'overview-dashboard', title: 'Dashboard', icon: Rocket, groupId: 'overview'},
+  {id: 'overview-activity', title: 'Activity', icon: Clock, groupId: 'overview'},
+  {id: 'resources-services', title: 'Services', icon: Cloud, current: true, groupId: 'resources'},
+  {id: 'resources-catalog', title: 'Resource Catalog', icon: Database, groupId: 'resources'},
+  {id: 'resources-operations', title: 'Operations', icon: Clock, groupId: 'resources'},
+  {id: 'resources-quotas', title: 'Quotas', icon: Speedometer, groupId: 'resources'},
+  {id: 'identity-users', title: 'Users', icon: Person, groupId: 'identity-access'},
+  {id: 'identity-groups', title: 'Groups', icon: Persons, groupId: 'identity-access'},
+  {id: 'identity-roles', title: 'Roles', icon: Shield, groupId: 'identity-access'},
+  {id: 'identity-policies', title: 'Policies', icon: Check, groupId: 'identity-access'},
+  {id: 'identity-access-explorer', title: 'Access Explorer', icon: Magnifier, groupId: 'identity-access'},
+  {id: 'identity-decision-logs', title: 'Decision Logs', icon: ListUl, groupId: 'identity-access'},
+  {id: 'auth-applications', title: 'Applications', icon: Cloud, groupId: 'authentication'},
+  {id: 'auth-login-flows', title: 'Login Flows', icon: Rocket, groupId: 'authentication'},
+  {id: 'auth-providers', title: 'Providers', icon: Database, groupId: 'authentication'},
+  {id: 'auth-ciba', title: 'CIBA', icon: Shield, groupId: 'authentication'},
+  {id: 'auth-sessions', title: 'Sessions', icon: Clock, groupId: 'authentication'},
+  {id: 'auth-step-up', title: 'Step-up', icon: Plus, groupId: 'authentication'},
+  {id: 'gateway-api-services', title: 'API Services', icon: Cloud, groupId: 'gateway'},
+  {id: 'gateway-routes', title: 'Routes', icon: ArrowShapeRightFromLine, groupId: 'gateway'},
+  {id: 'gateway-consumers', title: 'Consumers', icon: Persons, groupId: 'gateway'},
+  {id: 'gateway-policies', title: 'Policies', icon: Check, groupId: 'gateway'},
+  {id: 'gateway-rate-limits', title: 'Rate Limits', icon: Speedometer, groupId: 'gateway'},
+  {id: 'gateway-yaml', title: 'Gateway YAML', icon: Code, groupId: 'gateway'},
+  {id: 'security-risk-rules', title: 'Risk Rules', icon: Shield, groupId: 'security'},
+  {id: 'security-device-fingerprints', title: 'Device Fingerprints', icon: Fingerprint, groupId: 'security'},
+  {id: 'security-challenges', title: 'Challenges', icon: TriangleExclamation, groupId: 'security'},
+  {id: 'security-fraud-decisions', title: 'Fraud Decisions', icon: Check, groupId: 'security'},
+  {id: 'observability-metrics', title: 'Metrics', icon: Speedometer, groupId: 'observability'},
+  {id: 'observability-logs', title: 'Logs', icon: ListUl, groupId: 'observability'},
+  {id: 'observability-traces', title: 'Traces', icon: NodesRight, groupId: 'observability'},
+  {id: 'observability-alerts', title: 'Alerts', icon: TriangleExclamation, groupId: 'observability'},
+  {id: 'observability-slo', title: 'SLO', icon: Check, groupId: 'observability'},
+  {id: 'audit-events', title: 'Audit Events', icon: ListUl, groupId: 'audit'},
+  {id: 'audit-security-events', title: 'Security Events', icon: Shield, groupId: 'audit'},
+  {id: 'audit-exports', title: 'Exports', icon: ArrowRotateRight, groupId: 'audit'},
+  {id: 'settings-project', title: 'Project Settings', icon: Gear, groupId: 'settings'},
+  {id: 'settings-modules', title: 'Modules', icon: Database, groupId: 'settings'},
+  {id: 'settings-integrations', title: 'Integrations', icon: Cloud, groupId: 'settings'},
+  {id: 'settings-webhooks', title: 'Webhooks', icon: ArrowShapeRightFromLine, groupId: 'settings'},
+  {id: 'settings-api-tokens', title: 'API Tokens', icon: Shield, groupId: 'settings'},
 ]
 
 configure({
@@ -231,8 +206,9 @@ function readInitialNavigationCompact() {
 
 function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
+  const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
-  const [projectId, setProjectId] = useState('prj_8f3a91c2e7b04d6a')
+  const [projectId, setProjectId] = useState('prj_2e41d7a9c0bf4e55')
   const [status, setStatus] = useState('all')
   const [owner, setOwner] = useState('all')
   const [search, setSearch] = useState('')
@@ -251,19 +227,15 @@ function App() {
     document.documentElement.lang = initialLanguage
   }, [])
 
-  const selectedProject = useMemo(
-    () => projects.find((project) => project.projectId === projectId) ?? projects[0],
-    [projectId],
-  )
   const projectOptions = useMemo(
     () =>
       projects
-        .filter((project) => project.workspace === workspace || workspace === 'ws_prod-eu1')
+        .filter((project) => project.organization === organization && project.workspace === workspace)
         .map((project) => ({
           value: project.projectId,
-          content: `${project.name} / ${project.projectId}`,
+          content: project.name,
         })),
-    [workspace],
+    [organization, workspace],
   )
 
   const visibleProjects = useMemo(() => {
@@ -278,12 +250,13 @@ function App() {
 
       return (
         matchesSearch &&
+        project.organization === organization &&
         project.workspace === workspace &&
         (status === 'all' || project.status === status) &&
         (owner === 'all' || project.owner === owner)
       )
     })
-  }, [owner, search, status, workspace])
+  }, [organization, owner, search, status, workspace])
 
   return (
     <ThemeProvider theme="light" lang={initialLanguage} fallbackLang="en">
@@ -301,13 +274,38 @@ function App() {
                 <ActionBar.Group>
                   <ActionBar.Item>
                     <Switcher
+                      label="Org"
+                      value={[organization]}
+                      options={organizationOptions}
+                      onUpdate={(next) => {
+                        const nextOrganization = next[0] ?? organization
+                        const nextProject =
+                          projects.find(
+                            (project) =>
+                              project.organization === nextOrganization && project.workspace === workspace,
+                          ) ?? projects.find((project) => project.organization === nextOrganization)
+
+                        setOrganization(nextOrganization)
+
+                        if (nextProject) {
+                          setWorkspace(nextProject.workspace)
+                          setProjectId(nextProject.projectId)
+                        }
+                      }}
+                    />
+                  </ActionBar.Item>
+                  <ActionBar.Item>
+                    <Switcher
                       label="Workspace"
                       value={[workspace]}
                       options={workspaceOptions}
                       onUpdate={(next) => {
                         const nextWorkspace = next[0] ?? workspace
                         setWorkspace(nextWorkspace)
-                        const nextProject = projects.find((project) => project.workspace === nextWorkspace)
+                        const nextProject = projects.find(
+                          (project) =>
+                            project.organization === organization && project.workspace === nextWorkspace,
+                        )
                         if (nextProject) {
                           setProjectId(nextProject.projectId)
                         }
@@ -321,9 +319,6 @@ function App() {
                       options={projectOptions}
                       onUpdate={(next) => setProjectId(next[0] ?? projectId)}
                     />
-                  </ActionBar.Item>
-                  <ActionBar.Item>
-                    <Label theme="normal">Region: eu-west-1</Label>
                   </ActionBar.Item>
                 </ActionBar.Group>
                 <ActionBar.Group pull="right">
@@ -356,9 +351,9 @@ function App() {
                     <div className="m8-breadcrumbs">
                       <span>M8</span>
                       <span>/</span>
-                      <span>Resource Manager</span>
+                      <span>Resources</span>
                       <span>/</span>
-                      <strong>Projects</strong>
+                      <strong>Services</strong>
                     </div>
                     <Text as="h1" variant="display-1">
                       Projects
@@ -393,7 +388,17 @@ function App() {
                       label="Workspace"
                       value={[workspace]}
                       options={workspaceOptions}
-                      onUpdate={(next) => setWorkspace(next[0] ?? workspace)}
+                      onUpdate={(next) => {
+                        const nextWorkspace = next[0] ?? workspace
+                        setWorkspace(nextWorkspace)
+                        const nextProject = projects.find(
+                          (project) =>
+                            project.organization === organization && project.workspace === nextWorkspace,
+                        )
+                        if (nextProject) {
+                          setProjectId(nextProject.projectId)
+                        }
+                      }}
                     />
                     <Switcher
                       label="Status"
@@ -418,7 +423,7 @@ function App() {
                           Project inventory
                         </Text>
                         <Text variant="caption-2" color="secondary">
-                          Selected row: {selectedProject.name}
+                          Filtered list of projects in the selected workspace.
                         </Text>
                       </div>
                       <div className="m8-labels">
@@ -430,12 +435,10 @@ function App() {
 
                     <ProjectTable
                       projects={visibleProjects}
-                      selectedProjectId={selectedProject.projectId}
+                      selectedProjectId={projectId}
                       onSelectProject={setProjectId}
                     />
                   </Card>
-
-                  <ProjectDetails project={selectedProject} />
                 </div>
               </section>
             </main>
@@ -527,12 +530,9 @@ interface SwitcherProps {
 
 function Switcher({label, value, options, onUpdate}: SwitcherProps) {
   return (
-    <label className="m8-field m8-switcher">
-      <Text variant="caption-2" color="secondary">
-        {label}
-      </Text>
-      <Select value={value} options={options} width="max" onUpdate={onUpdate} />
-    </label>
+    <div className="m8-field m8-switcher">
+      <Select aria-label={label} value={value} options={options} width="max" onUpdate={onUpdate} />
+    </div>
   )
 }
 
@@ -570,100 +570,6 @@ function StatusLabel({status}: {status: ProjectStatus}) {
   }
 
   return <Label theme={themeByStatus[status]}>{status}</Label>
-}
-
-function ProjectDetails({project}: {project: Project}) {
-  return (
-    <aside className="m8-details">
-      <Card view="outlined" type="container" className="m8-details__card">
-        <div className="m8-details__header">
-          <div>
-            <Text as="h2" variant="header-1">
-              {project.name}
-            </Text>
-            <Text variant="caption-2" color="secondary" className="m8-mono">
-              {project.projectId}
-            </Text>
-          </div>
-          <StatusLabel status={project.status} />
-        </div>
-
-        <div className="m8-tabs" aria-label="Project details tabs">
-          <button className="m8-tabs__item m8-tabs__item_active">Overview</button>
-          <button className="m8-tabs__item">Conditions</button>
-          <button className="m8-tabs__item">Operations</button>
-          <button className="m8-tabs__item">Audit</button>
-        </div>
-
-        <DefinitionList>
-          <DefinitionList.Item name="Lifecycle">{project.status}</DefinitionList.Item>
-          <DefinitionList.Item name="Desired state">{project.desiredState}</DefinitionList.Item>
-          <DefinitionList.Item name="Actual state">{project.actualState}</DefinitionList.Item>
-          <DefinitionList.Item name="Workspace">
-            <span className="m8-mono">{project.workspace}</span>
-          </DefinitionList.Item>
-          <DefinitionList.Item name="Organization">
-            <span className="m8-mono">{project.organization}</span>
-          </DefinitionList.Item>
-          <DefinitionList.Item name="Owner">
-            <span className="m8-mono">{project.owner}</span>
-          </DefinitionList.Item>
-          <DefinitionList.Item name="Version">{project.version}</DefinitionList.Item>
-          <DefinitionList.Item name="ETag">
-            <span className="m8-mono">{project.etag}</span>
-          </DefinitionList.Item>
-          <DefinitionList.Item name="Last operation">
-            <span className="m8-mono">{project.lastOperation}</span>
-          </DefinitionList.Item>
-        </DefinitionList>
-
-        <div className="m8-conditions">
-          {project.conditions.map((condition) => (
-            <div key={condition.label} className="m8-condition">
-              <div className="m8-condition__header">
-                <Text variant="body-2">{condition.label}</Text>
-                <Text variant="caption-2" color="secondary">
-                  {condition.text}
-                </Text>
-              </div>
-              <Progress value={condition.value} theme={condition.tone} />
-            </div>
-          ))}
-        </div>
-
-        <Alert
-          theme="info"
-          view="outlined"
-          title="Audit summary"
-          message={project.auditSummary}
-          icon={<Icon data={ListUl} />}
-        />
-
-        <div className="m8-details__actions">
-          <Button view="outlined-warning">
-            <Icon data={TriangleExclamation} size={14} />
-            Suspend
-          </Button>
-          <Button view="outlined-success" disabled={project.status !== 'Suspended'}>
-            <Icon data={Check} size={14} />
-            Resume
-          </Button>
-          <Button view="outlined-danger">
-            <Icon data={TriangleExclamation} size={14} />
-            Delete
-          </Button>
-          <Button view="outlined">
-            <Icon data={ListUl} size={14} />
-            View audit
-          </Button>
-          <Button view="normal">
-            <Icon data={Clock} size={14} />
-            Open operation
-          </Button>
-        </div>
-      </Card>
-    </aside>
-  )
 }
 
 export default App
