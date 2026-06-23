@@ -14,8 +14,8 @@ Domain modules may expose `HealthChecks() []health.Config`. They should not know
 ## Aggregation
 
 - Empty results are `HEALTHY`.
-- A required dependency with `UNHEALTHY` or `UNKNOWN` makes the snapshot `UNHEALTHY`.
-- An optional dependency with `UNHEALTHY` or `UNKNOWN` makes the snapshot `DEGRADED` unless a required check failed.
+- A required check with `UNHEALTHY` or `UNKNOWN` makes the snapshot `UNHEALTHY`.
+- An optional check with `UNHEALTHY` or `UNKNOWN` makes the snapshot `DEGRADED` unless a required check failed.
 - Any `DEGRADED` check makes the snapshot `DEGRADED` unless a required check failed.
 
 ## Register Dependency Checks
@@ -68,7 +68,7 @@ err := health.Register(registry,
             Kinds:       []health.Kind{health.KindReadiness},
             Criticality: health.CriticalityOptional,
         },
-        Check: checks.NewPingCheck("kafka", kafka.Ping),
+        Check: checks.NewPingCheck("kafka", kafka.PingContext),
     },
 )
 if err != nil {
@@ -79,6 +79,12 @@ if err != nil {
 ## HTTP Adapter
 
 ```go
+import (
+    "net/http"
+
+    healthhttp "github.com/m8platform/platform/internal/platform/health/adapters/http"
+)
+
 registry := health.NewRegistry()
 mux := http.NewServeMux()
 
@@ -90,6 +96,13 @@ The HTTP adapter returns JSON snapshots. `HEALTHY` and `DEGRADED` return HTTP 20
 ## gRPC Adapter
 
 ```go
+import (
+    "time"
+
+    healthgrpc "github.com/m8platform/platform/internal/platform/health/adapters/grpc"
+    grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
+)
+
 adapter := healthgrpc.NewAdapter(
     registry,
     healthgrpc.WithPeriod(5*time.Second),
