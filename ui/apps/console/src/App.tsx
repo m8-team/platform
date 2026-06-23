@@ -1,46 +1,216 @@
 import {useEffect, useMemo, useState} from 'react'
-import {configure, SegmentedRadioGroup, Text, ThemeProvider} from '@gravity-ui/uikit'
+import {
+  Alert,
+  Button,
+  Card,
+  configure,
+  DefinitionList,
+  Icon,
+  Label,
+  Progress,
+  Select,
+  Text,
+  TextInput,
+  ThemeProvider,
+} from '@gravity-ui/uikit'
+import {ActionBar, AsideHeader} from '@gravity-ui/navigation'
+import type {AsideHeaderItem, MenuGroup} from '@gravity-ui/navigation'
 import {Table, useTable} from '@gravity-ui/table'
 import type {ColumnDef} from '@gravity-ui/table/tanstack'
+import {
+  Check,
+  Clock,
+  Cloud,
+  Database,
+  Gear,
+  ListUl,
+  Magnifier,
+  Person,
+  Plus,
+  Rocket,
+  Shield,
+  TriangleExclamation,
+  ArrowRotateRight,
+} from '@gravity-ui/icons'
 
-type AppLanguage = 'ru' | 'en'
-type AppTheme = 'light' | 'dark'
+import './App.css'
 
-interface Person {
-  id: string
+type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
+
+interface Project {
   name: string
-  age: number
+  projectId: string
+  workspace: string
+  organization: string
+  status: ProjectStatus
+  desiredState: string
+  actualState: string
+  updated: string
+  owner: string
+  version: string
+  etag: string
+  lastOperation: string
+  conditions: Array<{
+    label: string
+    value: number
+    text: string
+    tone: 'success' | 'default' | 'warning' | 'danger'
+  }>
+  auditSummary: string
 }
 
-const initialLanguage: AppLanguage = 'ru'
-const initialTheme: AppTheme = 'light'
+const initialLanguage = 'en'
 
-const messages = {
-  ru: {
-    title: 'Пользователи',
-    subtitle: 'Пример таблицы Gravity UI с переключателями языка и темы.',
-    language: 'Язык',
-    theme: 'Тема',
-    light: 'Светлая',
-    dark: 'Темная',
-    name: 'Имя',
-    age: 'Возраст',
-  },
-  en: {
-    title: 'Users',
-    subtitle: 'Gravity UI table example with language and theme switchers.',
-    language: 'Language',
-    theme: 'Theme',
-    light: 'Light',
-    dark: 'Dark',
-    name: 'Name',
-    age: 'Age',
-  },
-} satisfies Record<AppLanguage, Record<string, string>>
+const workspaceOptions = [
+  {value: 'ws_prod-eu1', content: 'ws_prod-eu1'},
+  {value: 'ws_shared-eu1', content: 'ws_shared-eu1'},
+  {value: 'ws_legacy-eu1', content: 'ws_legacy-eu1'},
+]
 
-const data: Person[] = [
-  {id: 'john', name: 'John', age: 23},
-  {id: 'michael', name: 'Michael', age: 27},
+const statusOptions = [
+  {value: 'all', content: 'All statuses'},
+  {value: 'Active', content: 'Active'},
+  {value: 'Suspended', content: 'Suspended'},
+  {value: 'Failed', content: 'Failed'},
+  {value: 'Provisioning', content: 'Provisioning'},
+  {value: 'Deleting', content: 'Deleting'},
+]
+
+const ownerOptions = [
+  {value: 'all', content: 'All owners'},
+  {value: 'usr_7ac391e2_ops', content: 'usr_7ac391e2_ops'},
+  {value: 'usr_19bd4027_sre', content: 'usr_19bd4027_sre'},
+  {value: 'usr_2f0c81aa_sec', content: 'usr_2f0c81aa_sec'},
+]
+
+const projects: Project[] = [
+  {
+    name: 'payments-ledger',
+    projectId: 'prj_8f3a91c2e7b04d6a',
+    workspace: 'ws_prod-eu1',
+    organization: 'org_m8_finance_6b21d0',
+    status: 'Active',
+    desiredState: 'Running',
+    actualState: 'Running',
+    updated: '2026-06-23 09:42',
+    owner: 'usr_7ac391e2_ops',
+    version: '42',
+    etag: 'etag_prj_8f3a91c2e7b04d6a_v42',
+    lastOperation: 'op_0c91b6f33e2a4d1b',
+    conditions: [
+      {label: 'Ready', value: 100, text: 'True', tone: 'success'},
+      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
+      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
+      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
+    ],
+    auditSummary:
+      '18 events in 24h. Last actor usr_7ac391e2_ops updated runtime policy through op_0c91b6f33e2a4d1b.',
+  },
+  {
+    name: 'risk-scoring',
+    projectId: 'prj_2e41d7a9c0bf4e55',
+    workspace: 'ws_prod-eu1',
+    organization: 'org_m8_finance_6b21d0',
+    status: 'Provisioning',
+    desiredState: 'Running',
+    actualState: 'Provisioning',
+    updated: '2026-06-23 09:31',
+    owner: 'usr_19bd4027_sre',
+    version: '17',
+    etag: 'etag_prj_2e41d7a9c0bf4e55_v17',
+    lastOperation: 'op_9fe2304db1a44e88',
+    conditions: [
+      {label: 'Ready', value: 48, text: 'False', tone: 'warning'},
+      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
+      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
+      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
+    ],
+    auditSummary:
+      '11 events in 24h. Provisioning operation op_9fe2304db1a44e88 is still applying runtime descriptors.',
+  },
+  {
+    name: 'partner-settlement',
+    projectId: 'prj_6d90aa31f48c4b8e',
+    workspace: 'ws_prod-eu1',
+    organization: 'org_m8_finance_6b21d0',
+    status: 'Suspended',
+    desiredState: 'Suspended',
+    actualState: 'Suspended',
+    updated: '2026-06-22 18:07',
+    owner: 'usr_2f0c81aa_sec',
+    version: '29',
+    etag: 'etag_prj_6d90aa31f48c4b8e_v29',
+    lastOperation: 'op_63ab7e02d4104ba1',
+    conditions: [
+      {label: 'Ready', value: 0, text: 'False', tone: 'warning'},
+      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
+      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
+      {label: 'Drift detected', value: 0, text: 'False', tone: 'default'},
+    ],
+    auditSummary: '7 events in 24h. Suspension was requested by usr_2f0c81aa_sec.',
+  },
+  {
+    name: 'invoice-export',
+    projectId: 'prj_41c2de83b7764a09',
+    workspace: 'ws_shared-eu1',
+    organization: 'org_m8_billing_91f2c5',
+    status: 'Failed',
+    desiredState: 'Running',
+    actualState: 'Failed',
+    updated: '2026-06-23 08:55',
+    owner: 'usr_8b17d6f0_ops',
+    version: '8',
+    etag: 'etag_prj_41c2de83b7764a09_v8',
+    lastOperation: 'op_3a7c8a2148ff47a2',
+    conditions: [
+      {label: 'Ready', value: 0, text: 'False', tone: 'danger'},
+      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
+      {label: 'Quota healthy', value: 32, text: 'Degraded', tone: 'warning'},
+      {label: 'Drift detected', value: 100, text: 'True', tone: 'danger'},
+    ],
+    auditSummary: '23 events in 24h. Last reconciliation failed after provider timeout.',
+  },
+  {
+    name: 'legacy-reports',
+    projectId: 'prj_9aa4c11d0e744f3a',
+    workspace: 'ws_legacy-eu1',
+    organization: 'org_m8_finance_6b21d0',
+    status: 'Deleting',
+    desiredState: 'Deleted',
+    actualState: 'Deleting',
+    updated: '2026-06-23 07:14',
+    owner: 'usr_64ea18c2_admin',
+    version: '61',
+    etag: 'etag_prj_9aa4c11d0e744f3a_v61',
+    lastOperation: 'op_bdc4221d8b714c9d',
+    conditions: [
+      {label: 'Ready', value: 0, text: 'False', tone: 'warning'},
+      {label: 'Policy bound', value: 100, text: 'True', tone: 'success'},
+      {label: 'Quota healthy', value: 100, text: 'True', tone: 'success'},
+      {label: 'Finalizers cleared', value: 66, text: 'Partial', tone: 'warning'},
+    ],
+    auditSummary: '14 events in 24h. Delete operation is waiting for finalizers.',
+  },
+]
+
+const menuGroups: MenuGroup[] = [
+  {id: 'core', title: 'Core modules'},
+  {id: 'operations', title: 'Platform operations'},
+  {id: 'governance', title: 'Governance'},
+]
+
+const menuItems: AsideHeaderItem[] = [
+  {id: 'resource-manager', title: 'Resource Manager', icon: Database, current: true, groupId: 'core'},
+  {id: 'identity', title: 'Identity', icon: Person, groupId: 'core'},
+  {id: 'authentication', title: 'Authentication', icon: Shield, groupId: 'core'},
+  {id: 'access', title: 'Access', icon: Gear, groupId: 'core'},
+  {id: 'provisioning', title: 'Provisioning', icon: Plus, groupId: 'operations'},
+  {id: 'runtime', title: 'Runtime', icon: Cloud, groupId: 'operations'},
+  {id: 'delivery', title: 'Delivery', icon: Rocket, groupId: 'operations'},
+  {id: 'operations', title: 'Operations', icon: Clock, groupId: 'operations'},
+  {id: 'audit', title: 'Audit', icon: ListUl, groupId: 'governance'},
+  {id: 'compliance', title: 'Compliance', icon: Check, groupId: 'governance'},
+  {id: 'settings', title: 'Settings', icon: Gear, groupId: 'governance'},
 ]
 
 configure({
@@ -49,119 +219,405 @@ configure({
 })
 
 function App() {
-  const [language, setLanguage] = useState<AppLanguage>(initialLanguage)
-  const [theme, setTheme] = useState<AppTheme>(initialTheme)
-  const t = messages[language]
+  const [compact, setCompact] = useState(false)
+  const [workspace, setWorkspace] = useState('ws_prod-eu1')
+  const [projectId, setProjectId] = useState('prj_8f3a91c2e7b04d6a')
+  const [status, setStatus] = useState('all')
+  const [owner, setOwner] = useState('all')
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
-    configure({
-      lang: language,
-      fallbackLang: 'en',
-    })
-    document.documentElement.lang = language
-  }, [language])
+    document.documentElement.lang = initialLanguage
+  }, [])
 
-  const columns = useMemo<ColumnDef<Person>[]>(
+  const selectedProject = projects.find((project) => project.projectId === projectId) ?? projects[0]
+  const projectOptions = projects
+    .filter((project) => project.workspace === workspace || workspace === 'ws_prod-eu1')
+    .map((project) => ({
+      value: project.projectId,
+      content: `${project.name} / ${project.projectId}`,
+    }))
+
+  const visibleProjects = projects.filter((project) => {
+    const searchValue = search.trim().toLowerCase()
+    const matchesSearch =
+      searchValue.length === 0 ||
+      [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
+        value.toLowerCase().includes(searchValue),
+      )
+
+    return (
+      matchesSearch &&
+      project.workspace === workspace &&
+      (status === 'all' || project.status === status) &&
+      (owner === 'all' || project.owner === owner)
+    )
+  })
+
+  const columns = useMemo<ColumnDef<Project>[]>(
     () => [
-      {accessorKey: 'name', header: t.name, size: 160},
-      {accessorKey: 'age', header: t.age, size: 120},
+      {
+        accessorKey: 'name',
+        header: 'Project',
+        size: 220,
+        cell: ({row}) => (
+          <div className="m8-project-cell">
+            <span className={`m8-status-dot m8-status-dot_${row.original.status.toLowerCase()}`} />
+            <div>
+              <Text variant="body-2">{row.original.name}</Text>
+              <Text variant="caption-2" color="secondary">
+                {row.original.projectId}
+              </Text>
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'projectId',
+        header: 'Project ID',
+        size: 230,
+        cell: ({row}) => <span className="m8-mono">{row.original.projectId}</span>,
+      },
+      {
+        accessorKey: 'workspace',
+        header: 'Workspace',
+        size: 150,
+        cell: ({row}) => <span className="m8-mono">{row.original.workspace}</span>,
+      },
+      {
+        accessorKey: 'organization',
+        header: 'Organization',
+        size: 210,
+        cell: ({row}) => <span className="m8-mono">{row.original.organization}</span>,
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        size: 140,
+        cell: ({row}) => <StatusLabel status={row.original.status} />,
+      },
+      {accessorKey: 'desiredState', header: 'Desired State', size: 150},
+      {accessorKey: 'actualState', header: 'Actual State', size: 150},
+      {accessorKey: 'updated', header: 'Updated', size: 160},
+      {
+        accessorKey: 'owner',
+        header: 'Owner',
+        size: 170,
+        cell: ({row}) => <span className="m8-mono">{row.original.owner}</span>,
+      },
     ],
-    [t.age, t.name],
+    [],
   )
 
   const table = useTable({
     columns,
-    data,
+    data: visibleProjects,
   })
 
   return (
-    <ThemeProvider theme={theme} lang={language} fallbackLang="en">
-      <main
-        style={{
-          minHeight: '100vh',
-          background: 'var(--g-color-base-background)',
-          color: 'var(--g-color-text-primary)',
-          padding: 32,
-        }}
-      >
-        <section
-          style={{
-            display: 'flex',
-            maxWidth: 920,
-            flexDirection: 'column',
-            gap: 24,
-          }}
-        >
-          <header
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              gap: 24,
-            }}
-          >
-            <div>
-              <Text as="h1" variant="header-2">
-                {t.title}
-              </Text>
-              <Text as="p" variant="body-2" color="secondary">
-                {t.subtitle}
-              </Text>
-            </div>
+    <ThemeProvider theme="light" lang={initialLanguage} fallbackLang="en">
+      <AsideHeader
+        compact={compact}
+        logo={{text: 'M8 Platform', icon: Shield, href: '/'}}
+        menuItems={menuItems}
+        menuGroups={menuGroups}
+        menuOverflow="scroll"
+        onChangeCompact={setCompact}
+        renderContent={() => (
+          <div className="m8-page">
+            <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
+              <ActionBar.Section>
+                <ActionBar.Group>
+                  <ActionBar.Item>
+                    <Switcher
+                      label="Workspace"
+                      value={[workspace]}
+                      options={workspaceOptions}
+                      onUpdate={(next) => {
+                        const nextWorkspace = next[0] ?? workspace
+                        setWorkspace(nextWorkspace)
+                        const nextProject = projects.find((project) => project.workspace === nextWorkspace)
+                        if (nextProject) {
+                          setProjectId(nextProject.projectId)
+                        }
+                      }}
+                    />
+                  </ActionBar.Item>
+                  <ActionBar.Item>
+                    <Switcher
+                      label="Project"
+                      value={[projectId]}
+                      options={projectOptions}
+                      onUpdate={(next) => setProjectId(next[0] ?? projectId)}
+                    />
+                  </ActionBar.Item>
+                  <ActionBar.Item>
+                    <Label theme="normal">Region: eu-west-1</Label>
+                  </ActionBar.Item>
+                </ActionBar.Group>
+                <ActionBar.Group pull="right">
+                  <ActionBar.Item>
+                    <Button view="normal">
+                      <Icon data={ArrowRotateRight} size={14} />
+                      Refresh
+                    </Button>
+                  </ActionBar.Item>
+                  <ActionBar.Item>
+                    <Button view="outlined">
+                      <Icon data={Clock} size={14} />
+                      Open operation
+                    </Button>
+                  </ActionBar.Item>
+                  <ActionBar.Item>
+                    <Button view="action">
+                      <Icon data={Plus} size={14} />
+                      New project
+                    </Button>
+                  </ActionBar.Item>
+                </ActionBar.Group>
+              </ActionBar.Section>
+            </ActionBar>
 
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'flex-end',
-                gap: 16,
-              }}
-            >
-              <div style={{display: 'grid', gap: 8}}>
-                <Text variant="caption-2" color="secondary">
-                  {t.language}
-                </Text>
-                <SegmentedRadioGroup<AppLanguage>
-                  size="m"
-                  value={language}
-                  onUpdate={setLanguage}
-                  options={[
-                    {value: 'ru', content: 'RU'},
-                    {value: 'en', content: 'EN'},
-                  ]}
-                />
-              </div>
+            <main className="m8-page__body">
+              <section className="m8-page__content">
+                <div className="m8-page__heading">
+                  <div>
+                    <div className="m8-breadcrumbs">
+                      <span>M8</span>
+                      <span>/</span>
+                      <span>Resource Manager</span>
+                      <span>/</span>
+                      <strong>Projects</strong>
+                    </div>
+                    <Text as="h1" variant="display-1">
+                      Projects
+                    </Text>
+                    <Text as="p" variant="body-2" color="secondary">
+                      Manage project lifecycle, desired state, operations, and auditability across
+                      M8 workspaces.
+                    </Text>
+                  </div>
 
-              <div style={{display: 'grid', gap: 8}}>
-                <Text variant="caption-2" color="secondary">
-                  {t.theme}
-                </Text>
-                <SegmentedRadioGroup<AppTheme>
-                  size="m"
-                  value={theme}
-                  onUpdate={setTheme}
-                  options={[
-                    {value: 'light', content: t.light},
-                    {value: 'dark', content: t.dark},
-                  ]}
-                />
-              </div>
-            </div>
-          </header>
+                  <div className="m8-summary">
+                    <Metric label="Projects" value="147" description="3 provisioning" />
+                    <Metric label="Failed" value="2" description="requires review" tone="danger" />
+                    <Metric label="Deleting" value="4" description="pending finalizers" tone="warning" />
+                  </div>
+                </div>
 
-          <div
-            style={{
-              overflow: 'hidden',
-              border: '1px solid var(--g-color-line-generic)',
-              borderRadius: 8,
-              background: 'var(--g-color-base-background)',
-            }}
-          >
-            <Table table={table} />
+                <Card view="outlined" type="container" className="m8-filter-card">
+                  <div className="m8-filters">
+                    <label className="m8-field">
+                      <Text variant="caption-2" color="secondary">
+                        Search
+                      </Text>
+                      <TextInput
+                        value={search}
+                        placeholder="Project, opaque ID, owner, operation"
+                        startContent={<Icon data={Magnifier} size={14} />}
+                        onUpdate={setSearch}
+                      />
+                    </label>
+                    <Switcher
+                      label="Workspace"
+                      value={[workspace]}
+                      options={workspaceOptions}
+                      onUpdate={(next) => setWorkspace(next[0] ?? workspace)}
+                    />
+                    <Switcher
+                      label="Status"
+                      value={[status]}
+                      options={statusOptions}
+                      onUpdate={(next) => setStatus(next[0] ?? status)}
+                    />
+                    <Switcher
+                      label="Owner"
+                      value={[owner]}
+                      options={ownerOptions}
+                      onUpdate={(next) => setOwner(next[0] ?? owner)}
+                    />
+                  </div>
+                </Card>
+
+                <div className="m8-workspace">
+                  <Card view="outlined" type="container" className="m8-table-card">
+                    <div className="m8-card-header">
+                      <div>
+                        <Text as="h2" variant="header-1">
+                          Project inventory
+                        </Text>
+                        <Text variant="caption-2" color="secondary">
+                          Selected row: {selectedProject.name}
+                        </Text>
+                      </div>
+                      <div className="m8-labels">
+                        {statusOptions.slice(1).map((option) => (
+                          <StatusLabel key={option.value} status={option.value as ProjectStatus} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="m8-table-shell">
+                      <Table table={table} />
+                    </div>
+                  </Card>
+
+                  <ProjectDetails project={selectedProject} />
+                </div>
+              </section>
+            </main>
           </div>
-        </section>
-      </main>
+        )}
+      />
     </ThemeProvider>
+  )
+}
+
+interface SwitcherProps {
+  label: string
+  value: string[]
+  options: Array<{value: string; content: string}>
+  onUpdate: (value: string[]) => void
+}
+
+function Switcher({label, value, options, onUpdate}: SwitcherProps) {
+  return (
+    <label className="m8-field m8-switcher">
+      <Text variant="caption-2" color="secondary">
+        {label}
+      </Text>
+      <Select value={value} options={options} width="max" onUpdate={onUpdate} />
+    </label>
+  )
+}
+
+function Metric({
+  label,
+  value,
+  description,
+  tone = 'normal',
+}: {
+  label: string
+  value: string
+  description: string
+  tone?: 'normal' | 'warning' | 'danger'
+}) {
+  return (
+    <Card view="outlined" type="container" className={`m8-metric m8-metric_${tone}`}>
+      <Text variant="caption-2" color="secondary">
+        {label}
+      </Text>
+      <Text variant="header-2">{value}</Text>
+      <Text variant="caption-2" color="secondary">
+        {description}
+      </Text>
+    </Card>
+  )
+}
+
+function StatusLabel({status}: {status: ProjectStatus}) {
+  const themeByStatus: Record<ProjectStatus, 'success' | 'warning' | 'danger' | 'info' | 'normal'> = {
+    Active: 'success',
+    Suspended: 'warning',
+    Failed: 'danger',
+    Provisioning: 'info',
+    Deleting: 'warning',
+  }
+
+  return <Label theme={themeByStatus[status]}>{status}</Label>
+}
+
+function ProjectDetails({project}: {project: Project}) {
+  return (
+    <aside className="m8-details">
+      <Card view="outlined" type="container" className="m8-details__card">
+        <div className="m8-details__header">
+          <div>
+            <Text as="h2" variant="header-1">
+              {project.name}
+            </Text>
+            <Text variant="caption-2" color="secondary" className="m8-mono">
+              {project.projectId}
+            </Text>
+          </div>
+          <StatusLabel status={project.status} />
+        </div>
+
+        <div className="m8-tabs" aria-label="Project details tabs">
+          <button className="m8-tabs__item m8-tabs__item_active">Overview</button>
+          <button className="m8-tabs__item">Conditions</button>
+          <button className="m8-tabs__item">Operations</button>
+          <button className="m8-tabs__item">Audit</button>
+        </div>
+
+        <DefinitionList>
+          <DefinitionList.Item name="Lifecycle">{project.status}</DefinitionList.Item>
+          <DefinitionList.Item name="Desired state">{project.desiredState}</DefinitionList.Item>
+          <DefinitionList.Item name="Actual state">{project.actualState}</DefinitionList.Item>
+          <DefinitionList.Item name="Workspace">
+            <span className="m8-mono">{project.workspace}</span>
+          </DefinitionList.Item>
+          <DefinitionList.Item name="Organization">
+            <span className="m8-mono">{project.organization}</span>
+          </DefinitionList.Item>
+          <DefinitionList.Item name="Owner">
+            <span className="m8-mono">{project.owner}</span>
+          </DefinitionList.Item>
+          <DefinitionList.Item name="Version">{project.version}</DefinitionList.Item>
+          <DefinitionList.Item name="ETag">
+            <span className="m8-mono">{project.etag}</span>
+          </DefinitionList.Item>
+          <DefinitionList.Item name="Last operation">
+            <span className="m8-mono">{project.lastOperation}</span>
+          </DefinitionList.Item>
+        </DefinitionList>
+
+        <div className="m8-conditions">
+          {project.conditions.map((condition) => (
+            <div key={condition.label} className="m8-condition">
+              <div className="m8-condition__header">
+                <Text variant="body-2">{condition.label}</Text>
+                <Text variant="caption-2" color="secondary">
+                  {condition.text}
+                </Text>
+              </div>
+              <Progress value={condition.value} theme={condition.tone} />
+            </div>
+          ))}
+        </div>
+
+        <Alert
+          theme="info"
+          view="outlined"
+          title="Audit summary"
+          message={project.auditSummary}
+          icon={<Icon data={ListUl} />}
+        />
+
+        <div className="m8-details__actions">
+          <Button view="outlined-warning">
+            <Icon data={TriangleExclamation} size={14} />
+            Suspend
+          </Button>
+          <Button view="outlined-success" disabled={project.status !== 'Suspended'}>
+            <Icon data={Check} size={14} />
+            Resume
+          </Button>
+          <Button view="outlined-danger">
+            <Icon data={TriangleExclamation} size={14} />
+            Delete
+          </Button>
+          <Button view="outlined">
+            <Icon data={ListUl} size={14} />
+            View audit
+          </Button>
+          <Button view="normal">
+            <Icon data={Clock} size={14} />
+            Open operation
+          </Button>
+        </div>
+      </Card>
+    </aside>
   )
 }
 
