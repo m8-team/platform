@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {
+  Avatar,
   Button,
   Card,
   configure,
@@ -10,16 +11,20 @@ import {
   TextInput,
   ThemeProvider,
 } from '@gravity-ui/uikit'
-import {ActionBar, AsideHeader} from '@gravity-ui/navigation'
-import type {AsideHeaderItem, MenuGroup} from '@gravity-ui/navigation'
+import {ActionBar, AsideHeader, FooterItem} from '@gravity-ui/navigation'
+import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
 import {
   ArrowShapeRightFromLine,
+  BellDot,
+  Briefcase,
   Check,
+  CircleQuestion,
   Clock,
   Cloud,
   Code,
   Database,
   Fingerprint,
+  Folders,
   Gear,
   ListUl,
   Magnifier,
@@ -29,6 +34,8 @@ import {
   Plus,
   Rocket,
   Shield,
+  ShieldCheck,
+  Signal,
   Speedometer,
   TriangleExclamation,
   ArrowRotateRight,
@@ -37,6 +44,7 @@ import {
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
+type FooterPanel = 'notifications' | 'support' | 'account'
 
 interface Project {
   name: string
@@ -132,59 +140,63 @@ const projects: Project[] = [
 ]
 
 const menuGroups: MenuGroup[] = [
-  {id: 'overview', title: 'Overview', icon: Rocket},
   {id: 'resources', title: 'Resources', icon: Database},
-  {id: 'identity-access', title: 'Identity & Access', icon: Person},
-  {id: 'authentication', title: 'Authentication', icon: Shield},
+  {id: 'identity-access', title: 'Identity & Access', icon: Shield},
   {id: 'gateway', title: 'Gateway', icon: Cloud},
-  {id: 'security', title: 'Security', icon: Check},
+  {id: 'security', title: 'Security & Risk', icon: Shield},
   {id: 'observability', title: 'Observability', icon: Clock},
   {id: 'audit', title: 'Audit', icon: ListUl},
   {id: 'settings', title: 'Settings', icon: Gear},
 ]
 
 const menuItems: AsideHeaderItem[] = [
-  {id: 'overview-dashboard', title: 'Dashboard', icon: Rocket, groupId: 'overview'},
-  {id: 'overview-activity', title: 'Activity', icon: Clock, groupId: 'overview'},
-  {id: 'resources-services', title: 'Services', icon: Cloud, current: true, groupId: 'resources'},
-  {id: 'resources-catalog', title: 'Resource Catalog', icon: Database, groupId: 'resources'},
-  {id: 'resources-operations', title: 'Operations', icon: Clock, groupId: 'resources'},
-  {id: 'resources-quotas', title: 'Quotas', icon: Speedometer, groupId: 'resources'},
-  {id: 'identity-users', title: 'Users', icon: Person, groupId: 'identity-access'},
-  {id: 'identity-groups', title: 'Groups', icon: Persons, groupId: 'identity-access'},
-  {id: 'identity-roles', title: 'Roles', icon: Shield, groupId: 'identity-access'},
-  {id: 'identity-policies', title: 'Policies', icon: Check, groupId: 'identity-access'},
-  {id: 'identity-access-explorer', title: 'Access Explorer', icon: Magnifier, groupId: 'identity-access'},
-  {id: 'identity-decision-logs', title: 'Decision Logs', icon: ListUl, groupId: 'identity-access'},
-  {id: 'auth-applications', title: 'Applications', icon: Cloud, groupId: 'authentication'},
-  {id: 'auth-login-flows', title: 'Login Flows', icon: Rocket, groupId: 'authentication'},
-  {id: 'auth-providers', title: 'Providers', icon: Database, groupId: 'authentication'},
-  {id: 'auth-ciba', title: 'CIBA', icon: Shield, groupId: 'authentication'},
-  {id: 'auth-sessions', title: 'Sessions', icon: Clock, groupId: 'authentication'},
-  {id: 'auth-step-up', title: 'Step-up', icon: Plus, groupId: 'authentication'},
+  {id: 'resources-organizations', title: 'Organizations', icon: Briefcase, groupId: 'resources'},
+  {id: 'resources-workspaces', title: 'Workspaces', icon: Folders, groupId: 'resources'},
+  {id: 'resources-project', title: 'Projects', icon: Database, current: true, groupId: 'resources'},
+  {id: 'resources-quotas-limits', title: 'Quotas & Limits', icon: Speedometer, groupId: 'resources'},
+  {id: 'identity-access-identity', title: 'Identity', icon: Person, groupId: 'identity-access'},
+  {id: 'identity-access-authentication', title: 'Authentication', icon: Shield, groupId: 'identity-access'},
+  {id: 'identity-access-control', title: 'Access Control', icon: ShieldCheck, groupId: 'identity-access'},
   {id: 'gateway-api-services', title: 'API Services', icon: Cloud, groupId: 'gateway'},
   {id: 'gateway-routes', title: 'Routes', icon: ArrowShapeRightFromLine, groupId: 'gateway'},
   {id: 'gateway-consumers', title: 'Consumers', icon: Persons, groupId: 'gateway'},
   {id: 'gateway-policies', title: 'Policies', icon: Check, groupId: 'gateway'},
   {id: 'gateway-rate-limits', title: 'Rate Limits', icon: Speedometer, groupId: 'gateway'},
   {id: 'gateway-yaml', title: 'Gateway YAML', icon: Code, groupId: 'gateway'},
+  {id: 'security-dashboard', title: 'Dashboard', icon: Rocket, groupId: 'security'},
   {id: 'security-risk-rules', title: 'Risk Rules', icon: Shield, groupId: 'security'},
   {id: 'security-device-fingerprints', title: 'Device Fingerprints', icon: Fingerprint, groupId: 'security'},
+  {id: 'security-velocity-rules', title: 'Velocity Rules', icon: Speedometer, groupId: 'security'},
+  {id: 'security-signals', title: 'Signals', icon: Signal, groupId: 'security'},
+  {id: 'security-decisions', title: 'Decisions', icon: Check, groupId: 'security'},
   {id: 'security-challenges', title: 'Challenges', icon: TriangleExclamation, groupId: 'security'},
-  {id: 'security-fraud-decisions', title: 'Fraud Decisions', icon: Check, groupId: 'security'},
+  {id: 'security-fraud-cases', title: 'Fraud Cases', icon: Briefcase, groupId: 'security'},
+  {id: 'security-events', title: 'Security Events', icon: ListUl, groupId: 'security'},
+  {id: 'security-access-reviews', title: 'Access Reviews', icon: Persons, groupId: 'security'},
+  {id: 'security-policy-violations', title: 'Policy Violations', icon: TriangleExclamation, groupId: 'security'},
   {id: 'observability-metrics', title: 'Metrics', icon: Speedometer, groupId: 'observability'},
   {id: 'observability-logs', title: 'Logs', icon: ListUl, groupId: 'observability'},
   {id: 'observability-traces', title: 'Traces', icon: NodesRight, groupId: 'observability'},
   {id: 'observability-alerts', title: 'Alerts', icon: TriangleExclamation, groupId: 'observability'},
   {id: 'observability-slo', title: 'SLO', icon: Check, groupId: 'observability'},
   {id: 'audit-events', title: 'Audit Events', icon: ListUl, groupId: 'audit'},
-  {id: 'audit-security-events', title: 'Security Events', icon: Shield, groupId: 'audit'},
   {id: 'audit-exports', title: 'Exports', icon: ArrowRotateRight, groupId: 'audit'},
   {id: 'settings-project', title: 'Project Settings', icon: Gear, groupId: 'settings'},
   {id: 'settings-modules', title: 'Modules', icon: Database, groupId: 'settings'},
   {id: 'settings-integrations', title: 'Integrations', icon: Cloud, groupId: 'settings'},
   {id: 'settings-webhooks', title: 'Webhooks', icon: ArrowShapeRightFromLine, groupId: 'settings'},
   {id: 'settings-api-tokens', title: 'API Tokens', icon: Shield, groupId: 'settings'},
+]
+
+const defaultMenuItems: AsideHeaderItem[] = [
+  ...menuItems,
+  {
+    id: 'observability-incidents',
+    title: 'Incidents',
+    icon: TriangleExclamation,
+    groupId: 'observability',
+    hidden: true,
+  },
 ]
 
 configure({
@@ -206,6 +218,8 @@ function readInitialNavigationCompact() {
 
 function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
+  const [navigationItems, setNavigationItems] = useState(menuItems)
+  const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
   const [projectId, setProjectId] = useState('prj_2e41d7a9c0bf4e55')
@@ -226,6 +240,62 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = initialLanguage
   }, [])
+
+  const subheaderItems = useMemo<AsideHeaderItem[]>(
+    () => [
+      {
+        id: 'subheader-dashboard',
+        title: 'Dashboard',
+        icon: Rocket,
+      },
+    ],
+    [],
+  )
+
+  const panelItems = useMemo<PanelItemProps[]>(
+    () => [
+      {
+        id: 'notifications',
+        open: activeFooterPanel === 'notifications',
+        size: 360,
+        hideVeil: true,
+        children: (
+          <AsidePanel
+            title="Notifications"
+            description="Recent platform events that need operator attention."
+            items={['Quota warning in Platform workspace', 'Gateway route policy updated', 'Audit export completed']}
+          />
+        ),
+      },
+      {
+        id: 'support',
+        open: activeFooterPanel === 'support',
+        size: 360,
+        hideVeil: true,
+        children: (
+          <AsidePanel
+            title="Support Center"
+            description="Help, support requests, and quick access to platform documentation."
+            items={['Create support request', 'Documentation', 'Platform status']}
+          />
+        ),
+      },
+      {
+        id: 'account',
+        open: activeFooterPanel === 'account',
+        size: 360,
+        hideVeil: true,
+        children: (
+          <AsidePanel
+            title="Account"
+            description="Profile and access settings for the current user."
+            items={['Profile', 'Security', 'Active sessions']}
+          />
+        ),
+      },
+    ],
+    [activeFooterPanel],
+  )
 
   const projectOptions = useMemo(
     () =>
@@ -263,10 +333,67 @@ function App() {
       <AsideHeader
         compact={compact}
         logo={{text: 'M8 Platform', icon: Shield, href: '/'}}
-        menuItems={menuItems}
+        topAlert={{
+          title: 'Demo environment',
+          message: 'Project data is mocked for the M8 Platform console prototype.',
+          theme: 'info',
+          view: 'filled',
+          dense: true,
+          closable: true,
+          preloadHeight: true,
+        }}
+        panelItems={panelItems}
+        subheaderItems={subheaderItems}
+        menuItems={navigationItems}
         menuGroups={menuGroups}
+        defaultMenuItems={defaultMenuItems}
         menuOverflow="scroll"
+        onClosePanel={() => setActiveFooterPanel(null)}
         onChangeCompact={handleNavigationCompactChange}
+        onMenuItemsChanged={setNavigationItems}
+        renderFooter={({compact: footerCompact}) => (
+          <>
+            <FooterItem
+              id="notifications"
+              icon={BellDot}
+              title="Notifications"
+              tooltipText="Notifications"
+              current={activeFooterPanel === 'notifications'}
+              onItemClick={() => {
+                setActiveFooterPanel(activeFooterPanel === 'notifications' ? null : 'notifications')
+              }}
+              compact={footerCompact}
+            />
+            <FooterItem
+              id="support"
+              icon={CircleQuestion}
+              title="Support Center"
+              tooltipText="Support Center"
+              current={activeFooterPanel === 'support'}
+              onItemClick={() => {
+                setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
+              }}
+              compact={footerCompact}
+            />
+            <FooterItem
+              id="account"
+              icon={Person}
+              title="Account"
+              tooltipText="Account"
+              current={activeFooterPanel === 'account'}
+              itemWrapper={(params, makeItem) =>
+                makeItem({
+                  ...params,
+                  icon: <Avatar className="m8-account-avatar" text="С" size="xs" theme="brand" />,
+                })
+              }
+              onItemClick={() => {
+                setActiveFooterPanel(activeFooterPanel === 'account' ? null : 'account')
+              }}
+              compact={footerCompact}
+            />
+          </>
+        )}
         renderContent={() => (
           <div className="m8-page">
             <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
@@ -353,7 +480,7 @@ function App() {
                       <span>/</span>
                       <span>Resources</span>
                       <span>/</span>
-                      <strong>Services</strong>
+                      <strong>Projects</strong>
                     </div>
                     <Text as="h1" variant="display-1">
                       Projects
@@ -517,6 +644,37 @@ function ProjectTable({
           ))}
         </tbody>
       </table>
+    </div>
+  )
+}
+
+function AsidePanel({
+  title,
+  description,
+  items,
+}: {
+  title: string
+  description: string
+  items: string[]
+}) {
+  return (
+    <div className="m8-aside-panel">
+      <div>
+        <Text as="h2" variant="header-1">
+          {title}
+        </Text>
+        <Text variant="body-2" color="secondary">
+          {description}
+        </Text>
+      </div>
+
+      <div className="m8-aside-panel__items">
+        {items.map((item) => (
+          <Button key={item} view="outlined" width="max">
+            {item}
+          </Button>
+        ))}
+      </div>
     </div>
   )
 }
