@@ -68,6 +68,22 @@ const initialLanguage = 'en'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
 const menuGroupCollapsedStorageKey = 'm8.console.menu-groups.collapsed'
 
+const resourceManagerRoutes = {
+  overview: '/resource-manager',
+  organizations: {
+    list: '/resource-manager/organizations',
+    detail: '/resource-manager/organizations/:organizationId',
+  },
+  workspaces: {
+    list: '/resource-manager/workspaces',
+    detail: '/resource-manager/workspaces/:workspaceId',
+  },
+  projects: {
+    list: '/resource-manager/projects',
+    detail: '/resource-manager/projects/:projectId',
+  },
+} as const
+
 const organizationOptions = [
   {value: 'org_m8_finance_6b21d0', content: 'Acme'},
   {value: 'org_m8_billing_91f2c5', content: 'Billing'},
@@ -146,7 +162,7 @@ const projects: Project[] = [
 ]
 
 const menuGroups: MenuGroup[] = [
-  {id: 'resources', title: 'Resources', icon: Database},
+  {id: 'resources', title: 'Resource Manager', icon: Database},
   {id: 'platform-operations', title: 'Platform Operations', icon: GearPlay},
   {id: 'identity-access', title: 'Identity & Access', icon: Shield},
   {id: 'gateway', title: 'Gateway', icon: Cloud},
@@ -157,14 +173,38 @@ const menuGroups: MenuGroup[] = [
 ]
 
 const menuItems: AsideHeaderItem[] = [
-  {id: 'resources-organizations', title: 'Organizations', icon: Briefcase, groupId: 'resources'},
-  {id: 'resources-workspaces', title: 'Workspaces', icon: Folders, groupId: 'resources'},
-  {id: 'resources-project', title: 'Projects', icon: Database, current: true, groupId: 'resources'},
-  {id: 'resources-quotas-limits', title: 'Quotas & Limits', icon: Speedometer, groupId: 'resources'},
+  {id: 'resources-overview', title: 'Overview', icon: Rocket, href: resourceManagerRoutes.overview, groupId: 'resources'},
+  {
+    id: 'resources-organizations',
+    title: 'Organizations',
+    icon: Briefcase,
+    href: resourceManagerRoutes.organizations.list,
+    groupId: 'resources',
+  },
+  {
+    id: 'resources-workspaces',
+    title: 'Workspaces',
+    icon: Folders,
+    href: resourceManagerRoutes.workspaces.list,
+    groupId: 'resources',
+  },
+  {
+    id: 'resources-project',
+    title: 'Projects',
+    icon: Database,
+    href: resourceManagerRoutes.projects.list,
+    groupId: 'resources',
+  },
   {
     id: 'platform-operations-long-running',
     title: 'Long-running Operations',
     icon: Clock,
+    groupId: 'platform-operations',
+  },
+  {
+    id: 'platform-operations-quotas-limits',
+    title: 'Quotas & Limits',
+    icon: Speedometer,
     groupId: 'platform-operations',
   },
   {id: 'platform-operations-jobs', title: 'Jobs', icon: BarsPlay, groupId: 'platform-operations'},
@@ -234,8 +274,49 @@ function readInitialNavigationCompact() {
   }
 }
 
+function readCurrentPathname() {
+  if (typeof window === 'undefined') {
+    return resourceManagerRoutes.projects.list
+  }
+
+  return window.location.pathname
+}
+
+function getCurrentMenuItemId(pathname: string) {
+  if (pathname === resourceManagerRoutes.overview) {
+    return 'resources-overview'
+  }
+
+  if (pathname.startsWith(`${resourceManagerRoutes.organizations.list}/`)) {
+    return 'resources-organizations'
+  }
+
+  if (pathname === resourceManagerRoutes.organizations.list) {
+    return 'resources-organizations'
+  }
+
+  if (pathname.startsWith(`${resourceManagerRoutes.workspaces.list}/`)) {
+    return 'resources-workspaces'
+  }
+
+  if (pathname === resourceManagerRoutes.workspaces.list) {
+    return 'resources-workspaces'
+  }
+
+  if (pathname.startsWith(`${resourceManagerRoutes.projects.list}/`)) {
+    return 'resources-project'
+  }
+
+  if (pathname === resourceManagerRoutes.projects.list) {
+    return 'resources-project'
+  }
+
+  return 'resources-project'
+}
+
 function getCurrentMenuGroupId() {
-  return menuItems.find((item) => item.current)?.groupId
+  const currentMenuItemId = getCurrentMenuItemId(readCurrentPathname())
+  return menuItems.find((item) => item.id === currentMenuItemId)?.groupId
 }
 
 function createDefaultCollapsedMenuGroups() {
@@ -330,6 +411,16 @@ function App() {
   useEffect(() => {
     document.documentElement.lang = initialLanguage
   }, [])
+
+  const currentMenuItemId = getCurrentMenuItemId(readCurrentPathname())
+  const navigationMenuItems = useMemo(
+    () =>
+      menuItems.map((item) => ({
+        ...item,
+        current: item.id === currentMenuItemId,
+      })),
+    [currentMenuItemId],
+  )
 
   const subheaderItems = useMemo<AsideHeaderItem[]>(
     () => [
@@ -434,7 +525,7 @@ function App() {
         }}
         panelItems={panelItems}
         subheaderItems={subheaderItems}
-        menuItems={menuItems}
+        menuItems={navigationMenuItems}
         menuGroups={menuGroups}
         menuOverflow="scroll"
         collapsedMenuGroupIds={collapsedMenuGroupIds}
@@ -568,7 +659,7 @@ function App() {
                     <div className="m8-breadcrumbs">
                       <span>M8</span>
                       <span>/</span>
-                      <span>Resources</span>
+                      <span>Resource manager</span>
                       <span>/</span>
                       <strong>Projects</strong>
                     </div>
