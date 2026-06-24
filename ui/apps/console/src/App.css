@@ -62,9 +62,16 @@
 }
 
 .m8-filter-card,
-.m8-table-card {
+.m8-table-card,
+.m8-placeholder-card {
   border-radius: 8px;
   background: var(--g-color-base-background);
+}
+
+.m8-placeholder-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
 }
 
 .m8-filters {

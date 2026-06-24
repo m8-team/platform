@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import {
   Avatar,
   Button,
@@ -13,6 +13,7 @@ import {
 } from '@gravity-ui/uikit'
 import {ActionBar, AsideHeader, FooterItem} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
+import {Outlet, useRouter, useRouterState} from '@tanstack/react-router'
 import {
   ArrowShapeRightFromLine,
   BellDot,
@@ -64,6 +65,18 @@ interface Project {
   owner: string
   lastOperation: string
 }
+
+interface ConsoleSelection {
+  organization: string
+  workspace: string
+  projectId: string
+  projectOptions: Array<{value: string; content: string}>
+  setOrganization: (value: string) => void
+  setWorkspace: (value: string) => void
+  setProjectId: (value: string) => void
+}
+
+const ConsoleSelectionContext = createContext<ConsoleSelection | null>(null)
 
 const initialLanguage = 'en'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
@@ -315,13 +328,13 @@ function getCurrentMenuItemId(pathname: string) {
   return 'resources-project'
 }
 
-function getCurrentMenuGroupId() {
-  const currentMenuItemId = getCurrentMenuItemId(readCurrentPathname())
+function getCurrentMenuGroupId(pathname = readCurrentPathname()) {
+  const currentMenuItemId = getCurrentMenuItemId(pathname)
   return menuItems.find((item) => item.id === currentMenuItemId)?.groupId
 }
 
-function createDefaultCollapsedMenuGroups() {
-  const currentGroupId = getCurrentMenuGroupId()
+function createDefaultCollapsedMenuGroups(pathname = readCurrentPathname()) {
+  const currentGroupId = getCurrentMenuGroupId(pathname)
 
   return menuGroups.reduce<Record<string, boolean>>((collapsedGroups, group) => {
     collapsedGroups[group.id] = group.id !== currentGroupId
@@ -329,9 +342,9 @@ function createDefaultCollapsedMenuGroups() {
   }, {})
 }
 
-function normalizeCollapsedMenuGroups(storedGroups?: Record<string, unknown>) {
-  const currentGroupId = getCurrentMenuGroupId()
-  const collapsedGroups = createDefaultCollapsedMenuGroups()
+function normalizeCollapsedMenuGroups(storedGroups?: Record<string, unknown>, pathname = readCurrentPathname()) {
+  const currentGroupId = getCurrentMenuGroupId(pathname)
+  const collapsedGroups = createDefaultCollapsedMenuGroups(pathname)
 
   if (storedGroups) {
     for (const group of menuGroups) {
@@ -378,9 +391,8 @@ function App() {
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
   const [projectId, setProjectId] = useState('prj_2e41d7a9c0bf4e55')
-  const [status, setStatus] = useState('all')
-  const [owner, setOwner] = useState('all')
-  const [search, setSearch] = useState('')
+  const router = useRouter()
+  const pathname = useRouterState({select: (state) => state.location.pathname})
 
   const handleNavigationCompactChange = useCallback((nextCompact: boolean) => {
     setCompact(nextCompact)
@@ -394,10 +406,13 @@ function App() {
 
   const handleToggleMenuGroupCollapsed = useCallback((groupId: string) => {
     setCollapsedMenuGroupIds((currentCollapsedGroups) => {
-      const nextCollapsedGroups = normalizeCollapsedMenuGroups({
-        ...currentCollapsedGroups,
-        [groupId]: !currentCollapsedGroups[groupId],
-      })
+      const nextCollapsedGroups = normalizeCollapsedMenuGroups(
+        {
+          ...currentCollapsedGroups,
+          [groupId]: !currentCollapsedGroups[groupId],
+        },
+        pathname,
+      )
 
       try {
         window.localStorage.setItem(menuGroupCollapsedStorageKey, JSON.stringify(nextCollapsedGroups))
@@ -407,20 +422,40 @@ function App() {
 
       return nextCollapsedGroups
     })
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     document.documentElement.lang = initialLanguage
   }, [])
 
-  const currentMenuItemId = getCurrentMenuItemId(readCurrentPathname())
+  const currentMenuItemId = getCurrentMenuItemId(pathname)
+  const effectiveCollapsedMenuGroupIds = useMemo(
+    () => normalizeCollapsedMenuGroups(collapsedMenuGroupIds, pathname),
+    [collapsedMenuGroupIds, pathname],
+  )
   const navigationMenuItems = useMemo(
     () =>
-      menuItems.map((item) => ({
-        ...item,
-        current: item.id === currentMenuItemId,
-      })),
-    [currentMenuItemId],
+      menuItems.map((item) => {
+        if (!item.href) {
+          return {
+            ...item,
+            current: item.id === currentMenuItemId,
+          }
+        }
+
+        const href = item.href
+        const onItemClick: NonNullable<AsideHeaderItem['onItemClick']> = (_item, _collapsed, event) => {
+          event.preventDefault()
+          void router.navigate({to: href})
+        }
+
+        return {
+          ...item,
+          current: item.id === currentMenuItemId,
+          onItemClick,
+        }
+      }),
+    [currentMenuItemId, router],
   )
 
   const subheaderItems = useMemo<AsideHeaderItem[]>(
@@ -490,25 +525,18 @@ function App() {
     [organization, workspace],
   )
 
-  const visibleProjects = useMemo(() => {
-    const searchValue = search.trim().toLowerCase()
-
-    return projects.filter((project) => {
-      const matchesSearch =
-        searchValue.length === 0 ||
-        [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
-          value.toLowerCase().includes(searchValue),
-        )
-
-      return (
-        matchesSearch &&
-        project.organization === organization &&
-        project.workspace === workspace &&
-        (status === 'all' || project.status === status) &&
-        (owner === 'all' || project.owner === owner)
-      )
-    })
-  }, [organization, owner, search, status, workspace])
+  const selection = useMemo<ConsoleSelection>(
+    () => ({
+      organization,
+      workspace,
+      projectId,
+      projectOptions,
+      setOrganization,
+      setWorkspace,
+      setProjectId,
+    }),
+    [organization, projectId, projectOptions, workspace],
+  )
 
   return (
     <ThemeProvider theme="light" lang={initialLanguage} fallbackLang="en">
@@ -529,7 +557,7 @@ function App() {
         menuItems={navigationMenuItems}
         menuGroups={menuGroups}
         menuOverflow="scroll"
-        collapsedMenuGroupIds={collapsedMenuGroupIds}
+        collapsedMenuGroupIds={effectiveCollapsedMenuGroupIds}
         onClosePanel={() => setActiveFooterPanel(null)}
         onChangeCompact={handleNavigationCompactChange}
         onToggleMenuGroupCollapsed={handleToggleMenuGroupCollapsed}
@@ -577,184 +605,337 @@ function App() {
           </>
         )}
         renderContent={() => (
-          <div className="m8-page">
-            <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
-              <ActionBar.Section>
-                <ActionBar.Group>
-                  <ActionBar.Item>
-                    <Switcher
-                      label="Org"
-                      value={[organization]}
-                      options={organizationOptions}
-                      onUpdate={(next) => {
-                        const nextOrganization = next[0] ?? organization
-                        const nextProject =
-                          projects.find(
-                            (project) =>
-                              project.organization === nextOrganization && project.workspace === workspace,
-                          ) ?? projects.find((project) => project.organization === nextOrganization)
-
-                        setOrganization(nextOrganization)
-
-                        if (nextProject) {
-                          setWorkspace(nextProject.workspace)
-                          setProjectId(nextProject.projectId)
-                        }
-                      }}
-                    />
-                  </ActionBar.Item>
-                  <ActionBar.Item>
-                    <Switcher
-                      label="Workspace"
-                      value={[workspace]}
-                      options={workspaceOptions}
-                      onUpdate={(next) => {
-                        const nextWorkspace = next[0] ?? workspace
-                        setWorkspace(nextWorkspace)
-                        const nextProject = projects.find(
-                          (project) =>
-                            project.organization === organization && project.workspace === nextWorkspace,
-                        )
-                        if (nextProject) {
-                          setProjectId(nextProject.projectId)
-                        }
-                      }}
-                    />
-                  </ActionBar.Item>
-                  <ActionBar.Item>
-                    <Switcher
-                      label="Project"
-                      value={[projectId]}
-                      options={projectOptions}
-                      onUpdate={(next) => setProjectId(next[0] ?? projectId)}
-                    />
-                  </ActionBar.Item>
-                </ActionBar.Group>
-                <ActionBar.Group pull="right">
-                  <ActionBar.Item>
-                    <Button view="normal">
-                      <Icon data={ArrowRotateRight} size={14} />
-                      Refresh
-                    </Button>
-                  </ActionBar.Item>
-                  <ActionBar.Item>
-                    <Button view="outlined">
-                      <Icon data={Clock} size={14} />
-                      Open operation
-                    </Button>
-                  </ActionBar.Item>
-                  <ActionBar.Item>
-                    <Button view="action">
-                      <Icon data={Plus} size={14} />
-                      New project
-                    </Button>
-                  </ActionBar.Item>
-                </ActionBar.Group>
-              </ActionBar.Section>
-            </ActionBar>
-
-            <main className="m8-page__body">
-              <section className="m8-page__content">
-                <div className="m8-page__heading">
-                  <div>
-                    <div className="m8-breadcrumbs">
-                      <span>M8</span>
-                      <span>/</span>
-                      <span>Resource manager</span>
-                      <span>/</span>
-                      <strong>Projects</strong>
-                    </div>
-                    <Text as="h1" variant="display-1">
-                      Projects
-                    </Text>
-                    <Text as="p" variant="body-2" color="secondary">
-                      Manage project lifecycle, desired state, operations, and auditability across
-                      M8 workspaces.
-                    </Text>
-                  </div>
-
-                  <div className="m8-summary">
-                    <Metric label="Projects" value="147" description="3 provisioning" />
-                    <Metric label="Failed" value="2" description="requires review" tone="danger" />
-                    <Metric label="Deleting" value="4" description="pending finalizers" tone="warning" />
-                  </div>
-                </div>
-
-                <Card view="outlined" type="container" className="m8-filter-card">
-                  <div className="m8-filters">
-                    <label className="m8-field">
-                      <Text variant="caption-2" color="secondary">
-                        Search
-                      </Text>
-                      <TextInput
-                        value={search}
-                        placeholder="Project, opaque ID, owner, operation"
-                        startContent={<Icon data={Magnifier} size={14} />}
-                        onUpdate={setSearch}
-                      />
-                    </label>
-                    <Switcher
-                      label="Workspace"
-                      value={[workspace]}
-                      options={workspaceOptions}
-                      onUpdate={(next) => {
-                        const nextWorkspace = next[0] ?? workspace
-                        setWorkspace(nextWorkspace)
-                        const nextProject = projects.find(
-                          (project) =>
-                            project.organization === organization && project.workspace === nextWorkspace,
-                        )
-                        if (nextProject) {
-                          setProjectId(nextProject.projectId)
-                        }
-                      }}
-                    />
-                    <Switcher
-                      label="Status"
-                      value={[status]}
-                      options={statusOptions}
-                      onUpdate={(next) => setStatus(next[0] ?? status)}
-                    />
-                    <Switcher
-                      label="Owner"
-                      value={[owner]}
-                      options={ownerOptions}
-                      onUpdate={(next) => setOwner(next[0] ?? owner)}
-                    />
-                  </div>
-                </Card>
-
-                <div className="m8-workspace">
-                  <Card view="outlined" type="container" className="m8-table-card">
-                    <div className="m8-card-header">
-                      <div>
-                        <Text as="h2" variant="header-1">
-                          Project inventory
-                        </Text>
-                        <Text variant="caption-2" color="secondary">
-                          Filtered list of projects in the selected workspace.
-                        </Text>
-                      </div>
-                      <div className="m8-labels">
-                        {statusOptions.slice(1).map((option) => (
-                          <StatusLabel key={option.value} status={option.value as ProjectStatus} />
-                        ))}
-                      </div>
-                    </div>
-
-                    <ProjectTable
-                      projects={visibleProjects}
-                      selectedProjectId={projectId}
-                      onSelectProject={setProjectId}
-                    />
-                  </Card>
-                </div>
-              </section>
-            </main>
-          </div>
+          <ConsoleSelectionContext.Provider value={selection}>
+            <div className="m8-page">
+              <ConsoleActionBar />
+              <Outlet />
+            </div>
+          </ConsoleSelectionContext.Provider>
         )}
       />
     </ThemeProvider>
+  )
+}
+
+function useConsoleSelection() {
+  const selection = useContext(ConsoleSelectionContext)
+
+  if (!selection) {
+    throw new Error('Console selection context is not available')
+  }
+
+  return selection
+}
+
+function ConsoleActionBar() {
+  const {
+    organization,
+    workspace,
+    projectId,
+    projectOptions,
+    setOrganization,
+    setWorkspace,
+    setProjectId,
+  } = useConsoleSelection()
+
+  return (
+    <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
+      <ActionBar.Section>
+        <ActionBar.Group>
+          <ActionBar.Item>
+            <Switcher
+              label="Org"
+              value={[organization]}
+              options={organizationOptions}
+              onUpdate={(next) => {
+                const nextOrganization = next[0] ?? organization
+                const nextProject =
+                  projects.find(
+                    (project) => project.organization === nextOrganization && project.workspace === workspace,
+                  ) ?? projects.find((project) => project.organization === nextOrganization)
+
+                setOrganization(nextOrganization)
+
+                if (nextProject) {
+                  setWorkspace(nextProject.workspace)
+                  setProjectId(nextProject.projectId)
+                }
+              }}
+            />
+          </ActionBar.Item>
+          <ActionBar.Item>
+            <Switcher
+              label="Workspace"
+              value={[workspace]}
+              options={workspaceOptions}
+              onUpdate={(next) => {
+                const nextWorkspace = next[0] ?? workspace
+                setWorkspace(nextWorkspace)
+                const nextProject = projects.find(
+                  (project) => project.organization === organization && project.workspace === nextWorkspace,
+                )
+                if (nextProject) {
+                  setProjectId(nextProject.projectId)
+                }
+              }}
+            />
+          </ActionBar.Item>
+          <ActionBar.Item>
+            <Switcher
+              label="Project"
+              value={[projectId]}
+              options={projectOptions}
+              onUpdate={(next) => setProjectId(next[0] ?? projectId)}
+            />
+          </ActionBar.Item>
+        </ActionBar.Group>
+        <ActionBar.Group pull="right">
+          <ActionBar.Item>
+            <Button view="normal">
+              <Icon data={ArrowRotateRight} size={14} />
+              Refresh
+            </Button>
+          </ActionBar.Item>
+          <ActionBar.Item>
+            <Button view="outlined">
+              <Icon data={Clock} size={14} />
+              Open operation
+            </Button>
+          </ActionBar.Item>
+          <ActionBar.Item>
+            <Button view="action">
+              <Icon data={Plus} size={14} />
+              New project
+            </Button>
+          </ActionBar.Item>
+        </ActionBar.Group>
+      </ActionBar.Section>
+    </ActionBar>
+  )
+}
+
+export function ResourceManagerOverviewPage() {
+  return (
+    <ResourcePlaceholderPage
+      current="Overview"
+      title="Resource Manager"
+      description="Tenant hierarchy, project ownership, and resource lifecycle entry point."
+    />
+  )
+}
+
+export function ResourceOrganizationsPage() {
+  return (
+    <ResourcePlaceholderPage
+      current="Organizations"
+      title="Organizations"
+      description="Manage organization boundaries, ownership, and resource manager access scope."
+    />
+  )
+}
+
+export function ResourceOrganizationDetailsPage() {
+  return (
+    <ResourcePlaceholderPage
+      current="Organizations"
+      title="Organization details"
+      description="Organization metadata, workspace membership, and lifecycle state."
+    />
+  )
+}
+
+export function ResourceWorkspacesPage() {
+  return (
+    <ResourcePlaceholderPage
+      current="Workspaces"
+      title="Workspaces"
+      description="Manage workspace boundaries, project grouping, and operational ownership."
+    />
+  )
+}
+
+export function ResourceWorkspaceDetailsPage() {
+  return (
+    <ResourcePlaceholderPage
+      current="Workspaces"
+      title="Workspace details"
+      description="Workspace metadata, projects, resource quotas, and lifecycle state."
+    />
+  )
+}
+
+export function ResourceProjectDetailsPage() {
+  return <ResourceProjectsPage />
+}
+
+export function ResourceProjectsPage() {
+  const {organization, workspace, projectId, setWorkspace, setProjectId} = useConsoleSelection()
+  const [status, setStatus] = useState('all')
+  const [owner, setOwner] = useState('all')
+  const [search, setSearch] = useState('')
+
+  const visibleProjects = useMemo(() => {
+    const searchValue = search.trim().toLowerCase()
+
+    return projects.filter((project) => {
+      const matchesSearch =
+        searchValue.length === 0 ||
+        [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
+          value.toLowerCase().includes(searchValue),
+        )
+
+      return (
+        matchesSearch &&
+        project.organization === organization &&
+        project.workspace === workspace &&
+        (status === 'all' || project.status === status) &&
+        (owner === 'all' || project.owner === owner)
+      )
+    })
+  }, [organization, owner, search, status, workspace])
+
+  return (
+    <main className="m8-page__body">
+      <section className="m8-page__content">
+        <div className="m8-page__heading">
+          <div>
+            <div className="m8-breadcrumbs">
+              <span>M8</span>
+              <span>/</span>
+              <span>Resource manager</span>
+              <span>/</span>
+              <strong>Projects</strong>
+            </div>
+            <Text as="h1" variant="display-1">
+              Projects
+            </Text>
+            <Text as="p" variant="body-2" color="secondary">
+              Manage project lifecycle, desired state, operations, and auditability across M8
+              workspaces.
+            </Text>
+          </div>
+
+          <div className="m8-summary">
+            <Metric label="Projects" value="147" description="3 provisioning" />
+            <Metric label="Failed" value="2" description="requires review" tone="danger" />
+            <Metric label="Deleting" value="4" description="pending finalizers" tone="warning" />
+          </div>
+        </div>
+
+        <Card view="outlined" type="container" className="m8-filter-card">
+          <div className="m8-filters">
+            <label className="m8-field">
+              <Text variant="caption-2" color="secondary">
+                Search
+              </Text>
+              <TextInput
+                value={search}
+                placeholder="Project, opaque ID, owner, operation"
+                startContent={<Icon data={Magnifier} size={14} />}
+                onUpdate={setSearch}
+              />
+            </label>
+            <Switcher
+              label="Workspace"
+              value={[workspace]}
+              options={workspaceOptions}
+              onUpdate={(next) => {
+                const nextWorkspace = next[0] ?? workspace
+                setWorkspace(nextWorkspace)
+                const nextProject = projects.find(
+                  (project) => project.organization === organization && project.workspace === nextWorkspace,
+                )
+                if (nextProject) {
+                  setProjectId(nextProject.projectId)
+                }
+              }}
+            />
+            <Switcher
+              label="Status"
+              value={[status]}
+              options={statusOptions}
+              onUpdate={(next) => setStatus(next[0] ?? status)}
+            />
+            <Switcher
+              label="Owner"
+              value={[owner]}
+              options={ownerOptions}
+              onUpdate={(next) => setOwner(next[0] ?? owner)}
+            />
+          </div>
+        </Card>
+
+        <div className="m8-workspace">
+          <Card view="outlined" type="container" className="m8-table-card">
+            <div className="m8-card-header">
+              <div>
+                <Text as="h2" variant="header-1">
+                  Project inventory
+                </Text>
+                <Text variant="caption-2" color="secondary">
+                  Filtered list of projects in the selected workspace.
+                </Text>
+              </div>
+              <div className="m8-labels">
+                {statusOptions.slice(1).map((option) => (
+                  <StatusLabel key={option.value} status={option.value as ProjectStatus} />
+                ))}
+              </div>
+            </div>
+
+            <ProjectTable
+              projects={visibleProjects}
+              selectedProjectId={projectId}
+              onSelectProject={setProjectId}
+            />
+          </Card>
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function ResourcePlaceholderPage({
+  current,
+  title,
+  description,
+}: {
+  current: string
+  title: string
+  description: string
+}) {
+  return (
+    <main className="m8-page__body">
+      <section className="m8-page__content">
+        <div className="m8-page__heading">
+          <div>
+            <div className="m8-breadcrumbs">
+              <span>M8</span>
+              <span>/</span>
+              <span>Resource manager</span>
+              <span>/</span>
+              <strong>{current}</strong>
+            </div>
+            <Text as="h1" variant="display-1">
+              {title}
+            </Text>
+            <Text as="p" variant="body-2" color="secondary">
+              {description}
+            </Text>
+          </div>
+        </div>
+
+        <Card view="outlined" type="container" className="m8-placeholder-card">
+          <Text as="h2" variant="header-1">
+            Route is ready
+          </Text>
+          <Text variant="body-2" color="secondary">
+            This page is connected through TanStack Router and can be expanded with its own resource
+            manager workflow.
+          </Text>
+        </Card>
+      </section>
+    </main>
   )
 }
 
