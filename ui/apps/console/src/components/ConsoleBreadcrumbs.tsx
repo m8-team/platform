@@ -11,7 +11,7 @@ interface ConsoleBreadcrumbsProps {
 
 export function ConsoleBreadcrumbs({items}: ConsoleBreadcrumbsProps) {
   return (
-    <Breadcrumbs className="m8-breadcrumbs" aria-label="Breadcrumbs" maxItems={4}>
+    <Breadcrumbs aria-label="Breadcrumbs" maxItems={4}>
       {items.map((item) => (
         <Breadcrumbs.Item key={`${item.href ?? 'current'}-${item.text}`} href={item.href}>
           {item.text}
