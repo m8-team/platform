@@ -92,6 +92,17 @@
   min-width: 190px;
 }
 
+.m8-language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 142px;
+}
+
+.m8-language-switcher .m8-switcher {
+  min-width: 108px;
+}
+
 .m8-workspace {
   min-width: 0;
 }

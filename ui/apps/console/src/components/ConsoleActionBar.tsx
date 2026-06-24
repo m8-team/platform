@@ -1,6 +1,6 @@
 import {Button, Icon, Select} from '@gravity-ui/uikit'
 import {ActionBar} from '@gravity-ui/navigation'
-import {ArrowRotateRight, Clock, Plus} from '@gravity-ui/icons'
+import {ArrowRotateRight, Clock, Globe, Plus} from '@gravity-ui/icons'
 
 export interface ConsoleActionBarOption {
   value: string
@@ -8,24 +8,40 @@ export interface ConsoleActionBarOption {
 }
 
 interface ConsoleActionBarProps {
+  language: string
   organization: string
   workspace: string
   projectId: string
+  languageOptions: ConsoleActionBarOption[]
   organizationOptions: ConsoleActionBarOption[]
   workspaceOptions: ConsoleActionBarOption[]
   projectOptions: ConsoleActionBarOption[]
+  labels: {
+    organization: string
+    workspace: string
+    project: string
+    language: string
+    refresh: string
+    openOperation: string
+    newProject: string
+  }
+  onLanguageUpdate: (value: string[]) => void
   onOrganizationUpdate: (value: string[]) => void
   onWorkspaceUpdate: (value: string[]) => void
   onProjectUpdate: (value: string[]) => void
 }
 
 export function ConsoleActionBar({
+  language,
   organization,
   workspace,
   projectId,
+  languageOptions,
   organizationOptions,
   workspaceOptions,
   projectOptions,
+  labels,
+  onLanguageUpdate,
   onOrganizationUpdate,
   onWorkspaceUpdate,
   onProjectUpdate,
@@ -36,7 +52,7 @@ export function ConsoleActionBar({
         <ActionBar.Group>
           <ActionBar.Item>
             <Switcher
-              label="Org"
+              label={labels.organization}
               value={[organization]}
               options={organizationOptions}
               onUpdate={onOrganizationUpdate}
@@ -44,7 +60,7 @@ export function ConsoleActionBar({
           </ActionBar.Item>
           <ActionBar.Item>
             <Switcher
-              label="Workspace"
+              label={labels.workspace}
               value={[workspace]}
               options={workspaceOptions}
               onUpdate={onWorkspaceUpdate}
@@ -52,7 +68,7 @@ export function ConsoleActionBar({
           </ActionBar.Item>
           <ActionBar.Item>
             <Switcher
-              label="Project"
+              label={labels.project}
               value={[projectId]}
               options={projectOptions}
               onUpdate={onProjectUpdate}
@@ -61,21 +77,32 @@ export function ConsoleActionBar({
         </ActionBar.Group>
         <ActionBar.Group pull="right">
           <ActionBar.Item>
+            <div className="m8-language-switcher">
+              <Icon data={Globe} size={14} />
+              <Switcher
+                label={labels.language}
+                value={[language]}
+                options={languageOptions}
+                onUpdate={onLanguageUpdate}
+              />
+            </div>
+          </ActionBar.Item>
+          <ActionBar.Item>
             <Button view="normal">
               <Icon data={ArrowRotateRight} size={14} />
-              Refresh
+              {labels.refresh}
             </Button>
           </ActionBar.Item>
           <ActionBar.Item>
             <Button view="outlined">
               <Icon data={Clock} size={14} />
-              Open operation
+              {labels.openOperation}
             </Button>
           </ActionBar.Item>
           <ActionBar.Item>
             <Button view="action">
               <Icon data={Plus} size={14} />
-              New project
+              {labels.newProject}
             </Button>
           </ActionBar.Item>
         </ActionBar.Group>

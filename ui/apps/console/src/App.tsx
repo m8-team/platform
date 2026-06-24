@@ -48,6 +48,13 @@ import {
 } from '@gravity-ui/icons'
 
 import {ConsoleActionBar} from './components/ConsoleActionBar'
+import {
+  createTranslator,
+  fallbackLanguage,
+  isAppLanguage,
+  languageOptions as languageOptionConfigs,
+} from './i18n'
+import type {AppLanguage, Translate, TranslationKey} from './i18n'
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
@@ -71,14 +78,19 @@ interface ConsoleSelection {
   workspace: string
   projectId: string
   projectOptions: Array<{value: string; content: string}>
-  setOrganization: (value: string) => void
   setWorkspace: (value: string) => void
   setProjectId: (value: string) => void
 }
 
-const ConsoleSelectionContext = createContext<ConsoleSelection | null>(null)
+interface ConsoleI18n {
+  language: AppLanguage
+  t: Translate
+}
 
-const initialLanguage = 'en'
+const ConsoleSelectionContext = createContext<ConsoleSelection | null>(null)
+const ConsoleI18nContext = createContext<ConsoleI18n | null>(null)
+
+const languageStorageKey = 'm8.console.language'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
 const menuGroupCollapsedStorageKey = 'm8.console.menu-groups.collapsed'
 
@@ -103,26 +115,26 @@ const organizationOptions = [
   {value: 'org_m8_billing_91f2c5', content: 'Billing'},
 ]
 
-const workspaceOptions = [
-  {value: 'ws_prod-eu1', content: 'Platform'},
-  {value: 'ws_shared-eu1', content: 'Shared Services'},
-  {value: 'ws_legacy-eu1', content: 'Legacy'},
-]
+const workspaceOptionConfigs = [
+  {value: 'ws_prod-eu1', titleKey: 'workspace.platform'},
+  {value: 'ws_shared-eu1', titleKey: 'workspace.sharedServices'},
+  {value: 'ws_legacy-eu1', titleKey: 'workspace.legacy'},
+] satisfies Array<{value: string; titleKey: TranslationKey}>
 
-const statusOptions = [
-  {value: 'all', content: 'All statuses'},
-  {value: 'Active', content: 'Active'},
-  {value: 'Suspended', content: 'Suspended'},
-  {value: 'Failed', content: 'Failed'},
-  {value: 'Provisioning', content: 'Provisioning'},
-  {value: 'Deleting', content: 'Deleting'},
-]
+const statusOptionConfigs = [
+  {value: 'all', titleKey: 'status.all'},
+  {value: 'Active', titleKey: 'status.Active'},
+  {value: 'Suspended', titleKey: 'status.Suspended'},
+  {value: 'Failed', titleKey: 'status.Failed'},
+  {value: 'Provisioning', titleKey: 'status.Provisioning'},
+  {value: 'Deleting', titleKey: 'status.Deleting'},
+] satisfies Array<{value: ProjectStatus | 'all'; titleKey: TranslationKey}>
 
-const ownerOptions = [
-  {value: 'all', content: 'All owners'},
+const ownerOptionConfigs = [
+  {value: 'all', titleKey: 'owner.all'},
   {value: 'usr_19bd4027_sre', content: 'usr_19bd4027_sre'},
   {value: 'usr_2f0c81aa_sec', content: 'usr_2f0c81aa_sec'},
-]
+] satisfies Array<{value: string; content?: string; titleKey?: TranslationKey}>
 
 const projects: Project[] = [
   {
@@ -175,106 +187,110 @@ const projects: Project[] = [
   },
 ]
 
-const menuGroups: MenuGroup[] = [
-  {id: 'resources', title: 'Resource Manager', icon: BranchesDown},
-  {id: 'platform-operations', title: 'Platform Operations', icon: GearPlay},
-  {id: 'identity-access', title: 'Identity & Access', icon: Shield},
-  {id: 'gateway', title: 'Gateway', icon: Cloud},
-  {id: 'security', title: 'Security & Risk', icon: Shield},
-  {id: 'observability', title: 'Observability', icon: Clock},
-  {id: 'audit', title: 'Audit', icon: ListUl},
-  {id: 'settings', title: 'Settings', icon: Gear},
+type MenuGroupConfig = Omit<MenuGroup, 'title'> & {titleKey: TranslationKey}
+type MenuItemConfig = Omit<AsideHeaderItem, 'title'> & {titleKey: TranslationKey}
+
+const menuGroupConfigs: MenuGroupConfig[] = [
+  {id: 'resources', titleKey: 'menu.resources', icon: BranchesDown},
+  {id: 'platform-operations', titleKey: 'menu.platformOperations', icon: GearPlay},
+  {id: 'identity-access', titleKey: 'menu.identityAccess', icon: Shield},
+  {id: 'gateway', titleKey: 'menu.gateway', icon: Cloud},
+  {id: 'security', titleKey: 'menu.security', icon: Shield},
+  {id: 'observability', titleKey: 'menu.observability', icon: Clock},
+  {id: 'audit', titleKey: 'menu.audit', icon: ListUl},
+  {id: 'settings', titleKey: 'menu.settings', icon: Gear},
 ]
 
-const menuItems: AsideHeaderItem[] = [
-  {id: 'resources-overview', title: 'Overview', icon: Rocket, href: resourceManagerRoutes.overview, groupId: 'resources'},
+const menuItemConfigs: MenuItemConfig[] = [
+  {
+    id: 'resources-overview',
+    titleKey: 'menu.resources.overview',
+    icon: Rocket,
+    href: resourceManagerRoutes.overview,
+    groupId: 'resources',
+  },
   {
     id: 'resources-organizations',
-    title: 'Organizations',
+    titleKey: 'menu.resources.organizations',
     icon: Briefcase,
     href: resourceManagerRoutes.organizations.list,
     groupId: 'resources',
   },
   {
     id: 'resources-workspaces',
-    title: 'Workspaces',
+    titleKey: 'menu.resources.workspaces',
     icon: Folders,
     href: resourceManagerRoutes.workspaces.list,
     groupId: 'resources',
   },
   {
     id: 'resources-project',
-    title: 'Projects',
+    titleKey: 'menu.resources.projects',
     icon: Database,
     href: resourceManagerRoutes.projects.list,
     groupId: 'resources',
   },
   {
     id: 'platform-operations-long-running',
-    title: 'Long-running Operations',
+    titleKey: 'menu.operations.longRunning',
     icon: Clock,
     groupId: 'platform-operations',
   },
   {
     id: 'platform-operations-quotas-limits',
-    title: 'Quotas & Limits',
+    titleKey: 'menu.operations.quotasLimits',
     icon: Speedometer,
     groupId: 'platform-operations',
   },
-  {id: 'platform-operations-jobs', title: 'Jobs', icon: BarsPlay, groupId: 'platform-operations'},
-  {id: 'platform-operations-queues', title: 'Queues', icon: Layers, groupId: 'platform-operations'},
-  {id: 'platform-operations-outbox', title: 'Outbox', icon: EnvelopeOpenXmark, groupId: 'platform-operations'},
+  {id: 'platform-operations-jobs', titleKey: 'menu.operations.jobs', icon: BarsPlay, groupId: 'platform-operations'},
+  {id: 'platform-operations-queues', titleKey: 'menu.operations.queues', icon: Layers, groupId: 'platform-operations'},
+  {id: 'platform-operations-outbox', titleKey: 'menu.operations.outbox', icon: EnvelopeOpenXmark, groupId: 'platform-operations'},
   {
     id: 'platform-operations-failed-events',
-    title: 'Failed Events',
+    titleKey: 'menu.operations.failedEvents',
     icon: TriangleExclamation,
     groupId: 'platform-operations',
   },
-  {id: 'platform-operations-retries', title: 'Retries', icon: ArrowRotateRight, groupId: 'platform-operations'},
+  {id: 'platform-operations-retries', titleKey: 'menu.operations.retries', icon: ArrowRotateRight, groupId: 'platform-operations'},
   {
     id: 'platform-operations-dead-letter-queue',
-    title: 'Dead Letter Queue',
+    titleKey: 'menu.operations.deadLetterQueue',
     icon: OctagonXmark,
     groupId: 'platform-operations',
   },
-  {id: 'identity-access-identity', title: 'Identity', icon: Person, groupId: 'identity-access'},
-  {id: 'identity-access-authentication', title: 'Authentication', icon: Shield, groupId: 'identity-access'},
-  {id: 'identity-access-control', title: 'Access Control', icon: ShieldCheck, groupId: 'identity-access'},
-  {id: 'gateway-api-services', title: 'API Services', icon: Cloud, groupId: 'gateway'},
-  {id: 'gateway-routes', title: 'Routes', icon: ArrowShapeRightFromLine, groupId: 'gateway'},
-  {id: 'gateway-consumers', title: 'Consumers', icon: Persons, groupId: 'gateway'},
-  {id: 'gateway-policies', title: 'Policies', icon: Check, groupId: 'gateway'},
-  {id: 'gateway-rate-limits', title: 'Rate Limits', icon: Speedometer, groupId: 'gateway'},
-  {id: 'gateway-yaml', title: 'Gateway YAML', icon: Code, groupId: 'gateway'},
-  {id: 'security-dashboard', title: 'Dashboard', icon: Rocket, groupId: 'security'},
-  {id: 'security-risk-rules', title: 'Risk Rules', icon: Shield, groupId: 'security'},
-  {id: 'security-device-fingerprints', title: 'Device Fingerprints', icon: Fingerprint, groupId: 'security'},
-  {id: 'security-velocity-rules', title: 'Velocity Rules', icon: Speedometer, groupId: 'security'},
-  {id: 'security-signals', title: 'Signals', icon: Signal, groupId: 'security'},
-  {id: 'security-decisions', title: 'Decisions', icon: Check, groupId: 'security'},
-  {id: 'security-challenges', title: 'Challenges', icon: TriangleExclamation, groupId: 'security'},
-  {id: 'security-fraud-cases', title: 'Fraud Cases', icon: Briefcase, groupId: 'security'},
-  {id: 'security-events', title: 'Security Events', icon: ListUl, groupId: 'security'},
-  {id: 'security-access-reviews', title: 'Access Reviews', icon: Persons, groupId: 'security'},
-  {id: 'security-policy-violations', title: 'Policy Violations', icon: TriangleExclamation, groupId: 'security'},
-  {id: 'observability-metrics', title: 'Metrics', icon: Speedometer, groupId: 'observability'},
-  {id: 'observability-logs', title: 'Logs', icon: ListUl, groupId: 'observability'},
-  {id: 'observability-traces', title: 'Traces', icon: NodesRight, groupId: 'observability'},
-  {id: 'observability-alerts', title: 'Alerts', icon: TriangleExclamation, groupId: 'observability'},
-  {id: 'observability-slo', title: 'SLO', icon: Check, groupId: 'observability'},
-  {id: 'audit-events', title: 'Audit Events', icon: ListUl, groupId: 'audit'},
-  {id: 'audit-exports', title: 'Exports', icon: ArrowRotateRight, groupId: 'audit'},
-  {id: 'settings-project', title: 'Project Settings', icon: Gear, groupId: 'settings'},
-  {id: 'settings-modules', title: 'Modules', icon: Database, groupId: 'settings'},
-  {id: 'settings-integrations', title: 'Integrations', icon: Cloud, groupId: 'settings'},
-  {id: 'settings-webhooks', title: 'Webhooks', icon: ArrowShapeRightFromLine, groupId: 'settings'},
-  {id: 'settings-api-tokens', title: 'API Tokens', icon: Shield, groupId: 'settings'},
+  {id: 'identity-access-identity', titleKey: 'menu.identity.identity', icon: Person, groupId: 'identity-access'},
+  {id: 'identity-access-authentication', titleKey: 'menu.identity.authentication', icon: Shield, groupId: 'identity-access'},
+  {id: 'identity-access-control', titleKey: 'menu.identity.accessControl', icon: ShieldCheck, groupId: 'identity-access'},
+  {id: 'gateway-api-services', titleKey: 'menu.gateway.apiServices', icon: Cloud, groupId: 'gateway'},
+  {id: 'gateway-routes', titleKey: 'menu.gateway.routes', icon: ArrowShapeRightFromLine, groupId: 'gateway'},
+  {id: 'gateway-consumers', titleKey: 'menu.gateway.consumers', icon: Persons, groupId: 'gateway'},
+  {id: 'gateway-policies', titleKey: 'menu.gateway.policies', icon: Check, groupId: 'gateway'},
+  {id: 'gateway-rate-limits', titleKey: 'menu.gateway.rateLimits', icon: Speedometer, groupId: 'gateway'},
+  {id: 'gateway-yaml', titleKey: 'menu.gateway.yaml', icon: Code, groupId: 'gateway'},
+  {id: 'security-dashboard', titleKey: 'menu.security.dashboard', icon: Rocket, groupId: 'security'},
+  {id: 'security-risk-rules', titleKey: 'menu.security.riskRules', icon: Shield, groupId: 'security'},
+  {id: 'security-device-fingerprints', titleKey: 'menu.security.deviceFingerprints', icon: Fingerprint, groupId: 'security'},
+  {id: 'security-velocity-rules', titleKey: 'menu.security.velocityRules', icon: Speedometer, groupId: 'security'},
+  {id: 'security-signals', titleKey: 'menu.security.signals', icon: Signal, groupId: 'security'},
+  {id: 'security-decisions', titleKey: 'menu.security.decisions', icon: Check, groupId: 'security'},
+  {id: 'security-challenges', titleKey: 'menu.security.challenges', icon: TriangleExclamation, groupId: 'security'},
+  {id: 'security-fraud-cases', titleKey: 'menu.security.fraudCases', icon: Briefcase, groupId: 'security'},
+  {id: 'security-events', titleKey: 'menu.security.securityEvents', icon: ListUl, groupId: 'security'},
+  {id: 'security-access-reviews', titleKey: 'menu.security.accessReviews', icon: Persons, groupId: 'security'},
+  {id: 'security-policy-violations', titleKey: 'menu.security.policyViolations', icon: TriangleExclamation, groupId: 'security'},
+  {id: 'observability-metrics', titleKey: 'menu.observability.metrics', icon: Speedometer, groupId: 'observability'},
+  {id: 'observability-logs', titleKey: 'menu.observability.logs', icon: ListUl, groupId: 'observability'},
+  {id: 'observability-traces', titleKey: 'menu.observability.traces', icon: NodesRight, groupId: 'observability'},
+  {id: 'observability-alerts', titleKey: 'menu.observability.alerts', icon: TriangleExclamation, groupId: 'observability'},
+  {id: 'observability-slo', titleKey: 'menu.observability.slo', icon: Check, groupId: 'observability'},
+  {id: 'audit-events', titleKey: 'menu.audit.events', icon: ListUl, groupId: 'audit'},
+  {id: 'audit-exports', titleKey: 'menu.audit.exports', icon: ArrowRotateRight, groupId: 'audit'},
+  {id: 'settings-project', titleKey: 'menu.settings.project', icon: Gear, groupId: 'settings'},
+  {id: 'settings-modules', titleKey: 'menu.settings.modules', icon: Database, groupId: 'settings'},
+  {id: 'settings-integrations', titleKey: 'menu.settings.integrations', icon: Cloud, groupId: 'settings'},
+  {id: 'settings-webhooks', titleKey: 'menu.settings.webhooks', icon: ArrowShapeRightFromLine, groupId: 'settings'},
+  {id: 'settings-api-tokens', titleKey: 'menu.settings.apiTokens', icon: Shield, groupId: 'settings'},
 ]
-
-configure({
-  lang: initialLanguage,
-  fallbackLang: 'en',
-})
 
 function readInitialNavigationCompact() {
   if (typeof window === 'undefined') {
@@ -285,6 +301,19 @@ function readInitialNavigationCompact() {
     return window.localStorage.getItem(navigationCompactStorageKey) === 'true'
   } catch {
     return false
+  }
+}
+
+function readInitialLanguage() {
+  if (typeof window === 'undefined') {
+    return fallbackLanguage
+  }
+
+  try {
+    const storedLanguage = window.localStorage.getItem(languageStorageKey)
+    return isAppLanguage(storedLanguage) ? storedLanguage : fallbackLanguage
+  } catch {
+    return fallbackLanguage
   }
 }
 
@@ -330,13 +359,13 @@ function getCurrentMenuItemId(pathname: string) {
 
 function getCurrentMenuGroupId(pathname = readCurrentPathname()) {
   const currentMenuItemId = getCurrentMenuItemId(pathname)
-  return menuItems.find((item) => item.id === currentMenuItemId)?.groupId
+  return menuItemConfigs.find((item) => item.id === currentMenuItemId)?.groupId
 }
 
 function createDefaultCollapsedMenuGroups(pathname = readCurrentPathname()) {
   const currentGroupId = getCurrentMenuGroupId(pathname)
 
-  return menuGroups.reduce<Record<string, boolean>>((collapsedGroups, group) => {
+  return menuGroupConfigs.reduce<Record<string, boolean>>((collapsedGroups, group) => {
     collapsedGroups[group.id] = group.id !== currentGroupId
     return collapsedGroups
   }, {})
@@ -347,7 +376,7 @@ function normalizeCollapsedMenuGroups(storedGroups?: Record<string, unknown>, pa
   const collapsedGroups = createDefaultCollapsedMenuGroups(pathname)
 
   if (storedGroups) {
-    for (const group of menuGroups) {
+    for (const group of menuGroupConfigs) {
       const storedValue = storedGroups[group.id]
       if (typeof storedValue === 'boolean') {
         collapsedGroups[group.id] = storedValue
@@ -384,7 +413,18 @@ function readInitialCollapsedMenuGroups() {
   }
 }
 
+function translateOptions<T extends string>(
+  options: Array<{value: T; content?: string; titleKey?: TranslationKey}>,
+  t: Translate,
+) {
+  return options.map((option) => ({
+    value: option.value,
+    content: option.titleKey ? t(option.titleKey) : option.content ?? option.value,
+  }))
+}
+
 function App() {
+  const [language, setLanguage] = useState<AppLanguage>(readInitialLanguage)
   const [compact, setCompact] = useState(readInitialNavigationCompact)
   const [collapsedMenuGroupIds, setCollapsedMenuGroupIds] = useState(readInitialCollapsedMenuGroups)
   const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
@@ -393,6 +433,15 @@ function App() {
   const [projectId, setProjectId] = useState('prj_2e41d7a9c0bf4e55')
   const router = useRouter()
   const pathname = useRouterState({select: (state) => state.location.pathname})
+  const t = useMemo(() => createTranslator(language), [language])
+
+  const handleLanguageUpdate = useCallback(
+    (next: string[]) => {
+      const nextLanguage = next[0]
+      setLanguage(isAppLanguage(nextLanguage) ? nextLanguage : language)
+    },
+    [language],
+  )
 
   const handleNavigationCompactChange = useCallback((nextCompact: boolean) => {
     setCompact(nextCompact)
@@ -425,20 +474,37 @@ function App() {
   }, [pathname])
 
   useEffect(() => {
-    document.documentElement.lang = initialLanguage
-  }, [])
+    configure({
+      lang: language,
+      fallbackLang: fallbackLanguage,
+    })
+    document.documentElement.lang = language
+
+    try {
+      window.localStorage.setItem(languageStorageKey, language)
+    } catch {
+      // Storage can be unavailable in private or restricted browser contexts.
+    }
+  }, [language])
 
   const currentMenuItemId = getCurrentMenuItemId(pathname)
   const effectiveCollapsedMenuGroupIds = useMemo(
     () => normalizeCollapsedMenuGroups(collapsedMenuGroupIds, pathname),
     [collapsedMenuGroupIds, pathname],
   )
+  const menuGroups = useMemo<MenuGroup[]>(
+    () => menuGroupConfigs.map(({titleKey, ...group}) => ({...group, title: t(titleKey)})),
+    [t],
+  )
   const navigationMenuItems = useMemo(
     () =>
-      menuItems.map((item) => {
+      menuItemConfigs.map(({titleKey, ...item}) => {
+        const title = t(titleKey)
+
         if (!item.href) {
           return {
             ...item,
+            title,
             current: item.id === currentMenuItemId,
           }
         }
@@ -451,22 +517,23 @@ function App() {
 
         return {
           ...item,
+          title,
           current: item.id === currentMenuItemId,
           onItemClick,
         }
       }),
-    [currentMenuItemId, router],
+    [currentMenuItemId, router, t],
   )
 
   const subheaderItems = useMemo<AsideHeaderItem[]>(
     () => [
       {
         id: 'subheader-dashboard',
-        title: 'Dashboard',
+        title: t('menu.security.dashboard'),
         icon: Rocket,
       },
     ],
-    [],
+    [t],
   )
 
   const panelItems = useMemo<PanelItemProps[]>(
@@ -478,9 +545,13 @@ function App() {
         hideVeil: true,
         children: (
           <AsidePanel
-            title="Notifications"
-            description="Recent platform events that need operator attention."
-            items={['Quota warning in Platform workspace', 'Gateway route policy updated', 'Audit export completed']}
+            title={t('footer.notifications')}
+            description={t('panel.notifications.description')}
+            items={[
+              t('panel.notifications.item.quota'),
+              t('panel.notifications.item.gateway'),
+              t('panel.notifications.item.audit'),
+            ]}
           />
         ),
       },
@@ -491,9 +562,9 @@ function App() {
         hideVeil: true,
         children: (
           <AsidePanel
-            title="Support Center"
-            description="Help, support requests, and quick access to platform documentation."
-            items={['Create support request', 'Documentation', 'Platform status']}
+            title={t('footer.support')}
+            description={t('panel.support.description')}
+            items={[t('panel.support.item.create'), t('panel.support.item.docs'), t('panel.support.item.status')]}
           />
         ),
       },
@@ -504,14 +575,24 @@ function App() {
         hideVeil: true,
         children: (
           <AsidePanel
-            title="Account"
-            description="Profile and access settings for the current user."
-            items={['Profile', 'Security', 'Active sessions']}
+            title={t('footer.account')}
+            description={t('panel.account.description')}
+            items={[t('panel.account.item.profile'), t('panel.account.item.security'), t('panel.account.item.sessions')]}
           />
         ),
       },
     ],
-    [activeFooterPanel],
+    [activeFooterPanel, t],
+  )
+
+  const workspaceOptions = useMemo(() => translateOptions(workspaceOptionConfigs, t), [t])
+  const languageOptions = useMemo(
+    () =>
+      languageOptionConfigs.map((option) => ({
+        value: option.value,
+        content: t(option.labelKey),
+      })),
+    [t],
   )
 
   const projectOptions = useMemo(
@@ -571,21 +652,21 @@ function App() {
       workspace,
       projectId,
       projectOptions,
-      setOrganization,
       setWorkspace,
       setProjectId,
     }),
     [organization, projectId, projectOptions, workspace],
   )
+  const i18nValue = useMemo<ConsoleI18n>(() => ({language, t}), [language, t])
 
   return (
-    <ThemeProvider theme="light" lang={initialLanguage} fallbackLang="en">
+    <ThemeProvider theme="light" lang={language} fallbackLang={fallbackLanguage}>
       <AsideHeader
         compact={compact}
         logo={{text: 'M8 Platform', icon: Shield, href: '/'}}
         topAlert={{
-          title: 'Demo environment',
-          message: 'Project data is mocked for the M8 Platform console prototype.',
+          title: t('topAlert.title'),
+          message: t('topAlert.message'),
           theme: 'info',
           view: 'filled',
           dense: true,
@@ -606,8 +687,8 @@ function App() {
             <FooterItem
               id="notifications"
               icon={BellDot}
-              title="Notifications"
-              tooltipText="Notifications"
+              title={t('footer.notifications')}
+              tooltipText={t('footer.notifications')}
               current={activeFooterPanel === 'notifications'}
               onItemClick={() => {
                 setActiveFooterPanel(activeFooterPanel === 'notifications' ? null : 'notifications')
@@ -617,8 +698,8 @@ function App() {
             <FooterItem
               id="support"
               icon={CircleQuestion}
-              title="Support Center"
-              tooltipText="Support Center"
+              title={t('footer.support')}
+              tooltipText={t('footer.support')}
               current={activeFooterPanel === 'support'}
               onItemClick={() => {
                 setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
@@ -628,8 +709,8 @@ function App() {
             <FooterItem
               id="account"
               icon={Person}
-              title="Account"
-              tooltipText="Account"
+              title={t('footer.account')}
+              tooltipText={t('footer.account')}
               current={activeFooterPanel === 'account'}
               itemWrapper={(params, makeItem) =>
                 makeItem({
@@ -645,22 +726,36 @@ function App() {
           </>
         )}
         renderContent={() => (
-          <ConsoleSelectionContext.Provider value={selection}>
-            <div className="m8-page">
-              <ConsoleActionBar
-                organization={organization}
-                workspace={workspace}
-                projectId={projectId}
-                organizationOptions={organizationOptions}
-                workspaceOptions={workspaceOptions}
-                projectOptions={projectOptions}
-                onOrganizationUpdate={handleOrganizationUpdate}
-                onWorkspaceUpdate={handleWorkspaceUpdate}
-                onProjectUpdate={handleProjectUpdate}
-              />
-              <Outlet />
-            </div>
-          </ConsoleSelectionContext.Provider>
+          <ConsoleI18nContext.Provider value={i18nValue}>
+            <ConsoleSelectionContext.Provider value={selection}>
+              <div className="m8-page">
+                <ConsoleActionBar
+                  language={language}
+                  organization={organization}
+                  workspace={workspace}
+                  projectId={projectId}
+                  languageOptions={languageOptions}
+                  organizationOptions={organizationOptions}
+                  workspaceOptions={workspaceOptions}
+                  projectOptions={projectOptions}
+                  labels={{
+                    organization: t('action.org'),
+                    workspace: t('action.workspace'),
+                    project: t('action.project'),
+                    language: t('action.language'),
+                    refresh: t('action.refresh'),
+                    openOperation: t('action.openOperation'),
+                    newProject: t('action.newProject'),
+                  }}
+                  onLanguageUpdate={handleLanguageUpdate}
+                  onOrganizationUpdate={handleOrganizationUpdate}
+                  onWorkspaceUpdate={handleWorkspaceUpdate}
+                  onProjectUpdate={handleProjectUpdate}
+                />
+                <Outlet />
+              </div>
+            </ConsoleSelectionContext.Provider>
+          </ConsoleI18nContext.Provider>
         )}
       />
     </ThemeProvider>
@@ -677,52 +772,72 @@ function useConsoleSelection() {
   return selection
 }
 
+function useConsoleI18n() {
+  const i18n = useContext(ConsoleI18nContext)
+
+  if (!i18n) {
+    throw new Error('Console i18n context is not available')
+  }
+
+  return i18n
+}
+
 export function ResourceManagerOverviewPage() {
+  const {t} = useConsoleI18n()
+
   return (
     <ResourcePlaceholderPage
-      current="Overview"
-      title="Resource Manager"
-      description="Tenant hierarchy, project ownership, and resource lifecycle entry point."
+      current={t('menu.resources.overview')}
+      title={t('page.resourceManager.title')}
+      description={t('page.resourceManager.description')}
     />
   )
 }
 
 export function ResourceOrganizationsPage() {
+  const {t} = useConsoleI18n()
+
   return (
     <ResourcePlaceholderPage
-      current="Organizations"
-      title="Organizations"
-      description="Manage organization boundaries, ownership, and resource manager access scope."
+      current={t('menu.resources.organizations')}
+      title={t('page.organizations.title')}
+      description={t('page.organizations.description')}
     />
   )
 }
 
 export function ResourceOrganizationDetailsPage() {
+  const {t} = useConsoleI18n()
+
   return (
     <ResourcePlaceholderPage
-      current="Organizations"
-      title="Organization details"
-      description="Organization metadata, workspace membership, and lifecycle state."
+      current={t('menu.resources.organizations')}
+      title={t('page.organizationDetails.title')}
+      description={t('page.organizationDetails.description')}
     />
   )
 }
 
 export function ResourceWorkspacesPage() {
+  const {t} = useConsoleI18n()
+
   return (
     <ResourcePlaceholderPage
-      current="Workspaces"
-      title="Workspaces"
-      description="Manage workspace boundaries, project grouping, and operational ownership."
+      current={t('menu.resources.workspaces')}
+      title={t('page.workspaces.title')}
+      description={t('page.workspaces.description')}
     />
   )
 }
 
 export function ResourceWorkspaceDetailsPage() {
+  const {t} = useConsoleI18n()
+
   return (
     <ResourcePlaceholderPage
-      current="Workspaces"
-      title="Workspace details"
-      description="Workspace metadata, projects, resource quotas, and lifecycle state."
+      current={t('menu.resources.workspaces')}
+      title={t('page.workspaceDetails.title')}
+      description={t('page.workspaceDetails.description')}
     />
   )
 }
@@ -733,9 +848,13 @@ export function ResourceProjectDetailsPage() {
 
 export function ResourceProjectsPage() {
   const {organization, workspace, projectId, setWorkspace, setProjectId} = useConsoleSelection()
+  const {t} = useConsoleI18n()
   const [status, setStatus] = useState('all')
   const [owner, setOwner] = useState('all')
   const [search, setSearch] = useState('')
+  const workspaceOptions = useMemo(() => translateOptions(workspaceOptionConfigs, t), [t])
+  const statusOptions = useMemo(() => translateOptions(statusOptionConfigs, t), [t])
+  const ownerOptions = useMemo(() => translateOptions(ownerOptionConfigs, t), [t])
 
   const visibleProjects = useMemo(() => {
     const searchValue = search.trim().toLowerCase()
@@ -763,25 +882,24 @@ export function ResourceProjectsPage() {
         <div className="m8-page__heading">
           <div>
             <div className="m8-breadcrumbs">
-              <span>M8</span>
+              <span>{t('breadcrumb.m8')}</span>
               <span>/</span>
-              <span>Resource manager</span>
+              <span>{t('breadcrumb.resourceManager')}</span>
               <span>/</span>
-              <strong>Projects</strong>
+              <strong>{t('projects.title')}</strong>
             </div>
             <Text as="h1" variant="display-1">
-              Projects
+              {t('projects.title')}
             </Text>
             <Text as="p" variant="body-2" color="secondary">
-              Manage project lifecycle, desired state, operations, and auditability across M8
-              workspaces.
+              {t('projects.description')}
             </Text>
           </div>
 
           <div className="m8-summary">
-            <Metric label="Projects" value="147" description="3 provisioning" />
-            <Metric label="Failed" value="2" description="requires review" tone="danger" />
-            <Metric label="Deleting" value="4" description="pending finalizers" tone="warning" />
+            <Metric label={t('projects.metric.projects')} value="147" description={t('projects.metric.projectsDescription')} />
+            <Metric label={t('projects.metric.failed')} value="2" description={t('projects.metric.failedDescription')} tone="danger" />
+            <Metric label={t('projects.metric.deleting')} value="4" description={t('projects.metric.deletingDescription')} tone="warning" />
           </div>
         </div>
 
@@ -789,11 +907,11 @@ export function ResourceProjectsPage() {
           <div className="m8-filters">
             <label className="m8-field">
               <Text variant="caption-2" color="secondary">
-                Search
+                {t('projects.search')}
               </Text>
               <TextInput
                 value={search}
-                placeholder="Project, opaque ID, owner, operation"
+                placeholder={t('projects.searchPlaceholder')}
                 startContent={<Icon data={Magnifier} size={14} />}
                 onUpdate={setSearch}
               />
@@ -832,25 +950,26 @@ export function ResourceProjectsPage() {
           <Card view="outlined" type="container" className="m8-table-card">
             <div className="m8-card-header">
               <div>
-                <Text as="h2" variant="header-1">
-                  Project inventory
+                  <Text as="h2" variant="header-1">
+                  {t('projects.inventory')}
                 </Text>
                 <Text variant="caption-2" color="secondary">
-                  Filtered list of projects in the selected workspace.
+                  {t('projects.inventoryDescription')}
                 </Text>
               </div>
-              <div className="m8-labels">
-                {statusOptions.slice(1).map((option) => (
-                  <StatusLabel key={option.value} status={option.value as ProjectStatus} />
-                ))}
-              </div>
+                <div className="m8-labels">
+                  {statusOptions.slice(1).map((option) => (
+                  <StatusLabel key={option.value} status={option.value as ProjectStatus} t={t} />
+                  ))}
+                </div>
             </div>
 
-            <ProjectTable
-              projects={visibleProjects}
-              selectedProjectId={projectId}
-              onSelectProject={setProjectId}
-            />
+              <ProjectTable
+                projects={visibleProjects}
+                selectedProjectId={projectId}
+                onSelectProject={setProjectId}
+                t={t}
+              />
           </Card>
         </div>
       </section>
@@ -867,15 +986,17 @@ function ResourcePlaceholderPage({
   title: string
   description: string
 }) {
+  const {t} = useConsoleI18n()
+
   return (
     <main className="m8-page__body">
       <section className="m8-page__content">
         <div className="m8-page__heading">
           <div>
             <div className="m8-breadcrumbs">
-              <span>M8</span>
+              <span>{t('breadcrumb.m8')}</span>
               <span>/</span>
-              <span>Resource manager</span>
+              <span>{t('breadcrumb.resourceManager')}</span>
               <span>/</span>
               <strong>{current}</strong>
             </div>
@@ -890,11 +1011,10 @@ function ResourcePlaceholderPage({
 
         <Card view="outlined" type="container" className="m8-placeholder-card">
           <Text as="h2" variant="header-1">
-            Route is ready
+            {t('page.placeholder.title')}
           </Text>
           <Text variant="body-2" color="secondary">
-            This page is connected through TanStack Router and can be expanded with its own resource
-            manager workflow.
+            {t('page.placeholder.description')}
           </Text>
         </Card>
       </section>
@@ -906,17 +1026,19 @@ function ProjectTable({
   projects,
   selectedProjectId,
   onSelectProject,
+  t,
 }: {
   projects: Project[]
   selectedProjectId: string
   onSelectProject: (projectId: string) => void
+  t: Translate
 }) {
   if (projects.length === 0) {
     return (
       <div className="m8-empty-table">
-        <Text variant="body-2">No projects match the current filters.</Text>
+        <Text variant="body-2">{t('projects.empty')}</Text>
         <Text variant="caption-2" color="secondary">
-          Adjust workspace, status, owner, or search criteria.
+          {t('projects.emptyDescription')}
         </Text>
       </div>
     )
@@ -927,15 +1049,15 @@ function ProjectTable({
       <table className="m8-project-table">
         <thead>
           <tr>
-            <th>Project</th>
-            <th>Project ID</th>
-            <th>Workspace</th>
-            <th>Organization</th>
-            <th>Status</th>
-            <th>Desired State</th>
-            <th>Actual State</th>
-            <th>Updated</th>
-            <th>Owner</th>
+            <th>{t('projects.column.project')}</th>
+            <th>{t('projects.column.projectId')}</th>
+            <th>{t('projects.column.workspace')}</th>
+            <th>{t('projects.column.organization')}</th>
+            <th>{t('projects.column.status')}</th>
+            <th>{t('projects.column.desiredState')}</th>
+            <th>{t('projects.column.actualState')}</th>
+            <th>{t('projects.column.updated')}</th>
+            <th>{t('projects.column.owner')}</th>
           </tr>
         </thead>
         <tbody>
@@ -960,7 +1082,7 @@ function ProjectTable({
               <td className="m8-mono">{project.workspace}</td>
               <td className="m8-mono">{project.organization}</td>
               <td>
-                <StatusLabel status={project.status} />
+                <StatusLabel status={project.status} t={t} />
               </td>
               <td>{project.desiredState}</td>
               <td>{project.actualState}</td>
@@ -1044,7 +1166,7 @@ function Metric({
   )
 }
 
-function StatusLabel({status}: {status: ProjectStatus}) {
+function StatusLabel({status, t}: {status: ProjectStatus; t: Translate}) {
   const themeByStatus: Record<ProjectStatus, 'success' | 'warning' | 'danger' | 'info' | 'normal'> = {
     Active: 'success',
     Suspended: 'warning',
@@ -1052,8 +1174,15 @@ function StatusLabel({status}: {status: ProjectStatus}) {
     Provisioning: 'info',
     Deleting: 'warning',
   }
+  const statusTitleKey: Record<ProjectStatus, TranslationKey> = {
+    Active: 'status.Active',
+    Suspended: 'status.Suspended',
+    Failed: 'status.Failed',
+    Provisioning: 'status.Provisioning',
+    Deleting: 'status.Deleting',
+  }
 
-  return <Label theme={themeByStatus[status]}>{status}</Label>
+  return <Label theme={themeByStatus[status]}>{t(statusTitleKey[status])}</Label>
 }
 
 export default App

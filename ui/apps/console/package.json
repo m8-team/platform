@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/icons": "^2.18.0",
     "@gravity-ui/navigation": "^6.0.0",
     "@gravity-ui/uikit": "^7.42.0",
