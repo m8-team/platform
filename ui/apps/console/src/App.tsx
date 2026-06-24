@@ -66,6 +66,7 @@ interface Project {
 
 const initialLanguage = 'en'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
+const menuGroupCollapsedStorageKey = 'm8.console.menu-groups.collapsed'
 
 const organizationOptions = [
   {value: 'org_m8_finance_6b21d0', content: 'Acme'},
@@ -233,8 +234,64 @@ function readInitialNavigationCompact() {
   }
 }
 
+function getCurrentMenuGroupId() {
+  return menuItems.find((item) => item.current)?.groupId
+}
+
+function createDefaultCollapsedMenuGroups() {
+  const currentGroupId = getCurrentMenuGroupId()
+
+  return menuGroups.reduce<Record<string, boolean>>((collapsedGroups, group) => {
+    collapsedGroups[group.id] = group.id !== currentGroupId
+    return collapsedGroups
+  }, {})
+}
+
+function normalizeCollapsedMenuGroups(storedGroups?: Record<string, unknown>) {
+  const currentGroupId = getCurrentMenuGroupId()
+  const collapsedGroups = createDefaultCollapsedMenuGroups()
+
+  if (storedGroups) {
+    for (const group of menuGroups) {
+      const storedValue = storedGroups[group.id]
+      if (typeof storedValue === 'boolean') {
+        collapsedGroups[group.id] = storedValue
+      }
+    }
+  }
+
+  if (currentGroupId) {
+    collapsedGroups[currentGroupId] = false
+  }
+
+  return collapsedGroups
+}
+
+function readInitialCollapsedMenuGroups() {
+  if (typeof window === 'undefined') {
+    return createDefaultCollapsedMenuGroups()
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(menuGroupCollapsedStorageKey)
+    if (!storedValue) {
+      return createDefaultCollapsedMenuGroups()
+    }
+
+    const parsedValue: unknown = JSON.parse(storedValue)
+    if (!parsedValue || typeof parsedValue !== 'object' || Array.isArray(parsedValue)) {
+      return createDefaultCollapsedMenuGroups()
+    }
+
+    return normalizeCollapsedMenuGroups(parsedValue as Record<string, unknown>)
+  } catch {
+    return createDefaultCollapsedMenuGroups()
+  }
+}
+
 function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
+  const [collapsedMenuGroupIds, setCollapsedMenuGroupIds] = useState(readInitialCollapsedMenuGroups)
   const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
@@ -251,6 +308,23 @@ function App() {
     } catch {
       // Storage can be unavailable in private or restricted browser contexts.
     }
+  }, [])
+
+  const handleToggleMenuGroupCollapsed = useCallback((groupId: string) => {
+    setCollapsedMenuGroupIds((currentCollapsedGroups) => {
+      const nextCollapsedGroups = normalizeCollapsedMenuGroups({
+        ...currentCollapsedGroups,
+        [groupId]: !currentCollapsedGroups[groupId],
+      })
+
+      try {
+        window.localStorage.setItem(menuGroupCollapsedStorageKey, JSON.stringify(nextCollapsedGroups))
+      } catch {
+        // Storage can be unavailable in private or restricted browser contexts.
+      }
+
+      return nextCollapsedGroups
+    })
   }, [])
 
   useEffect(() => {
@@ -363,8 +437,10 @@ function App() {
         menuItems={menuItems}
         menuGroups={menuGroups}
         menuOverflow="scroll"
+        collapsedMenuGroupIds={collapsedMenuGroupIds}
         onClosePanel={() => setActiveFooterPanel(null)}
         onChangeCompact={handleNavigationCompactChange}
+        onToggleMenuGroupCollapsed={handleToggleMenuGroupCollapsed}
         renderFooter={({compact: footerCompact}) => (
           <>
             <FooterItem
