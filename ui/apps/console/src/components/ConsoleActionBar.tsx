@@ -1,6 +1,8 @@
 import {Button, Icon, Select} from '@gravity-ui/uikit'
 import {ActionBar} from '@gravity-ui/navigation'
-import {ArrowRotateRight, Clock, Globe, Plus} from '@gravity-ui/icons'
+import {ArrowRotateRight, Clock, Plus} from '@gravity-ui/icons'
+
+import {LanguageSwitcher} from './LanguageSwitcher'
 
 export interface ConsoleActionBarOption {
   value: string
@@ -77,15 +79,12 @@ export function ConsoleActionBar({
         </ActionBar.Group>
         <ActionBar.Group pull="right">
           <ActionBar.Item>
-            <div className="m8-language-switcher">
-              <Icon data={Globe} size={14} />
-              <Switcher
-                label={labels.language}
-                value={[language]}
-                options={languageOptions}
-                onUpdate={onLanguageUpdate}
-              />
-            </div>
+            <LanguageSwitcher
+              label={labels.language}
+              value={language}
+              options={languageOptions}
+              onUpdate={onLanguageUpdate}
+            />
           </ActionBar.Item>
           <ActionBar.Item>
             <Button view="normal">
