@@ -48,6 +48,8 @@ import {
 } from '@gravity-ui/icons'
 
 import {ConsoleActionBar} from './components/ConsoleActionBar'
+import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
+import {Metric} from './components/Metric'
 import {
   createTranslator,
   fallbackLanguage,
@@ -881,13 +883,13 @@ export function ResourceProjectsPage() {
       <section className="m8-page__content">
         <div className="m8-page__heading">
           <div>
-            <div className="m8-breadcrumbs">
-              <span>{t('breadcrumb.m8')}</span>
-              <span>/</span>
-              <span>{t('breadcrumb.resourceManager')}</span>
-              <span>/</span>
-              <strong>{t('projects.title')}</strong>
-            </div>
+            <ConsoleBreadcrumbs
+              items={[
+                {text: t('breadcrumb.m8'), href: '/'},
+                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
+                {text: t('projects.title')},
+              ]}
+            />
             <Text as="h1" variant="display-1">
               {t('projects.title')}
             </Text>
@@ -993,13 +995,13 @@ function ResourcePlaceholderPage({
       <section className="m8-page__content">
         <div className="m8-page__heading">
           <div>
-            <div className="m8-breadcrumbs">
-              <span>{t('breadcrumb.m8')}</span>
-              <span>/</span>
-              <span>{t('breadcrumb.resourceManager')}</span>
-              <span>/</span>
-              <strong>{current}</strong>
-            </div>
+            <ConsoleBreadcrumbs
+              items={[
+                {text: t('breadcrumb.m8'), href: '/'},
+                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
+                {text: current},
+              ]}
+            />
             <Text as="h1" variant="display-1">
               {title}
             </Text>
@@ -1139,30 +1141,6 @@ function Switcher({label, value, options, onUpdate}: SwitcherProps) {
     <div className="m8-field m8-switcher">
       <Select aria-label={label} value={value} options={options} width="max" onUpdate={onUpdate} />
     </div>
-  )
-}
-
-function Metric({
-  label,
-  value,
-  description,
-  tone = 'normal',
-}: {
-  label: string
-  value: string
-  description: string
-  tone?: 'normal' | 'warning' | 'danger'
-}) {
-  return (
-    <Card view="outlined" type="container" className={`m8-metric m8-metric_${tone}`}>
-      <Text variant="caption-2" color="secondary">
-        {label}
-      </Text>
-      <Text variant="header-2">{value}</Text>
-      <Text variant="caption-2" color="secondary">
-        {description}
-      </Text>
-    </Card>
   )
 }
 

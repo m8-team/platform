@@ -30,9 +30,6 @@
 }
 
 .m8-breadcrumbs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   margin-bottom: 8px;
   color: var(--g-color-text-secondary);
   font-size: 12px;
