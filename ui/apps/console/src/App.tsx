@@ -17,6 +17,7 @@ import {
   ArrowShapeRightFromLine,
   BellDot,
   BarsPlay,
+  BranchesDown,
   Briefcase,
   Check,
   CircleQuestion,
@@ -162,7 +163,7 @@ const projects: Project[] = [
 ]
 
 const menuGroups: MenuGroup[] = [
-  {id: 'resources', title: 'Resource Manager', icon: Database},
+  {id: 'resources', title: 'Resource Manager', icon: BranchesDown},
   {id: 'platform-operations', title: 'Platform Operations', icon: GearPlay},
   {id: 'identity-access', title: 'Identity & Access', icon: Shield},
   {id: 'gateway', title: 'Gateway', icon: Cloud},
