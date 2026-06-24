@@ -16,6 +16,7 @@ import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navig
 import {
   ArrowShapeRightFromLine,
   BellDot,
+  BarsPlay,
   Briefcase,
   Check,
   CircleQuestion,
@@ -26,9 +27,12 @@ import {
   Fingerprint,
   Folders,
   Gear,
+  GearPlay,
+  Layers,
   ListUl,
   Magnifier,
   NodesRight,
+  OctagonXmark,
   Person,
   Persons,
   Plus,
@@ -39,6 +43,7 @@ import {
   Speedometer,
   TriangleExclamation,
   ArrowRotateRight,
+  EnvelopeOpenXmark,
 } from '@gravity-ui/icons'
 
 import './App.css'
@@ -141,6 +146,7 @@ const projects: Project[] = [
 
 const menuGroups: MenuGroup[] = [
   {id: 'resources', title: 'Resources', icon: Database},
+  {id: 'platform-operations', title: 'Platform Operations', icon: GearPlay},
   {id: 'identity-access', title: 'Identity & Access', icon: Shield},
   {id: 'gateway', title: 'Gateway', icon: Cloud},
   {id: 'security', title: 'Security & Risk', icon: Shield},
@@ -154,6 +160,28 @@ const menuItems: AsideHeaderItem[] = [
   {id: 'resources-workspaces', title: 'Workspaces', icon: Folders, groupId: 'resources'},
   {id: 'resources-project', title: 'Projects', icon: Database, current: true, groupId: 'resources'},
   {id: 'resources-quotas-limits', title: 'Quotas & Limits', icon: Speedometer, groupId: 'resources'},
+  {
+    id: 'platform-operations-long-running',
+    title: 'Long-running Operations',
+    icon: Clock,
+    groupId: 'platform-operations',
+  },
+  {id: 'platform-operations-jobs', title: 'Jobs', icon: BarsPlay, groupId: 'platform-operations'},
+  {id: 'platform-operations-queues', title: 'Queues', icon: Layers, groupId: 'platform-operations'},
+  {id: 'platform-operations-outbox', title: 'Outbox', icon: EnvelopeOpenXmark, groupId: 'platform-operations'},
+  {
+    id: 'platform-operations-failed-events',
+    title: 'Failed Events',
+    icon: TriangleExclamation,
+    groupId: 'platform-operations',
+  },
+  {id: 'platform-operations-retries', title: 'Retries', icon: ArrowRotateRight, groupId: 'platform-operations'},
+  {
+    id: 'platform-operations-dead-letter-queue',
+    title: 'Dead Letter Queue',
+    icon: OctagonXmark,
+    groupId: 'platform-operations',
+  },
   {id: 'identity-access-identity', title: 'Identity', icon: Person, groupId: 'identity-access'},
   {id: 'identity-access-authentication', title: 'Authentication', icon: Shield, groupId: 'identity-access'},
   {id: 'identity-access-control', title: 'Access Control', icon: ShieldCheck, groupId: 'identity-access'},
@@ -188,17 +216,6 @@ const menuItems: AsideHeaderItem[] = [
   {id: 'settings-api-tokens', title: 'API Tokens', icon: Shield, groupId: 'settings'},
 ]
 
-const defaultMenuItems: AsideHeaderItem[] = [
-  ...menuItems,
-  {
-    id: 'observability-incidents',
-    title: 'Incidents',
-    icon: TriangleExclamation,
-    groupId: 'observability',
-    hidden: true,
-  },
-]
-
 configure({
   lang: initialLanguage,
   fallbackLang: 'en',
@@ -218,7 +235,6 @@ function readInitialNavigationCompact() {
 
 function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
-  const [navigationItems, setNavigationItems] = useState(menuItems)
   const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
@@ -344,13 +360,11 @@ function App() {
         }}
         panelItems={panelItems}
         subheaderItems={subheaderItems}
-        menuItems={navigationItems}
+        menuItems={menuItems}
         menuGroups={menuGroups}
-        defaultMenuItems={defaultMenuItems}
         menuOverflow="scroll"
         onClosePanel={() => setActiveFooterPanel(null)}
         onChangeCompact={handleNavigationCompactChange}
-        onMenuItemsChanged={setNavigationItems}
         renderFooter={({compact: footerCompact}) => (
           <>
             <FooterItem
