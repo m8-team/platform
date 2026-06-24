@@ -11,7 +11,7 @@ import {
   TextInput,
   ThemeProvider,
 } from '@gravity-ui/uikit'
-import {ActionBar, AsideHeader, FooterItem} from '@gravity-ui/navigation'
+import {AsideHeader, FooterItem} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
 import {Outlet, useRouter, useRouterState} from '@tanstack/react-router'
 import {
@@ -37,7 +37,6 @@ import {
   OctagonXmark,
   Person,
   Persons,
-  Plus,
   Rocket,
   Shield,
   ShieldCheck,
@@ -48,6 +47,7 @@ import {
   EnvelopeOpenXmark,
 } from '@gravity-ui/icons'
 
+import {ConsoleActionBar} from './components/ConsoleActionBar'
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
@@ -525,6 +525,46 @@ function App() {
     [organization, workspace],
   )
 
+  const handleOrganizationUpdate = useCallback(
+    (next: string[]) => {
+      const nextOrganization = next[0] ?? organization
+      const nextProject =
+        projects.find(
+          (project) => project.organization === nextOrganization && project.workspace === workspace,
+        ) ?? projects.find((project) => project.organization === nextOrganization)
+
+      setOrganization(nextOrganization)
+
+      if (nextProject) {
+        setWorkspace(nextProject.workspace)
+        setProjectId(nextProject.projectId)
+      }
+    },
+    [organization, workspace],
+  )
+
+  const handleWorkspaceUpdate = useCallback(
+    (next: string[]) => {
+      const nextWorkspace = next[0] ?? workspace
+      setWorkspace(nextWorkspace)
+
+      const nextProject = projects.find(
+        (project) => project.organization === organization && project.workspace === nextWorkspace,
+      )
+      if (nextProject) {
+        setProjectId(nextProject.projectId)
+      }
+    },
+    [organization, workspace],
+  )
+
+  const handleProjectUpdate = useCallback(
+    (next: string[]) => {
+      setProjectId(next[0] ?? projectId)
+    },
+    [projectId],
+  )
+
   const selection = useMemo<ConsoleSelection>(
     () => ({
       organization,
@@ -607,7 +647,17 @@ function App() {
         renderContent={() => (
           <ConsoleSelectionContext.Provider value={selection}>
             <div className="m8-page">
-              <ConsoleActionBar />
+              <ConsoleActionBar
+                organization={organization}
+                workspace={workspace}
+                projectId={projectId}
+                organizationOptions={organizationOptions}
+                workspaceOptions={workspaceOptions}
+                projectOptions={projectOptions}
+                onOrganizationUpdate={handleOrganizationUpdate}
+                onWorkspaceUpdate={handleWorkspaceUpdate}
+                onProjectUpdate={handleProjectUpdate}
+              />
               <Outlet />
             </div>
           </ConsoleSelectionContext.Provider>
@@ -625,93 +675,6 @@ function useConsoleSelection() {
   }
 
   return selection
-}
-
-function ConsoleActionBar() {
-  const {
-    organization,
-    workspace,
-    projectId,
-    projectOptions,
-    setOrganization,
-    setWorkspace,
-    setProjectId,
-  } = useConsoleSelection()
-
-  return (
-    <ActionBar aria-label="M8 Platform action bar" className="m8-actionbar">
-      <ActionBar.Section>
-        <ActionBar.Group>
-          <ActionBar.Item>
-            <Switcher
-              label="Org"
-              value={[organization]}
-              options={organizationOptions}
-              onUpdate={(next) => {
-                const nextOrganization = next[0] ?? organization
-                const nextProject =
-                  projects.find(
-                    (project) => project.organization === nextOrganization && project.workspace === workspace,
-                  ) ?? projects.find((project) => project.organization === nextOrganization)
-
-                setOrganization(nextOrganization)
-
-                if (nextProject) {
-                  setWorkspace(nextProject.workspace)
-                  setProjectId(nextProject.projectId)
-                }
-              }}
-            />
-          </ActionBar.Item>
-          <ActionBar.Item>
-            <Switcher
-              label="Workspace"
-              value={[workspace]}
-              options={workspaceOptions}
-              onUpdate={(next) => {
-                const nextWorkspace = next[0] ?? workspace
-                setWorkspace(nextWorkspace)
-                const nextProject = projects.find(
-                  (project) => project.organization === organization && project.workspace === nextWorkspace,
-                )
-                if (nextProject) {
-                  setProjectId(nextProject.projectId)
-                }
-              }}
-            />
-          </ActionBar.Item>
-          <ActionBar.Item>
-            <Switcher
-              label="Project"
-              value={[projectId]}
-              options={projectOptions}
-              onUpdate={(next) => setProjectId(next[0] ?? projectId)}
-            />
-          </ActionBar.Item>
-        </ActionBar.Group>
-        <ActionBar.Group pull="right">
-          <ActionBar.Item>
-            <Button view="normal">
-              <Icon data={ArrowRotateRight} size={14} />
-              Refresh
-            </Button>
-          </ActionBar.Item>
-          <ActionBar.Item>
-            <Button view="outlined">
-              <Icon data={Clock} size={14} />
-              Open operation
-            </Button>
-          </ActionBar.Item>
-          <ActionBar.Item>
-            <Button view="action">
-              <Icon data={Plus} size={14} />
-              New project
-            </Button>
-          </ActionBar.Item>
-        </ActionBar.Group>
-      </ActionBar.Section>
-    </ActionBar>
-  )
 }
 
 export function ResourceManagerOverviewPage() {
