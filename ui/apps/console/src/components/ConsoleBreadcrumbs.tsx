@@ -1,21 +1,27 @@
-import {Breadcrumbs} from '@gravity-ui/uikit'
+import {Breadcrumbs, BreadcrumbsItem, type BreadcrumbsItemProps, type BreadcrumbsProps} from '@gravity-ui/uikit'
+import {createLink} from '@tanstack/react-router';
 
-interface ConsoleBreadcrumbItem {
+const RouterLink = createLink(BreadcrumbsItem);
+
+type BreadcrumbsItem = Omit<BreadcrumbsItemProps, 'children'> & {
   text: string
-  href?: string
 }
 
-interface ConsoleBreadcrumbsProps {
-  items: ConsoleBreadcrumbItem[]
-}
-
-export function ConsoleBreadcrumbs({items}: ConsoleBreadcrumbsProps) {
+export function ConsoleBreadcrumbs({
+                                     items,
+                                     ...breadcrumbsProps
+                                   }: Omit<BreadcrumbsProps, 'children' | 'itemComponent'> & {
+  items: BreadcrumbsItem[]
+}) {
   return (
-    <Breadcrumbs aria-label="Breadcrumbs" maxItems={4}>
-      {items.map((item) => (
-        <Breadcrumbs.Item key={`${item.href ?? 'current'}-${item.text}`} href={item.href}>
-          {item.text}
-        </Breadcrumbs.Item>
+    <Breadcrumbs
+      {...breadcrumbsProps}
+      itemComponent={RouterLink}
+    >
+      {items.map(({text, href, ...item}) => (
+        <RouterLink key={`${href ?? 'current'}-${text}`} {...item} to={href}>
+          {text}
+        </RouterLink>
       ))}
     </Breadcrumbs>
   )

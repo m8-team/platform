@@ -1,5 +1,6 @@
-import {Icon, Select} from '@gravity-ui/uikit'
 import {Globe} from '@gravity-ui/icons'
+import {Button, DropdownMenu, Icon} from '@gravity-ui/uikit'
+import type {DropdownMenuItem} from '@gravity-ui/uikit'
 
 import type {ConsoleActionBarOption} from './ConsoleActionBar'
 
@@ -11,12 +12,20 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({label, value, options, onUpdate}: LanguageSwitcherProps) {
+  const menuItems: DropdownMenuItem[] = options.map((option) => ({
+    text: option.content,
+    selected: option.value === value,
+    action: () => onUpdate([option.value]),
+  }))
+
   return (
-    <div className="m8-language-switcher">
-      <Icon data={Globe} size={14} />
-      <div className="m8-field m8-switcher">
-        <Select aria-label={label} value={[value]} options={options} width="max" onUpdate={onUpdate} />
-      </div>
-    </div>
+      <DropdownMenu
+        items={menuItems}
+        renderSwitcher={({onClick, onKeyDown}) => (
+          <Button aria-label={label} view="flat" onClick={onClick} onKeyDown={onKeyDown}>
+            <Icon data={Globe} size={14} />
+          </Button>
+        )}
+      />
   )
 }
