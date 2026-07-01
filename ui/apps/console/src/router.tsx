@@ -9,6 +9,7 @@ import App, {
   ResourceWorkspaceDetailsPage,
   ResourceWorkspacesPage,
 } from './App'
+import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
 
 const rootRoute = createRootRoute({
   component: App,
@@ -62,6 +63,14 @@ const resourceProjectDetailsRoute = createRoute({
   component: ResourceProjectDetailsPage,
 })
 
+const commerceRoutes = commerceIntelligenceRoutes.map((route) =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: route.path,
+    component: route.component,
+  }),
+)
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   resourceManagerRoute,
@@ -71,6 +80,7 @@ const routeTree = rootRoute.addChildren([
   resourceWorkspaceDetailsRoute,
   resourceProjectsRoute,
   resourceProjectDetailsRoute,
+  ...commerceRoutes,
 ])
 
 export const router = createRouter({

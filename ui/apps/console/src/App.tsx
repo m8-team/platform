@@ -10,7 +10,10 @@ import {
   Text,
   TextInput,
   ThemeProvider,
+  ToasterComponent,
+  ToasterProvider,
 } from '@gravity-ui/uikit'
+import {toaster} from '@gravity-ui/uikit/toaster-singleton'
 import {AsideHeader, FooterItem} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
 import {Outlet, useRouter, useRouterState} from '@tanstack/react-router'
@@ -714,105 +717,119 @@ function App() {
   )
   const i18nValue = useMemo<ConsoleI18n>(() => ({language, t}), [language, t])
 
+  if (pathname.startsWith('/commerce-intelligence')) {
+    return (
+      <ThemeProvider theme="light" lang="ru" fallbackLang={fallbackLanguage}>
+        <ToasterProvider toaster={toaster}>
+          <ToasterComponent />
+          <Outlet />
+        </ToasterProvider>
+      </ThemeProvider>
+    )
+  }
+
   return (
     <ThemeProvider theme="light" lang={language} fallbackLang={fallbackLanguage}>
-      <AsideHeader
-        compact={compact}
-        logo={{text: 'M8 Platform', icon: Shield, href: '/'}}
-        topAlert={{
-          title: t('topAlert.title'),
-          message: t('topAlert.message'),
-          theme: 'info',
-          view: 'filled',
-          dense: true,
-          closable: true,
-          preloadHeight: true,
-        }}
-        panelItems={panelItems}
-        subheaderItems={subheaderItems}
-        menuItems={navigationMenuItems}
-        menuGroups={menuGroups}
-        menuOverflow="scroll"
-        collapsedMenuGroupIds={effectiveCollapsedMenuGroupIds}
-        onClosePanel={() => setActiveFooterPanel(null)}
-        onChangeCompact={handleNavigationCompactChange}
-        onToggleMenuGroupCollapsed={handleToggleMenuGroupCollapsed}
-        renderFooter={({compact: footerCompact}) => (
-          <>
-            <FooterItem
-              id="notifications"
-              icon={BellDot}
-              title={t('footer.notifications')}
-              tooltipText={t('footer.notifications')}
-              current={activeFooterPanel === 'notifications'}
-              onItemClick={() => {
-                setActiveFooterPanel(activeFooterPanel === 'notifications' ? null : 'notifications')
-              }}
-              compact={footerCompact}
-            />
-            <FooterItem
-              id="support"
-              icon={CircleQuestion}
-              title={t('footer.support')}
-              tooltipText={t('footer.support')}
-              current={activeFooterPanel === 'support'}
-              onItemClick={() => {
-                setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
-              }}
-              compact={footerCompact}
-            />
-            <FooterItem
-              id="account"
-              icon={Person}
-              title={t('footer.account')}
-              tooltipText={t('footer.account')}
-              current={activeFooterPanel === 'account'}
-              itemWrapper={(params, makeItem) =>
-                makeItem({
-                  ...params,
-                  icon: <Avatar text="СC" size="xs" theme="brand" />,
-                })
-              }
-              onItemClick={() => {
-                setActiveFooterPanel(activeFooterPanel === 'account' ? null : 'account')
-              }}
-              compact={footerCompact}
-            />
-          </>
-        )}
-        renderContent={() => (
-          <ConsoleI18nContext.Provider value={i18nValue}>
-            <ConsoleSelectionContext.Provider value={selection}>
-              <div className="m8-page">
-                <ConsoleActionBar
-                  language={language}
-                  organization={organization}
-                  workspace={workspace}
-                  projectId={projectId}
-                  languageOptions={languageOptions}
-                  organizationOptions={organizationOptions}
-                  workspaceOptions={workspaceOptions}
-                  projectOptions={projectOptions}
-                  labels={{
-                    organization: t('action.org'),
-                    workspace: t('action.workspace'),
-                    project: t('action.project'),
-                    language: t('action.language'),
-                    refresh: t('action.refresh'),
-                    openOperation: t('action.openOperation'),
-                    newProject: t('action.newProject'),
-                  }}
-                  onLanguageUpdate={handleLanguageUpdate}
-                  onOrganizationUpdate={handleOrganizationUpdate}
-                  onWorkspaceUpdate={handleWorkspaceUpdate}
-                  onProjectUpdate={handleProjectUpdate}
-                />
-                <Outlet />
-              </div>
-            </ConsoleSelectionContext.Provider>
-          </ConsoleI18nContext.Provider>
-        )}
-      />
+      <ToasterProvider toaster={toaster}>
+        <ToasterComponent />
+        <AsideHeader
+          compact={compact}
+          logo={{text: 'M8 Platform', icon: Shield, href: '/'}}
+          topAlert={{
+            title: t('topAlert.title'),
+            message: t('topAlert.message'),
+            theme: 'info',
+            view: 'filled',
+            dense: true,
+            closable: true,
+            preloadHeight: true,
+          }}
+          panelItems={panelItems}
+          subheaderItems={subheaderItems}
+          menuItems={navigationMenuItems}
+          menuGroups={menuGroups}
+          menuOverflow="scroll"
+          collapsedMenuGroupIds={effectiveCollapsedMenuGroupIds}
+          onClosePanel={() => setActiveFooterPanel(null)}
+          onChangeCompact={handleNavigationCompactChange}
+          onToggleMenuGroupCollapsed={handleToggleMenuGroupCollapsed}
+          renderFooter={({compact: footerCompact}) => (
+            <>
+              <FooterItem
+                id="notifications"
+                icon={BellDot}
+                title={t('footer.notifications')}
+                tooltipText={t('footer.notifications')}
+                current={activeFooterPanel === 'notifications'}
+                onItemClick={() => {
+                  setActiveFooterPanel(activeFooterPanel === 'notifications' ? null : 'notifications')
+                }}
+                compact={footerCompact}
+              />
+              <FooterItem
+                id="support"
+                icon={CircleQuestion}
+                title={t('footer.support')}
+                tooltipText={t('footer.support')}
+                current={activeFooterPanel === 'support'}
+                onItemClick={() => {
+                  setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
+                }}
+                compact={footerCompact}
+              />
+              <FooterItem
+                id="account"
+                icon={Person}
+                title={t('footer.account')}
+                tooltipText={t('footer.account')}
+                current={activeFooterPanel === 'account'}
+                itemWrapper={(params, makeItem) =>
+                  makeItem({
+                    ...params,
+                    icon: <Avatar text="СC" size="xs" theme="brand" />,
+                  })
+                }
+                onItemClick={() => {
+                  setActiveFooterPanel(activeFooterPanel === 'account' ? null : 'account')
+                }}
+                compact={footerCompact}
+              />
+            </>
+          )}
+          renderContent={() => (
+            <ConsoleI18nContext.Provider value={i18nValue}>
+              <ConsoleSelectionContext.Provider value={selection}>
+                <div className="m8-page">
+                  <ConsoleActionBar
+                    language={language}
+                    organization={organization}
+                    workspace={workspace}
+                    projectId={projectId}
+                    languageOptions={languageOptions}
+                    organizationOptions={organizationOptions}
+                    workspaceOptions={workspaceOptions}
+                    projectOptions={projectOptions}
+                    labels={{
+                      organization: t('action.org'),
+                      workspace: t('action.workspace'),
+                      project: t('action.project'),
+                      language: t('action.language'),
+                      refresh: t('action.refresh'),
+                      openOperation: t('action.openOperation'),
+                      newProject: t('action.newProject'),
+                    }}
+                    onLanguageUpdate={handleLanguageUpdate}
+                    onOrganizationUpdate={handleOrganizationUpdate}
+                    onWorkspaceUpdate={handleWorkspaceUpdate}
+                    onProjectUpdate={handleProjectUpdate}
+                  />
+                  <Outlet />
+                </div>
+              </ConsoleSelectionContext.Provider>
+            </ConsoleI18nContext.Provider>
+          )}
+        />
+      </ToasterProvider>
     </ThemeProvider>
   )
 }
