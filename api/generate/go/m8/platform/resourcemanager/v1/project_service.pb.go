@@ -528,7 +528,7 @@ var File_m8_platform_resourcemanager_v1_project_service_proto protoreflect.FileD
 
 const file_m8_platform_resourcemanager_v1_project_service_proto_rawDesc = "" +
 	"\n" +
-	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a#google/longrunning/operations.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
+	"4m8/platform/resourcemanager/v1/project_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a#google/longrunning/operations.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17google/api/client.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a,m8/platform/resourcemanager/v1/project.proto\"0\n" +
 	"\x11GetProjectRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x92\x02\n" +
 	"\x13ListProjectsRequest\x12.\n" +

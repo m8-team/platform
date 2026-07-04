@@ -3,12 +3,12 @@ syntax = "proto3";
 package m8.platform.resourcemanager.v1;
 
 import "buf/validate/validate.proto";
+import "google/longrunning/operations.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
-import "google/longrunning/operations.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
 
@@ -21,7 +21,7 @@ service ProjectService {
 
   // Returns one project by its UUID.
   rpc GetProject(GetProjectRequest) returns (Project) {
-    option (google.api.http) = {get: "/v1/resource-manager/projects/{id}"};
+    option (google.api.http) = {get: "/resource-manager/v1/projects/{id}"};
     option (google.api.method_signature) = "id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -33,7 +33,7 @@ service ProjectService {
   // Returns a page of projects for the specified workspace.
   // In the HTTP API, the workspace UUID is passed in the query string.
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse) {
-    option (google.api.http) = {get: "/v1/resource-manager/projects"};
+    option (google.api.http) = {get: "/resource-manager/v1/projects"};
     option (google.api.method_signature) = "workspace_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
@@ -46,7 +46,7 @@ service ProjectService {
   // In the HTTP API, the workspace UUID is passed in the query string.
   rpc CreateProject(CreateProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
-      post: "/v1/resource-manager/projects"
+      post: "/resource-manager/v1/projects"
       body: "project"
     };
     option (google.longrunning.operation_info) = {
@@ -64,7 +64,7 @@ service ProjectService {
   // Updates the editable fields of an existing project.
   rpc UpdateProject(UpdateProjectRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
-      patch: "/v1/resource-manager/projects/{project.id}"
+      patch: "/resource-manager/v1/projects/{project.id}"
       body: "project"
     };
     option (google.longrunning.operation_info) = {
@@ -81,7 +81,7 @@ service ProjectService {
 
   // Archives a project without deleting it permanently.
   rpc DeleteProject(DeleteProjectRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {delete: "/v1/resource-manager/projects/{id}"};
+    option (google.api.http) = {delete: "/resource-manager/v1/projects/{id}"};
     option (google.longrunning.operation_info) = {
       response_type: "m8.platform.common.operation.v1.OperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
@@ -96,7 +96,7 @@ service ProjectService {
 
   // Restores a project that was previously archived.
   rpc UndeleteProject(UndeleteProjectRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {post: "/v1/resource-manager/projects/{id}:undelete"};
+    option (google.api.http) = {post: "/resource-manager/v1/projects/{id}:undelete"};
     option (google.longrunning.operation_info) = {
       response_type: "ProjectOperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"

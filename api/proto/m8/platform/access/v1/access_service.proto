@@ -19,7 +19,7 @@ service AccessService {
   // Evaluates a single AuthZEN-compatible access decision.
   rpc EvaluateAccess(EvaluateAccessRequest) returns (EvaluateAccessResponse) {
     option (google.api.http) = {
-      post: "/v1/access/evaluation"
+      post: "/access/v1/evaluation"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -32,7 +32,7 @@ service AccessService {
   // Evaluates multiple AuthZEN-compatible access decisions in request order.
   rpc EvaluateAccessBatch(EvaluateAccessBatchRequest) returns (EvaluateAccessBatchResponse) {
     option (google.api.http) = {
-      post: "/v1/access/evaluations"
+      post: "/access/v1/evaluations"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -45,7 +45,7 @@ service AccessService {
   // Searches resources the subject can access for the requested action.
   rpc SearchResources(SearchResourcesRequest) returns (SearchResourcesResponse) {
     option (google.api.http) = {
-      post: "/v1/access/search/resource"
+      post: "/access/v1/search/resource"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -58,7 +58,7 @@ service AccessService {
   // Searches subjects that can perform the requested action on the resource.
   rpc SearchSubjects(SearchSubjectsRequest) returns (SearchSubjectsResponse) {
     option (google.api.http) = {
-      post: "/v1/access/search/subject"
+      post: "/access/v1/search/subject"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -71,7 +71,7 @@ service AccessService {
   // Searches actions the subject can perform on the resource.
   rpc SearchActions(SearchActionsRequest) returns (SearchActionsResponse) {
     option (google.api.http) = {
-      post: "/v1/access/search/action"
+      post: "/access/v1/search/action"
       body: "*"
     };
     option (gnostic.openapi.v3.operation) = {
@@ -121,7 +121,10 @@ message EvaluateAccessRequest {
 // EvaluateAccessResponse is the AuthZEN Access Evaluation API response.
 message EvaluateAccessResponse {
   // Output only. Access decision; true means permit, false means deny.
-  bool decision = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool decision = 1 [
+      (google.api.field_behavior) = REQUIRED,
+      (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   // Output only. Decision context, including optional reasons or error details.
   google.protobuf.Struct context = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -214,7 +217,7 @@ message SearchResourcesResponse {
   ];
 
   // Output only. Pagination response. Present when pagination metadata is returned.
-  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -256,7 +259,7 @@ message SearchSubjectsResponse {
   ];
 
   // Output only. Pagination response. Present when pagination metadata is returned.
-  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -292,7 +295,7 @@ message SearchActionsResponse {
   ];
 
   // Output only. Pagination response. Present when pagination metadata is returned.
-  PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+  optional PageResponse page = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. Additional response context, such as query diagnostics.
   google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
@@ -407,7 +410,7 @@ message PageResponse {
   ];
 
   // Optional. Additional implementation-specific pagination response attributes.
-  google.protobuf.Struct properties = 3 [
+  optional google.protobuf.Struct properties = 3 [
     (google.api.field_behavior) = OPTIONAL,
     (google.api.field_behavior) = OUTPUT_ONLY
   ];
