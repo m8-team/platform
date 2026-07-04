@@ -133,10 +133,12 @@ services:
   feast:
     image: feastdev/feature-server:latest
     container_name: feast
+    user: "0:0"
     entrypoint: /bin/sh
     command:
       - -ec
       - |
+        mkdir -p data
         feast apply --skip-source-validation
         feast serve --host 0.0.0.0 --port 6566 --registry_ttl_sec 5
     working_dir: /feature_repo
@@ -151,6 +153,7 @@ services:
   feast-ui:
     image: feastdev/feature-server:latest
     container_name: feast-ui
+    user: "0:0"
     entrypoint: /bin/sh
     command:
       - -ec
