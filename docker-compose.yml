@@ -24,11 +24,16 @@ services:
       FLINK_JOBMANAGER_ADDRESS: flink-jobmanager:6123
       FLINK_REST_URL: http://flink-jobmanager:8081
 
+      VALKEY_ADDRESS: valkey:6379
+      VALKEY_URL: redis://valkey:6379/0
+      REDIS_URL: redis://valkey:6379/0
+
     depends_on:
       - ydb
       - temporal
       - flink-jobmanager
       - flink-taskmanager
+      - valkey
 
   ydb:
     image: ydbplatform/local-ydb:latest
@@ -95,6 +100,15 @@ services:
       - flink-checkpoints:/tmp/flink-checkpoints
       - flink-savepoints:/tmp/flink-savepoints
 
+  valkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    command: valkey-server --appendonly yes
+    ports:
+      - "6379:6379" # Valkey Redis-compatible endpoint
+    volumes:
+      - valkey-data:/data
+
 volumes:
   go-cache:
   ydb-data:
@@ -102,3 +116,4 @@ volumes:
   temporal-data:
   flink-checkpoints:
   flink-savepoints:
+  valkey-data:
