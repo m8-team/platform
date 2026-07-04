@@ -28,12 +28,17 @@ services:
       VALKEY_URL: redis://valkey:6379/0
       REDIS_URL: redis://valkey:6379/0
 
+      FEAST_FEATURE_SERVER_URL: http://feast:6566
+      FEAST_UI_URL: http://feast-ui:8888
+
     depends_on:
       - ydb
       - temporal
       - flink-jobmanager
       - flink-taskmanager
       - valkey
+      - feast
+      - feast-ui
 
   ydb:
     image: ydbplatform/local-ydb:latest
@@ -109,6 +114,42 @@ services:
     volumes:
       - valkey-data:/data
 
+  feast:
+    image: feastdev/feature-server:latest
+    container_name: feast
+    entrypoint: /bin/sh
+    command:
+      - -ec
+      - |
+        feast apply --skip-source-validation
+        feast serve --host 0.0.0.0 --port 6566 --registry_ttl_sec 5
+    working_dir: /feature_repo
+    ports:
+      - "6566:6566" # Feast feature server
+    volumes:
+      - ./deploy/local/feast/feature_repo:/feature_repo:cached
+      - feast-data:/feature_repo/data
+    depends_on:
+      - valkey
+
+  feast-ui:
+    image: feastdev/feature-server:latest
+    container_name: feast-ui
+    entrypoint: /bin/sh
+    command:
+      - -ec
+      - |
+        while [ ! -f data/registry.db ]; do sleep 1; done
+        feast ui --host 0.0.0.0 --port 8888 --registry_ttl_sec 5
+    working_dir: /feature_repo
+    ports:
+      - "8888:8888" # Feast Web UI
+    volumes:
+      - ./deploy/local/feast/feature_repo:/feature_repo:cached
+      - feast-data:/feature_repo/data
+    depends_on:
+      - feast
+
 volumes:
   go-cache:
   ydb-data:
@@ -117,3 +158,4 @@ volumes:
   flink-checkpoints:
   flink-savepoints:
   valkey-data:
+  feast-data:
