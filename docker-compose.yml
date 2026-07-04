@@ -31,6 +31,18 @@ services:
       FEAST_FEATURE_SERVER_URL: http://feast:6566
       FEAST_UI_URL: http://feast-ui:8888
 
+      CLICKHOUSE_HTTP_URL: http://clickhouse:8123
+      CLICKHOUSE_NATIVE_ADDRESS: clickhouse:9000
+      CLICKHOUSE_DATABASE: m8
+      CLICKHOUSE_USER: m8
+      CLICKHOUSE_PASSWORD: m8-local-clickhouse
+      CLICKHOUSE_UI_URL: http://clickhouse-ui:3488
+
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BROKERS: redpanda:9092
+      REDPANDA_ADMIN_URL: http://redpanda:9644
+      REDPANDA_CONSOLE_URL: http://redpanda-console:8080
+
     depends_on:
       - ydb
       - temporal
@@ -39,6 +51,10 @@ services:
       - valkey
       - feast
       - feast-ui
+      - clickhouse
+      - clickhouse-ui
+      - redpanda
+      - redpanda-console
 
   ydb:
     image: ydbplatform/local-ydb:latest
@@ -150,6 +166,94 @@ services:
     depends_on:
       - feast
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123" # ClickHouse HTTP
+      - "9000:9000" # ClickHouse native TCP
+    environment:
+      CLICKHOUSE_DB: m8
+      CLICKHOUSE_USER: m8
+      CLICKHOUSE_PASSWORD: m8-local-clickhouse
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - clickhouse-logs:/var/log/clickhouse-server
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+  clickhouse-ui:
+    image: ghcr.io/caioricciuti/ch-ui:latest
+    container_name: clickhouse-ui
+    ports:
+      - "3488:3488" # CH-UI for ClickHouse
+    environment:
+      CLICKHOUSE_URL: http://clickhouse:8123
+    volumes:
+      - clickhouse-ui-data:/app/data
+    depends_on:
+      - clickhouse
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v26.1.12
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --kafka-addr
+      - internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr
+      - internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr
+      - internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr
+      - internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr
+      - internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr
+      - redpanda:33145
+      - --advertise-rpc-addr
+      - redpanda:33145
+      - --mode
+      - dev-container
+      - --smp
+      - "1"
+      - --default-log-level=info
+    ports:
+      - "18081:18081" # Redpanda Schema Registry
+      - "18082:18082" # Redpanda HTTP Proxy
+      - "19092:19092" # Redpanda Kafka API
+      - "19644:9644" # Redpanda Admin API
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v3.8.0
+    container_name: redpanda-console
+    entrypoint: /bin/sh
+    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
+    ports:
+      - "8082:8080" # Redpanda Console
+    environment:
+      CONFIG_FILEPATH: /tmp/config.yml
+      CONSOLE_CONFIG_FILE: |
+        kafka:
+          brokers: ["redpanda:9092"]
+        schemaRegistry:
+          enabled: true
+          urls: ["http://redpanda:8081"]
+        redpanda:
+          adminApi:
+            enabled: true
+            urls: ["http://redpanda:9644"]
+        auditLog:
+          enabled: false
+    depends_on:
+      - redpanda
+
 volumes:
   go-cache:
   ydb-data:
@@ -159,3 +263,7 @@ volumes:
   flink-savepoints:
   valkey-data:
   feast-data:
+  clickhouse-data:
+  clickhouse-logs:
+  clickhouse-ui-data:
+  redpanda-data:
