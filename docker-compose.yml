@@ -21,9 +21,14 @@ services:
       TEMPORAL_ADDRESS: temporal:7233
       TEMPORAL_NAMESPACE: default
 
+      FLINK_JOBMANAGER_ADDRESS: flink-jobmanager:6123
+      FLINK_REST_URL: http://flink-jobmanager:8081
+
     depends_on:
       - ydb
       - temporal
+      - flink-jobmanager
+      - flink-taskmanager
 
   ydb:
     image: ydbplatform/local-ydb:latest
@@ -57,8 +62,43 @@ services:
     volumes:
       - temporal-data:/home/temporal
 
+  flink-jobmanager:
+    image: flink:latest
+    container_name: flink-jobmanager
+    command: jobmanager
+    ports:
+      - "8081:8081" # Flink Web UI
+      - "6123:6123" # Flink JobManager RPC
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        rest.bind-address: 0.0.0.0
+        state.checkpoints.dir: file:///tmp/flink-checkpoints
+        state.savepoints.dir: file:///tmp/flink-savepoints
+    volumes:
+      - flink-checkpoints:/tmp/flink-checkpoints
+      - flink-savepoints:/tmp/flink-savepoints
+
+  flink-taskmanager:
+    image: flink:latest
+    container_name: flink-taskmanager
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 2
+        state.checkpoints.dir: file:///tmp/flink-checkpoints
+        state.savepoints.dir: file:///tmp/flink-savepoints
+    volumes:
+      - flink-checkpoints:/tmp/flink-checkpoints
+      - flink-savepoints:/tmp/flink-savepoints
+
 volumes:
   go-cache:
   ydb-data:
   ydb-certs:
   temporal-data:
+  flink-checkpoints:
+  flink-savepoints:
