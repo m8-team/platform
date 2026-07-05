@@ -43,6 +43,9 @@ services:
       REDPANDA_ADMIN_URL: http://redpanda:9644
       REDPANDA_CONSOLE_URL: http://redpanda-console:8080
 
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_TRACKING_URL: http://mlflow:5000
+
     depends_on:
       - ydb
       - temporal
@@ -55,9 +58,10 @@ services:
       - clickhouse-ui
       - redpanda
       - redpanda-console
+      - mlflow
 
   ydb:
-    image: ydbplatform/local-ydb:latest
+    image: ydbplatform/local-ydb:25.4.1.15
     container_name: ydb
 
     ports:
@@ -79,7 +83,7 @@ services:
       - ydb-certs:/ydb_certs
 
   temporal:
-    image: temporalio/temporal:latest
+    image: temporalio/temporal:1.7.2
     container_name: temporal
     command: server start-dev --ip 0.0.0.0 --db-filename /home/temporal/temporal.db
     ports:
@@ -89,7 +93,7 @@ services:
       - temporal-data:/home/temporal
 
   flink-jobmanager:
-    image: flink:latest
+    image: flink:2.3.0
     container_name: flink-jobmanager
     command: jobmanager
     ports:
@@ -106,7 +110,7 @@ services:
       - flink-savepoints:/tmp/flink-savepoints
 
   flink-taskmanager:
-    image: flink:latest
+    image: flink:2.3.0
     container_name: flink-taskmanager
     command: taskmanager
     depends_on:
@@ -122,7 +126,7 @@ services:
       - flink-savepoints:/tmp/flink-savepoints
 
   valkey:
-    image: valkey/valkey:latest
+    image: valkey/valkey:9.1.0
     container_name: valkey
     command: valkey-server --appendonly yes
     ports:
@@ -131,7 +135,7 @@ services:
       - valkey-data:/data
 
   feast:
-    image: feastdev/feature-server:latest
+    image: feastdev/feature-server:0.46.0
     container_name: feast
     user: "0:0"
     entrypoint: /bin/sh
@@ -151,7 +155,7 @@ services:
       - valkey
 
   feast-ui:
-    image: feastdev/feature-server:latest
+    image: feastdev/feature-server:0.46.0
     container_name: feast-ui
     user: "0:0"
     entrypoint: /bin/sh
@@ -170,7 +174,7 @@ services:
       - feast
 
   clickhouse:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:26.6.1.1193
     container_name: clickhouse
     ports:
       - "8123:8123" # ClickHouse HTTP
@@ -189,7 +193,7 @@ services:
         hard: 262144
 
   clickhouse-ui:
-    image: ghcr.io/caioricciuti/ch-ui:latest
+    image: ghcr.io/caioricciuti/ch-ui:v2.5.3
     container_name: clickhouse-ui
     ports:
       - "3488:3488" # CH-UI for ClickHouse
@@ -257,6 +261,29 @@ services:
     depends_on:
       - redpanda
 
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.14.0
+    container_name: mlflow
+    user: "0:0"
+    entrypoint: mlflow
+    command:
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --default-artifact-root
+      - /mlflow/artifacts
+      - --artifacts-destination
+      - /mlflow/artifacts
+      - --serve-artifacts
+    ports:
+      - "5000:5000" # MLflow Tracking UI/API
+    volumes:
+      - mlflow-data:/mlflow
+
 volumes:
   go-cache:
   ydb-data:
@@ -270,3 +297,4 @@ volumes:
   clickhouse-logs:
   clickhouse-ui-data:
   redpanda-data:
+  mlflow-data:
