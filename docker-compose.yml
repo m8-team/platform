@@ -45,6 +45,7 @@ services:
 
       MLFLOW_TRACKING_URI: http://mlflow:5000
       MLFLOW_TRACKING_URL: http://mlflow:5000
+      MLFLOW_UI_URL: http://localhost:15000
 
     depends_on:
       - ydb
@@ -280,7 +281,7 @@ services:
       - /mlflow/artifacts
       - --serve-artifacts
     ports:
-      - "5000:5000" # MLflow Tracking UI/API
+      - "15000:5000" # MLflow Tracking UI/API
     volumes:
       - mlflow-data:/mlflow
 
