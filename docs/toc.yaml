@@ -4,7 +4,7 @@ items:
   - name: Архитектура
     items:
       - name: PADS v0.1
-        href: M8_Platform_Architecture_and_Domain_Specification_PADS_v0_1.md
+        href: M8_Platform_Architecture_and_Domain_Specification_PADS.md
   - name: Сервисы
     items:
       - name: Access
@@ -13,6 +13,7 @@ items:
           - name: Справочник API
             items:
               - name: REST
+                when: dev != true
                 items:
                   - name: Overview
                     href: services/access/api-reference/rest/index.md
@@ -32,14 +33,6 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
-              - name: gRPC
-                items:
-                  - name: Overview
-                    href: services/access/api-reference/grpc/index.md
-                  - name: Access
-                    include:
-                      path: services/access/api-reference/grpc/access/toc.yaml
-                      mode: link
       - name: IAM
         href: services/iam/index.md
         items:
@@ -50,6 +43,7 @@ items:
               - name: Аутентификация
                 href: services/iam/api-reference/authentication.md
               - name: REST
+                when: dev != true
                 items:
                   - name: Overview
                     href: services/iam/api-reference/rest/index.md
@@ -69,14 +63,6 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
-              - name: gRPC
-                items:
-                  - name: Overview
-                    href: services/iam/api-reference/grpc/index.md
-                  - name: Authentication
-                    include:
-                      path: services/iam/api-reference/grpc/authentication/toc.yaml
-                      mode: link
       - name: Resource Manager
         href: services/resource-manager/index.md
         items:
@@ -87,6 +73,7 @@ items:
               - name: Аутентификация
                 href: services/resource-manager/api-reference/authentication.md
               - name: REST
+                when: dev != true
                 items:
                   - name: Overview
                     href: services/resource-manager/api-reference/rest/index.md
@@ -138,19 +125,3 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
-              - name: gRPC
-                items:
-                  - name: Overview
-                    href: services/resource-manager/api-reference/grpc/index.md
-                  - name: Organization
-                    include:
-                      path: services/resource-manager/api-reference/grpc/organization/toc.yaml
-                      mode: link
-                  - name: Workspace
-                    include:
-                      path: services/resource-manager/api-reference/grpc/workspace/toc.yaml
-                      mode: link
-                  - name: Project
-                    include:
-                      path: services/resource-manager/api-reference/grpc/project/toc.yaml
-                      mode: link

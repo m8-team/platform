@@ -6,9 +6,9 @@
   "scripts": {
     "sync:openapi": "node ./scripts/sync-openapi.mjs",
     "sync:grpc": "node ./scripts/sync-grpc.mjs",
-    "sync:api": "npm run sync:openapi && npm run sync:grpc",
-    "build": "npm run sync:api && yfm build --input . --output dist --ignore dist --allow-html -e ./extensions/openapi-extension.cjs",
-    "dev": "npm run sync:api && yfm build --input . --output dist --ignore dist --allow-html -e ./extensions/openapi-extension.cjs --watch"
+    "sync:api": "npm run sync:openapi",
+    "build": "npm run sync:api && yfm build --input . --output dist --ignore dist \"services/**/api-reference/grpc/**\" --allow-html -e ./extensions/openapi-extension.cjs",
+    "dev": "ulimit -n 4096 && yfm build --input . --output dist --vars '{\"dev\":true}' --ignore dist \"dist/**\" node_modules \"node_modules/**\" _generated \"_generated/**\" \"services/**/api-reference/grpc/**\" \"services/**/api-reference/rest/**\" --allow-html -e ./extensions/openapi-extension.cjs --watch"
   },
   "dependencies": {
     "@diplodoc/cli": "^5.32.1",
