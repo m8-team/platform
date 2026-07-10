@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH_FR_002
+  requirement_id: AUTH-FR-002
+  title: Выбрать Authentication Provider
+  status: APPROVED
+  context: AUTH
+  release: MVP-2
+traceability:
+  capability: CAP-AUTHN-02
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Выбрать Authentication Provider
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUTH-FR-002-AC-01
+  statement: Недоступный requested provider возвращает контролируемую ошибку или policy fallback.
+- id: AUTH-FR-002-AC-02
+  statement: Выбор фиксируется без раскрытия внутренней конфигурации.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

@@ -1,0 +1,41 @@
+feature_id: AUTH-FR-017
+status: ready_for_review
+repository_targets:
+  service: m8-authentication
+  api_package: m8.authentication.v1
+artifacts:
+- 01_Requirement_Specification.md
+- 02_Use_Case.md
+- 03_API_Contract.md
+- 04_Event_Contracts.md
+- 05_Error_Contract.md
+- 06_Feature_Prompt.yaml
+- 07_Task_Prompts/*
+- 08_Review_Prompt.yaml
+- 09_Acceptance_Tests.md
+- 11_Release_Evidence_Template.md
+implementation_order:
+- domain
+- application ports/use case
+- YDB transaction/outbox/idempotency
+- API contract/handler
+- Temporal + Keycloak ACL
+- observability/audit
+- acceptance/review
+gates:
+- architecture
+- buf
+- unit
+- integration
+- contract
+- security
+- acceptance
+- traceability
+release_evidence_required:
+- commit_sha
+- contract_digest
+- test_report
+- security_report
+- migration_id
+- dashboard_links
+- review_verdict

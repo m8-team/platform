@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ID_FR_033
+  requirement_id: ID-FR-033
+  title: Удалить Membership
+  status: APPROVED
+  context: ID
+  release: MVP-1
+traceability:
+  capability: CAP-ID-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Удалить Membership
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ID-FR-033-AC-01
+  statement: Публикуется MembershipRemoved.
+- id: ID-FR-033-AC-02
+  statement: Потребители применяют собственную policy обработки.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

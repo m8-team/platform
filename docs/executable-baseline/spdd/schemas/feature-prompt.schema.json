@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "spdd_version",
+    "metadata",
+    "traceability",
+    "objective",
+    "scope",
+    "acceptance"
+  ],
+  "properties": {
+    "spdd_version": {
+      "const": "1.0"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "requirement_id",
+        "status",
+        "context"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "requirement_id": {
+          "type": "string"
+        },
+        "status": {
+          "const": "APPROVED"
+        },
+        "context": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "traceability": {
+      "type": "object"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "object"
+    },
+    "acceptance": {
+      "type": "array"
+    }
+  }
+}

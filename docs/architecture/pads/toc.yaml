@@ -1,0 +1,74 @@
+title: PADS
+href: index.md
+items:
+  - name: Обзор и основания
+    href: overview/index.md
+    items:
+      - name: 0. Управление документом
+        href: overview/00-document-control.md
+      - name: 1. Назначение и область действия
+        href: overview/01-scope.md
+      - name: 2. Видение платформы
+        href: overview/02-vision.md
+      - name: 3. Цели проектирования
+        href: overview/03-design-goals.md
+      - name: 4. Архитектурные принципы
+        href: overview/04-architecture-principles.md
+  - name: Предметная модель и контексты
+    href: domain/index.md
+    items:
+      - name: 5. Единый язык предметной области
+        href: domain/05-ubiquitous-language.md
+      - name: 6. Карта бизнес-возможностей платформы
+        href: domain/06-capability-map.md
+      - name: 7. Модель предметной области
+        href: domain/07-domain-model.md
+      - name: 8. Карта контекстов
+        href: domain/08-context-map.md
+      - name: 9. Спецификации ограниченных контекстов
+        href: domain/09-bounded-contexts.md
+      - name: 10. Shared Kernel и общие контракты
+        href: domain/10-shared-kernel.md
+  - name: Платформенная архитектура
+    href: platform/index.md
+    items:
+      - name: 11. Владение данными
+        href: platform/11-data-ownership.md
+      - name: 12. Правила проектирования API
+        href: platform/12-api-design.md
+      - name: 13. Правила проектирования событий
+        href: platform/13-events.md
+      - name: 14. Модель интеграции и согласованности
+        href: platform/14-integration-consistency.md
+      - name: 15. Архитектура безопасности
+        href: platform/15-security.md
+      - name: 16. Длительные операции
+        href: platform/16-operations.md
+      - name: 17. Модель ошибок
+        href: platform/17-errors.md
+      - name: 18. Наблюдаемость
+        href: platform/18-observability.md
+      - name: 19. Атрибуты качества
+        href: platform/19-quality-attributes.md
+  - name: Требования, SPDD и управление
+    href: governance/index.md
+    items:
+      - name: 20. Распределение требований
+        href: governance/20-requirements.md
+      - name: 21. Модель трассировки
+        href: governance/21-traceability.md
+      - name: "22. SPDD: проведение требований до Structured Prompt"
+        href: governance/22-spdd.md
+      - name: 23. Архитектурное управление
+        href: governance/23-architecture-governance.md
+      - name: 24. Глоссарий
+        href: governance/24-glossary.md
+  - name: Приложения
+    href: appendices/index.md
+    items:
+      - name: Приложение A. Начальная структура репозитория
+        href: appendices/appendix-a-repository-structure.md
+      - name: Приложение B. Минимальное определение готовности
+        href: appendices/appendix-b-definition-of-done.md
+      - name: Приложение C. План последующих артефактов
+        href: appendices/appendix-c-next-artifacts.md

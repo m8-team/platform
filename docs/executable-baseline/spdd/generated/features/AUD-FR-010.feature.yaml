@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUD_FR_010
+  requirement_id: AUD-FR-010
+  title: Искать AuditEvent
+  status: APPROVED
+  context: AUD
+  release: MVP-1
+traceability:
+  capability: CAP-AUD-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Искать AuditEvent
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUD-FR-010-AC-01
+  statement: Поиск ограничен Access permission и privacy rules.
+- id: AUD-FR-010-AC-02
+  statement: Пагинация стабильна для snapshot/query window.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

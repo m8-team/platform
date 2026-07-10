@@ -1,0 +1,277 @@
+syntax = "proto3";
+
+    package m8.identity.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/identity/v1;identityv1";
+
+    service IdentityService {
+      // ID-FR-032 | public | idempotency=true
+  rpc AddMembership (AddMembershipRequest) returns (AddMembershipResponse);
+  // ID-FR-030 | public | idempotency=true
+  rpc CreateGroup (CreateGroupRequest) returns (CreateGroupResponse);
+  // ID-FR-010 | public | idempotency=true
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse);
+  // ID-FR-001 | public | idempotency=true
+  rpc CreateUserPool (CreateUserPoolRequest) returns (CreateUserPoolResponse);
+  // ID-FR-050 | public | idempotency=true
+  rpc DeleteOrAnonymizeUser (DeleteOrAnonymizeUserRequest) returns (m8.common.v1.Operation);
+  // ID-FR-021 | public | idempotency=true
+  rpc DetectExternalIdentityConflict (DetectExternalIdentityConflictRequest) returns (DetectExternalIdentityConflictResponse);
+  // ID-FR-041 | public | idempotency=true
+  rpc DetectPotentialDuplicates (DetectPotentialDuplicatesRequest) returns (DetectPotentialDuplicatesResponse);
+  // ID-FR-012 | public | idempotency=true
+  rpc DisableUser (DisableUserRequest) returns (DisableUserResponse);
+  // ID-FR-015 | public | idempotency=false
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+  // ID-FR-020 | public | idempotency=true
+  rpc LinkExternalIdentity (LinkExternalIdentityRequest) returns (LinkExternalIdentityResponse);
+  // ID-FR-034 | public | idempotency=false
+  rpc ListMemberships (ListMembershipsRequest) returns (ListMembershipsResponse);
+  // ID-FR-040 | public | idempotency=true
+  rpc MergeUsers (MergeUsersRequest) returns (m8.common.v1.Operation);
+  // ID-FR-033 | public | idempotency=true
+  rpc RemoveMembership (RemoveMembershipRequest) returns (RemoveMembershipResponse);
+  // ID-FR-024 | public | idempotency=false
+  rpc ResolveSubjectByContact (ResolveSubjectByContactRequest) returns (ResolveSubjectByContactResponse);
+  // ID-FR-023 | public | idempotency=false
+  rpc ResolveSubjectByExternalIdentity (ResolveSubjectByExternalIdentityRequest) returns (ResolveSubjectByExternalIdentityResponse);
+  // ID-FR-013 | public | idempotency=true
+  rpc RestoreUser (RestoreUserRequest) returns (RestoreUserResponse);
+  // ID-FR-016 | public | idempotency=false
+  rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse);
+  // ID-FR-014 | public | idempotency=true
+  rpc SecurityBlockUser (SecurityBlockUserRequest) returns (SecurityBlockUserResponse);
+  // ID-FR-003 | public | idempotency=true
+  rpc SuspendUserPool (SuspendUserPoolRequest) returns (SuspendUserPoolResponse);
+  // ID-FR-022 | public | idempotency=true
+  rpc UnlinkExternalIdentity (UnlinkExternalIdentityRequest) returns (UnlinkExternalIdentityResponse);
+  // ID-FR-031 | public | idempotency=true
+  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupResponse);
+  // ID-FR-002 | public | idempotency=true
+  rpc UpdateUserPool (UpdateUserPoolRequest) returns (UpdateUserPoolResponse);
+  // ID-FR-011 | public | idempotency=true
+  rpc UpdateUserProfile (UpdateUserProfileRequest) returns (UpdateUserProfileResponse);
+    }
+
+
+                message AddMembershipRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message AddMembershipResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateGroupRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateGroupResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateUserResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateUserPoolRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateUserPoolResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DeleteOrAnonymizeUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DetectExternalIdentityConflictRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DetectExternalIdentityConflictResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DetectPotentialDuplicatesRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DetectPotentialDuplicatesResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DisableUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DisableUserResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetUserResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message LinkExternalIdentityRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message LinkExternalIdentityResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ListMembershipsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ListMembershipsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message MergeUsersRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RemoveMembershipRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RemoveMembershipResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ResolveSubjectByContactRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ResolveSubjectByContactResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ResolveSubjectByExternalIdentityRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ResolveSubjectByExternalIdentityResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RestoreUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RestoreUserResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SearchUsersRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SearchUsersResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SecurityBlockUserRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SecurityBlockUserResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SuspendUserPoolRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SuspendUserPoolResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UnlinkExternalIdentityRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UnlinkExternalIdentityResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateGroupRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateGroupResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateUserPoolRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateUserPoolResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateUserProfileRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateUserProfileResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }

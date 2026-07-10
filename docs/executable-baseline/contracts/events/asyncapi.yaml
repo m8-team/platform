@@ -1,0 +1,163 @@
+asyncapi: 2.6.0
+info:
+  title: M8 Platform Integration Events
+  version: 1.0.0
+  description: Утверждённый каталог интеграционных событий M8.
+defaultContentType: application/json
+channels:
+  m8.resource_manager.events.v1:
+    description: События Resource Manager
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.resource_manager.organization_created.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.organization_updated.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.organization_suspended.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.organization_restored.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.organization_archived.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.workspace_created.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.workspace_updated.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.workspace_suspension_changed.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.project_created.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.project_moved.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.project_deletion_requested.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.project_suspended.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.project_restored.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.service_registered.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.service_registration_updated.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.service_unregistered.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.update_resource_labels_completed.v1.schema.json
+        - $ref: ./schemas/m8.resource_manager.resource_lifecycle_changed.v1.schema.json
+  m8.identity.events.v1:
+    description: События Identity
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.identity.user_pool_created.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_pool_updated.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_pool_suspended.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_created.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_profile_updated.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_disabled.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_restored.v1.schema.json
+        - $ref: ./schemas/m8.identity.external_identity_linked.v1.schema.json
+        - $ref: ./schemas/m8.identity.detect_external_identity_conflict_completed.v1.schema.json
+        - $ref: ./schemas/m8.identity.external_identity_unlinked.v1.schema.json
+        - $ref: ./schemas/m8.identity.create_group_completed.v1.schema.json
+        - $ref: ./schemas/m8.identity.update_group_completed.v1.schema.json
+        - $ref: ./schemas/m8.identity.membership_added.v1.schema.json
+        - $ref: ./schemas/m8.identity.membership_removed.v1.schema.json
+        - $ref: ./schemas/m8.identity.users_merged.v1.schema.json
+        - $ref: ./schemas/m8.identity.detect_potential_duplicates_completed.v1.schema.json
+        - $ref: ./schemas/m8.identity.user_privacy_action_completed.v1.schema.json
+        - $ref: ./schemas/m8.identity.identity_lifecycle_changed.v1.schema.json
+  m8.authentication.events.v1:
+    description: События Authentication
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.authentication.authentication_started.v1.schema.json
+        - $ref: ./schemas/m8.authentication.select_authentication_provider_completed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_challenge_created.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_cancelled.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_provider_callback_processed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_expired.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_failed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_handoff_created.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_handoff_redeemed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_session_created.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_session_revoked.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_client_registered.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_client_policy_updated.v1.schema.json
+        - $ref: ./schemas/m8.authentication.ciba_authentication_started.v1.schema.json
+        - $ref: ./schemas/m8.authentication.ciba_decision_processed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.step_up_started.v1.schema.json
+        - $ref: ./schemas/m8.authentication.select_step_up_challenge_completed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.otp_challenge_sent.v1.schema.json
+        - $ref: ./schemas/m8.authentication.otp_verified.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_challenge_resent.v1.schema.json
+        - $ref: ./schemas/m8.authentication.web_authn_assertion_verified.v1.schema.json
+        - $ref: ./schemas/m8.authentication.web_authn_credential_registered.v1.schema.json
+        - $ref: ./schemas/m8.authentication.federated_authentication_started.v1.schema.json
+        - $ref: ./schemas/m8.authentication.federated_callback_processed.v1.schema.json
+        - $ref: ./schemas/m8.authentication.client_access_revoked.v1.schema.json
+        - $ref: ./schemas/m8.authentication.authentication_lifecycle_changed.v1.schema.json
+  m8.access.events.v1:
+    description: События Access
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.access.create_permission_definition_completed.v1.schema.json
+        - $ref: ./schemas/m8.access.role_created.v1.schema.json
+        - $ref: ./schemas/m8.access.role_updated.v1.schema.json
+        - $ref: ./schemas/m8.access.role_deleted.v1.schema.json
+        - $ref: ./schemas/m8.access.role_binding_created.v1.schema.json
+        - $ref: ./schemas/m8.access.role_binding_revoked.v1.schema.json
+        - $ref: ./schemas/m8.access.role_binding_expiration_changed.v1.schema.json
+        - $ref: ./schemas/m8.access.access_relationship_created.v1.schema.json
+        - $ref: ./schemas/m8.access.access_relationship_deleted.v1.schema.json
+        - $ref: ./schemas/m8.access.access_review_created.v1.schema.json
+        - $ref: ./schemas/m8.access.access_review_completed.v1.schema.json
+        - $ref: ./schemas/m8.access.authorization_model_published.v1.schema.json
+        - $ref: ./schemas/m8.access.access_relationship_changed.v1.schema.json
+  m8.risk_decision.events.v1:
+    description: События Risk Decision
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.risk_decision.risk_decision_expired.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.risk_policy_created.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.risk_policy_published.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.risk_policy_rolled_back.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.device_signals_ingested.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.external_risk_signal_ingested.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.manual_risk_review_created.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.manual_risk_review_completed.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.risk_feedback_created.v1.schema.json
+        - $ref: ./schemas/m8.risk_decision.risk_decision_recorded.v1.schema.json
+  m8.provisioning.events.v1:
+    description: События Provisioning
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.provisioning.resource_definition_registered.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.resource_definition_published.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.provisioning_driver_registered.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.provisioning_driver_disabled.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_created.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_desired_state_updated.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_deletion_requested.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.select_placement_completed.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.placement_pinned.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_reconciled.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_drift_detected.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_drift_remediated.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.managed_resource_imported.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.provisioning_step_retried.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.provisioning_compensation_completed.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.manual_remediation_created.v1.schema.json
+        - $ref: ./schemas/m8.provisioning.provisioning_lifecycle_changed.v1.schema.json
+  m8.audit.events.v1:
+    description: События Audit
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.audit.audit_event_accepted.v1.schema.json
+        - $ref: ./schemas/m8.audit.persist_audit_event_completed.v1.schema.json
+        - $ref: ./schemas/m8.audit.acknowledge_required_audit_event_completed.v1.schema.json
+        - $ref: ./schemas/m8.audit.audit_export_created.v1.schema.json
+        - $ref: ./schemas/m8.audit.audit_retention_applied.v1.schema.json
+        - $ref: ./schemas/m8.audit.audit_legal_hold_changed.v1.schema.json
+        - $ref: ./schemas/m8.audit.audit_integrity_verified.v1.schema.json
+  m8.operations.events.v1:
+    description: События Common Operation
+    subscribe:
+      message:
+        oneOf:
+        - $ref: ./schemas/m8.operations.operation_cancellation_requested.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_deleted.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_progress_updated.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_completed.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_failed.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_workflow_linked.v1.schema.json
+        - $ref: ./schemas/m8.operations.operation_started.v1.schema.json

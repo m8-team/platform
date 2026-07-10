@@ -1,0 +1,188 @@
+syntax = "proto3";
+
+    package m8.audit.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/audit/v1;auditv1";
+
+    service AuditService {
+      // AUD-FR-005 | internal | idempotency=true
+  rpc AcknowledgeRequiredAuditEvent (AcknowledgeRequiredAuditEventRequest) returns (AcknowledgeRequiredAuditEventResponse);
+  // AUD-FR-030 | admin | idempotency=true
+  rpc ApplyRetentionPolicy (ApplyRetentionPolicyRequest) returns (m8.common.v1.Operation);
+  // AUD-FR-050 | admin | idempotency=true
+  rpc AuditAuditAccess (AuditAuditAccessRequest) returns (AuditAuditAccessResponse);
+  // AUD-FR-020 | public | idempotency=true
+  rpc CreateAuditExport (CreateAuditExportRequest) returns (m8.common.v1.Operation);
+  // AUD-FR-011 | public | idempotency=false
+  rpc GetAuditEvent (GetAuditEventRequest) returns (GetAuditEventResponse);
+  // AUD-FR-021 | public | idempotency=false
+  rpc GetAuditExport (GetAuditExportRequest) returns (GetAuditExportResponse);
+  // AUD-FR-012 | public | idempotency=false
+  rpc GetCorrelationChain (GetCorrelationChainRequest) returns (GetCorrelationChainResponse);
+  // AUD-FR-041 | admin | idempotency=false
+  rpc GetIntegrityProof (GetIntegrityProofRequest) returns (GetIntegrityProofResponse);
+  // AUD-FR-013 | public | idempotency=false
+  rpc GetResourceHistory (GetResourceHistoryRequest) returns (GetResourceHistoryResponse);
+  // AUD-FR-001 | public | idempotency=true
+  rpc IngestAuditEvent (IngestAuditEventRequest) returns (IngestAuditEventResponse);
+  // AUD-FR-004 | internal | idempotency=true
+  rpc PersistAuditEvent (PersistAuditEventRequest) returns (PersistAuditEventResponse);
+  // AUD-FR-010 | public | idempotency=false
+  rpc SearchAuditEvents (SearchAuditEventsRequest) returns (SearchAuditEventsResponse);
+  // AUD-FR-031 | admin | idempotency=true
+  rpc SetLegalHold (SetLegalHoldRequest) returns (SetLegalHoldResponse);
+  // AUD-FR-003 | internal | idempotency=false
+  rpc ValidateAuditDataMinimization (ValidateAuditDataMinimizationRequest) returns (ValidateAuditDataMinimizationResponse);
+  // AUD-FR-002 | internal | idempotency=false
+  rpc ValidateAuditEventProvenance (ValidateAuditEventProvenanceRequest) returns (ValidateAuditEventProvenanceResponse);
+  // AUD-FR-040 | admin | idempotency=false
+  rpc VerifyAuditIntegrity (VerifyAuditIntegrityRequest) returns (m8.common.v1.Operation);
+    }
+
+
+                message AcknowledgeRequiredAuditEventRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message AcknowledgeRequiredAuditEventResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ApplyRetentionPolicyRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message AuditAuditAccessRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message AuditAuditAccessResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateAuditExportRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetAuditEventRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetAuditEventResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetAuditExportRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetAuditExportResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetCorrelationChainRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetCorrelationChainResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetIntegrityProofRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetIntegrityProofResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetResourceHistoryRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetResourceHistoryResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message IngestAuditEventRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message IngestAuditEventResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message PersistAuditEventRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PersistAuditEventResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SearchAuditEventsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SearchAuditEventsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SetLegalHoldRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SetLegalHoldResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ValidateAuditDataMinimizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ValidateAuditDataMinimizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ValidateAuditEventProvenanceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ValidateAuditEventProvenanceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message VerifyAuditIntegrityRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }

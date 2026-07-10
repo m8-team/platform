@@ -1,0 +1,16 @@
+requirement_id: AUTH-FR-017
+status: APPROVED
+scenarios:
+- id: AUTH-FR-017-AC-01
+  given: refresh session cannot be continued and client permits CIBA
+  when: StartAuthentication is called with reason REFRESH_UNAVAILABLE
+  then:
+  - a new AuthenticationTransaction is created
+  - a Common Operation is returned
+  - AuthenticationStarted is written to Outbox
+  - the old transaction is not resumed
+- id: AUTH-FR-017-AC-02
+  given: two equivalent requests use the same idempotency key
+  when: both requests are processed
+  then:
+  - the same operation and authentication ID are returned

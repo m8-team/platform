@@ -1,0 +1,140 @@
+title: Executable Architecture Baseline
+href: index.md
+items:
+  - name: Approval
+    href: approval/index.md
+    items:
+      - name: Architecture Approval Record
+        href: approval/approval-record.md
+  - name: Product
+    href: product/index.md
+    items:
+      - name: MVP Scope
+        href: product/mvp-scope.md
+  - name: Contracts
+    href: contracts/index.md
+    items:
+      - name: Protobuf Baseline
+        href: contracts/protobuf-baseline.md
+      - name: Event Schemas
+        href: contracts/events/index.md
+      - name: Protobuf Sources
+        href: contracts/proto/index.md
+  - name: Data
+    href: data/index.md
+    items:
+      - name: Physical Data Model
+        href: data/physical-data-model.md
+      - name: Migration and Backup Policy
+        href: data/migration-backup-policy.md
+      - name: Sizing Assumptions
+        href: data/sizing-assumptions.md
+      - name: YDB DDL
+        href: data/ydb/index.md
+  - name: Repository
+    href: repository/index.md
+    items:
+      - name: Repository Scaffold
+        href: repository/scaffold.md
+  - name: Deployment
+    href: deployment/index.md
+    items:
+      - name: Deployment Topology
+        href: deployment/deployment-topology.md
+      - name: Secrets and Configuration
+        href: deployment/secrets-configuration.md
+      - name: Disaster Recovery
+        href: deployment/disaster-recovery.md
+      - name: Kubernetes Base
+        href: deployment/k8s/index.md
+  - name: CI
+    href: ci/index.md
+    items:
+      - name: CI Scripts
+        href: ci/scripts/index.md
+  - name: Testing
+    href: testing/index.md
+    items:
+      - name: Test Strategy
+        href: testing/test-strategy.md
+      - name: Load Test Plan
+        href: testing/load-test-plan.md
+      - name: Chaos and DR Test Plan
+        href: testing/chaos-dr-test-plan.md
+      - name: Acceptance Evidence
+        href: testing/acceptance/index.md
+  - name: SPDD
+    href: spdd/index.md
+    items:
+      - name: SPDD Execution Model
+        href: spdd/execution-model.md
+      - name: Generated Prompts
+        href: spdd/generated/index.md
+        items:
+          - name: Feature Prompts
+            href: spdd/generated/features/index.md
+          - name: Review Prompts
+            href: spdd/generated/reviews/index.md
+          - name: Task Prompts
+            href: spdd/generated/tasks/index.md
+      - name: Prompt Schemas
+        href: spdd/schemas/index.md
+  - name: Operations
+    href: operations/index.md
+    items:
+      - name: Observability and Dashboard Spec
+        href: operations/observability-dashboard.md
+      - name: Runbooks
+        href: operations/runbooks/index.md
+        items:
+          - name: Audit Integrity
+            href: operations/runbooks/audit-integrity.md
+          - name: Operation Stuck
+            href: operations/runbooks/operation-stuck.md
+          - name: Outbox Lag
+            href: operations/runbooks/outbox-lag.md
+          - name: Restore
+            href: operations/runbooks/restore.md
+          - name: Risk Unavailable
+            href: operations/runbooks/risk-unavailable.md
+          - name: SpiceDB Latency
+            href: operations/runbooks/spicedb-latency.md
+  - name: UI
+    href: ui/index.md
+    items:
+      - name: Gravity UI Specification
+        href: ui/gravity-ui-specification.md
+  - name: SDK and CLI
+    href: sdk/index.md
+    items:
+      - name: SDK and CLI Specification
+        href: sdk/sdk-cli-specification.md
+  - name: Security
+    href: security/index.md
+    items:
+      - name: Security Verification Plan
+        href: security/security-verification-plan.md
+      - name: Threat Models
+        href: security/threat-models/index.md
+        items:
+          - name: CIBA Authentication
+            href: security/threat-models/ciba-authentication.md
+          - name: Access Administration
+            href: security/threat-models/access-administration.md
+          - name: Audit Integrity
+            href: security/threat-models/audit-integrity.md
+          - name: Provisioning Credentials
+            href: security/threat-models/provisioning-credentials.md
+          - name: Step Up
+            href: security/threat-models/step-up.md
+  - name: Roadmap
+    href: roadmap/index.md
+    items:
+      - name: Implementation Roadmap
+        href: roadmap/implementation-roadmap.md
+      - name: Definition of Ready and Done
+        href: roadmap/definition-ready-done.md
+  - name: Reference
+    href: reference/index.md
+  - name: Validation Report
+    href: validation-report.md

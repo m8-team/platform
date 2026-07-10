@@ -1,0 +1,316 @@
+catalog_id: M8-ERR-000
+version: '1.0'
+status: APPROVED
+errors:
+- id: ERR-COMMON-001
+  code: INVALID_ARGUMENT
+  description: Один или несколько параметров не прошли проверку.
+  grpc_code: INVALID_ARGUMENT
+  retryable: false
+  http_status: 400
+- id: ERR-COMMON-002
+  code: UNAUTHENTICATED
+  description: Не подтверждена идентичность вызывающей стороны.
+  grpc_code: UNAUTHENTICATED
+  retryable: false
+  http_status: 401
+- id: ERR-COMMON-003
+  code: PERMISSION_DENIED
+  description: Недостаточно полномочий для операции.
+  grpc_code: PERMISSION_DENIED
+  retryable: false
+  http_status: 403
+- id: ERR-COMMON-004
+  code: NOT_FOUND
+  description: Запрошенный ресурс не найден или не раскрывается вызывающей стороне.
+  grpc_code: NOT_FOUND
+  retryable: false
+  http_status: 404
+- id: ERR-COMMON-005
+  code: ALREADY_EXISTS
+  description: Ресурс с конфликтующим уникальным ключом уже существует.
+  grpc_code: ALREADY_EXISTS
+  retryable: false
+  http_status: 409
+- id: ERR-COMMON-006
+  code: FAILED_PRECONDITION
+  description: Состояние ресурса не допускает операцию.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-COMMON-007
+  code: REVISION_MISMATCH
+  description: Переданная revision/ETag устарела.
+  grpc_code: ABORTED
+  retryable: true
+  http_status: 409
+- id: ERR-COMMON-008
+  code: IDEMPOTENCY_CONFLICT
+  description: Ключ идемпотентности ранее использован с другим телом.
+  grpc_code: ALREADY_EXISTS
+  retryable: false
+  http_status: 409
+- id: ERR-COMMON-009
+  code: RATE_LIMITED
+  description: Превышен лимит запросов или попыток.
+  grpc_code: RESOURCE_EXHAUSTED
+  retryable: true
+  http_status: 429
+- id: ERR-COMMON-010
+  code: DEADLINE_EXCEEDED
+  description: Операция не завершена в установленный срок.
+  grpc_code: DEADLINE_EXCEEDED
+  retryable: true
+  http_status: 504
+- id: ERR-COMMON-011
+  code: DEPENDENCY_UNAVAILABLE
+  description: Обязательная зависимость временно недоступна.
+  grpc_code: UNAVAILABLE
+  retryable: true
+  http_status: 503
+- id: ERR-COMMON-012
+  code: INTERNAL_ERROR
+  description: Непредвиденная внутренняя ошибка без раскрытия деталей.
+  grpc_code: INTERNAL
+  retryable: true
+  http_status: 500
+- id: ERR-COMMON-013
+  code: CANCELLED
+  description: Операция отменена.
+  grpc_code: CANCELLED
+  retryable: false
+  http_status: 499
+- id: ERR-COMMON-014
+  code: SCOPE_REQUIRED
+  description: Не указана обязательная ресурсная область.
+  grpc_code: INVALID_ARGUMENT
+  retryable: false
+  http_status: 400
+- id: ERR-COMMON-015
+  code: POLICY_DENIED
+  description: Политика безопасности запретила действие.
+  grpc_code: PERMISSION_DENIED
+  retryable: false
+  http_status: 403
+- id: ERR-COMMON-016
+  code: STEP_UP_REQUIRED
+  description: Для продолжения требуется более высокий AAL.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-COMMON-017
+  code: RISK_REVIEW_REQUIRED
+  description: Требуется ручная проверка риска.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-COMMON-018
+  code: OPERATION_IN_PROGRESS
+  description: Эквивалентная операция уже выполняется.
+  grpc_code: FAILED_PRECONDITION
+  retryable: true
+  http_status: 412
+- id: ERR-COMMON-019
+  code: DATA_CLASSIFICATION_VIOLATION
+  description: Данные нарушают правила классификации или минимизации.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-COMMON-020
+  code: CONTRACT_VERSION_UNSUPPORTED
+  description: Версия публичного контракта не поддерживается.
+  grpc_code: UNIMPLEMENTED
+  retryable: false
+  http_status: 501
+- id: ERR-RM-001
+  code: RESOURCE_HAS_DEPENDENCIES
+  description: Ресурс нельзя удалить до обработки зависимостей.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-RM-002
+  code: RESOURCE_PATH_CONFLICT
+  description: Целевой путь или имя ресурса конфликтует.
+  grpc_code: ALREADY_EXISTS
+  retryable: false
+  http_status: 409
+- id: ERR-RM-003
+  code: MOVE_NOT_ALLOWED
+  description: Перемещение нарушает иерархические инварианты.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-ID-001
+  code: EXTERNAL_IDENTITY_CONFLICT
+  description: Внешняя идентичность уже связана с другим Subject.
+  grpc_code: ALREADY_EXISTS
+  retryable: false
+  http_status: 409
+- id: ERR-ID-002
+  code: LAST_IDENTITY_UNLINK_FORBIDDEN
+  description: Нельзя отвязать последнюю пригодную идентичность.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-ID-003
+  code: USER_MERGE_CONFLICT
+  description: Пользователи не могут быть безопасно объединены.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-AUTH-001
+  code: CLIENT_NOT_FOUND
+  description: Клиент не найден.
+  grpc_code: NOT_FOUND
+  retryable: false
+  http_status: 404
+- id: ERR-AUTH-002
+  code: CLIENT_DISABLED
+  description: Клиент отключён.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-AUTH-003
+  code: FLOW_NOT_ALLOWED
+  description: Клиенту не разрешён запрошенный flow.
+  grpc_code: PERMISSION_DENIED
+  retryable: false
+  http_status: 403
+- id: ERR-AUTH-004
+  code: SUBJECT_NOT_FOUND
+  description: Subject не разрешён.
+  grpc_code: NOT_FOUND
+  retryable: false
+  http_status: 404
+- id: ERR-AUTH-005
+  code: CHALLENGE_EXPIRED
+  description: Challenge истёк.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-AUTH-006
+  code: CHALLENGE_ATTEMPTS_EXCEEDED
+  description: Исчерпан лимит попыток challenge.
+  grpc_code: RESOURCE_EXHAUSTED
+  retryable: false
+  http_status: 429
+- id: ERR-AUTH-007
+  code: CALLBACK_INVALID
+  description: Callback не прошёл проверку подписи, state или nonce.
+  grpc_code: UNAUTHENTICATED
+  retryable: false
+  http_status: 401
+- id: ERR-AUTH-008
+  code: HANDOFF_ALREADY_REDEEMED
+  description: Handoff уже использован.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-AUTH-009
+  code: PROVIDER_UNAVAILABLE
+  description: Поставщик аутентификации временно недоступен.
+  grpc_code: UNAVAILABLE
+  retryable: true
+  http_status: 503
+- id: ERR-AUTH-010
+  code: RISK_DECISION_UNAVAILABLE
+  description: Невозможно получить обязательное решение риска.
+  grpc_code: UNAVAILABLE
+  retryable: true
+  http_status: 503
+- id: ERR-ACC-001
+  code: AUTHORIZATION_MODEL_INVALID
+  description: Модель полномочий не прошла проверку.
+  grpc_code: INVALID_ARGUMENT
+  retryable: false
+  http_status: 400
+- id: ERR-ACC-002
+  code: RELATIONSHIP_CONFLICT
+  description: Изменение отношения конфликтует с текущей revision.
+  grpc_code: ABORTED
+  retryable: true
+  http_status: 409
+- id: ERR-ACC-003
+  code: ACCESS_BACKEND_UNAVAILABLE
+  description: Движок доступа недоступен; применяется заданный fail mode.
+  grpc_code: UNAVAILABLE
+  retryable: true
+  http_status: 503
+- id: ERR-RISK-001
+  code: RISK_POLICY_INVALID
+  description: Политика риска не прошла валидацию.
+  grpc_code: INVALID_ARGUMENT
+  retryable: false
+  http_status: 400
+- id: ERR-RISK-002
+  code: RISK_DECISION_EXPIRED
+  description: Решение риска больше нельзя использовать.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-RISK-003
+  code: INSUFFICIENT_RISK_SIGNALS
+  description: Недостаточно обязательных сигналов для решения.
+  grpc_code: FAILED_PRECONDITION
+  retryable: true
+  http_status: 412
+- id: ERR-PROV-001
+  code: RESOURCE_DEFINITION_NOT_FOUND
+  description: Определение управляемого ресурса не найдено.
+  grpc_code: NOT_FOUND
+  retryable: false
+  http_status: 404
+- id: ERR-PROV-002
+  code: DRIVER_UNAVAILABLE
+  description: Драйвер временно недоступен.
+  grpc_code: UNAVAILABLE
+  retryable: true
+  http_status: 503
+- id: ERR-PROV-003
+  code: PLACEMENT_UNAVAILABLE
+  description: Подходящее размещение не найдено.
+  grpc_code: FAILED_PRECONDITION
+  retryable: true
+  http_status: 412
+- id: ERR-PROV-004
+  code: RECONCILIATION_FAILED
+  description: Reconciliation завершён ошибкой.
+  grpc_code: INTERNAL
+  retryable: true
+  http_status: 500
+- id: ERR-PROV-005
+  code: MANUAL_REMEDIATION_REQUIRED
+  description: Автоматическое восстановление невозможно.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-AUD-001
+  code: AUDIT_PROVENANCE_INVALID
+  description: Происхождение AuditEvent не подтверждено.
+  grpc_code: UNAUTHENTICATED
+  retryable: false
+  http_status: 401
+- id: ERR-AUD-002
+  code: AUDIT_EVENT_REJECTED
+  description: AuditEvent нарушает схему или правила минимизации.
+  grpc_code: INVALID_ARGUMENT
+  retryable: false
+  http_status: 400
+- id: ERR-AUD-003
+  code: AUDIT_INTEGRITY_VIOLATION
+  description: Проверка целостности выявила несоответствие.
+  grpc_code: DATA_LOSS
+  retryable: false
+  http_status: 500
+- id: ERR-OPS-001
+  code: OPERATION_NOT_CANCELLABLE
+  description: Операция не поддерживает отмену в текущем состоянии.
+  grpc_code: FAILED_PRECONDITION
+  retryable: false
+  http_status: 412
+- id: ERR-OPS-002
+  code: OPERATION_RESULT_TYPE_MISMATCH
+  description: Тип результата не соответствует контракту операции.
+  grpc_code: INTERNAL
+  retryable: false
+  http_status: 500

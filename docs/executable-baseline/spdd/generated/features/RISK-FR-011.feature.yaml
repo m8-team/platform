@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RISK_FR_011
+  requirement_id: RISK-FR-011
+  title: Опубликовать Risk Policy
+  status: APPROVED
+  context: RISK
+  release: MVP-3
+traceability:
+  capability: CAP-RISK-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Опубликовать Risk Policy
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RISK-FR-011-AC-01
+  statement: Publish требует permission и audit.
+- id: RISK-FR-011-AC-02
+  statement: Активная версия выбирается детерминированно.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

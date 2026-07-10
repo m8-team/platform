@@ -1,0 +1,39 @@
+catalog_id: M8-SLO-001
+version: '1.0'
+status: APPROVED
+services:
+- service: m8-resource-manager
+  availability_target: 99.9
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-identity
+  availability_target: 99.9
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-authentication
+  availability_target: 99.95
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-access
+  availability_target: 99.95
+  latency_p95_ms: 150
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-risk-decision
+  availability_target: 99.9
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-provisioning
+  availability_target: 99.9
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d
+- service: m8-audit
+  availability_target: 99.9
+  latency_p95_ms: 300
+  error_rate_percent: 0.5
+  measurement_window: 30d

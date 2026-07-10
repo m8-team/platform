@@ -1,0 +1,9 @@
+# Architecture and contracts
+/foundation/ @platform-architecture
+/contracts/ @platform-architecture @api-governance
+/data/ @platform-architecture @data-governance
+/traceability/ @platform-architecture @delivery-engineering
+/adr/ @platform-architecture
+/spdd/ @platform-architecture @ai-engineering
+/pilot/auth-fr-017/ @authentication-team @security-team
+/governance-ci/ @platform-engineering @security-team

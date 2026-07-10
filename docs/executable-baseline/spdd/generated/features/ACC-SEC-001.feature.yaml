@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ACC_SEC_001
+  requirement_id: ACC-SEC-001
+  title: Fail mode проверок доступа
+  status: APPROVED
+  context: ACC
+  release: MVP-2
+traceability:
+  capability: CAP-AUTHZ-06
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Fail mode проверок доступа
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ACC-SEC-001-AC-01
+  statement: Fail-open допускается только для явно классифицированной некритической функции и принятого ADR.
+- id: ACC-SEC-001-AC-02
+  statement: Degraded decision помечается и наблюдается.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

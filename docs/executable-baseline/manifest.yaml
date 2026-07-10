@@ -1,0 +1,26 @@
+artifact_set_id: M8-EAB-001
+version: '1.0'
+status: APPROVED
+date: '2026-07-10'
+counts:
+  requirements: 214
+  mvp_1_requirements: 83
+  api_contracts: 156
+  event_schemas: 116
+  errors: 52
+  data_entities: 38
+  feature_prompts: 214
+  review_prompts: 214
+  task_prompts: 342
+  go_services: 7
+  threat_models: 5
+entrypoints:
+- 00_README.md
+- 00_approval/M8_Architecture_Approval_Record_v1_0.md
+- 01_product/M8_MVP_Scope_v1_0.md
+- 02_contracts/proto/
+- 03_data/ydb/
+- 04_repository/
+- 06_ci/
+- 08_spdd/
+- 13_roadmap/M8_Implementation_Roadmap_v1_0.md

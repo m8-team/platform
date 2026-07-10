@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PLT_ARC_001
+  requirement_id: PLT-ARC-001
+  title: База данных принадлежит одному сервису
+  status: APPROVED
+  context: PLT
+  release: MVP-1
+traceability:
+  capability: CAP-GOV-07
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: База данных принадлежит одному сервису
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PLT-ARC-001-AC-01
+  statement: Запрещённые подключения и импорты выявляются архитектурными проверками.
+- id: PLT-ARC-001-AC-02
+  statement: Межконтекстное чтение выполняется API, событием или локальной проекцией.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+    package m8.provisioning.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/provisioning/v1;provisioningv1";
+
+    service ProvisioningService {
+      // PROV-FR-010 | public | idempotency=true
+  rpc CreateManagedResource (CreateManagedResourceRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-042 | admin | idempotency=true
+  rpc CreateManualRemediation (CreateManualRemediationRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-012 | public | idempotency=true
+  rpc DeleteManagedResource (DeleteManagedResourceRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-032 | internal | idempotency=true
+  rpc DetectDrift (DetectDriftRequest) returns (DetectDriftResponse);
+  // PROV-FR-004 | admin | idempotency=true
+  rpc DisableDriver (DisableDriverRequest) returns (DisableDriverResponse);
+  // PROV-FR-051 | public | idempotency=false
+  rpc GetManagedResource (GetManagedResourceRequest) returns (GetManagedResourceResponse);
+  // PROV-FR-050 | public | idempotency=false
+  rpc GetManagedResourceOutputs (GetManagedResourceOutputsRequest) returns (GetManagedResourceOutputsResponse);
+  // PROV-FR-031 | public | idempotency=false
+  rpc GetObservedState (GetObservedStateRequest) returns (GetObservedStateResponse);
+  // PROV-FR-034 | public | idempotency=true
+  rpc ImportManagedResource (ImportManagedResourceRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-013 | public | idempotency=true
+  rpc PauseReconciliation (PauseReconciliationRequest) returns (PauseReconciliationResponse);
+  // PROV-FR-021 | internal | idempotency=true
+  rpc PinPlacement (PinPlacementRequest) returns (PinPlacementResponse);
+  // PROV-FR-002 | public | idempotency=true
+  rpc PublishResourceDefinition (PublishResourceDefinitionRequest) returns (PublishResourceDefinitionResponse);
+  // PROV-FR-030 | internal | idempotency=true
+  rpc ReconcileManagedResource (ReconcileManagedResourceRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-003 | admin | idempotency=true
+  rpc RegisterDriver (RegisterDriverRequest) returns (RegisterDriverResponse);
+  // PROV-FR-001 | public | idempotency=true
+  rpc RegisterResourceDefinition (RegisterResourceDefinitionRequest) returns (RegisterResourceDefinitionResponse);
+  // PROV-FR-033 | public | idempotency=true
+  rpc RemediateDrift (RemediateDriftRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-014 | public | idempotency=true
+  rpc ResumeReconciliation (ResumeReconciliationRequest) returns (ResumeReconciliationResponse);
+  // PROV-FR-040 | admin | idempotency=true
+  rpc RetryProvisioningStep (RetryProvisioningStepRequest) returns (RetryProvisioningStepResponse);
+  // PROV-FR-041 | admin | idempotency=true
+  rpc RunCompensation (RunCompensationRequest) returns (m8.common.v1.Operation);
+  // PROV-FR-020 | internal | idempotency=true
+  rpc SelectPlacement (SelectPlacementRequest) returns (SelectPlacementResponse);
+  // PROV-FR-011 | public | idempotency=true
+  rpc UpdateDesiredState (UpdateDesiredStateRequest) returns (m8.common.v1.Operation);
+    }
+
+
+                message CreateManagedResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateManualRemediationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DeleteManagedResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DetectDriftRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DetectDriftResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DisableDriverRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DisableDriverResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetManagedResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetManagedResourceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetManagedResourceOutputsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetManagedResourceOutputsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetObservedStateRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetObservedStateResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ImportManagedResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PauseReconciliationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PauseReconciliationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message PinPlacementRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PinPlacementResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message PublishResourceDefinitionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PublishResourceDefinitionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ReconcileManagedResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RegisterDriverRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RegisterDriverResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RegisterResourceDefinitionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RegisterResourceDefinitionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RemediateDriftRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ResumeReconciliationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ResumeReconciliationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RetryProvisioningStepRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RetryProvisioningStepResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RunCompensationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SelectPlacementRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SelectPlacementResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateDesiredStateRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }

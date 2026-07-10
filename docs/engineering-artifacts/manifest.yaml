@@ -1,0 +1,24 @@
+artifact_set_id: M8-ARTIFACT-SET-001
+version: '0.1'
+date: '2026-07-10'
+normative_sources:
+  - PADS-000@1.0
+  - M8-REQ-000@0.1
+counts:
+  requirements: 214
+  api_contracts: 156
+  event_contracts: 116
+  errors: 52
+  data_entities: 38
+  trace_records: 214
+  adrs: 10
+  context_prompts: 7
+  pilot_tasks: 6
+entrypoints:
+  - index.md
+  - foundation/index.md
+  - contracts/api-contract-catalog.md
+  - traceability/traceability-registry.md
+  - spdd/constitution.md
+  - pilot/auth-fr-017/index.md
+  - governance-ci/fitness-functions.md

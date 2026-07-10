@@ -1,0 +1,29 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-AUTH-017-05
+  kind: task
+  parent_feature: SP-FEATURE-AUTH-017
+  title: API, validation and contract tests
+objective: API, validation and contract tests
+allowed_paths:
+- api/m8/authentication/v1/**
+- internal/authentication/transport/**
+forbidden:
+- cross-context database access
+- unreviewed public contract change
+- breaking existing fields
+implementation_steps:
+- Implement ConnectRPC handler
+- Protovalidate and metadata checks
+- LRO metadata/result
+- Buf/contract tests
+requirements:
+- AUTH-FR-017
+tests:
+- unit/integration tests applicable to task
+output:
+- changed_files
+- test_results
+- decisions
+- open_questions
+- traceability_changes

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.m8.local/events/base-envelope.v1.schema.json",
+  "title": "M8 Integration Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "producer",
+    "occurred_at",
+    "aggregate_type",
+    "aggregate_id",
+    "aggregate_revision",
+    "data"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$"
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "causation_id": {
+      "type": "string"
+    },
+    "aggregate_type": {
+      "type": "string"
+    },
+    "aggregate_id": {
+      "type": "string"
+    },
+    "aggregate_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "partition_key": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "data": {
+      "type": "object"
+    },
+    "attributes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

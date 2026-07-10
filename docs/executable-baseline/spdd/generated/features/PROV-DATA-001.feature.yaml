@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PROV_DATA_001
+  requirement_id: PROV-DATA-001
+  title: Разделение desired и observed state
+  status: APPROVED
+  context: PROV
+  release: MVP-3
+traceability:
+  capability: CAP-PROV-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Разделение desired и observed state
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PROV-DATA-001-AC-01
+  statement: Client не может записывать observed fields.
+- id: PROV-DATA-001-AC-02
+  statement: Каждое observed state имеет source, time и desired revision correlation.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

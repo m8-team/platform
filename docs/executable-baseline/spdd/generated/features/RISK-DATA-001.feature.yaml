@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RISK_DATA_001
+  requirement_id: RISK-DATA-001
+  title: Неизменяемость Risk Assessment
+  status: APPROVED
+  context: RISK
+  release: MVP-3
+traceability:
+  capability: CAP-RISK-04
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Неизменяемость Risk Assessment
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RISK-DATA-001-AC-01
+  statement: Correction создаёт новое assessment с reference на предыдущее.
+- id: RISK-DATA-001-AC-02
+  statement: Retention входных signals соответствует privacy policy.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

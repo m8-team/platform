@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-OPS_FR_002
+  requirement_id: OPS-FR-002
+  title: Перечислить Operations
+  status: APPROVED
+  context: OPS
+  release: MVP-1
+traceability:
+  capability: CAP-OPS-02
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Перечислить Operations
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: OPS-FR-002-AC-01
+  statement: Пагинация стабильна.
+- id: OPS-FR-002-AC-02
+  statement: Список ограничен доступным scope.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

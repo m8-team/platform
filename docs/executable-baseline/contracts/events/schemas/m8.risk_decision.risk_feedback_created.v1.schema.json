@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.m8.local/events/m8.risk_decision.risk_feedback_created.v1.schema.json",
+  "title": "RiskFeedbackCreated",
+  "allOf": [
+    {
+      "$ref": "base-envelope.v1.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "event_type": {
+          "const": "m8.risk_decision.risk_feedback_created.v1"
+        },
+        "schema_version": {
+          "const": "v1"
+        },
+        "producer": {
+          "const": "m8-risk-decision"
+        },
+        "partition_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "change_type"
+          ],
+          "properties": {
+            "change_type": {
+              "const": "RiskFeedbackCreated"
+            },
+            "resource": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "changed_fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

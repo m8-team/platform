@@ -1,0 +1,20 @@
+plan_id: M8-RELEASE-PLAN-001
+version: '1.0'
+status: APPROVED
+waves:
+- id: MVP-1
+  goal: 'Рабочий control plane: resource hierarchy, identity, access, CIBA authentication, audit, operations.'
+  requirements: 83
+  exit_criteria:
+  - Первый вертикальный сценарий работает в production-like окружении.
+  - Все mutation API идемпотентны и аудируются.
+  - Outbox/Inbox и Common Operation подтверждены интеграционными тестами.
+- id: MVP-2
+  goal: Полные lifecycle-функции IAM, access reviews, advanced authentication и audit export.
+  requirements: 86
+- id: MVP-3
+  goal: Risk Decision и Provisioning с reconciliation и drift management.
+  requirements: 45
+- id: GA-1
+  goal: Hardening, multi-region readiness, SDK, SLO и эксплуатационная зрелость.
+  requirements: 0

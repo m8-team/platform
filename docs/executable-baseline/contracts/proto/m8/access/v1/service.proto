@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+    package m8.access.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/access/v1;accessv1";
+
+    service AccessService {
+      // ACC-FR-002 | public | idempotency=false
+  rpc BatchCheckPermissions (BatchCheckPermissionsRequest) returns (BatchCheckPermissionsResponse);
+  // ACC-FR-022 | public | idempotency=true
+  rpc BatchUpdateRelationships (BatchUpdateRelationshipsRequest) returns (BatchUpdateRelationshipsResponse);
+  // ACC-FR-001 | public | idempotency=false
+  rpc CheckPermission (CheckPermissionRequest) returns (CheckPermissionResponse);
+  // ACC-FR-031 | public | idempotency=false
+  rpc CheckPolicyImpact (CheckPolicyImpactRequest) returns (CheckPolicyImpactResponse);
+  // ACC-FR-041 | public | idempotency=true
+  rpc CompleteAccessReview (CompleteAccessReviewRequest) returns (CompleteAccessReviewResponse);
+  // ACC-FR-040 | public | idempotency=true
+  rpc CreateAccessReview (CreateAccessReviewRequest) returns (m8.common.v1.Operation);
+  // ACC-FR-010 | public | idempotency=true
+  rpc CreatePermissionDefinition (CreatePermissionDefinitionRequest) returns (CreatePermissionDefinitionResponse);
+  // ACC-FR-020 | public | idempotency=true
+  rpc CreateRelationship (CreateRelationshipRequest) returns (CreateRelationshipResponse);
+  // ACC-FR-011 | public | idempotency=true
+  rpc CreateRole (CreateRoleRequest) returns (CreateRoleResponse);
+  // ACC-FR-014 | public | idempotency=true
+  rpc CreateRoleBinding (CreateRoleBindingRequest) returns (CreateRoleBindingResponse);
+  // ACC-FR-021 | public | idempotency=true
+  rpc DeleteRelationship (DeleteRelationshipRequest) returns (DeleteRelationshipResponse);
+  // ACC-FR-013 | public | idempotency=true
+  rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+  // ACC-FR-003 | public | idempotency=false
+  rpc ExplainAccessDecision (ExplainAccessDecisionRequest) returns (ExplainAccessDecisionResponse);
+  // ACC-FR-004 | public | idempotency=false
+  rpc ListEffectivePermissions (ListEffectivePermissionsRequest) returns (ListEffectivePermissionsResponse);
+  // ACC-FR-005 | public | idempotency=false
+  rpc ListSubjectsWithAccess (ListSubjectsWithAccessRequest) returns (ListSubjectsWithAccessResponse);
+  // ACC-FR-050 | admin | idempotency=true
+  rpc PublishAuthorizationModel (PublishAuthorizationModelRequest) returns (m8.common.v1.Operation);
+  // ACC-FR-015 | public | idempotency=true
+  rpc RevokeRoleBinding (RevokeRoleBindingRequest) returns (RevokeRoleBindingResponse);
+  // ACC-FR-016 | public | idempotency=true
+  rpc SetRoleBindingExpiration (SetRoleBindingExpirationRequest) returns (SetRoleBindingExpirationResponse);
+  // ACC-FR-030 | public | idempotency=false
+  rpc SimulateAccessChange (SimulateAccessChangeRequest) returns (SimulateAccessChangeResponse);
+  // ACC-FR-051 | admin | idempotency=true
+  rpc SynchronizeSpiceDB (SynchronizeSpiceDBRequest) returns (m8.common.v1.Operation);
+  // ACC-FR-012 | public | idempotency=true
+  rpc UpdateRole (UpdateRoleRequest) returns (UpdateRoleResponse);
+    }
+
+
+                message BatchCheckPermissionsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message BatchCheckPermissionsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message BatchUpdateRelationshipsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message BatchUpdateRelationshipsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CheckPermissionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CheckPermissionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CheckPolicyImpactRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CheckPolicyImpactResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CompleteAccessReviewRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CompleteAccessReviewResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateAccessReviewRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreatePermissionDefinitionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreatePermissionDefinitionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateRelationshipRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRelationshipResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateRoleRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRoleResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateRoleBindingRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRoleBindingResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DeleteRelationshipRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DeleteRelationshipResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DeleteRoleRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message DeleteRoleResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ExplainAccessDecisionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ExplainAccessDecisionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ListEffectivePermissionsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ListEffectivePermissionsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ListSubjectsWithAccessRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ListSubjectsWithAccessResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message PublishAuthorizationModelRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RevokeRoleBindingRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RevokeRoleBindingResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SetRoleBindingExpirationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SetRoleBindingExpirationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SimulateAccessChangeRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SimulateAccessChangeResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SynchronizeSpiceDBRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateRoleRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateRoleResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }

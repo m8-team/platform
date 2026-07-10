@@ -3,6 +3,10 @@
 Документация в `docs/` разделена на два слоя:
 
 - ручной контент в `docs/services`, `docs/index.md`, `docs/toc.yaml`;
+- архитектурные документы в `docs/architecture`, включая разнесённый PADS в `docs/architecture/pads`;
+- каталог требований в `docs/architecture/requirements`;
+- инженерные артефакты в `docs/engineering-artifacts`;
+- исполнимая архитектурная базовая линия в `docs/executable-baseline`;
 - локальные developer guides, например `docs/local-clickstack.md`;
 - автогенерируемый OpenAPI-контент в `docs/_generated/openapi`;
 - автогенерируемый gRPC reference в `docs/services/*/api-reference/grpc`.

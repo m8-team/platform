@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PLT_SEC_003
+  requirement_id: PLT-SEC-003
+  title: Минимизация персональных данных
+  status: APPROVED
+  context: PLT
+  release: MVP-1
+traceability:
+  capability: CAP-ID-03
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Минимизация персональных данных
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PLT-SEC-003-AC-01
+  statement: Новая копия персонального атрибута имеет owner, purpose, retention и deletion rule.
+- id: PLT-SEC-003-AC-02
+  statement: Privacy deletion обновляет или удаляет допустимые проекции.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

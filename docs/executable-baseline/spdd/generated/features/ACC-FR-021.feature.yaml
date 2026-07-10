@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ACC_FR_021
+  requirement_id: ACC-FR-021
+  title: Удалить Relationship
+  status: APPROVED
+  context: ACC
+  release: MVP-1
+traceability:
+  capability: CAP-AUTHZ-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Удалить Relationship
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ACC-FR-021-AC-01
+  statement: Повтор удаления считается успешным или not present по контракту без побочного эффекта.
+- id: ACC-FR-021-AC-02
+  statement: Публикуется RelationshipDeleted.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

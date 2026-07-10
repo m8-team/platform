@@ -1,0 +1,3 @@
+syntax = "proto3"; package google.protobuf;
+option go_package = "google.golang.org/protobuf/types/known/fieldmaskpb";
+message FieldMask { repeated string paths = 1; }

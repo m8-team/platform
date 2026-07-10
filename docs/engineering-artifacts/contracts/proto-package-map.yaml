@@ -1,0 +1,39 @@
+version: '0.1'
+packages:
+- context: Resource Manager
+  package: m8.resource_manager.v1
+  service: ResourceManagerService
+  go_package: github.com/m8-platform/api/gen/go/resource_manager/v1
+- context: Identity
+  package: m8.identity.v1
+  service: IdentityService
+  go_package: github.com/m8-platform/api/gen/go/identity/v1
+- context: Authentication
+  package: m8.authentication.v1
+  service: AuthenticationService
+  go_package: github.com/m8-platform/api/gen/go/authentication/v1
+- context: Access
+  package: m8.access.v1
+  service: AccessService
+  go_package: github.com/m8-platform/api/gen/go/access/v1
+- context: Risk Decision
+  package: m8.risk_decision.v1
+  service: RiskDecisionService
+  go_package: github.com/m8-platform/api/gen/go/risk_decision/v1
+- context: Provisioning
+  package: m8.provisioning.v1
+  service: ProvisioningService
+  go_package: github.com/m8-platform/api/gen/go/provisioning/v1
+- context: Audit
+  package: m8.audit.v1
+  service: AuditService
+  go_package: github.com/m8-platform/api/gen/go/audit/v1
+- context: Common Operation
+  package: m8.operations.v1
+  service: OperationsService
+  go_package: github.com/m8-platform/api/gen/go/operations/v1
+common_packages:
+- m8.common.v1
+- google.longrunning
+- google.rpc
+- buf.validate

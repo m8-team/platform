@@ -1,0 +1,119 @@
+title: Engineering Artifacts
+href: index.md
+items:
+  - name: Foundation
+    href: foundation/index.md
+  - name: Contracts
+    href: contracts/index.md
+    items:
+      - name: API Contract Catalog
+        href: contracts/api-contract-catalog.md
+      - name: Event Contract Catalog
+        href: contracts/event-contract-catalog.md
+      - name: Error Catalog
+        href: contracts/error-catalog.md
+      - name: Proto Package Map
+        href: contracts/proto-package-map.md
+  - name: Data
+    href: data/index.md
+    items:
+      - name: Data Ownership Registry
+        href: data/data-ownership-registry.md
+  - name: Traceability
+    href: traceability/index.md
+    items:
+      - name: Traceability Registry
+        href: traceability/traceability-registry.md
+  - name: ADR
+    href: adr/index.md
+    items:
+      - name: ADR Baseline
+        href: adr/baseline.md
+      - name: ADR-0001 Bounded Contexts
+        href: adr/adr-0001-bounded-contexts.md
+      - name: ADR-0002 YDB Control Plane
+        href: adr/adr-0002-ydb-control-plane.md
+      - name: ADR-0003 YDB Topics and Kafka
+        href: adr/adr-0003-ydb-topics-kafka.md
+      - name: ADR-0004 Temporal
+        href: adr/adr-0004-temporal.md
+      - name: ADR-0005 Common Operation
+        href: adr/adr-0005-common-operation.md
+      - name: ADR-0006 Keycloak CIBA
+        href: adr/adr-0006-keycloak-ciba.md
+      - name: ADR-0007 SpiceDB
+        href: adr/adr-0007-spicedb.md
+      - name: ADR-0008 Protobuf ConnectRPC
+        href: adr/adr-0008-protobuf-connectrpc.md
+      - name: ADR-0009 Transactional Outbox Inbox
+        href: adr/adr-0009-transactional-outbox-inbox.md
+      - name: ADR-0010 Multi-region
+        href: adr/adr-0010-multi-region.md
+  - name: SPDD
+    href: spdd/index.md
+    items:
+      - name: Constitution
+        href: spdd/constitution.md
+      - name: Context Prompts
+        href: spdd/contexts/index.md
+        items:
+          - name: Access
+            href: spdd/contexts/access.md
+          - name: Audit
+            href: spdd/contexts/audit.md
+          - name: Authentication
+            href: spdd/contexts/authentication.md
+          - name: Identity
+            href: spdd/contexts/identity.md
+          - name: Provisioning
+            href: spdd/contexts/provisioning.md
+          - name: Resource Manager
+            href: spdd/contexts/resource-manager.md
+          - name: Risk Decision
+            href: spdd/contexts/risk-decision.md
+      - name: Templates
+        href: spdd/templates/index.md
+  - name: Pilot AUTH-FR-017
+    href: pilot/auth-fr-017/index.md
+    items:
+      - name: Requirement Specification
+        href: pilot/auth-fr-017/requirement-specification.md
+      - name: Use Case
+        href: pilot/auth-fr-017/use-case.md
+      - name: API Contract
+        href: pilot/auth-fr-017/api-contract.md
+      - name: Event Contracts
+        href: pilot/auth-fr-017/event-contracts.md
+      - name: Error Contract
+        href: pilot/auth-fr-017/error-contract.md
+      - name: Feature Prompt
+        href: pilot/auth-fr-017/feature-prompt.md
+      - name: Task Prompts
+        href: pilot/auth-fr-017/task-prompts/index.md
+      - name: Review Prompt
+        href: pilot/auth-fr-017/review-prompt.md
+      - name: Acceptance Tests
+        href: pilot/auth-fr-017/acceptance-tests.md
+      - name: Implementation Manifest
+        href: pilot/auth-fr-017/implementation-manifest.md
+      - name: Release Evidence Template
+        href: pilot/auth-fr-017/release-evidence-template.md
+  - name: Governance CI
+    href: governance-ci/index.md
+    items:
+      - name: Fitness Functions
+        href: governance-ci/fitness-functions.md
+      - name: CI Checks
+        href: governance-ci/ci-checks.md
+      - name: Schemas
+        href: governance-ci/schemas/index.md
+      - name: Artifact Validator
+        href: governance-ci/validator.md
+      - name: Validation Report
+        href: governance-ci/validation-report.md
+      - name: Pull Request Template
+        href: governance-ci/pull-request-template.md
+      - name: CODEOWNERS Example
+        href: governance-ci/codeowners.md
+  - name: Manifest
+    href: manifest.md

@@ -1,0 +1,17 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: M8 Event Contract
+type: object
+required:
+- id
+- event_type
+- producer
+- topic
+- partition_key
+- delivery
+properties:
+  id:
+    pattern: ^EVT-[A-Z]+-[0-9]{3}(?:-[0-9]+)?$
+  delivery:
+    const: at-least-once
+  deduplication_key:
+    const: event_id
