@@ -3,7 +3,7 @@ href: index.md
 items:
   - name: Архитектура
     items:
-      - name: PADS v0.1
+      - name: PADS
         href: M8_Platform_Architecture_and_Domain_Specification_PADS.md
   - name: Сервисы
     items:

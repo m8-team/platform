@@ -8,7 +8,7 @@
     "sync:grpc": "node ./scripts/sync-grpc.mjs",
     "sync:api": "npm run sync:openapi",
     "build": "npm run sync:api && yfm build --input . --output dist --ignore dist \"services/**/api-reference/grpc/**\" --allow-html -e ./extensions/openapi-extension.cjs",
-    "dev": "ulimit -n 4096 && yfm build --input . --output dist --vars '{\"dev\":true}' --ignore dist \"dist/**\" node_modules \"node_modules/**\" _generated \"_generated/**\" \"services/**/api-reference/grpc/**\" \"services/**/api-reference/rest/**\" --allow-html -e ./extensions/openapi-extension.cjs --watch"
+    "dev": "ulimit -n 4096 && CHOKIDAR_USEPOLLING=1 CHOKIDAR_INTERVAL=1000 yfm build --input . --output dist --vars '{\"dev\":true}' --ignore dist \"dist/**\" node_modules \"node_modules/**\" _generated \"_generated/**\" \"services/**/api-reference/grpc/**\" \"services/**/api-reference/rest/**\" --allow-html -e ./extensions/openapi-extension.cjs --watch"
   },
   "dependencies": {
     "@diplodoc/cli": "^5.32.1",

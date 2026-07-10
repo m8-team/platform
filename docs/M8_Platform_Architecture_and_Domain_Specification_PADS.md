@@ -1,57 +1,60 @@
 # M8 Platform Architecture & Domain Specification
-_PADS-000 · Версия 0.8 · Базовая архитектура и предметная модель · 10 июля 2026 года_
+_PADS-000 · Версия 1.0 · Базовая архитектура и предметная модель · 10 июля 2026 года_
 
-| Field | Value |
+| Поле | Значение |
 | --- | --- |
-| Document ID | PADS-000 |
-| Version | 0.8 |
-| Status | Проект базовой спецификации |
-| Owner | Sergey Gorbachev |
-| Platform | M8 Platform |
-| Scope | Resource Manager, Identity, Authentication, Access, Risk Decision, Provisioning, Audit, Common Operation |
-| Architecture style | Domain-Driven Design, Clean Architecture, API First, Event-Driven, Control Plane |
-| Core stack | Go, Protobuf, ConnectRPC, buf.validate / Protovalidate, YDB, YDB Topics, Redis, Temporal, SpiceDB, Keycloak, OpenTelemetry |
+| Идентификатор документа | PADS-000 |
+| Версия | 1.0 |
+| Статус | Базовая нормативная спецификация |
+| Владелец | Sergey Gorbachev |
+| Платформа | M8 Platform |
+| Область | Resource Manager, Identity, Authentication, Access, Risk Decision, Provisioning, Audit, Common Operation |
+| Архитектурный стиль | Domain-Driven Design, Clean Architecture, API First, Event-Driven, Control Plane |
+| Базовый стек | Go, Protobuf, ConnectRPC, buf.validate / Protovalidate, YDB, YDB Topics, Redis, Temporal, SpiceDB, Keycloak, OpenTelemetry |
 
-> **Normative intent:** This document is the first source of truth for platform boundaries, domain language, ownership, requirements distribution and SPDD mapping. Any deviation must be recorded as an ADR.
+> **Нормативный статус:** настоящий документ является основным источником истины для границ платформы, предметного языка, владения данными, распределения требований и SPDD. Любое отклонение должно быть оформлено ADR или ограниченным по сроку архитектурным исключением.
 
 
 ---
 
-# 0. Document Control
+# 0. Управление документом
 
-| Version | Date | Status | Description |
+| Версия | Дата | Статус | Описание |
 | --- | --- | --- | --- |
-| 0.8 | 2026-07-10 | Draft baseline | Глава 8 переработана на русском языке: определены ограниченные контексты, типы отношений, опубликованные языки, синхронные и асинхронные зависимости, антикоррупционные слои, владельцы сквозных процессов и правила SPDD-трассировки. |
-| 0.7 | 2026-07-10 | Draft baseline | Глава 7 переработана на русском языке: определены агрегаты, сущности, объекты-значения, инварианты, жизненные циклы, межконтекстные ссылки и правила трассировки предметной модели. |
-| 0.6 | 2026-07-10 | Draft baseline | Глава 6 переработана на русском языке: определена карта бизнес-возможностей, их декомпозиция, владельцы, зависимости, зрелость и связь с требованиями и SPDD. |
-| 0.5 | 2026-07-10 | Draft baseline | Глава 5 переработана на русском языке: определён единый язык предметной области, владельцы понятий, правила именования и проверки соответствия. |
-| 0.4 | 2026-07-10 | Draft baseline | Глава 4 переработана на русском языке: определены 86 архитектурных принципов, проверки соответствия и порядок исключений через ADR. |
-| 0.3 | 2026-07-10 | Draft baseline | Глава 3 переработана на русском языке: определены 36 целей проектирования, их приоритеты, механизмы и критерии проверки. |
-| 0.2 | 2026-07-10 | Draft baseline | Главы 1 и 2 переработаны на русском языке и расширены до нормативной спецификации. |
-| 0.1 | 2026-07-10 | Draft baseline | Initial PADS artifact: platform vision, domain model, context map, service boundaries, requirements model and SPDD mapping. |
+| 1.0 | 2026-07-10 | Базовая версия | Завершены и нормативно расширены главы 11–24: владение данными, API, события, интеграции, безопасность, операции, ошибки, наблюдаемость, атрибуты качества, требования, трассировка, SPDD, управление архитектурой и глоссарий. |
+| 0.10 | 2026-07-10 | Проект | Глава 10 переработана на русском языке: определены границы Shared Kernel, канонические общие контракты, правила владения, совместимости, версионирования, кодогенерации, проверок и SPDD-трассировки. |
+| 0.9 | 2026-07-10 | Проект | Глава 9 переработана на русском языке: определены нормативные спецификации всех ограниченных контекстов, их модели, команды, запросы, события, интеграции, безопасность, отказоустойчивость и SPDD-контекст. |
+| 0.8 | 2026-07-10 | Проект | Глава 8 переработана на русском языке: определены ограниченные контексты, типы отношений, опубликованные языки, синхронные и асинхронные зависимости, антикоррупционные слои, владельцы сквозных процессов и правила SPDD-трассировки. |
+| 0.7 | 2026-07-10 | Проект | Глава 7 переработана на русском языке: определены агрегаты, сущности, объекты-значения, инварианты, жизненные циклы, межконтекстные ссылки и правила трассировки предметной модели. |
+| 0.6 | 2026-07-10 | Проект | Глава 6 переработана на русском языке: определена карта бизнес-возможностей, их декомпозиция, владельцы, зависимости, зрелость и связь с требованиями и SPDD. |
+| 0.5 | 2026-07-10 | Проект | Глава 5 переработана на русском языке: определён единый язык предметной области, владельцы понятий, правила именования и проверки соответствия. |
+| 0.4 | 2026-07-10 | Проект | Глава 4 переработана на русском языке: определены 86 архитектурных принципов, проверки соответствия и порядок исключений через ADR. |
+| 0.3 | 2026-07-10 | Проект | Глава 3 переработана на русском языке: определены 36 целей проектирования, их приоритеты, механизмы и критерии проверки. |
+| 0.2 | 2026-07-10 | Проект | Главы 1 и 2 переработаны на русском языке и расширены до нормативной спецификации. |
+| 0.1 | 2026-07-10 | Проект | Initial PADS artifact: platform vision, domain model, context map, service boundaries, requirements model and SPDD mapping. |
 
-## 0.1 How to use this document
+## 0.1. Как использовать документ
 
-PADS is a normative engineering specification. It should be read before writing requirements, protobuf contracts, implementation tasks, ADRs, SPDD prompts or generated code. It defines the vocabulary, service boundaries and architectural constraints that all subsequent artifacts must reference.
+PADS является нормативной инженерной спецификацией. Документ необходимо использовать до подготовки требований, Protobuf-контрактов, задач реализации, ADR, SPDD-промптов и сгенерированного кода. Все последующие артефакты должны ссылаться на определённые здесь термины, границы сервисов и архитектурные ограничения.
 
-- Use section identifiers as stable anchors in requirements, ADRs, prompts and tests.
-- Use MUST for mandatory constraints, SHOULD for strong defaults and MAY for allowed optional behavior.
-- When a product decision conflicts with this document, create or update an ADR before implementation.
-- Do not copy external system concepts directly into the domain model; use anti-corruption layers.
+- Идентификаторы разделов используются как устойчивые ссылки в требованиях, ADR, промптах и тестах.
+- `MUST` обозначает обязательное правило, `SHOULD` — сильную рекомендацию, `MAY` — допустимый вариант.
+- При конфликте продуктового решения с PADS до реализации создаётся или обновляется ADR.
+- Понятия внешних систем не переносятся в предметную модель напрямую; применяется антикоррупционный слой.
 
-## 0.2 Normative language
+## 0.2. Нормативный язык
 
-| Term | Meaning |
+| Термин | Значение |
 | --- | --- |
-| MUST | Mandatory rule. Implementation is invalid when the rule is violated. |
-| MUST NOT | Mandatory prohibition. The system must not implement the described behavior. |
-| SHOULD | Strong recommendation. Deviation requires documented reasoning. |
-| MAY | Allowed option. Implementation may choose it when it does not violate mandatory rules. |
+| `MUST` | Обязательное правило. Реализация, нарушающая правило, не соответствует спецификации. |
+| `MUST NOT` | Обязательный запрет. Описанное поведение не допускается. |
+| `SHOULD` | Сильная рекомендация. Отклонение требует документированного обоснования. |
+| `MAY` | Допустимый вариант, если он не нарушает обязательные правила. |
 
 
 ---
 
-# Table of Contents
+# Оглавление
 
 - 1. Назначение и область действия
 - 2. Видение платформы
@@ -61,22 +64,25 @@ PADS is a normative engineering specification. It should be read before writing 
 - 6. Карта бизнес-возможностей платформы
 - 7. Модель предметной области
 - 8. Карта контекстов
-- 9. Bounded Context Specifications
-- 10. Shared Kernel and Common Contracts
-- 11. Data Ownership
-- 12. API Design Rules
-- 13. Event Design Rules
-- 14. Integration and Consistency Model
-- 15. Security Architecture
-- 16. Long Running Operations
-- 17. Error Model
-- 18. Observability
-- 19. Quality Attributes
-- 20. Requirements Distribution
-- 21. Traceability Model
-- 22. SPDD Mapping
-- 23. Architecture Governance
-- 24. Glossary
+- 9. Спецификации ограниченных контекстов
+- 10. Shared Kernel и общие контракты
+- 11. Владение данными
+- 12. Правила проектирования API
+- 13. Правила проектирования событий
+- 14. Модель интеграции и согласованности
+- 15. Архитектура безопасности
+- 16. Длительные операции
+- 17. Модель ошибок
+- 18. Наблюдаемость
+- 19. Атрибуты качества
+- 20. Распределение требований
+- 21. Модель трассировки
+- 22. SPDD: проведение требований до Structured Prompt
+- 23. Архитектурное управление
+- 24. Глоссарий
+- Приложение A. Начальная структура репозитория
+- Приложение B. Минимальное определение готовности
+- Приложение C. План последующих артефактов
 
 
 ---
@@ -5822,559 +5828,7797 @@ ADR должен включать:
 
 ---
 
-# 9. Bounded Context Specifications
+# 9. Спецификации ограниченных контекстов
 
-## 9.1 Resource Manager (CTX-RM)
+## 9.1. Назначение главы
 
-| Property | Specification |
+Настоящая глава определяет нормативные спецификации ограниченных контекстов M8 Platform. Для каждого контекста фиксируются:
+
+- предметное назначение и граница ответственности;
+- бизнес-возможности, реализуемые контекстом;
+- принадлежащие контексту агрегаты, сущности и объекты-значения;
+- инварианты и жизненные циклы;
+- команды, запросы, API и события;
+- входящие и исходящие зависимости;
+- модель согласованности и владения данными;
+- требования безопасности, аудита и наблюдаемости;
+- поведение при отказах;
+- запрещённые обязанности и зависимости;
+- пространство идентификаторов требований;
+- состав Context Prompt для SPDD.
+
+Спецификация ограниченного контекста описывает **предметную границу**, а не структуру репозитория, процесса или Kubernetes Deployment. Один контекст в базовой архитектуре соответствует одному логическому сервису-владельцу, однако решение о физическом развертывании **МОЖЕТ** меняться без изменения предметной границы, если сохраняются владение моделью, данными и контрактами.
+
+## 9.2. Нормативный шаблон контекста
+
+Каждый ограниченный контекст **ДОЛЖЕН** иметь паспорт следующего вида:
+
+| Поле | Назначение |
 | --- | --- |
-| Service | m8-resource-manager |
-| Purpose | Canonical owner of Organization, Workspace, Project and ServiceRegistration. It is the first platform service and the source of truth for resource hierarchy. |
-| Owns | Organization, Workspace, Project, ServiceRegistration, resource lifecycle state, labels, version, resource references. |
-| Does not own | Users, credentials, roles, permissions, authentication sessions, risk scoring, external infrastructure resources. |
-| Primary commands | CreateOrganization, UpdateOrganization, DeleteOrganization, CreateWorkspace, CreateProject, RegisterService, MoveResource through governed operation if allowed. |
-| Primary events | OrganizationCreated, WorkspaceCreated, ProjectCreated, ServiceRegistered, ResourceStateChanged, ResourceDeleted. |
-| Integrations | Access for authorization; Audit for audit events; YDB for persistence; YDB Topics for event publication; Temporal for long-running lifecycle operations. |
+| `context_id` | Устойчивый идентификатор `CTX-*`. |
+| `service_id` | Логический сервис-владелец. |
+| `classification` | Core, Supporting или Generic Subdomain. |
+| `mission` | Одно предложение, определяющее предметный результат контекста. |
+| `owns` | Канонические предметные факты и агрегаты. |
+| `does_not_own` | Явно исключённые обязанности. |
+| `published_languages` | Контракты, доступные другим контекстам. |
+| `upstream_dependencies` | Поставщики фактов и решений. |
+| `downstream_consumers` | Потребители опубликованных контрактов. |
+| `consistency_boundary` | Локальная транзакционная граница. |
+| `requirement_namespace` | Префикс требований контекста. |
 
-## 9.2 Identity (CTX-ID)
+Для каждого контекста также **ДОЛЖНЫ** быть определены:
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-identity |
-| Purpose | Manage identities independently from authentication mechanics and authorization decisions. |
-| Owns | UserPool, User, Group, Membership, ExternalIdentity, user lifecycle status, subject references. |
-| Does not own | Authentication challenges, token issuing, access graph decisions, risk policy decisions. |
-| Primary commands | CreateUserPool, CreateUser, DisableUser, LinkExternalIdentity, CreateGroup, AddUserToGroup, AssignMembership. |
-| Primary events | UserPoolCreated, UserCreated, UserDisabled, ExternalIdentityLinked, GroupCreated, MembershipChanged. |
-| Integrations | Authentication for subject resolution; Access for subject/group publication; Audit for state changes. |
+1. владелец каждой команды изменения состояния;
+2. владелец каждого публичного запроса;
+3. источник истины каждого публикуемого факта;
+4. способ подтверждения полномочий;
+5. обязательные аудиторские события;
+6. политика идемпотентности;
+7. способ публикации интеграционных событий;
+8. правила обработки недоступности зависимостей;
+9. метрики здоровья и предметные метрики;
+10. минимальный набор контрактных и архитектурных тестов.
 
-## 9.3 Authentication (CTX-AUTHN)
+## 9.3. Общие правила для всех контекстов
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-authentication |
-| Purpose | Start, execute, complete, cancel and expire authentication processes for clients and subjects. |
-| Owns | Client, AuthenticationTransaction, AuthenticationChallenge, AuthenticationSession, requested/achieved assurance level. |
-| Does not own | User profile ownership, role assignment, policy graph, persistent audit storage, direct resource hierarchy mutation. |
-| Primary commands | StartAuthentication, SelectChallenge, ResendChallenge, CompleteChallenge, CancelAuthentication, CreateHandoff, RefreshSessionDecision. |
-| Primary events | AuthenticationStarted, ChallengeRequired, ChallengeCompleted, AuthenticationCompleted, AuthenticationFailed, AuthenticationCancelled. |
-| Integrations | Identity for subject resolution; Risk Decision for step-up/deny/challenge; Access for client/resource permission; Keycloak adapter; Audit. |
+### 9.3.1. Изоляция предметной модели
 
-## 9.4 Access (CTX-ACC)
+Внутренняя предметная модель контекста **НЕ ДОЛЖНА** импортировать:
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-access |
-| Purpose | Manage authorization language and evaluate whether a subject can perform an action on a resource. |
-| Owns | AuthorizationModel, Permission, Role, RoleBinding, AccessRelationship, permission check explanation. |
-| Does not own | Authentication proof, user credentials, resource hierarchy ownership, audit storage. |
-| Primary commands | CreateRole, UpdateRole, BindRole, RemoveRoleBinding, WriteRelationship, DeleteRelationship, CheckPermission, ExplainPermission. |
-| Primary events | RoleCreated, RoleBindingChanged, AccessRelationshipChanged, AuthorizationModelPublished. |
-| Integrations | SpiceDB adapter; Resource Manager and Identity published languages; Audit. |
+- protobuf-сообщения;
+- ConnectRPC-обработчики;
+- типы YDB, Redis, Temporal, Keycloak или SpiceDB;
+- модели хранения другого контекста;
+- транспортные коды ошибок;
+- внешние SDK поставщиков инфраструктуры.
 
-## 9.5 Risk Decision (CTX-RISK)
+Преобразование внешних контрактов во внутренние модели выполняется в Adapter или Anti-Corruption Layer.
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-risk-decision |
-| Purpose | Evaluate risk signals and policies to determine allow, deny, challenge or manual review outcomes. |
-| Owns | RiskAssessment, RiskSignal, DecisionPolicy, Decision, challenge requirement, risk explanation. |
-| Does not own | Executing authentication challenge, managing users, changing access graph, provisioning resources directly. |
-| Primary commands | EvaluateAuthenticationRisk, EvaluateAccessRisk, EvaluateProvisioningRisk, CreatePolicy, UpdatePolicy, SimulateDecision. |
-| Primary events | RiskAssessmentCreated, RiskDecisionMade, PolicyChanged, RiskSignalObserved. |
-| Integrations | Authentication, Provisioning, Access, Audit and optional external signal providers. |
+### 9.3.2. Транзакционная граница
 
-## 9.6 Provisioning (CTX-PROV)
+Локальная транзакция **ДОЛЖНА** ограничиваться хранилищем одного сервиса. Изменение агрегата и запись Outbox-сообщения выполняются атомарно. Изменение состояния двух контекстов одной распределённой транзакцией запрещено.
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-provisioning |
-| Purpose | Manage desired state and lifecycle of platform-managed resources through reconciliation. |
-| Owns | ResourceDefinition, ResourceRequest, ManagedResource, Reconciliation, Driver, desired and observed state. |
-| Does not own | Organization hierarchy ownership, identity ownership, authorization graph ownership. |
-| Primary commands | CreateManagedResource, UpdateDesiredState, DeleteManagedResource, ReconcileResource, RegisterDriver, DetectDrift. |
-| Primary events | ResourceRequested, ProvisioningStarted, ResourceProvisioned, DriftDetected, ResourceDeleted, ProvisioningFailed. |
-| Integrations | Temporal for orchestration; drivers for Kubernetes/cloud/Yandex/self-hosted; Resource Manager; Risk Decision; Audit. |
+### 9.3.3. Публичные контракты
 
-## 9.7 Audit (CTX-AUD)
+Публичный контракт контекста **ДОЛЖЕН** описывать предметный язык контекста и **НЕ ДОЛЖЕН** раскрывать:
 
-| Property | Specification |
-| --- | --- |
-| Service | m8-audit |
-| Purpose | Receive, validate, store, search, export and retain immutable audit events. |
-| Owns | AuditEvent, AuditActor, AuditTarget, AuditContext, AuditChangeSet, RetentionPolicy, ExportJob. |
-| Does not own | Business-state mutation in source services, authorization decisions, risk scoring. |
-| Primary commands | AppendAuditEvent, SearchAuditEvents, CreateExportJob, ConfigureRetention, VerifyIntegrity. |
-| Primary events | AuditEventAppended, AuditExportCreated, RetentionPolicyChanged. |
-| Integrations | All services as producers; YDB/YDB Topics; object storage for export if needed. |
+- структуру таблиц;
+- внутренние версии агрегатов, если они не нужны для concurrency control;
+- идентификаторы workflow-задач;
+- названия очередей и топиков как часть бизнес-контракта;
+- специфичные типы внешнего поставщика;
+- секреты, credential material и внутренние risk signals.
 
-# 10. Shared Kernel and Common Contracts
+### 9.3.4. Идемпотентность
 
-The shared kernel must remain small. It contains stable primitives required across services. It must not become a dumping ground for domain logic.
+Все внешние команды, способные повторно поступить из-за retries, **ДОЛЖНЫ** поддерживать идемпотентность. Контекст хранит связь между областью идемпотентности, ключом, отпечатком команды и результатом обработки.
 
-| Package | Allowed contents | Forbidden contents |
-| --- | --- | --- |
-| m8.platform.common.resource.v1 | ResourceReference, ResourceName, ParentReference, labels, lifecycle enums used in public contracts. | Resource Manager business rules or persistence models. |
-| m8.platform.common.operation.v1 | OperationMetadata, OperationProgress, action string, stage, progress percent, timestamps, request correlation. | Service-specific workflow logic. |
-| m8.platform.common.audit.v1 | Common audit actor, target, context and change set envelope. | Service-specific event interpretation. |
-| m8.platform.common.error.v1 | Error code taxonomy, localized-safe message fields, retryability and violation details. | Transport-specific exception types. |
-| m8.platform.common.context.v1 | Request, actor, subject, client, project, correlation and risk context references. | Authentication or authorization business decisions. |
+Повтор команды с тем же ключом и отличающимся значимым содержимым **ДОЛЖЕН** завершаться конфликтом идемпотентности.
 
-## 10.1 OperationMetadata rule
+### 9.3.5. События
 
-> **COMMON-OP-001:** OperationMetadata belongs to m8.platform.common.operation.v1. Its action field is a string, not a fixed enum, so every service can define action names without changing the shared contract.
+Контекст публикует интеграционное событие только после фиксации соответствующего предметного факта. Событие **ДОЛЖНО** содержать `event_id`, `event_type`, `event_version`, `occurred_at`, `producer`, `subject`, `correlation_id`, `causation_id` и версию источника, когда она применима.
 
-# 11. Data Ownership
+### 9.3.6. Безопасность
 
-| Data / Concept | Owner service | Consumers | Replication method |
-| --- | --- | --- | --- |
-| Organization, Workspace, Project | m8-resource-manager | All services | API lookups and Resource events. |
-| ServiceRegistration | m8-resource-manager | Authentication, Access, Provisioning, Audit | API and ServiceRegistered event. |
-| UserPool, User, Group | m8-identity | Authentication, Access, Audit | API and Identity events. |
-| Client, AuthenticationTransaction | m8-authentication | Risk Decision, Audit | API and Authentication events. |
-| Role, RoleBinding, Relationship | m8-access | Authentication, Resource Manager, UI/BFF | Access API, SpiceDB adapter and Access events. |
-| RiskAssessment, DecisionPolicy | m8-risk-decision | Authentication, Provisioning, Audit | Risk API and Risk events. |
-| ManagedResource, Reconciliation | m8-provisioning | Resource Manager, Risk, Audit | Provisioning API and events. |
-| AuditEvent | m8-audit | Compliance, admin UI, export | Append-only audit API and event stream. |
+Каждый публичный вызов **ДОЛЖЕН**:
 
-## 11.1 Data ownership prohibitions
+- аутентифицировать вызывающую сторону на доверенной границе;
+- определить Actor, Subject и Client, когда эти роли применимы;
+- выполнить авторизационную проверку через M8 Access или локально разрешённую bootstrap-политику;
+- передать Project или другой Resource Scope явно;
+- сформировать аудит решения и изменения;
+- не включать чувствительные данные в логи и ошибки.
 
-- A service MUST NOT join tables from another service database.
-- A service MUST NOT update another service resource state directly.
-- A service MAY store a projection of another service data when the source and freshness are explicit.
-- A projection MUST be treated as stale unless a contract states otherwise.
-- External analytics stores may consume events but must not become the source of truth for operational decisions unless explicitly designed as such.
+### 9.3.7. Наблюдаемость
 
-# 12. API Design Rules
+Каждый контекст **ДОЛЖЕН** публиковать:
 
-| Rule ID | Rule |
-| --- | --- |
-| API-001 | Public service contracts SHOULD be Protobuf-first and exposed through ConnectRPC. |
-| API-002 | Validation SHOULD be expressed through buf.validate / Protovalidate where possible. |
-| API-003 | Mutation APIs SHOULD include request_id or idempotency_key when clients may retry. |
-| API-004 | Long-running mutations SHOULD return google.longrunning.Operation or a compatible operation envelope. |
-| API-005 | Public API messages MUST NOT expose persistence table names, YDB SDK types or vendor-specific structures. |
-| API-006 | List APIs MUST support pagination and stable ordering. |
-| API-007 | Filter syntax MUST be documented and validated. |
-| API-008 | Errors MUST use shared error taxonomy and include machine-readable codes. |
-| API-009 | Security context MUST be derived from trusted authentication/authorization middleware, not arbitrary user-provided fields. |
-| API-010 | Breaking changes require a new API version. |
-
-## 12.1 Canonical mutation pattern
-
-```text
-Client
-  → API Adapter
-  → Authentication / AuthGuard
-  → Access Check
-  → Risk Decision where applicable
-  → Application Use Case
-  → Domain Aggregate
-  → Repository transaction
-  → Outbox
-  → Operation / Response
-  → Audit
-```
-
-# 13. Event Design Rules
-
-| Rule ID | Rule |
-| --- | --- |
-| EVT-001 | Events MUST describe facts in past tense. |
-| EVT-002 | Commands MUST NOT be published as events. |
-| EVT-003 | Events MUST include event_id, event_type, occurred_at, producer, schema_version, correlation_id and causation_id. |
-| EVT-004 | Events MUST include resource references when a resource is affected. |
-| EVT-005 | Events SHOULD be published through the Outbox pattern. |
-| EVT-006 | Consumers SHOULD be idempotent and use Inbox or equivalent deduplication. |
-| EVT-007 | Event schemas MUST be backward compatible within a major version. |
-| EVT-008 | Audit events and domain events are related but not identical; domain events describe business facts, audit events describe accountability facts. |
-
-## 13.1 Standard event envelope
-
-```text
-event_id: string
-schema_version: string
-event_type: string
-producer_service: string
-occurred_at: timestamp
-published_at: timestamp
-correlation_id: string
-causation_id: string
-actor: AuditActor | optional
-resource: ResourceReference | optional
-payload: service_specific_message
-```
-
-# 14. Integration and Consistency Model
-
-## 14.1 Consistency classes
-
-| Class | Use when | Allowed mechanism |
-| --- | --- | --- |
-| Strong local consistency | Single service owns all affected aggregates and invariants. | Single YDB transaction within one service boundary. |
-| Read-your-write within service | Client needs immediate confirmation of mutation in same service. | Return updated view or Operation state from owner service. |
-| Eventual consistency | Other services need to learn about committed facts. | YDB Topics + Outbox/Inbox + projections. |
-| Orchestrated consistency | Multi-step lifecycle across systems. | Temporal workflow + idempotent activities + compensations. |
-| External eventual consistency | Vendor or infrastructure API changes asynchronously. | Provisioning reconciliation with desired/observed state. |
-
-## 14.2 Integration patterns
-
-- Synchronous API is used for immediate decisions: permission check, risk decision, subject resolution or operation status.
-- Events are used to distribute facts after commit.
-- Temporal is used for long-running, retryable, compensatable workflows.
-- Redis may be used for cache, leases or rate limiting, but it is not a system of record.
-- YDB is the application system of record for service-owned state.
-
-# 15. Security Architecture
-
-M8 Platform follows explicit security context propagation and zero-trust-oriented checks. A request is not trusted only because it came from an internal network. The service must know the actor, subject, client, resource scope, requested action and relevant risk context.
-
-| Security concern | Primary owner | Specification |
-| --- | --- | --- |
-| Authentication | m8-authentication | Verifies subject identity and achieves required assurance level. |
-| Identity lifecycle | m8-identity | Determines whether the subject exists, is active and belongs to a user pool. |
-| Authorization | m8-access | Determines whether the subject can perform action on resource. |
-| Risk step-up | m8-risk-decision | Determines whether additional challenge or denial is required. |
-| Auditability | m8-audit | Records who did what, when, where, why and with which decision context. |
-
-## 15.1 Authentication model
-
-- Primary interactive/login flow uses CIBA where appropriate.
-- Refresh uses Keycloak refresh_token when available.
-- When refresh fails, a new CIBA authentication is started instead of silently restoring the previous session.
-- Step-up starts a new authentication transaction with a higher requested assurance level.
-- Authentication supports challenge types such as OTP, approval, Mobile ID, WebAuthn, OIDC, SAML and password when allowed by policy.
-
-## 15.2 Authorization model
-
-- M8 Access owns business authorization language: permissions, roles and relationships.
-- SpiceDB is the graph evaluation engine behind the Access adapter.
-- Domain logic must not construct SpiceDB tuple strings directly.
-- Every mutation must define which permission is required before implementation.
-
-## 15.3 Risk decision model
-
-- Risk Decision can return ALLOW, DENY, CHALLENGE or REVIEW.
-- CHALLENGE includes the required assurance level or challenge class.
-- Risk Decision must explain the reason in machine-readable terms suitable for audit and debugging.
-- Authentication executes the challenge; Risk Decision only decides that challenge is required.
-
-# 16. Long Running Operations
-
-Long-running operations are first-class resources. Mutation APIs that trigger asynchronous work should return an operation immediately and allow clients to get, wait, cancel or observe progress.
-
-## 16.1 Operation contract
-
-```text
-operation:
-  name: operations/{operation_id}
-  done: boolean
-  metadata:
-    type: m8.platform.common.operation.v1.OperationMetadata
-    action: string
-    target_resource: ResourceReference
-    progress:
-      stage: string
-      message: string
-      percent: int32
-    request_id: string
-    correlation_id: string
-    create_time: timestamp
-    update_time: timestamp
-  result: service_specific_result | optional
-  error: OperationError | optional
-```
-
-## 16.2 Operation rules
-
-- Operation state is not the same as resource state.
-- Operation cancellation is a request, not a guaranteed immediate rollback.
-- Operation metadata must be safe to expose to an authorized caller.
-- Each operation must have a stable action string such as resource_manager.projects.create.
-- Temporal workflow identifiers may be stored in service persistence but must not leak into public Operation contracts.
-
-# 17. Error Model
-
-| Error category | Examples | HTTP/gRPC mapping intent |
-| --- | --- | --- |
-| Validation | INVALID_ARGUMENT, FIELD_VIOLATION | Client sent malformed or invalid request. |
-| Not found | RESOURCE_NOT_FOUND, USER_NOT_FOUND, CLIENT_NOT_FOUND | Requested resource does not exist or is not visible. |
-| Conflict | VERSION_CONFLICT, IDEMPOTENCY_CONFLICT, RESOURCE_ALREADY_EXISTS | Request conflicts with current state. |
-| Precondition | RESOURCE_NOT_ACTIVE, CLIENT_DISABLED, DELETE_BLOCKED | Request is valid but cannot be applied in current state. |
-| Permission | PERMISSION_DENIED, ACCESS_CHECK_FAILED | Actor is not allowed to perform action. |
-| Risk | RISK_DENIED, STEP_UP_REQUIRED, MANUAL_REVIEW_REQUIRED | Risk policy changed the outcome. |
-| Dependency | IDENTITY_UNAVAILABLE, RISK_DECISION_UNAVAILABLE, PROVIDER_UNAVAILABLE | Required dependency is unavailable. |
-
-## 17.1 Error response rules
-
-- Every error must include a stable machine-readable code.
-- User-facing text must not leak secrets, internal identifiers or provider error details.
-- Retryable errors must be explicitly marked as retryable.
-- Validation errors should include field-level violations.
-- Domain errors must be mapped at the adapter boundary, not thrown as transport exceptions from domain code.
-
-# 18. Observability
-
-| Signal | Required content |
-| --- | --- |
-| Logs | timestamp, severity, service, operation, request_id, correlation_id, actor/resource references where safe, error code. |
-| Traces | incoming request span, use case span, repository span, external dependency span, event publication span. |
-| Metrics | request count, latency, error rate, operation duration, event lag, dependency failure rate, workflow retries. |
-| Audit | actor, action, target, decision, context, before/after change set when applicable. |
-
-## 18.1 Correlation identifiers
-
-```text
-request_id       unique request identifier
-correlation_id   end-to-end business flow identifier
-causation_id     event or command that caused the current action
-operation_id     long-running operation identifier
-trace_id         distributed trace identifier
-actor_id         authenticated actor where known
-subject_id       identity subject where relevant
-project_id       resource scope where relevant
-```
-
-# 19. Quality Attributes
-
-| Attribute | Baseline target / rule |
-| --- | --- |
-| Availability | Core authentication, access and resource-read APIs SHOULD target high availability. Service-specific SLOs are defined later. |
-| Latency | Permission checks and simple reads SHOULD be optimized for low latency. Long-running work MUST use Operation instead of blocking. |
-| Scalability | Event consumers, API services and workers SHOULD scale horizontally. |
-| Reliability | Retries must be idempotent. External dependency failures must be bounded with timeouts and circuit breakers where appropriate. |
-| Maintainability | Clean Architecture, small bounded contexts, explicit contracts and ADRs are mandatory governance mechanisms. |
-| Security | Authentication, authorization, risk and audit are first-class architecture concerns. |
-| Recoverability | Services should support replaying events or rebuilding projections where feasible. |
-| Testability | Domain and use cases must be testable without running external systems. |
-
-# 20. Requirements Distribution
-
-Requirements are distributed by ownership. A requirement belongs to the service that owns the affected domain invariant. Supporting services may be listed as dependencies but must not become hidden owners.
-
-## 20.1 Requirement identifier families
-
-| Prefix | Owner | Examples |
-| --- | --- | --- |
-| PLT-* | Platform-level governance | PLT-NFR-001, PLT-SEC-002 |
-| RM-* | Resource Manager | RM-FR-001 Create Organization, RM-FR-020 Register Service |
-| ID-* | Identity | ID-FR-001 Create User Pool, ID-FR-010 Link External Identity |
-| AUTH-* | Authentication | AUTH-FR-001 Start Authentication, AUTH-FR-017 Re-authentication after refresh failure |
-| ACC-* | Access | ACC-FR-001 Check Permission, ACC-FR-012 Explain Access Decision |
-| RISK-* | Risk Decision | RISK-FR-001 Evaluate Authentication Risk, RISK-FR-011 Simulate Policy |
-| PROV-* | Provisioning | PROV-FR-001 Create Managed Resource, PROV-FR-020 Detect Drift |
-| AUD-* | Audit | AUD-FR-001 Append Audit Event, AUD-FR-012 Export Audit Events |
-| OPS-* | Operations | OPS-FR-001 Get Operation, OPS-FR-004 Cancel Operation |
-
-## 20.2 Initial service requirement allocation
-
-| Requirement ID | Requirement | Owner | Notes |
-| --- | --- | --- | --- |
-| RM-FR-001 | Create Organization | m8-resource-manager | Organization aggregate, Operation, audit event. |
-| RM-FR-002 | Create Workspace | m8-resource-manager | Workspace under Organization, version checks. |
-| RM-FR-003 | Create Project | m8-resource-manager | Project under Workspace, Operation return. |
-| RM-FR-004 | Register Service | m8-resource-manager | ServiceRegistration inside Project. |
-| ID-FR-001 | Create User Pool | m8-identity | UserPool aggregate and audit. |
-| ID-FR-002 | Create User | m8-identity | User aggregate, external identity optional. |
-| ID-FR-003 | Disable User | m8-identity | User lifecycle event consumed by Authentication and Access. |
-| AUTH-FR-001 | Start Authentication | m8-authentication | AuthenticationTransaction creation with risk and identity dependencies. |
-| AUTH-FR-017 | Re-authentication after refresh failure | m8-authentication | Start new CIBA flow; do not restore previous session silently. |
-| ACC-FR-001 | Check Permission | m8-access | SpiceDB-backed decision through M8 Access language. |
-| ACC-FR-002 | Bind Role | m8-access | RoleBinding and AccessRelationship write. |
-| RISK-FR-001 | Evaluate Authentication Risk | m8-risk-decision | ALLOW/DENY/CHALLENGE/REVIEW decision. |
-| PROV-FR-001 | Create Managed Resource | m8-provisioning | Desired state + Temporal orchestration + Operation. |
-| PROV-FR-002 | Reconcile Managed Resource | m8-provisioning | Desired/observed state reconciliation. |
-| AUD-FR-001 | Append Audit Event | m8-audit | Immutable storage and integrity metadata. |
-| OPS-FR-001 | Get Operation | Service-specific owner + common operation contract | Read operation by authorized caller. |
-
-# 21. Traceability Model
-
-```text
-Business Capability
-  → Platform Requirement
-    → Context Requirement
-      → Service Requirement
-        → Use Case
-          → API / Event Contract
-            → Structured Prompt
-              → Code Change
-                → Unit Test
-                  → Contract Test
-                    → Acceptance Test
-                      → Release Evidence
-```
-
-## 21.1 Traceability record
-
-```text
-traceability:
-  capability: CAP-AUTHN
-  platform_requirement: PLT-AUTHN-001
-  context_requirement: AUTH-FR-017
-  service: m8-authentication
-  use_case: UC-AUTH-009
-  contracts:
-    - auth.v1.AuthenticationService.StartAuthentication
-    - m8.authentication.AuthenticationStarted.v1
-  structured_prompts:
-    - SP-AUTH-017-01
-  tests:
-    - UT-AUTH-017-01
-    - CT-AUTH-017-01
-    - AT-AUTH-017-01
-  adr:
-    - ADR-0012-keycloak-ciba
-    - ADR-0021-operation-model
-```
-
-# 22. SPDD Mapping
-
-SPDD means Structured-Prompt-Driven Development for M8 Platform. Structured Prompts are not casual chat prompts. They are versioned engineering artifacts that bind requirements, domain language, contracts, constraints, tests and review rules.
-
-## 22.1 SPDD artifact hierarchy
-
-```text
-/docs/07-spdd
-├── constitution
-│   └── M8-SPDD-CONSTITUTION.md
-├── contexts
-│   ├── resource-manager.prompt.md
-│   ├── identity.prompt.md
-│   ├── authentication.prompt.md
-│   ├── access.prompt.md
-│   ├── risk-decision.prompt.md
-│   ├── provisioning.prompt.md
-│   └── audit.prompt.md
-├── features
-├── tasks
-├── reviews
-└── templates
-```
-
-## 22.2 Prompt levels
-
-| Level | Artifact | Purpose |
-| --- | --- | --- |
-| L1 | Constitution Prompt | Global architecture, stack, dependency rules, security rules, testing and prohibited shortcuts. |
-| L2 | Context Prompt | Bounded-context language, responsibilities, aggregates, dependencies and forbidden ownership. |
-| L3 | Feature Prompt | One business feature with requirements, scenarios, contracts and acceptance criteria. |
-| L4 | Task Prompt | Small implementation unit with allowed files, constraints and tests. |
-| L5 | Review Prompt | Independent review against PADS, ADRs, contracts, tests and architecture rules. |
-
-## 22.3 Structured Prompt template
-
-```text
-spdd_version: "1.0"
-metadata:
-  id: SP-AUTH-017-01
-  title: Implement re-authentication after refresh token failure
-  context: Authentication
-  service: m8-authentication
-  type: implementation
-  status: draft
-traceability:
-  requirements:
-    - AUTH-FR-017
-  use_cases:
-    - UC-AUTH-009
-  contracts:
-    - auth.v1.AuthenticationService.StartAuthentication
-    - m8.authentication.AuthenticationStarted.v1
-objective: >
-  Implement StartAuthentication behavior for creating a new CIBA authentication
-  transaction when refresh token cannot be used.
-scope:
-  include:
-    - application use case
-    - domain aggregate behavior
-    - repository transaction
-    - outbox event
-    - unit tests
-  exclude:
-    - protobuf contract changes
-    - Keycloak adapter implementation
-    - Risk Decision service implementation
-constraints:
-  architecture:
-    - Clean Architecture dependency rule
-    - domain must not import Keycloak, YDB, Temporal, ConnectRPC or SpiceDB types
-  data:
-    - use service-owned repository only
-    - store outbox atomically with aggregate state
-  security:
-    - check client state
-    - resolve subject through IdentityGateway
-    - call RiskDecisionGateway before mutation where required
-acceptance:
-  - AUTH-FR-017-AC-01
-  - AUTH-FR-017-AC-02
-tests:
-  unit:
-    - duplicate idempotency key returns existing transaction
-    - disabled client is rejected
-    - risk denial prevents transaction creation
-  integration:
-    - aggregate and outbox are committed atomically
-review:
-  must_check:
-    - no forbidden imports
-    - no direct Keycloak calls from use case
-    - no event publish before transaction commit
-    - error codes mapped through shared model
-```
-
-## 22.4 SPDD constitution rules
-
-- A prompt MUST reference requirement IDs and acceptance criteria IDs.
-- A prompt MUST declare allowed and forbidden areas of change.
-- A prompt MUST include architecture constraints inherited from PADS.
-- A prompt MUST define tests before implementation.
-- A generated change MUST be reviewed by a Review Prompt before merge.
-- A prompt MUST NOT ask an agent to invent service boundaries or bypass ADRs.
-
-# 23. Architecture Governance
-
-## 23.1 ADR policy
-
-Every significant architectural decision must be captured as an ADR. PADS defines the current baseline; ADRs explain why a decision was made and when it supersedes or refines a baseline rule.
-
-| ADR trigger | Examples |
-| --- | --- |
-| Technology choice | Choosing YDB Topics over Kafka for internal event streaming. |
-| Boundary change | Moving Membership ownership between Identity and Resource Manager. |
-| Contract change | Introducing a new public API version. |
-| Consistency change | Moving from synchronous decision to event-driven projection. |
-| Security change | Changing primary authentication flow or assurance-level rules. |
-
-## 23.2 Architecture checks
-
-- Static import checks: domain must not import infrastructure, SDK or transport packages.
-- Contract checks: protobuf breaking-change detection through buf.
-- Architecture tests: repository and adapter dependencies must point inward.
-- Event schema checks: event envelopes must include required metadata.
-- SPDD checks: prompts must include traceability, scope and tests.
-- Review checks: every feature branch must include requirement coverage evidence.
-
-# 24. Glossary
-
-| Term | Definition |
-| --- | --- |
-| ACL | Anti-Corruption Layer. Translation layer isolating domain model from external systems. |
-| ADR | Architecture Decision Record. A short document explaining a significant architectural decision. |
-| Bounded Context | A DDD boundary where a model has a specific meaning and owner. |
-| CIBA | Client Initiated Backchannel Authentication. Used as a primary authentication flow where applicable. |
-| Clean Architecture | Architecture style where dependencies point inward toward use cases and domain. |
-| ConnectRPC | HTTP/gRPC-compatible RPC framework used as the primary API transport. |
-| LRO | Long Running Operation. Standard asynchronous operation resource. |
-| Outbox | Pattern for atomically storing state change and event to publish after commit. |
-| Projection | Local copy/read model derived from another owner service events. |
-| SPDD | Structured-Prompt-Driven Development. Versioned prompts tied to requirements and architecture constraints. |
-| YDB Topics | M8 baseline event stream mechanism for domain and integration events. |
-
+- технические RED-метрики API;
+- метрики внешних зависимостей;
+- метрики Outbox и Inbox lag;
+- метрики конфликтов версий и идемпотентности;
+- предметные метрики жизненных циклов;
+- трассировки с сохранением correlation и causation;
+- структурированные логи без секретов и персональных данных сверх необходимого минимума.
 
 ---
 
-# Appendix A. Initial Repository Layout
+## 9.4. Resource Manager — управление ресурсной иерархией
+
+### 9.4.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-RM` |
+| Service ID | `m8-resource-manager` |
+| Классификация | Core Domain |
+| Пространство требований | `RM-*` |
+| Миссия | Предоставлять каноническую, версионируемую и безопасную модель административной иерархии M8 Platform. |
+| Владеет | Organization, Workspace, Project, ServiceRegistration, их состояниями, родительскими связями, именами, метками и версиями. |
+| Не владеет | Пользователями, членством, ролями, аутентификацией, risk decisions, инфраструктурными экземплярами и аудит-хранилищем. |
+| Consistency boundary | Один агрегат ресурса и его Outbox-записи в одной локальной транзакции. |
+| Published Language | `PL-RESOURCE`, `PL-RESOURCE-EVENTS`. |
+
+### 9.4.2. Назначение и ответственность
+
+Resource Manager является единственным источником истины для структуры:
+
+```text
+Organization
+└── Workspace
+    └── Project
+        └── ServiceRegistration
+```
+
+Контекст **ДОЛЖЕН**:
+
+- создавать и изменять ресурсы иерархии;
+- обеспечивать уникальность имён в определённой области;
+- проверять допустимость родительской связи;
+- управлять состояниями жизненного цикла;
+- обеспечивать optimistic concurrency control;
+- публиковать факты об изменении ресурсов;
+- предоставлять разрешение типизированных `ResourceReference`;
+- поддерживать управляемое удаление и, при необходимости, перемещение ресурса;
+- обеспечивать пагинацию и фильтрацию списков;
+- сохранять стабильность идентификатора при изменении отображаемого имени.
+
+### 9.4.3. Исключённая ответственность
+
+Resource Manager **НЕ ДОЛЖЕН**:
+
+- хранить полный профиль пользователя;
+- определять, является ли пользователь участником Project;
+- хранить RoleBinding или AccessRelationship;
+- выполнять challenge аутентификации;
+- создавать Kafka topic, Kubernetes namespace или другой внешний ресурс напрямую;
+- интерпретировать внутренние состояния Provisioning;
+- принимать risk decision;
+- быть владельцем общей аудиторской истории.
+
+Требование, одновременно изменяющее ресурсную иерархию и членство, **ДОЛЖНО** быть разделено на команды Resource Manager и Identity либо оформлено как сквозной workflow с одним владельцем процесса.
+
+### 9.4.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность | Роль контекста |
+| --- | --- | --- |
+| `CAP-RM-ORG` | Управление Organization | Владелец полного жизненного цикла. |
+| `CAP-RM-WS` | Управление Workspace | Владелец полного жизненного цикла. |
+| `CAP-RM-PRJ` | Управление Project | Владелец полного жизненного цикла. |
+| `CAP-RM-SVC` | Регистрация Service | Владелец канонической регистрации. |
+| `CAP-RM-HIER` | Навигация и проверка иерархии | Владелец связей parent/child. |
+| `CAP-RM-LIFE` | Управляемое удаление и перемещение | Владелец предметного решения и Operation. |
+
+### 9.4.5. Предметная модель
+
+| Aggregate ID | Корень агрегата | Основные данные | Ключевые инварианты |
+| --- | --- | --- | --- |
+| `DM-RM-ORG` | Organization | ID, name, display name, labels, state, version | Организация является корнем; имя уникально в платформенной области; удаление управляемое. |
+| `DM-RM-WS` | Workspace | ID, organization reference, name, labels, state, version | Workspace принадлежит одной Organization; parent immutable без Move operation. |
+| `DM-RM-PRJ` | Project | ID, workspace reference, name, labels, state, version | Project принадлежит одному Workspace; Project является основной isolation scope. |
+| `DM-RM-SVC` | ServiceRegistration | ID, project reference, service type, state, labels, version | Service зарегистрирован в одном Project; service type валиден по каталогу. |
+
+Resource Manager **НЕ ДОЛЖЕН** загружать всю иерархию как один агрегат. Проверка существования родителя выполняется до создания дочернего агрегата, а межагрегатная согласованность поддерживается локальными индексами, событиями и контролируемыми lifecycle operations.
+
+### 9.4.6. Команды
+
+| Command ID | Команда | Результат |
+| --- | --- | --- |
+| `RM-CMD-001` | `CreateOrganization` | Organization или Operation, если требуется внешняя инициализация. |
+| `RM-CMD-002` | `UpdateOrganization` | Обновлённая Organization с новой версией. |
+| `RM-CMD-003` | `DeleteOrganization` | Operation управляемого удаления. |
+| `RM-CMD-004` | `CreateWorkspace` | Workspace. |
+| `RM-CMD-005` | `UpdateWorkspace` | Workspace с новой версией. |
+| `RM-CMD-006` | `DeleteWorkspace` | Operation. |
+| `RM-CMD-007` | `CreateProject` | Project. |
+| `RM-CMD-008` | `UpdateProject` | Project с новой версией. |
+| `RM-CMD-009` | `DeleteProject` | Operation. |
+| `RM-CMD-010` | `RegisterService` | ServiceRegistration. |
+| `RM-CMD-011` | `UpdateServiceRegistration` | ServiceRegistration с новой версией. |
+| `RM-CMD-012` | `UnregisterService` | Operation или завершённый результат по политике удаления. |
+| `RM-CMD-013` | `MoveResource` | Operation с проверкой допустимости нового родителя. |
+| `RM-CMD-014` | `SetResourceLabels` | Новая версия ресурса. |
+| `RM-CMD-015` | `RestoreResource` | Восстановленный ресурс, если policy допускает восстановление. |
+
+Команда изменения **ДОЛЖНА** принимать ожидаемую версию или ETag для операций, где возможна конкуренция изменений.
+
+### 9.4.7. Запросы
+
+| Query ID | Запрос | Гарантия |
+| --- | --- | --- |
+| `RM-QRY-001` | `GetOrganization` | Актуальное состояние из источника истины. |
+| `RM-QRY-002` | `ListOrganizations` | Стабильная пагинация. |
+| `RM-QRY-003` | `GetWorkspace` | Актуальное состояние Workspace. |
+| `RM-QRY-004` | `ListWorkspaces` | Фильтрация по Organization и состоянию. |
+| `RM-QRY-005` | `GetProject` | Актуальное состояние Project. |
+| `RM-QRY-006` | `ListProjects` | Фильтрация по Workspace/Organization и меткам. |
+| `RM-QRY-007` | `GetServiceRegistration` | Каноническая регистрация сервиса. |
+| `RM-QRY-008` | `ListServiceRegistrations` | Сервисы Project с пагинацией. |
+| `RM-QRY-009` | `ResolveResourceReference` | Тип, состояние и ancestry ресурса. |
+| `RM-QRY-010` | `GetResourceAncestors` | Канонический путь до корня. |
+
+Списочные запросы **НЕ ДОЛЖНЫ** использовать нестабильную offset pagination для больших наборов. Page token связывается с порядком сортировки и фильтрами.
+
+### 9.4.8. Публикуемые события
+
+| Event ID | Событие | Минимальные данные |
+| --- | --- | --- |
+| `RM-EVT-001` | `OrganizationCreated` | resource, name, state, version. |
+| `RM-EVT-002` | `OrganizationUpdated` | resource, changed fields, version. |
+| `RM-EVT-003` | `WorkspaceCreated` | resource, organization reference, version. |
+| `RM-EVT-004` | `ProjectCreated` | resource, workspace reference, version. |
+| `RM-EVT-005` | `ServiceRegistered` | resource, project reference, service type, version. |
+| `RM-EVT-006` | `ResourceStateChanged` | resource, previous state, current state, reason, version. |
+| `RM-EVT-007` | `ResourceMoved` | resource, previous parent, current parent, version. |
+| `RM-EVT-008` | `ResourceDeleted` | resource, deletion mode, tombstone version. |
+| `RM-EVT-009` | `ResourceLabelsChanged` | resource, resulting labels, version. |
+
+События Resource Manager являются источником локальных resource projections в Access, Identity, Authentication, Provisioning и Audit.
+
+### 9.4.9. Потребляемые контракты
+
+| Поставщик | Контракт | Назначение |
+| --- | --- | --- |
+| Access | `CheckPermission` | Проверка административных действий над ресурсом. |
+| Provisioning | Lifecycle result events | Информирование о завершении внешней очистки при каскадном удалении. |
+| Audit | Delivery acknowledgement, при необходимости | Эксплуатационный контроль надёжной доставки, не бизнес-зависимость. |
+
+Resource Manager **НЕ ДОЛЖЕН** синхронно вызывать Access из обработчика события Access, чтобы не формировать цикл.
+
+### 9.4.10. Согласованность и удаление
+
+Создание и простое изменение одного ресурса выполняются синхронно. Удаление ресурса с дочерними объектами, активными memberships, access bindings или managed resources выполняется как Operation.
+
+Перед финализацией удаления Resource Manager **ДОЛЖЕН**:
+
+1. перевести ресурс в состояние, запрещающее новые зависимые объекты;
+2. опубликовать факт начала управляемого удаления;
+3. дождаться завершения обязательных cleanup steps через workflow;
+4. сохранить tombstone, достаточный для исторических ссылок;
+5. опубликовать `ResourceDeleted` только после фиксации конечного состояния.
+
+### 9.4.11. Безопасность и аудит
+
+Обязательные проверки включают:
+
+- permission на создание дочернего ресурса у родителя;
+- permission на изменение и удаление конкретного ресурса;
+- step-up для особо чувствительных операций по политике Risk Decision;
+- запрет использования удалённого или suspended Project как активной scope;
+- защиту от confused deputy через явные Actor, Client и Resource Scope.
+
+Каждая мутация **ДОЛЖНА** формировать AuditIntent с actor, target, command, result, changed fields и correlation metadata.
+
+### 9.4.12. Наблюдаемость и SLO
+
+Минимальные предметные метрики:
+
+- количество активных Organization, Workspace, Project и ServiceRegistration;
+- частота создания и удаления ресурсов;
+- количество конфликтов версий;
+- длительность lifecycle operations;
+- число ресурсов в переходных и ошибочных состояниях;
+- lag публикации resource events;
+- число orphan projections, выявленных reconciliation-проверкой.
+
+Целевые значения latency и availability задаются в Quality Attributes, но `Get*` и обычные команды изменения **ДОЛЖНЫ** проектироваться как online control-plane операции.
+
+### 9.4.13. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| Access недоступен | Новая чувствительная мутация отклоняется `UNAVAILABLE`; чтение может продолжаться по локальной policy только для явно разрешённых системных сценариев. |
+| Event transport недоступен | Команда фиксирует агрегат и Outbox; публикация возобновляется асинхронно. |
+| Provisioning cleanup недоступен | Delete Operation остаётся pending/blocked, ресурс не считается удалённым. |
+| Конфликт версии | Команда отклоняется как concurrency conflict без автоматического перезаписывания. |
+| Повтор команды | Возвращается ранее сохранённый результат при совпадении отпечатка. |
+
+### 9.4.14. Запрещённые зависимости
+
+Resource Manager **НЕ ДОЛЖЕН**:
+
+- импортировать SDK Keycloak или SpiceDB в domain/application;
+- читать таблицы Identity или Provisioning;
+- делать Access владельцем ancestry;
+- хранить Membership как часть Project;
+- использовать Audit как синхронную транзакционную зависимость;
+- завершать удаление до подтверждения обязательных cleanup steps.
+
+### 9.4.15. SPDD Context Prompt
+
+Context Prompt `CTX-RM` **ДОЛЖЕН** включать:
+
+- иерархию ресурсов и все `DM-RM-*`;
+- инварианты `INV-RM-*`;
+- команды `RM-CMD-*`, запросы `RM-QRY-*` и события `RM-EVT-*`;
+- запрет владения Membership, RoleBinding и ManagedResource;
+- правила optimistic locking, Outbox и lifecycle Operation;
+- обязательные Access и Audit hooks;
+- архитектурные тесты, запрещающие внешние SDK в domain/application.
+
+---
+
+## 9.5. Identity — управление идентичностями
+
+### 9.5.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-ID` |
+| Service ID | `m8-identity` |
+| Классификация | Core Domain |
+| Пространство требований | `ID-*` |
+| Миссия | Управлять устойчивой идентичностью субъектов независимо от механизмов аутентификации и принятия решений доступа. |
+| Владеет | UserPool, User, Group, Membership, ExternalIdentity, профильными атрибутами и состоянием жизненного цикла идентичности. |
+| Не владеет | Credential secrets, AuthenticationChallenge, токенами, RoleBinding, AccessRelationship, risk decisions. |
+| Consistency boundary | Один identity aggregate и его Outbox-записи. |
+| Published Language | `PL-IDENTITY`, `PL-IDENTITY-EVENTS`. |
+
+### 9.5.2. Назначение и ответственность
+
+Identity **ДОЛЖЕН**:
+
+- создавать и изолировать User Pool;
+- создавать и сопровождать User;
+- связывать пользователя с внешними идентичностями;
+- управлять Group и Membership;
+- разрешать SubjectReference по поддерживаемым идентификаторам;
+- обеспечивать уникальность issuer/subject и других нормализованных ключей;
+- управлять блокировкой, деактивацией, восстановлением и обезличиванием;
+- публиковать факты, необходимые Authentication и Access;
+- отделять business identity от authentication credential.
+
+### 9.5.3. Исключённая ответственность
+
+Identity **НЕ ДОЛЖЕН**:
+
+- проверять пароль, OTP, passkey или подтверждение CIBA;
+- выпускать access/refresh token;
+- принимать решение `ALLOW` или `DENY` для доступа к ресурсу;
+- хранить SpiceDB relationships как источник истины;
+- владеть Organization, Workspace или Project;
+- раскрывать Authentication внутренние персональные данные, не необходимые для subject resolution.
+
+### 9.5.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-ID-POOL` | Управление User Pool и его политиками идентичности. |
+| `CAP-ID-USER` | Жизненный цикл User. |
+| `CAP-ID-EXT` | Связывание и отвязывание ExternalIdentity. |
+| `CAP-ID-GRP` | Управление Group и Group Membership. |
+| `CAP-ID-MEM` | Membership субъекта в Organization, Workspace или Project. |
+| `CAP-ID-RESOLVE` | Разрешение SubjectReference. |
+| `CAP-ID-PRIV` | Обезличивание, экспорт и ограничение профильных данных. |
+
+### 9.5.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-ID-POOL` | UserPool | Изоляция пространства пользователей, namespaces и identity policies. |
+| `DM-ID-USER` | User | Устойчивая идентичность, профиль, состояние и external identities. |
+| `DM-ID-GROUP` | Group | Именованная группа субъектов внутри User Pool или допустимой scope. |
+| `DM-ID-MEMBERSHIP` | Membership | Участие Subject в Resource Scope с типом и состоянием членства. |
+
+CredentialReference **МОЖЕТ** храниться как непрозрачная ссылка на внешний credential provider, но секретный материал **НЕ ДОЛЖЕН** становиться частью агрегата User.
+
+### 9.5.6. Команды
+
+| Command ID | Команда |
+| --- | --- |
+| `ID-CMD-001` | `CreateUserPool` |
+| `ID-CMD-002` | `UpdateUserPool` |
+| `ID-CMD-003` | `DeleteUserPool` |
+| `ID-CMD-004` | `CreateUser` |
+| `ID-CMD-005` | `UpdateUserProfile` |
+| `ID-CMD-006` | `DisableUser` |
+| `ID-CMD-007` | `EnableUser` |
+| `ID-CMD-008` | `AnonymizeUser` |
+| `ID-CMD-009` | `LinkExternalIdentity` |
+| `ID-CMD-010` | `UnlinkExternalIdentity` |
+| `ID-CMD-011` | `CreateGroup` |
+| `ID-CMD-012` | `AddGroupMember` |
+| `ID-CMD-013` | `RemoveGroupMember` |
+| `ID-CMD-014` | `AssignMembership` |
+| `ID-CMD-015` | `ChangeMembershipState` |
+| `ID-CMD-016` | `RevokeMembership` |
+| `ID-CMD-017` | `MergeUserIdentities` через управляемую Operation |
+
+### 9.5.7. Запросы
+
+| Query ID | Запрос | Назначение |
+| --- | --- | --- |
+| `ID-QRY-001` | `GetUserPool` | Получение политики и состояния User Pool. |
+| `ID-QRY-002` | `GetUser` | Получение User по каноническому ID. |
+| `ID-QRY-003` | `SearchUsers` | Ограниченный поиск по нормализованным разрешённым атрибутам. |
+| `ID-QRY-004` | `ResolveSubject` | Разрешение email, phone, username или external subject в SubjectReference. |
+| `ID-QRY-005` | `ListGroups` | Список групп с пагинацией. |
+| `ID-QRY-006` | `ListGroupMembers` | Состав группы. |
+| `ID-QRY-007` | `ListMemberships` | Membership по субъекту или Resource Scope. |
+| `ID-QRY-008` | `GetIdentityStatus` | Минимальный статус для Authentication и Access. |
+
+`ResolveSubject` **ДОЛЖЕН** возвращать минимальный результат и не раскрывать, существует ли пользователь, внешнему недоверенному клиенту без соответствующего permission.
+
+### 9.5.8. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `ID-EVT-001` | `UserPoolCreated` |
+| `ID-EVT-002` | `UserCreated` |
+| `ID-EVT-003` | `UserProfileChanged` |
+| `ID-EVT-004` | `UserStateChanged` |
+| `ID-EVT-005` | `UserAnonymized` |
+| `ID-EVT-006` | `ExternalIdentityLinked` |
+| `ID-EVT-007` | `ExternalIdentityUnlinked` |
+| `ID-EVT-008` | `GroupCreated` |
+| `ID-EVT-009` | `GroupMembershipChanged` |
+| `ID-EVT-010` | `MembershipAssigned` |
+| `ID-EVT-011` | `MembershipStateChanged` |
+| `ID-EVT-012` | `MembershipRevoked` |
+| `ID-EVT-013` | `UserIdentitiesMerged` |
+
+События, доступные широкому кругу потребителей, **ДОЛЖНЫ** содержать только минимально необходимый набор персональных данных. Для большинства интеграций достаточно SubjectReference, статуса и source version.
+
+### 9.5.9. Потребляемые контракты
+
+| Поставщик | Контракт | Назначение |
+| --- | --- | --- |
+| Resource Manager | Resource events / ResolveResourceReference | Проверка существования и состояния scope для Membership. |
+| Access | CheckPermission | Авторизация административных действий. |
+| Authentication provider adapter | Credential/external account lifecycle callbacks | Синхронизация непрозрачных ссылок, если предусмотрено ADR. |
+
+Identity **НЕ ДОЛЖЕН** принимать профильные изменения из Authentication как канонические без отдельной подтверждённой команды или trusted provisioning contract.
+
+### 9.5.10. Уникальность и нормализация
+
+Нормализация email, phone и username **ДОЛЖНА** быть версионируемой и привязана к User Pool policy. Уникальность определяется явно:
+
+- `issuer + external_subject` — глобально либо в заданной provider scope;
+- нормализованный username — внутри User Pool;
+- email/phone — по политике User Pool, а не неявно глобально;
+- Membership — уникально по Subject, Resource Scope и membership type.
+
+Изменение политики уникальности, влияющее на существующие данные, требует migration plan и ADR.
+
+### 9.5.11. Жизненный цикл и приватность
+
+Состояния User включают как минимум `ACTIVE`, `DISABLED`, `LOCKED`, `ANONYMIZED`, `DELETED_TOMBSTONE`. Физическое удаление **НЕ ДОЛЖНО** разрушать исторические ссылки Audit.
+
+Обезличивание должно:
+
+1. удалить или заменить профильные атрибуты;
+2. отвязать идентификаторы по policy;
+3. сохранить непрозрачный стабильный subject ID;
+4. опубликовать `UserAnonymized`;
+5. не позволять восстановить удалённые данные из обычных операционных логов и событий.
+
+### 9.5.12. Безопасность и аудит
+
+Особо чувствительные операции:
+
+- link/unlink external identity;
+- merge identities;
+- anonymize user;
+- восстановление disabled user;
+- изменение Membership с административными последствиями.
+
+Для них **СЛЕДУЕТ** применять step-up и risk evaluation по policy. Все изменения ExternalIdentity и Membership **ДОЛЖНЫ** включать previous/current state в AuditChangeSet без раскрытия секретов.
+
+### 9.5.13. Наблюдаемость
+
+Минимальные метрики:
+
+- active/disabled/anonymized users;
+- число User Pool;
+- частота subject resolution и доля ambiguous/not found;
+- конфликты уникальности;
+- external identity link failures;
+- lag identity events;
+- длительность identity merge/anonymization operations;
+- количество membership inconsistencies с Resource Manager projections.
+
+### 9.5.14. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| Resource Manager недоступен | Новое Membership не создаётся без подтверждённой локальной проекции допустимого ресурса; чувствительная операция fail closed. |
+| External identity provider недоступен | Link operation остаётся pending или завершается retryable error; локальная связь не объявляется активной преждевременно. |
+| Event transport недоступен | Состояние и Outbox фиксируются атомарно. |
+| Дубликат external subject | Команда завершается conflict; автоматический merge запрещён. |
+| Неоднозначный subject resolution | Возвращается предметная ошибка ambiguity, а не произвольный User. |
+
+### 9.5.15. Запрещённые зависимости
+
+Identity **НЕ ДОЛЖЕН**:
+
+- хранить пароли, OTP secrets и private keys;
+- считать успешный login доказательством права доступа;
+- изменять Resource Manager hierarchy;
+- напрямую записывать SpiceDB;
+- раскрывать полный профиль в identity events по умолчанию;
+- объединять пользователей без явного workflow, аудита и criteria.
+
+### 9.5.16. SPDD Context Prompt
+
+Context Prompt `CTX-ID` **ДОЛЖЕН** включать:
+
+- `UserPool`, `User`, `Group`, `Membership`, `ExternalIdentity`;
+- правила нормализации и уникальности;
+- privacy constraints и минимизацию данных;
+- запрет владения credentials, tokens и access decisions;
+- события `ID-EVT-*` и правила PII redaction;
+- обязательные test cases для duplicate identity, ambiguous resolution, anonymization и idempotency.
+
+---
+
+## 9.6. Authentication — выполнение аутентификации
+
+### 9.6.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-AUTHN` |
+| Service ID | `m8-authentication` |
+| Классификация | Core Domain |
+| Пространство требований | `AUTH-*` |
+| Миссия | Управлять проверяемым процессом подтверждения идентичности и уровня уверенности, не присваивая субъекту полномочия. |
+| Владеет | Client, AuthenticationTransaction, AuthenticationChallenge, AuthenticationSession, Handoff, requested/achieved assurance. |
+| Не владеет | Каноническим профилем User, ролями, permission graph, risk policy и audit storage. |
+| Consistency boundary | Одна AuthenticationTransaction/Session и Outbox в локальной транзакции; внешние шаги оркестрируются отдельно. |
+| Published Language | `PL-AUTHENTICATION`, `PL-AUTHENTICATION-EVENTS`. |
+
+### 9.6.2. Назначение и ответственность
+
+Authentication **ДОЛЖЕН**:
+
+- запускать транзакцию аутентификации;
+- разрешать Subject через Identity;
+- запрашивать Risk Decision;
+- выбирать или предлагать допустимые challenge methods;
+- управлять challenge lifecycle;
+- интегрироваться с Keycloak и другими providers через ACL;
+- фиксировать requested и achieved assurance level;
+- создавать безопасный Handoff;
+- поддерживать cancel, expire, resend, retry и re-authentication;
+- связывать AuthenticationSession с Client и Subject;
+- публиковать минимальные факты об исходе аутентификации.
+
+Успешная Authentication **НЕ ОЗНАЧАЕТ** разрешение выполнить конкретное действие. Авторизация остаётся ответственностью Access.
+
+### 9.6.3. Исключённая ответственность
+
+Authentication **НЕ ДОЛЖЕН**:
+
+- изменять профиль User;
+- назначать Role или Membership;
+- самостоятельно определять business permission;
+- хранить password/OTP/passkey secret вне provider-specific secure storage;
+- копировать Keycloak session model в предметную модель;
+- возвращать клиенту внутренние risk signals;
+- считать refresh token единственным средством восстановления контекста при невозможности его использовать.
+
+### 9.6.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-AUTH-START` | Запуск AuthenticationTransaction. |
+| `CAP-AUTH-CHALLENGE` | Выбор, выполнение, resend и fallback challenge. |
+| `CAP-AUTH-CIBA` | Backchannel authentication через CIBA. |
+| `CAP-AUTH-WEBAUTHN` | Passkey/WebAuthn challenge через adapter. |
+| `CAP-AUTH-FED` | OIDC/SAML federation через ACL. |
+| `CAP-AUTH-STEPUP` | Повышение assurance level. |
+| `CAP-AUTH-REAUTH` | Новая аутентификация при невозможности refresh. |
+| `CAP-AUTH-HANDOFF` | Безопасная передача результата. |
+| `CAP-AUTH-SESSION` | Управление AuthenticationSession и её состоянием. |
+
+### 9.6.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-AUTH-CLIENT` | Client | Политика допустимых flows, redirect/handoff, assurance и provider configuration reference. |
+| `DM-AUTH-TX` | AuthenticationTransaction | Полный предметный жизненный цикл одной попытки аутентификации. |
+| `DM-AUTH-SESSION` | AuthenticationSession | Результат подтверждённой идентичности и assurance с ограниченным сроком. |
+| `DM-AUTH-PROVIDER` | AuthenticationProviderRegistration | Доменная регистрация provider без утечки vendor types. |
+
+`AuthenticationChallenge` является сущностью внутри AuthenticationTransaction, если его жизненный цикл не требует независимой адресации. Provider callback связывается с challenge через непрозрачный correlation reference.
+
+### 9.6.6. Состояния AuthenticationTransaction
+
+```text
+CREATED
+  → SUBJECT_RESOLVED
+  → DECISION_PENDING
+  → CHALLENGE_REQUIRED
+  → CHALLENGE_PENDING
+  → AUTHENTICATED
+  → HANDOFF_CREATED
+  → COMPLETED
+
+Конечные альтернативы:
+FAILED | DENIED | CANCELLED | EXPIRED
+```
+
+Переходы **ДОЛЖНЫ** быть явными и проверяться агрегатом. Callback от provider **НЕ ДОЛЖЕН** напрямую устанавливать `COMPLETED`, минуя проверку текущего состояния, assurance и anti-replay.
+
+### 9.6.7. Команды
+
+| Command ID | Команда |
+| --- | --- |
+| `AUTH-CMD-001` | `RegisterClient` |
+| `AUTH-CMD-002` | `UpdateClient` |
+| `AUTH-CMD-003` | `StartAuthentication` |
+| `AUTH-CMD-004` | `SelectChallenge` |
+| `AUTH-CMD-005` | `ResendChallenge` |
+| `AUTH-CMD-006` | `CompleteChallenge` |
+| `AUTH-CMD-007` | `HandleProviderCallback` |
+| `AUTH-CMD-008` | `CancelAuthentication` |
+| `AUTH-CMD-009` | `ExpireAuthentication` |
+| `AUTH-CMD-010` | `CreateAuthenticationHandoff` |
+| `AUTH-CMD-011` | `ExchangeHandoff` |
+| `AUTH-CMD-012` | `StartStepUpAuthentication` |
+| `AUTH-CMD-013` | `StartReauthentication` |
+| `AUTH-CMD-014` | `RevokeAuthenticationSession` |
+
+`ResendChallenge` **ДОЛЖЕН** учитывать cooldown, attempt limit и Risk Decision. Повторный callback обрабатывается идемпотентно.
+
+### 9.6.8. Запросы
+
+| Query ID | Запрос |
+| --- | --- |
+| `AUTH-QRY-001` | `GetClient` |
+| `AUTH-QRY-002` | `GetAuthentication` |
+| `AUTH-QRY-003` | `GetCurrentChallenge` |
+| `AUTH-QRY-004` | `GetAuthenticationSession` |
+| `AUTH-QRY-005` | `ListAvailableAuthenticationMethods` |
+| `AUTH-QRY-006` | `GetAuthenticationOperation` |
+
+Ответы **НЕ ДОЛЖНЫ** раскрывать provider secret, raw token, internal risk score или диагностические данные, позволяющие обходить challenge.
+
+### 9.6.9. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `AUTH-EVT-001` | `AuthenticationStarted` |
+| `AUTH-EVT-002` | `AuthenticationMethodSelected` |
+| `AUTH-EVT-003` | `ChallengeRequired` |
+| `AUTH-EVT-004` | `ChallengeDispatched` |
+| `AUTH-EVT-005` | `ChallengeCompleted` |
+| `AUTH-EVT-006` | `AuthenticationCompleted` |
+| `AUTH-EVT-007` | `AuthenticationDenied` |
+| `AUTH-EVT-008` | `AuthenticationFailed` |
+| `AUTH-EVT-009` | `AuthenticationCancelled` |
+| `AUTH-EVT-010` | `AuthenticationExpired` |
+| `AUTH-EVT-011` | `AuthenticationSessionCreated` |
+| `AUTH-EVT-012` | `AuthenticationSessionRevoked` |
+| `AUTH-EVT-013` | `StepUpCompleted` |
+
+Событие `AuthenticationCompleted` содержит SubjectReference, ClientReference, achieved assurance, authentication methods и timestamps, но **НЕ ДОЛЖНО** содержать credential material или полный token set.
+
+### 9.6.10. Потребляемые контракты
+
+| Поставщик | Контракт | Назначение |
+| --- | --- | --- |
+| Identity | `ResolveSubject`, `GetIdentityStatus` | Разрешение и проверка состояния Subject. |
+| Risk Decision | `EvaluateAuthenticationRisk` | ALLOW, DENY, CHALLENGE или REVIEW; требуемый assurance. |
+| Access | `CheckPermission` | Проверка права Client/Actor запускать административные или delegated flows. |
+| Resource Manager | Resource projection | Проверка активности Project и ServiceRegistration. |
+| Keycloak / provider | CIBA, OIDC, SAML, WebAuthn, OTP adapters | Исполнение технического механизма challenge. |
+
+### 9.6.11. Provider ACL
+
+ACL для Keycloak **ДОЛЖЕН**:
+
+- преобразовывать Keycloak session/challenge state в доменные состояния;
+- скрывать provider-specific error codes за M8 error taxonomy;
+- не допускать передачи Keycloak model в domain/application;
+- обеспечивать anti-replay и callback validation;
+- хранить provider identifiers только как непрозрачные references;
+- иметь contract tests против поддерживаемой версии provider.
+
+Замена Keycloak **НЕ ДОЛЖНА** требовать изменения публичного Authentication API, кроме явно provider-specific administrative capabilities.
+
+### 9.6.12. Assurance и step-up
+
+Authentication различает:
+
+- `requested_assurance_level` — уровень, требуемый Client или downstream policy;
+- `required_assurance_level` — итоговое требование Risk Decision;
+- `achieved_assurance_level` — фактически доказанный уровень;
+- `authentication_methods` — применённые методы.
+
+Транзакция не может завершиться успешно, если achieved assurance ниже required assurance. Step-up создаёт новую связанную AuthenticationTransaction или отдельную подоперацию по принятой модели, но **НЕ ДОЛЖЕН** молча изменять исторический результат предыдущей транзакции.
+
+### 9.6.13. Re-authentication и refresh failure
+
+Если refresh token отсутствует, истёк, отозван или provider отклонил его, Authentication **ДОЛЖЕН** запускать новую независимую аутентификацию. Старая транзакция не переоткрывается, а прежняя session не считается восстановленной автоматически.
+
+### 9.6.14. Безопасность и аудит
+
+Обязательны:
+
+- rate limit и velocity checks;
+- anti-replay для callback и handoff;
+- одноразовость Handoff;
+- binding Handoff к Client и ожидаемому redirect/channel;
+- защита от subject enumeration;
+- ограниченный TTL всех временных артефактов;
+- masking email/phone в пользовательских ответах;
+- audit без OTP, token, assertion и biometric data.
+
+### 9.6.15. Наблюдаемость
+
+Минимальные метрики:
+
+- authentication starts/completions/failures по method и client;
+- conversion по состояниям;
+- challenge dispatch/completion latency;
+- resend и fallback rate;
+- provider callback errors;
+- risk decision latency/outcomes;
+- achieved assurance distribution;
+- expired/cancelled transactions;
+- handoff replay attempts;
+- reauthentication rate после refresh failure.
+
+### 9.6.16. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| Identity недоступен | Новая транзакция не проходит subject resolution; retryable failure без создания ложной session. |
+| Risk Decision недоступен | По умолчанию fail closed; явно разрешённая low-risk policy может быть оформлена ADR. |
+| Provider недоступен | Transaction остаётся в retryable/pending состоянии либо предлагает разрешённый fallback. |
+| Access недоступен | Административные операции fail closed. |
+| Callback повторён | Идемпотентный no-op или возврат сохранённого результата. |
+| Outbox transport недоступен | Завершённое локальное состояние сохраняется, событие публикуется после восстановления. |
+
+### 9.6.17. Запрещённые зависимости
+
+Authentication **НЕ ДОЛЖЕН**:
+
+- считать Identity базой credentials;
+- читать Keycloak DB;
+- выдавать permission decision;
+- записывать RoleBinding;
+- хранить raw refresh/access tokens в логах или Audit;
+- принимать achieved assurance только со слов Client;
+- повторно использовать AuthenticationTransaction после конечного состояния.
+
+### 9.6.18. SPDD Context Prompt
+
+Context Prompt `CTX-AUTHN` **ДОЛЖЕН** включать:
+
+- state machine AuthenticationTransaction;
+- определения Subject, Actor, Client и Session;
+- requested/required/achieved assurance;
+- разрешённые методы и fallback rules;
+- зависимости Identity, Risk Decision, Access и provider ACL;
+- anti-replay, idempotency, TTL и rate-limit constraints;
+- запрет утечки provider models и secret material;
+- обязательные unit, contract, integration и security test cases.
+
+---
+
+## 9.7. Access — управление полномочиями
+
+### 9.7.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-ACC` |
+| Service ID | `m8-access` |
+| Классификация | Core Domain |
+| Пространство требований | `ACC-*` |
+| Миссия | Предоставлять единый язык полномочий и проверяемое решение о возможности Subject выполнить Action над Resource. |
+| Владеет | AuthorizationModel, Permission, Role, RoleBinding, AccessRelationship, CheckResult и Explanation. |
+| Не владеет | Доказательством аутентификации, профилем User, ресурсной иерархией, risk policy и audit storage. |
+| Consistency boundary | Изменение одного authorization aggregate и transactional dispatch; graph storage обновляется через согласованный adapter path. |
+| Published Language | `PL-ACCESS`, `PL-ACCESS-EVENTS`. |
+
+### 9.7.2. Назначение и ответственность
+
+Access **ДОЛЖЕН**:
+
+- определять канонические Permission и Resource Type;
+- управлять Role и RoleBinding;
+- управлять отношениями Subject–Resource;
+- выполнять `CheckPermission`;
+- объяснять результат в безопасной форме;
+- поддерживать batch check и simulation;
+- синхронизировать модель с SpiceDB через adapter;
+- обрабатывать resource и identity projections;
+- обеспечивать ревизию и отзыв полномочий.
+
+### 9.7.3. Исключённая ответственность
+
+Access **НЕ ДОЛЖЕН**:
+
+- считать наличие аутентификации достаточным основанием доступа;
+- владеть Organization/Workspace/Project;
+- изменять User или Membership напрямую;
+- исполнять challenge step-up;
+- определять риск операции вместо Risk Decision;
+- возвращать неограниченное внутреннее объяснение внешнему пользователю.
+
+### 9.7.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-ACC-MODEL` | Управление AuthorizationModel. |
+| `CAP-ACC-PERM` | Каталог Permission. |
+| `CAP-ACC-ROLE` | Управление Role. |
+| `CAP-ACC-BIND` | RoleBinding и прямые отношения. |
+| `CAP-ACC-CHECK` | Permission check и batch check. |
+| `CAP-ACC-EXPLAIN` | Безопасное объяснение решения. |
+| `CAP-ACC-SIM` | Симуляция и what-if analysis. |
+| `CAP-ACC-REVIEW` | Access review и отзыв избыточных полномочий. |
+
+### 9.7.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-ACC-MODEL` | AuthorizationModel | Версионируемая схема типов ресурсов, отношений и permissions. |
+| `DM-ACC-ROLE` | Role | Именованный набор permissions и применимая scope. |
+| `DM-ACC-BINDING` | RoleBinding | Назначение Role субъекту или группе в Resource Scope. |
+| `DM-ACC-REL` | AccessRelationship | Типизированное прямое отношение Subject–Resource. |
+
+Результат `CheckPermission` является decision record, но не обязательно долгоживущим агрегатом. Для чувствительных операций **МОЖЕТ** сохраняться decision evidence, достаточное для Audit и расследования.
+
+### 9.7.6. Команды
+
+| Command ID | Команда |
+| --- | --- |
+| `ACC-CMD-001` | `PublishAuthorizationModel` |
+| `ACC-CMD-002` | `CreateRole` |
+| `ACC-CMD-003` | `UpdateRole` |
+| `ACC-CMD-004` | `DeleteRole` |
+| `ACC-CMD-005` | `BindRole` |
+| `ACC-CMD-006` | `RevokeRoleBinding` |
+| `ACC-CMD-007` | `WriteRelationship` |
+| `ACC-CMD-008` | `DeleteRelationship` |
+| `ACC-CMD-009` | `StartAccessReview` |
+| `ACC-CMD-010` | `ApplyAccessReviewDecision` |
+
+### 9.7.7. Запросы и решения
+
+| Query ID | Запрос |
+| --- | --- |
+| `ACC-QRY-001` | `CheckPermission` |
+| `ACC-QRY-002` | `BatchCheckPermissions` |
+| `ACC-QRY-003` | `ExplainPermission` |
+| `ACC-QRY-004` | `ListRoles` |
+| `ACC-QRY-005` | `ListRoleBindings` |
+| `ACC-QRY-006` | `ReadRelationships` |
+| `ACC-QRY-007` | `LookupResources` |
+| `ACC-QRY-008` | `LookupSubjects` |
+| `ACC-QRY-009` | `SimulatePermission` |
+
+`CheckPermission` **ДОЛЖЕН** возвращать как минимум `ALLOW` или `DENY`, evaluated model version, decision timestamp и безопасный reason code. `UNKNOWN` не должен неявно трактоваться как `ALLOW`.
+
+### 9.7.8. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `ACC-EVT-001` | `AuthorizationModelPublished` |
+| `ACC-EVT-002` | `RoleCreated` |
+| `ACC-EVT-003` | `RoleChanged` |
+| `ACC-EVT-004` | `RoleDeleted` |
+| `ACC-EVT-005` | `RoleBindingCreated` |
+| `ACC-EVT-006` | `RoleBindingRevoked` |
+| `ACC-EVT-007` | `AccessRelationshipWritten` |
+| `ACC-EVT-008` | `AccessRelationshipDeleted` |
+| `ACC-EVT-009` | `AccessReviewCompleted` |
+
+### 9.7.9. Потребляемые события и проекции
+
+| Источник | Факт | Использование |
+| --- | --- | --- |
+| Resource Manager | Resource created/state changed/deleted | Resource type, ancestry и active status projection. |
+| Identity | User/Group/Membership state changed | Subject и group projection, отзыв полномочий disabled subject. |
+| Risk Decision | Policy metadata, если требуется | Не заменяет базовый permission check; используется для orchestration совместно с вызывающим контекстом. |
+
+Access **ДОЛЖЕН** уметь пересобрать projections из Published Language без прямого чтения чужих баз.
+
+### 9.7.10. SpiceDB Adapter
+
+SpiceDB является реализационной технологией, а не предметным владельцем. Adapter **ДОЛЖЕН**:
+
+- переводить M8 ResourceReference и SubjectReference в SpiceDB object/subject;
+- скрывать zed token и vendor errors;
+- обеспечивать schema compatibility checks;
+- поддерживать consistency token там, где это нужно для read-your-writes;
+- не допускать прямого использования SpiceDB SDK вне adapter/infrastructure;
+- иметь reconciliation между каноническими Access writes и graph storage.
+
+### 9.7.11. Согласованность решений
+
+Для administrative control-plane операций после изменения RoleBinding **СЛЕДУЕТ** обеспечивать read-your-writes с помощью revision/consistency token. Для массовых lookup допускается bounded staleness, если это явно обозначено в контракте.
+
+Кэш положительных решений **ДОЛЖЕН** иметь короткий TTL и учитывать model/relation version. Кэш отрицательных решений **МОЖЕТ** использоваться осторожно, но не должен препятствовать быстрому предоставлению нового доступа.
+
+### 9.7.12. Безопасность и аудит
+
+Изменение AuthorizationModel, системных Role и privileged bindings требует усиленного permission и, по policy, step-up. Audit **ДОЛЖЕН** фиксировать:
+
+- кто изменил полномочия;
+- кому предоставлено или отозвано право;
+- Resource Scope;
+- Role/Relationship;
+- предыдущую и новую версию;
+- reason/ticket, если policy требует обоснование.
+
+`ExplainPermission` внешнему пользователю **НЕ ДОЛЖЕН** раскрывать полный graph path, внутренние группы или сведения о других субъектах.
+
+### 9.7.13. Наблюдаемость
+
+Минимальные метрики:
+
+- check rate и p50/p95/p99 latency;
+- allow/deny/error ratio;
+- SpiceDB dependency latency и error rate;
+- relation write lag;
+- model publication failures;
+- stale projection count;
+- reconciliation mismatch;
+- privileged binding count;
+- access review findings и revoke lead time.
+
+### 9.7.14. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| SpiceDB недоступен | Security-sensitive checks fail closed; публичное API возвращает retryable unavailable. |
+| Projection отстаёт | Решение помечается соответствующей revision; удалённые/disabled subjects должны отзываться приоритетно. |
+| Resource unknown | DENY или NOT_FOUND по контракту без раскрытия лишней информации. |
+| Identity event дублирован | Inbox/idempotent projection update. |
+| Model incompatible | Новая версия не публикуется; предыдущая active version сохраняется. |
+
+### 9.7.15. Запрещённые зависимости
+
+Access **НЕ ДОЛЖЕН**:
+
+- читать Resource Manager/Identity DB;
+- использовать email как канонический subject key;
+- возвращать ALLOW при ошибке graph backend;
+- смешивать risk score с базовым permission graph;
+- позволять сервисам писать отношения напрямую в SpiceDB в обход M8 Access;
+- сохранять provider-specific zed token в публичной доменной модели.
+
+### 9.7.16. SPDD Context Prompt
+
+Context Prompt `CTX-ACC` **ДОЛЖЕН** включать:
+
+- M8 authorization language и model versioning;
+- Role, RoleBinding, AccessRelationship и Permission;
+- SpiceDB только как adapter;
+- fail-closed semantics;
+- projection/reconciliation rules;
+- безопасное explanation;
+- обязательные тесты на stale data, revoke, read-your-writes, model compatibility и forbidden direct SDK usage.
+
+---
+
+## 9.8. Risk Decision — оценка риска и принятие решения
+
+### 9.8.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-RISK` |
+| Service ID | `m8-risk-decision` |
+| Классификация | Core Domain |
+| Пространство требований | `RISK-*` |
+| Миссия | Преобразовывать проверяемый контекст и сигналы риска в объяснимое решение о допустимом следующем действии. |
+| Владеет | RiskAssessment, RiskSignalDefinition, DecisionPolicy, PolicyVersion, Decision, DecisionExplanation. |
+| Не владеет | Исполнением challenge, базовым permission graph, профилем User, lifecycle ManagedResource. |
+| Consistency boundary | Оценка и decision evidence; изменение одной policy/version и Outbox. |
+| Published Language | `PL-RISK`, `PL-RISK-EVENTS`. |
+
+### 9.8.2. Назначение и ответственность
+
+Risk Decision **ДОЛЖЕН**:
+
+- принимать нормализованный DecisionContext;
+- собирать или получать разрешённые RiskSignal;
+- применять активную версию DecisionPolicy;
+- возвращать `ALLOW`, `DENY`, `CHALLENGE` или `REVIEW`;
+- указывать required assurance/challenge constraints;
+- предоставлять безопасное объяснение;
+- поддерживать simulation и policy testing;
+- фиксировать decision evidence и версии входов;
+- публиковать факты решений и изменений policy.
+
+### 9.8.3. Исключённая ответственность
+
+Risk Decision **НЕ ДОЛЖЕН**:
+
+- выполнять OTP/CIBA/WebAuthn;
+- самостоятельно предоставлять permission;
+- изменять AuthenticationTransaction;
+- создавать или удалять ManagedResource;
+- раскрывать внутренние anti-fraud rules и sensitive signals внешнему клиенту;
+- использовать неописанные персональные признаки без законного основания и governance.
+
+### 9.8.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-RISK-ASSESS` | Online risk assessment. |
+| `CAP-RISK-POLICY` | Версионирование и публикация policy. |
+| `CAP-RISK-SIGNAL` | Каталог и нормализация signals. |
+| `CAP-RISK-VELOCITY` | Velocity и frequency checks. |
+| `CAP-RISK-DEVICE` | Device и session intelligence. |
+| `CAP-RISK-STEPUP` | Определение required assurance/challenge. |
+| `CAP-RISK-REVIEW` | Маршрутизация в manual review. |
+| `CAP-RISK-SIM` | Simulation, replay и тестирование policy. |
+
+### 9.8.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-RISK-POLICY` | DecisionPolicy | Логическая policy и набор версионируемых правил. |
+| `DM-RISK-ASSESS` | RiskAssessment | Контекст оценки, набор signal references и итоговый Decision. |
+| `DM-RISK-SIGNAL` | RiskSignalDefinition | Тип, источник, срок актуальности и правила использования сигнала. |
+| `DM-RISK-REVIEW` | ReviewCase | Ручная проверка, если outcome `REVIEW` требует собственного lifecycle. |
+
+### 9.8.6. Решение
+
+Канонические outcomes:
+
+| Outcome | Значение |
+| --- | --- |
+| `ALLOW` | Риск не требует дополнительного действия; не заменяет permission check. |
+| `DENY` | Операция не должна продолжаться. |
+| `CHALLENGE` | Требуется дополнительное подтверждение с указанным assurance/constraints. |
+| `REVIEW` | Требуется ручное или отложенное решение. |
+
+Decision **ДОЛЖЕН** содержать policy version, decision ID, expires at или validity window, reason codes и evidence reference. Внешний reason code отделяется от внутреннего explanation.
+
+### 9.8.7. Команды
+
+| Command ID | Команда |
+| --- | --- |
+| `RISK-CMD-001` | `CreateDecisionPolicy` |
+| `RISK-CMD-002` | `CreatePolicyVersion` |
+| `RISK-CMD-003` | `PublishPolicyVersion` |
+| `RISK-CMD-004` | `RetirePolicyVersion` |
+| `RISK-CMD-005` | `RegisterRiskSignalDefinition` |
+| `RISK-CMD-006` | `ObserveRiskSignal` |
+| `RISK-CMD-007` | `CreateReviewCase` |
+| `RISK-CMD-008` | `ResolveReviewCase` |
+
+Online evaluate операции являются decision requests, а не командами изменения внешнего агрегата.
+
+### 9.8.8. Запросы решений
+
+| Query/Decision ID | Операция |
+| --- | --- |
+| `RISK-DEC-001` | `EvaluateAuthenticationRisk` |
+| `RISK-DEC-002` | `EvaluateAccessRisk` |
+| `RISK-DEC-003` | `EvaluateProvisioningRisk` |
+| `RISK-DEC-004` | `EvaluateAdministrativeActionRisk` |
+| `RISK-QRY-001` | `GetRiskAssessment` |
+| `RISK-QRY-002` | `SimulateDecision` |
+| `RISK-QRY-003` | `ExplainDecision` для уполномоченного оператора |
+| `RISK-QRY-004` | `ListPolicyVersions` |
+
+### 9.8.9. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `RISK-EVT-001` | `RiskAssessmentCreated` |
+| `RISK-EVT-002` | `RiskDecisionMade` |
+| `RISK-EVT-003` | `PolicyVersionPublished` |
+| `RISK-EVT-004` | `PolicyVersionRetired` |
+| `RISK-EVT-005` | `RiskSignalObserved` |
+| `RISK-EVT-006` | `ReviewCaseCreated` |
+| `RISK-EVT-007` | `ReviewCaseResolved` |
+
+События **НЕ ДОЛЖНЫ** раскрывать raw device fingerprint, secret rule thresholds или персональные признаки сверх утверждённого data contract.
+
+### 9.8.10. Потребляемые контракты
+
+Risk Decision принимает DecisionContext от Authentication, Access, Provisioning или Resource Manager. Контекст включает только необходимые references и нормализованные признаки.
+
+Внешние signal providers подключаются через ACL. Каждый signal **ДОЛЖЕН** иметь:
+
+- источник;
+- время наблюдения;
+- freshness/TTL;
+- confidence;
+- purpose limitation;
+- классификацию чувствительности;
+- правила fallback при недоступности.
+
+### 9.8.11. Policy lifecycle
+
+Новая policy version проходит стадии:
+
+```text
+DRAFT → VALIDATED → SHADOW → ACTIVE → RETIRED
+```
+
+Переход в `ACTIVE` требует:
+
+- статической валидации;
+- набора тестовых cases;
+- simulation/replay;
+- оценки влияния;
+- approval по governance;
+- возможности rollback на предыдущую версию.
+
+Изменение active policy in-place запрещено.
+
+### 9.8.12. Объяснимость и повторяемость
+
+Для каждого Decision **ДОЛЖНЫ** сохраняться:
+
+- policy version;
+- нормализованный input hash;
+- использованные signal versions/freshness;
+- outcome;
+- внутренние reason codes;
+- внешний safe reason code;
+- timing и dependency status.
+
+Это должно позволять воспроизвести решение в controlled environment в пределах retention policy.
+
+### 9.8.13. Безопасность и аудит
+
+Policy authoring и publication являются privileged actions. Требуются separation of duties и, для production policy, approval workflow. Логи и Audit **НЕ ДОЛЖНЫ** содержать raw secrets или полный device fingerprint.
+
+### 9.8.14. Наблюдаемость
+
+Минимальные метрики:
+
+- decisions по outcome/use case/policy version;
+- decision latency;
+- signal provider latency/error/freshness;
+- challenge/deny/review rate;
+- policy shadow divergence;
+- fallback usage;
+- review queue age;
+- replay/simulation mismatch;
+- доля решений с incomplete evidence.
+
+### 9.8.15. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| Critical signal недоступен | Используется явно заданный policy outcome, обычно DENY/CHALLENGE; не неявный ALLOW. |
+| Non-critical signal недоступен | Decision помечается degraded, применяется документированный fallback. |
+| Policy store недоступен | Используется последняя локально подтверждённая active version, если её integrity подтверждена. |
+| Velocity store недоступен | Для защищаемых сценариев fail closed или CHALLENGE по policy. |
+| Simulation failure | Policy version не публикуется. |
+
+### 9.8.16. Запрещённые зависимости
+
+Risk Decision **НЕ ДОЛЖЕН**:
+
+- напрямую изменять Authentication/Provisioning state;
+- считать `ALLOW` разрешением Access;
+- использовать mutable active policy;
+- принимать raw external provider model как доменную модель;
+- скрывать факт degraded decision от вызывающего контекста;
+- публиковать sensitive evidence в общую event stream.
+
+### 9.8.17. SPDD Context Prompt
+
+Context Prompt `CTX-RISK` **ДОЛЖЕН** включать:
+
+- outcomes и их семантику;
+- policy lifecycle и immutable versioning;
+- signal freshness/confidence/purpose;
+- safe/internal explanation split;
+- deterministic evaluation requirements;
+- degraded/fail-closed rules;
+- обязательные simulation, replay, shadow и security tests.
+
+---
+
+## 9.9. Provisioning — управление жизненным циклом управляемых ресурсов
+
+### 9.9.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-PROV` |
+| Service ID | `m8-provisioning` |
+| Классификация | Core Domain |
+| Пространство требований | `PROV-*` |
+| Миссия | Преобразовывать декларативное желаемое состояние в проверяемое наблюдаемое состояние управляемого ресурса. |
+| Владеет | ResourceDefinition, ResourceRequest, ManagedResource, Placement, Reconciliation, DriverRegistration, desired/observed state. |
+| Не владеет | Project hierarchy, User identity, permission graph, внешними cloud objects как канонической бизнес-моделью. |
+| Consistency boundary | Один ManagedResource/ResourceRequest и Outbox; длительные действия выполняются workflow. |
+| Published Language | `PL-PROVISIONING`, `PL-PROVISIONING-EVENTS`. |
+
+### 9.9.2. Назначение и ответственность
+
+Provisioning **ДОЛЖЕН**:
+
+- принимать декларативную ResourceRequest;
+- валидировать тип и schema desired state;
+- выбирать Placement по policy;
+- создавать ManagedResource;
+- запускать Temporal workflow;
+- вызывать Driver;
+- хранить desired и observed state;
+- выполнять reconciliation и drift detection;
+- поддерживать update, retry, suspend и delete;
+- публиковать состояние и результат provisioning;
+- предоставлять Operation progress.
+
+### 9.9.3. Исключённая ответственность
+
+Provisioning **НЕ ДОЛЖЕН**:
+
+- быть владельцем Project;
+- назначать права пользователю;
+- включать vendor SDK в domain/application;
+- считать внешнюю cloud API единственным источником desired state;
+- изменять requested specification без явного policy/defaulting;
+- удалять внешний ресурс без проверяемого ownership marker.
+
+### 9.9.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-PROV-TYPE` | Каталог ResourceDefinition и schema. |
+| `CAP-PROV-REQ` | Приём ResourceRequest. |
+| `CAP-PROV-PLACE` | Placement и capacity policy. |
+| `CAP-PROV-LIFE` | Create, update, suspend, resume, delete. |
+| `CAP-PROV-RECON` | Reconciliation desired/observed. |
+| `CAP-PROV-DRIFT` | Drift detection и correction policy. |
+| `CAP-PROV-DRV` | Driver registration и compatibility. |
+| `CAP-PROV-OPS` | Operation progress и recovery. |
+
+### 9.9.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-PROV-DEF` | ResourceDefinition | Тип ресурса, schema, defaults, lifecycle capabilities и driver requirements. |
+| `DM-PROV-REQ` | ResourceRequest | Запрос на создание/изменение с caller intent и idempotency. |
+| `DM-PROV-MR` | ManagedResource | Desired state, observed state summary, placement, state и external references. |
+| `DM-PROV-DRV` | DriverRegistration | Поддерживаемые types/versions/capabilities. |
+| `DM-PROV-REC` | Reconciliation | Один цикл согласования и его результат. |
+
+ExternalReference является непрозрачной ссылкой, а не заменой ManagedResource ID.
+
+### 9.9.6. Состояния ManagedResource
+
+```text
+REQUESTED → PROVISIONING → READY
+                    ↘ DEGRADED
+READY → UPDATING → READY
+READY/DEGRADED → DELETING → DELETED
+
+Дополнительные:
+SUSPENDED | ERROR | ORPHANED
+```
+
+`READY` означает соответствие обязательной части desired state, а не только успешный ответ первого API вызова.
+
+### 9.9.7. Команды
+
+| Command ID | Команда |
+| --- | --- |
+| `PROV-CMD-001` | `RegisterResourceDefinition` |
+| `PROV-CMD-002` | `PublishResourceDefinitionVersion` |
+| `PROV-CMD-003` | `CreateManagedResource` |
+| `PROV-CMD-004` | `UpdateDesiredState` |
+| `PROV-CMD-005` | `SuspendManagedResource` |
+| `PROV-CMD-006` | `ResumeManagedResource` |
+| `PROV-CMD-007` | `DeleteManagedResource` |
+| `PROV-CMD-008` | `ReconcileManagedResource` |
+| `PROV-CMD-009` | `RetryProvisioning` |
+| `PROV-CMD-010` | `RegisterDriver` |
+| `PROV-CMD-011` | `AdoptExternalResource` через отдельную policy и Operation |
+
+### 9.9.8. Запросы
+
+| Query ID | Запрос |
+| --- | --- |
+| `PROV-QRY-001` | `GetResourceDefinition` |
+| `PROV-QRY-002` | `ListResourceDefinitions` |
+| `PROV-QRY-003` | `GetManagedResource` |
+| `PROV-QRY-004` | `ListManagedResources` |
+| `PROV-QRY-005` | `GetObservedState` |
+| `PROV-QRY-006` | `GetReconciliationHistory` |
+| `PROV-QRY-007` | `GetProvisioningOperation` |
+| `PROV-QRY-008` | `PreviewPlacement` |
+
+Observed state может быть stale; ответ **ДОЛЖЕН** содержать `observed_at`, `reconciliation_id` и freshness metadata.
+
+### 9.9.9. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `PROV-EVT-001` | `ManagedResourceRequested` |
+| `PROV-EVT-002` | `ProvisioningStarted` |
+| `PROV-EVT-003` | `ManagedResourceReady` |
+| `PROV-EVT-004` | `ManagedResourceStateChanged` |
+| `PROV-EVT-005` | `DesiredStateChanged` |
+| `PROV-EVT-006` | `ObservedStateChanged` |
+| `PROV-EVT-007` | `DriftDetected` |
+| `PROV-EVT-008` | `ReconciliationCompleted` |
+| `PROV-EVT-009` | `ProvisioningFailed` |
+| `PROV-EVT-010` | `ManagedResourceDeleted` |
+| `PROV-EVT-011` | `ExternalResourceOrphaned` |
+
+### 9.9.10. Потребляемые контракты
+
+| Поставщик | Контракт | Назначение |
+| --- | --- | --- |
+| Resource Manager | Project/Service state | Scope и ownership контекст. |
+| Access | CheckPermission | Право create/update/delete managed resource. |
+| Risk Decision | EvaluateProvisioningRisk | Approval, step-up, deny или review для чувствительных ресурсов. |
+| Temporal | Workflow execution | Надёжная оркестрация, retries и compensation. |
+| Driver | Apply/Observe/Delete | Работа с внешней системой через нормализованный driver contract. |
+
+### 9.9.11. Driver contract
+
+Driver **ДОЛЖЕН** реализовывать, в зависимости от capability:
+
+- `Validate`;
+- `Plan`;
+- `Apply`;
+- `Observe`;
+- `Delete`;
+- `CheckHealth`;
+- `GetCapabilities`.
+
+Каждый вызов Driver **ДОЛЖЕН** быть идемпотентным по operation/reconciliation key. Driver не принимает business permission decisions и не хранит M8 credentials в открытом виде.
+
+### 9.9.12. Reconciliation
+
+Reconciliation сравнивает desired и observed state, формирует Plan и применяет допустимые действия. Он **ДОЛЖЕН**:
+
+- учитывать generation desired state;
+- не применять результат устаревшей generation;
+- сохранять before/after summary;
+- различать transient и terminal errors;
+- ограничивать retries;
+- поддерживать backoff и circuit breaker;
+- обнаруживать drift;
+- не исправлять drift автоматически, если policy требует review.
+
+### 9.9.13. Temporal workflow
+
+Temporal используется для оркестрации, но workflow state **НЕ ЯВЛЯЕТСЯ** каноническим предметным состоянием. ManagedResource и Operation остаются читаемыми из сервиса даже при временной недоступности Temporal.
+
+Workflow ID, retry policy и activity types являются инфраструктурными деталями и не должны становиться частью публичного API.
+
+### 9.9.14. Безопасность и аудит
+
+Обязательны:
+
+- permission и risk decision до создания/изменения sensitive resource;
+- secure secret references вместо secret values;
+- ownership tags/markers во внешней системе;
+- защита delete от чужого external resource;
+- audit desired state changes и driver actions без секретов;
+- separation of duties для production/high-impact resources.
+
+### 9.9.15. Наблюдаемость
+
+Минимальные метрики:
+
+- resources по type/state/placement;
+- provisioning success/failure latency;
+- reconciliation duration и backlog;
+- driver errors/throttling;
+- drift count и drift age;
+- orphaned resource count;
+- operation retry count;
+- desired-observed generation lag;
+- deletion stuck duration;
+- external API quota usage.
+
+### 9.9.16. Отказы и восстановление
+
+| Отказ | Поведение |
+| --- | --- |
+| Driver timeout | Activity retry по policy; состояние не объявляется READY. |
+| Temporal недоступен | Новые workflows не стартуют; локальные commands могут фиксироваться как pending только при гарантированном dispatch. |
+| External API partial success | Observe определяет фактическое состояние; workflow продолжает reconciliation. |
+| Resource Manager scope deleted | Запускается governed cleanup; новые changes запрещаются. |
+| Risk Decision недоступен | Sensitive operation fail closed. |
+| Service restart | Workflow и reconciliation восстанавливаются по durable state. |
+
+### 9.9.17. Запрещённые зависимости
+
+Provisioning **НЕ ДОЛЖЕН**:
+
+- размещать vendor resource object в domain;
+- завершать Operation только на основании отправки API request;
+- автоматически усыновлять внешний ресурс без ownership verification;
+- хранить plaintext secrets;
+- считать Temporal history единственным источником состояния;
+- удалять resource hierarchy в Resource Manager.
+
+### 9.9.18. SPDD Context Prompt
+
+Context Prompt `CTX-PROV` **ДОЛЖЕН** включать:
+
+- desired/observed state и generation rules;
+- ManagedResource state machine;
+- ResourceDefinition/Driver separation;
+- Temporal как infrastructure orchestration;
+- idempotent driver calls, retries, compensation и recovery;
+- secret handling и ownership verification;
+- обязательные failure-injection и reconciliation tests.
+
+---
+
+## 9.10. Audit — неизменяемая история значимых действий
+
+### 9.10.1. Паспорт контекста
+
+| Поле | Значение |
+| --- | --- |
+| Context ID | `CTX-AUD` |
+| Service ID | `m8-audit` |
+| Классификация | Supporting Domain |
+| Пространство требований | `AUD-*` |
+| Миссия | Сохранять проверяемую, неизменяемую и доступную по правилам историю значимых действий и решений платформы. |
+| Владеет | AuditEvent, AuditActor, AuditTarget, AuditContext, AuditChangeSet, RetentionPolicy, ExportJob, IntegrityEvidence. |
+| Не владеет | Исходным business state, permission/risk decision и операционными логами сервисов. |
+| Consistency boundary | Append одной записи/пакета и integrity metadata; export/retention выполняются отдельными operations. |
+| Published Language | `PL-AUDIT`. |
+
+### 9.10.2. Назначение и ответственность
+
+Audit **ДОЛЖЕН**:
+
+- принимать нормализованные audit records;
+- валидировать обязательные поля;
+- обеспечивать append-only semantics;
+- дедуплицировать записи по event ID;
+- сохранять actor, target, action, outcome и changes;
+- поддерживать поиск с авторизацией;
+- обеспечивать retention, legal hold и export;
+- формировать integrity evidence;
+- сохранять связь с correlation/causation/operation;
+- отделять audit trail от debug logs и domain event stream.
+
+### 9.10.3. Исключённая ответственность
+
+Audit **НЕ ДОЛЖЕН**:
+
+- блокировать локальную бизнес-транзакцию синхронным удалённым вызовом;
+- становиться источником истины business resource;
+- повторно исполнять business command;
+- хранить secrets, raw tokens, passwords, OTP или private keys;
+- предоставлять неограниченный поиск без permission и scope filtering;
+- позволять обычное update/delete AuditEvent.
+
+### 9.10.4. Реализуемые бизнес-возможности
+
+| Capability ID | Возможность |
+| --- | --- |
+| `CAP-AUD-INGEST` | Надёжный приём AuditEvent. |
+| `CAP-AUD-STORE` | Append-only хранение. |
+| `CAP-AUD-SEARCH` | Авторизованный поиск и timeline. |
+| `CAP-AUD-INTEGRITY` | Проверка целостности. |
+| `CAP-AUD-RET` | Retention и legal hold. |
+| `CAP-AUD-EXP` | Экспорт и подтверждение набора данных. |
+| `CAP-AUD-PRIV` | Redaction/pseudonymization по policy без разрушения evidence. |
+
+### 9.10.5. Предметная модель
+
+| Aggregate ID | Корень | Назначение |
+| --- | --- | --- |
+| `DM-AUD-EVENT` | AuditEvent | Неизменяемая запись значимого действия или решения. |
+| `DM-AUD-RET` | RetentionPolicy | Сроки, legal hold и правила удаления архивных сегментов. |
+| `DM-AUD-EXP` | ExportJob | Управляемый экспорт с scope, filters и integrity manifest. |
+| `DM-AUD-HOLD` | LegalHold | Запрет удаления соответствующего набора записей. |
+
+### 9.10.6. Минимальная схема AuditEvent
+
+AuditEvent **ДОЛЖЕН** содержать:
+
+- `audit_event_id`;
+- `occurred_at` и `recorded_at`;
+- producer service и producer event ID;
+- ActorReference и, при отличии, SubjectReference;
+- ClientReference;
+- action;
+- TargetReference;
+- Resource Scope;
+- outcome и error/reason code;
+- AuditChangeSet;
+- request, trace, correlation, causation и operation IDs;
+- source version;
+- data classification;
+- integrity metadata.
+
+### 9.10.7. Команды и запросы
+
+| ID | Операция |
+| --- | --- |
+| `AUD-CMD-001` | `AppendAuditEvent` |
+| `AUD-CMD-002` | `AppendAuditBatch` |
+| `AUD-CMD-003` | `CreateRetentionPolicy` |
+| `AUD-CMD-004` | `CreateLegalHold` |
+| `AUD-CMD-005` | `ReleaseLegalHold` |
+| `AUD-CMD-006` | `CreateExportJob` |
+| `AUD-QRY-001` | `GetAuditEvent` |
+| `AUD-QRY-002` | `SearchAuditEvents` |
+| `AUD-QRY-003` | `GetActorTimeline` |
+| `AUD-QRY-004` | `GetResourceTimeline` |
+| `AUD-QRY-005` | `VerifyIntegrity` |
+| `AUD-QRY-006` | `GetExportJob` |
+
+### 9.10.8. Ingestion model
+
+Бизнес-сервис **ДОЛЖЕН** записывать AuditIntent локально атомарно с изменением агрегата или обеспечивать эквивалентную надёжность через единый transactional outbox. Audit получает запись асинхронно и дедуплицирует по producer + producer event ID.
+
+Для событий отказа, не сопровождаемых commit, сервис **ДОЛЖЕН** использовать надёжный security/audit channel, соответствующий критичности события. Обычный удалённый fire-and-forget вызов недостаточен.
+
+### 9.10.9. Неизменяемость и целостность
+
+После записи AuditEvent запрещены update и delete на уровне обычного API. Исправление ошибок выполняется новой корректирующей записью, ссылающейся на исходную.
+
+Integrity **МОЖЕТ** обеспечиваться комбинацией:
+
+- append-only storage policy;
+- hash chaining по сегментам;
+- подписанными manifests;
+- immutable object storage для архивов;
+- ограничением административного доступа;
+- периодической verification job.
+
+Конкретный механизм фиксируется ADR.
+
+### 9.10.10. Поиск и доступ
+
+SearchAuditEvents **ДОЛЖЕН**:
+
+- применять permission и Resource Scope;
+- иметь ограничение диапазона времени;
+- использовать cursor pagination;
+- поддерживать поля actor, target, action, outcome, operation и correlation;
+- маскировать персональные и чувствительные поля по роли;
+- записывать аудит самого доступа к особо чувствительной истории.
+
+### 9.10.11. Retention и privacy
+
+RetentionPolicy определяет срок по типу события, юрисдикции, tenant/scope и legal hold. Удаление по retention выполняется сегментно и проверяемо.
+
+Когда требуется обезличивание Subject, Audit сохраняет непрозрачный stable reference и удаляет или псевдонимизирует display data в соответствии с policy, не разрушая доказательную связность.
+
+### 9.10.12. Публикуемые события
+
+| Event ID | Событие |
+| --- | --- |
+| `AUD-EVT-001` | `AuditEventRecorded` — только для ограниченных служебных потребителей. |
+| `AUD-EVT-002` | `AuditExportCompleted` |
+| `AUD-EVT-003` | `RetentionPolicyChanged` |
+| `AUD-EVT-004` | `IntegrityViolationDetected` |
+| `AUD-EVT-005` | `LegalHoldChanged` |
+
+Audit **НЕ ДОЛЖЕН** републиковать полный поток AuditEvent в неограниченную общую шину.
+
+### 9.10.13. Наблюдаемость
+
+Минимальные метрики:
+
+- ingest rate и lag по producer;
+- duplicate rate;
+- invalid/rejected event count;
+- storage growth;
+- search latency и scanned volume;
+- export duration/size;
+- retention backlog;
+- integrity verification status;
+- missing producer sequence/gap, где поддерживается;
+- доля audit intents старше допустимого delivery window.
+
+### 9.10.14. Отказы и деградация
+
+| Отказ | Поведение |
+| --- | --- |
+| Audit API/store недоступен | Producer сохраняет AuditIntent локально и повторяет доставку; бизнес-commit не откатывается удалённо. |
+| Event invalid | Запись помещается в quarantine с причиной; producer получает диагностический сигнал. |
+| Duplicate | Идемпотентный success. |
+| Integrity violation | Немедленный alert, блокировка затронутого export и incident workflow. |
+| Search backend деградирован | Ingestion продолжает работать при разделённой архитектуре write/read. |
+
+### 9.10.15. Запрещённые зависимости
+
+Audit **НЕ ДОЛЖЕН**:
+
+- читать business DB для восстановления missing fields в момент ingest;
+- изменять source aggregate;
+- хранить raw secret material;
+- позволять hard delete в обход retention/legal hold;
+- использовать mutable display name как единственный actor/target key;
+- становиться общей системой application logs.
+
+### 9.10.16. SPDD Context Prompt
+
+Context Prompt `CTX-AUD` **ДОЛЖЕН** включать:
+
+- append-only semantics;
+- обязательную схему AuditEvent;
+- producer-side reliable intent/outbox;
+- deduplication и integrity;
+- permission-aware search;
+- retention/legal hold/privacy constraints;
+- запрет secret material и business-state mutation;
+- тесты на duplicate, delayed delivery, integrity failure, redaction и scoped search.
+
+---
+
+## 9.11. Common Operation — общий контракт длительных операций
+
+### 9.11.1. Статус
+
+Common Operation является общим контрактом и общим языком, но **НЕ ОБЯЗАТЕЛЬНО** отдельным ограниченным контекстом или централизованным сервисом.
+
+Владелец команды, породившей длительную работу, остаётся владельцем Operation. Например:
+
+- удаление Project — Resource Manager;
+- merge identities — Identity;
+- длительная authentication orchestration — Authentication;
+- access review — Access;
+- manual risk review — Risk Decision;
+- provisioning resource — Provisioning;
+- audit export — Audit.
+
+### 9.11.2. Общая модель
+
+Operation **ДОЛЖНА** содержать:
+
+- уникальное имя/ID;
+- service owner;
+- action string;
+- target resource reference;
+- create/update/end timestamps;
+- status;
+- progress stage, percent и message code;
+- metadata;
+- result или error;
+- cancellability;
+- correlation/trace references;
+- caller/actor scope, необходимую для проверки доступа.
+
+### 9.11.3. Канонические состояния
+
+```text
+PENDING → RUNNING → SUCCEEDED
+                  ↘ FAILED
+                  ↘ CANCELLED
+                  ↘ TIMED_OUT
+```
+
+`CANCEL_REQUESTED` **МОЖЕТ** использоваться как промежуточное состояние. Cancel не гарантирует мгновенную остановку и **НЕ ДОЛЖЕН** объявляться успешным до подтверждённого безопасного состояния.
+
+### 9.11.4. Общие операции API
+
+| Operation ID | Операция |
+| --- | --- |
+| `OPS-QRY-001` | `GetOperation` |
+| `OPS-QRY-002` | `ListOperations` |
+| `OPS-QRY-003` | `WaitOperation` |
+| `OPS-CMD-001` | `CancelOperation` |
+| `OPS-CMD-002` | `DeleteOperationMetadata` — только если разрешено policy и не удаляет business/audit evidence. |
+
+### 9.11.5. Правила владения
+
+- Operation хранится у сервиса-владельца команды.
+- Общий protobuf package содержит только стабильный контракт.
+- Service-specific metadata/result используют `Any` или типизированный wrapper только по принятому контракту.
+- Operation **НЕ ДОЛЖНА** быть единственным источником состояния предметного ресурса.
+- Удаление Operation metadata **НЕ ДОЛЖНО** удалять результат, Audit или предметный ресурс.
+- Progress является наблюдаемым представлением и может быть приблизительным, но stage должен быть предметно значимым.
+
+---
+
+## 9.12. Сводная матрица контекстов
+
+| Контекст | Главный предметный вопрос | Основной агрегат | Ключевое решение/результат | Внешняя технология за ACL |
+| --- | --- | --- | --- | --- |
+| Resource Manager | Где находится ресурс в административной иерархии и каково его состояние? | Project/Workspace/Organization | Канонический ResourceReference и lifecycle | YDB/Temporal как infrastructure |
+| Identity | Кто является субъектом и в каком состоянии его идентичность? | User | SubjectReference и identity status | External IdP directory при наличии |
+| Authentication | Доказал ли субъект идентичность с требуемым assurance? | AuthenticationTransaction | Authentication result/session/handoff | Keycloak, WebAuthn, OTP providers |
+| Access | Может ли субъект выполнить action над resource? | AuthorizationModel/RoleBinding | ALLOW/DENY | SpiceDB |
+| Risk Decision | Требует ли контекст deny, challenge или review? | RiskAssessment/DecisionPolicy | ALLOW/DENY/CHALLENGE/REVIEW | Signal providers, rule engine |
+| Provisioning | Соответствует ли внешний ресурс desired state? | ManagedResource | READY/DEGRADED/ERROR и Operation | Temporal, Kubernetes, cloud APIs |
+| Audit | Что произошло, кто инициировал и каков результат? | AuditEvent | Неизменяемая evidence record | Storage/search/archive technologies |
+
+## 9.13. Владение сквозными сценариями
+
+Сквозной сценарий **ДОЛЖЕН** иметь одного process owner, даже если в нём участвуют несколько контекстов.
+
+| Сценарий | Владелец процесса | Участники |
+| --- | --- | --- |
+| Создание Project | Resource Manager | Access, Audit, при необходимости Provisioning. |
+| Назначение пользователя в Project | Identity | Resource Manager, Access, Audit. |
+| Login/CIBA | Authentication | Identity, Risk Decision, Access, provider, Audit. |
+| Step-up перед privileged action | Вызывающий контекст до запуска; Authentication владеет challenge | Risk Decision, Authentication, Access, Audit. |
+| Изменение RoleBinding | Access | Identity, Resource Manager, Risk Decision при policy, Audit. |
+| Создание ManagedResource | Provisioning | Resource Manager, Access, Risk Decision, Driver, Audit. |
+| Удаление Project с ресурсами | Resource Manager | Identity, Access, Provisioning, Audit. |
+| Экспорт Audit | Audit | Access, object storage adapter. |
+
+Process owner отвечает за:
+
+- состояние workflow;
+- Operation;
+- таймауты и retries;
+- compensation;
+- пользовательский результат;
+- сквозную correlation;
+- completion criteria.
+
+Участник процесса остаётся владельцем своих агрегатов и **НЕ ПЕРЕДАЁТ** process owner право прямой записи в своё хранилище.
+
+## 9.14. Правила физической декомпозиции сервисов
+
+В базовой архитектуре каждый `CTX-*` реализуется отдельным логическим сервисом. Разделение контекста на несколько deployment units допускается, если:
+
+1. сохраняется единый предметный владелец;
+2. внутренние компоненты не объявляются самостоятельными контекстами без анализа;
+3. публичный Published Language остаётся стабильным;
+4. данные не становятся совместно изменяемыми несколькими независимыми владельцами;
+5. внутренняя сеть не превращается в замену явным application contracts;
+6. операционная сложность оправдана масштабированием, безопасностью или независимостью жизненного цикла.
+
+Объединение двух контекстов в один deployment **МОЖЕТ** быть допустимо на ранней стадии, но кодовые модули, данные и зависимости **ДОЛЖНЫ** сохранять логические границы. Общая база с прямыми cross-context joins запрещена даже при совместном развертывании.
+
+## 9.15. Критерии выделения нового контекста
+
+Новый bounded context рассматривается, если одновременно проявляются несколько признаков:
+
+- самостоятельный предметный язык;
+- собственные инварианты и lifecycle;
+- отдельный источник истины;
+- конфликтующее значение существующих терминов;
+- независимый ритм изменений;
+- отдельные security/compliance boundaries;
+- необходимость автономного масштабирования;
+- собственная команда-владелец и capability;
+- сложность существующего контекста стала препятствием для изменений.
+
+Само наличие новой таблицы, очереди, UI-страницы, адаптера или background job **НЕ ЯВЛЯЕТСЯ** достаточным основанием.
+
+## 9.16. Правила изменения границ
+
+Изменение владения агрегатом или capability между контекстами требует:
+
+1. ADR с причиной и альтернативами;
+2. обновления Capability Map;
+3. обновления Domain Model и Context Map;
+4. плана переноса source of truth;
+5. стратегии dual-read/dual-write, если она временно необходима;
+6. версии Published Language;
+7. migration и rollback plan;
+8. обновления требований и traceability;
+9. обновления Context/Feature/Review Prompts;
+10. архитектурных и контрактных тестов после миграции.
+
+Постоянный dual ownership одного предметного факта запрещён.
+
+## 9.17. Пространства идентификаторов требований
+
+| Контекст | Функциональные требования | Нефункциональные требования | Инварианты | Сценарии |
+| --- | --- | --- | --- | --- |
+| Resource Manager | `RM-FR-*` | `RM-NFR-*` | `INV-RM-*` | `UC-RM-*` |
+| Identity | `ID-FR-*` | `ID-NFR-*` | `INV-ID-*` | `UC-ID-*` |
+| Authentication | `AUTH-FR-*` | `AUTH-NFR-*` | `INV-AUTH-*` | `UC-AUTH-*` |
+| Access | `ACC-FR-*` | `ACC-NFR-*` | `INV-ACC-*` | `UC-ACC-*` |
+| Risk Decision | `RISK-FR-*` | `RISK-NFR-*` | `INV-RISK-*` | `UC-RISK-*` |
+| Provisioning | `PROV-FR-*` | `PROV-NFR-*` | `INV-PROV-*` | `UC-PROV-*` |
+| Audit | `AUD-FR-*` | `AUD-NFR-*` | `INV-AUD-*` | `UC-AUD-*` |
+| Common Operation | `OPS-FR-*` | `OPS-NFR-*` | `INV-OPS-*` | `UC-OPS-*` |
+
+Каждое сервисное требование **ДОЛЖНО** ссылаться как минимум на:
+
+- Capability ID;
+- Context ID;
+- Aggregate или decision owner;
+- Context Map relationship ID при интеграции;
+- acceptance criteria;
+- contract или явно указанный internal behavior;
+- Structured Prompt ID после перехода к реализации.
+
+## 9.18. Минимальный набор проверок контекста
+
+Для каждого контекста pipeline **ДОЛЖЕН** включать:
+
+1. проверку запрещённых импортов;
+2. unit tests агрегатных инвариантов;
+3. application tests команд и идемпотентности;
+4. repository tests optimistic locking;
+5. Outbox/Inbox integration tests;
+6. protobuf breaking-change checks;
+7. provider/adapter contract tests;
+8. authorization negative tests;
+9. audit completeness tests;
+10. telemetry attribute tests для критичных сценариев;
+11. failure-injection tests внешних зависимостей;
+12. requirement coverage check;
+13. SPDD prompt schema validation;
+14. Review Prompt compliance report.
+
+## 9.19. Критерии соответствия главы
+
+Архитектурное или функциональное изменение соответствует спецификациям ограниченных контекстов, если:
+
+1. определён один `CTX-*` владелец изменяемого предметного факта;
+2. capability и requirement namespace соответствуют владельцу;
+3. агрегатная и транзакционная граница не пересекает контексты;
+4. исключённые обязанности не перенесены в сервис скрыто;
+5. команда, запрос и событие имеют устойчивый идентификатор;
+6. публичный контракт использует Published Language;
+7. внешняя технология скрыта ACL/Adapter/Driver;
+8. определены authorization, risk и audit requirements;
+9. идемпотентность и optimistic locking заданы там, где применимо;
+10. длительная работа представлена Operation владельца команды;
+11. определено поведение при недоступности каждой синхронной зависимости;
+12. события публикуются через надёжный transactional mechanism;
+13. consumer projections являются rebuildable и version-aware;
+14. logs/events не раскрывают secrets и лишние персональные данные;
+15. наблюдаемость включает технические и предметные метрики;
+16. тесты проверяют инварианты, контракты, отказы и безопасность;
+17. requirement traceability до SPDD и acceptance evidence определена;
+18. изменение границы оформлено ADR, если затронуто владение.
+
+---
+
+# 10. Shared Kernel и общие контракты
+
+## 10.1. Назначение главы
+
+Настоящая глава определяет минимальный набор общих контрактных типов M8 Platform, правила их владения, изменения и использования ограниченными контекстами. Общие контракты обеспечивают совместимость API, событий, аудита, длительных операций и сквозной наблюдаемости, не объединяя предметные модели сервисов.
+
+Shared Kernel в M8 Platform является **исключением**, а не способом повторного использования по умолчанию. Каждый ограниченный контекст сохраняет собственную предметную модель и переводит общие контрактные типы во внутренние типы через Boundary Mapper, Anti-Corruption Layer или Adapter.
+
+Глава устанавливает:
+
+- какие типы разрешено публиковать как общие;
+- какие типы всегда остаются локальными для контекста;
+- структуру канонических пакетов Protobuf;
+- правила владения и совместного управления;
+- требования к совместимости и версионированию;
+- ограничения на зависимости исходного кода;
+- проверки, предотвращающие превращение Shared Kernel в распределённый монолит;
+- связь общих контрактов с требованиями и Structured Prompts.
+
+## 10.2. Нормативное определение Shared Kernel
+
+В рамках M8 Platform **Shared Kernel** — это малый, явно управляемый набор стабильных публичных семантических типов, которые:
+
+1. одинаково понимаются несколькими ограниченными контекстами;
+2. необходимы для обмена через API, события или аудит;
+3. не содержат предметных правил конкретного контекста;
+4. изменяются редко и только с учётом всех потребителей;
+5. допускают независимое хранение и внутреннее представление у каждого потребителя.
+
+Shared Kernel **НЕ ЯВЛЯЕТСЯ**:
+
+- общей доменной моделью всей платформы;
+- библиотекой бизнес-логики;
+- общей схемой базы данных;
+- набором ORM-сущностей;
+- общим слоем репозиториев;
+- библиотекой внешних интеграций;
+- местом для типов, которые неудобно разместить в конкретном контексте;
+- основанием для прямых импортов внутренних пакетов одного сервиса другим сервисом.
+
+Общий контракт может использоваться несколькими сервисами, но это не означает совместное владение состоянием. Владение каждым экземпляром ресурса, операции, аудиторского события или ошибки определяется контекстом, выполняющим соответствующую предметную ответственность.
+
+## 10.3. Категории повторно используемых элементов
+
+Все повторно используемые элементы **ДОЛЖНЫ** относиться к одной из следующих категорий.
+
+| Категория | Назначение | Допустимое содержимое | Модель управления |
+| --- | --- | --- | --- |
+| Contract Shared Kernel | Совместимый обмен между контекстами | Protobuf message, enum, value object envelope, schema annotations | Совместное управление через PADS и ADR |
+| Technical Library | Повторное использование технической реализации | tracing middleware, retry helper, protobuf interceptor, test utility | Владение платформенной библиотекой |
+| Context-local Domain Model | Реализация предметной модели конкретного контекста | агрегаты, сущности, политики, repository ports, state machine | Исключительное владение контекстом |
+| Generated Client | Типобезопасный доступ к публичному API | generated Go/TS/Java clients | Генерация из опубликованного контракта |
+| Integration Adapter | Перевод между M8 и внешней системой | Keycloak, SpiceDB, Temporal, YDB, Kafka adapters | Владение использующим контекстом |
+
+Техническая библиотека **НЕ ДОЛЖНА** объявлять предметные типы. Contract Shared Kernel **НЕ ДОЛЖЕН** содержать исполняемую бизнес-логику. Контекстная модель **НЕ ДОЛЖНА** публиковаться как общий пакет только ради устранения дублирования кода.
+
+## 10.4. Принципы общего ядра
+
+| Идентификатор | Нормативный принцип |
+| --- | --- |
+| `SK-001` | Shared Kernel **ДОЛЖЕН** оставаться минимальным и включать только межконтекстные контрактные примитивы. |
+| `SK-002` | Добавление нового общего типа **ДОЛЖНО** сопровождаться перечнем не менее двух независимых контекстов-потребителей. |
+| `SK-003` | Тип, имеющий предметные инварианты одного контекста, **ДОЛЖЕН** принадлежать этому контексту, даже если похожие данные нужны другим сервисам. |
+| `SK-004` | Общий контракт **ДОЛЖЕН** быть независим от конкретной базы данных, брокера, workflow engine и поставщика IAM. |
+| `SK-005` | Изменение Shared Kernel **ДОЛЖНО** проходить проверку совместимости и оценку воздействия на всех потребителей. |
+| `SK-006` | Контекст **ДОЛЖЕН** переводить общий контракт во внутреннюю модель на своей границе. |
+| `SK-007` | Общий тип **НЕ ДОЛЖЕН** использоваться как внутренняя persistence model агрегата. |
+| `SK-008` | Общий пакет **НЕ ДОЛЖЕН** импортировать публичные или внутренние пакеты ограниченных контекстов. |
+| `SK-009` | Ограниченный контекст **НЕ ДОЛЖЕН** зависеть от внутреннего кода другого контекста через общий модуль. |
+| `SK-010` | Общие enum **ДОЛЖНЫ** описывать только действительно закрытые и платформенно стабильные множества значений. |
+| `SK-011` | Расширяемые понятия, такие как действие, тип ресурса, стадия операции или код способности, **СЛЕДУЕТ** представлять стабильной строкой с правилами именования, а не общим enum. |
+| `SK-012` | Неизвестные значения общих enum **ДОЛЖНЫ** безопасно обрабатываться потребителями. |
+| `SK-013` | Общий контракт **ДОЛЖЕН** иметь устойчивое имя пакета и явную major-версию. |
+| `SK-014` | Breaking change общего контракта **ДОЛЖЕН** приводить к новой major-версии пакета либо к отдельному переходному контракту. |
+| `SK-015` | Общие сообщения **НЕ ДОЛЖНЫ** содержать секреты, access token, refresh token, credential material или неограниченный произвольный payload. |
+| `SK-016` | Shared Kernel **НЕ ДОЛЖЕН** задавать глобальный `BaseEntity`, `BaseAggregate`, `GenericRepository` или общую state machine. |
+| `SK-017` | Общие контракты **ДОЛЖНЫ** быть применимы независимо от языка реализации сервиса. |
+| `SK-018` | Каждое поле общего контракта **ДОЛЖНО** иметь определённую семантику, обязательность, правила privacy и совместимости. |
+| `SK-019` | Контрактные аннотации валидации **ДОЛЖНЫ** проверять форму данных, но не подменять предметные инварианты контекста. |
+| `SK-020` | Shared Kernel **ДОЛЖЕН** быть полностью трассируем до PADS, требований, контрактных тестов и ADR, изменяющих его состав. |
+
+## 10.5. Решение о включении типа в Shared Kernel
+
+Тип **МОЖЕТ** быть включён в Shared Kernel только при положительном ответе на все вопросы:
+
+1. Требуется ли этот тип в публичных контрактах двух или более независимых контекстов?
+2. Имеет ли он одинаковую семантику во всех этих контекстах?
+3. Может ли тип быть определён без предметных правил одного владельца?
+4. Стабильна ли его семантика в горизонте нескольких версий API?
+5. Может ли каждый контекст использовать собственное внутреннее представление?
+6. Не раскрывает ли тип детали реализации, хранения или внешнего поставщика?
+7. Можно ли обеспечить обратную совместимость при его развитии?
+8. Назначен ли владелец контракта и определён ли процесс согласования изменений?
+
+Если хотя бы на один вопрос дан отрицательный ответ, тип **ДОЛЖЕН** оставаться локальным для контекста и передаваться через его Published Language.
+
+### 10.5.1. Примеры допустимого включения
+
+- `ResourceReference`, содержащий тип и идентификатор ресурса;
+- `OperationProgress`, представляющий платформенно понятный прогресс;
+- `AuditActorSnapshot`, сохраняющий безопасный исторический снимок инициатора;
+- `ErrorInfo`, содержащий стабильный код, retryability и violations;
+- `RequestCorrelation`, связывающий запрос, трассу, причинность и операцию;
+- `PageRequest` и непрозрачный `PageToken`;
+- `FieldMask` из стандартной экосистемы Protobuf;
+- envelope интеграционного события.
+
+### 10.5.2. Примеры запрещённого включения
+
+- `AuthenticationTransaction`;
+- `User`, `Membership`, `RoleBinding` или `ManagedResource` как общая внутренняя сущность;
+- `YdbRepository`, `KafkaProducer` или `TemporalWorkflowContext`;
+- Keycloak realm, SpiceDB tuple или Kubernetes object;
+- общая таблица состояний всех агрегатов;
+- общий интерфейс `Repository<T>`;
+- универсальный `map<string, any>` для обхода типизации;
+- общий объект `PlatformContext`, содержащий все возможные поля всех сервисов.
+
+## 10.6. Владение и управление изменениями
+
+### 10.6.1. Владелец общего контракта
+
+Для каждого общего пакета назначается **Contract Owner**. Contract Owner отвечает за:
+
+- нормативное определение семантики;
+- поддержку схем и документации;
+- проверку совместимости;
+- публикацию версий;
+- каталог потребителей;
+- координацию миграций;
+- контрактные тесты;
+- решение о deprecated-полях;
+- связь с PADS и ADR.
+
+Contract Owner не становится владельцем состояния, передаваемого в общем типе.
+
+### 10.6.2. Потребители
+
+Каждый сервис-потребитель **ДОЛЖЕН**:
+
+- фиксировать используемую версию общего пакета;
+- поддерживать неизвестные значения расширяемых контрактов;
+- иметь boundary mapper между transport и domain model;
+- участвовать в проверке breaking changes;
+- обновлять consumer contract tests;
+- не полагаться на undocumented behavior.
+
+### 10.6.3. Процесс изменения
+
+Изменение общего контракта проходит следующие стадии:
+
+```text
+Proposal
+  → Impact Analysis
+  → Compatibility Check
+  → Consumer Review
+  → PADS / ADR Update
+  → Schema Change
+  → Contract Tests
+  → Staged Publication
+  → Consumer Migration
+  → Deprecation Completion
+```
+
+Для неблокирующего добавления поля отдельный ADR не обязателен, если изменение:
+
+- полностью обратно совместимо;
+- не меняет семантику существующих полей;
+- не вводит новый тип владения;
+- не создаёт новую синхронную зависимость;
+- отражено в каталоге контрактов и release notes.
+
+Изменение границы Shared Kernel, семантики, владельца или major-версии **ДОЛЖНО** оформляться ADR.
+
+## 10.7. Канонические пакеты общих контрактов
+
+Базовая версия платформы определяет следующие пакеты.
+
+| Пакет | Назначение | Разрешённое содержимое | Запрещённое содержимое |
+| --- | --- | --- | --- |
+| `m8.platform.common.identity.v1` | Нейтральные ссылки на субъектов и инициаторов | `SubjectReference`, `ActorReference`, `ClientReference`, безопасные snapshot-типы | User aggregate, credential, authentication rules |
+| `m8.platform.common.resource.v1` | Адресация и представление ресурсов | `ResourceReference`, `ResourceName`, `ParentReference`, `ResourceScope`, labels | Иерархические инварианты Resource Manager, persistence model |
+| `m8.platform.common.operation.v1` | Общий контракт длительной операции | metadata, progress, result reference, cancellation state | Temporal workflow, service-specific orchestration |
+| `m8.platform.common.audit.v1` | Общий envelope аудиторской записи | actor, target, context, change set, integrity metadata | Предметная интерпретация события и retention policy |
+| `m8.platform.common.error.v1` | Машиночитаемые сведения об ошибках | code, category, retryability, violations, resource info | transport exceptions, локализованный stack trace |
+| `m8.platform.common.context.v1` | Безопасный контекст запроса и причинности | request, trace, correlation, causation, actor, client, source | решение Access или Risk Decision, token claims dump |
+| `m8.platform.common.pagination.v1` | Единая форма постраничной выдачи | page size, opaque page token, next token | SQL offset, database cursor internals |
+| `m8.platform.common.event.v1` | Envelope интеграционных событий | event id, type, version, source, subject, time, correlation | конкретный предметный payload другого контекста |
+| `m8.platform.common.metadata.v1` | Общие пользовательские метаданные | labels, annotations, timestamps, revision | неограниченный секретный metadata bag |
+
+Новый пакет **НЕ ДОЛЖЕН** создаваться для одного message. Сначала следует определить, относится ли тип к существующему семантическому пакету либо остаётся локальным для Published Language контекста.
+
+## 10.8. Общие идентификаторы и ссылки
+
+### 10.8.1. Typed ID
+
+Публичные контракты **ДОЛЖНЫ** использовать типизированные поля идентификаторов, а не один универсальный `id` без контекста. В Protobuf типизация может выражаться:
+
+- отдельным message, если идентификатор имеет собственную семантику;
+- строковым полем с однозначным именем, например `project_id`;
+- каноническим resource name;
+- `ResourceReference` для полиморфной ссылки.
+
+Внутренний доменный слой **ДОЛЖЕН** использовать отдельные value object для идентификаторов агрегатов, даже если транспортное представление является строкой.
+
+### 10.8.2. ResourceReference
+
+`ResourceReference` используется только когда контракт должен ссылаться на один из нескольких типов ресурсов.
+
+Минимальная логическая модель:
+
+```yaml
+ResourceReference:
+  resource_type: string
+  resource_id: string
+  resource_name: string | optional
+  scope: ResourceScope | optional
+```
+
+Правила:
+
+- `resource_type` **ДОЛЖЕН** использовать каноническое имя из реестра типов ресурсов;
+- `resource_id` **ДОЛЖЕН** быть непрозрачным для потребителя;
+- `resource_name` **МОЖЕТ** передаваться для маршрутизации и отображения, но не заменяет проверку существования;
+- `scope` **МОЖЕТ** содержать безопасный административный контекст;
+- ссылка не доказывает существование, активность или доступность ресурса;
+- ссылка не является встроенной копией агрегата;
+- исторический snapshot **ДОЛЖЕН** отличаться от живой ссылки.
+
+### 10.8.3. SubjectReference, ActorReference и Principal
+
+Общие контракты различают:
+
+| Тип | Назначение |
+| --- | --- |
+| `SubjectReference` | Субъект, о котором выполняется операция или решение. |
+| `ActorReference` | Инициатор действия, зафиксированный для аудита и причинности. |
+| `ClientReference` | Клиентское приложение или workload, от имени которого выполнен запрос. |
+| `PrincipalSnapshot` | Безопасный снимок подтверждённой стороны на момент действия. |
+
+Общий контракт **НЕ ДОЛЖЕН** считать `User`, `Subject`, `Actor` и `Client` взаимозаменяемыми понятиями.
+
+### 10.8.4. Идентификаторы корреляции
+
+Общие контракты поддерживают следующие идентификаторы:
+
+| Поле | Семантика |
+| --- | --- |
+| `request_id` | Идентификатор одного входящего запроса или команды. |
+| `trace_id` | Идентификатор распределённой трассы. |
+| `correlation_id` | Идентификатор логически связанной цепочки действий. |
+| `causation_id` | Идентификатор непосредственного сообщения или действия-причины. |
+| `operation_id` | Идентификатор длительной операции, если действие связано с ней. |
+| `workflow_id` | Техническая ссылка на workflow только для внутренней эксплуатации; не заменяет Operation. |
+| `idempotency_key` | Ключ повторяемости команды в пределах определённой области. |
+
+Сервис **НЕ ДОЛЖЕН** генерировать новый `correlation_id`, если корректное значение уже передано доверенным upstream-компонентом. Недоверенные внешние значения должны быть проверены и при необходимости заменены на внутренние.
+
+## 10.9. Общий контекст запроса
+
+### 10.9.1. Назначение
+
+`RequestContext` передаёт минимальный безопасный контекст, необходимый для авторизации, риска, аудита и наблюдаемости. Он не является контейнером для всех заголовков или claims.
+
+Канонические логические группы:
+
+```yaml
+RequestContext:
+  request: RequestCorrelation
+  actor: ActorReference | optional
+  subject: SubjectReference | optional
+  client: ClientReference | optional
+  resource_scope: ResourceScope | optional
+  source: RequestSource
+  network: NetworkContext | optional
+  device: DeviceReference | optional
+  assurance: AssuranceContext | optional
+  risk: RiskContextReference | optional
+  occurred_at: timestamp
+```
+
+### 10.9.2. Правила безопасности
+
+- В контекст **НЕ ДОЛЖНЫ** копироваться raw JWT, refresh token, authorization header или credential.
+- Claims **ДОЛЖНЫ** быть нормализованы в типизированные безопасные поля.
+- Поля IP, geo и device **ДОЛЖНЫ** классифицироваться как чувствительные и обрабатываться по privacy policy.
+- Сервис **ДОЛЖЕН** различать asserted context и verified context.
+- Наличие `actor_id` не доказывает успешную аутентификацию без подтверждённого assurance context.
+- Решение Access **НЕ ДОЛЖНО** передаваться как доверенный boolean от внешнего клиента.
+- Risk score **НЕ СЛЕДУЕТ** распространять шире необходимого; предпочтительна ссылка на решение и его класс.
+
+### 10.9.3. Нормализация на границе
+
+Transport middleware **МОЖЕТ** извлекать технический контекст, но application layer **ДОЛЖЕН** получать нормализованный объект, не зависящий от ConnectRPC, HTTP или конкретного токена.
+
+## 10.10. Общий контракт длительных операций
+
+### 10.10.1. Статус Common Operation
+
+`Common Operation` является ограниченным Shared Kernel (`CTX-OPS-CONTRACT`) и общим API-паттерном. В базовой архитектуре он **НЕ ЯВЛЯЕТСЯ** обязательным централизованным сервисом.
+
+Operation хранится и обслуживается сервисом, владеющим исходной мутацией. Отдельный каталог или агрегатор операций **МОЖЕТ** быть создан позднее через проекции, не перенося владение исполнением.
+
+### 10.10.2. Каноническая модель
+
+```yaml
+Operation:
+  name: string
+  done: boolean
+  metadata: OperationMetadata
+  result: typed response | optional
+  error: OperationError | optional
+
+OperationMetadata:
+  operation_id: string
+  action: string
+  state: OperationState
+  stage: string | optional
+  progress: OperationProgress | optional
+  target_resource: ResourceReference | optional
+  created_at: timestamp
+  started_at: timestamp | optional
+  updated_at: timestamp
+  completed_at: timestamp | optional
+  request: RequestCorrelation
+  cancellable: boolean
+  cancellation_requested: boolean
+  retryable: boolean
+```
+
+### 10.10.3. OperationMetadata rule
+
+> **`COMMON-OP-001`:** `OperationMetadata` **ДОЛЖНА** принадлежать пакету `m8.platform.common.operation.v1`. Поле `action` **ДОЛЖНО** быть стабильной строкой, а не общим enum, чтобы каждый сервис мог добавлять действия без изменения Shared Kernel.
+
+### 10.10.4. OperationState
+
+Минимальный общий набор:
+
+```text
+OPERATION_STATE_UNSPECIFIED
+PENDING
+RUNNING
+SUCCEEDED
+FAILED
+CANCELLING
+CANCELLED
+```
+
+Предметные состояния ресурса не должны добавляться в `OperationState`. Например, `PROVISIONED`, `DEGRADED`, `DISABLED` и `DELETING` принадлежат соответствующим агрегатам.
+
+### 10.10.5. Progress и Stage
+
+- `progress.percent` **МОЖЕТ** отсутствовать, если точная доля неизвестна;
+- процент **НЕ ДОЛЖЕН** уменьшаться без явного restart attempt;
+- `stage` **ДОЛЖЕН** быть стабильным публичным именем, а не именем функции или Temporal activity;
+- service-specific stages **ДОЛЖНЫ** определяться в Published Language сервиса;
+- сообщение прогресса **НЕ ДОЛЖНО** содержать секреты или необработанные ошибки поставщика;
+- progress не является SLA-обещанием времени завершения.
+
+### 10.10.6. Result и Error
+
+Успешный результат **ДОЛЖЕН** быть типизирован для конкретной операции либо представлен канонической ссылкой на ресурс. Универсальный `Any` допускается только в совместимом с google.longrunning контракте и должен иметь зарегистрированный type URL.
+
+Operation Error **ДОЛЖНА** использовать общую taxonomy ошибок, но предметный код и детали определяет сервис-владелец.
+
+### 10.10.7. Отмена
+
+Cancellation request означает просьбу прекратить дальнейшую работу и **НЕ ГАРАНТИРУЕТ**:
+
+- откат уже совершённых изменений;
+- мгновенное завершение;
+- отсутствие компенсационных шагов;
+- возврат к исходному состоянию ресурса.
+
+Контекст-владелец **ДОЛЖЕН** определить cancellable stages и конечный результат отмены.
+
+## 10.11. Общий контракт аудита
+
+### 10.11.1. Цель
+
+Общий audit envelope позволяет всем сервисам формировать одинаково интерпретируемые записи без передачи контексту Audit права определять предметную семантику действий.
+
+Логическая модель:
+
+```yaml
+AuditRecord:
+  event_id: string
+  event_type: string
+  event_version: integer
+  occurred_at: timestamp
+  recorded_at: timestamp
+  actor: AuditActorSnapshot
+  subject: SubjectReference | optional
+  targets: [AuditTargetSnapshot]
+  action: string
+  outcome: AuditOutcome
+  context: AuditContext
+  change_set: AuditChangeSet | optional
+  source_service: string
+  integrity: IntegrityMetadata | optional
+```
+
+### 10.11.2. Snapshot вместо живой ссылки
+
+Аудит **ДОЛЖЕН** сохранять достаточный безопасный snapshot отображаемых данных, чтобы запись оставалась понятной после переименования, удаления или обезличивания ресурса. Snapshot не превращается в источник истины для текущего состояния.
+
+### 10.11.3. ChangeSet
+
+`AuditChangeSet` **ДОЛЖЕН**:
+
+- содержать только разрешённые поля;
+- поддерживать redaction;
+- различать before/after там, где это допустимо;
+- не сохранять credential, token, secret value или полный персональный профиль;
+- указывать причины отсутствия значения: `REDACTED`, `NOT_CAPTURED`, `NOT_APPLICABLE`.
+
+### 10.11.4. Outcome
+
+Общий outcome может включать устойчивый закрытый набор: `SUCCEEDED`, `FAILED`, `DENIED`, `CANCELLED`, `PARTIAL`. Предметная причина передаётся отдельным стабильным кодом владельца действия.
+
+## 10.12. Общая модель ошибок
+
+Подробная нормативная taxonomy определена в главе 17. Shared Kernel содержит только форму машиночитаемых деталей.
+
+Минимальная модель:
+
+```yaml
+ErrorInfo:
+  code: string
+  category: ErrorCategory
+  message: string
+  retryable: boolean
+  retry_after: duration | optional
+  resource: ResourceReference | optional
+  violations: [Violation]
+  correlation_id: string | optional
+  documentation_ref: string | optional
+```
+
+Правила:
+
+- `code` **ДОЛЖЕН** быть стабильным и принадлежать пространству имён сервиса;
+- transport status и domain error code **НЕ ДОЛЖНЫ** смешиваться;
+- `message` предназначен для безопасного отображения и **НЕ ДОЛЖЕН** содержать stack trace;
+- `retryable` определяется владельцем ошибки, а не автоматически по HTTP/gRPC status;
+- `Violation` **ДОЛЖЕН** ссылаться на публичное имя поля или правила, а не на внутреннюю структуру БД;
+- неизвестный код ошибки **ДОЛЖЕН** обрабатываться как непрозрачный код соответствующей category;
+- локализация текста не должна менять машиночитаемый `code`.
+
+## 10.13. Метаданные ресурсов
+
+### 10.13.1. Labels
+
+Labels предназначены для фильтрации, группировки и политик, когда ключи и значения имеют ограниченный размер.
+
+- ключи **ДОЛЖНЫ** иметь зарегистрированное или namespaced имя;
+- системный namespace `m8.platform/*` резервируется платформой;
+- пользователь не может изменять системные labels без отдельного разрешения;
+- label не должен хранить секреты или большие значения;
+- семантически значимое состояние не должно существовать только в label;
+- ограничения размера и количества задаются контрактом.
+
+### 10.13.2. Annotations
+
+Annotations используются для необязательных интеграционных подсказок и display metadata. Они не участвуют в основных инвариантах, если это явно не зафиксировано в спецификации владельца.
+
+### 10.13.3. Revision и ETag
+
+Общий контракт **МОЖЕТ** предоставлять:
+
+- `revision` как монотонную версию агрегата;
+- `etag` как непрозрачный token условной мутации;
+- `create_time` и `update_time` как серверные timestamps.
+
+Правила:
+
+- клиент не должен вычислять `etag`;
+- `revision` не является глобальной последовательностью платформы;
+- optimistic locking проверяется сервисом-владельцем;
+- отсутствие `etag` в запросе не разрешает lost update, если операция требует concurrency control.
+
+### 10.13.4. FieldMask
+
+Для частичных update-операций используется `google.protobuf.FieldMask` либо эквивалентный стандартный тип.
+
+- список изменяемых путей **ДОЛЖЕН** быть явно ограничен;
+- пустой mask не должен неявно означать изменение всех полей без спецификации;
+- immutable и output-only поля **НЕ ДОЛЖНЫ** приниматься;
+- изменение вложенного объекта должно иметь определённую replace/merge semantics;
+- domain invariants проверяются после применения mask.
+
+## 10.14. Пагинация, фильтрация и сортировка
+
+### 10.14.1. PageRequest
+
+Канонический запрос включает:
+
+```yaml
+PageRequest:
+  page_size: integer
+  page_token: string | optional
+```
+
+`page_token` **ДОЛЖЕН** быть непрозрачным для клиента и защищать внутренние детали хранения. Он **МОЖЕТ** быть подписан или зашифрован.
+
+### 10.14.2. PageResponse
+
+Ответ списка **ДОЛЖЕН** содержать `next_page_token`, если существуют дополнительные элементы. `total_size` является необязательным, поскольку его вычисление может быть дорогим или несогласованным с snapshot.
+
+### 10.14.3. Stable ordering
+
+Сервис **ДОЛЖЕН** определить стабильный порядок результатов. При равных пользовательских ключах применяется устойчивый tie-breaker, обычно идентификатор ресурса.
+
+### 10.14.4. Filter и OrderBy
+
+Общий Shared Kernel не задаёт универсальный исполняемый язык фильтрации. Каждый Published Language определяет разрешённые поля и операторы. Общими могут быть только синтаксическая оболочка и требования безопасности.
+
+Запрещено:
+
+- принимать произвольный SQL или YQL;
+- раскрывать имена колонок хранения;
+- позволять фильтрацию по секретным или неиндексированным полям без явного решения;
+- менять семантику существующего filter expression без версии.
+
+## 10.15. Общий envelope интеграционных событий
+
+### 10.15.1. Назначение
+
+Event envelope обеспечивает транспортно-независимую идентификацию, причинность, версионирование и наблюдаемость. Предметный payload всегда принадлежит Published Language контекста-издателя.
+
+```yaml
+EventEnvelope:
+  event_id: string
+  event_type: string
+  event_version: integer
+  source: string
+  subject: string | optional
+  occurred_at: timestamp
+  published_at: timestamp
+  correlation_id: string | optional
+  causation_id: string | optional
+  trace_context: TraceContext | optional
+  tenant_scope: ResourceScope | optional
+  data_content_type: string
+  schema_ref: string
+  payload: typed message
+```
+
+### 10.15.2. Правила
+
+- `event_id` **ДОЛЖЕН** быть уникальным и использоваться consumer Inbox для дедупликации;
+- `event_type` **ДОЛЖЕН** быть стабильным именем свершившегося факта;
+- `event_version` относится к схеме конкретного события, а не к версии всего сервиса;
+- `occurred_at` отражает предметное время факта, `published_at` — время публикации;
+- payload **ДОЛЖЕН** быть типизированным;
+- envelope **НЕ ДОЛЖЕН** содержать transport offset как часть предметного контракта;
+- schema reference **ДОЛЖНА** разрешать однозначную проверку версии;
+- повторная публикация того же факта сохраняет `event_id`, если это retry доставки;
+- новый предметный факт получает новый `event_id` даже при одинаковом payload.
+
+Подробные правила событий приведены в главе 13.
+
+## 10.16. Временные значения, длительности и часовые пояса
+
+- Момент времени **ДОЛЖЕН** передаваться как `google.protobuf.Timestamp` в UTC.
+- Длительность **ДОЛЖНА** передаваться как `google.protobuf.Duration` либо типизированное количество единиц, если это предметная величина.
+- Локальный календарный день **НЕ ДОЛЖЕН** моделироваться timestamp без часового пояса и бизнес-календаря.
+- Серверные `create_time`, `update_time`, `completed_at` устанавливаются владельцем состояния.
+- Клиентское время **ДОЛЖНО** помечаться как asserted и не использоваться для security decision без проверки.
+- Истечение срока **СЛЕДУЕТ** моделировать абсолютным `expires_at`; `ttl` может передаваться дополнительно для UX.
+- Публичные контракты не должны зависеть от системной временной зоны экземпляра сервиса.
+
+## 10.17. Денежные и количественные значения
+
+M8 Platform не вводит глобальную денежную предметную модель, пока она не требуется нескольким ограниченным контекстам. При необходимости денежное значение **ДОЛЖНО** использовать точное представление `currency_code + units + nanos` или специализированный тип владельца.
+
+Запрещено использовать `float`/`double` для денег, квот и величин, требующих точной арифметики.
+
+Количественная величина **ДОЛЖНА** явно определять:
+
+- единицу измерения;
+- допустимую точность;
+- правила округления;
+- диапазон;
+- возможность отрицательного значения;
+- источник значения.
+
+## 10.18. Protobuf package и namespace rules
+
+### 10.18.1. Имена пакетов
+
+Общие пакеты используют схему:
+
+```text
+m8.platform.common.<semantic-area>.v<major>
+```
+
+Контекстные публичные пакеты используют:
+
+```text
+m8.platform.<context>.<capability>.v<major>
+```
+
+Внутренние persistence и implementation packages не публикуются в registry контрактов.
+
+### 10.18.2. Major version
+
+Major-версия является частью package name. Пакеты разных major-версий могут сосуществовать в период миграции.
+
+### 10.18.3. Импорты
+
+Допустимое направление:
+
+```text
+context public contract
+  → common contract
+  → standard protobuf types
+```
+
+Запрещённое направление:
+
+```text
+common contract
+  → context public contract
+common contract
+  → service internal package
+context A internal package
+  → context B internal package
+```
+
+### 10.18.4. Validation annotations
+
+Protovalidate/buf.validate **МОЖЕТ** проверять:
+
+- обязательность;
+- длину и формат;
+- диапазон;
+- структуру resource name;
+- допустимое количество элементов;
+- взаимную исключительность полей.
+
+Аннотации **НЕ ДОЛЖНЫ** содержать изменчивые бизнес-правила, требующие состояния другого агрегата или контекста.
+
+## 10.19. Кодогенерация и runtime-библиотеки
+
+### 10.19.1. Разделение схемы и runtime
+
+Репозиторий общих схем **ДОЛЖЕН** быть отделён от runtime-библиотек. Сервис может использовать сгенерированные типы без зависимости от общего runtime SDK.
+
+### 10.19.2. Generated code
+
+- generated code **НЕ ДОЛЖЕН** редактироваться вручную;
+- версия генератора и plugins **ДОЛЖНА** быть зафиксирована;
+- code generation **ДОЛЖНА** быть воспроизводимой;
+- generated clients **ДОЛЖНЫ** сохранять contract semantics;
+- domain layer **НЕ СЛЕДУЕТ** напрямую зависеть от generated transport messages.
+
+### 10.19.3. Technical SDK
+
+Общий SDK **МОЖЕТ** включать:
+
+- propagation correlation context;
+- ConnectRPC interceptors;
+- OpenTelemetry instrumentation;
+- error mapping helpers;
+- idempotency middleware contracts;
+- contract test fixtures.
+
+SDK **НЕ ДОЛЖЕН**:
+
+- принимать решения Access или Risk;
+- создавать агрегаты;
+- скрывать сетевые вызовы как локальные функции;
+- содержать глобальный service locator;
+- требовать единой версии всех внутренних библиотек платформы.
+
+## 10.20. Совместимость и эволюция
+
+### 10.20.1. Обратно совместимые изменения
+
+Как правило, допустимы:
+
+- добавление optional-поля;
+- добавление нового message;
+- добавление новой RPC при сохранении существующих;
+- добавление enum value при корректной обработке unknown;
+- расширение documentation и validation, не отвергающее ранее допустимые корректные запросы;
+- добавление нового event type.
+
+### 10.20.2. Потенциально несовместимые изменения
+
+Требуют отдельной оценки:
+
+- ужесточение validation;
+- изменение default semantics;
+- превращение optional-поля в обязательное;
+- изменение значения existing enum;
+- смена units, timezone или precision;
+- изменение idempotency scope;
+- изменение ownership или consistency guarantees;
+- изменение privacy classification.
+
+### 10.20.3. Запрещённые изменения в рамках версии
+
+- переиспользование удалённого field number;
+- изменение типа поля на несовместимый;
+- изменение смысла поля без нового имени;
+- переименование стабильного error code;
+- изменение event fact semantics при сохранении event type/version;
+- публикация внутреннего persistence identifier вместо public ID.
+
+### 10.20.4. Deprecation
+
+Deprecated-поле или операция **ДОЛЖНЫ** иметь:
+
+- причину;
+- замену;
+- дату или условие прекращения поддержки;
+- список известных потребителей;
+- миграционную инструкцию;
+- telemetry использования, если технически возможно.
+
+## 10.21. Ограничение связности версий
+
+Общие контракты не должны заставлять все сервисы обновляться одновременно.
+
+- сервисы **ДОЛЖНЫ** иметь независимый release lifecycle;
+- common packages **ДОЛЖНЫ** поддерживать совместимый диапазон версий;
+- generated clients **СЛЕДУЕТ** публиковать отдельно по языкам;
+- изменение технической библиотеки не должно требовать изменения contract package без семантической причины;
+- монорепозиторий не отменяет логическую независимость версий;
+- единый commit не является доказательством атомарного platform deployment.
+
+## 10.22. Запрещённые общие абстракции
+
+Следующие абстракции запрещены без отдельного ADR:
+
+| Запрещённая абстракция | Причина |
+| --- | --- |
+| `BaseEntity` со всеми возможными полями | Смешивает жизненные циклы и навязывает ложную однородность агрегатов. |
+| `GenericRepository<T>` | Скрывает предметную семантику загрузки, блокировки и транзакций. |
+| `UniversalDomainEvent` с `map<string, any>` | Уничтожает типизацию и совместимость схем. |
+| `PlatformStatus` для всех ресурсов | Смешивает разные state machine. |
+| Общий `Role`, `User`, `Policy`, `Resource` aggregate | Нарушает владение bounded context. |
+| Общий persistence DTO | Связывает сервисы с единой моделью хранения. |
+| Общий API Gateway DTO как доменная модель | Делает представление каноническим источником вместо владельцев данных. |
+| Common Keycloak/SpiceDB/Kubernetes model | Протекает внешний язык в ядро платформы. |
+| Global transaction abstraction | Создаёт ложное ожидание распределённой атомарности. |
+| Универсальный workflow DSL без владельца процесса | Скрывает ответственность и компенсационные правила. |
+
+## 10.23. Зависимости Shared Kernel
+
+Каноническая зависимость модулей:
+
+```mermaid
+flowchart TD
+    STD[Standard Protobuf Types]
+    COMMON[Contract Shared Kernel]
+    CTX[Context Public Contracts]
+    GEN[Generated Clients]
+    APP[Application Layer]
+    DOMAIN[Context Domain Model]
+    ADAPTER[Infrastructure Adapters]
+
+    COMMON --> STD
+    CTX --> COMMON
+    CTX --> STD
+    GEN --> CTX
+    APP --> GEN
+    APP --> DOMAIN
+    ADAPTER --> APP
+
+    DOMAIN -. no dependency .-> COMMON
+    COMMON -. forbidden .-> CTX
+    COMMON -. forbidden .-> ADAPTER
+```
+
+Domain layer может использовать собственные value objects с той же семантикой, но **СЛЕДУЕТ** избегать прямой зависимости от transport-generated messages. Преобразование выполняется в application/transport boundary.
+
+## 10.24. Проверки соответствия
+
+Для Shared Kernel **ДОЛЖНЫ** выполняться следующие автоматические проверки.
+
+| Проверка | Ожидаемый результат |
+| --- | --- |
+| Buf breaking check | Не допускает несовместимые изменения в текущей major-версии. |
+| Lint package boundaries | Common packages не импортируют context packages. |
+| Dependency test | Domain packages не импортируют generated transport packages, если это запрещено модульной политикой. |
+| Schema documentation check | Каждое message и публичное поле документировано. |
+| Privacy lint | Запрещённые secret/credential поля отсутствуют в common schemas. |
+| Enum compatibility test | Unknown values обрабатываются безопасно. |
+| Contract consumer tests | Основные потребители подтверждают совместимость. |
+| Serialization golden tests | Стабильные fixtures читаются новыми версиями. |
+| Field number reservation check | Удалённые номера и имена зарезервированы. |
+| Package ownership check | Для каждого common package указан Contract Owner. |
+| Traceability check | Изменение содержит ссылку на `SK-*`, requirement или ADR. |
+
+## 10.25. Критерии принятия нового общего контракта
+
+Новый общий контракт готов к публикации, если:
+
+1. определена единая семантика;
+2. перечислены реальные потребители;
+3. назначен Contract Owner;
+4. подтверждено отсутствие предметной логики одного контекста;
+5. определена privacy classification;
+6. определены validation rules;
+7. определены unknown/default semantics;
+8. сформированы compatibility tests;
+9. указан migration path;
+10. создан boundary mapper как минимум в одном сервисе-потребителе;
+11. обновлены PADS и каталог контрактов;
+12. добавлена трассировка к требованиям и SPDD;
+13. отсутствует запрещённая зависимость на инфраструктуру;
+14. получено согласование владельцев затронутых контекстов.
+
+## 10.26. Трассировка требований
+
+Для общих контрактов используются следующие пространства идентификаторов.
+
+| Семейство | Назначение | Пример |
+| --- | --- | --- |
+| `COMMON-FR-*` | Функциональное требование к общему контракту | `COMMON-FR-001` |
+| `COMMON-NFR-*` | Нефункциональное требование совместимости или безопасности | `COMMON-NFR-004` |
+| `COMMON-CON-*` | Конкретный публичный контракт | `COMMON-CON-OPERATION-V1` |
+| `COMMON-INV-*` | Инвариант общей формы | `COMMON-INV-003` |
+| `COMMON-TEST-*` | Контрактная проверка | `COMMON-TEST-BREAKING-001` |
+| `SK-*` | Архитектурный принцип Shared Kernel | `SK-006` |
+
+Трассировка должна иметь вид:
+
+```text
+Business / Platform Requirement
+  → COMMON-FR / COMMON-NFR
+  → SK principle
+  → Common Contract
+  → Context Contract Usage
+  → Generated Artifact
+  → Consumer Contract Test
+  → SPDD Prompt
+  → Acceptance Evidence
+```
+
+## 10.27. Требования к SPDD
+
+Structured Prompt, изменяющий общий контракт, **ДОЛЖЕН** содержать:
+
+```yaml
+shared_kernel_change:
+  contract_id: COMMON-CON-...
+  package: m8.platform.common.<area>.v1
+  change_type: additive | deprecation | breaking | clarification
+  owner: <contract-owner>
+  consumers:
+    - <context/service>
+  semantics:
+    current: <current-definition>
+    proposed: <proposed-definition>
+  compatibility:
+    wire_compatible: true | false
+    source_compatible: true | false
+    behavior_compatible: true | false
+  privacy_classification: <classification>
+  migration:
+    producer_steps: []
+    consumer_steps: []
+    deprecation_end_condition: <condition>
+  constraints:
+    - no domain logic
+    - no infrastructure types
+    - no context-to-context internal dependency
+  verification:
+    - buf breaking
+    - lint
+    - contract tests
+    - consumer tests
+    - traceability check
+```
+
+ИИ-агент **НЕ ДОЛЖЕН** самостоятельно переносить тип в Shared Kernel только для устранения дублирования. Такое изменение требует явного требования или принятого архитектурного решения.
+
+## 10.28. Реестр базовых общих контрактов
+
+| Идентификатор | Пакет | Контракт | Владелец | Основные потребители |
+| --- | --- | --- | --- | --- |
+| `COMMON-CON-IDENTITY-REF-V1` | `common.identity.v1` | Subject/Actor/Client references | Platform Architecture + Identity | Authentication, Access, Risk, Audit |
+| `COMMON-CON-RESOURCE-REF-V1` | `common.resource.v1` | ResourceReference и ResourceScope | Resource Manager | Все контексты |
+| `COMMON-CON-OPERATION-V1` | `common.operation.v1` | Operation metadata и progress | Platform Architecture | Resource Manager, Identity, Authentication, Provisioning, Audit export |
+| `COMMON-CON-AUDIT-V1` | `common.audit.v1` | Audit envelope и snapshots | Audit | Все производители аудита |
+| `COMMON-CON-ERROR-V1` | `common.error.v1` | ErrorInfo и violations | Platform Architecture | Все API-сервисы |
+| `COMMON-CON-CONTEXT-V1` | `common.context.v1` | Request/correlation context | Security Architecture | Все сервисы |
+| `COMMON-CON-PAGE-V1` | `common.pagination.v1` | PageRequest/PageResponse primitives | Platform Architecture | Все list API |
+| `COMMON-CON-EVENT-V1` | `common.event.v1` | EventEnvelope | Integration Architecture | Все publisher/consumer сервисы |
+| `COMMON-CON-METADATA-V1` | `common.metadata.v1` | labels, annotations, revision | Resource Manager + Platform Architecture | Ресурсные сервисы |
+
+## 10.29. Критерии соответствия главы
+
+Архитектура соответствует настоящей главе, если одновременно выполняются условия:
+
+1. Shared Kernel содержит только стабильные межконтекстные контрактные типы;
+2. каждый общий пакет имеет Contract Owner;
+3. все контексты сохраняют локальные domain model;
+4. отсутствуют общие persistence model и generic repository;
+5. зависимости направлены от context contracts к common contracts, но не наоборот;
+6. общий Operation не создаёт централизованного владельца всех процессов;
+7. ResourceReference, SubjectReference и ActorReference не смешиваются;
+8. RequestContext не содержит credential material и необработанные token claims;
+9. события имеют типизированный payload и общий envelope;
+10. ошибки имеют стабильный service-owned code и transport-independent details;
+11. общие schemas проходят breaking, lint, privacy и consumer tests;
+12. breaking changes публикуются в новой major-версии или через утверждённый переходный план;
+13. deprecated элементы имеют миграционный путь и условие удаления;
+14. Structured Prompts не могут расширять Shared Kernel без явной архитектурной трассировки;
+15. все общие контракты отражены в реестре и связаны с требованиями.
+
+---
+
+# 11. Владение данными
+
+## 11.1. Назначение главы
+
+Настоящая глава определяет, какой ограниченный контекст является нормативным владельцем каждого типа данных M8 Platform, где находится источник истины, какие копии разрешены другим сервисам и каким образом обеспечиваются репликация, удаление, перенос, восстановление и проверка происхождения данных.
+
+Владение данными является следствием владения предметными инвариантами. Физическое размещение таблицы, кэша, индекса или аналитической копии само по себе не создаёт владение.
+
+## 11.2. Нормативные понятия
+
+| Понятие | Определение |
+| --- | --- |
+| Источник истины | Сервис и его хранилище, уполномоченные принимать нормативные решения о текущем состоянии данных. |
+| Нормативный владелец | Ограниченный контекст, который определяет смысл, жизненный цикл и инварианты данных. |
+| Авторитетный атрибут | Атрибут, изменяемый только владельцем и распространяемый потребителям через контракт. |
+| Проекция | Локальная производная копия данных другого контекста, предназначенная для чтения или принятия ограниченного класса решений. |
+| Кэш | Восстанавливаемая копия, удаление которой не приводит к потере предметного состояния. |
+| Снимок | Зафиксированное состояние данных на определённый момент или позицию журнала. |
+| Tombstone | Запись или событие, обозначающее удаление либо прекращение доступности исходного объекта. |
+| Линия происхождения | Связь между производными данными, исходным контрактом, событием и версией схемы. |
+| Класс свежести | Максимально допустимое отставание производной копии от источника истины. |
+
+## 11.3. Принципы владения данными
+
+| ID | Нормативное правило |
+| --- | --- |
+| `DATA-001` | Каждый предметный факт MUST иметь ровно одного нормативного владельца. |
+| `DATA-002` | Владельцем данных является контекст, владеющий соответствующими инвариантами, а не команда, таблица или технология хранения. |
+| `DATA-003` | Только владелец MAY изменять авторитетные атрибуты ресурса. |
+| `DATA-004` | Сервис MUST NOT выполнять прямые запросы, соединения таблиц или записи в базу другого сервиса. |
+| `DATA-005` | Межконтекстный доступ MUST осуществляться через опубликованный API, событие или управляемую проекцию. |
+| `DATA-006` | Любая проекция MUST содержать ссылку на источник, версию схемы и позицию обновления. |
+| `DATA-007` | Производная копия MUST NOT становиться источником истины без отдельного решения об изменении границы владения. |
+| `DATA-008` | Кэш MUST быть восстанавливаемым из авторитетного источника или журнала событий. |
+| `DATA-009` | Репликация MUST распространять подтверждённые факты после фиксации локальной транзакции. |
+| `DATA-010` | Удаление данных MUST распространяться не менее надёжно, чем их создание и изменение. |
+| `DATA-011` | Исторические ссылки в Audit MUST сохранять идентифицируемость действия без восстановления удалённых секретов или персональных данных. |
+| `DATA-012` | Перенос владения данными между контекстами MUST выполняться как управляемая миграция с ADR, планом совместимости и сверкой данных. |
+| `DATA-013` | Аналитическое хранилище MUST NOT использоваться для оперативной записи предметного состояния. |
+| `DATA-014` | Индекс поиска MUST рассматриваться как проекция, а не как нормативное хранилище. |
+| `DATA-015` | Redis MUST использоваться только как кэш, временное состояние, lease, rate limit или вспомогательный механизм; Redis MUST NOT быть единственным источником предметных данных. |
+| `DATA-016` | Сырые credentials, refresh token, private key и секреты MUST NOT распространяться через события или проекции. |
+| `DATA-017` | Каждая копия персональных или чувствительных данных MUST иметь обоснованную цель, срок хранения и владельца удаления. |
+| `DATA-018` | Контракт данных MUST явно указывать семантику отсутствующего, пустого и удалённого значения. |
+| `DATA-019` | Схема данных MUST развиваться совместимо с активными потребителями либо через новую major-версию. |
+| `DATA-020` | Массовая сверка и восстановление проекций MUST быть предусмотрены для критичных интеграций. |
+| `DATA-021` | Сервис MUST различать время предметного события, время записи и время публикации. |
+| `DATA-022` | Идентификаторы ресурсов MUST сохранять глобальную однозначность в пределах заявленной области. |
+| `DATA-023` | Нормативное состояние MUST изменяться с оптимистической проверкой revision или ETag, если возможны конкурентные записи. |
+| `DATA-024` | Любая денормализация MUST иметь зафиксированного владельца обновления и способ исправления рассогласования. |
+| `DATA-025` | Резервные копии MUST соответствовать требованиям RPO/RTO владельца данных. |
+| `DATA-026` | Экспорт данных MUST фиксировать снимок, фильтр, формат, версию схемы и инициатора. |
+| `DATA-027` | Импорт данных MUST проходить валидацию, дедупликацию, авторизацию и аудит. |
+| `DATA-028` | Тестовые и небоевые среды MUST NOT получать продуктивные чувствительные данные без маскирования и разрешённого процесса. |
+| `DATA-029` | Data lineage MUST быть доступен для аналитических, аудиторских и критичных операционных проекций. |
+| `DATA-030` | Structured Prompt MUST указывать владельца каждого изменяемого набора данных и запрещённые источники записи. |
+
+## 11.4. Каноническая матрица владельцев
+
+| Данные или агрегат | Нормативный владелец | Авторитетные атрибуты | Основные потребители | Разрешённое распространение |
+| --- | --- | --- | --- | --- |
+| Organization | Resource Manager | идентификатор, имя, статус, labels, revision | все контексты | Resource API, `OrganizationCreated/Updated/Deleted` |
+| Workspace | Resource Manager | родительская Organization, имя, статус, labels, revision | Access, Provisioning, Audit, UI/BFF | Resource API, Workspace events |
+| Project | Resource Manager | Workspace, имя, статус, labels, revision | все продуктовые контексты | Resource API, Project events |
+| ServiceRegistration | Resource Manager | Project, service type, lifecycle, metadata | Authentication, Access, Provisioning | API, Service events |
+| UserPool | Identity | Project scope, policies, lifecycle | Authentication, Access, Audit | Identity API, UserPool events |
+| User | Identity | status, profile, memberships, identity links | Authentication, Access, Audit | Identity API, privacy-filtered events |
+| Group | Identity | membership composition, status | Access, UI/BFF | Identity API, Group events |
+| ExternalIdentity | Identity | issuer, subject, link state | Authentication | Identity API; события без секретов |
+| Client | Authentication | client type, allowed flows, assurance requirements, status | Access, Risk Decision, Audit | Authentication API, Client events |
+| AuthenticationTransaction | Authentication | state, challenges, achieved assurance, handoff | Audit, support tools | Authentication API, lifecycle events |
+| AuthenticationSession | Authentication | subject, client, assurance, expiry, revocation state | AuthGuard, Audit | защищённый API; минимальные session events |
+| AuthorizationModel | Access | schema, model version, status | все сервисы через Access | Access API, model events |
+| Role | Access | permissions, scope, lifecycle | UI/BFF, Audit | Access API, Role events |
+| RoleBinding | Access | subject, role, resource scope, condition | все сервисы через checks | Access API, binding events |
+| AccessRelationship | Access | subject-resource relation | Access evaluation, review tools | Access API, relationship events |
+| RiskPolicy | Risk Decision | rules, version, rollout, status | Authentication, Provisioning | Risk API, policy events |
+| RiskAssessment | Risk Decision | signals digest, score, decision, reasons | Authentication, Audit | Risk API, decision events |
+| ResourceDefinition | Provisioning | schema, driver, lifecycle policy | Resource Manager, UI/BFF | Provisioning API, definition events |
+| ManagedResource | Provisioning | desired state, observed state, placement, conditions | Resource Manager, Audit | Provisioning API, resource events |
+| Reconciliation | Provisioning | attempt, drift, result, retry state | operations UI, Audit | Provisioning API, events |
+| AuditEvent | Audit | actor, action, target, outcome, integrity metadata | compliance, security, export | Audit Query/Export API |
+| Operation | сервис, запустивший операцию | state, progress, metadata, result/error | клиент операции, Audit | Common Operation API |
+| Trace/Metric/Log | Observability platform, при сохранении предметного владельца источника | telemetry payload, timestamps, resource attributes | SRE, разработчики | OpenTelemetry pipeline |
+
+## 11.5. Владение атрибутами составных представлений
+
+Одно пользовательское представление MAY объединять данные нескольких владельцев. Такая композиция не создаёт нового общего агрегата.
+
+Пример профиля проекта:
+
+| Поле представления | Владелец |
+| --- | --- |
+| `project.id`, `project.name`, `project.status` | Resource Manager |
+| `member_count` | Identity или специальная проекция, если Membership принадлежит Identity |
+| `role_bindings_count` | Access |
+| `managed_resources_count` | Provisioning |
+| `last_security_decision_at` | Risk Decision projection |
+| `last_audit_event_at` | Audit |
+
+Композиция выполняется BFF, query service или аналитической проекцией. Она MUST указывать свежесть каждого компонента и MUST NOT принимать запись сразу за несколько владельцев одной транзакцией.
+
+## 11.6. Классы производных копий
+
+| Класс | Назначение | Допустимое отставание | Разрешено для авторизационного решения |
+| --- | --- | --- | --- |
+| `F0` | синхронно полученное состояние владельца | в пределах вызова | Да |
+| `F1` | оперативная проекция | не более 5 секунд или установленного SLO | Только для явно разрешённых low-risk решений |
+| `F2` | пользовательская read model | не более 1 минуты | Нет |
+| `F3` | отчётная/операционная аналитика | не более 15 минут | Нет |
+| `F4` | пакетная аналитика | часы или сутки | Нет |
+| `F5` | архивный снимок | фиксированный момент | Нет |
+
+Конкретный контракт MAY задавать более строгие значения. Решения Access, Authentication и Risk MUST использовать `F0`, если PADS или ADR явно не разрешают безопасную деградацию.
+
+## 11.7. Метаданные проекции
+
+Критичная проекция SHOULD хранить:
+
+```yaml
+projection_metadata:
+  source_context: ResourceManager
+  source_contract: m8.platform.resourcemanager.events.v1.ProjectUpdated
+  source_resource_id: projects/prj_123
+  source_revision: 42
+  source_event_id: evt_01J...
+  source_occurred_at: 2026-07-10T10:20:30Z
+  applied_at: 2026-07-10T10:20:31Z
+  schema_version: 1
+  projection_version: 7
+```
+
+Потребитель MUST уметь определить, является ли проекция полной, отстающей, перестраиваемой или заблокированной ошибкой.
+
+## 11.8. Репликация данных
+
+Разрешённые способы:
+
+1. **Синхронное чтение API** — когда требуется актуальное решение владельца.
+2. **Integration Event** — для распространения подтверждённого факта и построения проекций.
+3. **Snapshot + Change Stream** — для первичной загрузки большого набора с последующим применением изменений.
+4. **Периодическая сверка** — для обнаружения пропущенных событий и расхождений.
+5. **Управляемый экспорт** — для аналитики, compliance и миграций.
+
+Запрещены:
+
+- CDC непосредственно из внутренних таблиц сервиса как публичный контракт без владельца схемы;
+- совместно используемые таблицы;
+- репликация секретов и полных токенов;
+- скрытая зависимость от физического порядка колонок или внутренних ключей хранения.
+
+## 11.9. Первичная загрузка и восстановление проекций
+
+Каждая критичная проекция MUST иметь один из путей восстановления:
+
+- полный list/export владельца + позиция журнала;
+- replay сохранённых integration events;
+- versioned snapshot;
+- детерминированная реконструкция из иного авторитетного источника.
+
+Процедура перестроения MUST определять:
+
+- точку отсечения;
+- стратегию двойной записи или dual-read во время перестройки;
+- проверку полноты;
+- переключение версии;
+- откат;
+- очистку старой версии.
+
+## 11.10. Удаление данных
+
+Удаление различается по семантике:
+
+| Тип | Семантика |
+| --- | --- |
+| Soft delete | ресурс недоступен обычным операциям, но остаётся восстанавливаемым в ограниченный срок |
+| Tombstone | распространяемый факт, что ресурс удалён и проекции должны прекратить его использование |
+| Hard delete | физическое удаление после истечения retention и выполнения ограничений |
+| Anonymization | необратимое удаление идентифицирующих атрибутов с сохранением статистической или аудиторской структуры |
+| Revocation | прекращение действия credentials, session, binding или разрешения без удаления исторического объекта |
+
+Удаление родительского ресурса MUST учитывать дочерние ресурсы, активные операции, retention, legal hold и внешние managed resources. Каскадное физическое удаление между сервисами запрещено; используется управляемый процесс.
+
+## 11.11. Право на удаление и минимизация персональных данных
+
+Identity является координатором удаления персональных данных пользователя, но каждый сервис остаётся владельцем удаления собственных копий. Процесс SHOULD включать:
+
+1. создание privacy operation;
+2. определение идентификаторов субъекта;
+3. отправку команд владельцам данных;
+4. подтверждение удаления или обезличивания;
+5. сохранение минимальной audit evidence;
+6. закрытие операции после сверки.
+
+Audit MAY сохранить actor pseudonym, event integrity и юридически обязательные сведения, но MUST удалить или маскировать необязательные персональные поля.
+
+## 11.12. Сроки хранения
+
+Каждый тип данных MUST иметь retention policy со следующими полями:
+
+```yaml
+retention_policy:
+  data_class: authentication_transaction
+  owner: m8-authentication
+  active_retention: 30d
+  archive_retention: 180d
+  deletion_mode: hard_delete
+  legal_hold_supported: true
+  evidence_owner: m8-audit
+```
+
+Retention MUST быть согласован с целями продукта, безопасностью, юридическими обязанностями и стоимостью хранения.
+
+## 11.13. Перенос ресурсов и данных
+
+Перемещение Project между Workspace, перенос User Pool, смена placement или миграция между регионами являются предметными процессами, а не прямым обновлением foreign key.
+
+Процесс переноса MUST определять:
+
+- допустимость изменения родителя;
+- влияние на resource names и отношения Access;
+- обновление локальных проекций;
+- блокировку конфликтующих операций;
+- сохранение исторических ссылок;
+- миграцию managed resources;
+- подтверждение целостности;
+- rollback или compensation.
+
+Межрегиональный перенос MUST дополнительно учитывать residency, encryption keys, RPO/RTO и доступность внешних провайдеров.
+
+## 11.14. Изменение владельца данных
+
+Изменение owner context требует:
+
+1. ADR и карты влияния;
+2. новой published language;
+3. backfill в новое хранилище;
+4. периода shadow-read;
+5. сверки количества, хэшей и инвариантов;
+6. переключения writer;
+7. переходного события или API;
+8. удаления старой записи только после стабилизации;
+9. обновления PADS, requirements, SPDD и runbooks.
+
+Dual-write без координатора, reconciliation и ограниченного срока запрещён.
+
+## 11.15. Внешние источники данных
+
+Данные Keycloak, SpiceDB, Kubernetes, облачного провайдера и иных систем MUST проходить через ACL. M8 определяет, какие факты считаются:
+
+- авторитетными во внешней системе;
+- желаемыми в M8;
+- наблюдаемыми;
+- кэшированными;
+- подтверждёнными;
+- неизвестными.
+
+Provisioning владеет desired state managed resource, но внешний провайдер MAY быть источником истины для observed state. Расхождение фиксируется как drift, а не устраняется скрытой записью в M8.
+
+## 11.16. Аналитические данные
+
+Аналитические витрины MAY объединять факты всех контекстов, но MUST:
+
+- сохранять source IDs и event IDs;
+- указывать период и timezone;
+- хранить versioned metric definition;
+- различать event time и processing time;
+- обеспечивать возможность повторного расчёта;
+- не использоваться для mutation API;
+- иметь отдельные политики доступа и retention.
+
+## 11.17. Классификация данных
+
+| Класс | Примеры | Базовые ограничения |
+| --- | --- | --- |
+| Public | публичные схемы API, открытая документация | целостность и версионирование |
+| Internal | технические метаданные, non-sensitive resource labels | доступ только внутри платформы |
+| Confidential | профили пользователей, access relationships, risk reasons | least privilege, encryption, audit |
+| Restricted | credentials, token material, secret values, sensitive risk signals | запрещено в событиях и логах, специализированное хранилище |
+
+## 11.18. Контроль качества данных
+
+Владельцы критичных наборов MUST определять:
+
+- completeness;
+- uniqueness;
+- validity;
+- referential validity на уровне контракта;
+- freshness;
+- consistency;
+- reconciliation status.
+
+Нарушения качества MUST формировать метрику, alert и при необходимости AuditEvent.
+
+## 11.19. Трассировка и SPDD
+
+Structured Prompt, изменяющий данные, MUST содержать:
+
+```yaml
+ data_ownership:
+   owner_context: Identity
+   authoritative_entities:
+     - User
+   writes:
+     - identity/users
+   reads_external:
+     - ResourceManager.ProjectReference
+   projections:
+     - Access.UserStatusProjection
+   forbidden:
+     - direct_access_database_write
+     - audit_event_mutation
+   deletion_behavior:
+     - emit UserDeleted tombstone
+```
+
+## 11.20. Критерии соответствия главы
+
+Архитектура соответствует главе, если:
+
+1. у каждого нормативного атрибута определён один владелец;
+2. отсутствуют межсервисные database joins и записи;
+3. проекции имеют источник, свежесть и механизм восстановления;
+4. удаление распространяется на производные копии;
+5. перенос и смена владельца оформлены как процессы;
+6. аналитические и поисковые копии не используются как скрытый writer;
+7. чувствительные данные классифицированы и минимизированы;
+8. критичные наборы имеют retention, backup и reconciliation;
+9. требования и Structured Prompts ссылаются на owner context.
+
+---
+
+# 12. Правила проектирования API
+
+## 12.1. Назначение главы
+
+Настоящая глава задаёт обязательные правила проектирования публичных и внутренних API M8 Platform. Базовый подход — Protobuf-first с публикацией через ConnectRPC, строгим разделением transport, application и domain model.
+
+API является долгоживущим контрактом между владельцем способности и потребителями. Удобство текущей реализации не является основанием раскрывать внутреннюю модель хранения.
+
+## 12.2. Основные принципы
+
+| ID | Нормативное правило |
+| --- | --- |
+| `API-001` | Публичные сервисные контракты MUST проектироваться Protobuf-first. |
+| `API-002` | Основным транспортом SHOULD быть ConnectRPC с поддержкой gRPC и HTTP semantics, где это применимо. |
+| `API-003` | API MUST использовать предметный язык контекста-владельца. |
+| `API-004` | API message MUST NOT совпадать с persistence model только ради удобства маппинга. |
+| `API-005` | Публичный контракт MUST NOT содержать типы YDB, Redis, Temporal, Keycloak, SpiceDB или Kubernetes SDK. |
+| `API-006` | Mutating request MUST иметь механизм идемпотентности, если повтор запроса возможен. |
+| `API-007` | Long-running mutation MUST возвращать Operation. |
+| `API-008` | Синхронная mutation MAY возвращать ресурс, если все значимые эффекты завершены в локальной транзакции. |
+| `API-009` | Authorization context MUST формироваться доверенным middleware, а не полями запроса клиента. |
+| `API-010` | Validation MUST быть выражена в контракте через Protovalidate, когда правило не требует обращения к состоянию. |
+| `API-011` | List API MUST иметь стабильную пагинацию и детерминированную сортировку. |
+| `API-012` | Update API SHOULD использовать FieldMask для частичных изменений. |
+| `API-013` | Конкурентные изменения MUST защищаться revision/ETag или явным precondition. |
+| `API-014` | Ошибки MUST иметь стабильный машинный service-owned code. |
+| `API-015` | Breaking change MUST публиковаться в новой major-версии. |
+| `API-016` | Deprecated field или method MUST иметь срок, миграционную инструкцию и telemetry использования. |
+| `API-017` | API MUST поддерживать deadlines и cancellation propagation. |
+| `API-018` | Batch API MUST возвращать результат по каждому элементу и не скрывать частичный успех. |
+| `API-019` | API MUST NOT принимать произвольные claims, roles или permissions как доверенные входы. |
+| `API-020` | Каждый API method MUST быть связан с requirement ID, permission и audit policy. |
+
+## 12.3. Структура Protobuf-пакетов
+
+Рекомендуемая схема:
+
+```text
+m8.platform.<context>.<version>
+
+m8.platform.resourcemanager.v1
+m8.platform.identity.v1
+m8.platform.authentication.v1
+m8.platform.access.v1
+m8.platform.riskdecision.v1
+m8.platform.provisioning.v1
+m8.platform.audit.v1
+m8.platform.common.v1
+```
+
+Правила:
+
+- package name MUST содержать major API version;
+- Go package option MUST быть стабильным и не зависеть от расположения временного репозитория;
+- service и message names MUST отражать domain language;
+- common package используется только для типов главы 10;
+- импорт контракта другого контекста SHOULD заменяться стабильной reference-моделью, если полная модель не требуется.
+
+## 12.4. Ресурсоориентированный API
+
+Для управляемых ресурсов SHOULD использоваться стандартные операции:
+
+```protobuf
+service ProjectsService {
+  rpc GetProject(GetProjectRequest) returns (Project);
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+  rpc CreateProject(CreateProjectRequest) returns (google.longrunning.Operation);
+  rpc UpdateProject(UpdateProjectRequest) returns (google.longrunning.Operation);
+  rpc DeleteProject(DeleteProjectRequest) returns (google.longrunning.Operation);
+}
+```
+
+Дополнительные предметные действия оформляются custom methods:
+
+```protobuf
+rpc SuspendProject(SuspendProjectRequest) returns (google.longrunning.Operation);
+rpc RestoreProject(RestoreProjectRequest) returns (google.longrunning.Operation);
+```
+
+Custom method MUST обозначать предметное действие, а не технический CRUD workaround.
+
+## 12.5. Имена ресурсов
+
+Канонические имена SHOULD иметь иерархическую форму:
+
+```text
+organizations/{organization_id}
+organizations/{organization_id}/workspaces/{workspace_id}
+organizations/{organization_id}/workspaces/{workspace_id}/projects/{project_id}
+projects/{project_id}/services/{service_id}
+projects/{project_id}/userPools/{user_pool_id}
+```
+
+Внутренний ID MAY быть отдельным полем, но API MUST однозначно определять канонический `name`.
+
+Правила:
+
+- resource name MUST быть неизменяемым идентификатором;
+- display name MUST храниться отдельно;
+- parent MUST быть явным в create/list request;
+- parsing resource name выполняется общей безопасной библиотекой;
+- произвольная конкатенация строк в domain layer запрещена.
+
+## 12.6. Команды и ресурсы
+
+API SHOULD быть ресурсоориентированным, но команда допустима, когда:
+
+- действие не сводится к изменению одного поля;
+- требуется отдельная авторизация;
+- есть собственный жизненный цикл;
+- действие запускает workflow;
+- результат имеет предметный смысл.
+
+Примеры корректных команд:
+
+- `StartAuthentication`;
+- `CheckPermission`;
+- `EvaluateRisk`;
+- `ReconcileManagedResource`;
+- `ExportAuditEvents`.
+
+## 12.7. Формат запросов
+
+Create request SHOULD содержать:
+
+```protobuf
+message CreateProjectRequest {
+  string parent = 1 [(buf.validate.field).string.min_len = 1];
+  Project project = 2 [(buf.validate.field).required = true];
+  string project_id = 3;
+  string request_id = 4;
+  bool validate_only = 5;
+}
+```
+
+Update request SHOULD содержать:
+
+```protobuf
+message UpdateProjectRequest {
+  Project project = 1 [(buf.validate.field).required = true];
+  google.protobuf.FieldMask update_mask = 2;
+  string request_id = 3;
+  string etag = 4;
+  bool validate_only = 5;
+}
+```
+
+Delete request SHOULD явно задавать:
+
+- resource name;
+- request ID;
+- ETag/revision при конкурентном доступе;
+- force/cascade только если такая семантика разрешена;
+- validate_only;
+- reason при чувствительных операциях.
+
+## 12.8. Валидация
+
+Валидация разделяется на уровни:
+
+| Уровень | Примеры | Место |
+| --- | --- | --- |
+| Синтаксический | длина, формат UUID, enum defined_only | Protobuf/Protovalidate |
+| Структурный | обязательные сочетания полей, oneof | contract/application boundary |
+| Предметный | допустимый переход состояния, уникальность | domain aggregate/policy |
+| Межконтекстный | существование Project, активность User | gateway к владельцу |
+| Авторизационный | право выполнить действие | Access/AuthGuard |
+| Рисковый | необходимость step-up | Risk Decision |
+
+Контрактная валидация MUST NOT дублировать изменяемую бизнес-политику, если для неё нужен отдельный владелец.
+
+## 12.9. FieldMask
+
+FieldMask MUST:
+
+- применяться только к разрешённым mutable полям;
+- отклонять неизвестные и output-only пути;
+- иметь определённую семантику пустой маски;
+- различать очистку значения и отсутствие изменения;
+- обрабатываться application use case, а не адаптером хранения;
+- отражаться в audit change set.
+
+`*` MAY быть разрешён только при однозначной и документированной семантике.
+
+## 12.10. Field behavior
+
+Поля SHOULD иметь annotations или документацию:
+
+- `REQUIRED`;
+- `OPTIONAL`;
+- `OUTPUT_ONLY`;
+- `INPUT_ONLY`;
+- `IMMUTABLE`;
+- `IDENTIFIER`.
+
+Output-only поля MUST игнорироваться или отклоняться в input согласно контракту; выбранная семантика должна быть единообразной.
+
+## 12.11. Пагинация
+
+List API MUST использовать opaque page token. Token SHOULD кодировать:
+
+- последний стабильный sort key;
+- filter hash;
+- API version;
+- expiry или snapshot marker, если требуется консистентный снимок.
+
+Запрещено:
+
+- раскрывать внутренний database offset как контракт;
+- менять сортировку между страницами;
+- принимать page token с другим filter;
+- возвращать дубликаты без документированной причины.
+
+Базовый контракт:
+
+```protobuf
+message ListProjectsRequest {
+  string parent = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+  string filter = 4;
+  string order_by = 5;
+  bool show_deleted = 6;
+}
+```
+
+## 12.12. Фильтрация и сортировка
+
+Поддерживаемые поля, операторы и стоимость фильтра MUST быть задокументированы. Сервер MUST отклонять неизвестные поля и потенциально неограниченные выражения.
+
+Сортировка MUST иметь стабильный tie-breaker, обычно resource ID. Например:
+
+```text
+order_by = "create_time desc, name asc"
+```
+
+## 12.13. Идемпотентность
+
+Идемпотентность mutation обеспечивается `request_id` или `idempotency_key`.
+
+Владелец MUST хранить:
+
+- caller scope;
+- operation/method;
+- canonical request hash;
+- created resource/operation ID;
+- final status;
+- expiry.
+
+Повтор с тем же ключом и другим значимым payload MUST возвращать `IDEMPOTENCY_CONFLICT`.
+
+## 12.14. Оптимистическая конкуренция
+
+Для изменяемых ресурсов SHOULD использоваться:
+
+- `revision` — монотонная версия внутри домена;
+- `etag` — opaque representation для API;
+- `if_match` semantics для update/delete.
+
+Ошибка конкуренции MUST различаться от validation error и SHOULD возвращать текущий ETag, если это безопасно.
+
+## 12.15. Длительные операции
+
+API MUST возвращать Operation, если:
+
+- вызов внешней системы может превышать обычный deadline;
+- операция имеет несколько шагов;
+- требуется retry, compensation или approval;
+- результат появляется после асинхронного процесса;
+- клиент должен наблюдать прогресс или отменять выполнение.
+
+Operation response MUST быть создан до запуска невосстанавливаемой работы и связан с `request_id`.
+
+## 12.16. Batch-операции
+
+Batch SHOULD использоваться для эффективности, но MUST ограничивать:
+
+- максимальное число элементов;
+- суммарный размер;
+- параллелизм;
+- время выполнения;
+- scope авторизации.
+
+Atomic batch MAY быть предоставлен только внутри одного владельца и одной транзакционной границы. В иных случаях результат должен отражать частичный успех.
+
+## 12.17. Check и decision API
+
+API принятия решений, например `CheckPermission` и `EvaluateRisk`, MUST:
+
+- принимать полный типизированный context;
+- возвращать decision ID;
+- содержать reason codes;
+- иметь явную freshness semantics;
+- не раскрывать внутренние правила сверх допустимого уровня;
+- поддерживать explain/simulate отдельным защищённым методом, если требуется.
+
+## 12.18. Security context
+
+Trusted context MAY включать:
+
+```text
+actor
+subject
+client
+service_identity
+organization/workspace/project scope
+assurance_level
+authentication_id
+session_id
+request_id
+trace_id
+source_network/device digest
+```
+
+Он формируется AuthGuard из проверенных credentials. Клиентские поля с теми же именами MUST NOT переопределять trusted context.
+
+## 12.19. Deadlines, cancellation и retries
+
+Каждый client MUST устанавливать deadline. Сервер SHOULD:
+
+- останавливать отменяемую работу после cancellation;
+- не откатывать уже подтверждённую локальную транзакцию;
+- возвращать Operation, если работа продолжается независимо;
+- публиковать retry hints только для безопасных ошибок.
+
+Автоматический retry разрешён только для идемпотентных запросов или запросов с idempotency key.
+
+## 12.20. Ошибки
+
+Transport status отражает категорию, а service-owned error code — предметную причину.
+
+Пример:
+
+```yaml
+status: FAILED_PRECONDITION
+error_code: PROJECT_NOT_ACTIVE
+message: Project must be active to register a service.
+details:
+  resource: projects/prj_123
+  current_state: SUSPENDED
+  required_state: ACTIVE
+retryable: false
+```
+
+Подробная модель определена в главе 17.
+
+## 12.21. Версионирование
+
+Совместимые изменения v1:
+
+- добавление optional field;
+- добавление enum value при корректной обработке unknown values;
+- добавление нового method;
+- ослабление validation, не нарушающее безопасность;
+- добавление error detail.
+
+Несовместимые изменения:
+
+- удаление/переиспользование field number;
+- изменение смысла поля;
+- изменение resource name pattern;
+- усиление обязательности без перехода;
+- изменение default behavior;
+- изменение типа идентификатора;
+- удаление enum value.
+
+Reserved field numbers и names MUST сохраняться после удаления.
+
+## 12.22. Deprecation
+
+Deprecation lifecycle:
+
+1. пометить элемент deprecated;
+2. опубликовать replacement;
+3. добавить migration guide;
+4. измерять активных consumers;
+5. уведомить владельцев;
+6. установить not-before removal date;
+7. удалить только в новой major-версии либо по согласованной политике internal API.
+
+## 12.23. Streaming и subscriptions
+
+Streaming API MAY использоваться для:
+
+- ожидания Operation;
+- подписки UI на прогресс;
+- bounded export;
+- low-latency decision stream.
+
+Он MUST иметь:
+
+- backpressure;
+- heartbeat/idle timeout;
+- resume token;
+- authorization revalidation;
+- max message size;
+- правила reconnect.
+
+Для долговременного распределения фактов предпочтительнее event stream главы 13.
+
+## 12.24. Webhooks
+
+Webhook является внешней интеграцией и MUST иметь:
+
+- подписанную доставку;
+- timestamp и replay protection;
+- event ID;
+- versioned payload;
+- retry policy;
+- dead-letter visibility;
+- secret rotation;
+- endpoint verification;
+- subscription scope;
+- delivery audit.
+
+## 12.25. Rate limits и quotas
+
+API MAY применять:
+
+- per client;
+- per subject;
+- per project;
+- per organization;
+- per method;
+- cost-based quota.
+
+Ответ MUST содержать стабильную error category и допустимый retry delay. Квота не должна заменять Risk Decision для security-sensitive abuse checks.
+
+## 12.26. API-документация
+
+Каждый method MUST документировать:
+
+- цель;
+- owner context;
+- required permission;
+- risk policy;
+- idempotency;
+- consistency;
+- input/output semantics;
+- errors;
+- audit event;
+- SLO class;
+- requirement IDs;
+- пример запроса и ответа.
+
+## 12.27. Contract testing
+
+Обязательные проверки:
+
+- buf lint;
+- buf breaking;
+- Protovalidate tests;
+- golden JSON/Connect serialization tests;
+- compatibility tests с поддерживаемыми SDK;
+- authorization matrix tests;
+- idempotency tests;
+- pagination stability tests;
+- error mapping tests;
+- load tests для SLO-critical methods.
+
+## 12.28. API-реестр
+
+Минимальная запись:
+
+```yaml
+api:
+  id: API-AUTH-START-AUTH-V1
+  owner_context: Authentication
+  service: m8-authentication
+  proto_method: m8.platform.authentication.v1.AuthenticationService.StartAuthentication
+  requirement_ids: [AUTH-FR-001, AUTH-FR-017]
+  permission: authentication.transactions.create
+  consistency: local_strong_plus_external_decision
+  idempotency: required
+  result: operation
+  audit_policy: required
+  slo_class: interactive
+```
+
+## 12.29. SPDD-требования
+
+Structured Prompt для API change MUST содержать:
+
+- существующий package и version;
+- compatibility classification;
+- resource/method pattern;
+- field behavior;
+- validation;
+- permission;
+- error codes;
+- idempotency;
+- LRO behavior;
+- contract tests;
+- запрещённые изменения field numbers.
+
+## 12.30. Критерии соответствия главы
+
+API соответствует PADS, если контракт Protobuf-first, не раскрывает инфраструктуру, имеет owner, permission, validation, stable errors, idempotency, compatibility checks и трассировку до requirement/tests.
+
+---
+
+# 13. Правила проектирования событий
+
+## 13.1. Назначение главы
+
+Настоящая глава определяет модель Domain Events и Integration Events M8 Platform, их схемы, envelope, семантику доставки, ordering, partitioning, versioning, дедупликацию, replay и совместимость.
+
+Событие является неизменяемым утверждением о факте, который уже произошёл. Событие не является удалённым вызовом команды.
+
+## 13.2. Классы сообщений
+
+| Класс | Назначение | Владелец схемы | Пример |
+| --- | --- | --- | --- |
+| Domain Event | факт внутри ограниченного контекста | domain owner | `AuthenticationChallengeCompleted` |
+| Integration Event | опубликованное представление факта для других контекстов | producer context | `UserDisabled` |
+| Audit Event | факт ответственности: кто и что сделал | Audit contract + producer | `RoleBindingCreated` с actor/outcome |
+| Command Message | просьба выполнить действие | receiving context | `DeleteProjectData` |
+| Notification | сообщение пользователю/оператору | notification capability | `ApprovalRequired` |
+
+Domain Event MAY быть преобразован в Integration Event. Их payload и срок хранения не обязаны совпадать.
+
+## 13.3. Нормативные правила
+
+| ID | Правило |
+| --- | --- |
+| `EVT-001` | Event name MUST обозначать свершившийся факт в прошедшем времени. |
+| `EVT-002` | Event MUST быть неизменяемым после публикации. |
+| `EVT-003` | Producer MUST владеть фактом, который публикует. |
+| `EVT-004` | Команда MUST NOT маскироваться под событие. |
+| `EVT-005` | Integration Event MUST публиковаться только после commit авторитетного состояния. |
+| `EVT-006` | State change и Outbox record MUST фиксироваться атомарно. |
+| `EVT-007` | Consumer MUST быть идемпотентным. |
+| `EVT-008` | Event envelope MUST содержать event ID, type, version, producer, occurrence time, correlation и causation. |
+| `EVT-009` | Ordering гарантируется только в явно объявленной partition scope. |
+| `EVT-010` | Consumer MUST NOT предполагать глобальный порядок событий. |
+| `EVT-011` | Duplicate delivery является нормальной ситуацией. |
+| `EVT-012` | Exactly-once end-to-end MUST NOT заявляться без доказуемой транзакционной границы. |
+| `EVT-013` | Event schema MUST быть backward-compatible внутри major version. |
+| `EVT-014` | Payload MUST содержать достаточный факт, но не обязан быть полным snapshot ресурса. |
+| `EVT-015` | Секреты, token material и необязательные персональные данные MUST NOT включаться в событие. |
+| `EVT-016` | Delete/tombstone events MUST быть поддержаны критичными проекциями. |
+| `EVT-017` | Event retention и replay policy MUST быть определены для каждого stream. |
+| `EVT-018` | Poison event MUST изолироваться без остановки всей partition навсегда. |
+| `EVT-019` | Consumer side effects MUST иметь inbox/deduplication или эквивалент. |
+| `EVT-020` | Event contract MUST быть зарегистрирован в Event Catalog и связан с requirements. |
+
+## 13.4. Стандартный envelope
+
+```protobuf
+message EventEnvelope {
+  string event_id = 1;
+  string event_type = 2;
+  uint32 schema_version = 3;
+  string producer = 4;
+  google.protobuf.Timestamp occurred_at = 5;
+  google.protobuf.Timestamp published_at = 6;
+  string correlation_id = 7;
+  string causation_id = 8;
+  string trace_id = 9;
+  string tenant_scope = 10;
+  m8.platform.common.v1.ActorReference actor = 11;
+  m8.platform.common.v1.ResourceReference resource = 12;
+  map<string, string> attributes = 13;
+  bytes payload = 14;
+}
+```
+
+Реализация MAY использовать typed wrapper вместо raw bytes, но envelope semantics MUST сохраняться.
+
+## 13.5. Event ID
+
+`event_id` MUST:
+
+- быть глобально уникальным;
+- генерироваться producer;
+- сохраняться при повторной публикации того же логического события;
+- использоваться consumer Inbox;
+- попадать в telemetry и audit diagnostics.
+
+Создание нового event ID при каждом retry публикации запрещено.
+
+## 13.6. Event type и именование
+
+Рекомендуемый формат:
+
+```text
+m8.<context>.<aggregate>.<fact>.v<major>
+```
+
+Примеры:
+
+```text
+m8.resourcemanager.project.created.v1
+m8.identity.user.disabled.v1
+m8.authentication.transaction.completed.v1
+m8.access.role_binding.created.v1
+m8.riskdecision.assessment.decided.v1
+m8.provisioning.managed_resource.reconciled.v1
+```
+
+Имя MUST быть стабильным и не содержать название команды, таблицы или vendor technology.
+
+## 13.7. Occurred time и published time
+
+- `occurred_at` — момент предметного факта или фиксации транзакции;
+- `published_at` — момент отправки transport producer;
+- consumer processing time хранится отдельно.
+
+Producer MUST не изменять `occurred_at` при retry. Clock skew SHOULD отслеживаться.
+
+## 13.8. Correlation и causation
+
+- `correlation_id` связывает весь сквозной процесс;
+- `causation_id` указывает непосредственный request, command, event или activity;
+- `trace_id` связывает событие с distributed trace, но не заменяет correlation.
+
+Событие, вызванное другим событием, MUST указать его `event_id` как causation либо типизированную ссылку на command ID.
+
+## 13.9. Payload design
+
+Payload SHOULD содержать:
+
+- идентификатор ресурса;
+- новое состояние или изменённые факты;
+- revision;
+- минимальные данные для типичных consumers;
+- reason code, если он является частью предметного факта.
+
+Payload MUST NOT:
+
+- раскрывать внутреннюю storage schema;
+- требовать lookup по неустойчивому внутреннему ключу;
+- включать необработанный access token;
+- использовать свободный JSON там, где существует стабильная typed schema;
+- содержать полные snapshots по умолчанию без оценки privacy и размера.
+
+## 13.10. Delta и snapshot events
+
+| Тип | Когда применять |
+| --- | --- |
+| Delta event | изменение ограниченного набора полей; consumers умеют применять по revision |
+| State event | новое значимое состояние агрегата |
+| Snapshot event | bootstrap, восстановление или редкая полная синхронизация |
+| Tombstone event | удаление/анонимизация/недоступность |
+
+Delta event MUST содержать revision и SHOULD содержать changed field paths.
+
+## 13.11. Topics и streams
+
+Topic boundary SHOULD соответствовать:
+
+- контексту;
+- требованиям retention;
+- классу конфиденциальности;
+- ordering key;
+- профилю throughput;
+- кругу consumers.
+
+Нельзя объединять restricted security events и широкодоступные resource lifecycle events только ради уменьшения числа topics.
+
+## 13.12. Partitioning
+
+Partition key выбирается по агрегату или ресурсу, для которого нужен порядок.
+
+| Event family | Рекомендуемый ключ |
+| --- | --- |
+| Project lifecycle | `project_id` |
+| User lifecycle | `user_id` |
+| Authentication transaction | `authentication_id` |
+| Access relationship | canonical resource scope или relation key |
+| Managed resource | `managed_resource_id` |
+| Audit | organization/project scope + time bucket при больших объёмах |
+
+Hot partition risk MUST быть оценён. Глобальный organization ID как единственный ключ может быть неприемлем для крупного tenant.
+
+## 13.13. Ordering
+
+Гарантия порядка действует только внутри partition и transport contract. Consumer MUST:
+
+- сравнивать revision;
+- игнорировать устаревшее событие;
+- обнаруживать пропуски, если sequence обязателен;
+- уметь запрашивать snapshot/reconciliation;
+- не полагаться на порядок между разными aggregates.
+
+## 13.14. Delivery semantics
+
+Базовая семантика — at-least-once. Это означает:
+
+- duplicate events возможны;
+- publish delay возможен;
+- reorder между partitions возможен;
+- consumer retry возможен после частичного side effect.
+
+Для каждого side effect нужна идемпотентная модель.
+
+## 13.15. Outbox
+
+Outbox record MUST содержать:
+
+```yaml
+outbox:
+  event_id: evt_...
+  aggregate_type: Project
+  aggregate_id: prj_...
+  aggregate_revision: 42
+  event_type: m8.resourcemanager.project.updated.v1
+  payload: protobuf-bytes
+  created_at: ...
+  publish_status: pending
+  attempt: 0
+```
+
+Dispatcher MUST:
+
+- публиковать без изменения event ID;
+- применять retry with backoff;
+- фиксировать published_at;
+- иметь lag metrics;
+- поддерживать безопасный replay;
+- не блокировать foreground transaction transport-вызовом.
+
+## 13.16. Inbox и дедупликация
+
+Consumer Inbox SHOULD хранить:
+
+- event ID;
+- consumer ID;
+- processing status;
+- first/last attempt;
+- result digest;
+- expiry;
+- side effect transaction marker.
+
+Если consumer state и Inbox находятся в одной БД, они SHOULD фиксироваться одной транзакцией.
+
+## 13.17. Consumer contract
+
+Каждый consumer MUST определить:
+
+- интересующие event types;
+- поддерживаемые schema versions;
+- idempotency key;
+- ordering assumptions;
+- max tolerated lag;
+- retryable/non-retryable errors;
+- dead-letter procedure;
+- rebuild procedure;
+- owner team;
+- dashboard/runbook.
+
+## 13.18. Schema evolution
+
+Совместимые изменения:
+
+- добавление optional field;
+- добавление enum value при unknown-safe consumers;
+- расширение metadata;
+- публикация нового event type.
+
+Несовместимые:
+
+- изменение смысла поля;
+- изменение units;
+- удаление обязательного consumer field;
+- изменение partition key semantics;
+- reuse field number;
+- смена идентификатора ресурса.
+
+При несовместимости публикуется новый event type major version. Dual-publish MAY использоваться в ограниченный миграционный период.
+
+## 13.19. Consumer-driven compatibility
+
+Перед изменением schema producer SHOULD запускать:
+
+- buf breaking;
+- registered consumer contract tests;
+- replay sample validation;
+- size regression checks;
+- privacy checks.
+
+Список активных consumers MUST быть известен Event Catalog.
+
+## 13.20. Replay
+
+Replay MUST быть отделён от обычной публикации и контролировать:
+
+- диапазон времени/offset;
+- target consumer;
+- rate limit;
+- side effects;
+- deduplication mode;
+- audit trail;
+- dry-run;
+- остановку и возобновление.
+
+Consumer MUST различать replay mode, если повтор внешних side effects опасен.
+
+## 13.21. Dead-letter и poison events
+
+Non-retryable event помещается в quarantine/DLQ с:
+
+- original envelope;
+- consumer;
+- error code;
+- attempt history;
+- first/last failure time;
+- schema information;
+- remediation state.
+
+DLQ MUST иметь owner, alert и runbook. Автоматический бесконечный retry запрещён.
+
+## 13.22. Retention
+
+Retention определяется назначением:
+
+- operational integration — достаточный срок для outage recovery;
+- projection rebuild — срок, покрывающий полную реконструкцию, либо snapshot;
+- audit — отдельная политика Audit;
+- analytics — governed warehouse retention.
+
+Transport retention не заменяет долгосрочное нормативное хранение.
+
+## 13.23. Privacy и security
+
+Event producer MUST проводить data minimization. Restricted fields SHOULD заменяться:
+
+- stable pseudonymous ID;
+- hash/digest;
+- reference;
+- reason code;
+- redacted representation.
+
+Topics MUST иметь ACL по producer/consumer identity и encryption in transit/at rest.
+
+## 13.24. Audit Events
+
+Audit Event отличается от Integration Event:
+
+- Integration Event сообщает потребителям об изменении состояния;
+- Audit Event доказывает действие, actor, authorization/risk context и outcome.
+
+Один use case MAY создавать оба события через разные schemas и retention.
+
+## 13.25. Event Catalog
+
+Запись каталога:
+
+```yaml
+event:
+  id: EVT-ID-USER-DISABLED-V1
+  type: m8.identity.user.disabled.v1
+  owner: m8-identity
+  aggregate: User
+  partition_key: user_id
+  retention: 30d
+  classification: confidential
+  schema: m8.platform.identity.events.v1.UserDisabled
+  consumers:
+    - m8-authentication
+    - m8-access
+    - m8-audit
+  rebuild_source: Identity Export API
+  requirement_ids: [ID-FR-003]
+```
+
+## 13.26. Наблюдаемость
+
+Producer metrics:
+
+- outbox pending count;
+- publish latency;
+- publish errors;
+- event size;
+- partition skew.
+
+Consumer metrics:
+
+- consumer lag;
+- processing latency;
+- duplicate count;
+- retry count;
+- DLQ count;
+- stale revision count;
+- reconciliation mismatch.
+
+## 13.27. Тестирование
+
+Обязательны:
+
+- schema compatibility tests;
+- envelope validation;
+- duplicate delivery tests;
+- out-of-order tests;
+- replay tests;
+- tombstone tests;
+- poison event tests;
+- privacy tests;
+- projection rebuild tests;
+- producer-consumer contract tests.
+
+## 13.28. SPDD-требования
+
+Event Structured Prompt MUST объявлять:
+
+- fact semantics;
+- owner aggregate;
+- event type/version;
+- envelope;
+- payload;
+- partition key;
+- ordering assumption;
+- data classification;
+- consumers;
+- Outbox/Inbox behavior;
+- compatibility and tests.
+
+## 13.29. Критерии соответствия главы
+
+Событийная интеграция соответствует PADS, если опубликованы только подтверждённые факты, schemas versioned, delivery at-least-once учтена, consumers idempotent, ordering scope явна, replay/DLQ предусмотрены, секреты отсутствуют, а событие зарегистрировано и трассируется до requirements.
+
+---
+
+# 14. Модель интеграции и согласованности
+
+## 14.1. Назначение главы
+
+Настоящая глава определяет, когда M8 Platform использует синхронные вызовы, события, локальные проекции, Saga, Process Manager, Temporal Workflow и reconciliation. Она также устанавливает транзакционные границы, модель отказов и допустимые уровни согласованности.
+
+## 14.2. Базовая модель
+
+M8 использует:
+
+- **строгую локальную согласованность** внутри одного owner service;
+- **итоговую межконтекстную согласованность** для распространения фактов;
+- **синхронные decision API** для решений, которые нельзя принимать на устаревшей копии;
+- **Temporal orchestration** для длительных, повторяемых и компенсируемых процессов;
+- **reconciliation** для desired/observed state внешних ресурсов.
+
+Распределённые ACID-транзакции между контекстами не применяются.
+
+## 14.3. Принципы
+
+| ID | Правило |
+| --- | --- |
+| `INT-001` | Один use case MUST иметь одну локальную транзакционную точку фиксации владельца. |
+| `INT-002` | Межсервисный вызов MUST NOT выполняться внутри открытой database transaction, кроме обоснованного read-only precheck до mutation. |
+| `INT-003` | Событие публикуется после commit через Outbox. |
+| `INT-004` | Синхронный вызов используется только когда caller не может безопасно продолжить без немедленного ответа. |
+| `INT-005` | Долгий или многошаговый процесс MUST иметь устойчивого владельца состояния. |
+| `INT-006` | Retry MUST быть ограничен, идемпотентен и классифицирован по ошибкам. |
+| `INT-007` | Timeout MUST быть короче caller deadline и учитывать budget всей цепочки. |
+| `INT-008` | Синхронные циклы между контекстами запрещены. |
+| `INT-009` | Локальная проекция используется только при объявленной свежести и безопасной семантике. |
+| `INT-010` | Compensation MUST быть предметным действием, а не техническим откатом чужой транзакции. |
+| `INT-011` | Temporal Workflow MUST не содержать недетерминированную логику вне Activities. |
+| `INT-012` | Activity MUST быть идемпотентной или иметь deduplication token. |
+| `INT-013` | Process state MUST быть наблюдаемым через Operation. |
+| `INT-014` | External system state MUST reconciliate с desired state, а не считаться мгновенно согласованным. |
+| `INT-015` | Failure mode и degraded behavior MUST быть определены до реализации интеграции. |
+| `INT-016` | Integration contract MUST иметь owner, SLO, retry policy и runbook. |
+| `INT-017` | Change of interaction pattern MUST проходить ADR и impact analysis. |
+| `INT-018` | Caller MUST различать accepted, completed и observed states. |
+| `INT-019` | Нельзя подтверждать бизнес-успех, если критичный локальный commit не выполнен. |
+| `INT-020` | Structured Prompt MUST явно указывать consistency class и transaction boundary. |
+
+## 14.4. Классы согласованности
+
+| Класс | Описание | Пример |
+| --- | --- | --- |
+| `C0 Local Strong` | все инварианты фиксируются одной транзакцией владельца | создание User и Outbox event |
+| `C1 Synchronous Decision` | требуется актуальное решение другого владельца | Access check, Risk Decision |
+| `C2 Read-your-write` | caller сразу видит подтверждённое локальное состояние | Get Project после успешного local update |
+| `C3 Eventual Projection` | производная копия обновляется событиями | Project metadata в Provisioning |
+| `C4 Orchestrated` | многошаговый процесс с retry/compensation | удаление Project со всеми ресурсами |
+| `C5 Reconciled External` | desired/observed state сходятся со временем | Kubernetes/Cloud resource provisioning |
+| `C6 Analytical` | данные согласуются пакетно или потоково для анализа | platform metrics warehouse |
+
+Каждое requirement MUST указывать требуемый класс, если рассогласование влияет на поведение.
+
+## 14.5. Выбор механизма взаимодействия
+
+| Вопрос | Если «да» | Механизм |
+| --- | --- | --- |
+| Нужен немедленный ответ для продолжения безопасной операции? | Да | синхронный API |
+| Распространяется факт после commit? | Да | Integration Event |
+| Нужна локальная низколатентная копия? | Да | Event projection + reconciliation |
+| Процесс длится дольше request deadline? | Да | Operation + Temporal/worker |
+| Есть несколько шагов и compensation? | Да | Saga/Temporal orchestration |
+| Внешнее состояние может меняться независимо? | Да | reconciliation loop |
+| Нужно собрать представление для UI? | Да | BFF/query composition/read model |
+| Нужна массовая историческая обработка? | Да | export/batch/analytics pipeline |
+
+## 14.6. Синхронные вызовы
+
+Синхронный вызов допускается для:
+
+- `CheckPermission`;
+- `EvaluateRisk`;
+- resolve active Subject;
+- get authoritative resource state;
+- validate external precondition;
+- получить Operation status.
+
+Синхронный вызов MUST иметь:
+
+- deadline;
+- retry classification;
+- circuit breaker или concurrency limit;
+- telemetry;
+- fallback policy;
+- permission/service identity;
+- bounded response size.
+
+## 14.7. Запрещённые синхронные цепочки
+
+Запрещены:
+
+- A → B → A;
+- Authentication → Access → Resource Manager → Authentication;
+- long-running provisioning через удержание HTTP connection без Operation;
+- fan-out на неограниченное число downstream services;
+- retries на всех уровнях без общего budget;
+- вызов внешнего провайдера внутри локальной транзакции.
+
+Глубина критичного синхронного пути SHOULD быть минимальной и контролироваться architecture tests/telemetry.
+
+## 14.8. Timeout budget
+
+Для входящего deadline `D` caller распределяет budget:
+
+```text
+D = local_processing + downstream_calls + serialization + safety_margin
+```
+
+Каждый downstream timeout MUST быть меньше оставшегося deadline. Retry MUST учитывать суммарный budget, а не повторять полный timeout.
+
+## 14.9. Retry policy
+
+Retry разрешён при:
+
+- transient network failure;
+- `UNAVAILABLE`;
+- safe `DEADLINE_EXCEEDED` с идемпотентностью;
+- provider-specific throttling с `retry_after`;
+- optimistic conflict только после повторного чтения и повторной оценки команды.
+
+Retry запрещён для:
+
+- validation errors;
+- permission denied;
+- business precondition failure;
+- idempotency conflict;
+- non-idempotent external action без token;
+- permanent provider rejection.
+
+## 14.10. Circuit breaker и bulkhead
+
+Критичные integrations SHOULD применять:
+
+- per dependency circuit breaker;
+- concurrency limit;
+- queue limit;
+- separate worker pool;
+- degraded mode;
+- health signal.
+
+Circuit breaker state MUST быть observable. Он не должен скрывать data corruption или authorization failures.
+
+## 14.11. Асинхронные факты
+
+Асинхронный consumer MUST:
+
+1. проверить envelope/schema;
+2. выполнить Inbox deduplication;
+3. проверить revision/order;
+4. применить локальное изменение в транзакции;
+5. записать Inbox success;
+6. инициировать собственное событие только после commit;
+7. обработать retry/DLQ.
+
+## 14.12. Saga
+
+Saga — последовательность локальных транзакций с предметными compensation actions.
+
+Пример удаления Project:
+
+```text
+Request Project deletion
+→ mark Project DELETING
+→ revoke new mutations
+→ delete/retain Identity resources
+→ remove Access bindings
+→ deprovision Managed Resources
+→ finalize Audit evidence
+→ mark Project DELETED
+```
+
+Если deprovisioning не завершилось, Project остаётся `DELETION_FAILED` или `DELETING`, а не возвращается автоматически в исходное состояние без предметного решения.
+
+## 14.13. Choreography и orchestration
+
+| Подход | Использовать когда | Ограничение |
+| --- | --- | --- |
+| Choreography | простое распространение независимых фактов | не подходит для сложного прогресса и compensation |
+| Process Manager | нужно координировать события и состояние процесса | владелец процесса должен быть явным |
+| Temporal orchestration | долгий процесс, retries, timers, signals, compensation | workflow determinism и versioning обязательны |
+
+Скрытая Saga, распределённая по consumers без владельца и наблюдаемого состояния, запрещена.
+
+## 14.14. Владелец процесса
+
+Владелец определяется по бизнес-результату:
+
+| Процесс | Владелец |
+| --- | --- |
+| создание/удаление Organization/Workspace/Project | Resource Manager |
+| authentication flow и step-up | Authentication |
+| identity deletion/privacy coordination | Identity |
+| role review/revocation campaign | Access |
+| risk review lifecycle | Risk Decision |
+| managed resource lifecycle | Provisioning |
+| audit export | Audit |
+
+Process owner хранит state, Operation и correlation; участники владеют только своими локальными действиями.
+
+## 14.15. Temporal Workflow
+
+Workflow MUST:
+
+- иметь стабильный workflow ID, связанный с Operation;
+- быть детерминированным;
+- использовать Activities для I/O;
+- определять retry policy per activity;
+- обрабатывать cancellation signal;
+- поддерживать version markers при изменении логики;
+- не хранить секреты в history;
+- ограничивать history size через continue-as-new;
+- публиковать progress в owner state;
+- иметь search attributes для diagnostics.
+
+## 14.16. Activities
+
+Activity MUST иметь:
+
+- idempotency key;
+- timeout categories (`start_to_close`, `schedule_to_close`, heartbeat);
+- retryable error classification;
+- heartbeat для долгой работы;
+- cancellation handling;
+- bounded payload;
+- security context reference, а не полный token;
+- audit/telemetry correlation.
+
+## 14.17. Compensation
+
+Compensation определяет допустимое обратное действие:
+
+- revoke created credential;
+- delete partially created external resource;
+- restore previous desired state;
+- release reservation;
+- mark manual review required.
+
+Compensation MAY быть невозможна. Тогда процесс MUST перейти в явное состояние `FAILED_REQUIRES_INTERVENTION` и сформировать runbook/action item.
+
+## 14.18. Operation и workflow
+
+Operation является публичным контрактом наблюдения. Workflow — внутренний механизм координации. Между ними нет обязательного отношения один-к-одному, но owner MUST поддерживать связь:
+
+```yaml
+operation_id: operations/op_123
+workflow:
+  namespace: m8-platform
+  workflow_id: provisioning/mr_123/create
+  run_id: ...
+```
+
+Клиент не должен знать Temporal run ID.
+
+## 14.19. Reconciliation
+
+Provisioning reconciliation loop сравнивает:
+
+```text
+desired state
+vs
+observed external state
+```
+
+Результат:
+
+- `IN_SYNC`;
+- `PROGRESSING`;
+- `DRIFTED`;
+- `DEGRADED`;
+- `UNKNOWN`;
+- `DELETION_BLOCKED`.
+
+Reconciler MUST быть повторяемым, идемпотентным и устойчивым к внешним изменениям.
+
+## 14.20. Local projections
+
+Проекция может заменить синхронный lookup, если:
+
+- freshness class достаточен;
+- stale decision безопасен;
+- owner event contract устойчив;
+- предусмотрены tombstones;
+- есть reconciliation;
+- degraded behavior определён.
+
+Для разрешения высокорискового действия stale projection обычно недостаточна.
+
+## 14.21. Read composition
+
+UI и reporting queries MAY агрегировать несколько контекстов через:
+
+- BFF fan-out с timeout/degraded fields;
+- материализованную read model;
+- аналитическую витрину;
+- query service без владения mutations.
+
+Ответ SHOULD помечать `as_of`, partial errors и stale components.
+
+## 14.22. Согласованность удаления
+
+Удаление является отдельным процессом. Owner:
+
+- блокирует новые несовместимые mutations;
+- публикует deletion requested/state events;
+- ожидает критичные подтверждения;
+- повторяет неуспешные шаги;
+- сохраняет tombstone;
+- завершает hard delete после retention.
+
+Не все consumers обязаны подтверждать удаление синхронно, но критичные копии MUST иметь доказательство обработки.
+
+## 14.23. Multi-region consistency
+
+Для multi-region deployment MUST быть определены:
+
+- home region ресурса;
+- routing policy;
+- conflict policy;
+- replication lag;
+- failover procedure;
+- write fencing;
+- region recovery;
+- data residency.
+
+Active-active write одного агрегата без детерминированной conflict model запрещён.
+
+## 14.24. Failure matrix
+
+| Dependency failure | Базовое поведение |
+| --- | --- |
+| Access unavailable | deny/controlled fail-closed для mutation; read policy определяется отдельно |
+| Risk Decision unavailable | fail-closed либо required review для high-risk flow |
+| Identity unavailable | не создавать новую authentication transaction без разрешения subject |
+| Audit temporarily unavailable | mutation MAY commit при durable local audit outbox; direct loss запрещён |
+| Event transport unavailable | local commit + Outbox backlog |
+| Temporal unavailable | создать Operation и durable start request либо вернуть controlled unavailable до side effect |
+| External provider unavailable | Operation remains retrying/degraded; desired state сохраняется |
+| Projection stale | fallback к owner API или explicit stale response |
+
+Конкретный режим MUST быть связан с risk classification.
+
+## 14.25. Recovery и reconciliation
+
+Каждая критичная интеграция MUST иметь:
+
+- health metric;
+- backlog/lag metric;
+- replay/retry tool;
+- reconciliation job;
+- manual remediation path;
+- audit trail;
+- runbook;
+- owner/on-call.
+
+## 14.26. Integration registry
+
+```yaml
+integration:
+  id: INT-AUTH-RISK-EVALUATE
+  caller: m8-authentication
+  provider: m8-risk-decision
+  mode: synchronous
+  contract: RiskDecisionService.EvaluateAuthenticationRisk
+  consistency: C1
+  deadline_ms: 250
+  retry: none_within_interactive_request
+  failure_mode: fail_closed
+  permission: risk.assessments.evaluate
+  slo: 99.95
+  requirement_ids: [AUTH-FR-001, RISK-FR-001]
+```
+
+## 14.27. Тестирование
+
+Обязательны:
+
+- timeout tests;
+- retry/idempotency tests;
+- dependency outage tests;
+- duplicate/out-of-order event tests;
+- workflow replay tests;
+- compensation tests;
+- cancellation tests;
+- projection rebuild tests;
+- stale data tests;
+- partial failure tests;
+- disaster recovery exercises для критичных процессов.
+
+## 14.28. SPDD-требования
+
+Structured Prompt MUST включать:
+
+```yaml
+integration_model:
+  consistency_class: C4
+  process_owner: ResourceManager
+  local_transaction:
+    writes: [Project, Operation, Outbox]
+  synchronous_dependencies: []
+  asynchronous_participants: [Identity, Access, Provisioning, Audit]
+  workflow: temporal
+  idempotency_key: request_id
+  compensations:
+    - action: cancel_deprovisioning
+      when: before_external_delete_commit
+  failure_states:
+    - DELETION_FAILED
+    - MANUAL_INTERVENTION_REQUIRED
+```
+
+## 14.29. Критерии соответствия главы
+
+Интеграция соответствует PADS, если owner процесса и транзакционная граница явны, механизм взаимодействия выбран по требуемой согласованности, retries идемпотентны, циклы отсутствуют, failure/degraded behavior описано, длительные процессы наблюдаемы через Operation, а внешнее состояние reconciliate.
+
+---
+
+# 15. Архитектура безопасности
+
+## 15.1. Назначение главы
+
+Настоящая глава определяет базовую модель безопасности M8 Platform: границы доверия, идентичности участников, аутентификацию, авторизацию, оценку риска, изоляцию проектов, защиту данных, service-to-service взаимодействия, управление секретами, аудит и требования безопасной разработки.
+
+Безопасность является предметной и архитектурной функцией, а не только инфраструктурным слоем. Нахождение запроса во внутренней сети не означает доверия.
+
+## 15.2. Цели безопасности
+
+| ID | Цель |
+| --- | --- |
+| `SEC-G-001` | Каждый запрос имеет проверенную идентичность вызывающей стороны. |
+| `SEC-G-002` | Каждое чувствительное действие имеет явное решение Access. |
+| `SEC-G-003` | Риск действия оценивается независимо от статического права, когда это требуется политикой. |
+| `SEC-G-004` | Данные и ресурсы одного Project не раскрываются другому Project без явной связи. |
+| `SEC-G-005` | Секреты не попадают в логи, события, audit payload и Structured Prompts. |
+| `SEC-G-006` | Все security-sensitive изменения доказуемы через Audit. |
+| `SEC-G-007` | Компрометация одного сервиса имеет ограниченный blast radius. |
+| `SEC-G-008` | Security controls проверяются автоматически и регулярно. |
+
+## 15.3. Нормативные принципы
+
+| ID | Правило |
+| --- | --- |
+| `SEC-001` | M8 MUST применять Zero Trust: каждое взаимодействие аутентифицируется и авторизуется независимо от сетевого расположения. |
+| `SEC-002` | Actor, Subject, Client и Service Identity MUST различаться. |
+| `SEC-003` | Сервис MUST доверять только проверенному security context. |
+| `SEC-004` | Authorization MUST выполняться до предметной mutation. |
+| `SEC-005` | Risk Decision MUST NOT заменять Access Decision, а Access MUST NOT заменять Authentication. |
+| `SEC-006` | High-risk action MUST поддерживать step-up до требуемого assurance level. |
+| `SEC-007` | Credentials и private keys MUST храниться в специализированном secret store или identity provider. |
+| `SEC-008` | Tokens MUST иметь минимальные scope, audience и lifetime. |
+| `SEC-009` | Service-to-service credentials MUST быть ротируемыми и не общими для нескольких независимых сервисов. |
+| `SEC-010` | Все authorization decisions SHOULD иметь decision ID и reason code. |
+| `SEC-011` | Отказ security dependency для mutation по умолчанию ведёт к fail-closed. |
+| `SEC-012` | Security-sensitive endpoints MUST иметь rate limiting и abuse detection. |
+| `SEC-013` | Data classification MUST управлять encryption, logging и access policy. |
+| `SEC-014` | Все внешние callbacks/webhooks MUST проверять подпись и replay protection. |
+| `SEC-015` | Tenant/project scope MUST извлекаться из авторитетного контекста и проверяться с resource scope. |
+| `SEC-016` | Audit record MUST создаваться для успешных и отклонённых критичных действий. |
+| `SEC-017` | Security policy changes MUST version, approve, audit and support rollback. |
+| `SEC-018` | Продуктивные данные MUST быть отделены от test/development environments. |
+| `SEC-019` | Dependency и container vulnerabilities MUST иметь управляемый remediation SLA. |
+| `SEC-020` | Structured Prompt MUST содержать security requirements и MUST NOT включать реальные секреты. |
+
+## 15.4. Участники безопасности
+
+| Понятие | Смысл |
+| --- | --- |
+| Actor | тот, кто инициировал действие: пользователь, сервис, администратор, automation |
+| Subject | объект идентичности, права или аутентификации которого рассматриваются |
+| Client | приложение или интеграция, инициирующая authentication flow/API call |
+| Service Identity | техническая идентичность workload |
+| Resource | объект, над которым выполняется действие |
+| Session | ограниченный во времени security context |
+| Credential | доказательство, используемое для аутентификации |
+| Assurance Level | достигнутый уровень уверенности в идентичности |
+
+Actor и Subject MAY совпадать, но MUST храниться раздельно. Администратор, изменяющий пользователя, является Actor, а пользователь — Subject/Target.
+
+## 15.5. Границы доверия
+
+Основные trust boundaries:
+
+1. пользовательское устройство ↔ edge/API gateway;
+2. внешний client ↔ Authentication/AuthGuard;
+3. сервис ↔ сервис;
+4. M8 ↔ Keycloak/identity providers;
+5. M8 ↔ SpiceDB;
+6. M8 ↔ Temporal;
+7. Provisioning ↔ Kubernetes/cloud providers;
+8. operational plane ↔ audit/observability;
+9. production ↔ non-production;
+10. organization/project ↔ другой tenant scope.
+
+Для каждой границы MUST быть определены authentication, encryption, allowed protocols, input validation, timeout, logging policy и incident owner.
+
+## 15.6. Модель аутентификации
+
+Authentication владеет:
+
+- AuthenticationTransaction;
+- challenge selection/execution;
+- achieved assurance;
+- session/handoff lifecycle;
+- provider adapters;
+- re-authentication и step-up.
+
+Identity подтверждает существование и состояние Subject. Keycloak является внешним identity/authentication engine за ACL и не определяет язык M8.
+
+## 15.7. Базовый flow
+
+```text
+Client
+→ StartAuthentication
+→ resolve Subject through Identity
+→ evaluate Risk
+→ choose Challenge
+→ execute provider interaction
+→ verify result
+→ set achieved assurance
+→ create handoff/session result
+→ Audit
+```
+
+Primary flow MAY использовать CIBA. Refresh выполняется через Keycloak refresh token при наличии. Если refresh недействителен, начинается новая AuthenticationTransaction; предыдущая session не восстанавливается скрыто.
+
+## 15.8. Challenge model
+
+Поддерживаемые классы:
+
+- `OTP`;
+- `APPROVAL`;
+- `MOBILE_ID`;
+- `WEBAUTHN`;
+- `OIDC`;
+- `SAML`;
+- `PASSWORD`, если разрешено policy;
+- `RECOVERY`, только через отдельную усиленную policy.
+
+Каждый challenge MUST иметь:
+
+- уникальный ID;
+- ограниченный lifetime;
+- attempt limit;
+- resend/rate policy;
+- provider reference;
+- state machine;
+- achieved assurance contribution;
+- audit events.
+
+## 15.9. Assurance level
+
+Уровни assurance MUST быть упорядочены и определены policy, например:
+
+| Уровень | Пример требований |
+| --- | --- |
+| `AAL0` | идентичность не подтверждена |
+| `AAL1` | single-factor low assurance |
+| `AAL2` | подтверждённое устройство или второй фактор |
+| `AAL3` | phishing-resistant strong authentication |
+
+Точное соответствие methods уровням задаётся versioned policy. Client не может сам объявить достигнутый уровень.
+
+## 15.10. Step-up
+
+Step-up требуется, когда:
+
+- Risk Decision возвращает `CHALLENGE`;
+- действие требует AAL выше session AAL;
+- session age превышает policy;
+- изменился security-sensitive context;
+- выполняется privileged action.
+
+Step-up создаёт новую AuthenticationTransaction, связанную с исходным actor/session/action. После успеха token/session context обновляется только согласно policy.
+
+## 15.11. Session и token model
+
+Tokens MUST:
+
+- иметь issuer и audience;
+- иметь короткий access lifetime;
+- поддерживать revocation/rotation where applicable;
+- не содержать избыточные profile data;
+- иметь token ID при необходимости расследования;
+- быть проверены по signature, expiry, audience, issuer и required claims.
+
+Refresh token является restricted data и MUST NOT попадать в domain events, logs или audit payload.
+
+## 15.12. AuthGuard
+
+AuthGuard/BFF отвечает за:
+
+- извлечение credentials;
+- проверку token/session;
+- построение trusted RequestContext;
+- audience/scope validation;
+- propagation service identity;
+- вызов Access/Risk при заданной policy;
+- защиту от confused deputy;
+- correlation и audit context.
+
+AuthGuard MUST NOT владеть User, Role или RiskPolicy.
+
+## 15.13. Авторизация
+
+Access владеет:
+
+- permission vocabulary;
+- role и role binding;
+- relationship model;
+- resource/subject relations;
+- check, explain, simulate;
+- revision и consistency token решения.
+
+SpiceDB является evaluation engine. Сервисы используют Access API и MUST NOT формировать tuple strings самостоятельно.
+
+## 15.14. Permission model
+
+Permission SHOULD иметь форму:
+
+```text
+<resource_type>.<action>
+```
+
+Примеры:
+
+```text
+project.get
+project.update
+service.register
+identity.user.disable
+authentication.policy.update
+access.role.bind
+provisioning.resource.create
+audit.event.export
+```
+
+Каждый mutating API MUST объявлять permission. Scope решения MUST соответствовать целевому ResourceReference.
+
+## 15.15. Relationship-based access
+
+Access MAY вычислять права через отношения:
+
+```text
+user → member → project
+user → admin → organization
+service → owner → managed_resource
+```
+
+Отношения MUST иметь owner, lifecycle и audit. Удаление subject/resource MUST приводить к revocation/tombstone обработке.
+
+## 15.16. Explain и simulate
+
+Explain API SHOULD быть доступен только авторизованным администраторам и возвращать:
+
+- decision;
+- evaluated model revision;
+- matched relationship path;
+- missing relation/permission;
+- decision ID.
+
+Он MUST не раскрывать restricted information другого tenant.
+
+## 15.17. Risk Decision
+
+Risk Decision принимает контекст и возвращает:
+
+- `ALLOW`;
+- `DENY`;
+- `CHALLENGE`;
+- `REVIEW`.
+
+Ответ SHOULD включать:
+
+- decision ID;
+- risk level/score, если разрешено;
+- reason codes;
+- required assurance/challenge class;
+- policy version;
+- expiry/freshness.
+
+Risk signals MUST быть минимизированы и классифицированы.
+
+## 15.18. Связь Access и Risk
+
+Типовой порядок:
+
+1. Authentication establishes identity/assurance;
+2. Access checks static/contextual permission;
+3. Risk evaluates dynamic context;
+4. Authentication executes step-up if needed;
+5. Access MAY re-check after assurance change;
+6. use case commits;
+7. Audit records decisions.
+
+Порядок MAY отличаться для оптимизации, но fail-open без явной policy запрещён.
+
+## 15.19. Service-to-service security
+
+Service identity SHOULD обеспечиваться workload identity/mTLS или подписанным short-lived token.
+
+Требования:
+
+- уникальная identity per service/environment;
+- explicit audience;
+- least privilege;
+- rotation;
+- no static shared passwords;
+- service authorization;
+- propagation original actor separately;
+- prevention of actor impersonation.
+
+## 15.20. Delegation
+
+При вызове сервиса от имени пользователя MUST различаться:
+
+- authenticated service identity;
+- delegated actor/subject;
+- delegation scope;
+- originating client;
+- assurance;
+- chain depth.
+
+Сервис не может подменять actor без разрешённого delegation contract.
+
+## 15.21. Tenant и Project isolation
+
+Каждый запрос MUST определить scope. Контроль включает:
+
+- resource name scope validation;
+- Access relation;
+- database partition/key scope;
+- cache key scope;
+- event partition/ACL;
+- log/audit scope;
+- export scope;
+- metrics labels без утечки sensitive tenant data.
+
+Нельзя полагаться только на фильтр UI.
+
+## 15.22. Защита данных
+
+Данные MUST защищаться:
+
+- TLS in transit;
+- encryption at rest;
+- key rotation;
+- data classification;
+- field-level protection where required;
+- backup encryption;
+- access logging;
+- secure deletion.
+
+Restricted fields SHOULD быть tokenized или encrypted отдельно при наличии угрозы массового раскрытия.
+
+## 15.23. Управление ключами
+
+Encryption/signing keys MUST:
+
+- иметь owner и purpose;
+- храниться в KMS/HSM или утверждённом secret store;
+- иметь rotation schedule;
+- поддерживать versioned key IDs;
+- не экспортироваться в application logs/config;
+- иметь break-glass procedure;
+- быть разделены по environment и purpose.
+
+## 15.24. Secret management
+
+Секреты MUST:
+
+- внедряться runtime-механизмом;
+- не храниться в Git, image или prompt;
+- иметь short access path;
+- ротироваться без полной остановки;
+- иметь usage audit;
+- маскироваться в diagnostics;
+- не передаваться через обычные events.
+
+## 15.25. Входные данные и защита интерфейсов
+
+Все внешние входы MUST проходить:
+
+- size limit;
+- schema validation;
+- canonicalization;
+- content/type validation;
+- injection protection;
+- path/resource name validation;
+- decompression limits;
+- request timeout;
+- rate limit.
+
+Свободные expressions, filters, templates и policies требуют sandbox/allowlist.
+
+## 15.26. Webhook/callback security
+
+Обязательны:
+
+- signature verification;
+- key ID;
+- timestamp tolerance;
+- nonce/event ID deduplication;
+- endpoint allowlist when applicable;
+- TLS;
+- body size limit;
+- no trust in source IP alone;
+- audit of failed verification.
+
+## 15.27. Audit requirements
+
+Security Audit SHOULD фиксировать:
+
+- actor/service identity;
+- subject;
+- action;
+- resource;
+- access decision ID;
+- risk decision ID;
+- assurance level;
+- client;
+- network/device digest, если разрешено;
+- outcome/error code;
+- correlation/trace;
+- policy revisions.
+
+Секреты и полные tokens не записываются.
+
+## 15.28. Logging security
+
+Запрещено логировать:
+
+- passwords;
+- OTP values;
+- refresh/access tokens;
+- private keys;
+- raw authorization headers;
+- full cookies;
+- unrestricted personal profiles;
+- sensitive risk signals без redaction.
+
+Logging libraries MUST поддерживать structured redaction.
+
+## 15.29. Abuse prevention
+
+Authentication, Access, Audit Export и Provisioning MUST иметь:
+
+- rate limits;
+- velocity rules;
+- attempt limits;
+- anomaly metrics;
+- lockout/cooldown policy;
+- anti-enumeration responses;
+- alerting;
+- recovery path.
+
+## 15.30. Threat modeling
+
+Каждая значимая capability MUST иметь threat model с:
+
+- assets;
+- actors;
+- trust boundaries;
+- entry points;
+- threats;
+- mitigations;
+- residual risk;
+- verification tests.
+
+Threat model пересматривается при изменении authentication flow, public API, data classification или external integration.
+
+## 15.31. Secure SDLC
+
+Release gate SHOULD включать:
+
+- SAST;
+- dependency scanning;
+- secret scanning;
+- container/IaC scanning;
+- API fuzz/property tests;
+- authorization tests;
+- threat model check;
+- SBOM;
+- signed artifacts;
+- provenance/attestation;
+- protected branch/review.
+
+## 15.32. Vulnerability management
+
+Vulnerability MUST иметь severity, affected component, exploitability, owner, remediation deadline и exception. Критичные externally exploitable issues блокируют release согласно policy.
+
+## 15.33. Break-glass
+
+Emergency access MUST:
+
+- быть ограниченным по времени;
+- требовать усиленной аутентификации;
+- иметь reason/ticket;
+- уведомлять security owner;
+- полностью audit;
+- не использовать общий account;
+- автоматически отзываться.
+
+## 15.34. Incident response
+
+Для security incident MUST быть:
+
+- detection signal;
+- severity classification;
+- containment steps;
+- credential/key rotation plan;
+- evidence preservation;
+- notification procedure;
+- recovery verification;
+- post-incident review;
+- tracked corrective actions.
+
+## 15.35. Security testing
+
+Обязательные классы:
+
+- authentication state machine tests;
+- token validation tests;
+- access matrix/property tests;
+- cross-tenant isolation tests;
+- step-up tests;
+- replay/CSRF/webhook signature tests;
+- rate-limit tests;
+- secret leakage tests;
+- dependency outage fail-mode tests;
+- privilege escalation tests;
+- audit completeness tests.
+
+## 15.36. SPDD-требования
+
+Каждый feature/task prompt MUST перечислять:
+
+```yaml
+security:
+  actor: USER
+  subject: request.subject
+  client: request.client_id
+  permission: identity.user.disable
+  resource_scope: projects/{project}/userPools/{pool}/users/{user}
+  required_assurance: AAL2
+  risk_evaluation: required
+  audit: required
+  sensitive_fields:
+    - reason_internal
+  forbidden_outputs:
+    - access_token
+    - otp_value
+```
+
+## 15.37. Критерии соответствия главы
+
+Security design соответствует PADS, если идентичности разделены, trusted context проверен, Access/Risk/Authentication responsibilities не смешаны, tenant isolation доказана тестами, секреты защищены, failure mode определён, audit полный, а security controls включены в CI/CD и SPDD.
+
+---
+
+# 16. Длительные операции
+
+## 16.1. Назначение главы
+
+Длительная операция — публичный ресурс, представляющий принятый запрос, выполнение которого продолжается после завершения исходного API-вызова. M8 использует модель, совместимую с `google.longrunning.Operation`, расширенную типизированными metadata, progress, error details и authorization rules.
+
+## 16.2. Когда операция обязательна
+
+Operation MUST использоваться, если:
+
+- выполнение может превысить обычный API deadline;
+- есть несколько шагов или external side effects;
+- нужны retry/compensation;
+- требуется approval/signal/timer;
+- клиент должен наблюдать progress;
+- операция отменяема;
+- результат появляется асинхронно;
+- массовое действие имеет частичные результаты.
+
+## 16.3. Принципы
+
+| ID | Правило |
+| --- | --- |
+| `OPS-001` | Operation MUST иметь стабильный уникальный resource name. |
+| `OPS-002` | Operation owner — сервис, принявший бизнес-команду. |
+| `OPS-003` | Operation MUST быть создана durable до запуска невосстанавливаемого side effect. |
+| `OPS-004` | Повтор request ID MUST возвращать ту же Operation. |
+| `OPS-005` | Public Operation MUST NOT раскрывать Temporal run ID или vendor-specific state. |
+| `OPS-006` | State transition MUST быть монотонным и валидируемым. |
+| `OPS-007` | Terminal result и terminal error взаимоисключающи. |
+| `OPS-008` | Cancellation является запросом, а не гарантией мгновенной отмены. |
+| `OPS-009` | Progress MUST быть честным и не должен откатываться без reason/version semantics. |
+| `OPS-010` | Operation access MUST проверяться как доступ к отдельному ресурсу. |
+| `OPS-011` | Operation MUST иметь retention policy. |
+| `OPS-012` | Каждый terminal state MUST формировать Audit evidence. |
+| `OPS-013` | Workflow retry MUST не создавать новую Operation. |
+| `OPS-014` | Child operations MUST быть связаны с parent operation/process. |
+| `OPS-015` | Structured Prompt MUST определить state machine, cancellation и failure semantics. |
+
+## 16.4. Канонический ресурс
+
+```protobuf
+message Operation {
+  string name = 1;
+  string operation_type = 2;
+  string owner_service = 3;
+  OperationState state = 4;
+  google.protobuf.Any metadata = 5;
+  OperationProgress progress = 6;
+  google.protobuf.Any response = 7;
+  google.rpc.Status error = 8;
+  google.protobuf.Timestamp create_time = 9;
+  google.protobuf.Timestamp update_time = 10;
+  google.protobuf.Timestamp end_time = 11;
+  bool cancellation_requested = 12;
+  string etag = 13;
+  m8.platform.common.v1.ResourceReference target = 14;
+  string request_id = 15;
+  string correlation_id = 16;
+}
+```
+
+## 16.5. Состояния
+
+```text
+ACCEPTED
+→ QUEUED
+→ RUNNING
+→ SUCCEEDED
+
+RUNNING → CANCELLING → CANCELLED
+RUNNING → FAILED
+RUNNING → REQUIRES_ATTENTION
+```
+
+Допустимые состояния MUST быть общими, а предметная стадия хранится в metadata/progress.
+
+Terminal states:
+
+- `SUCCEEDED`;
+- `FAILED`;
+- `CANCELLED`.
+
+`REQUIRES_ATTENTION` MAY быть non-terminal, если ожидается remediation/signal.
+
+## 16.6. Progress
+
+```protobuf
+message OperationProgress {
+  int32 percent = 1;
+  string stage = 2;
+  string message_code = 3;
+  repeated OperationStep steps = 4;
+  google.protobuf.Timestamp estimated_completion_time = 5;
+}
+```
+
+Правила:
+
+- percent MAY быть неизвестен;
+- пользовательский текст SHOULD формироваться из message code;
+- stage является стабильным машинным кодом;
+- estimated time является best effort;
+- progress update SHOULD быть rate-limited;
+- завершение MUST устанавливать 100%, если percentage применим.
+
+## 16.7. Metadata
+
+Metadata MUST быть типизирована по operation type. Пример:
+
+```protobuf
+message CreateManagedResourceMetadata {
+  string managed_resource = 1;
+  string stage = 2;
+  string provider_operation_id = 3;
+  repeated Condition conditions = 4;
+}
+```
+
+Provider operation ID MAY быть доступен только privileged consumers.
+
+## 16.8. Результат
+
+Operation response SHOULD содержать созданный/изменённый ресурс либо типизированный summary. Большие результаты сохраняются как отдельный ресурс/export object, а Operation возвращает reference.
+
+## 16.9. Ошибка
+
+Terminal error MUST содержать:
+
+- canonical transport category;
+- service-owned error code;
+- retryability;
+- failed stage;
+- target resource;
+- remediation hint/code;
+- provider detail только в безопасном operator field;
+- correlation ID.
+
+## 16.10. API операций
+
+Минимальный интерфейс:
+
+```protobuf
+service OperationsService {
+  rpc GetOperation(GetOperationRequest) returns (Operation);
+  rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse);
+  rpc WaitOperation(WaitOperationRequest) returns (Operation);
+  rpc CancelOperation(CancelOperationRequest) returns (Operation);
+  rpc DeleteOperation(DeleteOperationRequest) returns (google.protobuf.Empty);
+}
+```
+
+`DeleteOperation` удаляет запись наблюдения после retention/policy и MUST NOT отменять бизнес-результат.
+
+## 16.11. Wait
+
+Wait MUST:
+
+- принимать max wait/deadline;
+- возвращать текущее состояние при timeout;
+- не создавать отдельный workflow;
+- поддерживать cancellation connection;
+- иметь authorization;
+- не гарантировать terminal state, если deadline короткий.
+
+## 16.12. Cancellation
+
+Cancellation states:
+
+1. request accepted;
+2. workflow/activity receives signal;
+3. safe point reached;
+4. compensation, если нужна;
+5. terminal `CANCELLED` или `FAILED`.
+
+Если side effect необратим, Operation MAY завершиться `SUCCEEDED` или `FAILED` несмотря на cancellation request; причина MUST быть явной.
+
+## 16.13. Idempotency
+
+Связь:
+
+```text
+caller + method + request_id → operation_name
+```
+
+Повтор возвращает текущую Operation. Request hash mismatch возвращает idempotency conflict.
+
+## 16.14. Авторизация
+
+Operation может содержать чувствительные metadata. Permission SHOULD различать:
+
+- get own operation;
+- get project operation;
+- list all operations;
+- cancel operation;
+- view operator details;
+- delete operation record.
+
+## 16.15. Связь с Temporal
+
+Owner хранит mapping, но public API не зависит от Temporal. Workflow updates owner state через activity/application command или durable adapter.
+
+Workflow restart/continue-as-new MUST сохранять одну Operation. Temporal history не является системой записи публичного progress.
+
+## 16.16. Parent/child операции
+
+Сложный процесс MAY иметь child operations. Parent metadata SHOULD отражать:
+
+- child names;
+- required/optional status;
+- completed count;
+- failed count;
+- partial result.
+
+Клиенту не обязательно видеть все internal child operations.
+
+## 16.17. Частичный успех
+
+Batch/multi-resource operation MUST определить:
+
+- atomicity scope;
+- succeeded items;
+- failed items;
+- retryable items;
+- compensation status;
+- final overall outcome.
+
+`SUCCEEDED_WITH_WARNINGS` SHOULD моделироваться через successful response с typed summary, а не новым общим terminal state.
+
+## 16.18. Retention
+
+Operation records сохраняются достаточно долго для:
+
+- client retrieval;
+- support investigation;
+- audit linkage;
+- retries/reconciliation.
+
+После истечения retention MAY оставаться minimal tombstone с request ID, target, outcome и Audit reference.
+
+## 16.19. Наблюдаемость
+
+Метрики:
+
+- operations created/completed;
+- duration by type/stage;
+- queue wait;
+- retry count;
+- cancellation latency;
+- failed/requires attention;
+- stuck operations;
+- progress update lag;
+- workflow-operation mismatch.
+
+## 16.20. Тестирование
+
+Обязательны:
+
+- state transition tests;
+- duplicate request tests;
+- cancellation at each stage;
+- workflow replay;
+- retry without duplicate side effect;
+- result/error exclusivity;
+- authorization tests;
+- retention/delete semantics;
+- stuck operation detection;
+- parent-child aggregation.
+
+## 16.21. SPDD-требования
+
+Prompt MUST определить operation type, owner, target, state machine, metadata schema, progress stages, idempotency, workflow mapping, cancellation, result/error, audit and tests.
+
+## 16.22. Критерии соответствия главы
+
+Длительная операция соответствует PADS, если она durable, имеет owner и стабильный ID, не раскрывает workflow engine, идемпотентна, наблюдаема, авторизуема, отменяется по определённой семантике и связана с requirement/audit/tests.
+
+---
+
+# 17. Модель ошибок
+
+## 17.1. Назначение главы
+
+Модель ошибок обеспечивает единообразное различение transport failure, validation problem, business rejection, security denial, concurrency conflict и infrastructure failure. Ошибка должна быть одновременно полезной клиенту, оператору и автоматизированному обработчику, не раскрывая чувствительные детали.
+
+## 17.2. Слои ошибки
+
+| Слой | Назначение |
+| --- | --- |
+| Transport status | широкая категория gRPC/HTTP |
+| Service error code | стабильная предметная причина |
+| Details | типизированные параметры и ссылки |
+| User message code | локализуемое объяснение |
+| Operator diagnostics | безопасные внутренние детали по correlation ID |
+| Retry metadata | возможность и задержка повторения |
+
+## 17.3. Принципы
+
+| ID | Правило |
+| --- | --- |
+| `ERR-001` | Клиент MUST принимать решение по code/category, а не парсить текст. |
+| `ERR-002` | Error code MUST принадлежать owner service. |
+| `ERR-003` | Один code MUST иметь стабильный смысл внутри major API version. |
+| `ERR-004` | Domain error MUST быть transport-independent до adapter mapping. |
+| `ERR-005` | Internal stack trace MUST NOT возвращаться клиенту. |
+| `ERR-006` | Error response MUST NOT раскрывать existence/security details, если это создаёт enumeration risk. |
+| `ERR-007` | Retryability MUST быть явной. |
+| `ERR-008` | Optimistic conflict MUST отличаться от generic internal error. |
+| `ERR-009` | Validation MUST указывать field violations. |
+| `ERR-010` | Long-running failure MUST сохраняться в Operation. |
+| `ERR-011` | Provider errors MUST переводиться ACL в M8 taxonomy. |
+| `ERR-012` | Unexpected error MUST иметь correlation ID и safe public message. |
+| `ERR-013` | Error code catalog MUST быть versioned и documented. |
+| `ERR-014` | Logs MUST не дублировать sensitive payload только из-за ошибки. |
+| `ERR-015` | Structured Prompt MUST перечислять expected errors и mapping. |
+
+## 17.4. Канонические категории
+
+| Категория | gRPC | HTTP | Пример |
+| --- | --- | --- | --- |
+| Invalid input | `INVALID_ARGUMENT` | 400 | неверный filter, field violation |
+| Unauthenticated | `UNAUTHENTICATED` | 401 | token отсутствует/недействителен |
+| Permission denied | `PERMISSION_DENIED` | 403 | нет права выполнить действие |
+| Not found | `NOT_FOUND` | 404 | ресурс отсутствует или скрыт policy |
+| Conflict | `ALREADY_EXISTS`/`ABORTED` | 409 | duplicate, revision conflict |
+| Failed precondition | `FAILED_PRECONDITION` | 400/409 | недопустимое состояние |
+| Resource exhausted | `RESOURCE_EXHAUSTED` | 429 | quota/rate limit |
+| Cancelled | `CANCELLED` | 499/409 | операция отменена |
+| Deadline | `DEADLINE_EXCEEDED` | 504 | budget исчерпан |
+| Unavailable | `UNAVAILABLE` | 503 | transient dependency outage |
+| Internal | `INTERNAL` | 500 | unexpected invariant/infrastructure failure |
+| Data loss | `DATA_LOSS` | 500 | обнаружено повреждение данных |
+
+## 17.5. Формат
+
+```yaml
+error:
+  category: FAILED_PRECONDITION
+  code: AUTH_CHALLENGE_NOT_PENDING
+  message_code: authentication.challenge.not_pending
+  message: Challenge cannot be completed in its current state.
+  retryable: false
+  correlation_id: corr_123
+  details:
+    resource: authenticationChallenges/ch_123
+    current_state: EXPIRED
+    allowed_states: [PENDING]
+```
+
+`message` MAY быть fallback и не является стабильным контрактом.
+
+## 17.6. Именование кодов
+
+Формат:
+
+```text
+<DOMAIN>_<CONDITION>
+```
+
+Примеры:
+
+- `PROJECT_NOT_ACTIVE`;
+- `USER_ALREADY_DISABLED`;
+- `AUTH_CHALLENGE_EXPIRED`;
+- `ACCESS_RELATIONSHIP_CONFLICT`;
+- `RISK_POLICY_NOT_PUBLISHED`;
+- `PROVISIONING_DRIVER_UNAVAILABLE`;
+- `AUDIT_EXPORT_TOO_LARGE`.
+
+Коды не должны содержать vendor name, если ошибка имеет предметный смысл.
+
+## 17.7. Validation details
+
+Validation response SHOULD содержать список:
+
+```yaml
+violations:
+  - field: project.display_name
+    rule: string.min_len
+    description_code: common.validation.too_short
+  - field: update_mask.paths[0]
+    rule: mutable_field
+    description_code: common.validation.output_only
+```
+
+Необходимо различать синтаксическую и предметную validation.
+
+## 17.8. Precondition failures
+
+Precondition detail SHOULD включать:
+
+- resource;
+- violated condition type;
+- current state/revision;
+- required state;
+- remediation code;
+- conflicting operation reference.
+
+## 17.9. Concurrency conflicts
+
+Ошибки:
+
+- `ETAG_MISMATCH`;
+- `REVISION_CONFLICT`;
+- `IDEMPOTENCY_CONFLICT`;
+- `OPERATION_ALREADY_RUNNING`.
+
+Client SHOULD перечитать ресурс и повторно сформировать намерение; blind retry запрещён.
+
+## 17.10. Security errors
+
+Для anti-enumeration несколько внутренних причин MAY отображаться одинаково публично. Внутренний Audit/diagnostic code сохраняется отдельно.
+
+Пример: login response не должен различать несуществующего и заблокированного пользователя, если policy запрещает раскрытие.
+
+## 17.11. Retryability
+
+| Ошибка | Retry |
+| --- | --- |
+| Invalid argument | нет |
+| Permission denied | нет, пока не изменены права |
+| Failed precondition | после изменения состояния |
+| Revision conflict | после re-read/re-evaluate |
+| Resource exhausted | после `retry_after` |
+| Unavailable | exponential backoff + jitter |
+| Deadline exceeded | только если request идемпотентен |
+| Internal | обычно нет автоматического retry без classification |
+
+## 17.12. Provider errors
+
+ACL переводит provider codes в M8:
+
+```text
+Keycloak session_not_active → AUTH_SESSION_NOT_ACTIVE
+SpiceDB invalid_revision → ACCESS_CONSISTENCY_TOKEN_INVALID
+Cloud quota exceeded → PROVISIONING_PROVIDER_QUOTA_EXCEEDED
+Kubernetes forbidden → PROVISIONING_PROVIDER_PERMISSION_DENIED
+```
+
+Raw provider body MAY сохраняться только в protected diagnostics.
+
+## 17.13. Ошибки событий
+
+Consumer error classification:
+
+- transient processing;
+- schema unsupported;
+- validation invalid;
+- stale revision;
+- missing dependency;
+- permanent business rejection;
+- poison event;
+- side-effect uncertain.
+
+Каждая категория имеет retry/DLQ/reconciliation policy.
+
+## 17.14. Ошибки Operation
+
+Operation failure MUST хранить original stable code и failed stage. Повторное получение Operation возвращает тот же terminal error. Временные retry attempts не должны преждевременно становиться terminal failure.
+
+## 17.15. Локализация
+
+Клиентская локализация выполняется по `message_code` и parameters. Серверные английские/русские тексты не считаются стабильным API. Security-sensitive parameters проходят allowlist.
+
+## 17.16. Логирование
+
+Unexpected errors логируются один раз на ответственном уровне с:
+
+- code/category;
+- correlation/trace;
+- operation/resource reference;
+- safe context;
+- stack trace в protected log;
+- owner component.
+
+Повторное логирование на каждом слое SHOULD избегаться.
+
+## 17.17. Error Catalog
+
+```yaml
+error_code:
+  code: PROJECT_NOT_ACTIVE
+  owner: m8-resource-manager
+  category: FAILED_PRECONDITION
+  retryable: conditional
+  public: true
+  message_code: resource_manager.project.not_active
+  requirement_ids: [RM-FR-020]
+  methods:
+    - ServicesService.RegisterService
+```
+
+## 17.18. Тестирование
+
+- mapping domain → transport;
+- error code stability;
+- field violation tests;
+- anti-enumeration tests;
+- redaction tests;
+- retry classification;
+- provider ACL mapping;
+- Operation terminal error persistence;
+- unknown error fallback;
+- localization parameter safety.
+
+## 17.19. SPDD-требования
+
+Prompt MUST перечислять expected error codes, triggering conditions, transport mapping, retryability, details, audit/log behavior and tests. ИИ-агент не может вводить новый public code без реестра.
+
+## 17.20. Критерии соответствия главы
+
+Ошибка соответствует PADS, если имеет стабильный code, корректную category, безопасный message, explicit retry semantics, typed details, correlation и documented mapping, а domain layer не зависит от transport status.
+
+---
+
+# 18. Наблюдаемость
+
+## 18.1. Назначение главы
+
+Наблюдаемость обеспечивает возможность понять состояние, производительность, безопасность и корректность M8 Platform по внешним сигналам. Она включает traces, metrics, logs, events, audit и профили, но не смешивает их назначения.
+
+## 18.2. Принципы
+
+| ID | Правило |
+| --- | --- |
+| `OBS-001` | Observability MUST проектироваться вместе с feature, а не после инцидента. |
+| `OBS-002` | Каждый входящий запрос MUST иметь trace/correlation/request identity. |
+| `OBS-003` | Асинхронное событие MUST сохранять correlation и causation. |
+| `OBS-004` | Metrics MUST иметь bounded cardinality. |
+| `OBS-005` | Logs MUST быть structured и redacted. |
+| `OBS-006` | Audit MUST NOT заменяться application logs. |
+| `OBS-007` | SLI MUST измерять пользовательский результат, а не только uptime процесса. |
+| `OBS-008` | Каждая критичная dependency MUST иметь latency/error/saturation telemetry. |
+| `OBS-009` | Long-running process MUST показывать stage, age и stuck condition. |
+| `OBS-010` | Alert MUST иметь owner, severity и runbook. |
+| `OBS-011` | Telemetry MUST не содержать секреты и необоснованные персональные данные. |
+| `OBS-012` | Sampling MUST сохранять ошибки и security-critical traces согласно policy. |
+| `OBS-013` | Dashboards MUST строиться по владельцам capabilities и SLO. |
+| `OBS-014` | Telemetry schema SHOULD следовать OpenTelemetry semantic conventions. |
+| `OBS-015` | Structured Prompt MUST определить telemetry и acceptance signals. |
+
+## 18.3. Корреляционные идентификаторы
+
+| ID | Назначение |
+| --- | --- |
+| `request_id` | идемпотентность/идентификация API request |
+| `trace_id` | distributed trace |
+| `span_id` | локальная операция trace |
+| `correlation_id` | сквозной бизнес-процесс |
+| `causation_id` | непосредственная причина |
+| `operation_id` | длительная операция |
+| `event_id` | событие |
+| `decision_id` | Access/Risk decision |
+| `audit_event_id` | audit record |
+
+Они не взаимозаменяемы, но SHOULD быть связаны.
+
+## 18.4. Tracing
+
+Trace SHOULD включать spans:
+
+- API ingress;
+- AuthGuard;
+- Access check;
+- Risk decision;
+- application use case;
+- repository transaction;
+- Outbox enqueue;
+- downstream call;
+- Temporal activity;
+- external provider operation.
+
+Sensitive attributes MUST redacted. Resource IDs MAY использоваться только согласно classification и cardinality policy.
+
+## 18.5. Асинхронная трассировка
+
+Producer injects trace context в event metadata. Consumer создаёт linked span, а не обязательно child span, если обработка отложена. Correlation сохраняется независимо от trace retention.
+
+## 18.6. Metrics model
+
+Базовые классы:
+
+- request rate;
+- success/error rate;
+- latency histogram;
+- saturation/concurrency;
+- queue/backlog;
+- business outcome;
+- data freshness;
+- security decisions;
+- workflow/operation duration;
+- dependency health.
+
+## 18.7. Cardinality
+
+Запрещённые labels:
+
+- user ID;
+- raw project ID при миллионах значений;
+- event ID;
+- trace ID;
+- error message;
+- arbitrary URL;
+- full resource name.
+
+Разрешённые labels SHOULD быть bounded enums: service, method, status, error code, operation type, stage, region.
+
+## 18.8. Logs
+
+Структурный log SHOULD содержать:
+
+```yaml
+severity: ERROR
+service: m8-provisioning
+component: reconciler
+message_code: provisioning.activity.failed
+trace_id: ...
+correlation_id: ...
+operation_id: operations/op_123
+resource_type: ManagedResource
+error_code: PROVISIONING_DRIVER_UNAVAILABLE
+retryable: true
+```
+
+Свободный текст является дополнением, а не основной структурой.
+
+## 18.9. Audit и logs
+
+| Audit | Logs |
+| --- | --- |
+| доказательство действия | диагностика работы системы |
+| immutable/controlled retention | operational retention |
+| actor/action/target/outcome | component/context/error |
+| compliance access | developer/SRE access |
+| стабильная schema | может меняться быстрее |
+
+Критичное действие MUST иметь AuditEvent даже при наличии подробного log.
+
+## 18.10. SLI и SLO
+
+SLI classes:
+
+- availability;
+- latency;
+- correctness;
+- freshness;
+- durability;
+- completion time;
+- security control effectiveness.
+
+Примеры:
+
+```text
+Authentication success latency p95
+Access check availability
+Outbox publish lag p99
+Projection freshness p99
+Provisioning operation completion within target
+Audit event durability
+```
+
+## 18.11. Error budget
+
+Для SLO-critical capability MUST быть error budget. Его расход влияет на release velocity, risk acceptance и remediation priority.
+
+## 18.12. Service dashboards
+
+Каждый сервис SHOULD иметь:
+
+1. overview;
+2. API RED metrics;
+3. dependency health;
+4. database/storage;
+5. events/outbox/inbox;
+6. operations/workflows;
+7. business outcomes;
+8. security signals;
+9. SLO/error budget;
+10. deployment version.
+
+## 18.13. Контекстные метрики
+
+### Resource Manager
+
+- resource create/update/delete rate;
+- hierarchy conflicts;
+- stuck deletion operations;
+- projection publish lag.
+
+### Identity
+
+- active/disabled users;
+- identity linking failures;
+- duplicate issuer+subject conflicts;
+- privacy deletion progress.
+
+### Authentication
+
+- flow start/completion;
+- challenge success/failure;
+- step-up rate;
+- refresh failure → re-auth rate;
+- provider latency;
+- suspicious attempts.
+
+### Access
+
+- check latency/availability;
+- allow/deny distribution;
+- consistency token errors;
+- relationship write lag;
+- SpiceDB dependency health.
+
+### Risk Decision
+
+- decisions by outcome/reason;
+- policy version distribution;
+- evaluation latency;
+- signal availability;
+- manual review backlog.
+
+### Provisioning
+
+- operation duration;
+- reconciliation rate;
+- drift count;
+- external provider errors;
+- retry/compensation;
+- resources by condition.
+
+### Audit
+
+- ingestion durability;
+- rejected events;
+- integrity verification;
+- query/export duration;
+- retention/deletion jobs.
+
+## 18.14. Alerting
+
+Alert SHOULD быть symptom-based и actionable. Каждый alert имеет:
+
+- name;
+- condition;
+- severity;
+- owner;
+- impact;
+- runbook;
+- dashboard;
+- deduplication key;
+- escalation;
+- silence policy.
+
+Alert на каждую единичную ошибку без агрегации запрещён.
+
+## 18.15. Stuck detection
+
+Operation/workflow считается stuck по типизированным thresholds:
+
+- долго в QUEUED;
+- отсутствует progress;
+- повторяется один stage;
+- heartbeat отсутствует;
+- outbox не публикуется;
+- reconciliation не достигает convergence.
+
+Stuck detector MUST не создавать duplicate remediation.
+
+## 18.16. Sampling
+
+Sampling policy MUST учитывать:
+
+- baseline head sampling;
+- tail sampling errors/slow requests;
+- 100% security-critical decision traces при допустимой privacy;
+- tenant fairness;
+- cost limits;
+- incident override.
+
+## 18.17. Telemetry retention
+
+Retention различается:
+
+- high-volume traces — короткий срок;
+- metrics — агрегированный долгий срок;
+- logs — operational/compliance class;
+- audit — policy/legal retention;
+- profiles — строго ограниченный доступ.
+
+## 18.18. Data quality observability
+
+Критичные pipelines MUST измерять:
+
+- event lag;
+- projection completeness;
+- revision gaps;
+- duplicates;
+- reconciliation mismatch;
+- schema rejection;
+- stale data age.
+
+## 18.19. Deployment observability
+
+Telemetry MUST включать:
+
+- build/version;
+- environment;
+- region/zone;
+- deployment ID;
+- configuration revision;
+- feature flag/policy version where relevant.
+
+Это позволяет связать regressions с изменением.
+
+## 18.20. Runbooks
+
+Runbook MUST содержать:
+
+- symptom;
+- user impact;
+- diagnostics queries;
+- safe remediation;
+- rollback;
+- escalation;
+- evidence preservation;
+- post-check.
+
+## 18.21. Тестирование наблюдаемости
+
+- trace propagation tests;
+- log redaction tests;
+- metric cardinality checks;
+- alert simulation;
+- dashboard query validation;
+- audit completeness;
+- telemetry under dependency failure;
+- sampling policy tests;
+- stuck operation tests.
+
+## 18.22. SPDD-требования
+
+Feature prompt MUST указать:
+
+```yaml
+observability:
+  spans: [StartAuthentication, EvaluateRisk, CreateTransaction]
+  metrics:
+    - authentication_started_total
+    - authentication_start_duration_seconds
+  logs:
+    - code: authentication.start.failed
+      sensitive_fields: [subject_hint]
+  audit_events:
+    - AuthenticationStarted
+  alerts:
+    - authentication_provider_error_rate_high
+  slo_impact: interactive_authentication
+```
+
+## 18.23. Критерии соответствия главы
+
+Feature соответствует PADS, если его request/event/workflow можно проследить, пользовательский результат измерим, logs structured/redacted, metrics bounded, SLO и alerts имеют owner/runbook, а audit отделён от diagnostics.
+
+---
+
+# 19. Атрибуты качества
+
+## 19.1. Назначение главы
+
+Атрибуты качества задают измеримые свойства архитектуры. Функциональная корректность без доступности, безопасности, восстанавливаемости и сопровождаемости не считается достаточной.
+
+## 19.2. Формат сценария качества
+
+Каждый значимый NFR SHOULD оформляться:
+
+```yaml
+quality_scenario:
+  id: QA-AVAIL-001
+  source: external_client
+  stimulus: access_check_request
+  environment: normal_and_single_zone_failure
+  artifact: m8-access
+  response: return_valid_decision_or_controlled_error
+  measure:
+    availability: 99.99%
+    latency_p95_ms: 50
+```
+
+Значения являются baseline и уточняются SLO/нагрузочным профилем.
+
+## 19.3. Приоритеты
+
+| Приоритет | Атрибут |
+| --- | --- |
+| P0 | безопасность, целостность, изоляция, audit durability |
+| P1 | доступность decision/authentication control plane, восстановление |
+| P2 | производительность, масштабируемость, operability |
+| P3 | удобство разработки, portability, cost efficiency |
+
+При конфликте P0 имеет преимущество, если ADR явно не доказывает иной риск-баланс.
+
+## 19.4. Доступность
+
+Начальные целевые классы:
+
+| Класс | Пример | Availability target |
+| --- | --- | --- |
+| Critical decision | Access Check, token/session validation | 99.99% |
+| Interactive control | Start Authentication, Risk Evaluate | 99.95% |
+| Control-plane mutation | Create Project, Bind Role | 99.9% |
+| Long-running orchestration | Provisioning completion | 99.9% accepted requests; completion SLO отдельно |
+| Reporting/export | Audit export, analytics | 99.5% |
+
+Точные SLO утверждаются отдельно и MAY отличаться по плану/региону.
+
+## 19.5. Производительность
+
+Начальные latency objectives:
+
+| Операция | p50 | p95 | p99 |
+| --- | --- | --- | --- |
+| Access Check | 15 ms | 50 ms | 100 ms |
+| Risk Evaluate interactive | 50 ms | 200 ms | 500 ms |
+| Get resource | 30 ms | 150 ms | 400 ms |
+| Control-plane mutation acceptance | 100 ms | 500 ms | 1 s |
+| Start Authentication | 100 ms | 500 ms | 1 s без ожидания challenge completion |
+
+Targets исключают клиентскую сеть и MAY уточняться нагрузочными тестами.
+
+## 19.6. Пропускная способность
+
+Capacity plan MUST задавать:
+
+- requests/sec per method;
+- events/sec;
+- concurrent operations;
+- active authentication transactions;
+- relationship cardinality;
+- audit ingestion rate;
+- data volume/retention;
+- peak factor;
+- growth forecast.
+
+Сервис MUST иметь load test до предполагаемого peak + safety margin.
+
+## 19.7. Масштабируемость
+
+Архитектура SHOULD масштабироваться горизонтально при соблюдении:
+
+- stateless API adapters;
+- partitioned storage;
+- bounded in-memory state;
+- distributed-safe idempotency;
+- no process-local locks for global invariants;
+- partition-aware event processing;
+- workload isolation.
+
+## 19.8. Надёжность и долговечность
+
+Критичные committed state и AuditEvent MUST выдерживать отказ процесса/узла без потери подтверждённой записи. Outbox обеспечивает eventual publish после local commit.
+
+## 19.9. Восстанавливаемость
+
+Начальные классы:
+
+| Данные | RPO | RTO |
+| --- | --- | --- |
+| Resource/Identity/Access state | ≤ 5 минут или storage-native stronger | ≤ 60 минут |
+| Authentication active state | ≤ 1 минута; short-lived transactions MAY restart | ≤ 30 минут |
+| Audit | near-zero committed loss | ≤ 4 часа ingestion/query recovery |
+| Projections/cache | reconstructable | зависит от rebuild SLO |
+| Analytics | ≤ 24 часа | ≤ 24 часа |
+
+Конкретные значения подтверждаются backup/restore tests.
+
+## 19.10. Согласованность
+
+Каждый API/процесс MUST объявлять consistency class главы 14. Нельзя использовать расплывчатое «данные актуальны» без freshness или source semantics.
+
+## 19.11. Безопасность
+
+Security quality включает:
+
+- authentication strength;
+- authorization correctness;
+- tenant isolation;
+- secret protection;
+- vulnerability remediation;
+- audit completeness;
+- abuse resistance;
+- incident response.
+
+Метрики и тесты определены главами 15 и 18.
+
+## 19.12. Privacy
+
+Система MUST обеспечивать:
+
+- minimization;
+- purpose limitation;
+- retention;
+- deletion/anonymization;
+- access control;
+- export traceability;
+- data residency where required.
+
+## 19.13. Сопровождаемость
+
+Цели:
+
+- bounded context changes локализованы;
+- domain layer testable без infrastructure;
+- contracts versioned;
+- ADR объясняют значимые решения;
+- architecture rules автоматизированы;
+- ownership и runbooks явны;
+- технический долг измерим.
+
+## 19.14. Тестируемость
+
+Каждый use case MUST быть тестируем с fake/port dependencies. Обязательны unit, contract, integration и acceptance levels согласно риску.
+
+## 19.15. Развёртываемость
+
+Сервисы SHOULD поддерживать:
+
+- backward-compatible rolling deployment;
+- health/readiness;
+- graceful shutdown;
+- schema migration before/after compatibility;
+- feature flags/policy rollout;
+- rollback;
+- canary where risk warrants.
+
+## 19.16. Совместимость
+
+API/events MUST следовать главам 12–13. Producer и consumer SHOULD поддерживать переходный период N/N-1 версии, если deployment независим.
+
+## 19.17. Наблюдаемость
+
+Каждый SLO MUST иметь измеримый SLI, dashboard и alert. Нельзя утверждать quality target, если отсутствует источник измерения.
+
+## 19.18. Удобство использования API
+
+API quality включает:
+
+- consistent naming;
+- discoverable resource patterns;
+- stable errors;
+- SDK generation;
+- examples;
+- predictable pagination;
+- clear idempotency;
+- documentation completeness.
+
+## 19.19. Portability и vendor isolation
+
+Domain/application MUST быть изолированы от vendor SDK через ports/adapters. Полная vendor-neutral реализация не является самоцелью; ACL обязателен для сохранения domain language и тестируемости.
+
+## 19.20. Cost efficiency
+
+Каждый сервис SHOULD контролировать:
+
+- storage growth;
+- telemetry cardinality;
+- event retention;
+- idle capacity;
+- external API cost;
+- workflow history;
+- cache efficiency;
+- export volume.
+
+Cost optimization не должна нарушать P0/P1 свойства без ADR.
+
+## 19.21. Accessibility и localization
+
+Для UI-facing contracts SHOULD поддерживаться:
+
+- stable message codes;
+- localization-ready errors/progress;
+- timezone-aware timestamps;
+- accessible state semantics;
+- отсутствие цвет-only indicators.
+
+## 19.22. Quality Attribute Catalog
+
+| ID | Атрибут | Owner evidence |
+| --- | --- | --- |
+| `QA-SEC-001` | Cross-project isolation | security tests + Access model |
+| `QA-DUR-001` | Audit durability | storage/restore tests |
+| `QA-AVAIL-001` | Access check availability | SLO dashboard |
+| `QA-PERF-001` | Access p95 latency | load test + production SLI |
+| `QA-REC-001` | Resource state recovery | DR exercise |
+| `QA-EVOL-001` | API backward compatibility | buf breaking |
+| `QA-OBS-001` | end-to-end traceability | trace propagation test |
+| `QA-MAINT-001` | domain independence | architecture tests |
+| `QA-DATA-001` | projection freshness | lag SLI |
+| `QA-OPS-001` | operation completion | operation SLO |
+
+## 19.23. Quality gates
+
+Release MUST блокироваться при:
+
+- breaking contract without approved version;
+- failed authorization isolation tests;
+- unbounded metric cardinality;
+- critical vulnerability beyond policy;
+- missing migration rollback;
+- failed required load/DR test;
+- missing owner/runbook for critical alert;
+- missing requirement/acceptance traceability.
+
+## 19.24. SPDD-требования
+
+Feature Prompt MUST перечислять impacted QA IDs, quantitative targets, test method and evidence. Формулировка «быстро», «надёжно», «масштабируемо» без measure недопустима.
+
+## 19.25. Критерии соответствия главы
+
+Quality requirement соответствует PADS, если оформлен измеримым сценарием, имеет owner, SLI/test, приоритет, архитектурную тактику и release evidence.
+
+---
+
+# 20. Распределение требований
+
+## 20.1. Назначение главы
+
+Настоящая глава определяет единый формат требований M8 Platform, правила присвоения владельца, распределение между ограниченными контекстами и сервисами, жизненный цикл, критерии приёмки и связь с контрактами, реализацией и SPDD.
+
+Требование принадлежит контексту, который владеет изменяемым инвариантом или принимает нормативное решение. Наличие зависимости не делает supporting service совладельцем требования.
+
+## 20.2. Классы требований
+
+| Тип | Префикс | Назначение |
+| --- | --- | --- |
+| Business capability | `CAP-*` | устойчивая способность платформы |
+| Platform functional | `PLT-FR-*` | сквозное функциональное требование |
+| Context functional | `<CTX>-FR-*` | поведение конкретного owner context |
+| Non-functional | `<CTX>-NFR-*`/`PLT-NFR-*` | измеримое качество |
+| Security | `<CTX>-SEC-*`/`PLT-SEC-*` | security/privacy control |
+| Data | `<CTX>-DATA-*` | ownership, retention, quality |
+| Integration | `<CTX>-INT-*` | контракт зависимости и согласованность |
+| Compliance | `<CTX>-COMP-*` | юридические/регуляторные требования |
+| Architecture constraint | `ARC-*` | обязательное архитектурное ограничение |
+| Acceptance criterion | `<REQ>-AC-*` | проверяемый исход сценария |
+
+## 20.3. Пространства идентификаторов
+
+| Prefix | Owner context |
+| --- | --- |
+| `RM-*` | Resource Manager |
+| `ID-*` | Identity |
+| `AUTH-*` | Authentication |
+| `ACC-*` | Access |
+| `RISK-*` | Risk Decision |
+| `PROV-*` | Provisioning |
+| `AUD-*` | Audit |
+| `OPS-*` | Common Operation contract / concrete operation owner |
+| `PLT-*` | platform-wide governance/shared property |
+
+ID MUST быть неизменяемым после публикации. Удалённый ID не переиспользуется.
+
+## 20.4. Нормативный формат требования
+
+```yaml
+requirement:
+  id: AUTH-FR-017
+  title: Повторная аутентификация после невозможности refresh
+  type: functional
+  status: approved
+  priority: must
+  owner_context: Authentication
+  owner_service: m8-authentication
+  capability_ids: [CAP-AUTHN-SESSION]
+  source:
+    stakeholder: ApplicationDeveloper
+    business_goal: secure_session_recovery
+  statement: >
+    Система должна создать новую AuthenticationTransaction, если refresh token
+    отсутствует, просрочен, отозван или не может быть безопасно использован.
+  rationale: >
+    Предыдущая session не должна восстанавливаться неявно.
+  preconditions:
+    - client is active
+    - CIBA is allowed for client
+  trigger:
+    api: AuthenticationService.StartAuthentication
+  business_rules:
+    - new transaction does not continue the failed refresh attempt
+    - idempotency key maps to one transaction
+    - required assurance is evaluated by policy and Risk Decision
+  data_ownership:
+    reads: [Identity.User, Authentication.Client]
+    writes: [Authentication.AuthenticationTransaction, Operation, Outbox]
+  security:
+    permission: authentication.transactions.create
+    risk_evaluation: required
+    audit: required
+  consistency: C1_then_C0
+  outputs:
+    - operation
+    - authentication_id
+  events:
+    - AuthenticationStarted.v1
+  errors:
+    - CLIENT_NOT_ACTIVE
+    - SUBJECT_NOT_FOUND
+    - RISK_DECISION_UNAVAILABLE
+  quality_attributes:
+    - QA-AVAIL-AUTH-001
+    - QA-PERF-AUTH-001
+  acceptance_criteria:
+    - AUTH-FR-017-AC-01
+    - AUTH-FR-017-AC-02
+  traceability:
+    adr: [ADR-0012]
+    api: [API-AUTH-START-AUTH-V1]
+```
+
+## 20.5. Качество формулировки
+
+Требование MUST:
+
+- описывать наблюдаемое поведение или измеримое свойство;
+- иметь одного owner context;
+- использовать единый язык главы 5;
+- не предписывать инфраструктурную реализацию без архитектурной причины;
+- содержать условия и границы;
+- иметь проверяемые acceptance criteria;
+- определять security/data/consistency impact;
+- быть атомарным для управления изменением.
+
+Формулировки «система должна быть удобной/быстрой/надёжной» без метрики запрещены.
+
+## 20.6. Определение владельца
+
+Алгоритм:
+
+1. Какой инвариант меняется?
+2. Какой контекст определяет смысл результата?
+3. Кто является источником истины данных?
+4. Кто может отклонить команду по предметной причине?
+5. Кто публикует факт завершения?
+6. Кто владеет Operation сквозного процесса?
+
+Если ответы указывают на разные контексты, requirement MUST быть разделён на owner requirement и supporting integration requirements.
+
+## 20.7. Сквозное требование
+
+Пример «удалить Project и все связанные данные» декомпозируется:
+
+- `RM-FR-*` — инициировать и координировать deletion lifecycle;
+- `ID-FR-*` — удалить/обезличить identity data scope;
+- `ACC-FR-*` — отозвать bindings/relationships;
+- `PROV-FR-*` — deprovision managed resources;
+- `AUD-FR-*` — сохранить evidence и применить retention;
+- `PLT-INT-*` — подтверждения, retries, timeout и completion policy.
+
+Resource Manager остаётся process owner, но не изменяет данные участников напрямую.
+
+## 20.8. Состояния требования
+
+```text
+PROPOSED
+→ ANALYZED
+→ APPROVED
+→ PLANNED
+→ IMPLEMENTING
+→ VERIFIED
+→ RELEASED
+→ DEPRECATED
+→ RETIRED
+```
+
+`REJECTED` и `SUPERSEDED` являются terminal governance states.
+
+Переход MUST иметь actor, timestamp и reason.
+
+## 20.9. Приоритет
+
+Используется MoSCoW или иной утверждённый механизм:
+
+- Must;
+- Should;
+- Could;
+- Won't for current scope.
+
+Priority не заменяет risk/severity. Security Must может иметь меньший пользовательский объём, но блокировать release.
+
+## 20.10. Acceptance criteria
+
+Критерий SHOULD использовать Given/When/Then:
+
+```yaml
+id: AUTH-FR-017-AC-01
+given:
+  - refresh token is expired
+  - client is active
+when:
+  - StartAuthentication is called with a new request_id
+then:
+  - a new AuthenticationTransaction is created
+  - AuthenticationStarted event is stored in Outbox
+  - response contains the same Operation on retry
+```
+
+Критерии MUST покрывать happy path, ключевые ошибки, authorization, idempotency и consistency where relevant.
+
+## 20.11. Нефункциональные требования
+
+NFR MUST содержать:
+
+- quality scenario;
+- metric/SLI;
+- target;
+- measurement window;
+- load/environment assumptions;
+- verification method;
+- owner;
+- failure consequence.
+
+## 20.12. Security requirements
+
+Security requirement MUST определять:
+
+- asset/resource;
+- actor/threat;
+- control;
+- permission/assurance;
+- fail mode;
+- audit evidence;
+- test.
+
+## 20.13. Data requirements
+
+Data requirement MUST определять:
+
+- owner;
+- authoritative fields;
+- classification;
+- retention;
+- replication/projection;
+- deletion;
+- residency;
+- quality checks.
+
+## 20.14. Integration requirements
+
+Integration requirement MUST определять:
+
+- caller/provider;
+- API/event contract;
+- consistency class;
+- deadline/lag;
+- retry/idempotency;
+- failure/degraded behavior;
+- SLO;
+- runbook owner.
+
+## 20.15. Начальное распределение функциональных требований
+
+### Resource Manager
+
+| ID | Требование |
+| --- | --- |
+| `RM-FR-001` | Создать Organization |
+| `RM-FR-002` | Изменить Organization с optimistic concurrency |
+| `RM-FR-003` | Приостановить/восстановить Organization |
+| `RM-FR-010` | Создать Workspace внутри Organization |
+| `RM-FR-020` | Создать Project внутри Workspace |
+| `RM-FR-021` | Переместить Project управляемым процессом |
+| `RM-FR-022` | Удалить Project с координацией зависимостей |
+| `RM-FR-030` | Зарегистрировать Service в Project |
+| `RM-FR-040` | Публиковать versioned lifecycle events |
+
+### Identity
+
+| ID | Требование |
+| --- | --- |
+| `ID-FR-001` | Создать User Pool |
+| `ID-FR-010` | Создать User |
+| `ID-FR-011` | Изменить профиль User |
+| `ID-FR-012` | Disable/restore User |
+| `ID-FR-020` | Связать External Identity по issuer+subject |
+| `ID-FR-021` | Обнаружить конфликт внешней идентичности |
+| `ID-FR-030` | Управлять Group и Membership |
+| `ID-FR-040` | Выполнить privacy deletion/anonymization |
+
+### Authentication
+
+| ID | Требование |
+| --- | --- |
+| `AUTH-FR-001` | Начать AuthenticationTransaction |
+| `AUTH-FR-002` | Выбрать и создать challenge |
+| `AUTH-FR-003` | Получить состояние authentication |
+| `AUTH-FR-004` | Повторить отправку challenge по policy |
+| `AUTH-FR-005` | Отменить authentication |
+| `AUTH-FR-006` | Завершить provider callback |
+| `AUTH-FR-010` | Создать session/handoff после успеха |
+| `AUTH-FR-017` | Начать re-auth после refresh failure |
+| `AUTH-FR-020` | Выполнить step-up до требуемого AAL |
+| `AUTH-FR-030` | Revocation session/client access |
+
+### Access
+
+| ID | Требование |
+| --- | --- |
+| `ACC-FR-001` | Проверить permission на resource |
+| `ACC-FR-002` | Batch-check permissions |
+| `ACC-FR-003` | Объяснить access decision |
+| `ACC-FR-010` | Создать Role |
+| `ACC-FR-011` | Назначить RoleBinding |
+| `ACC-FR-012` | Отозвать RoleBinding |
+| `ACC-FR-020` | Создать/удалить relationship |
+| `ACC-FR-030` | Симулировать модель доступа |
+| `ACC-FR-040` | Провести access review |
+
+### Risk Decision
+
+| ID | Требование |
+| --- | --- |
+| `RISK-FR-001` | Оценить риск authentication |
+| `RISK-FR-002` | Оценить риск privileged action |
+| `RISK-FR-003` | Вернуть ALLOW/DENY/CHALLENGE/REVIEW |
+| `RISK-FR-010` | Создать и version RiskPolicy |
+| `RISK-FR-011` | Опубликовать/откатить policy |
+| `RISK-FR-012` | Симулировать policy на наборе примеров |
+| `RISK-FR-020` | Управлять manual review |
+
+### Provisioning
+
+| ID | Требование |
+| --- | --- |
+| `PROV-FR-001` | Зарегистрировать ResourceDefinition |
+| `PROV-FR-010` | Создать ManagedResource desired state |
+| `PROV-FR-011` | Изменить desired state |
+| `PROV-FR-012` | Удалить ManagedResource |
+| `PROV-FR-020` | Выбрать Placement |
+| `PROV-FR-030` | Выполнить reconciliation |
+| `PROV-FR-031` | Обнаружить drift |
+| `PROV-FR-032` | Исправить drift по policy |
+| `PROV-FR-040` | Выполнить compensation/manual remediation |
+
+### Audit
+
+| ID | Требование |
+| --- | --- |
+| `AUD-FR-001` | Принять immutable AuditEvent |
+| `AUD-FR-002` | Проверить schema и integrity metadata |
+| `AUD-FR-010` | Найти события по разрешённому scope |
+| `AUD-FR-011` | Получить цепочку действий по correlation |
+| `AUD-FR-012` | Экспортировать audit events через Operation |
+| `AUD-FR-020` | Применить retention/legal hold |
+| `AUD-FR-021` | Проверить целостность хранения |
+
+### Operations
+
+| ID | Требование |
+| --- | --- |
+| `OPS-FR-001` | Получить Operation |
+| `OPS-FR-002` | Перечислить Operations по scope |
+| `OPS-FR-003` | Ожидать изменение/завершение Operation |
+| `OPS-FR-004` | Запросить cancellation |
+| `OPS-FR-005` | Удалить запись Operation после retention |
+
+## 20.16. Cross-cutting requirements
+
+Cross-cutting requirement MUST иметь platform owner и applicability matrix.
+
+Примеры:
+
+- все mutations имеют idempotency;
+- все public APIs имеют authorization;
+- все state changes создают AuditEvent;
+- все events используют envelope;
+- все services экспортируют OpenTelemetry;
+- все long-running actions возвращают Operation.
+
+## 20.17. Requirement decomposition rules
+
+Requirement SHOULD быть разделён, если:
+
+- более одного owner context;
+- более одного независимого результата;
+- разные acceptance/release сроки;
+- разные quality/security риски;
+- одновременно меняются public contract и implementation без design gate;
+- невозможно однозначно определить pass/fail.
+
+## 20.18. Requirement change impact
+
+Изменение MUST запускать анализ:
+
+- domain model/invariant;
+- owner/service;
+- API/events;
+- data ownership;
+- security;
+- consistency;
+- quality attributes;
+- migrations;
+- tests;
+- SPDD prompts;
+- documentation/runbooks.
+
+## 20.19. Definition of Ready
+
+Требование готово к реализации, если:
+
+- owner и capability определены;
+- statement/rationale ясны;
+- acceptance criteria проверяемы;
+- data/security/consistency описаны;
+- API/event impact классифицирован;
+- unresolved architecture decisions отсутствуют или оформлены ADR;
+- dependencies и failure mode определены;
+- quality targets заданы;
+- traceability record создан.
+
+## 20.20. Definition of Done
+
+Требование завершено, если:
+
+- contract/implementation/tests готовы;
+- acceptance criteria пройдены;
+- architecture/security checks пройдены;
+- migrations/reconciliation выполнены;
+- telemetry и audit работают;
+- SPDD review пройден;
+- release evidence связано с requirement;
+- documentation/runbook обновлены.
+
+## 20.21. Реестр требований
+
+Реестр SHOULD храниться как version-controlled YAML/Markdown и поддерживать генерацию:
+
+- матрицы владельцев;
+- backlog;
+- coverage report;
+- API/Event catalog links;
+- SPDD prompt backlog;
+- release scope;
+- change impact.
+
+## 20.22. Критерии соответствия главы
+
+Система требований соответствует PADS, если каждый requirement атомарен, имеет ID/owner/criteria, распределён по invariant ownership, содержит cross-cutting impacts и двунаправленно связан с contracts, prompts, code, tests и release evidence.
+
+---
+
+# 21. Модель трассировки
+
+## 21.1. Назначение главы
+
+Трассировка доказывает, что бизнес-возможность реализована корректными контрактами, кодом и тестами, а каждое изменение кода имеет обоснование. M8 применяет двунаправленную трассировку от цели до production evidence.
+
+## 21.2. Граф трассировки
+
+```text
+Platform Vision
+→ Design Goal
+→ Business Capability
+→ Requirement
+→ Acceptance Criterion
+→ Domain Model / Invariant
+→ ADR
+→ API / Event / Data Contract
+→ Structured Prompt
+→ Code Component
+→ Test
+→ Deployment / Release
+→ Runtime Evidence / SLO
+```
+
+Связи являются типизированными, а не только текстовыми ссылками.
+
+## 21.3. Типы узлов
+
+| Тип | Пример ID |
+| --- | --- |
+| Goal | `DG-004` |
+| Principle | `AP-021` |
+| Capability | `CAP-AUTHN-SESSION` |
+| Requirement | `AUTH-FR-017` |
+| Criterion | `AUTH-FR-017-AC-01` |
+| Invariant | `INV-AUTH-006` |
+| ADR | `ADR-0012` |
+| API | `API-AUTH-START-AUTH-V1` |
+| Event | `EVT-AUTH-STARTED-V1` |
+| Data contract | `DATA-AUTH-TRANSACTION-V1` |
+| Prompt | `SP-AUTH-017-01` |
+| Code | package/file/symbol or generated component ID |
+| Test | `UT-*`, `CT-*`, `IT-*`, `AT-*` |
+| Release | `REL-2026.08.1` |
+| Evidence | dashboard/test report/audit/query ID |
+
+## 21.4. Типы связей
+
+| Связь | Значение |
+| --- | --- |
+| `realizes` | артефакт реализует capability/requirement |
+| `verifies` | test/evidence проверяет criterion/NFR |
+| `constrains` | principle/ADR ограничивает design |
+| `owns` | context/service владеет requirement/contract |
+| `publishes` | producer публикует event/API |
+| `consumes` | consumer зависит от contract |
+| `depends_on` | requirement/use case требует другой capability |
+| `supersedes` | новый artifact заменяет старый |
+| `generated_from` | code/prompt produced from specification |
+| `affects` | change impact without direct realization |
+
+## 21.5. Traceability record
+
+```yaml
+traceability:
+  id: TRACE-AUTH-FR-017
+  requirement: AUTH-FR-017
+  capability: CAP-AUTHN-SESSION
+  goals: [DG-004, DG-018]
+  principles: [AP-004, AP-021, AP-052]
+  domain:
+    aggregate: DM-AUTH-TRANSACTION
+    invariants: [INV-AUTH-001, INV-AUTH-006]
+  decisions: [ADR-0012, ADR-0021]
+  contracts:
+    api: [API-AUTH-START-AUTH-V1]
+    events: [EVT-AUTH-STARTED-V1]
+    errors: [AUTH_CLIENT_NOT_ACTIVE, RISK_DECISION_UNAVAILABLE]
+  prompts:
+    feature: SP-AUTH-017
+    tasks: [SP-AUTH-017-01, SP-AUTH-017-02]
+    review: SPR-AUTH-017
+  code:
+    - internal/modules/authentication/application/start_authentication.go
+    - internal/modules/authentication/domain/transaction.go
+  tests:
+    unit: [UT-AUTH-017-01]
+    contract: [CT-AUTH-017-01]
+    integration: [IT-AUTH-017-01]
+    acceptance: [AT-AUTH-017-01, AT-AUTH-017-02]
+  releases: [REL-2026.08.1]
+  evidence:
+    - slo://authentication/start
+    - audit-query://AUTH-FR-017
+```
+
+## 21.6. Двунаправленность
+
+Должны поддерживаться запросы:
+
+- от requirement к code/tests/release;
+- от code change к requirement/ADR/prompt;
+- от failed test к affected requirements;
+- от API field к consumers and requirements;
+- от runtime incident к capability/design decisions;
+- от deprecated requirement к artifacts to remove.
+
+## 21.7. Coverage rules
+
+Минимальные обязательные связи:
+
+| Артефакт | Обязательные ссылки |
+| --- | --- |
+| Requirement | capability, owner, criteria |
+| Public API method | requirement, permission, error catalog, tests |
+| Event | requirement, producer, consumers, schema tests |
+| Structured Prompt | requirement, contracts, tests, constraints |
+| Code PR | requirement/prompt/ADR if applicable |
+| Acceptance test | criterion |
+| Release | requirements and evidence |
+| ADR | affected goals/principles/contexts |
+
+## 21.8. Coverage metrics
+
+- requirements with acceptance criteria;
+- requirements with owner;
+- requirements with API/event contract;
+- criteria verified by tests;
+- public methods without requirement;
+- events without consumers/catalog;
+- code changes without requirement/prompt;
+- released requirements without runtime evidence;
+- deprecated artifacts still consumed.
+
+Target для обязательных production artifacts — 100% по критичным связям.
+
+## 21.9. Изменения и impact analysis
+
+При изменении узла система SHOULD вычислять transitive impact.
+
+Примеры:
+
+- изменение `Project` resource name → API, Access tuples, events, projections, tests, migrations;
+- изменение AAL policy → Authentication, Risk, clients, audit, acceptance;
+- удаление event field → all consumers and replay tools;
+- изменение Operation state → SDK/UI/workflows/tests.
+
+## 21.10. Baseline и versioning
+
+Traceability graph versioned вместе с PADS/repository. Release фиксирует immutable baseline: какие версии requirements, contracts, prompts и code вошли.
+
+## 21.11. Evidence
+
+Evidence MAY включать:
+
+- CI test report;
+- contract compatibility report;
+- security scan;
+- load test;
+- deployment record;
+- SLO dashboard snapshot/reference;
+- audit query;
+- migration/reconciliation report;
+- architecture review.
+
+Evidence MUST иметь timestamp, environment, version и owner.
+
+## 21.12. Автоматизация
+
+Рекомендуется хранить metadata в front matter/YAML и проверять CI:
+
+- ID existence;
+- no orphan artifacts;
+- acceptance coverage;
+- contract owner;
+- prompt completeness;
+- code annotations/PR references;
+- release manifest completeness.
+
+## 21.13. Трассировка generated code
+
+Generated files SHOULD содержать source reference и не редактироваться вручную. Generator version является частью evidence.
+
+## 21.14. Трассировка миграций
+
+Каждая migration MUST ссылаться на requirement/ADR, иметь compatibility phase, verification query и rollback/roll-forward procedure.
+
+## 21.15. Трассировка incidents
+
+Post-incident review SHOULD связывать:
+
+- affected capability;
+- violated quality scenario;
+- requirements/contracts;
+- design decision;
+- missing/failed control;
+- corrective requirements/prompts/tests.
+
+## 21.16. Отчёты
+
+Минимальные отчёты:
+
+1. Requirement Coverage;
+2. Acceptance Coverage;
+3. API/Event Orphans;
+4. Architecture Constraint Coverage;
+5. Security Control Coverage;
+6. Release Traceability Manifest;
+7. Deprecated Artifact Usage;
+8. Quality Attribute Evidence.
+
+## 21.17. SPDD и трассировка
+
+Prompt ID является обязательным узлом. Ответ агента SHOULD возвращать machine-readable manifest:
+
+```yaml
+implementation_manifest:
+  prompt_id: SP-AUTH-017-01
+  requirement_ids: [AUTH-FR-017]
+  files_changed: [...]
+  contracts_changed: []
+  tests_added: [UT-AUTH-017-01, IT-AUTH-017-01]
+  decisions_made: []
+  deviations: []
+```
+
+## 21.18. Критерии соответствия главы
+
+Трассировка соответствует PADS, если она двунаправленна, versioned, автоматически проверяема, покрывает requirements/contracts/prompts/code/tests/releases/evidence и позволяет выполнить impact analysis без ручного поиска по всему проекту.
+
+---
+
+# 22. SPDD: проведение требований до Structured Prompt
+
+## 22.1. Назначение главы
+
+Structured-Prompt-Driven Development в M8 — управляемый процесс преобразования утверждённых требований и архитектурных ограничений в ограниченные, версионируемые задания для AI-агентов и людей. Structured Prompt является исполняемой инженерной спецификацией, но не заменяет PADS, ADR, API contracts и acceptance tests.
+
+## 22.2. Цели SPDD
+
+- уменьшить неоднозначность генерации;
+- не позволять агенту скрыто менять архитектуру;
+- передавать только релевантный контекст;
+- обеспечить повторяемость результата;
+- связать generated change с requirement и tests;
+- отделить design от implementation;
+- сделать review независимым;
+- поддержать автоматические quality gates.
+
+## 22.3. Принципы
+
+| ID | Правило |
+| --- | --- |
+| `SPDD-001` | Prompt MUST иметь стабильный ID и version. |
+| `SPDD-002` | Prompt MUST ссылаться на approved requirement IDs. |
+| `SPDD-003` | Prompt MUST наследовать PADS/ADR constraints. |
+| `SPDD-004` | Prompt MUST объявлять include/exclude scope. |
+| `SPDD-005` | Prompt MUST перечислять разрешённые и запрещённые зависимости. |
+| `SPDD-006` | Prompt MUST определять acceptance/tests до генерации. |
+| `SPDD-007` | Агент MUST NOT изобретать новые bounded contexts, public APIs или data owners без design prompt/ADR. |
+| `SPDD-008` | Один task prompt SHOULD изменять один owner context и один проверяемый результат. |
+| `SPDD-009` | Public contract design и implementation SHOULD проходить отдельные стадии. |
+| `SPDD-010` | Generated output MUST возвращать implementation manifest. |
+| `SPDD-011` | Review Prompt MUST выполняться независимо от implementation prompt. |
+| `SPDD-012` | Prompt MUST содержать failure/security/data/observability requirements. |
+| `SPDD-013` | Real secrets and personal production data MUST NOT входить в prompt context. |
+| `SPDD-014` | Prompt version MUST изменяться при изменении objective, constraints или acceptance. |
+| `SPDD-015` | Неполный или противоречивый requirement MUST возвращаться на analysis, а не дополняться догадками агента. |
+| `SPDD-016` | Prompt execution environment MUST быть ограничено разрешёнными tools/files/actions. |
+| `SPDD-017` | Agent decisions beyond prompt MUST быть перечислены как deviations/questions. |
+| `SPDD-018` | Generated code MUST проходить обычные CI, security и architecture gates. |
+| `SPDD-019` | Prompt MUST быть пригоден для повторного исполнения на той же baseline. |
+| `SPDD-020` | SPDD artifacts являются частью repository и code review. |
+
+## 22.4. Иерархия артефактов
+
+```text
+PADS / ADR / Requirements
+        ↓
+L1 Constitution Prompt
+        ↓
+L2 Context Prompt
+        ↓
+L3 Feature Prompt
+        ↓
+L4 Design Prompt (при необходимости)
+        ↓
+L5 Task Prompt(s)
+        ↓
+L6 Review Prompt
+        ↓
+Implementation Manifest + Test Evidence
+```
+
+## 22.5. Constitution Prompt
+
+Содержит стабильные правила всей платформы:
+
+- architecture style;
+- stack и versions policy;
+- dependency direction;
+- domain language rules;
+- data ownership;
+- API/event standards;
+- security;
+- LRO/error/observability;
+- testing;
+- prohibited shortcuts;
+- output manifest format.
+
+Constitution не должен дублировать весь PADS; он содержит machine-consumable selection и ссылки на normative sections.
+
+## 22.6. Context Prompt
+
+Для каждого bounded context:
+
+```yaml
+context_prompt:
+  id: SPC-AUTHENTICATION-V1
+  context: Authentication
+  owns:
+    - AuthenticationTransaction
+    - AuthenticationChallenge
+    - Client
+    - AuthenticationSession
+  does_not_own:
+    - User
+    - Permission
+    - RiskPolicy
+    - Keycloak domain objects
+  invariants:
+    - INV-AUTH-001
+    - INV-AUTH-006
+  allowed_dependencies:
+    - IdentityGateway
+    - AccessGateway
+    - RiskDecisionGateway
+    - ProviderPort
+  published_contracts:
+    - authentication.v1
+    - authentication.events.v1
+  forbidden:
+    - direct Identity database access
+    - SpiceDB tuple construction
+    - token logging
+```
+
+## 22.7. Feature Prompt
+
+Feature Prompt описывает завершённую бизнес-возможность и может порождать несколько task prompts.
+
+Обязательные секции:
+
+- objective и business value;
+- requirements/criteria;
+- owner context;
+- use cases/scenarios;
+- domain impacts;
+- API/event/data impacts;
+- security;
+- consistency/workflow;
+- errors;
+- observability;
+- quality targets;
+- rollout/migration;
+- decomposition plan;
+- definition of done.
+
+## 22.8. Design Prompt
+
+Design Prompt обязателен, если feature:
+
+- вводит public API/event;
+- изменяет aggregate/invariant;
+- меняет context boundary;
+- вводит new storage/integration;
+- требует migration;
+- влияет на P0/P1 security/quality;
+- имеет несколько разумных архитектурных вариантов.
+
+Результат Design Prompt — proposal/ADR/contract, а не production code.
+
+## 22.9. Task Prompt
+
+Task Prompt — минимальная проверяемая единица реализации. Он SHOULD помещаться в один code review и иметь ограниченный file/module scope.
+
+Примеры задач:
+
+1. добавить domain transition;
+2. реализовать application use case;
+3. добавить Protobuf method;
+4. реализовать YDB repository adapter;
+5. добавить Outbox dispatcher mapping;
+6. добавить Temporal workflow/activity;
+7. добавить contract/integration tests;
+8. добавить observability/runbook.
+
+## 22.10. Review Prompt
+
+Review Prompt проверяет:
+
+- requirement coverage;
+- owner/boundary compliance;
+- forbidden dependencies;
+- domain invariants;
+- API/event compatibility;
+- data ownership;
+- security/privacy;
+- idempotency/concurrency;
+- failure behavior;
+- errors;
+- observability;
+- test adequacy;
+- migration/rollback;
+- unrequested changes.
+
+Review MUST возвращать findings с severity, evidence и required action.
+
+## 22.11. Каноническая схема Structured Prompt
+
+```yaml
+spdd_version: "1.0"
+metadata:
+  id: SP-AUTH-017-01
+  version: 1
+  title: Реализовать создание AuthenticationTransaction после refresh failure
+  type: implementation
+  status: approved
+  owner_context: Authentication
+  service: m8-authentication
+  baseline:
+    pads: PADS-000@1.0
+    repository_commit: <sha>
+    adr: [ADR-0012, ADR-0021]
+traceability:
+  capabilities: [CAP-AUTHN-SESSION]
+  requirements: [AUTH-FR-017]
+  acceptance_criteria: [AUTH-FR-017-AC-01, AUTH-FR-017-AC-02]
+  invariants: [INV-AUTH-001, INV-AUTH-006]
+  contracts:
+    api: [API-AUTH-START-AUTH-V1]
+    events: [EVT-AUTH-STARTED-V1]
+objective: >
+  Реализовать application/domain behavior, создающее новую транзакцию
+  аутентификации при невозможности refresh, без изменения публичного API.
+scope:
+  include:
+    - internal/modules/authentication/domain
+    - internal/modules/authentication/application
+    - internal/modules/authentication/adapter/persistence
+    - tests
+  exclude:
+    - api/proto
+    - Keycloak adapter behavior
+    - Risk Decision implementation
+    - Access model
+allowed_changes:
+  - add domain factory/transition
+  - add repository transaction
+  - add Outbox record
+  - add unit/integration tests
+forbidden_changes:
+  - change API field numbers
+  - direct Keycloak call from domain/application
+  - write Identity database
+  - publish event before commit
+  - log token or subject secret
+context:
+  aggregate: AuthenticationTransaction
+  entities: [AuthenticationChallenge]
+  value_objects: [AuthenticationId, SubjectReference, AssuranceLevel]
+  dependencies:
+    allowed: [ClientRepository, IdentityGateway, RiskDecisionGateway, AuthenticationRepository, OutboxRepository, Clock, IdGenerator]
+    forbidden: [KeycloakSDK, YDBSDK_in_domain, SpiceDBSDK, TemporalSDK_in_domain]
+behavior:
+  preconditions:
+    - client is active
+    - subject is resolved and active
+  steps:
+    - resolve idempotency key
+    - load client
+    - resolve subject
+    - evaluate risk
+    - create aggregate
+    - atomically persist aggregate and outbox
+    - return operation/transaction
+  postconditions:
+    - one transaction per idempotency key
+    - event stored after valid domain transition
+security:
+  permission: authentication.transactions.create
+  risk_evaluation: required
+  audit: required
+  sensitive_data:
+    forbidden_in_logs: [refresh_token, access_token, otp]
+data:
+  owner: Authentication
+  transaction_boundary: [AuthenticationTransaction, Operation, Outbox]
+  consistency: C1_then_C0
+errors:
+  - code: CLIENT_NOT_ACTIVE
+    category: FAILED_PRECONDITION
+  - code: SUBJECT_NOT_FOUND
+    category: NOT_FOUND
+  - code: RISK_DECISION_UNAVAILABLE
+    category: UNAVAILABLE
+observability:
+  spans: [StartAuthentication, ResolveSubject, EvaluateRisk, PersistTransaction]
+  metrics: [authentication_started_total, authentication_start_duration_seconds]
+  audit_events: [AuthenticationStarted]
+tests:
+  unit:
+    - duplicate request returns existing transaction
+    - disabled client is rejected
+    - risk deny does not persist transaction
+  integration:
+    - aggregate operation and outbox commit atomically
+    - concurrent duplicate requests create one transaction
+acceptance:
+  definition_of_done:
+    - all tests pass
+    - no forbidden imports
+    - API unchanged
+    - implementation manifest produced
+output:
+  format:
+    - summary
+    - files_changed
+    - tests_run
+    - requirement_coverage
+    - decisions
+    - deviations
+```
+
+## 22.12. Контекстная сборка
+
+Prompt builder SHOULD включать только релевантные части:
+
+- Constitution excerpt;
+- Context Prompt;
+- requirement + criteria;
+- affected aggregate/invariants;
+- referenced API/event schemas;
+- relevant ADR;
+- target code interfaces;
+- test conventions.
+
+Передача всей документации без отбора ухудшает точность и не считается полноценной context engineering.
+
+## 22.13. Декомпозиция Feature → Tasks
+
+Алгоритм:
+
+1. подтвердить owner context;
+2. выделить domain change;
+3. отделить contract design;
+4. определить data/migration;
+5. определить integration/workflow;
+6. выделить adapters;
+7. определить tests/evidence;
+8. построить dependency DAG задач;
+9. ограничить scope каждой задачи;
+10. создать review prompt.
+
+## 22.14. Размер задачи
+
+Task Prompt следует разделить, если:
+
+- меняются два bounded contexts;
+- одновременно проектируется contract и несколько adapters;
+- затрагивается более одного независимого aggregate;
+- требуется >1 миграционного этапа;
+- acceptance невозможно проверить одним набором tests;
+- агент должен сделать существенный выбор без ADR.
+
+## 22.15. Контрактные стадии
+
+Для public API/event:
+
+```text
+Requirement
+→ Contract Design Prompt
+→ human/architecture review
+→ contract approval
+→ generated SDK/stubs
+→ implementation Task Prompts
+→ consumer contract tests
+→ rollout
+```
+
+Implementation agent не меняет утверждённый contract без отдельного prompt.
+
+## 22.16. Миграционные стадии
+
+Для schema/data change:
+
+1. expand schema;
+2. deploy backward-compatible readers/writers;
+3. backfill;
+4. verify/reconcile;
+5. switch behavior;
+6. contract old path;
+7. cleanup in separate prompt.
+
+Один prompt не должен скрывать все стадии как мгновенное изменение.
+
+## 22.17. Prompt lifecycle
+
+```text
+DRAFT
+→ REVIEWED
+→ APPROVED
+→ EXECUTING
+→ COMPLETED
+→ VERIFIED
+→ SUPERSEDED/RETIRED
+```
+
+Execution records MUST связываться с exact prompt version и repository baseline.
+
+## 22.18. Версионирование
+
+Version увеличивается при изменении:
+
+- objective;
+- acceptance;
+- scope;
+- constraints;
+- baseline contracts;
+- allowed/forbidden dependencies.
+
+Незначительная редактура MAY не менять semantic version, но repository history сохраняется.
+
+## 22.19. Execution manifest
+
+Agent MUST вернуть:
+
+```yaml
+execution:
+  prompt_id: SP-AUTH-017-01
+  prompt_version: 1
+  baseline_commit: abc123
+  status: completed
+  files_changed: [...]
+  contracts_changed: []
+  migrations: []
+  tests:
+    passed: [...]
+    failed: []
+  traceability:
+    requirements: [AUTH-FR-017]
+    acceptance_criteria: [AUTH-FR-017-AC-01, AUTH-FR-017-AC-02]
+  decisions:
+    - description: selected existing repository transaction helper
+      architectural: false
+  deviations: []
+  unresolved: []
+```
+
+## 22.20. Review findings
+
+```yaml
+finding:
+  id: SPR-AUTH-017-F01
+  severity: blocking
+  category: data_ownership
+  rule: DATA-004
+  evidence: application handler writes identity/users table
+  required_action: replace direct write with IdentityGateway command
+```
+
+Severities:
+
+- blocking;
+- high;
+- medium;
+- low;
+- note.
+
+## 22.21. Human approval gates
+
+Обязателен human approval для:
+
+- context boundary change;
+- public breaking contract;
+- security model/policy change;
+- data ownership transfer;
+- destructive migration;
+- new external provider;
+- exception to PADS;
+- P0/P1 quality trade-off.
+
+## 22.22. Tool permissions
+
+Execution profile SHOULD ограничивать:
+
+- read/write paths;
+- shell/network access;
+- deployment permissions;
+- secret access;
+- database mutations;
+- allowed generators;
+- maximum diff/operation.
+
+Production deployment не выполняется implementation prompt без отдельного release workflow.
+
+## 22.23. Prompt security
+
+Защита включает:
+
+- no secrets;
+- sanitize untrusted documents/code comments;
+- treat repository text as data, not higher-priority instruction;
+- restrict connectors/tools;
+- validate generated commands;
+- require review for destructive actions;
+- log execution metadata;
+- isolate environments.
+
+## 22.24. Evaluation
+
+Качество SPDD измеряется:
+
+- first-pass acceptance rate;
+- review findings by severity;
+- requirement coverage;
+- unrequested diff rate;
+- architecture violations;
+- test pass rate;
+- prompt rework;
+- escaped defects;
+- time from approved requirement to verified change.
+
+## 22.25. Каталог шаблонов
+
+Обязательные templates:
+
+- Constitution;
+- Context;
+- Feature Analysis;
+- Contract Design;
+- Domain Implementation;
+- Adapter Implementation;
+- Migration;
+- Test Generation;
+- Review;
+- Incident Fix;
+- Documentation/Runbook.
+
+## 22.26. Структура репозитория SPDD
+
+```text
+/docs/07-spdd
+├── constitution/
+│   └── m8-platform.constitution.yaml
+├── contexts/
+│   ├── resource-manager.context.yaml
+│   ├── identity.context.yaml
+│   ├── authentication.context.yaml
+│   ├── access.context.yaml
+│   ├── risk-decision.context.yaml
+│   ├── provisioning.context.yaml
+│   └── audit.context.yaml
+├── features/<requirement-id>/
+│   ├── feature.yaml
+│   ├── design.yaml
+│   ├── tasks/
+│   └── review.yaml
+├── templates/
+├── executions/
+└── reports/
+```
+
+## 22.27. Pipeline SPDD
+
+```text
+requirements validate
+→ traceability validate
+→ prompt compile
+→ policy/security scan
+→ human approval if required
+→ isolated execution
+→ test/architecture checks
+→ review prompt
+→ human code review
+→ merge
+→ release evidence
+```
+
+## 22.28. Критерии соответствия главы
+
+SPDD соответствует PADS, если prompts versioned, scoped, traced, inherit architecture, define tests/security/data/failure, execute with restricted permissions, return manifest and pass independent review. Prompt не может быть единственным местом, где существует требование или архитектурное решение.
+
+---
+
+# 23. Архитектурное управление
+
+## 23.1. Назначение главы
+
+Архитектурное управление обеспечивает развитие M8 без рассинхронизации PADS, требований, контрактов и реализации. Управление строится на явных ролях, ADR, автоматических проверках, architecture reviews, exception process и контроле архитектурного долга.
+
+## 23.2. Роли
+
+| Роль | Ответственность |
+| --- | --- |
+| Platform Architect | PADS, context map, cross-cutting principles, final architecture arbitration |
+| Context Owner | domain model, requirements, contracts и quality своего context |
+| Service Owner | implementation, SLO, runbooks, lifecycle сервиса |
+| Contract Owner | API/event/common schema compatibility |
+| Security Owner | threat model, security requirements, exceptions |
+| Data Owner | classification, retention, quality, deletion |
+| SRE/Operations Owner | SLO, capacity, incident/readiness |
+| Requirement Owner | correctness и acceptance requirement |
+| Reviewer | независимая проверка design/change |
+
+Одна персона MAY совмещать роли, но responsibilities остаются раздельными.
+
+## 23.3. Нормативные правила
+
+| ID | Правило |
+| --- | --- |
+| `GOV-001` | PADS является нормативной baseline и version-controlled artifact. |
+| `GOV-002` | Значимое архитектурное решение MUST иметь ADR. |
+| `GOV-003` | Изменение context boundary MUST обновлять PADS/context map. |
+| `GOV-004` | Public contract change MUST пройти Contract Owner review. |
+| `GOV-005` | Security-sensitive change MUST пройти Security Owner review. |
+| `GOV-006` | Исключение из MUST rule требует approved exception/ADR со сроком. |
+| `GOV-007` | Architecture checks SHOULD быть автоматизированы в CI. |
+| `GOV-008` | Architecture debt MUST иметь owner, impact и target date. |
+| `GOV-009` | Release MUST иметь traceability/evidence manifest. |
+| `GOV-010` | Incident corrective action SHOULD обновлять requirements/tests/PADS при необходимости. |
+| `GOV-011` | Shared Kernel change MUST иметь review всех affected owners. |
+| `GOV-012` | Vendor adoption MUST иметь ACL, exit/continuity analysis и ADR. |
+| `GOV-013` | Deprecated contract MUST иметь measured migration plan. |
+| `GOV-014` | PADS review MUST проводиться регулярно и при значимых изменениях. |
+| `GOV-015` | AI-generated changes подчиняются тем же governance gates. |
+
+## 23.4. ADR
+
+ADR содержит:
+
+```yaml
+adr:
+  id: ADR-0021
+  title: Использование Common Operation и Temporal для длительных процессов
+  status: accepted
+  date: 2026-07-10
+  owners: [PlatformArchitecture, ServiceOwners]
+  context: ...
+  decision: ...
+  alternatives: ...
+  consequences:
+    positive: [...]
+    negative: [...]
+  constraints: [...]
+  affected:
+    pads_sections: [16, 22]
+    contexts: [ResourceManager, Provisioning]
+    requirements: [OPS-FR-001]
+  review_date: 2027-01-10
+```
+
+## 23.5. ADR lifecycle
+
+```text
+PROPOSED
+→ UNDER_REVIEW
+→ ACCEPTED
+→ SUPERSEDED / DEPRECATED
+→ RETIRED
+```
+
+Rejected ADR сохраняется для истории с причиной.
+
+## 23.6. Триггеры ADR
+
+ADR обязателен для:
+
+- новой технологии platform-level;
+- изменения owner/context boundary;
+- нового communication pattern;
+- изменения consistency class;
+- public API/event major version;
+- data ownership transfer;
+- security/authentication model;
+- multi-region strategy;
+- исключения из PADS;
+- решения с высокой стоимостью отката.
+
+## 23.7. Architecture review
+
+Design review package SHOULD включать:
+
+- problem/requirements;
+- context/capability owner;
+- options/trade-offs;
+- domain/data model;
+- API/events;
+- security/threats;
+- consistency/failure;
+- quality/capacity;
+- migration/rollout;
+- observability/runbooks;
+- traceability;
+- draft ADR.
+
+## 23.8. Review gates
+
+| Gate | Проверяет |
+| --- | --- |
+| Domain gate | language, aggregate, invariant, owner |
+| Contract gate | API/event compatibility and consumers |
+| Data gate | ownership, classification, migration, retention |
+| Security gate | threat model, Access/Risk/Auth, secrets |
+| Reliability gate | SLO, failure, DR, capacity |
+| SPDD gate | prompt scope, constraints, tests |
+| Release gate | evidence, migration, rollback, dashboards |
+
+## 23.9. Исключения
+
+Exception record MUST содержать:
+
+- violated rule;
+- business/technical reason;
+- risk;
+- compensating controls;
+- owner;
+- scope;
+- expiry;
+- remediation plan;
+- approval;
+- monitoring.
+
+Бессрочные исключения запрещены; permanent change оформляется изменением PADS/ADR.
+
+## 23.10. Архитектурный долг
+
+Категории:
+
+- boundary violation;
+- shared database/coupling;
+- contract debt;
+- data migration debt;
+- security debt;
+- observability debt;
+- reliability debt;
+- test/traceability debt;
+- deprecated dependency.
+
+Debt item MUST иметь severity, interest/impact, owner, target milestone и verification.
+
+## 23.11. Автоматические проверки
+
+CI SHOULD проверять:
+
+- domain does not import infrastructure;
+- no cross-service DB clients in wrong module;
+- allowed dependency graph;
+- buf lint/breaking;
+- event envelope/schema;
+- requirement IDs exist;
+- prompt completeness;
+- migration naming/traceability;
+- secret scanning;
+- security/license/SBOM;
+- metric cardinality policy;
+- test coverage for acceptance criteria.
+
+## 23.12. Architecture fitness functions
+
+Примеры:
+
+- запрещённые Go imports;
+- dependency graph cycles;
+- owner package constraints;
+- public proto field reuse;
+- all mutations have request ID/audit policy;
+- all events have required envelope;
+- all LRO methods return Operation;
+- all public methods have permission annotation;
+- all projections declare source/freshness;
+- all tasks reference requirements.
+
+## 23.13. Contract governance
+
+Contract Owner отвечает за:
+
+- schema review;
+- naming/versioning;
+- consumer registry;
+- compatibility tests;
+- deprecation;
+- documentation;
+- SDK generation;
+- migration communication.
+
+## 23.14. Data governance
+
+Data Owner отвечает за:
+
+- authoritative model;
+- classification;
+- retention;
+- quality;
+- lineage;
+- deletion;
+- access/export;
+- backup/restore verification.
+
+## 23.15. Security governance
+
+Security Owner определяет:
+
+- threat modeling standard;
+- secure defaults;
+- vulnerability SLA;
+- exception acceptance;
+- incident severity;
+- key/secret policy;
+- penetration testing scope;
+- break-glass control.
+
+## 23.16. Release governance
+
+Release manifest MUST содержать:
+
+```yaml
+release:
+  id: REL-2026.08.1
+  pads_version: PADS-000@1.0
+  requirements: [...]
+  prompts: [...]
+  contracts: [...]
+  migrations: [...]
+  tests: [...]
+  security_evidence: [...]
+  quality_evidence: [...]
+  deployment_plan: ...
+  rollback_plan: ...
+  known_exceptions: [...]
+```
+
+## 23.17. Change management PADS
+
+PADS versioning:
+
+- patch — редакционные уточнения без изменения нормы;
+- minor — новые совместимые нормы/главы;
+- major — изменение фундаментальных границ/принципов.
+
+Каждое изменение имеет changelog и affected artifacts.
+
+## 23.18. Review cadence
+
+- per significant design;
+- per public contract change;
+- quarterly architecture health review;
+- semiannual context map review;
+- annual PADS baseline review;
+- after severity-1 incident;
+- before major scale/region expansion.
+
+## 23.19. Метрики управления
+
+- orphan requirements/contracts;
+- architecture violations;
+- exception count/age;
+- ADR lead time;
+- deprecated consumer count;
+- architecture debt trend;
+- SPDD review findings;
+- acceptance coverage;
+- restore/load/security test freshness;
+- incident recurrence.
+
+## 23.20. Критерии соответствия главы
+
+Governance соответствует PADS, если владельцы и gates явны, значимые решения имеют ADR, исключения ограничены сроком, fitness functions автоматизированы, debt управляется, releases имеют evidence и изменения PADS/requirements/contracts остаются синхронизированы.
+
+---
+
+# 24. Глоссарий
+
+## 24.1. Назначение
+
+Глоссарий содержит краткие нормативные определения терминов. Полные значения и владельцы предметных понятий определены главой 5; при расхождении приоритет имеет специализированная глава.
+
+| Термин | Определение |
+| --- | --- |
+| Acceptance Criterion | Проверяемое условие, доказывающее выполнение требования. |
+| Access | Ограниченный контекст, принимающий решения о разрешениях, ролях и отношениях. |
+| ACL | Anti-Corruption Layer — слой перевода между моделью M8 и внешней системой. Не путать с access control list. |
+| Actor | Пользователь, сервис или automation, инициировавшие действие. |
+| ADR | Architecture Decision Record — запись значимого архитектурного решения, альтернатив и последствий. |
+| AAL | Authentication Assurance Level — уровень уверенности в подтверждённой идентичности. |
+| Aggregate | Граница согласованности и изменения предметного состояния с одним корнем. |
+| Annotation | Расширяемые технические метаданные, не определяющие идентичность ресурса. |
+| API | Версионируемый контракт вызова capability владельца. |
+| API First | Подход, при котором контракт проектируется и проверяется до реализации. |
+| Assurance | Степень уверенности, достигнутая аутентификацией. |
+| Audit Event | Неизменяемая запись, кто, что, над чем, когда и с каким результатом сделал. |
+| Authentication | Процесс подтверждения идентичности Subject до требуемого assurance. |
+| Authentication Challenge | Конкретная проверка: OTP, approval, WebAuthn и др. |
+| Authentication Transaction | Агрегат, управляющий одним процессом аутентификации. |
+| Authorization | Решение, может ли Subject выполнить действие над Resource. |
+| Availability | Доля запросов/результатов, доступных в рамках SLO. |
+| Backfill | Управляемое заполнение нового поля, таблицы или проекции историческими данными. |
+| BFF | Backend for Frontend — слой композиции API для конкретного UI/клиента без присвоения предметного владения. |
+| Bounded Context | Граница, внутри которой предметные термины и модели имеют единый смысл и владельца. |
+| Bulkhead | Изоляция ресурсов/пулов для ограничения распространения отказа. |
+| Capability | Устойчивая способность платформы предоставлять бизнес-результат. |
+| Causation ID | Идентификатор непосредственной причины команды, события или действия. |
+| CIBA | Client Initiated Backchannel Authentication — backchannel flow запуска аутентификации клиентом. |
+| Circuit Breaker | Механизм временной остановки вызовов деградировавшей зависимости. |
+| Clean Architecture | Стиль, в котором зависимости направлены к domain/application, а инфраструктура подключается адаптерами. |
+| Client | Приложение или интеграция, использующая Authentication/API. |
+| Command | Намерение выполнить действие; может быть отклонено. |
+| Compensation | Предметное действие, уменьшающее последствия уже подтверждённого шага Saga. |
+| Conformist | Отношение Context Map, при котором consumer принимает язык provider без ACL. |
+| Consistency Class | Объявленная модель актуальности и транзакционности взаимодействия. |
+| Consistency Token | Маркер revision, используемый для требуемой свежести решения Access/хранилища. |
+| Constitution Prompt | Верхнеуровневый SPDD-артефакт с неизменяемыми правилами проекта. |
+| Consumer | Сервис/процесс, использующий API или событие provider. |
+| Context Map | Карта bounded contexts и типов их отношений. |
+| Contract Owner | Роль, отвечающая за схему, совместимость и lifecycle API/event. |
+| Correlation ID | Идентификатор сквозного бизнес-процесса. |
+| Credential | Доказательство, используемое для аутентификации. |
+| Data Classification | Класс чувствительности данных и соответствующие controls. |
+| Data Owner | Контекст/роль, владеющие смыслом, качеством, retention и удалением данных. |
+| Dead Letter Queue | Изолированное хранилище сообщений, которые нельзя обработать стандартным retry. |
+| Decision ID | Стабильная ссылка на решение Access или Risk. |
+| Desired State | Состояние внешнего/managed ресурса, которого M8 стремится достичь. |
+| Domain Event | Свершившийся факт внутри bounded context. |
+| Domain Service | Предметная операция, не принадлежащая естественно одной Entity/Value Object. |
+| Drift | Расхождение desired и observed state. |
+| ETag | Opaque маркер версии представления ресурса для optimistic concurrency. |
+| Entity | Предметный объект с устойчивой идентичностью и жизненным циклом. |
+| Error Budget | Допустимый объём нарушения SLO за период. |
+| Event Envelope | Общая метаоболочка события: ID, type, version, time, producer, correlation. |
+| Eventual Consistency | Состояние, при котором копии сходятся после распространения фактов. |
+| External Identity | Связь User с внешним issuer+subject. |
+| Fail-closed | Отказ в выполнении при невозможности проверить security condition. |
+| Fail-open | Продолжение при отказе security control; требует явного исключения/risk acceptance. |
+| FieldMask | Контрактный список изменяемых полей частичного update. |
+| Fitness Function | Автоматическая проверка архитектурного свойства. |
+| Freshness | Возраст/отставание производной копии относительно source of truth. |
+| Gateway | Application port для обращения к capability другого контекста. |
+| Group | Управляемая совокупность Subjects/Users в Identity. |
+| Handoff | Безопасный результат аутентификации, передаваемый следующему участнику flow. |
+| Idempotency | Свойство повторного вызова не создавать новый логический эффект. |
+| Inbox | Механизм consumer-side дедупликации сообщений. |
+| Integration Event | Публичное межконтекстное представление подтверждённого факта. |
+| Invariant | Условие, которое должно сохраняться для корректности aggregate. |
+| Label | Ограниченные индексируемые key-value метаданные ресурса. |
+| Legal Hold | Приостановка удаления данных из-за юридического требования. |
+| Long Running Operation | Публичный ресурс наблюдения длительного действия. |
+| Membership | Участие Subject/User в organization/workspace/project/group согласно owner model. |
+| Metadata | Дополнительные данные контракта; не должны скрывать core domain semantics. |
+| mTLS | Mutual TLS — взаимная аутентификация сторон TLS. |
+| Observed State | Состояние managed resource, обнаруженное во внешней системе. |
+| Open Host Service | Стандартизованный публичный интерфейс контекста для нескольких consumers. |
+| Operation | Ресурс со state/progress/result/error длительного действия. |
+| Outbox | Атомарная запись события вместе с предметной транзакцией для последующей публикации. |
+| Owner Context | Контекст, владеющий инвариантом и нормативным решением. |
+| PADS | Platform Architecture & Domain Specification — настоящая спецификация. |
+| Permission | Именованное действие над типом ресурса. |
+| Policy | Версионируемое правило принятия решений. |
+| Principal | Проверенная сторона, от имени которой выполняется security decision. |
+| Process Manager | Явный компонент, хранящий состояние межконтекстного процесса. |
+| Projection | Локальная производная модель данных другого owner. |
+| Protovalidate | Механизм декларативной проверки Protobuf-контрактов. |
+| Provider | Контекст или внешняя система, предоставляющие capability/contract. |
+| Published Language | Версионируемый язык API/events, публикуемый provider context. |
+| RPO | Recovery Point Objective — допустимая потеря данных по времени. |
+| RTO | Recovery Time Objective — целевое время восстановления. |
+| Reconciliation | Повторяемое сравнение и сближение desired и observed state. |
+| Relationship | Типизированная связь Subject и Resource в Access. |
+| Requirement | Нормативное проверяемое описание требуемого поведения или свойства. |
+| Resource | Адресуемый объект платформы с owner и lifecycle. |
+| Resource Manager | Контекст Organization, Workspace, Project и ServiceRegistration. |
+| Revision | Монотонная версия предметного состояния. |
+| Risk Assessment | Результат оценки динамического риска действия/аутентификации. |
+| Risk Decision | Контекст, возвращающий ALLOW/DENY/CHALLENGE/REVIEW. |
+| Role | Именованная композиция permissions/relations. |
+| Role Binding | Назначение Role субъекту в resource scope. |
+| Saga | Последовательность локальных транзакций с coordination/compensation. |
+| Secret | Restricted credential/key/token, не допускаемый в коде, логах и prompt. |
+| Service Identity | Техническая идентичность workload/service. |
+| ServiceRegistration | Представление сервиса, зарегистрированного в Project. |
+| Session | Ограниченный во времени security context после аутентификации. |
+| Shared Kernel | Минимальный согласованно изменяемый набор межконтекстных контрактных типов. |
+| SLI | Service Level Indicator — измеряемый показатель результата. |
+| SLO | Service Level Objective — целевое значение SLI. |
+| Snapshot | Полное состояние данных на фиксированную позицию/момент. |
+| Source of Truth | Авторитетный владелец и хранилище нормативного состояния. |
+| SPDD | Structured-Prompt-Driven Development — разработка через версионируемые структурированные промпты. |
+| Step-up | Новая проверка для достижения более высокого assurance. |
+| Structured Prompt | Формальный SPDD-артефакт с objective, scope, constraints, tests и traceability. |
+| Subject | Идентичность, которая аутентифицируется или получает права. |
+| Temporal | Workflow engine, используемый через adapter для длительной orchestration. |
+| Tenant Scope | Область organization/workspace/project, в пределах которой разрешено действие. |
+| Tombstone | Факт удаления/недоступности, распространяемый производным копиям. |
+| Trace ID | Идентификатор distributed trace. |
+| Ubiquitous Language | Единый предметный язык внутри bounded context и документации. |
+| User | Человеческая/учётная identity entity, которой владеет Identity. |
+| User Pool | Изолированная область пользователей и identity policies. |
+| Value Object | Неизменяемое значение, определяемое содержимым, а не идентичностью. |
+| Workflow | Устойчивый процесс orchestration с состоянием, retries, timers и signals. |
+| YDB | Базовое распределённое хранилище сервисных данных M8. |
+| YDB Topics | Базовый транспорт потоковых событий, если ADR не определяет иной механизм. |
+| Zero Trust | Модель, в которой доверие не следует из сети и каждый запрос проверяется явно. |
+
+## 24.2. Сокращения
+
+| Сокращение | Расшифровка |
+| --- | --- |
+| ACL | Anti-Corruption Layer |
+| ADR | Architecture Decision Record |
+| AAL | Authentication Assurance Level |
+| API | Application Programming Interface |
+| BFF | Backend for Frontend |
+| CDC | Change Data Capture |
+| CIBA | Client Initiated Backchannel Authentication |
+| DDD | Domain-Driven Design |
+| DLQ | Dead Letter Queue |
+| DR | Disaster Recovery |
+| IAM | Identity and Access Management |
+| LRO | Long Running Operation |
+| NFR | Non-Functional Requirement |
+| PADS | Platform Architecture & Domain Specification |
+| PII | Personally Identifiable Information |
+| RPO | Recovery Point Objective |
+| RTO | Recovery Time Objective |
+| SLI | Service Level Indicator |
+| SLO | Service Level Objective |
+| SPDD | Structured-Prompt-Driven Development |
+
+## 24.3. Критерии ведения глоссария
+
+- новый нормативный термин добавляется в главу 5 и кратко в главу 24;
+- синонимы не используются как разные модели;
+- устаревший термин помечается deprecated и содержит replacement;
+- названия API/events/code SHOULD соответствовать owner language;
+- внешние vendor terms переводятся ACL и не становятся доменными автоматически.
+
+---
+
+# Приложение A. Начальная структура репозитория
 
 ```text
 /cmd
@@ -6427,15 +13671,60 @@ Every significant architectural decision must be captured as an ADR. PADS define
   /08-validation
 ```
 
-# Appendix B. Minimal Definition of Done
+# Приложение B. Минимальное определение готовности
 
-- Requirement ID and acceptance criteria are linked.
-- Contract is defined or explicitly unchanged.
-- Domain model change is documented.
-- Service owner is clear.
-- No forbidden dependency is introduced.
-- Outbox/audit behavior is specified for mutations.
-- Operation behavior is specified for long-running work.
-- Unit, contract and acceptance tests are listed.
-- Structured Prompt is created or updated.
-- Review Prompt confirms compliance with PADS and ADRs.
+- Идентификатор требования связан с критериями приёмки.
+- Контракт определён либо явно подтверждено, что он не изменяется.
+- Изменение предметной модели документировано.
+- Владелец сервиса и ограниченного контекста определён.
+- Запрещённые зависимости не добавлены.
+- Для mutations определено поведение Outbox и Audit.
+- Для длительной работы определено поведение Operation.
+- Перечислены unit-, contract-, integration- и acceptance-тесты.
+- Structured Prompt создан или обновлён.
+- Review Prompt подтвердил соответствие PADS и ADR.
+
+# Приложение C. План последующих артефактов
+
+Настоящее приложение не заменяет главы 20–23, а задаёт рекомендуемый порядок практического применения PADS.
+
+## C.1. Обязательные следующие артефакты
+
+1. **Requirements Catalog** — полный реестр `CAP-*`, `PLT-*`, `RM-*`, `ID-*`, `AUTH-*`, `ACC-*`, `RISK-*`, `PROV-*`, `AUD-*`, `OPS-*` в YAML/Markdown.
+2. **Traceability Registry** — machine-readable граф связей capabilities, requirements, invariants, contracts, prompts и tests.
+3. **ADR Baseline** — начальный набор решений о YDB, YDB Topics/Kafka, Temporal, Keycloak CIBA, SpiceDB, Common Operation, API transport и multi-region assumptions.
+4. **API Catalog** — Protobuf packages, methods, permissions, errors, idempotency и LRO semantics.
+5. **Event Catalog** — event types, schemas, partition keys, retention, producers, consumers и rebuild paths.
+6. **Data Ownership Registry** — authoritative entities/attributes, classification, retention, projections и deletion obligations.
+7. **Context Prompts** — семь SPDD Context Prompts и общий Constitution Prompt.
+8. **Pilot Feature Package** — одно требование, полностью проведённое от requirement до code/test/release evidence.
+
+## C.2. Рекомендуемый пилот
+
+В качестве пилота рекомендуется `AUTH-FR-017`:
+
+```text
+Refresh token cannot be used
+→ start a new CIBA AuthenticationTransaction
+→ evaluate Risk
+→ create Operation + Outbox atomically
+→ publish AuthenticationStarted
+→ verify idempotency, security, audit and observability
+```
+
+Пилот затрагивает достаточно механизмов для проверки PADS/SPDD, но остаётся ограниченным контекстом Authentication.
+
+## C.3. Критерий перехода к массовой реализации
+
+Массовая декомпозиция сервисов начинается после того, как пилот доказал:
+
+- пригодность requirement schema;
+- полноту Context/Feature/Task/Review Prompt;
+- автоматическую traceability validation;
+- корректность API/Event registries;
+- архитектурные fitness functions;
+- идемпотентность и Outbox/Inbox patterns;
+- security/observability gates;
+- возможность независимого review generated changes.
+
+---
