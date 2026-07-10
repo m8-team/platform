@@ -2933,10 +2933,14 @@ records:
   - DATA-ACC-004
   - DATA-ACC-005
   adr_ids: []
-  prompt_ids: []
+  prompt_ids:
+  - SP-FEATURE-ACC_FR_001
+  - SP-TASK-ACC_FR_001-01
   test_ids:
   - ACC-FR-001-AC-01
   - ACC-FR-001-AC-02
+  - internal/access/domain/check_permission_test.go
+  - internal/access/app/usecase/check_permission_test.go
   release_evidence_ids: []
   coverage_status: contract-mapped
 - requirement_id: ACC-FR-002

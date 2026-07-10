@@ -64,3 +64,9 @@ _M8-TRACE-000 · Версия 0.1 · 10 июля 2026 года_
 | Requirement | API | Events | Prompt | Tests |
 | --- | --- | --- | --- | --- |
 | `AUTH-FR-017` | API-AUTH-001 | EVT-AUTH-001 | `SP-FEATURE-AUTH-017` | `AUTH-FR-017-AC-01`, `AUTH-FR-017-AC-02` |
+
+# 6. Реализационные связи
+
+| Requirement | Prompt | Code evidence | Test evidence |
+| --- | --- | --- | --- |
+| `ACC-FR-001` | `SP-FEATURE-ACC_FR_001`, `SP-TASK-ACC_FR_001-01` | `internal/access/domain`, `internal/access/app/usecase` | `internal/access/domain/check_permission_test.go`, `internal/access/app/usecase/check_permission_test.go` |
