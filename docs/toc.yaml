@@ -1,6 +1,10 @@
 title: M8 Platform Docs
 href: index.md
 items:
+  - name: Архитектура
+    items:
+      - name: PADS v0.1
+        href: M8_Platform_Architecture_and_Domain_Specification_PADS_v0_1.md
   - name: Сервисы
     items:
       - name: Access
