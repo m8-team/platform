@@ -25,7 +25,7 @@ keywords:
 | [13. Правила проектирования событий](13-events.md) | События, outbox, envelope, версионирование и потребители. |
 | [14. Модель интеграции и согласованности](14-integration-consistency.md) | Синхронные и асинхронные интеграции, согласованность и деградация. |
 | [15. Архитектура безопасности](15-security.md) | Trust boundaries, authentication, authorization, audit, secrets, threat modeling и Secure SDLC. |
-| [16. Длительные операции](16-operations.md) | Каноническая модель Operation, progress, cancellation, idempotency и Temporal. |
+| [Long-Running Operations (LRO)](16-operations.md) | Каноническая модель long-running operations (LRO): progress, cancellation, idempotency, Temporal и safeguards. |
 | [17. Модель ошибок](17-errors.md) | Слои ошибок, категории, коды, retryability и error catalog. |
 | [18. Наблюдаемость](18-observability.md) | Tracing, metrics, logs, SLI/SLO, dashboards, alerts и runbooks. |
 | [19. Атрибуты качества](19-quality-attributes.md) | Сценарии качества, quality gates и каталог атрибутов качества. |

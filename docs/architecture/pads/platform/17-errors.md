@@ -11,7 +11,7 @@ keywords:
 
 {% note info "Навигация PADS" %}
 
-[Оглавление PADS](../index.md) | [Предыдущий раздел: 16. Длительные операции](16-operations.md) | [Следующий раздел: 18. Наблюдаемость](18-observability.md)
+[Оглавление PADS](../index.md) | [Предыдущий раздел: Long-Running Operations (LRO)](16-operations.md) | [Следующий раздел: 18. Наблюдаемость](18-observability.md)
 
 {% endnote %}
 

@@ -11,7 +11,7 @@ keywords:
 
 {% note info "Навигация PADS" %}
 
-[Оглавление PADS](../index.md) | [Предыдущий раздел: 14. Модель интеграции и согласованности](14-integration-consistency.md) | [Следующий раздел: 16. Длительные операции](16-operations.md)
+[Оглавление PADS](../index.md) | [Предыдущий раздел: 14. Модель интеграции и согласованности](14-integration-consistency.md) | [Следующий раздел: Long-Running Operations (LRO)](16-operations.md)
 
 {% endnote %}
 

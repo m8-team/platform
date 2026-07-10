@@ -65,7 +65,7 @@ _PADS-000 · Версия 1.0 · Базовая архитектура и пре
 | [13. Правила проектирования событий](platform/13-events.md) | Платформенная архитектура | События, outbox, envelope, версионирование и потребители. |
 | [14. Модель интеграции и согласованности](platform/14-integration-consistency.md) | Платформенная архитектура | Синхронные и асинхронные интеграции, согласованность и деградация. |
 | [15. Архитектура безопасности](platform/15-security.md) | Платформенная архитектура | Trust boundaries, authentication, authorization, audit, secrets, threat modeling и Secure SDLC. |
-| [16. Длительные операции](platform/16-operations.md) | Платформенная архитектура | Каноническая модель Operation, progress, cancellation, idempotency и Temporal. |
+| [Long-Running Operations (LRO)](platform/16-operations.md) | Платформенная архитектура | Каноническая модель long-running operations (LRO): progress, cancellation, idempotency, Temporal и safeguards. |
 | [17. Модель ошибок](platform/17-errors.md) | Платформенная архитектура | Слои ошибок, категории, коды, retryability и error catalog. |
 | [18. Наблюдаемость](platform/18-observability.md) | Платформенная архитектура | Tracing, metrics, logs, SLI/SLO, dashboards, alerts и runbooks. |
 | [19. Атрибуты качества](platform/19-quality-attributes.md) | Платформенная архитектура | Сценарии качества, quality gates и каталог атрибутов качества. |
