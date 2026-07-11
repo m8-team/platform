@@ -1,5 +1,71 @@
 title: M8 Platform Docs
 href: index.md
+navigation:
+  logo:
+    text: M8 Platform
+    url: index.html
+    urlTitle: M8 Platform Docs
+  header:
+    leftItems:
+      - type: link
+        text: Главная
+        url: index.html
+      - type: dropdown
+        text: Архитектура
+        items:
+          - type: link
+            text: PADS
+            url: architecture/pads/index.html
+          - type: link
+            text: Requirements Catalog
+            url: architecture/requirements/index.html
+          - type: link
+            text: Платформенная архитектура
+            url: architecture/pads/platform/index.html
+          - type: link
+            text: Long-Running Operations
+            url: architecture/pads/platform/16-operations.html
+          - type: link
+            text: Распределение требований
+            url: architecture/pads/governance/20-requirements.html
+      - type: dropdown
+        text: Engineering
+        items:
+          - type: link
+            text: Engineering Artifacts
+            url: engineering-artifacts/index.html
+          - type: link
+            text: Contracts
+            url: engineering-artifacts/contracts/index.html
+          - type: link
+            text: ADR
+            url: engineering-artifacts/adr/index.html
+          - type: link
+            text: SPDD
+            url: engineering-artifacts/spdd/index.html
+          - type: link
+            text: Executable Baseline
+            url: executable-baseline/index.html
+          - type: link
+            text: Operations
+            url: executable-baseline/operations/index.html
+          - type: link
+            text: Runbooks
+            url: executable-baseline/operations/runbooks/index.html
+      - type: dropdown
+        text: Сервисы
+        items:
+          - type: link
+            text: Access
+            url: services/access/index.html
+          - type: link
+            text: IAM
+            url: services/iam/index.html
+          - type: link
+            text: Resource Manager
+            url: services/resource-manager/index.html
+    rightItems:
+      - type: controls
 items:
   - name: Архитектура
     items:
