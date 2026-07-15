@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -24,6 +25,8 @@ import (
 )
 
 const Version = "1.0.0-dev"
+
+const defaultArgoCDManifestURL = "https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
 
 const (
 	ExitOK             = 0
@@ -112,6 +115,10 @@ func (a App) runInstall(ctx context.Context, args []string) int {
 	dryRun := flags.Bool("dry-run", false, "Render the installation plan without applying changes")
 	kubeconfig := flags.String("kubeconfig", "", "Path to kubeconfig")
 	kubeContext := flags.String("context", "", "Kubernetes context")
+	argoCDManifestPath := flags.String("argocd-manifest", "", "Local Argo CD install manifest")
+	argoCDManifestURL := flags.String("argocd-manifest-url", defaultArgoCDManifestURL, "Argo CD install manifest URL")
+	skipArgoCD := flags.Bool("skip-argocd", false, "Skip Argo CD manifest installation")
+	skipRootGitOps := flags.Bool("skip-root-gitops", false, "Skip root AppProject/ApplicationSet installation")
 	if err := flags.Parse(args); err != nil {
 		return ExitUsage
 	}
@@ -172,10 +179,30 @@ func (a App) runInstall(ctx context.Context, args []string) int {
 		_, _ = fmt.Fprintf(a.Stderr, "create Kubernetes client: %v\n", err)
 		return ExitError
 	}
+	var argoCDManifest []byte
+	if !*skipArgoCD {
+		argoCDManifest, err = loadArgoCDManifest(ctx, *argoCDManifestPath, *argoCDManifestURL)
+		if err != nil {
+			_, _ = fmt.Fprintf(a.Stderr, "load Argo CD manifest: %v\n", err)
+			return ExitError
+		}
+	}
+	var rootGitOpsManifests [][]byte
+	if !*skipRootGitOps {
+		rootGitOpsManifests, err = loadRootGitOpsManifests()
+		if err != nil {
+			_, _ = fmt.Fprintf(a.Stderr, "load root GitOps manifests: %v\n", err)
+			return ExitError
+		}
+	}
 	result, err := installerinstall.Executor{Kubernetes: client, Now: a.Now}.Apply(ctx, installerinstall.Request{
-		Plan:         source.Plan,
-		Installation: source.Installation,
-		Release:      source.Release,
+		Plan:                source.Plan,
+		Installation:        source.Installation,
+		Release:             source.Release,
+		ArgoCDManifest:      argoCDManifest,
+		RootGitOpsManifests: rootGitOpsManifests,
+		SkipArgoCD:          *skipArgoCD,
+		SkipRootGitOps:      *skipRootGitOps,
 	})
 	if err != nil {
 		_, _ = fmt.Fprintf(a.Stderr, "install failed: %v\n", err)
@@ -493,6 +520,72 @@ func resolveCatalogDir(path string) string {
 		}
 	}
 	return path
+}
+
+func loadArgoCDManifest(ctx context.Context, path string, url string) ([]byte, error) {
+	if path != "" {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("read Argo CD manifest %q: %w", path, err)
+		}
+		return data, nil
+	}
+	if url == "" {
+		return nil, fmt.Errorf("Argo CD manifest URL is empty")
+	}
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create Argo CD manifest request: %w", err)
+	}
+	client := http.Client{Timeout: 60 * time.Second}
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("download Argo CD manifest from %s: %w", url, err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		return nil, fmt.Errorf("download Argo CD manifest from %s: HTTP %d", url, response.StatusCode)
+	}
+	data, err := io.ReadAll(io.LimitReader(response.Body, 25*1024*1024))
+	if err != nil {
+		return nil, fmt.Errorf("read Argo CD manifest response: %w", err)
+	}
+	if len(data) == 0 {
+		return nil, fmt.Errorf("Argo CD manifest from %s is empty", url)
+	}
+	return data, nil
+}
+
+func loadRootGitOpsManifests() ([][]byte, error) {
+	dir, ok := findRootGitOpsDir()
+	if !ok {
+		return nil, nil
+	}
+	files := []string{"appproject.yaml", "applicationset.yaml"}
+	manifests := make([][]byte, 0, len(files))
+	for _, file := range files {
+		path := filepath.Join(dir, file)
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("read root GitOps manifest %q: %w", path, err)
+		}
+		manifests = append(manifests, data)
+	}
+	return manifests, nil
+}
+
+func findRootGitOpsDir() (string, bool) {
+	candidates := []string{
+		filepath.Join("gitops", "root"),
+		filepath.Join("..", "gitops", "root"),
+	}
+	for _, candidate := range candidates {
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			return candidate, true
+		}
+	}
+	return "", false
 }
 
 func (a App) usage() {

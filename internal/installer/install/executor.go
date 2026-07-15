@@ -18,10 +18,14 @@ type Executor struct {
 }
 
 type Request struct {
-	Plan         planner.InstallationPlan
-	Installation installerv1alpha1.PlatformInstallation
-	Release      installerv1alpha1.PlatformRelease
-	RequestedBy  string
+	Plan                planner.InstallationPlan
+	Installation        installerv1alpha1.PlatformInstallation
+	Release             installerv1alpha1.PlatformRelease
+	RequestedBy         string
+	ArgoCDManifest      []byte
+	RootGitOpsManifests [][]byte
+	SkipArgoCD          bool
+	SkipRootGitOps      bool
 }
 
 type Result struct {
@@ -81,6 +85,22 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 		result.Applied = append(result.Applied, "namespace/"+namespace)
 	}
 
+	if !request.SkipArgoCD {
+		if len(request.ArgoCDManifest) == 0 {
+			result.Skipped = append(result.Skipped, "argocd install manifest not provided")
+		} else {
+			applied, err := e.Kubernetes.ApplyYAMLDocuments(ctx, request.ArgoCDManifest, request.Installation.Spec.GitOps.ArgoCD.Namespace)
+			if err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, fmt.Sprintf("argocd/%d resources", len(applied)))
+			if err := e.Kubernetes.WaitForAPIResource(ctx, "argoproj.io/v1alpha1", "Application", 90*time.Second); err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, "argocd-api-ready")
+		}
+	}
+
 	if err := e.Kubernetes.ApplyPlatformRelease(ctx, request.Release); err != nil {
 		return result, err
 	}
@@ -96,13 +116,24 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 	}
 	result.Applied = append(result.Applied, "installationoperation/"+operation.Namespace+"/"+operation.Name)
 
+	if !request.SkipRootGitOps {
+		for index, manifest := range request.RootGitOpsManifests {
+			if len(manifest) == 0 {
+				continue
+			}
+			applied, err := e.Kubernetes.ApplyYAMLDocuments(ctx, manifest, request.Installation.Spec.GitOps.ArgoCD.Namespace)
+			if err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, fmt.Sprintf("root-gitops-%d/%d resources", index+1, len(applied)))
+		}
+	}
+
 	result.Skipped = append(result.Skipped,
 		"cilium helm install",
 		"cert-manager helm install",
 		"trust-manager helm install",
-		"argocd helm install",
 		"external-secrets helm install",
-		"root AppProject/ApplicationSet",
 		"GitOps component reconciliation",
 	)
 

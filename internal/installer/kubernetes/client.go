@@ -1,8 +1,11 @@
 package kubernetes
 
 import (
+	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 	"time"
@@ -11,19 +14,24 @@ import (
 	"github.com/m8platform/platform/internal/installer/preflight"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/client-go/discovery/cached/memory"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 type Client struct {
 	clientset kubernetes.Interface
 	dynamic   dynamic.Interface
+	mapper    *restmapper.DeferredDiscoveryRESTMapper
 }
 
 type ClientOptions struct {
@@ -44,7 +52,8 @@ func NewClient(options ClientOptions) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create Kubernetes dynamic client: %w", err)
 	}
-	return &Client{clientset: clientset, dynamic: dynamicClient}, nil
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(clientset.Discovery()))
+	return &Client{clientset: clientset, dynamic: dynamicClient, mapper: mapper}, nil
 }
 
 func RESTConfig(options ClientOptions) (*rest.Config, error) {
@@ -212,6 +221,101 @@ func (c *Client) WaitForInstallerAPI(ctx context.Context, timeout time.Duration)
 	}
 }
 
+func (c *Client) WaitForAPIResource(ctx context.Context, groupVersion string, kind string, timeout time.Duration) error {
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		found, err := c.HasAPIResource(ctx, groupVersion, kind)
+		if err == nil && found {
+			if c.mapper != nil {
+				c.mapper.Reset()
+			}
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("wait for API resource %s %s: %w", groupVersion, kind, ctx.Err())
+		case <-ticker.C:
+		}
+	}
+}
+
+func (c *Client) ApplyYAMLDocuments(ctx context.Context, data []byte, defaultNamespace string) ([]string, error) {
+	decoder := utilyaml.NewYAMLOrJSONDecoder(bytes.NewReader(data), 4096)
+	var applied []string
+
+	for {
+		var raw map[string]any
+		err := decoder.Decode(&raw)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return applied, fmt.Errorf("decode Kubernetes manifest: %w", err)
+		}
+		if len(raw) == 0 {
+			continue
+		}
+
+		object := &unstructured.Unstructured{Object: raw}
+		if object.GetKind() == "" || object.GetAPIVersion() == "" {
+			continue
+		}
+		if object.GetName() == "" {
+			return applied, fmt.Errorf("manifest object %s is missing metadata.name", object.GroupVersionKind())
+		}
+
+		mapping, err := c.restMapping(object.GroupVersionKind())
+		if err != nil {
+			return applied, err
+		}
+
+		namespace := ""
+		if mapping.Scope.Name() != meta.RESTScopeNameRoot {
+			if object.GetNamespace() == "" {
+				object.SetNamespace(defaultNamespace)
+			}
+			namespace = object.GetNamespace()
+			if namespace == "" {
+				return applied, fmt.Errorf("manifest object %s/%s requires a namespace", object.GetKind(), object.GetName())
+			}
+		}
+
+		if err := c.applyUnstructured(ctx, mapping.Resource, namespace, object); err != nil {
+			return applied, err
+		}
+		applied = append(applied, objectReference(object, namespace))
+	}
+
+	return applied, nil
+}
+
+func (c *Client) restMapping(gvk schema.GroupVersionKind) (*meta.RESTMapping, error) {
+	if c.mapper == nil {
+		return nil, fmt.Errorf("REST mapper is not configured")
+	}
+	mapping, err := c.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	if err == nil {
+		return mapping, nil
+	}
+	if meta.IsNoMatchError(err) {
+		c.mapper.Reset()
+		mapping, err = c.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("resolve REST mapping for %s: %w", gvk.String(), err)
+	}
+	return mapping, nil
+}
+
 func (c *Client) ApplyNamespace(ctx context.Context, name string) error {
 	if name == "" {
 		return fmt.Errorf("namespace name is required")
@@ -299,6 +403,14 @@ func toUnstructured(value any) (*unstructured.Unstructured, error) {
 		return nil, fmt.Errorf("encode Kubernetes object: %w", err)
 	}
 	return &unstructured.Unstructured{Object: object}, nil
+}
+
+func objectReference(object *unstructured.Unstructured, namespace string) string {
+	gvk := object.GroupVersionKind()
+	if namespace == "" {
+		return strings.ToLower(gvk.Kind) + "/" + object.GetName()
+	}
+	return strings.ToLower(gvk.Kind) + "/" + namespace + "/" + object.GetName()
 }
 
 func (c *Client) GetPlatformInstallation(ctx context.Context, namespace string, name string) (installerv1alpha1.PlatformInstallation, error) {
