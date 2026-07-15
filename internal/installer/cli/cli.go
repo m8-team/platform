@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
+	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	"github.com/m8platform/platform/internal/installer/catalog"
 	"github.com/m8platform/platform/internal/installer/config"
 	installerkubernetes "github.com/m8platform/platform/internal/installer/kubernetes"
@@ -57,7 +59,9 @@ func (a App) Run(ctx context.Context, args []string) int {
 		return a.runPreflight(ctx, args[1:])
 	case "plan":
 		return a.runPlan(ctx, args[1:])
-	case "bootstrap", "install", "status", "doctor", "upgrade", "rollback", "backup", "restore", "bundle", "uninstall":
+	case "status":
+		return a.runStatus(ctx, args[1:])
+	case "bootstrap", "install", "doctor", "upgrade", "rollback", "backup", "restore", "bundle", "uninstall":
 		_, _ = fmt.Fprintf(a.Stderr, "m8ctl %s is defined in the CLI contract but not implemented in this MVP skeleton\n", args[0])
 		return ExitNotImplemented
 	case "-h", "--help", "help":
@@ -68,6 +72,72 @@ func (a App) Run(ctx context.Context, args []string) int {
 		a.usage()
 		return ExitUsage
 	}
+}
+
+func (a App) runStatus(ctx context.Context, args []string) int {
+	flags := flag.NewFlagSet("status", flag.ContinueOnError)
+	flags.SetOutput(a.Stderr)
+	outputValue := flags.String("output", "table", "Output format: table, json, yaml")
+	kubeconfig := flags.String("kubeconfig", "", "Path to kubeconfig")
+	kubeContext := flags.String("context", "", "Kubernetes context")
+	namespace := ""
+	flags.StringVar(&namespace, "namespace", "", "PlatformInstallation namespace")
+	flags.StringVar(&namespace, "n", "", "PlatformInstallation namespace")
+	allNamespaces := flags.Bool("all-namespaces", false, "List PlatformInstallation resources across all namespaces")
+	if err := flags.Parse(args); err != nil {
+		return ExitUsage
+	}
+
+	name := ""
+	if flags.NArg() > 0 {
+		name = flags.Arg(0)
+	}
+	if flags.NArg() > 1 {
+		_, _ = fmt.Fprintln(a.Stderr, "status accepts at most one PlatformInstallation name")
+		return ExitUsage
+	}
+
+	client, err := installerkubernetes.NewClient(installerkubernetes.ClientOptions{Kubeconfig: *kubeconfig, Context: *kubeContext})
+	if err != nil {
+		_, _ = fmt.Fprintf(a.Stderr, "create Kubernetes client: %v\n", err)
+		return ExitError
+	}
+
+	var installations []installerv1alpha1.PlatformInstallation
+	if name != "" {
+		if namespace == "" {
+			namespace = "m8-system"
+		}
+		installation, err := client.GetPlatformInstallation(ctx, namespace, name)
+		if err != nil {
+			_, _ = fmt.Fprintf(a.Stderr, "get status: %v\n", err)
+			return ExitError
+		}
+		installations = []installerv1alpha1.PlatformInstallation{installation}
+	} else {
+		listNamespace := namespace
+		if *allNamespaces || namespace == "" {
+			listNamespace = ""
+		}
+		installations, err = client.ListPlatformInstallations(ctx, listNamespace)
+		if err != nil {
+			_, _ = fmt.Fprintf(a.Stderr, "list status: %v\n", err)
+			return ExitError
+		}
+	}
+
+	sort.SliceStable(installations, func(i, j int) bool {
+		if installations[i].Namespace != installations[j].Namespace {
+			return installations[i].Namespace < installations[j].Namespace
+		}
+		return installations[i].Name < installations[j].Name
+	})
+
+	if err := output.WriteInstallationsStatus(a.Stdout, output.ParseFormat(*outputValue), installations); err != nil {
+		_, _ = fmt.Fprintf(a.Stderr, "write output: %v\n", err)
+		return ExitError
+	}
+	return ExitOK
 }
 
 func (a App) runPreflight(ctx context.Context, args []string) int {

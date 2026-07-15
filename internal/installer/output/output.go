@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	"github.com/m8platform/platform/internal/installer/planner"
 	"github.com/m8platform/platform/internal/installer/preflight"
 	"sigs.k8s.io/yaml"
@@ -104,6 +105,80 @@ func WritePlan(w io.Writer, format Format, plan planner.InstallationPlan) error 
 	default:
 		return fmt.Errorf("unsupported output format %q", format)
 	}
+}
+
+func WriteInstallationsStatus(w io.Writer, format Format, installations []installerv1alpha1.PlatformInstallation) error {
+	switch format {
+	case FormatTable:
+		if _, err := fmt.Fprint(w, "M8 Installer 1.0\n\n"); err != nil {
+			return err
+		}
+		if len(installations) == 0 {
+			_, err := fmt.Fprintln(w, "No PlatformInstallation resources found.")
+			return err
+		}
+		if _, err := fmt.Fprintf(w, "%-24s %-16s %-14s %-13s %-18s %-10s\n", "NAME", "NAMESPACE", "PHASE", "VERSION", "COMPONENTS", "ENDPOINTS"); err != nil {
+			return err
+		}
+		for _, installation := range installations {
+			phase := installation.Status.Phase
+			if phase == "" {
+				phase = installerv1alpha1.PhasePending
+			}
+			if _, err := fmt.Fprintf(
+				w,
+				"%-24s %-16s %-14s %-13s %-18s %-10s\n",
+				installation.Name,
+				installation.Namespace,
+				phase,
+				firstNonEmpty(installation.Status.PlatformVersion, installation.Spec.PlatformVersion),
+				componentSummary(installation.Status.Components),
+				endpointSummary(installation.Status.Endpoints),
+			); err != nil {
+				return err
+			}
+		}
+		return nil
+	case FormatJSON, FormatYAML:
+		return Write(w, format, installations)
+	default:
+		return fmt.Errorf("unsupported output format %q", format)
+	}
+}
+
+func componentSummary(components []installerv1alpha1.ComponentStatus) string {
+	if len(components) == 0 {
+		return "0/0 ready"
+	}
+	ready := 0
+	for _, component := range components {
+		if component.Ready {
+			ready++
+		}
+	}
+	return fmt.Sprintf("%d/%d ready", ready, len(components))
+}
+
+func endpointSummary(endpoints []installerv1alpha1.EndpointStatus) string {
+	if len(endpoints) == 0 {
+		return "0/0 ready"
+	}
+	ready := 0
+	for _, endpoint := range endpoints {
+		if endpoint.Ready {
+			ready++
+		}
+	}
+	return fmt.Sprintf("%d/%d ready", ready, len(endpoints))
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return "-"
 }
 
 func markerForStatus(status preflight.Status) string {

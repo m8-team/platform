@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	"github.com/m8platform/platform/internal/installer/preflight"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -15,6 +20,7 @@ import (
 
 type Client struct {
 	clientset kubernetes.Interface
+	dynamic   dynamic.Interface
 }
 
 type ClientOptions struct {
@@ -31,7 +37,11 @@ func NewClient(options ClientOptions) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create Kubernetes client: %w", err)
 	}
-	return &Client{clientset: clientset}, nil
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("create Kubernetes dynamic client: %w", err)
+	}
+	return &Client{clientset: clientset, dynamic: dynamicClient}, nil
 }
 
 func RESTConfig(options ClientOptions) (*rest.Config, error) {
@@ -114,6 +124,58 @@ func (c *Client) StorageClasses(ctx context.Context) ([]string, error) {
 		names = append(names, class.Name)
 	}
 	return names, nil
+}
+
+var platformInstallationGVR = schema.GroupVersionResource{
+	Group:    installerv1alpha1.GroupName,
+	Version:  installerv1alpha1.Version,
+	Resource: "platforminstallations",
+}
+
+func (c *Client) GetPlatformInstallation(ctx context.Context, namespace string, name string) (installerv1alpha1.PlatformInstallation, error) {
+	if name == "" {
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("platform installation name is required")
+	}
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	item, err := c.dynamic.Resource(platformInstallationGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("platform installation %s/%s not found", namespace, name)
+		}
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("get platform installation %s/%s: %w", namespace, name, err)
+	}
+
+	var installation installerv1alpha1.PlatformInstallation
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &installation); err != nil {
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("decode platform installation %s/%s: %w", namespace, name, err)
+	}
+	return installation, nil
+}
+
+func (c *Client) ListPlatformInstallations(ctx context.Context, namespace string) ([]installerv1alpha1.PlatformInstallation, error) {
+	list, err := c.dynamic.Resource(platformInstallationGVR).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, nil
+		}
+		scope := "all namespaces"
+		if namespace != "" {
+			scope = "namespace " + namespace
+		}
+		return nil, fmt.Errorf("list platform installations in %s: %w", scope, err)
+	}
+
+	installations := make([]installerv1alpha1.PlatformInstallation, 0, len(list.Items))
+	for _, item := range list.Items {
+		var installation installerv1alpha1.PlatformInstallation
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &installation); err != nil {
+			return nil, fmt.Errorf("decode platform installation %s/%s: %w", item.GetNamespace(), item.GetName(), err)
+		}
+		installations = append(installations, installation)
+	}
+	return installations, nil
 }
 
 func isNodeReady(node corev1.Node) bool {
