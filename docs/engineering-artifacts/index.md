@@ -23,6 +23,7 @@ _Версия 0.1 · 10 июля 2026 года_
 | Каталог | Назначение |
 | --- | --- |
 | [foundation](foundation/index.md) | Канонические ссылки на PADS v1.0 и Requirements Catalog v0.1 без повторной публикации текста. |
+| [installer](installer/index.md) | Архитектура и первый компилируемый baseline M8 Installer 1.0. |
 | [contracts](contracts/index.md) | API, Event, Error catalogs и Protobuf package map. |
 | [data](data/index.md) | Data Ownership Registry. |
 | [traceability](traceability/index.md) | Registry для 214 требований и schema. |

@@ -3,6 +3,27 @@ href: index.md
 items:
   - name: Foundation
     href: foundation/index.md
+  - name: Installer
+    href: installer/index.md
+    items:
+      - name: Domain Model
+        href: installer/domain-model.md
+      - name: ADR Backlog
+        href: installer/adr-backlog.md
+      - name: API Reference
+        href: installer/api.md
+      - name: CLI Specification
+        href: installer/cli.md
+      - name: GitOps Design
+        href: installer/gitops.md
+      - name: Release Catalog
+        href: installer/release-catalog.md
+      - name: Repository Structure
+        href: installer/repository.md
+      - name: Test Strategy
+        href: installer/test-strategy.md
+      - name: Implementation Plan
+        href: installer/implementation-plan.md
   - name: Contracts
     href: contracts/index.md
     items:

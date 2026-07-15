@@ -1,0 +1,242 @@
+apiVersion: installer.m8.io/v1alpha1
+kind: PlatformRelease
+metadata:
+  name: "1.0.0"
+spec:
+  kubernetes:
+    minVersion: "1.30.0"
+    maxVersion: "1.34.x"
+  signature:
+    algorithm: cosign-bundle-v1
+    value: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    keyRef: m8-release-signing-key
+  security:
+    sbomLocation: oci://registry.m8.io/m8/platform/sbom:1.0.0@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    cosignSignature: oci://registry.m8.io/m8/platform/signatures:1.0.0@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  compatibility:
+    supportedProfiles:
+      - demo
+      - development
+      - staging
+      - production
+      - air-gapped
+  releaseNotes: docs/releases/1.0.0.md
+  components:
+    cilium:
+      version: "1.17.0"
+      chart:
+        repository: oci://registry.m8.io/charts/cilium
+        version: "1.17.0"
+        digest: sha256:1111111111111111111111111111111111111111111111111111111111111111
+      images:
+        - name: cilium
+          repository: registry.m8.io/cilium/cilium
+          version: "1.17.0"
+          digest: sha256:1111111111111111111111111111111111111111111111111111111111111112
+      rollbackSupport:
+        supported: false
+        boundary: CNI rollback requires cluster-specific recovery.
+      resources:
+        cpu: "2"
+        memory: 4Gi
+        storage: 0Gi
+    gateway-api:
+      version: "1.3.0"
+      chart:
+        repository: oci://registry.m8.io/charts/gateway-api-crds
+        version: "1.3.0"
+        digest: sha256:2222222222222222222222222222222222222222222222222222222222222221
+      crdVersions:
+        - gateway.networking.k8s.io/v1
+      rollbackSupport:
+        supported: false
+    envoy-gateway:
+      version: "1.3.0"
+      chart:
+        repository: oci://registry.m8.io/charts/envoy-gateway
+        version: "1.3.0"
+        digest: sha256:2222222222222222222222222222222222222222222222222222222222222222
+      images:
+        - name: envoy-gateway
+          repository: registry.m8.io/envoyproxy/gateway
+          version: "1.3.0"
+          digest: sha256:2222222222222222222222222222222222222222222222222222222222222223
+      dependencies:
+        - gateway-api
+      rollbackSupport:
+        supported: true
+    cert-manager:
+      version: "1.17.2"
+      chart:
+        repository: oci://registry.m8.io/charts/cert-manager
+        version: "1.17.2"
+        digest: sha256:3333333333333333333333333333333333333333333333333333333333333331
+      images:
+        - name: cert-manager-controller
+          repository: registry.m8.io/jetstack/cert-manager-controller
+          version: "1.17.2"
+          digest: sha256:3333333333333333333333333333333333333333333333333333333333333332
+      rollbackSupport:
+        supported: true
+    trust-manager:
+      version: "0.16.0"
+      chart:
+        repository: oci://registry.m8.io/charts/trust-manager
+        version: "0.16.0"
+        digest: sha256:4444444444444444444444444444444444444444444444444444444444444441
+      dependencies:
+        - cert-manager
+      rollbackSupport:
+        supported: true
+    spire:
+      version: "1.11.0"
+      chart:
+        repository: oci://registry.m8.io/charts/spire
+        version: "1.11.0"
+        digest: sha256:5555555555555555555555555555555555555555555555555555555555555551
+      images:
+        - name: spire-server
+          repository: registry.m8.io/spiffe/spire-server
+          version: "1.11.0"
+          digest: sha256:5555555555555555555555555555555555555555555555555555555555555552
+        - name: spire-agent
+          repository: registry.m8.io/spiffe/spire-agent
+          version: "1.11.0"
+          digest: sha256:5555555555555555555555555555555555555555555555555555555555555553
+      rollbackSupport:
+        supported: true
+    argocd:
+      version: "3.0.0"
+      chart:
+        repository: oci://registry.m8.io/charts/argo-cd
+        version: "8.0.0"
+        digest: sha256:6666666666666666666666666666666666666666666666666666666666666661
+      images:
+        - name: argocd
+          repository: registry.m8.io/argoproj/argocd
+          version: "3.0.0"
+          digest: sha256:6666666666666666666666666666666666666666666666666666666666666662
+      rollbackSupport:
+        supported: true
+    external-secrets-operator:
+      version: "0.17.0"
+      chart:
+        repository: oci://registry.m8.io/charts/external-secrets
+        version: "0.17.0"
+        digest: sha256:7777777777777777777777777777777777777777777777777777777777777771
+      rollbackSupport:
+        supported: true
+    kyverno:
+      version: "1.14.0"
+      chart:
+        repository: oci://registry.m8.io/charts/kyverno
+        version: "3.4.0"
+        digest: sha256:8888888888888888888888888888888888888888888888888888888888888881
+      rollbackSupport:
+        supported: true
+    trivy-operator:
+      version: "0.27.0"
+      chart:
+        repository: oci://registry.m8.io/charts/trivy-operator
+        version: "0.27.0"
+        digest: sha256:9999999999999999999999999999999999999999999999999999999999999991
+      rollbackSupport:
+        supported: true
+    cloudnative-pg:
+      version: "1.26.0"
+      chart:
+        repository: oci://registry.m8.io/charts/cloudnative-pg
+        version: "0.23.0"
+        digest: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1
+      rollbackSupport:
+        supported: true
+    ydb-operator:
+      version: "0.12.0"
+      chart:
+        repository: oci://registry.m8.io/charts/ydb-operator
+        version: "0.12.0"
+        digest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb1
+      rollbackSupport:
+        supported: true
+    strimzi:
+      version: "0.46.0"
+      chart:
+        repository: oci://registry.m8.io/charts/strimzi-kafka-operator
+        version: "0.46.0"
+        digest: sha256:ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc1
+      rollbackSupport:
+        supported: true
+    redis-operator:
+      version: "7.8.0"
+      chart:
+        repository: oci://registry.m8.io/charts/redis-operator
+        version: "7.8.0"
+        digest: sha256:ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd1
+      rollbackSupport:
+        supported: true
+    keycloak-operator:
+      version: "26.2.0"
+      chart:
+        repository: oci://registry.m8.io/charts/keycloak-operator
+        version: "26.2.0"
+        digest: sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee1
+      rollbackSupport:
+        supported: true
+    spicedb-operator:
+      version: "1.18.0"
+      chart:
+        repository: oci://registry.m8.io/charts/spicedb-operator
+        version: "1.18.0"
+        digest: sha256:fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1
+      rollbackSupport:
+        supported: true
+    temporal:
+      version: "1.27.0"
+      chart:
+        repository: oci://registry.m8.io/charts/temporal
+        version: "0.63.0"
+        digest: sha256:abababababababababababababababababababababababababababababababab
+      rollbackSupport:
+        supported: true
+      migrationRequirements:
+        - name: temporal-namespace-bootstrap
+          component: temporal
+          irreversible: false
+    observability:
+      version: "1.0.0"
+      chart:
+        repository: oci://registry.m8.io/charts/m8-observability
+        version: "1.0.0"
+        digest: sha256:bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbcbc
+      rollbackSupport:
+        supported: true
+    platform:
+      version: "1.0.0"
+      chart:
+        repository: oci://registry.m8.io/charts/m8-platform
+        version: "1.0.0"
+        digest: sha256:cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd
+      images:
+        - name: resource-manager
+          repository: registry.m8.io/m8/resource-manager
+          version: "1.0.0"
+          digest: sha256:dadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadada
+        - name: authentication
+          repository: registry.m8.io/m8/authentication
+          version: "1.0.0"
+          digest: sha256:dbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdbdb
+      supportedUpgradePaths:
+        - from: "1.0.0"
+          to: "1.0.1"
+          classification: rolling
+      rollbackSupport:
+        supported: true
+        boundary: Before irreversible database migrations.
+      migrationRequirements:
+        - name: m8-schema-bootstrap
+          component: platform
+          irreversible: true
+      resources:
+        cpu: "12"
+        memory: 32Gi
+        storage: 500Gi
