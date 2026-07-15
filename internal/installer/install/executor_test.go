@@ -66,8 +66,8 @@ func TestCiliumHelmRelease(t *testing.T) {
 	if ui["enabled"] != true {
 		t.Fatalf("hubble.ui.enabled = %v, want true", ui["enabled"])
 	}
-	if release.Values["kubeProxyReplacement"] != "strict" {
-		t.Fatalf("kubeProxyReplacement = %v, want strict", release.Values["kubeProxyReplacement"])
+	if release.Values["kubeProxyReplacement"] != true {
+		t.Fatalf("kubeProxyReplacement = %v, want true", release.Values["kubeProxyReplacement"])
 	}
 	encryption := release.Values["encryption"].(map[string]any)
 	if encryption["enabled"] != true {
@@ -75,6 +75,38 @@ func TestCiliumHelmRelease(t *testing.T) {
 	}
 	if encryption["type"] != "wireguard" {
 		t.Fatalf("encryption.type = %v, want wireguard", encryption["type"])
+	}
+}
+
+func TestCiliumHelmReleaseRejectsUnsupportedKubeProxyReplacement(t *testing.T) {
+	installation := installerv1alpha1.PlatformInstallation{
+		Spec: installerv1alpha1.PlatformInstallationSpec{
+			Network: installerv1alpha1.NetworkSpec{
+				KubeProxyReplacement: "partial",
+			},
+		},
+	}
+	releaseCatalog := installerv1alpha1.PlatformRelease{
+		Spec: installerv1alpha1.PlatformReleaseSpec{
+			Components: map[string]installerv1alpha1.ComponentRelease{
+				"cilium": {Version: "1.17.0"},
+			},
+		},
+	}
+
+	_, err := ciliumHelmRelease(installation, releaseCatalog)
+	if err == nil {
+		t.Fatal("ciliumHelmRelease returned nil error, want unsupported kubeProxyReplacement error")
+	}
+}
+
+func TestCiliumKubeProxyReplacementDefaultIsExplicitFalse(t *testing.T) {
+	got, err := ciliumKubeProxyReplacement("")
+	if err != nil {
+		t.Fatalf("ciliumKubeProxyReplacement returned error: %v", err)
+	}
+	if got {
+		t.Fatal("ciliumKubeProxyReplacement(\"\") = true, want false")
 	}
 }
 

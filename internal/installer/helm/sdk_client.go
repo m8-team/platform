@@ -88,6 +88,7 @@ func (c SDKClient) Apply(ctx context.Context, release Release) error {
 		install.WaitForJobs = true
 		install.ChartPathOptions = chartPathOptions
 		install.TakeOwnership = true
+		install.Replace = true
 
 		if _, err := install.RunWithContext(ctx, chart, release.Values); err != nil {
 			return fmt.Errorf("install Helm release %s/%s: %w", release.Namespace, release.Name, err)

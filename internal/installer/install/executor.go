@@ -190,26 +190,32 @@ func ciliumHelmRelease(installation installerv1alpha1.PlatformInstallation, rele
 	if version == "" {
 		version = component.Version
 	}
+	values, err := ciliumValues(installation)
+	if err != nil {
+		return installerhelm.Release{}, err
+	}
 	return installerhelm.Release{
 		Name:       "cilium",
 		Namespace:  "kube-system",
 		Chart:      "cilium",
 		Repository: "https://helm.cilium.io",
 		Version:    version,
-		Values:     ciliumValues(installation),
+		Values:     values,
 	}, nil
 }
 
-func ciliumValues(installation installerv1alpha1.PlatformInstallation) map[string]any {
+func ciliumValues(installation installerv1alpha1.PlatformInstallation) (map[string]any, error) {
+	kubeProxyReplacement, err := ciliumKubeProxyReplacement(installation.Spec.Network.KubeProxyReplacement)
+	if err != nil {
+		return nil, err
+	}
 	values := map[string]any{
+		"kubeProxyReplacement": kubeProxyReplacement,
 		"hubble": map[string]any{
 			"enabled": installation.Spec.Network.Cilium.HubbleRelay || installation.Spec.Network.Cilium.HubbleUI,
 			"relay":   map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleRelay},
 			"ui":      map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleUI},
 		},
-	}
-	if installation.Spec.Network.KubeProxyReplacement != "" {
-		values["kubeProxyReplacement"] = installation.Spec.Network.KubeProxyReplacement
 	}
 	if installation.Spec.Network.WireGuardEncryption {
 		values["encryption"] = map[string]any{
@@ -217,7 +223,18 @@ func ciliumValues(installation installerv1alpha1.PlatformInstallation) map[strin
 			"type":    "wireguard",
 		}
 	}
-	return values
+	return values, nil
+}
+
+func ciliumKubeProxyReplacement(value string) (bool, error) {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "", "false", "disabled":
+		return false, nil
+	case "true", "enabled", "strict":
+		return true, nil
+	default:
+		return false, fmt.Errorf("spec.network.kubeProxyReplacement must be true or false for Cilium Helm chart, got %q", value)
+	}
 }
 
 func (e Executor) installCertManager(ctx context.Context, request Request) error {

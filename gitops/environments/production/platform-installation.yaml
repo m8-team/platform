@@ -19,7 +19,7 @@ spec:
       hubbleUI: true
     networkPolicies: true
     wireGuardEncryption: true
-    kubeProxyReplacement: strict
+    kubeProxyReplacement: "true"
     dnsPolicies: true
     eastWestServiceMesh: true
   gateway:
