@@ -7,6 +7,7 @@ import (
 	"time"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
+	installerhelm "github.com/m8platform/platform/internal/installer/helm"
 	installerkubernetes "github.com/m8platform/platform/internal/installer/kubernetes"
 	"github.com/m8platform/platform/internal/installer/operations"
 	"github.com/m8platform/platform/internal/installer/planner"
@@ -14,6 +15,7 @@ import (
 
 type Executor struct {
 	Kubernetes *installerkubernetes.Client
+	Helm       installerhelm.Client
 	Now        func() time.Time
 }
 
@@ -24,6 +26,8 @@ type Request struct {
 	RequestedBy         string
 	ArgoCDManifest      []byte
 	RootGitOpsManifests [][]byte
+	SkipCilium          bool
+	SkipCertManager     bool
 	SkipArgoCD          bool
 	SkipRootGitOps      bool
 }
@@ -85,6 +89,28 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 		result.Applied = append(result.Applied, "namespace/"+namespace)
 	}
 
+	if !request.SkipCilium {
+		if e.Helm == nil {
+			result.Skipped = append(result.Skipped, "cilium helm client not configured")
+		} else if request.Installation.Spec.Network.Cilium.Enabled {
+			if err := e.installCilium(ctx, request); err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, "helm/kube-system/cilium")
+		}
+	}
+
+	if !request.SkipCertManager {
+		if e.Helm == nil {
+			result.Skipped = append(result.Skipped, "cert-manager helm client not configured")
+		} else if request.Installation.Spec.Certificates.CertManager.Enabled {
+			if err := e.installCertManager(ctx, request); err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, "helm/m8-security/cert-manager")
+		}
+	}
+
 	if !request.SkipArgoCD {
 		if len(request.ArgoCDManifest) == 0 {
 			result.Skipped = append(result.Skipped, "argocd install manifest not provided")
@@ -130,14 +156,73 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 	}
 
 	result.Skipped = append(result.Skipped,
-		"cilium helm install",
-		"cert-manager helm install",
 		"trust-manager helm install",
 		"external-secrets helm install",
 		"GitOps component reconciliation",
 	)
 
 	return result, nil
+}
+
+func (e Executor) installCilium(ctx context.Context, request Request) error {
+	release, err := ciliumHelmRelease(request.Installation, request.Release)
+	if err != nil {
+		return err
+	}
+	return e.Helm.Apply(ctx, release)
+}
+
+func ciliumHelmRelease(installation installerv1alpha1.PlatformInstallation, release installerv1alpha1.PlatformRelease) (installerhelm.Release, error) {
+	component, ok := release.Spec.Components["cilium"]
+	if !ok {
+		return installerhelm.Release{}, fmt.Errorf("release catalog does not contain cilium component")
+	}
+	version := component.Chart.Version
+	if version == "" {
+		version = component.Version
+	}
+	return installerhelm.Release{
+		Name:       "cilium",
+		Namespace:  "kube-system",
+		Chart:      "cilium",
+		Repository: "https://helm.cilium.io",
+		Version:    version,
+		Values: map[string]any{
+			"hubble": map[string]any{
+				"relay": map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleRelay},
+				"ui":    map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleUI},
+			},
+		},
+	}, nil
+}
+
+func (e Executor) installCertManager(ctx context.Context, request Request) error {
+	release, err := certManagerHelmRelease(request.Release)
+	if err != nil {
+		return err
+	}
+	return e.Helm.Apply(ctx, release)
+}
+
+func certManagerHelmRelease(release installerv1alpha1.PlatformRelease) (installerhelm.Release, error) {
+	component, ok := release.Spec.Components["cert-manager"]
+	if !ok {
+		return installerhelm.Release{}, fmt.Errorf("release catalog does not contain cert-manager component")
+	}
+	version := component.Chart.Version
+	if version == "" {
+		version = component.Version
+	}
+	return installerhelm.Release{
+		Name:       "cert-manager",
+		Namespace:  "m8-security",
+		Chart:      "cert-manager",
+		Repository: "https://charts.jetstack.io",
+		Version:    version,
+		Values: map[string]any{
+			"crds": map[string]any{"enabled": true},
+		},
+	}, nil
 }
 
 func namespacesFromPlan(plan planner.InstallationPlan) []string {

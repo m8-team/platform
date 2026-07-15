@@ -3,12 +3,13 @@ package helm
 import "context"
 
 type Release struct {
-	Name      string
-	Namespace string
-	Chart     string
-	Version   string
-	Digest    string
-	Values    map[string]any
+	Name       string
+	Namespace  string
+	Chart      string
+	Repository string
+	Version    string
+	Digest     string
+	Values     map[string]any
 }
 
 type Status struct {

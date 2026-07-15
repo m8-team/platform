@@ -16,6 +16,7 @@ import (
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	"github.com/m8platform/platform/internal/installer/catalog"
 	"github.com/m8platform/platform/internal/installer/config"
+	installerhelm "github.com/m8platform/platform/internal/installer/helm"
 	installerinstall "github.com/m8platform/platform/internal/installer/install"
 	installerkubernetes "github.com/m8platform/platform/internal/installer/kubernetes"
 	"github.com/m8platform/platform/internal/installer/output"
@@ -115,6 +116,9 @@ func (a App) runInstall(ctx context.Context, args []string) int {
 	dryRun := flags.Bool("dry-run", false, "Render the installation plan without applying changes")
 	kubeconfig := flags.String("kubeconfig", "", "Path to kubeconfig")
 	kubeContext := flags.String("context", "", "Kubernetes context")
+	helmTimeout := flags.Duration("helm-timeout", 10*time.Minute, "Timeout for Helm SDK bootstrap releases")
+	skipCilium := flags.Bool("skip-cilium", false, "Skip Cilium Helm installation")
+	skipCertManager := flags.Bool("skip-cert-manager", false, "Skip cert-manager Helm installation")
 	argoCDManifestPath := flags.String("argocd-manifest", "", "Local Argo CD install manifest")
 	argoCDManifestURL := flags.String("argocd-manifest-url", defaultArgoCDManifestURL, "Argo CD install manifest URL")
 	skipArgoCD := flags.Bool("skip-argocd", false, "Skip Argo CD manifest installation")
@@ -195,12 +199,19 @@ func (a App) runInstall(ctx context.Context, args []string) int {
 			return ExitError
 		}
 	}
-	result, err := installerinstall.Executor{Kubernetes: client, Now: a.Now}.Apply(ctx, installerinstall.Request{
+	helmClient := installerhelm.SDKClient{
+		Kubeconfig: *kubeconfig,
+		Context:    *kubeContext,
+		Timeout:    *helmTimeout,
+	}
+	result, err := installerinstall.Executor{Kubernetes: client, Helm: helmClient, Now: a.Now}.Apply(ctx, installerinstall.Request{
 		Plan:                source.Plan,
 		Installation:        source.Installation,
 		Release:             source.Release,
 		ArgoCDManifest:      argoCDManifest,
 		RootGitOpsManifests: rootGitOpsManifests,
+		SkipCilium:          *skipCilium,
+		SkipCertManager:     *skipCertManager,
 		SkipArgoCD:          *skipArgoCD,
 		SkipRootGitOps:      *skipRootGitOps,
 	})
@@ -209,7 +220,7 @@ func (a App) runInstall(ctx context.Context, args []string) int {
 		return ExitError
 	}
 	report.Mode = "applied"
-	report.Message = "Applied installer API resources, namespaces, PlatformRelease, PlatformInstallation and InstallationOperation. Remaining Helm/GitOps component reconciliation is still planned but not executed by this MVP."
+	report.Message = "Applied installer API resources, bootstrap namespaces, Cilium/cert-manager Helm releases when enabled, Argo CD bootstrap manifests, PlatformRelease, PlatformInstallation and InstallationOperation."
 	report.Applied = result.Applied
 	report.Skipped = result.Skipped
 	report.Operation = result.Operation.Namespace + "/" + result.Operation.Name
