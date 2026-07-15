@@ -1,12 +1,16 @@
 package kubernetes
 
 import (
+	"context"
 	"regexp"
 	"testing"
+	"time"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	dynamicfake "k8s.io/client-go/dynamic/fake"
 )
 
 func TestInstallerCRDSingularNamesAreDNS1035Labels(t *testing.T) {
@@ -57,5 +61,22 @@ func TestToUnstructuredAcceptsTypedValue(t *testing.T) {
 	}
 	if object.GetName() != "1.0.0" {
 		t.Fatalf("name = %q, want 1.0.0", object.GetName())
+	}
+}
+
+func TestWaitForArgoApplications(t *testing.T) {
+	application := &unstructured.Unstructured{}
+	application.SetAPIVersion("argoproj.io/v1alpha1")
+	application.SetKind("Application")
+	application.SetNamespace("argocd")
+	application.SetName("m8-data-operators")
+
+	client := &Client{
+		dynamic: dynamicfake.NewSimpleDynamicClient(runtime.NewScheme(), application),
+	}
+
+	err := client.WaitForArgoApplications(context.Background(), "argocd", []string{"m8-data-operators"}, 50*time.Millisecond)
+	if err != nil {
+		t.Fatalf("WaitForArgoApplications returned error: %v", err)
 	}
 }

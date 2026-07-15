@@ -168,6 +168,12 @@ var namespaceGVR = schema.GroupVersionResource{
 	Resource: "namespaces",
 }
 
+var argoApplicationGVR = schema.GroupVersionResource{
+	Group:    "argoproj.io",
+	Version:  "v1alpha1",
+	Resource: "applications",
+}
+
 func (c *Client) ApplyInstallerCRDs(ctx context.Context) error {
 	for _, crd := range installerCRDs() {
 		if err := c.applyUnstructured(ctx, customResourceDefinitionGVR, "", crd); err != nil {
@@ -243,6 +249,49 @@ func (c *Client) WaitForAPIResource(ctx context.Context, groupVersion string, ki
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("wait for API resource %s %s: %w", groupVersion, kind, ctx.Err())
+		case <-ticker.C:
+		}
+	}
+}
+
+func (c *Client) WaitForArgoApplications(ctx context.Context, namespace string, names []string, timeout time.Duration) error {
+	if len(names) == 0 {
+		return nil
+	}
+	if namespace == "" {
+		namespace = "argocd"
+	}
+	if timeout <= 0 {
+		timeout = 2 * time.Minute
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	var missing []string
+	for {
+		missing = missing[:0]
+		for _, name := range names {
+			if name == "" {
+				continue
+			}
+			if _, err := c.dynamic.Resource(argoApplicationGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{}); err != nil {
+				if apierrors.IsNotFound(err) {
+					missing = append(missing, name)
+					continue
+				}
+				return fmt.Errorf("get Argo CD Application %s/%s: %w", namespace, name, err)
+			}
+		}
+		if len(missing) == 0 {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("wait for Argo CD Applications in namespace %s (%s): %w", namespace, strings.Join(missing, ", "), ctx.Err())
 		case <-ticker.C:
 		}
 	}

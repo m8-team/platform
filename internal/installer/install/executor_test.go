@@ -4,12 +4,15 @@ import (
 	"testing"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
+	"github.com/m8platform/platform/internal/installer/planner"
 )
 
 func TestCiliumHelmRelease(t *testing.T) {
 	installation := installerv1alpha1.PlatformInstallation{
 		Spec: installerv1alpha1.PlatformInstallationSpec{
 			Network: installerv1alpha1.NetworkSpec{
+				KubeProxyReplacement: "strict",
+				WireGuardEncryption:  true,
 				Cilium: installerv1alpha1.CiliumSpec{
 					HubbleRelay: true,
 					HubbleUI:    true,
@@ -54,11 +57,24 @@ func TestCiliumHelmRelease(t *testing.T) {
 	hubble := release.Values["hubble"].(map[string]any)
 	relay := hubble["relay"].(map[string]any)
 	ui := hubble["ui"].(map[string]any)
+	if hubble["enabled"] != true {
+		t.Fatalf("hubble.enabled = %v, want true", hubble["enabled"])
+	}
 	if relay["enabled"] != true {
 		t.Fatalf("hubble.relay.enabled = %v, want true", relay["enabled"])
 	}
 	if ui["enabled"] != true {
 		t.Fatalf("hubble.ui.enabled = %v, want true", ui["enabled"])
+	}
+	if release.Values["kubeProxyReplacement"] != "strict" {
+		t.Fatalf("kubeProxyReplacement = %v, want strict", release.Values["kubeProxyReplacement"])
+	}
+	encryption := release.Values["encryption"].(map[string]any)
+	if encryption["enabled"] != true {
+		t.Fatalf("encryption.enabled = %v, want true", encryption["enabled"])
+	}
+	if encryption["type"] != "wireguard" {
+		t.Fatalf("encryption.type = %v, want wireguard", encryption["type"])
 	}
 }
 
@@ -97,5 +113,39 @@ func TestCertManagerHelmRelease(t *testing.T) {
 	crds := release.Values["crds"].(map[string]any)
 	if crds["enabled"] != true {
 		t.Fatalf("crds.enabled = %v, want true", crds["enabled"])
+	}
+}
+
+func TestArgoApplicationNames(t *testing.T) {
+	plan := planner.InstallationPlan{
+		Steps: []planner.InstallationStep{
+			{
+				ChangeSet: planner.ChangeSet{
+					ArgoApplications: []planner.ArgoApplicationChange{
+						{Name: "data-operators"},
+						{Name: "m8-observability"},
+					},
+				},
+			},
+			{
+				ChangeSet: planner.ChangeSet{
+					ArgoApplications: []planner.ArgoApplicationChange{
+						{Name: "data-operators"},
+						{Name: ""},
+					},
+				},
+			},
+		},
+	}
+
+	got := argoApplicationNames(plan)
+	want := []string{"m8-data-operators", "m8-observability"}
+	if len(got) != len(want) {
+		t.Fatalf("len(argoApplicationNames) = %d, want %d: %v", len(got), len(want), got)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("argoApplicationNames[%d] = %q, want %q", i, got[i], want[i])
+		}
 	}
 }

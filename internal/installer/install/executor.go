@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/user"
+	"strings"
 	"time"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
@@ -120,10 +121,12 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 				return result, err
 			}
 			result.Applied = append(result.Applied, fmt.Sprintf("argocd/%d resources", len(applied)))
-			if err := e.Kubernetes.WaitForAPIResource(ctx, "argoproj.io/v1alpha1", "Application", 90*time.Second); err != nil {
-				return result, err
+			for _, kind := range []string{"Application", "AppProject", "ApplicationSet"} {
+				if err := e.Kubernetes.WaitForAPIResource(ctx, "argoproj.io/v1alpha1", kind, 90*time.Second); err != nil {
+					return result, err
+				}
+				result.Applied = append(result.Applied, "argocd-"+strings.ToLower(kind)+"-api-ready")
 			}
-			result.Applied = append(result.Applied, "argocd-api-ready")
 		}
 	}
 
@@ -153,12 +156,18 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 			}
 			result.Applied = append(result.Applied, fmt.Sprintf("root-gitops-%d/%d resources", index+1, len(applied)))
 		}
+		applications := argoApplicationNames(request.Plan)
+		if len(applications) > 0 {
+			if err := e.Kubernetes.WaitForArgoApplications(ctx, request.Installation.Spec.GitOps.ArgoCD.Namespace, applications, 2*time.Minute); err != nil {
+				return result, err
+			}
+			result.Applied = append(result.Applied, fmt.Sprintf("gitops-reconciliation-handoff/%d applications", len(applications)))
+		}
 	}
 
 	result.Skipped = append(result.Skipped,
 		"trust-manager helm install",
 		"external-secrets helm install",
-		"GitOps component reconciliation",
 	)
 
 	return result, nil
@@ -187,13 +196,28 @@ func ciliumHelmRelease(installation installerv1alpha1.PlatformInstallation, rele
 		Chart:      "cilium",
 		Repository: "https://helm.cilium.io",
 		Version:    version,
-		Values: map[string]any{
-			"hubble": map[string]any{
-				"relay": map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleRelay},
-				"ui":    map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleUI},
-			},
-		},
+		Values:     ciliumValues(installation),
 	}, nil
+}
+
+func ciliumValues(installation installerv1alpha1.PlatformInstallation) map[string]any {
+	values := map[string]any{
+		"hubble": map[string]any{
+			"enabled": installation.Spec.Network.Cilium.HubbleRelay || installation.Spec.Network.Cilium.HubbleUI,
+			"relay":   map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleRelay},
+			"ui":      map[string]any{"enabled": installation.Spec.Network.Cilium.HubbleUI},
+		},
+	}
+	if installation.Spec.Network.KubeProxyReplacement != "" {
+		values["kubeProxyReplacement"] = installation.Spec.Network.KubeProxyReplacement
+	}
+	if installation.Spec.Network.WireGuardEncryption {
+		values["encryption"] = map[string]any{
+			"enabled": true,
+			"type":    "wireguard",
+		}
+	}
+	return values
 }
 
 func (e Executor) installCertManager(ctx context.Context, request Request) error {
@@ -238,6 +262,28 @@ func namespacesFromPlan(plan planner.InstallationPlan) []string {
 		}
 	}
 	return namespaces
+}
+
+func argoApplicationNames(plan planner.InstallationPlan) []string {
+	seen := map[string]struct{}{}
+	var names []string
+	for _, step := range plan.Steps {
+		for _, application := range step.ChangeSet.ArgoApplications {
+			name := application.Name
+			if name == "" {
+				continue
+			}
+			if !strings.HasPrefix(name, "m8-") {
+				name = "m8-" + name
+			}
+			if _, ok := seen[name]; ok {
+				continue
+			}
+			seen[name] = struct{}{}
+			names = append(names, name)
+		}
+	}
+	return names
 }
 
 func currentUsername() string {
