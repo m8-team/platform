@@ -13,7 +13,8 @@ func TestArgoApplicationNames(t *testing.T) {
 				ChangeSet: planner.ChangeSet{
 					ArgoApplications: []planner.ArgoApplicationChange{
 						{Name: "data-operators"},
-						{Name: "m8-observability"},
+						{Name: "observability"},
+						{Name: "m8-shared-services"},
 					},
 				},
 			},
@@ -29,7 +30,7 @@ func TestArgoApplicationNames(t *testing.T) {
 	}
 
 	got := argoApplicationNames(plan)
-	want := []string{"m8-data-operators", "m8-observability"}
+	want := []string{"m8-data-operators", "m8-observability", "m8-m8-shared-services"}
 	if len(got) != len(want) {
 		t.Fatalf("len(argoApplicationNames) = %d, want %d: %v", len(got), len(want), got)
 	}

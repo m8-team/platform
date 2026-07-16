@@ -7,6 +7,7 @@ import (
 	"time"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -92,5 +93,30 @@ func TestDeleteArgoApplicationsIgnoresMissingApplications(t *testing.T) {
 	}
 	if len(deleted) != 1 {
 		t.Fatalf("len(deleted) = %d, want 1", len(deleted))
+	}
+}
+
+func TestDeleteArgoApplicationsClearsFinalizers(t *testing.T) {
+	application := &unstructured.Unstructured{}
+	application.SetAPIVersion("argoproj.io/v1alpha1")
+	application.SetKind("Application")
+	application.SetNamespace("argocd")
+	application.SetName("m8-data-operators")
+	application.SetFinalizers([]string{"resources-finalizer.argocd.argoproj.io"})
+
+	client := &Client{
+		dynamic: dynamicfake.NewSimpleDynamicClient(runtime.NewScheme(), application),
+	}
+
+	deleted, err := client.DeleteArgoApplications(context.Background(), "argocd", []string{"m8-data-operators"})
+	if err != nil {
+		t.Fatalf("DeleteArgoApplications returned error: %v", err)
+	}
+	if len(deleted) != 1 {
+		t.Fatalf("len(deleted) = %d, want 1", len(deleted))
+	}
+	_, err = client.dynamic.Resource(argoApplicationGVR).Namespace("argocd").Get(context.Background(), "m8-data-operators", metav1.GetOptions{})
+	if !apierrors.IsNotFound(err) {
+		t.Fatalf("application still exists after delete, err=%v", err)
 	}
 }

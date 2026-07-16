@@ -3,7 +3,6 @@ package uninstall
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
 	installerhelm "github.com/m8platform/platform/internal/installer/helm"
@@ -26,6 +25,7 @@ type Request struct {
 	RootGitOpsManifests      [][]byte
 	DeleteNetwork            bool
 	DeleteInstallerCRDs      bool
+	DeleteNamespaces         bool
 	SkipRootGitOps           bool
 	SkipArgoCD               bool
 	SkipCertManager          bool
@@ -86,6 +86,11 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 		} else {
 			result.Deleted = append(result.Deleted, "helm/m8-security/cert-manager")
 		}
+		deleted, err := e.Kubernetes.DeleteCertManagerArtifacts(ctx)
+		if err != nil {
+			return result, err
+		}
+		result.Deleted = append(result.Deleted, deleted...)
 	}
 
 	if request.DeleteNetwork {
@@ -96,6 +101,11 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 		} else {
 			result.Deleted = append(result.Deleted, "helm/kube-system/cilium")
 		}
+		deleted, err := e.Kubernetes.DeleteCiliumArtifacts(ctx)
+		if err != nil {
+			return result, err
+		}
+		result.Deleted = append(result.Deleted, deleted...)
 	} else {
 		result.Preserved = append(result.Preserved, "helm/kube-system/cilium")
 	}
@@ -110,21 +120,19 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 			}
 			result.Deleted = append(result.Deleted, deleted...)
 		}
+		deleted, err := e.Kubernetes.DeleteArgoCDArtifacts(ctx)
+		if err != nil {
+			return result, err
+		}
+		result.Deleted = append(result.Deleted, deleted...)
 	}
 
 	if !request.SkipInstallerMetadata {
-		if name != "" {
-			if err := e.Kubernetes.DeletePlatformInstallation(ctx, namespace, name); err != nil {
-				return result, err
-			}
-			result.Deleted = append(result.Deleted, "platforminstallation/"+namespace+"/"+name)
+		deleted, err := e.Kubernetes.DeleteInstallerMetadata(ctx, namespace, name, request.PlatformReleaseName)
+		if err != nil {
+			return result, err
 		}
-		if request.PlatformReleaseName != "" {
-			if err := e.Kubernetes.DeletePlatformRelease(ctx, request.PlatformReleaseName); err != nil {
-				return result, err
-			}
-			result.Deleted = append(result.Deleted, "platformrelease/"+request.PlatformReleaseName)
-		}
+		result.Deleted = append(result.Deleted, deleted...)
 	}
 
 	if request.DeleteInstallerCRDs {
@@ -139,6 +147,15 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 	if request.PreserveOperationHistory {
 		result.Preserved = append(result.Preserved, "installationoperations")
 	}
+	if request.DeleteNamespaces {
+		deleted, err := e.Kubernetes.DeleteNamespaces(ctx, uninstallNamespaces(request.DeleteNetwork))
+		if err != nil {
+			return result, err
+		}
+		result.Deleted = append(result.Deleted, deleted...)
+	} else {
+		result.Preserved = append(result.Preserved, uninstallNamespaces(request.DeleteNetwork)...)
+	}
 	result.Preserved = append(result.Preserved,
 		"persistentvolumeclaims",
 		"persistentvolumes",
@@ -152,6 +169,21 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 	return result, nil
 }
 
+func uninstallNamespaces(includeNetwork bool) []string {
+	namespaces := []string{
+		"argocd",
+		"m8-data",
+		"m8-gateway",
+		"m8-observability",
+		"m8-security",
+		"m8-system",
+	}
+	if includeNetwork {
+		namespaces = append(namespaces, "cilium-secrets")
+	}
+	return namespaces
+}
+
 func argoApplicationNames(plan planner.InstallationPlan) []string {
 	seen := map[string]struct{}{}
 	var names []string
@@ -161,9 +193,7 @@ func argoApplicationNames(plan planner.InstallationPlan) []string {
 			if name == "" {
 				continue
 			}
-			if !strings.HasPrefix(name, "m8-") {
-				name = "m8-" + name
-			}
+			name = "m8-" + name
 			if _, ok := seen[name]; ok {
 				continue
 			}
@@ -181,8 +211,8 @@ func defaultArgoApplicationNames() []string {
 		"m8-identity-authorization",
 		"m8-observability",
 		"m8-envoy-gateway",
-		"m8-shared-services",
-		"m8-applications",
+		"m8-m8-shared-services",
+		"m8-m8-applications",
 		"m8-routes-policies",
 		"m8-bootstrap-data",
 		"m8-smoke-tests",

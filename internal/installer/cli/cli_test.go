@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -176,4 +177,50 @@ func TestUninstallDeleteNetworkRequiresConfirmation(t *testing.T) {
 	if !strings.Contains(stderr.String(), "requires --confirmation m8-test") {
 		t.Fatalf("expected confirmation error, got: %s", stderr.String())
 	}
+}
+
+func TestUninstallAllDryRunDeletesDestructiveResources(t *testing.T) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	app := New(&stdout, &stderr)
+
+	code := app.Run(context.Background(), []string{
+		"uninstall",
+		"--dry-run",
+		"--output",
+		"json",
+		"--name",
+		"m8-test",
+		"--all",
+		"--confirmation",
+		"m8-test",
+	})
+
+	if code != ExitOK {
+		t.Fatalf("exit code = %d, want %d; stderr=%s", code, ExitOK, stderr.String())
+	}
+	var report uninstallReport
+	if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
+		t.Fatalf("unmarshal report: %v\n%s", err, stdout.String())
+	}
+	for _, want := range []string{"helm/kube-system/cilium", "installer-crds", "namespaces"} {
+		if !containsString(report.Deleted, want) {
+			t.Fatalf("Deleted does not contain %q: %#v", want, report.Deleted)
+		}
+	}
+	if containsString(report.Preserved, "helm/kube-system/cilium") {
+		t.Fatalf("Cilium was preserved during --all: %#v", report.Preserved)
+	}
+	if containsString(report.Preserved, "installer-crds") {
+		t.Fatalf("installer CRDs were preserved during --all: %#v", report.Preserved)
+	}
+}
+
+func containsString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

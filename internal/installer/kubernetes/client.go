@@ -174,6 +174,84 @@ var argoApplicationGVR = schema.GroupVersionResource{
 	Resource: "applications",
 }
 
+var apiServiceGVR = schema.GroupVersionResource{
+	Group:    "apiregistration.k8s.io",
+	Version:  "v1",
+	Resource: "apiservices",
+}
+
+var secretGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "secrets",
+}
+
+var serviceAccountGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "serviceaccounts",
+}
+
+var configMapGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "configmaps",
+}
+
+var serviceGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "services",
+}
+
+var daemonSetGVR = schema.GroupVersionResource{
+	Group:    "apps",
+	Version:  "v1",
+	Resource: "daemonsets",
+}
+
+var deploymentGVR = schema.GroupVersionResource{
+	Group:    "apps",
+	Version:  "v1",
+	Resource: "deployments",
+}
+
+var roleGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "roles",
+}
+
+var roleBindingGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "rolebindings",
+}
+
+var clusterRoleGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "clusterroles",
+}
+
+var clusterRoleBindingGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "clusterrolebindings",
+}
+
+var mutatingWebhookConfigurationGVR = schema.GroupVersionResource{
+	Group:    "admissionregistration.k8s.io",
+	Version:  "v1",
+	Resource: "mutatingwebhookconfigurations",
+}
+
+var validatingWebhookConfigurationGVR = schema.GroupVersionResource{
+	Group:    "admissionregistration.k8s.io",
+	Version:  "v1",
+	Resource: "validatingwebhookconfigurations",
+}
+
 func (c *Client) ApplyInstallerCRDs(ctx context.Context) error {
 	for _, crd := range installerCRDs() {
 		if err := c.applyUnstructured(ctx, customResourceDefinitionGVR, "", crd); err != nil {
@@ -317,10 +395,41 @@ func (c *Client) DeleteArgoApplications(ctx context.Context, namespace string, n
 		if name == "" {
 			continue
 		}
+		if err := c.clearFinalizers(ctx, argoApplicationGVR, namespace, name); err != nil {
+			return deleted, err
+		}
 		if err := c.deleteResource(ctx, argoApplicationGVR, namespace, name); err != nil {
 			return deleted, err
 		}
 		deleted = append(deleted, "application/"+namespace+"/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteSecrets(ctx context.Context, namespace string, names []string) ([]string, error) {
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.deleteResource(ctx, secretGVR, namespace, name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "secret/"+namespace+"/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteNamespaces(ctx context.Context, names []string) ([]string, error) {
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.deleteResource(ctx, namespaceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "namespace/"+name)
 	}
 	return deleted, nil
 }
@@ -533,6 +642,240 @@ func (c *Client) DeleteInstallerCRDs(ctx context.Context) error {
 	return nil
 }
 
+func (c *Client) DeleteInstallerMetadata(ctx context.Context, namespace string, installationName string, releaseName string) ([]string, error) {
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	var deleted []string
+	if installationName != "" {
+		if err := c.DeletePlatformInstallation(ctx, namespace, installationName); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "platforminstallation/"+namespace+"/"+installationName)
+	}
+	if releaseName != "" {
+		if err := c.DeletePlatformRelease(ctx, releaseName); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "platformrelease/"+releaseName)
+	}
+	operations, err := c.dynamic.Resource(installationOperationGVR).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return deleted, nil
+		}
+		return deleted, fmt.Errorf("list installation operations in namespace %s: %w", namespace, err)
+	}
+	for _, operation := range operations.Items {
+		if err := c.deleteResource(ctx, installationOperationGVR, namespace, operation.GetName()); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "installationoperation/"+namespace+"/"+operation.GetName())
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteArgoCDArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{
+		"applications.argoproj.io",
+		"applicationsets.argoproj.io",
+		"appprojects.argoproj.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	secrets, err := c.DeleteSecrets(ctx, "argocd", []string{"argocd-initial-admin-secret", "argocd-redis"})
+	if err != nil {
+		return deleted, err
+	}
+	deleted = append(deleted, secrets...)
+	return deleted, nil
+}
+
+func (c *Client) DeleteCertManagerArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{"cert-manager-webhook"} {
+		if err := c.deleteResource(ctx, mutatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "mutatingwebhookconfiguration/"+name)
+		if err := c.deleteResource(ctx, validatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "validatingwebhookconfiguration/"+name)
+	}
+	for _, name := range []string{
+		"v1.cert-manager.io",
+		"v1.acme.cert-manager.io",
+	} {
+		if err := c.deleteResource(ctx, apiServiceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "apiservice/"+name)
+	}
+	for _, name := range []string{
+		"cert-manager",
+		"cert-manager-cainjector",
+		"cert-manager-controller-approve:cert-manager-io",
+		"cert-manager-controller-certificates",
+		"cert-manager-controller-certificatesigningrequests",
+		"cert-manager-controller-challenges",
+		"cert-manager-controller-clusterissuers",
+		"cert-manager-controller-ingress-shim",
+		"cert-manager-controller-issuers",
+		"cert-manager-controller-orders",
+		"cert-manager-edit",
+		"cert-manager-view",
+		"cert-manager-webhook",
+	} {
+		if err := c.deleteResource(ctx, clusterRoleBindingGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrolebinding/"+name)
+		if err := c.deleteResource(ctx, clusterRoleGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrole/"+name)
+	}
+	for _, name := range []string{
+		"certificaterequests.cert-manager.io",
+		"certificates.cert-manager.io",
+		"challenges.acme.cert-manager.io",
+		"clusterissuers.cert-manager.io",
+		"issuers.cert-manager.io",
+		"orders.acme.cert-manager.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	secrets, err := c.DeleteSecrets(ctx, "m8-security", []string{"cert-manager-webhook-ca"})
+	if err != nil {
+		return deleted, err
+	}
+	deleted = append(deleted, secrets...)
+	return deleted, nil
+}
+
+func (c *Client) DeleteCiliumArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{
+		"cilium-agent",
+		"cilium-envoy",
+		"hubble-relay",
+		"hubble-ui",
+	} {
+		if err := c.deleteResource(ctx, serviceGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "service/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-envoy"} {
+		if err := c.deleteResource(ctx, daemonSetGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "daemonset/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium-operator", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, deploymentGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "deployment/kube-system/"+name)
+	}
+	for _, name := range []string{
+		"cilium-config",
+		"cilium-envoy-config",
+		"hubble-relay-config",
+		"hubble-ui-nginx",
+	} {
+		if err := c.deleteResource(ctx, configMapGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "configmap/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, serviceAccountGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "serviceaccount/kube-system/"+name)
+	}
+	for _, name := range []string{
+		"v2.cilium.io",
+		"v2alpha1.cilium.io",
+	} {
+		if err := c.deleteResource(ctx, apiServiceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "apiservice/"+name)
+	}
+	for _, name := range []string{
+		"cilium-mutating-webhook-configuration",
+		"cilium-validating-webhook-configuration",
+	} {
+		if err := c.deleteResource(ctx, mutatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "mutatingwebhookconfiguration/"+name)
+		if err := c.deleteResource(ctx, validatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "validatingwebhookconfiguration/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-config-agent", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, roleBindingGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "rolebinding/kube-system/"+name)
+		if err := c.deleteResource(ctx, roleGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "role/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-ui"} {
+		if err := c.deleteResource(ctx, clusterRoleBindingGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrolebinding/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-ui"} {
+		if err := c.deleteResource(ctx, clusterRoleGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrole/"+name)
+	}
+	for _, name := range []string{
+		"ciliumbgpadvertisements.cilium.io",
+		"ciliumbgpclusterconfigs.cilium.io",
+		"ciliumbgpnodeconfigoverrides.cilium.io",
+		"ciliumbgppeerconfigs.cilium.io",
+		"ciliumbgppeeringpolicies.cilium.io",
+		"ciliumcidrgroups.cilium.io",
+		"ciliumclusterwideenvoyconfigs.cilium.io",
+		"ciliumclusterwidenetworkpolicies.cilium.io",
+		"ciliumendpoints.cilium.io",
+		"ciliumenvoyconfigs.cilium.io",
+		"ciliumexternalworkloads.cilium.io",
+		"ciliumgatewayclassconfigs.cilium.io",
+		"ciliumidentities.cilium.io",
+		"ciliuml2announcementpolicies.cilium.io",
+		"ciliumloadbalancerippools.cilium.io",
+		"ciliumnetworkpolicies.cilium.io",
+		"ciliumnodeconfigs.cilium.io",
+		"ciliumnodes.cilium.io",
+		"ciliumpodippools.cilium.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	return deleted, nil
+}
+
 func (c *Client) applyUnstructured(ctx context.Context, gvr schema.GroupVersionResource, namespace string, object *unstructured.Unstructured) error {
 	options := metav1.ApplyOptions{
 		FieldManager: "m8ctl",
@@ -568,6 +911,38 @@ func (c *Client) deleteResource(ctx context.Context, gvr schema.GroupVersionReso
 			return nil
 		}
 		return fmt.Errorf("delete %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
+	}
+	return nil
+}
+
+func (c *Client) clearFinalizers(ctx context.Context, gvr schema.GroupVersionResource, namespace string, name string) error {
+	resource := c.dynamic.Resource(gvr)
+	namespaced := resource
+	var object *unstructured.Unstructured
+	var err error
+	if namespace != "" {
+		object, err = namespaced.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	} else {
+		object, err = namespaced.Get(ctx, name, metav1.GetOptions{})
+	}
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("get %s/%s %s/%s before clearing finalizers: %w", gvr.Group, gvr.Resource, namespace, name, err)
+	}
+	if len(object.GetFinalizers()) == 0 {
+		return nil
+	}
+	object.SetFinalizers(nil)
+	if namespace != "" {
+		if _, err := resource.Namespace(namespace).Update(ctx, object, metav1.UpdateOptions{}); err != nil {
+			return fmt.Errorf("clear finalizers for %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
+		}
+		return nil
+	}
+	if _, err := resource.Update(ctx, object, metav1.UpdateOptions{}); err != nil {
+		return fmt.Errorf("clear finalizers for %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
 	}
 	return nil
 }

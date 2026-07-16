@@ -264,9 +264,11 @@ func (a App) runUninstall(ctx context.Context, args []string) int {
 	kubeContext := flags.String("context", "", "Kubernetes context")
 	helmTimeout := flags.Duration("helm-timeout", 10*time.Minute, "Timeout for Helm SDK uninstall actions")
 	confirmation := flags.String("confirmation", "", "Required installation name for destructive uninstall options")
+	deleteAll := flags.Bool("all", false, "Delete all M8 bootstrap resources, including Cilium, installer CRDs and M8 namespaces")
 	deleteNetwork := flags.Bool("delete-network", false, "Also uninstall Cilium Helm release")
 	deleteInstallerCRDs := flags.Bool("delete-installer-crds", false, "Also delete M8 installer CRDs")
-	deleteData := flags.Bool("delete-data", false, "Delete persistent data; not supported by this MVP")
+	deleteNamespaces := flags.Bool("delete-namespaces", false, "Also delete M8, Argo CD and security namespaces")
+	deleteData := flags.Bool("delete-data", false, "Allow namespace deletion to remove namespaced persistent data")
 	skipGitOpsApplications := flags.Bool("skip-gitops-applications", false, "Skip generated Argo CD Application deletion")
 	skipRootGitOps := flags.Bool("skip-root-gitops", false, "Skip root AppProject/ApplicationSet deletion")
 	skipArgoCD := flags.Bool("skip-argocd", false, "Skip Argo CD manifest deletion")
@@ -303,11 +305,14 @@ func (a App) runUninstall(ctx context.Context, args []string) int {
 		source.Installation.Spec.GitOps.ArgoCD.Namespace = "argocd"
 	}
 
-	if *deleteData {
-		_, _ = fmt.Fprintln(a.Stderr, "uninstall --delete-data is intentionally not implemented in this MVP; persistent data is preserved")
-		return ExitError
+	effectiveDeleteNetwork := *deleteNetwork || *deleteAll
+	effectiveDeleteInstallerCRDs := *deleteInstallerCRDs || *deleteAll
+	effectiveDeleteNamespaces := *deleteNamespaces || *deleteAll || *deleteData
+	if effectiveDeleteNamespaces && !*deleteData && !*deleteAll {
+		_, _ = fmt.Fprintln(a.Stderr, "namespace deletion can remove namespaced persistent data; pass --delete-data or --all with --confirmation to continue")
+		return ExitUsage
 	}
-	if (*deleteNetwork || *deleteInstallerCRDs) && *confirmation != source.Installation.Name {
+	if (*deleteAll || effectiveDeleteNetwork || effectiveDeleteInstallerCRDs || effectiveDeleteNamespaces) && *confirmation != source.Installation.Name {
 		_, _ = fmt.Fprintf(a.Stderr, "destructive uninstall option requires --confirmation %s\n", source.Installation.Name)
 		return ExitUsage
 	}
@@ -319,27 +324,13 @@ func (a App) runUninstall(ctx context.Context, args []string) int {
 			Name:      source.Installation.Name,
 			Namespace: source.Installation.Namespace,
 		},
-		Mode:    "preview",
-		Message: "Dry run only; no cluster changes were made.",
-		Deleted: previewUninstallDeletes(*skipGitOpsApplications, *skipRootGitOps, *skipArgoCD, *skipCertManager, *skipInstallerMetadata, *deleteNetwork, *deleteInstallerCRDs),
-		Preserved: []string{
-			"helm/kube-system/cilium",
-			"installer-crds",
-			"installationoperations",
-			"persistentvolumeclaims",
-			"persistentvolumes",
-			"database-data",
-			"kafka-topics",
-			"backups",
-			"external-secrets",
-			"audit-archives",
-		},
+		Mode:      "preview",
+		Message:   "Dry run only; no cluster changes were made.",
+		Deleted:   previewUninstallDeletes(*skipGitOpsApplications, *skipRootGitOps, *skipArgoCD, *skipCertManager, *skipInstallerMetadata, effectiveDeleteNetwork, effectiveDeleteInstallerCRDs, effectiveDeleteNamespaces),
+		Preserved: previewUninstallPreserved(effectiveDeleteNetwork, effectiveDeleteInstallerCRDs, effectiveDeleteNamespaces),
 	}
-	if *deleteNetwork {
-		report.Preserved = removeString(report.Preserved, "helm/kube-system/cilium")
-	}
-	if *deleteInstallerCRDs {
-		report.Preserved = removeString(report.Preserved, "installer-crds")
+	if *deleteAll {
+		report.Message = "Dry run only; full uninstall selected, no cluster changes were made."
 	}
 
 	if *dryRun {
@@ -384,21 +375,22 @@ func (a App) runUninstall(ctx context.Context, args []string) int {
 		ArgoCDNamespace:          source.Installation.Spec.GitOps.ArgoCD.Namespace,
 		ArgoCDManifest:           argoCDManifest,
 		RootGitOpsManifests:      rootGitOpsManifests,
-		DeleteNetwork:            *deleteNetwork,
-		DeleteInstallerCRDs:      *deleteInstallerCRDs,
+		DeleteNetwork:            effectiveDeleteNetwork,
+		DeleteInstallerCRDs:      effectiveDeleteInstallerCRDs,
+		DeleteNamespaces:         effectiveDeleteNamespaces,
 		SkipRootGitOps:           *skipRootGitOps,
 		SkipArgoCD:               *skipArgoCD,
 		SkipCertManager:          *skipCertManager,
 		SkipInstallerMetadata:    *skipInstallerMetadata,
 		SkipGitOpsApplications:   *skipGitOpsApplications,
-		PreserveOperationHistory: true,
+		PreserveOperationHistory: !effectiveDeleteInstallerCRDs,
 	})
 	if err != nil {
 		_, _ = fmt.Fprintf(a.Stderr, "uninstall failed: %v\n", err)
 		return ExitError
 	}
 	report.Mode = "applied"
-	report.Message = "Removed stateless M8 bootstrap resources. Persistent data and external systems were preserved."
+	report.Message = "Removed M8 bootstrap resources. Destructive resources were removed only when explicitly selected."
 	report.Deleted = result.Deleted
 	report.Preserved = result.Preserved
 	report.Skipped = result.Skipped
@@ -408,6 +400,42 @@ func (a App) runUninstall(ctx context.Context, args []string) int {
 		return ExitError
 	}
 	return ExitOK
+}
+
+func previewUninstallPreserved(deleteNetwork bool, deleteInstallerCRDs bool, deleteNamespaces bool) []string {
+	preserved := []string{}
+	if !deleteNetwork {
+		preserved = append(preserved, "helm/kube-system/cilium")
+	}
+	if !deleteInstallerCRDs {
+		preserved = append(preserved,
+			"installer-crds",
+			"installationoperations",
+		)
+	}
+	if !deleteNamespaces {
+		preserved = append(preserved,
+			"argocd",
+			"m8-data",
+			"m8-gateway",
+			"m8-observability",
+			"m8-security",
+			"m8-system",
+		)
+		if !deleteNetwork {
+			preserved = append(preserved, "cilium-secrets")
+		}
+	}
+	preserved = append(preserved,
+		"persistentvolumeclaims",
+		"persistentvolumes",
+		"external-database-data",
+		"kafka-topics",
+		"backups",
+		"external-secrets-backends",
+		"audit-archives",
+	)
+	return dedupeStrings(preserved)
 }
 
 func (a App) runStatus(ctx context.Context, args []string) int {
@@ -728,7 +756,7 @@ func writeUninstallReport(w io.Writer, format output.Format, report uninstallRep
 	}
 }
 
-func previewUninstallDeletes(skipGitOpsApplications bool, skipRootGitOps bool, skipArgoCD bool, skipCertManager bool, skipInstallerMetadata bool, deleteNetwork bool, deleteInstallerCRDs bool) []string {
+func previewUninstallDeletes(skipGitOpsApplications bool, skipRootGitOps bool, skipArgoCD bool, skipCertManager bool, skipInstallerMetadata bool, deleteNetwork bool, deleteInstallerCRDs bool, deleteNamespaces bool) []string {
 	var deleted []string
 	if !skipGitOpsApplications {
 		deleted = append(deleted, "argocd-applications")
@@ -751,17 +779,29 @@ func previewUninstallDeletes(skipGitOpsApplications bool, skipRootGitOps bool, s
 	if deleteInstallerCRDs {
 		deleted = append(deleted, "installer-crds")
 	}
-	return deleted
+	if deleteNamespaces {
+		deleted = append(deleted, "namespaces")
+	}
+	return dedupeStrings(deleted)
 }
 
-func removeString(values []string, remove string) []string {
-	filtered := values[:0]
-	for _, value := range values {
-		if value != remove {
-			filtered = append(filtered, value)
-		}
+func dedupeStrings(values []string) []string {
+	if len(values) == 0 {
+		return nil
 	}
-	return filtered
+	seen := make(map[string]struct{}, len(values))
+	deduped := make([]string, 0, len(values))
+	for _, value := range values {
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		deduped = append(deduped, value)
+	}
+	return deduped
 }
 
 func writeInstallReport(w io.Writer, format output.Format, report installReport) error {
@@ -911,7 +951,8 @@ Usage:
   m8ctl plan -f installation.yaml [--output table|json|yaml|plan.yaml]
   m8ctl install [--plan plan.yaml|-f installation.yaml] [--dry-run]
   m8ctl status [name] [-n namespace] [--output table|json|yaml]
-  m8ctl uninstall [-f installation.yaml] [--dry-run] [--delete-network --confirmation NAME]
+  m8ctl uninstall [-f installation.yaml] [--dry-run]
+  m8ctl uninstall --all --confirmation NAME
   m8ctl version
 
 Defined commands:

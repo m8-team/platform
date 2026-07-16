@@ -296,9 +296,7 @@ func argoApplicationNames(plan planner.InstallationPlan) []string {
 			if name == "" {
 				continue
 			}
-			if !strings.HasPrefix(name, "m8-") {
-				name = "m8-" + name
-			}
+			name = "m8-" + name
 			if _, ok := seen[name]; ok {
 				continue
 			}
