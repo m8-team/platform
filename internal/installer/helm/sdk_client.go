@@ -124,6 +124,40 @@ func (c SDKClient) Status(ctx context.Context, namespace string, name string) (S
 	}, nil
 }
 
+func (c SDKClient) Uninstall(ctx context.Context, namespace string, name string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if namespace == "" {
+		return fmt.Errorf("helm release namespace is required")
+	}
+	if name == "" {
+		return fmt.Errorf("helm release name is required")
+	}
+
+	settings := helmcli.New()
+	settings.KubeConfig = c.Kubeconfig
+	settings.KubeContext = c.Context
+	settings.SetNamespace(namespace)
+
+	actionConfig := new(action.Configuration)
+	if err := actionConfig.Init(settings.RESTClientGetter(), namespace, "secret", c.logf); err != nil {
+		return fmt.Errorf("initialize Helm action configuration for %s/%s: %w", namespace, name, err)
+	}
+	timeout := c.Timeout
+	if timeout <= 0 {
+		timeout = 10 * time.Minute
+	}
+	uninstall := action.NewUninstall(actionConfig)
+	uninstall.IgnoreNotFound = true
+	uninstall.Wait = true
+	uninstall.Timeout = timeout
+	if _, err := uninstall.Run(name); err != nil {
+		return fmt.Errorf("uninstall Helm release %s/%s: %w", namespace, name, err)
+	}
+	return nil
+}
+
 func (c SDKClient) Rollback(ctx context.Context, namespace string, name string, revision int) error {
 	if err := ctx.Err(); err != nil {
 		return err

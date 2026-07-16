@@ -282,6 +282,10 @@ func (c *Client) WaitForArgoApplications(ctx context.Context, namespace string, 
 					missing = append(missing, name)
 					continue
 				}
+				if ctx.Err() != nil || isRateLimiterDeadline(err) {
+					missing = append(missing, name)
+					return fmt.Errorf("wait for Argo CD Applications in namespace %s (%s): %w", namespace, strings.Join(missing, ", "), context.DeadlineExceeded)
+				}
 				return fmt.Errorf("get Argo CD Application %s/%s: %w", namespace, name, err)
 			}
 		}
@@ -295,6 +299,30 @@ func (c *Client) WaitForArgoApplications(ctx context.Context, namespace string, 
 		case <-ticker.C:
 		}
 	}
+}
+
+func isRateLimiterDeadline(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "would exceed context deadline")
+}
+
+func (c *Client) DeleteArgoApplications(ctx context.Context, namespace string, names []string) ([]string, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
+	if namespace == "" {
+		namespace = "argocd"
+	}
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.deleteResource(ctx, argoApplicationGVR, namespace, name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "application/"+namespace+"/"+name)
+	}
+	return deleted, nil
 }
 
 func (c *Client) ApplyYAMLDocuments(ctx context.Context, data []byte, defaultNamespace string) ([]string, error) {
@@ -347,6 +375,64 @@ func (c *Client) ApplyYAMLDocuments(ctx context.Context, data []byte, defaultNam
 	return applied, nil
 }
 
+func (c *Client) DeleteYAMLDocuments(ctx context.Context, data []byte, defaultNamespace string) ([]string, error) {
+	decoder := utilyaml.NewYAMLOrJSONDecoder(bytes.NewReader(data), 4096)
+	var objects []*unstructured.Unstructured
+
+	for {
+		var raw map[string]any
+		err := decoder.Decode(&raw)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("decode Kubernetes manifest: %w", err)
+		}
+		if len(raw) == 0 {
+			continue
+		}
+
+		object := &unstructured.Unstructured{Object: raw}
+		if object.GetKind() == "" || object.GetAPIVersion() == "" {
+			continue
+		}
+		if object.GetName() == "" {
+			return nil, fmt.Errorf("manifest object %s is missing metadata.name", object.GroupVersionKind())
+		}
+		objects = append(objects, object)
+	}
+
+	deleted := make([]string, 0, len(objects))
+	for i := len(objects) - 1; i >= 0; i-- {
+		object := objects[i]
+		mapping, err := c.restMapping(object.GroupVersionKind())
+		if err != nil {
+			if isNoResourceMapping(err) {
+				continue
+			}
+			return deleted, err
+		}
+
+		namespace := ""
+		if mapping.Scope.Name() != meta.RESTScopeNameRoot {
+			if object.GetNamespace() == "" {
+				object.SetNamespace(defaultNamespace)
+			}
+			namespace = object.GetNamespace()
+			if namespace == "" {
+				return deleted, fmt.Errorf("manifest object %s/%s requires a namespace", object.GetKind(), object.GetName())
+			}
+		}
+
+		if err := c.deleteResource(ctx, mapping.Resource, namespace, object.GetName()); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, objectReference(object, namespace))
+	}
+
+	return deleted, nil
+}
+
 func (c *Client) restMapping(gvk schema.GroupVersionKind) (*meta.RESTMapping, error) {
 	if c.mapper == nil {
 		return nil, fmt.Errorf("REST mapper is not configured")
@@ -363,6 +449,10 @@ func (c *Client) restMapping(gvk schema.GroupVersionKind) (*meta.RESTMapping, er
 		return nil, fmt.Errorf("resolve REST mapping for %s: %w", gvk.String(), err)
 	}
 	return mapping, nil
+}
+
+func isNoResourceMapping(err error) bool {
+	return meta.IsNoMatchError(err) || strings.Contains(strings.ToLower(err.Error()), "no matches for kind")
 }
 
 func (c *Client) ApplyNamespace(ctx context.Context, name string) error {
@@ -416,6 +506,33 @@ func (c *Client) ApplyInstallationOperation(ctx context.Context, operation insta
 	return c.applyUnstructured(ctx, installationOperationGVR, operation.Namespace, object)
 }
 
+func (c *Client) DeletePlatformInstallation(ctx context.Context, namespace string, name string) error {
+	if name == "" {
+		return fmt.Errorf("platform installation name is required")
+	}
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	return c.deleteResource(ctx, platformInstallationGVR, namespace, name)
+}
+
+func (c *Client) DeletePlatformRelease(ctx context.Context, name string) error {
+	if name == "" {
+		return nil
+	}
+	return c.deleteResource(ctx, platformReleaseGVR, "", name)
+}
+
+func (c *Client) DeleteInstallerCRDs(ctx context.Context) error {
+	crds := installerCRDs()
+	for i := len(crds) - 1; i >= 0; i-- {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", crds[i].GetName()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) applyUnstructured(ctx context.Context, gvr schema.GroupVersionResource, namespace string, object *unstructured.Unstructured) error {
 	options := metav1.ApplyOptions{
 		FieldManager: "m8ctl",
@@ -430,6 +547,27 @@ func (c *Client) applyUnstructured(ctx context.Context, gvr schema.GroupVersionR
 	}
 	if _, err := resource.Apply(ctx, object.GetName(), object, options); err != nil {
 		return fmt.Errorf("server-side apply %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, object.GetName(), err)
+	}
+	return nil
+}
+
+func (c *Client) deleteResource(ctx context.Context, gvr schema.GroupVersionResource, namespace string, name string) error {
+	if name == "" {
+		return fmt.Errorf("delete %s/%s: name is required", gvr.Group, gvr.Resource)
+	}
+	options := metav1.DeleteOptions{}
+	resource := c.dynamic.Resource(gvr)
+	var err error
+	if namespace != "" {
+		err = resource.Namespace(namespace).Delete(ctx, name, options)
+	} else {
+		err = resource.Delete(ctx, name, options)
+	}
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("delete %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
 	}
 	return nil
 }

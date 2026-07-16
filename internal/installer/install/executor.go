@@ -21,16 +21,18 @@ type Executor struct {
 }
 
 type Request struct {
-	Plan                planner.InstallationPlan
-	Installation        installerv1alpha1.PlatformInstallation
-	Release             installerv1alpha1.PlatformRelease
-	RequestedBy         string
-	ArgoCDManifest      []byte
-	RootGitOpsManifests [][]byte
-	SkipCilium          bool
-	SkipCertManager     bool
-	SkipArgoCD          bool
-	SkipRootGitOps      bool
+	Plan                 planner.InstallationPlan
+	Installation         installerv1alpha1.PlatformInstallation
+	Release              installerv1alpha1.PlatformRelease
+	RequestedBy          string
+	ArgoCDManifest       []byte
+	RootGitOpsManifests  [][]byte
+	SkipCilium           bool
+	SkipCertManager      bool
+	SkipArgoCD           bool
+	SkipRootGitOps       bool
+	WaitGitOpsHandoff    bool
+	GitOpsHandoffTimeout time.Duration
 }
 
 type Result struct {
@@ -158,10 +160,14 @@ func (e Executor) Apply(ctx context.Context, request Request) (Result, error) {
 		}
 		applications := argoApplicationNames(request.Plan)
 		if len(applications) > 0 {
-			if err := e.Kubernetes.WaitForArgoApplications(ctx, request.Installation.Spec.GitOps.ArgoCD.Namespace, applications, 2*time.Minute); err != nil {
-				return result, err
+			if request.WaitGitOpsHandoff {
+				if err := e.Kubernetes.WaitForArgoApplications(ctx, request.Installation.Spec.GitOps.ArgoCD.Namespace, applications, request.GitOpsHandoffTimeout); err != nil {
+					return result, err
+				}
+				result.Applied = append(result.Applied, fmt.Sprintf("gitops-reconciliation-handoff/%d applications", len(applications)))
+			} else {
+				result.Applied = append(result.Applied, fmt.Sprintf("gitops-reconciliation-handoff/submitted-%d applications", len(applications)))
 			}
-			result.Applied = append(result.Applied, fmt.Sprintf("gitops-reconciliation-handoff/%d applications", len(applications)))
 		}
 	}
 

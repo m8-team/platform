@@ -22,6 +22,7 @@ type Status struct {
 type Client interface {
 	Plan(ctx context.Context, release Release) (ChangeSet, error)
 	Apply(ctx context.Context, release Release) error
+	Uninstall(ctx context.Context, namespace string, name string) error
 	Status(ctx context.Context, namespace string, name string) (Status, error)
 	Rollback(ctx context.Context, namespace string, name string, revision int) error
 }

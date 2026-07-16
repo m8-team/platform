@@ -80,3 +80,17 @@ func TestWaitForArgoApplications(t *testing.T) {
 		t.Fatalf("WaitForArgoApplications returned error: %v", err)
 	}
 }
+
+func TestDeleteArgoApplicationsIgnoresMissingApplications(t *testing.T) {
+	client := &Client{
+		dynamic: dynamicfake.NewSimpleDynamicClient(runtime.NewScheme()),
+	}
+
+	deleted, err := client.DeleteArgoApplications(context.Background(), "argocd", []string{"m8-data-operators"})
+	if err != nil {
+		t.Fatalf("DeleteArgoApplications returned error: %v", err)
+	}
+	if len(deleted) != 1 {
+		t.Fatalf("len(deleted) = %d, want 1", len(deleted))
+	}
+}
