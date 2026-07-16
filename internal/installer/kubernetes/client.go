@@ -198,6 +198,12 @@ var configMapGVR = schema.GroupVersionResource{
 	Resource: "configmaps",
 }
 
+var leaseGVR = schema.GroupVersionResource{
+	Group:    "coordination.k8s.io",
+	Version:  "v1",
+	Resource: "leases",
+}
+
 var serviceGVR = schema.GroupVersionResource{
 	Group:    "",
 	Version:  "v1",
@@ -753,6 +759,15 @@ func (c *Client) DeleteCertManagerArtifacts(ctx context.Context) ([]string, erro
 		}
 		deleted = append(deleted, "crd/"+name)
 	}
+	for _, name := range []string{
+		"cert-manager-cainjector-leader-election",
+		"cert-manager-controller",
+	} {
+		if err := c.deleteResource(ctx, leaseGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "lease/kube-system/"+name)
+	}
 	secrets, err := c.DeleteSecrets(ctx, "m8-security", []string{"cert-manager-webhook-ca"})
 	if err != nil {
 		return deleted, err
@@ -872,6 +887,12 @@ func (c *Client) DeleteCiliumArtifacts(ctx context.Context) ([]string, error) {
 			return deleted, err
 		}
 		deleted = append(deleted, "crd/"+name)
+	}
+	for _, name := range []string{"cilium-operator-resource-lock"} {
+		if err := c.deleteResource(ctx, leaseGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "lease/kube-system/"+name)
 	}
 	return deleted, nil
 }
