@@ -1,53 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: m8-root
+  name: m8-platform
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-80"
 spec:
   generators:
     - list:
         elements:
-          - name: data-operators
-            path: gitops/components/data-operators
-            wave: "-60"
-          - name: data-clusters
-            path: gitops/components/data-clusters
-            wave: "-50"
-          - name: identity-authorization
-            path: gitops/components/identity-authorization
-            wave: "-40"
-          - name: observability
-            path: gitops/components/observability
-            wave: "-30"
-          - name: envoy-gateway
-            path: gitops/components/envoy-gateway
-            wave: "-20"
-          - name: m8-shared-services
-            path: gitops/components/m8-shared-services
-            wave: "-10"
-          - name: m8-applications
-            path: gitops/components/m8-applications
+          - name: platform
+            path: gitops/components/platform
             wave: "0"
-          - name: routes-policies
-            path: gitops/components/routes-policies
-            wave: "10"
-          - name: bootstrap-data
-            path: gitops/components/bootstrap-data
-            wave: "20"
-          - name: smoke-tests
-            path: gitops/components/smoke-tests
-            wave: "30"
   template:
     metadata:
       name: "m8-{{name}}"
       annotations:
         argocd.argoproj.io/sync-wave: "{{wave}}"
     spec:
-      project: m8-root
+      project: m8-platform
       source:
-        repoURL: https://git.example.com/m8/platform-gitops.git
+        repoURL: https://github.com/m8-team/platform.git
         targetRevision: main
         path: "{{path}}"
       destination:

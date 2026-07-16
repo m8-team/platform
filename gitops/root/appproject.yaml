@@ -1,15 +1,12 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: m8-root
+  name: m8-platform
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-90"
 spec:
-  description: Root project for M8 Platform reconciliation
+  description: Project for M8 Platform
   sourceRepos:
-    - "https://git.example.com/m8/platform-gitops.git"
-    - "oci://registry.m8.io/charts/*"
+    - "https://github.com/m8-team/platform.git"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
@@ -21,9 +18,3 @@ spec:
       kind: "*"
   orphanedResources:
     warn: true
-  roles:
-    - name: m8-installer
-      description: Installer bootstrap role for root ApplicationSet handoff.
-      policies:
-        - p, proj:m8-root:m8-installer, applications, get, m8-root/*, allow
-        - p, proj:m8-root:m8-installer, applications, sync, m8-root/*, allow

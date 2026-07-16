@@ -55,6 +55,18 @@ The first production overlay is:
 
 Future overlays should be Kustomize or Helm values overlays under `gitops/environments/<environment>`, never one-off CLI mutations.
 
+## Application Services
+
+Deployable M8 application services live under:
+
+- `gitops/components/m8-applications/services`
+
+The root `ApplicationSet` reconciles this tree through the `m8-m8-applications` Argo CD Application. Each service gets its own directory with a local `kustomization.yaml`, Deployment, Service, ServiceAccount and optional policy manifests. The initial service scaffold is:
+
+- `gitops/components/m8-applications/services/resource-manager`
+
+Infrastructure operators, data clusters, identity, authorization, observability and gateway resources must stay in their earlier sync-wave components, not in the application services tree.
+
 ## Health And Readiness
 
 Argo CD health checks must be added for:
@@ -73,4 +85,3 @@ Argo CD health checks must be added for:
 - Argo CD SSO is via Keycloak.
 - Project RBAC grants the installer only bootstrap/sync permissions needed for handoff.
 - OCI Helm chart sources must use digest-pinned release catalog entries.
-
