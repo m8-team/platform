@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ID_FR_023
+  requirement_id: ID-FR-023
+  title: Разрешить Subject по issuer+subject
+  status: APPROVED
+  context: ID
+  release: MVP-1
+traceability:
+  capability: CAP-ID-07
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Разрешить Subject по issuer+subject
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ID-FR-023-AC-01
+  statement: Disabled/erased состояния возвращаются явно для доверенного caller.
+- id: ID-FR-023-AC-02
+  statement: Профиль не возвращается без отдельной необходимости.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

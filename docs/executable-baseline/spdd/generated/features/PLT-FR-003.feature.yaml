@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PLT_FR_003
+  requirement_id: PLT-FR-003
+  title: Единая модель длительных операций
+  status: APPROVED
+  context: PLT
+  release: MVP-1
+traceability:
+  capability: CAP-OPS-01
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Единая модель длительных операций
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PLT-FR-003-AC-01
+  statement: Повтор команды с тем же idempotency key возвращает ту же Operation.
+- id: PLT-FR-003-AC-02
+  statement: Operation отделена от состояния предметного ресурса и содержит типизированный result или error.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

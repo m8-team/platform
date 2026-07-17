@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/common/operation/v1;operation";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/common/operation/v1;common";
 
 // OperationMetadata is a common metadata payload for long-running operations
 // across M8 Platform services.

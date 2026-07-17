@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ACC_FR_020
+  requirement_id: ACC-FR-020
+  title: Создать Relationship
+  status: APPROVED
+  context: ACC
+  release: MVP-1
+traceability:
+  capability: CAP-AUTHZ-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Создать Relationship
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ACC-FR-020-AC-01
+  statement: Relation допустим текущей model version.
+- id: ACC-FR-020-AC-02
+  statement: Запись в SpiceDB выполняется через Access adapter.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

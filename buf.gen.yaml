@@ -26,5 +26,6 @@ plugins:
       - version=v1
       - default_response=false
       - naming=json
+      #- fq_schema_naming=true
       - enum_type=string
       - output_mode=source_relative

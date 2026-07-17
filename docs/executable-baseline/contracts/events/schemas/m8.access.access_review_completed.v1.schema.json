@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.m8.local/events/m8.access.access_review_completed.v1.schema.json",
+  "title": "AccessReviewCompleted",
+  "allOf": [
+    {
+      "$ref": "base-envelope.v1.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "event_type": {
+          "const": "m8.access.access_review_completed.v1"
+        },
+        "schema_version": {
+          "const": "v1"
+        },
+        "producer": {
+          "const": "m8-access"
+        },
+        "partition_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "change_type"
+          ],
+          "properties": {
+            "change_type": {
+              "const": "AccessReviewCompleted"
+            },
+            "resource": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "changed_fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

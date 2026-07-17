@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH_NFR_002
+  requirement_id: AUTH-NFR-002
+  title: Доступность проверки состояния
+  status: APPROVED
+  context: AUTH
+  release: MVP-2
+traceability:
+  capability: CAP-AUTHN-11
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Доступность проверки состояния
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUTH-NFR-002-AC-01
+  statement: Read path не зависит от доступности внешнего provider для committed state.
+- id: AUTH-NFR-002-AC-02
+  statement: Degraded provider state обозначается отдельно.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

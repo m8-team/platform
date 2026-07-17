@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PROV_FR_041
+  requirement_id: PROV-FR-041
+  title: Выполнить Compensation
+  status: APPROVED
+  context: PROV
+  release: MVP-3
+traceability:
+  capability: CAP-PROV-09
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Выполнить Compensation
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PROV-FR-041-AC-01
+  statement: Необратимый шаг обозначается commit point.
+- id: PROV-FR-041-AC-02
+  statement: Ошибка compensation переводит ресурс в NEEDS_ATTENTION.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

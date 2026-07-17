@@ -1,0 +1,345 @@
+registry_id: M8-DATA-000
+version: '0.1'
+entities:
+- id: DATA-RM-001
+  entity: Organization
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 7y tombstone
+  deletion: archive then tombstone
+  projections: Access, Audit, Provisioning
+- id: DATA-RM-002
+  entity: Workspace
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 7y tombstone
+  deletion: archive then tombstone
+  projections: Access, Audit
+- id: DATA-RM-003
+  entity: Project
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 7y tombstone
+  deletion: managed deletion workflow
+  projections: Access, Audit, Provisioning
+- id: DATA-RM-004
+  entity: ServiceRegistration
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 3y
+  deletion: soft delete
+  projections: Access, Audit
+- id: DATA-ID-001
+  entity: UserPool
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 7y tombstone
+  deletion: suspend/delete by workflow
+  projections: Authentication, Access, Audit
+- id: DATA-ID-002
+  entity: User
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: personal
+  retention: purpose + legal retention
+  deletion: anonymize/delete by privacy workflow
+  projections: Authentication, Access, Audit
+- id: DATA-ID-003
+  entity: ProfileAttribute
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: personal/sensitive
+  retention: attribute policy
+  deletion: delete or anonymize
+  projections: none by default
+- id: DATA-ID-004
+  entity: ExternalIdentity
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: personal
+  retention: active + audit reference
+  deletion: unlink/tombstone
+  projections: Authentication
+- id: DATA-ID-005
+  entity: Group
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 3y
+  deletion: soft delete
+  projections: Access
+- id: DATA-ID-006
+  entity: Membership
+  owner_context: Identity
+  owner_service: m8-identity
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 3y
+  deletion: revoke/tombstone
+  projections: Access, Audit
+- id: DATA-AUTH-001
+  entity: Client
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: YDB
+  classification: confidential
+  retention: active + 3y
+  deletion: disable/tombstone
+  projections: Access, Audit
+- id: DATA-AUTH-002
+  entity: AuthenticationTransaction
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: YDB
+  classification: sensitive
+  retention: 90d default
+  deletion: expire then purge/minimize
+  projections: Audit, Risk projection
+- id: DATA-AUTH-003
+  entity: AuthenticationChallenge
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: YDB/Redis
+  classification: secret-adjacent
+  retention: TTL + 30d metadata
+  deletion: secret purge; metadata retain
+  projections: none
+- id: DATA-AUTH-004
+  entity: AuthenticationHandoff
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: Redis/YDB
+  classification: secret
+  retention: minutes
+  deletion: one-time consume then purge
+  projections: none
+- id: DATA-AUTH-005
+  entity: AuthenticationSessionReference
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: YDB
+  classification: sensitive
+  retention: session + 90d
+  deletion: revoke then purge
+  projections: Audit
+- id: DATA-AUTH-006
+  entity: WebAuthnCredentialReference
+  owner_context: Authentication
+  owner_service: m8-authentication
+  authoritative_store: YDB
+  classification: sensitive
+  retention: until revoke + policy
+  deletion: revoke/tombstone
+  projections: Identity reference only
+- id: DATA-ACC-001
+  entity: PermissionDefinition
+  owner_context: Access
+  owner_service: m8-access
+  authoritative_store: YDB
+  classification: internal
+  retention: version lifetime + 7y
+  deletion: retire, never reuse name
+  projections: all services read cache
+- id: DATA-ACC-002
+  entity: Role
+  owner_context: Access
+  owner_service: m8-access
+  authoritative_store: YDB
+  classification: internal
+  retention: active + 7y
+  deletion: soft delete
+  projections: Audit
+- id: DATA-ACC-003
+  entity: RoleBinding
+  owner_context: Access
+  owner_service: m8-access
+  authoritative_store: YDB/SpiceDB
+  classification: sensitive authorization
+  retention: active + 7y
+  deletion: revoke/tombstone
+  projections: Audit, service caches
+- id: DATA-ACC-004
+  entity: AccessRelationship
+  owner_context: Access
+  owner_service: m8-access
+  authoritative_store: YDB/SpiceDB
+  classification: sensitive authorization
+  retention: active + 7y
+  deletion: delete/tombstone
+  projections: service caches
+- id: DATA-ACC-005
+  entity: AuthorizationModel
+  owner_context: Access
+  owner_service: m8-access
+  authoritative_store: YDB/SpiceDB
+  classification: internal
+  retention: all published versions
+  deletion: retire version
+  projections: all services
+- id: DATA-RISK-001
+  entity: RiskAssessment
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  authoritative_store: YDB
+  classification: sensitive
+  retention: 180d default
+  deletion: expire then minimize
+  projections: Audit
+- id: DATA-RISK-002
+  entity: RiskPolicy
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  authoritative_store: YDB
+  classification: confidential
+  retention: all published versions
+  deletion: retire version
+  projections: runtime cache
+- id: DATA-RISK-003
+  entity: RiskSignal
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  authoritative_store: YDB/stream
+  classification: sensitive
+  retention: 30-180d by type
+  deletion: purge/minimize
+  projections: none
+- id: DATA-RISK-004
+  entity: ManualReview
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  authoritative_store: YDB
+  classification: sensitive
+  retention: 7y
+  deletion: close then retain
+  projections: Audit
+- id: DATA-PROV-001
+  entity: ResourceDefinition
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: internal
+  retention: all published versions
+  deletion: retire version
+  projections: drivers/runtime cache
+- id: DATA-PROV-002
+  entity: ManagedResource
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: internal/confidential
+  retention: lifetime + 7y
+  deletion: managed deletion/tombstone
+  projections: Resource Manager, Audit
+- id: DATA-PROV-003
+  entity: DesiredState
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: confidential
+  retention: current + revision history
+  deletion: redact secret refs
+  projections: drivers
+- id: DATA-PROV-004
+  entity: ObservedState
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: confidential
+  retention: rolling 90d + snapshots
+  deletion: purge after retention
+  projections: monitoring projection
+- id: DATA-PROV-005
+  entity: Placement
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: internal
+  retention: lifetime + 3y
+  deletion: release/tombstone
+  projections: Audit
+- id: DATA-PROV-006
+  entity: Driver
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  authoritative_store: YDB
+  classification: confidential
+  retention: active + 3y
+  deletion: disable/tombstone
+  projections: runtime
+- id: DATA-AUD-001
+  entity: AuditEvent
+  owner_context: Audit
+  owner_service: m8-audit
+  authoritative_store: immutable store
+  classification: sensitive audit
+  retention: policy 1-10y
+  deletion: retention/legal hold only
+  projections: search index
+- id: DATA-AUD-002
+  entity: AuditExport
+  owner_context: Audit
+  owner_service: m8-audit
+  authoritative_store: object storage
+  classification: sensitive export
+  retention: short TTL 1-30d
+  deletion: secure delete
+  projections: none
+- id: DATA-AUD-003
+  entity: IntegrityProof
+  owner_context: Audit
+  owner_service: m8-audit
+  authoritative_store: immutable store
+  classification: internal
+  retention: same as covered events
+  deletion: retention policy
+  projections: none
+- id: DATA-OPS-001
+  entity: Operation
+  owner_context: Owning context
+  owner_service: operation owner service
+  authoritative_store: YDB
+  classification: internal
+  retention: 90d-7y by operation type
+  deletion: delete record only after policy
+  projections: read API, Audit
+- id: DATA-COMMON-001
+  entity: OutboxRecord
+  owner_context: Owning context
+  owner_service: event publisher
+  authoritative_store: YDB
+  classification: internal
+  retention: until published + replay window
+  deletion: purge after evidence
+  projections: broker
+- id: DATA-COMMON-002
+  entity: InboxRecord
+  owner_context: Owning context
+  owner_service: event consumer
+  authoritative_store: YDB
+  classification: internal
+  retention: dedup window
+  deletion: purge after window
+  projections: none
+- id: DATA-COMMON-003
+  entity: IdempotencyRecord
+  owner_context: Owning context
+  owner_service: command owner
+  authoritative_store: YDB/Redis
+  classification: internal
+  retention: documented idempotency window
+  deletion: purge after window
+  projections: none

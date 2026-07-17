@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RM_FR_044
+  requirement_id: RM-FR-044
+  title: Обновить labels через FieldMask
+  status: APPROVED
+  context: RM
+  release: MVP-1
+traceability:
+  capability: CAP-RM-06
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Обновить labels через FieldMask
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RM-FR-044-AC-01
+  statement: Неуказанные поля не изменяются.
+- id: RM-FR-044-AC-02
+  statement: Системные labels защищены от пользовательской записи.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

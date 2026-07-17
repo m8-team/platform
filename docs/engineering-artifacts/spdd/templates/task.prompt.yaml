@@ -1,0 +1,16 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-<CTX>-<NNN>-<SEQ>
+  kind: task
+  parent_feature: SP-FEATURE-...
+objective: <one testable change>
+allowed_paths: []
+forbidden_paths: []
+inputs: []
+implementation_constraints: []
+tests: []
+output:
+- changed_files
+- test_results
+- decisions
+- open_questions

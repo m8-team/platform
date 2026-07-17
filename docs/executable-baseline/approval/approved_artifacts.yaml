@@ -1,0 +1,47 @@
+baseline_id: M8-EAB-001
+version: '1.0'
+status: APPROVED
+approved_on: '2026-07-10'
+artifacts:
+- id: PADS-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-REQ-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-API-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-EVT-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-ERR-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-DATA-000
+  version: '1.0'
+  status: APPROVED
+- id: M8-SPDD-CONSTITUTION
+  version: '1.0'
+  status: APPROVED
+adrs:
+- id: ADR-0001
+  status: ACCEPTED
+- id: ADR-0002
+  status: ACCEPTED
+- id: ADR-0003
+  status: ACCEPTED
+- id: ADR-0004
+  status: ACCEPTED
+- id: ADR-0005
+  status: ACCEPTED
+- id: ADR-0006
+  status: ACCEPTED
+- id: ADR-0007
+  status: ACCEPTED
+- id: ADR-0008
+  status: ACCEPTED
+- id: ADR-0009
+  status: ACCEPTED
+- id: ADR-0010
+  status: ACCEPTED

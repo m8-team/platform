@@ -1,0 +1,19 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-RISK_FR_004-01
+  requirement_id: RISK-FR-004
+  type: contract-and-domain
+  status: APPROVED
+allowed_paths:
+- services/risk/
+- proto/
+- tests/
+forbidden_changes:
+- another bounded context's internal model
+- another service's database
+- published contract without breaking-change review
+outputs:
+- changed files
+- test results
+- traceability update
+- decision notes

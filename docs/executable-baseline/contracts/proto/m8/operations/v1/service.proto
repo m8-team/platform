@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+  package m8.operations.v1;
+
+  import "m8/common/v1/common.proto";
+
+  option go_package = "github.com/m8-platform/m8/gen/go/m8/operations/v1;operationsv1";
+
+  service OperationsService {
+    // OPS-FR-004 | public | idempotency=true
+rpc CancelOperation (CancelOperationRequest) returns (CancelOperationResponse);
+// OPS-FR-007 | internal | idempotency=true
+rpc CompleteOperation (CompleteOperationRequest) returns (CompleteOperationResponse);
+// OPS-FR-005 | public | idempotency=true
+rpc DeleteOperation (DeleteOperationRequest) returns (DeleteOperationResponse);
+// OPS-FR-008 | internal | idempotency=true
+rpc FailOperation (FailOperationRequest) returns (FailOperationResponse);
+// OPS-FR-001 | public | idempotency=false
+rpc GetOperation (GetOperationRequest) returns (GetOperationResponse);
+// OPS-FR-009 | internal | idempotency=true
+rpc LinkOperationWorkflow (LinkOperationWorkflowRequest) returns (LinkOperationWorkflowResponse);
+// OPS-FR-002 | public | idempotency=false
+rpc ListOperations (ListOperationsRequest) returns (ListOperationsResponse);
+// OPS-FR-010 | internal | idempotency=true
+rpc StartIdempotentOperation (StartIdempotentOperationRequest) returns (StartIdempotentOperationResponse);
+// OPS-FR-006 | internal | idempotency=true
+rpc UpdateOperationProgress (UpdateOperationProgressRequest) returns (UpdateOperationProgressResponse);
+// OPS-FR-003 | public | idempotency=true
+rpc WaitOperation (WaitOperationRequest) returns (WaitOperationResponse);
+  }
+
+
+              message CancelOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message CancelOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message CompleteOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message CompleteOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message DeleteOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message DeleteOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message FailOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message FailOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message GetOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message GetOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message LinkOperationWorkflowRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message LinkOperationWorkflowResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message ListOperationsRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message ListOperationsResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message StartIdempotentOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message StartIdempotentOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message UpdateOperationProgressRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message UpdateOperationProgressResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }
+
+
+              message WaitOperationRequest {
+                m8.common.v1.ContractRequest request = 1;
+              }
+
+
+              message WaitOperationResponse {
+                m8.common.v1.ContractResponse response = 1;
+              }

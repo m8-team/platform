@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: m8-control-plane
+  labels:
+    app.kubernetes.io/part-of: m8-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: m8-iam
+  labels:
+    app.kubernetes.io/part-of: m8-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: m8-observability
+  labels:
+    app.kubernetes.io/part-of: m8-platform

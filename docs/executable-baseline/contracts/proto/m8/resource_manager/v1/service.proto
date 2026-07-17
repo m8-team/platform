@@ -1,0 +1,253 @@
+syntax = "proto3";
+
+    package m8.resource_manager.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/resource_manager/v1;resourcemanagerv1";
+
+    service ResourceManagerService {
+      // RM-FR-005 | public | idempotency=true
+  rpc ArchiveOrganization (ArchiveOrganizationRequest) returns (ArchiveOrganizationResponse);
+  // RM-FR-001 | public | idempotency=true
+  rpc CreateOrganization (CreateOrganizationRequest) returns (CreateOrganizationResponse);
+  // RM-FR-020 | public | idempotency=true
+  rpc CreateProject (CreateProjectRequest) returns (CreateProjectResponse);
+  // RM-FR-010 | public | idempotency=true
+  rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse);
+  // RM-FR-022 | public | idempotency=true
+  rpc DeleteProject (DeleteProjectRequest) returns (m8.common.v1.Operation);
+  // RM-FR-040 | public | idempotency=false
+  rpc GetResource (GetResourceRequest) returns (GetResourceResponse);
+  // RM-FR-042 | public | idempotency=false
+  rpc GetResourcePath (GetResourcePathRequest) returns (GetResourcePathResponse);
+  // RM-FR-041 | public | idempotency=false
+  rpc ListChildResources (ListChildResourcesRequest) returns (ListChildResourcesResponse);
+  // RM-FR-021 | public | idempotency=true
+  rpc MoveProject (MoveProjectRequest) returns (m8.common.v1.Operation);
+  // RM-FR-030 | public | idempotency=true
+  rpc RegisterService (RegisterServiceRequest) returns (RegisterServiceResponse);
+  // RM-FR-004 | public | idempotency=true
+  rpc RestoreOrganization (RestoreOrganizationRequest) returns (RestoreOrganizationResponse);
+  // RM-FR-024 | public | idempotency=true
+  rpc RestoreProject (RestoreProjectRequest) returns (RestoreProjectResponse);
+  // RM-FR-043 | public | idempotency=false
+  rpc SearchResources (SearchResourcesRequest) returns (SearchResourcesResponse);
+  // RM-FR-012 | public | idempotency=true
+  rpc SetWorkspaceSuspension (SetWorkspaceSuspensionRequest) returns (SetWorkspaceSuspensionResponse);
+  // RM-FR-003 | public | idempotency=true
+  rpc SuspendOrganization (SuspendOrganizationRequest) returns (SuspendOrganizationResponse);
+  // RM-FR-023 | public | idempotency=true
+  rpc SuspendProject (SuspendProjectRequest) returns (SuspendProjectResponse);
+  // RM-FR-032 | public | idempotency=true
+  rpc UnregisterService (UnregisterServiceRequest) returns (UnregisterServiceResponse);
+  // RM-FR-002 | public | idempotency=true
+  rpc UpdateOrganization (UpdateOrganizationRequest) returns (UpdateOrganizationResponse);
+  // RM-FR-044 | public | idempotency=true
+  rpc UpdateResourceLabels (UpdateResourceLabelsRequest) returns (UpdateResourceLabelsResponse);
+  // RM-FR-031 | public | idempotency=true
+  rpc UpdateServiceRegistration (UpdateServiceRegistrationRequest) returns (UpdateServiceRegistrationResponse);
+  // RM-FR-011 | public | idempotency=true
+  rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse);
+    }
+
+
+                message ArchiveOrganizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ArchiveOrganizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateOrganizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateOrganizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateProjectRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateProjectResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateWorkspaceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateWorkspaceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message DeleteProjectRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetResourceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetResourceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetResourcePathRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetResourcePathResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ListChildResourcesRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ListChildResourcesResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message MoveProjectRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RegisterServiceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RegisterServiceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RestoreOrganizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RestoreOrganizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RestoreProjectRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RestoreProjectResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SearchResourcesRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SearchResourcesResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SetWorkspaceSuspensionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SetWorkspaceSuspensionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SuspendOrganizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SuspendOrganizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SuspendProjectRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SuspendProjectResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UnregisterServiceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UnregisterServiceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateOrganizationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateOrganizationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateResourceLabelsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateResourceLabelsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateServiceRegistrationRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateServiceRegistrationResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message UpdateWorkspaceRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message UpdateWorkspaceResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }

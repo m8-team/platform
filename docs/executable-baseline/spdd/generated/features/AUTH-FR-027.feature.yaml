@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH_FR_027
+  requirement_id: AUTH-FR-027
+  title: Начать федеративную аутентификацию
+  status: APPROVED
+  context: AUTH
+  release: MVP-2
+traceability:
+  capability: CAP-AUTHN-08
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Начать федеративную аутентификацию
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUTH-FR-027-AC-01
+  statement: Callback state и nonce проверяются.
+- id: AUTH-FR-027-AC-02
+  statement: Внешние claims преобразуются через ACL и затем разрешаются Identity.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

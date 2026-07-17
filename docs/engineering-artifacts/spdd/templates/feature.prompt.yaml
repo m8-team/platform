@@ -1,0 +1,33 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-<CTX>-<NNN>
+  kind: feature
+  status: draft
+  owner_context: <context>
+  owner_service: <service>
+traceability:
+  requirements:
+  - <REQ-ID>
+  acceptance_criteria:
+  - <REQ-ID>-AC-01
+  api_contracts: []
+  event_contracts: []
+  error_contracts: []
+  data_contracts: []
+  adrs: []
+objective: <measurable outcome>
+scope:
+  include: []
+  exclude: []
+domain:
+  aggregates: []
+  invariants: []
+  state_transitions: []
+dependencies:
+  allowed: []
+  forbidden: []
+security: []
+consistency: []
+observability: []
+tasks: []
+definition_of_done: []

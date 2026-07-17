@@ -21,7 +21,7 @@ service OrganizationService {
 
   // Returns one organization by its UUID.
   rpc GetOrganization(GetOrganizationRequest) returns (Organization) {
-    option (google.api.http) = {get: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}"};
     option (google.api.method_signature) = "organization_id";
     option (gnostic.openapi.v3.operation) = {
       summary: "Get"
@@ -32,7 +32,7 @@ service OrganizationService {
 
   // Returns a page of organizations available to the caller.
   rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse) {
-    option (google.api.http) = {get: "/v1/resource-manager/organizations"};
+    option (google.api.http) = {get: "/resource-manager/v1/organizations"};
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
       description: "Returns a paginated list of organizations available to the caller."
@@ -43,7 +43,7 @@ service OrganizationService {
   // Creates a new organization from the provided payload.
   rpc CreateOrganization(CreateOrganizationRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
-      post: "/v1/resource-manager/organizations"
+      post: "/resource-manager/v1/organizations"
       body: "organization"
     };
     option (google.longrunning.operation_info) = {
@@ -61,7 +61,7 @@ service OrganizationService {
   // Updates the editable fields of an existing organization.
   rpc UpdateOrganization(UpdateOrganizationRequest) returns (google.longrunning.Operation) {
     option (google.api.http) = {
-      patch: "/v1/resource-manager/organizations/{organization.id}"
+      patch: "/resource-manager/v1/organizations/{organization.id}"
       body: "organization"
     };
     option (google.longrunning.operation_info) = {
@@ -78,7 +78,7 @@ service OrganizationService {
 
   // Archives an organization without deleting it permanently.
   rpc DeleteOrganization(DeleteOrganizationRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {delete: "/v1/resource-manager/organizations/{organization_id}"};
+    option (google.api.http) = {delete: "/resource-manager/v1/organizations/{organization_id}"};
     option (google.longrunning.operation_info) = {
       response_type: "m8.platform.common.operation.v1.OperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"
@@ -93,7 +93,7 @@ service OrganizationService {
 
   // Restores an organization that was previously archived.
   rpc UndeleteOrganization(UndeleteOrganizationRequest) returns (google.longrunning.Operation) {
-    option (google.api.http) = {post: "/v1/resource-manager/organizations/{organization_id}:undelete"};
+    option (google.api.http) = {post: "/resource-manager/v1/organizations/{organization_id}:undelete"};
     option (google.longrunning.operation_info) = {
       response_type: "OrganizationOperationResponse"
       metadata_type: "m8.platform.common.operation.v1.OperationMetadata"

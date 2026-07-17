@@ -1,0 +1,102 @@
+version: '0.1'
+checks:
+- id: FF-001
+  name: No cross-context database access
+  gate: block
+  mechanism: go/import + configuration scan
+  criterion: Сервис не подключается к таблицам/credentials другого owner.
+- id: FF-002
+  name: Domain dependency direction
+  gate: block
+  mechanism: go list / depguard
+  criterion: domain не импортирует application, transport, storage, provider SDK.
+- id: FF-003
+  name: Protobuf lint and breaking
+  gate: block
+  mechanism: buf lint + buf breaking
+  criterion: Публичные API совместимы с baseline.
+- id: FF-004
+  name: Event schema compatibility
+  gate: block
+  mechanism: schema registry check
+  criterion: Event type/version/fields/partition key совместимы.
+- id: FF-005
+  name: Requirement ID validity
+  gate: block
+  mechanism: artifact validator
+  criterion: Все requirement refs существуют.
+- id: FF-006
+  name: Traceability completeness
+  gate: block for implementing
+  mechanism: artifact validator
+  criterion: Implementation имеет prompt/test/contract links.
+- id: FF-007
+  name: Outbox atomicity
+  gate: block
+  mechanism: integration test
+  criterion: Aggregate и обязательный Outbox фиксируются атомарно.
+- id: FF-008
+  name: Consumer idempotency
+  gate: block
+  mechanism: integration/fault test
+  criterion: Duplicate event не создаёт второй эффект.
+- id: FF-009
+  name: Mutation idempotency
+  gate: block
+  mechanism: concurrency test
+  criterion: Одинаковый ключ создаёт один logical result.
+- id: FF-010
+  name: Secret leakage
+  gate: block
+  mechanism: gitleaks + fixture scan
+  criterion: Secrets отсутствуют в code/log/event/audit fixtures.
+- id: FF-011
+  name: Permission annotation
+  gate: block
+  mechanism: proto/custom lint
+  criterion: Каждый public protected RPC имеет permission.
+- id: FF-012
+  name: Risk gate annotation
+  gate: block
+  mechanism: catalog lint
+  criterion: Sensitive action имеет risk policy link.
+- id: FF-013
+  name: Audit coverage
+  gate: block
+  mechanism: test/static annotation
+  criterion: Significant mutation формирует AuditEvent.
+- id: FF-014
+  name: Telemetry identifiers
+  gate: warn/block critical
+  mechanism: integration test
+  criterion: request/correlation/operation/resource IDs проходят end-to-end.
+- id: FF-015
+  name: LRO contract
+  gate: block
+  mechanism: proto lint
+  criterion: Long-running RPC имеет typed metadata/result/cancel semantics.
+- id: FF-016
+  name: YDB migration ownership
+  gate: block
+  mechanism: migration path lint
+  criterion: Migration находится в owner service и backward compatible.
+- id: FF-017
+  name: ADR required for boundary change
+  gate: block
+  mechanism: diff policy
+  criterion: Новая service dependency/store/technology имеет ADR.
+- id: FF-018
+  name: PII classification
+  gate: block
+  mechanism: data registry lint
+  criterion: Новое persisted field имеет classification/retention/deletion.
+- id: FF-019
+  name: SLO metadata
+  gate: warn/block critical
+  mechanism: service catalog lint
+  criterion: Critical API имеет SLI/SLO/error budget.
+- id: FF-020
+  name: Prompt scope
+  gate: block
+  mechanism: SPDD schema lint
+  criterion: Task Prompt имеет allowed/forbidden paths и один owner context.

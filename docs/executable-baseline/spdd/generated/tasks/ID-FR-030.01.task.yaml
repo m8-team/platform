@@ -1,0 +1,19 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-ID_FR_030-01
+  requirement_id: ID-FR-030
+  type: contract-and-domain
+  status: APPROVED
+allowed_paths:
+- services/id/
+- proto/
+- tests/
+forbidden_changes:
+- another bounded context's internal model
+- another service's database
+- published contract without breaking-change review
+outputs:
+- changed files
+- test results
+- traceability update
+- decision notes

@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUD_FR_012
+  requirement_id: AUD-FR-012
+  title: Построить цепочку по correlation
+  status: APPROVED
+  context: AUD
+  release: MVP-1
+traceability:
+  capability: CAP-AUD-06
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Построить цепочку по correlation
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUD-FR-012-AC-01
+  statement: Разрывы обозначаются явно.
+- id: AUD-FR-012-AC-02
+  statement: Порядок использует event time и ingestion metadata.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

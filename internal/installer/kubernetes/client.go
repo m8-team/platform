@@ -1,0 +1,1112 @@
+package kubernetes
+
+import (
+	"bytes"
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"reflect"
+	"strings"
+	"time"
+
+	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
+	"github.com/m8platform/platform/internal/installer/preflight"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
+	"k8s.io/client-go/discovery/cached/memory"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
+	"k8s.io/client-go/tools/clientcmd"
+)
+
+type Client struct {
+	clientset kubernetes.Interface
+	dynamic   dynamic.Interface
+	mapper    *restmapper.DeferredDiscoveryRESTMapper
+}
+
+type ClientOptions struct {
+	Kubeconfig string
+	Context    string
+}
+
+func NewClient(options ClientOptions) (*Client, error) {
+	config, err := RESTConfig(options)
+	if err != nil {
+		return nil, err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("create Kubernetes client: %w", err)
+	}
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, fmt.Errorf("create Kubernetes dynamic client: %w", err)
+	}
+	mapper := restmapper.NewDeferredDiscoveryRESTMapper(memory.NewMemCacheClient(clientset.Discovery()))
+	return &Client{clientset: clientset, dynamic: dynamicClient, mapper: mapper}, nil
+}
+
+func RESTConfig(options ClientOptions) (*rest.Config, error) {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	if options.Kubeconfig != "" {
+		loadingRules.ExplicitPath = options.Kubeconfig
+	}
+	overrides := &clientcmd.ConfigOverrides{}
+	if options.Context != "" {
+		overrides.CurrentContext = options.Context
+	}
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides).ClientConfig()
+	if err != nil {
+		return nil, fmt.Errorf("load kubeconfig: %w", err)
+	}
+	return config, nil
+}
+
+func (c *Client) ServerVersion(ctx context.Context) (string, error) {
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	version, err := c.clientset.Discovery().ServerVersion()
+	if err != nil {
+		return "", fmt.Errorf("get Kubernetes server version: %w", err)
+	}
+	return version.GitVersion, nil
+}
+
+func (c *Client) NodeSummary(ctx context.Context) (preflight.NodeSummary, error) {
+	nodes, err := c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return preflight.NodeSummary{}, fmt.Errorf("list nodes: %w", err)
+	}
+	summary := preflight.NodeSummary{
+		Total:         len(nodes.Items),
+		Architectures: map[string]int{},
+		Zones:         map[string]int{},
+	}
+	for _, node := range nodes.Items {
+		if isNodeReady(node) {
+			summary.Ready++
+		}
+		if arch := node.Labels[corev1.LabelArchStable]; arch != "" {
+			summary.Architectures[arch]++
+		}
+		if zone := node.Labels[corev1.LabelTopologyZone]; zone != "" {
+			summary.Zones[zone]++
+		}
+	}
+	return summary, nil
+}
+
+func (c *Client) HasAPIResource(ctx context.Context, groupVersion string, kind string) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
+	resources, err := c.clientset.Discovery().ServerResourcesForGroupVersion(groupVersion)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return false, nil
+		}
+		return false, fmt.Errorf("discover API resources for %s: %w", groupVersion, err)
+	}
+	for _, resource := range resources.APIResources {
+		if resource.Kind == kind {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func (c *Client) StorageClasses(ctx context.Context) ([]string, error) {
+	classes, err := c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("list storage classes: %w", err)
+	}
+	names := make([]string, 0, len(classes.Items))
+	for _, class := range classes.Items {
+		names = append(names, class.Name)
+	}
+	return names, nil
+}
+
+var platformInstallationGVR = schema.GroupVersionResource{
+	Group:    installerv1alpha1.GroupName,
+	Version:  installerv1alpha1.Version,
+	Resource: "platforminstallations",
+}
+
+var platformReleaseGVR = schema.GroupVersionResource{
+	Group:    installerv1alpha1.GroupName,
+	Version:  installerv1alpha1.Version,
+	Resource: "platformreleases",
+}
+
+var installationOperationGVR = schema.GroupVersionResource{
+	Group:    installerv1alpha1.GroupName,
+	Version:  installerv1alpha1.Version,
+	Resource: "installationoperations",
+}
+
+var customResourceDefinitionGVR = schema.GroupVersionResource{
+	Group:    "apiextensions.k8s.io",
+	Version:  "v1",
+	Resource: "customresourcedefinitions",
+}
+
+var namespaceGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "namespaces",
+}
+
+var argoApplicationGVR = schema.GroupVersionResource{
+	Group:    "argoproj.io",
+	Version:  "v1alpha1",
+	Resource: "applications",
+}
+
+var apiServiceGVR = schema.GroupVersionResource{
+	Group:    "apiregistration.k8s.io",
+	Version:  "v1",
+	Resource: "apiservices",
+}
+
+var secretGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "secrets",
+}
+
+var serviceAccountGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "serviceaccounts",
+}
+
+var configMapGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "configmaps",
+}
+
+var leaseGVR = schema.GroupVersionResource{
+	Group:    "coordination.k8s.io",
+	Version:  "v1",
+	Resource: "leases",
+}
+
+var serviceGVR = schema.GroupVersionResource{
+	Group:    "",
+	Version:  "v1",
+	Resource: "services",
+}
+
+var daemonSetGVR = schema.GroupVersionResource{
+	Group:    "apps",
+	Version:  "v1",
+	Resource: "daemonsets",
+}
+
+var deploymentGVR = schema.GroupVersionResource{
+	Group:    "apps",
+	Version:  "v1",
+	Resource: "deployments",
+}
+
+var roleGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "roles",
+}
+
+var roleBindingGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "rolebindings",
+}
+
+var clusterRoleGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "clusterroles",
+}
+
+var clusterRoleBindingGVR = schema.GroupVersionResource{
+	Group:    "rbac.authorization.k8s.io",
+	Version:  "v1",
+	Resource: "clusterrolebindings",
+}
+
+var mutatingWebhookConfigurationGVR = schema.GroupVersionResource{
+	Group:    "admissionregistration.k8s.io",
+	Version:  "v1",
+	Resource: "mutatingwebhookconfigurations",
+}
+
+var validatingWebhookConfigurationGVR = schema.GroupVersionResource{
+	Group:    "admissionregistration.k8s.io",
+	Version:  "v1",
+	Resource: "validatingwebhookconfigurations",
+}
+
+func (c *Client) ApplyInstallerCRDs(ctx context.Context) error {
+	for _, crd := range installerCRDs() {
+		if err := c.applyUnstructured(ctx, customResourceDefinitionGVR, "", crd); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) WaitForInstallerAPI(ctx context.Context, timeout time.Duration) error {
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
+
+	required := []struct {
+		groupVersion string
+		kind         string
+	}{
+		{installerv1alpha1.GroupName + "/" + installerv1alpha1.Version, "PlatformInstallation"},
+		{installerv1alpha1.GroupName + "/" + installerv1alpha1.Version, "PlatformRelease"},
+		{installerv1alpha1.GroupName + "/" + installerv1alpha1.Version, "InstallationOperation"},
+	}
+
+	for {
+		allFound := true
+		for _, item := range required {
+			found, err := c.HasAPIResource(ctx, item.groupVersion, item.kind)
+			if err != nil {
+				allFound = false
+				break
+			}
+			if !found {
+				allFound = false
+				break
+			}
+		}
+		if allFound {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("wait for installer API discovery: %w", ctx.Err())
+		case <-ticker.C:
+		}
+	}
+}
+
+func (c *Client) WaitForAPIResource(ctx context.Context, groupVersion string, kind string, timeout time.Duration) error {
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
+
+	for {
+		found, err := c.HasAPIResource(ctx, groupVersion, kind)
+		if err == nil && found {
+			if c.mapper != nil {
+				c.mapper.Reset()
+			}
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("wait for API resource %s %s: %w", groupVersion, kind, ctx.Err())
+		case <-ticker.C:
+		}
+	}
+}
+
+func (c *Client) WaitForArgoApplications(ctx context.Context, namespace string, names []string, timeout time.Duration) error {
+	if len(names) == 0 {
+		return nil
+	}
+	if namespace == "" {
+		namespace = "argocd"
+	}
+	if timeout <= 0 {
+		timeout = 2 * time.Minute
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	var missing []string
+	for {
+		missing = missing[:0]
+		for _, name := range names {
+			if name == "" {
+				continue
+			}
+			if _, err := c.dynamic.Resource(argoApplicationGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{}); err != nil {
+				if apierrors.IsNotFound(err) {
+					missing = append(missing, name)
+					continue
+				}
+				if ctx.Err() != nil || isRateLimiterDeadline(err) {
+					missing = append(missing, name)
+					return fmt.Errorf("wait for Argo CD Applications in namespace %s (%s): %w", namespace, strings.Join(missing, ", "), context.DeadlineExceeded)
+				}
+				return fmt.Errorf("get Argo CD Application %s/%s: %w", namespace, name, err)
+			}
+		}
+		if len(missing) == 0 {
+			return nil
+		}
+
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("wait for Argo CD Applications in namespace %s (%s): %w", namespace, strings.Join(missing, ", "), ctx.Err())
+		case <-ticker.C:
+		}
+	}
+}
+
+func isRateLimiterDeadline(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "would exceed context deadline")
+}
+
+func (c *Client) DeleteArgoApplications(ctx context.Context, namespace string, names []string) ([]string, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
+	if namespace == "" {
+		namespace = "argocd"
+	}
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.clearFinalizers(ctx, argoApplicationGVR, namespace, name); err != nil {
+			return deleted, err
+		}
+		if err := c.deleteResource(ctx, argoApplicationGVR, namespace, name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "application/"+namespace+"/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteSecrets(ctx context.Context, namespace string, names []string) ([]string, error) {
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.deleteResource(ctx, secretGVR, namespace, name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "secret/"+namespace+"/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteNamespaces(ctx context.Context, names []string) ([]string, error) {
+	deleted := make([]string, 0, len(names))
+	for _, name := range names {
+		if name == "" {
+			continue
+		}
+		if err := c.deleteResource(ctx, namespaceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "namespace/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) ApplyYAMLDocuments(ctx context.Context, data []byte, defaultNamespace string) ([]string, error) {
+	decoder := utilyaml.NewYAMLOrJSONDecoder(bytes.NewReader(data), 4096)
+	var applied []string
+
+	for {
+		var raw map[string]any
+		err := decoder.Decode(&raw)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return applied, fmt.Errorf("decode Kubernetes manifest: %w", err)
+		}
+		if len(raw) == 0 {
+			continue
+		}
+
+		object := &unstructured.Unstructured{Object: raw}
+		if object.GetKind() == "" || object.GetAPIVersion() == "" {
+			continue
+		}
+		if object.GetName() == "" {
+			return applied, fmt.Errorf("manifest object %s is missing metadata.name", object.GroupVersionKind())
+		}
+
+		mapping, err := c.restMapping(object.GroupVersionKind())
+		if err != nil {
+			return applied, err
+		}
+
+		namespace := ""
+		if mapping.Scope.Name() != meta.RESTScopeNameRoot {
+			if object.GetNamespace() == "" {
+				object.SetNamespace(defaultNamespace)
+			}
+			namespace = object.GetNamespace()
+			if namespace == "" {
+				return applied, fmt.Errorf("manifest object %s/%s requires a namespace", object.GetKind(), object.GetName())
+			}
+		}
+
+		if err := c.applyUnstructured(ctx, mapping.Resource, namespace, object); err != nil {
+			return applied, err
+		}
+		applied = append(applied, objectReference(object, namespace))
+	}
+
+	return applied, nil
+}
+
+func (c *Client) DeleteYAMLDocuments(ctx context.Context, data []byte, defaultNamespace string) ([]string, error) {
+	decoder := utilyaml.NewYAMLOrJSONDecoder(bytes.NewReader(data), 4096)
+	var objects []*unstructured.Unstructured
+
+	for {
+		var raw map[string]any
+		err := decoder.Decode(&raw)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("decode Kubernetes manifest: %w", err)
+		}
+		if len(raw) == 0 {
+			continue
+		}
+
+		object := &unstructured.Unstructured{Object: raw}
+		if object.GetKind() == "" || object.GetAPIVersion() == "" {
+			continue
+		}
+		if object.GetName() == "" {
+			return nil, fmt.Errorf("manifest object %s is missing metadata.name", object.GroupVersionKind())
+		}
+		objects = append(objects, object)
+	}
+
+	deleted := make([]string, 0, len(objects))
+	for i := len(objects) - 1; i >= 0; i-- {
+		object := objects[i]
+		mapping, err := c.restMapping(object.GroupVersionKind())
+		if err != nil {
+			if isNoResourceMapping(err) {
+				continue
+			}
+			return deleted, err
+		}
+
+		namespace := ""
+		if mapping.Scope.Name() != meta.RESTScopeNameRoot {
+			if object.GetNamespace() == "" {
+				object.SetNamespace(defaultNamespace)
+			}
+			namespace = object.GetNamespace()
+			if namespace == "" {
+				return deleted, fmt.Errorf("manifest object %s/%s requires a namespace", object.GetKind(), object.GetName())
+			}
+		}
+
+		if err := c.deleteResource(ctx, mapping.Resource, namespace, object.GetName()); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, objectReference(object, namespace))
+	}
+
+	return deleted, nil
+}
+
+func (c *Client) restMapping(gvk schema.GroupVersionKind) (*meta.RESTMapping, error) {
+	if c.mapper == nil {
+		return nil, fmt.Errorf("REST mapper is not configured")
+	}
+	mapping, err := c.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	if err == nil {
+		return mapping, nil
+	}
+	if meta.IsNoMatchError(err) {
+		c.mapper.Reset()
+		mapping, err = c.mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("resolve REST mapping for %s: %w", gvk.String(), err)
+	}
+	return mapping, nil
+}
+
+func isNoResourceMapping(err error) bool {
+	return meta.IsNoMatchError(err) || strings.Contains(strings.ToLower(err.Error()), "no matches for kind")
+}
+
+func (c *Client) ApplyNamespace(ctx context.Context, name string) error {
+	if name == "" {
+		return fmt.Errorf("namespace name is required")
+	}
+	namespace := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "v1",
+		"kind":       "Namespace",
+		"metadata": map[string]any{
+			"name": name,
+			"labels": map[string]any{
+				"app.kubernetes.io/managed-by":       "m8ctl",
+				"pod-security.kubernetes.io/enforce": "restricted",
+				"pod-security.kubernetes.io/audit":   "restricted",
+				"pod-security.kubernetes.io/warn":    "restricted",
+			},
+		},
+	}}
+	return c.applyUnstructured(ctx, namespaceGVR, "", namespace)
+}
+
+func (c *Client) ApplyPlatformRelease(ctx context.Context, release installerv1alpha1.PlatformRelease) error {
+	object, err := toUnstructured(release)
+	if err != nil {
+		return err
+	}
+	return c.applyUnstructured(ctx, platformReleaseGVR, "", object)
+}
+
+func (c *Client) ApplyPlatformInstallation(ctx context.Context, installation installerv1alpha1.PlatformInstallation) error {
+	if installation.Namespace == "" {
+		installation.Namespace = "m8-system"
+	}
+	object, err := toUnstructured(installation)
+	if err != nil {
+		return err
+	}
+	return c.applyUnstructured(ctx, platformInstallationGVR, installation.Namespace, object)
+}
+
+func (c *Client) ApplyInstallationOperation(ctx context.Context, operation installerv1alpha1.InstallationOperation) error {
+	if operation.Namespace == "" {
+		operation.Namespace = "m8-system"
+	}
+	operation.Status = installerv1alpha1.InstallationOperationStatus{}
+	object, err := toUnstructured(operation)
+	if err != nil {
+		return err
+	}
+	return c.applyUnstructured(ctx, installationOperationGVR, operation.Namespace, object)
+}
+
+func (c *Client) DeletePlatformInstallation(ctx context.Context, namespace string, name string) error {
+	if name == "" {
+		return fmt.Errorf("platform installation name is required")
+	}
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	return c.deleteResource(ctx, platformInstallationGVR, namespace, name)
+}
+
+func (c *Client) DeletePlatformRelease(ctx context.Context, name string) error {
+	if name == "" {
+		return nil
+	}
+	return c.deleteResource(ctx, platformReleaseGVR, "", name)
+}
+
+func (c *Client) DeleteInstallerCRDs(ctx context.Context) error {
+	crds := installerCRDs()
+	for i := len(crds) - 1; i >= 0; i-- {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", crds[i].GetName()); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) DeleteInstallerMetadata(ctx context.Context, namespace string, installationName string, releaseName string) ([]string, error) {
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	var deleted []string
+	if installationName != "" {
+		if err := c.DeletePlatformInstallation(ctx, namespace, installationName); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "platforminstallation/"+namespace+"/"+installationName)
+	}
+	if releaseName != "" {
+		if err := c.DeletePlatformRelease(ctx, releaseName); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "platformrelease/"+releaseName)
+	}
+	operations, err := c.dynamic.Resource(installationOperationGVR).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return deleted, nil
+		}
+		return deleted, fmt.Errorf("list installation operations in namespace %s: %w", namespace, err)
+	}
+	for _, operation := range operations.Items {
+		if err := c.deleteResource(ctx, installationOperationGVR, namespace, operation.GetName()); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "installationoperation/"+namespace+"/"+operation.GetName())
+	}
+	return deleted, nil
+}
+
+func (c *Client) DeleteArgoCDArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{
+		"applications.argoproj.io",
+		"applicationsets.argoproj.io",
+		"appprojects.argoproj.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	secrets, err := c.DeleteSecrets(ctx, "argocd", []string{"argocd-initial-admin-secret", "argocd-redis"})
+	if err != nil {
+		return deleted, err
+	}
+	deleted = append(deleted, secrets...)
+	return deleted, nil
+}
+
+func (c *Client) DeleteCertManagerArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{"cert-manager-webhook"} {
+		if err := c.deleteResource(ctx, mutatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "mutatingwebhookconfiguration/"+name)
+		if err := c.deleteResource(ctx, validatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "validatingwebhookconfiguration/"+name)
+	}
+	for _, name := range []string{
+		"v1.cert-manager.io",
+		"v1.acme.cert-manager.io",
+	} {
+		if err := c.deleteResource(ctx, apiServiceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "apiservice/"+name)
+	}
+	for _, name := range []string{
+		"cert-manager",
+		"cert-manager-cainjector",
+		"cert-manager-controller-approve:cert-manager-io",
+		"cert-manager-controller-certificates",
+		"cert-manager-controller-certificatesigningrequests",
+		"cert-manager-controller-challenges",
+		"cert-manager-controller-clusterissuers",
+		"cert-manager-controller-ingress-shim",
+		"cert-manager-controller-issuers",
+		"cert-manager-controller-orders",
+		"cert-manager-edit",
+		"cert-manager-view",
+		"cert-manager-webhook",
+	} {
+		if err := c.deleteResource(ctx, clusterRoleBindingGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrolebinding/"+name)
+		if err := c.deleteResource(ctx, clusterRoleGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrole/"+name)
+	}
+	for _, name := range []string{
+		"certificaterequests.cert-manager.io",
+		"certificates.cert-manager.io",
+		"challenges.acme.cert-manager.io",
+		"clusterissuers.cert-manager.io",
+		"issuers.cert-manager.io",
+		"orders.acme.cert-manager.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	for _, name := range []string{
+		"cert-manager-cainjector-leader-election",
+		"cert-manager-controller",
+	} {
+		if err := c.deleteResource(ctx, leaseGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "lease/kube-system/"+name)
+	}
+	secrets, err := c.DeleteSecrets(ctx, "m8-security", []string{"cert-manager-webhook-ca"})
+	if err != nil {
+		return deleted, err
+	}
+	deleted = append(deleted, secrets...)
+	return deleted, nil
+}
+
+func (c *Client) DeleteCiliumArtifacts(ctx context.Context) ([]string, error) {
+	var deleted []string
+	for _, name := range []string{
+		"cilium-agent",
+		"cilium-envoy",
+		"hubble-relay",
+		"hubble-ui",
+	} {
+		if err := c.deleteResource(ctx, serviceGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "service/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-envoy"} {
+		if err := c.deleteResource(ctx, daemonSetGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "daemonset/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium-operator", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, deploymentGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "deployment/kube-system/"+name)
+	}
+	for _, name := range []string{
+		"cilium-config",
+		"cilium-envoy-config",
+		"hubble-relay-config",
+		"hubble-ui-nginx",
+	} {
+		if err := c.deleteResource(ctx, configMapGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "configmap/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, serviceAccountGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "serviceaccount/kube-system/"+name)
+	}
+	for _, name := range []string{
+		"v2.cilium.io",
+		"v2alpha1.cilium.io",
+	} {
+		if err := c.deleteResource(ctx, apiServiceGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "apiservice/"+name)
+	}
+	for _, name := range []string{
+		"cilium-mutating-webhook-configuration",
+		"cilium-validating-webhook-configuration",
+	} {
+		if err := c.deleteResource(ctx, mutatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "mutatingwebhookconfiguration/"+name)
+		if err := c.deleteResource(ctx, validatingWebhookConfigurationGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "validatingwebhookconfiguration/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-config-agent", "hubble-relay", "hubble-ui"} {
+		if err := c.deleteResource(ctx, roleBindingGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "rolebinding/kube-system/"+name)
+		if err := c.deleteResource(ctx, roleGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "role/kube-system/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-ui"} {
+		if err := c.deleteResource(ctx, clusterRoleBindingGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrolebinding/"+name)
+	}
+	for _, name := range []string{"cilium", "cilium-operator", "hubble-ui"} {
+		if err := c.deleteResource(ctx, clusterRoleGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "clusterrole/"+name)
+	}
+	for _, name := range []string{
+		"ciliumbgpadvertisements.cilium.io",
+		"ciliumbgpclusterconfigs.cilium.io",
+		"ciliumbgpnodeconfigoverrides.cilium.io",
+		"ciliumbgppeerconfigs.cilium.io",
+		"ciliumbgppeeringpolicies.cilium.io",
+		"ciliumcidrgroups.cilium.io",
+		"ciliumclusterwideenvoyconfigs.cilium.io",
+		"ciliumclusterwidenetworkpolicies.cilium.io",
+		"ciliumendpoints.cilium.io",
+		"ciliumenvoyconfigs.cilium.io",
+		"ciliumexternalworkloads.cilium.io",
+		"ciliumgatewayclassconfigs.cilium.io",
+		"ciliumidentities.cilium.io",
+		"ciliuml2announcementpolicies.cilium.io",
+		"ciliumloadbalancerippools.cilium.io",
+		"ciliumnetworkpolicies.cilium.io",
+		"ciliumnodeconfigs.cilium.io",
+		"ciliumnodes.cilium.io",
+		"ciliumpodippools.cilium.io",
+	} {
+		if err := c.deleteResource(ctx, customResourceDefinitionGVR, "", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "crd/"+name)
+	}
+	for _, name := range []string{"cilium-operator-resource-lock"} {
+		if err := c.deleteResource(ctx, leaseGVR, "kube-system", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, "lease/kube-system/"+name)
+	}
+	return deleted, nil
+}
+
+func (c *Client) applyUnstructured(ctx context.Context, gvr schema.GroupVersionResource, namespace string, object *unstructured.Unstructured) error {
+	options := metav1.ApplyOptions{
+		FieldManager: "m8ctl",
+		Force:        true,
+	}
+	resource := c.dynamic.Resource(gvr)
+	if namespace != "" {
+		if _, err := resource.Namespace(namespace).Apply(ctx, object.GetName(), object, options); err != nil {
+			return fmt.Errorf("server-side apply %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, object.GetName(), err)
+		}
+		return nil
+	}
+	if _, err := resource.Apply(ctx, object.GetName(), object, options); err != nil {
+		return fmt.Errorf("server-side apply %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, object.GetName(), err)
+	}
+	return nil
+}
+
+func (c *Client) deleteResource(ctx context.Context, gvr schema.GroupVersionResource, namespace string, name string) error {
+	if name == "" {
+		return fmt.Errorf("delete %s/%s: name is required", gvr.Group, gvr.Resource)
+	}
+	options := metav1.DeleteOptions{}
+	resource := c.dynamic.Resource(gvr)
+	var err error
+	if namespace != "" {
+		err = resource.Namespace(namespace).Delete(ctx, name, options)
+	} else {
+		err = resource.Delete(ctx, name, options)
+	}
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("delete %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
+	}
+	return nil
+}
+
+func (c *Client) clearFinalizers(ctx context.Context, gvr schema.GroupVersionResource, namespace string, name string) error {
+	resource := c.dynamic.Resource(gvr)
+	namespaced := resource
+	var object *unstructured.Unstructured
+	var err error
+	if namespace != "" {
+		object, err = namespaced.Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	} else {
+		object, err = namespaced.Get(ctx, name, metav1.GetOptions{})
+	}
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("get %s/%s %s/%s before clearing finalizers: %w", gvr.Group, gvr.Resource, namespace, name, err)
+	}
+	if len(object.GetFinalizers()) == 0 {
+		return nil
+	}
+	object.SetFinalizers(nil)
+	if namespace != "" {
+		if _, err := resource.Namespace(namespace).Update(ctx, object, metav1.UpdateOptions{}); err != nil {
+			return fmt.Errorf("clear finalizers for %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
+		}
+		return nil
+	}
+	if _, err := resource.Update(ctx, object, metav1.UpdateOptions{}); err != nil {
+		return fmt.Errorf("clear finalizers for %s/%s %s/%s: %w", gvr.Group, gvr.Resource, namespace, name, err)
+	}
+	return nil
+}
+
+func toUnstructured(value any) (*unstructured.Unstructured, error) {
+	if value == nil {
+		return nil, fmt.Errorf("encode Kubernetes object: value is nil")
+	}
+
+	input := value
+	reflected := reflect.ValueOf(value)
+	if reflected.Kind() != reflect.Pointer {
+		pointer := reflect.New(reflected.Type())
+		pointer.Elem().Set(reflected)
+		input = pointer.Interface()
+	}
+
+	object, err := runtime.DefaultUnstructuredConverter.ToUnstructured(input)
+	if err != nil {
+		return nil, fmt.Errorf("encode Kubernetes object: %w", err)
+	}
+	return &unstructured.Unstructured{Object: object}, nil
+}
+
+func objectReference(object *unstructured.Unstructured, namespace string) string {
+	gvk := object.GroupVersionKind()
+	if namespace == "" {
+		return strings.ToLower(gvk.Kind) + "/" + object.GetName()
+	}
+	return strings.ToLower(gvk.Kind) + "/" + namespace + "/" + object.GetName()
+}
+
+func (c *Client) GetPlatformInstallation(ctx context.Context, namespace string, name string) (installerv1alpha1.PlatformInstallation, error) {
+	if name == "" {
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("platform installation name is required")
+	}
+	if namespace == "" {
+		namespace = "m8-system"
+	}
+	item, err := c.dynamic.Resource(platformInstallationGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("platform installation %s/%s not found", namespace, name)
+		}
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("get platform installation %s/%s: %w", namespace, name, err)
+	}
+
+	var installation installerv1alpha1.PlatformInstallation
+	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &installation); err != nil {
+		return installerv1alpha1.PlatformInstallation{}, fmt.Errorf("decode platform installation %s/%s: %w", namespace, name, err)
+	}
+	return installation, nil
+}
+
+func (c *Client) ListPlatformInstallations(ctx context.Context, namespace string) ([]installerv1alpha1.PlatformInstallation, error) {
+	list, err := c.dynamic.Resource(platformInstallationGVR).Namespace(namespace).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, nil
+		}
+		scope := "all namespaces"
+		if namespace != "" {
+			scope = "namespace " + namespace
+		}
+		return nil, fmt.Errorf("list platform installations in %s: %w", scope, err)
+	}
+
+	installations := make([]installerv1alpha1.PlatformInstallation, 0, len(list.Items))
+	for _, item := range list.Items {
+		var installation installerv1alpha1.PlatformInstallation
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &installation); err != nil {
+			return nil, fmt.Errorf("decode platform installation %s/%s: %w", item.GetNamespace(), item.GetName(), err)
+		}
+		installations = append(installations, installation)
+	}
+	return installations, nil
+}
+
+func installerCRDs() []*unstructured.Unstructured {
+	return []*unstructured.Unstructured{
+		installerCRD("platforminstallations", "platforminstallation", "PlatformInstallation", "m8pi", "Namespaced"),
+		installerCRD("platformreleases", "platformrelease", "PlatformRelease", "m8rel", "Cluster"),
+		installerCRD("installationoperations", "installationoperation", "InstallationOperation", "m8op", "Namespaced"),
+		installerCRD("backups", "backup", "Backup", "m8backup", "Namespaced"),
+		installerCRD("restoreplans", "restoreplan", "RestorePlan", "m8restore", "Namespaced"),
+	}
+}
+
+func installerCRD(plural string, singular string, kind string, shortName string, scope string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "apiextensions.k8s.io/v1",
+		"kind":       "CustomResourceDefinition",
+		"metadata": map[string]any{
+			"name": plural + "." + installerv1alpha1.GroupName,
+			"labels": map[string]any{
+				"app.kubernetes.io/managed-by": "m8ctl",
+				"app.kubernetes.io/part-of":    "m8-installer",
+			},
+		},
+		"spec": map[string]any{
+			"group": installerv1alpha1.GroupName,
+			"scope": scope,
+			"names": map[string]any{
+				"plural":     plural,
+				"singular":   singular,
+				"kind":       kind,
+				"shortNames": []any{shortName},
+			},
+			"versions": []any{map[string]any{
+				"name":    installerv1alpha1.Version,
+				"served":  true,
+				"storage": true,
+				"subresources": map[string]any{
+					"status": map[string]any{},
+				},
+				"schema": map[string]any{
+					"openAPIV3Schema": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"apiVersion": map[string]any{"type": "string"},
+							"kind":       map[string]any{"type": "string"},
+							"metadata":   map[string]any{"type": "object"},
+							"spec": map[string]any{
+								"type":                                 "object",
+								"x-kubernetes-preserve-unknown-fields": true,
+							},
+							"status": map[string]any{
+								"type":                                 "object",
+								"x-kubernetes-preserve-unknown-fields": true,
+							},
+						},
+					},
+				},
+			}},
+		},
+	}}
+}
+
+func isNodeReady(node corev1.Node) bool {
+	for _, condition := range node.Status.Conditions {
+		if condition.Type == corev1.NodeReady && condition.Status == corev1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}

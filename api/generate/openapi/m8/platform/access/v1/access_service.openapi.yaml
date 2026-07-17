@@ -208,8 +208,11 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EvaluateAccessResponse'
-                    description: Output only. Evaluation results; order matches the request evaluation order.
-            description: EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
+                    description: |-
+                        Output only. Evaluation results in execution order.
+                         For execute_all, order matches the full request evaluation order.
+                         For short-circuit semantics, the array may contain only the evaluated prefix
+            description: EvaluateAccessBatchResponse returns evaluation decisions in execution order.
         EvaluateAccessRequest:
             required:
                 - subject
@@ -262,7 +265,7 @@ components:
                     description: Optional. Item-level resource; overrides the batch-level resource when set.
                 context:
                     type: object
-                    description: Optional. Item-level context; combined with or overrides batch-level context by PDP policy.
+                    description: Optional. Item-level context; overrides the batch-level context when set.
             description: Evaluation is one item in a batch evaluation request.
         PageRequest:
             type: object

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: m8-installer-crds
+description: CRDs for M8 Installer 1.0
+type: application
+version: 1.0.0
+appVersion: 1.0.0

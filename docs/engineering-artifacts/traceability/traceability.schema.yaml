@@ -1,0 +1,58 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: M8 Traceability Registry
+type: object
+required:
+- registry_id
+- version
+- records
+properties:
+  registry_id:
+    const: M8-TRACE-000
+  version:
+    type: string
+  records:
+    type: array
+    items:
+      type: object
+      required:
+      - requirement_id
+      - owner_context
+      - api_contract_ids
+      - event_contract_ids
+      - test_ids
+      - coverage_status
+      properties:
+        requirement_id:
+          type: string
+          pattern: ^[A-Z]+(?:-[A-Z]+)?-[0-9]{3}$
+        owner_context:
+          type: string
+        api_contract_ids:
+          type: array
+          items:
+            type: string
+        event_contract_ids:
+          type: array
+          items:
+            type: string
+        data_contract_ids:
+          type: array
+          items:
+            type: string
+        adr_ids:
+          type: array
+          items:
+            type: string
+        prompt_ids:
+          type: array
+          items:
+            type: string
+        test_ids:
+          type: array
+          items:
+            type: string
+        coverage_status:
+          enum:
+          - architecture-policy
+          - contract-mapped
+          - pilot-complete

@@ -1,0 +1,196 @@
+apiVersion: installer.m8.io/v1alpha1
+kind: PlatformInstallation
+metadata:
+  name: m8-production
+  namespace: m8-system
+spec:
+  platformVersion: 1.0.0
+  profile: production
+  cluster:
+    name: production-eu
+    minimumNodes: 3
+    requiredArchitectures:
+      - amd64
+    requireTopologyLabels: true
+  network:
+    cilium:
+      enabled: true
+      hubbleRelay: true
+      hubbleUI: true
+    networkPolicies: true
+    wireGuardEncryption: true
+    kubeProxyReplacement: "true"
+    dnsPolicies: true
+    eastWestServiceMesh: true
+  gateway:
+    envoyGateway:
+      enabled: true
+      replicas: 3
+    gatewayClassName: m8-public
+    controllerName: gateway.envoyproxy.io/gatewayclass-controller
+    tlsTermination: true
+    allowedHostnames:
+      - "*.m8.example.com"
+  certificates:
+    certManager:
+      enabled: true
+    issuers:
+      - name: m8-internal-ca
+        type: internal-ca
+        default: true
+      - name: m8-acme
+        type: acme
+        server: https://acme-v02.api.letsencrypt.org/directory
+        email: platform@example.com
+  trust:
+    trustManager:
+      enabled: true
+    spire:
+      enabled: true
+      serverReplicas: 3
+      oidcDiscoveryProvider: true
+      csiDriver: true
+    trustDomain: m8.internal
+  gitOps:
+    argoCD:
+      enabled: true
+      namespace: argocd
+      ssoWithKeycloak: true
+    repository:
+      url: https://git.example.com/m8/platform-gitops.git
+      revision: main
+      path: gitops/environments/production
+      credentialsRef: argocd-repo-m8-platform
+      signaturePolicy: required
+    automatedSync: true
+    selfHeal: true
+    prune: true
+  secrets:
+    provider: external-secrets
+    externalSecretsOperator:
+      enabled: true
+    storeRef: vault-production
+  databases:
+    postgresql:
+      mode: cloudnative-pg
+      ha: true
+      instances: 3
+      walArchiving: true
+      pitr: true
+      connectionPooling: true
+      tls: true
+      monitoring: true
+    ydb:
+      mode: operator
+      storageTopology: multi-zone
+      replicationFactor: 3
+      failureDomains:
+        - eu-1a
+        - eu-1b
+        - eu-1c
+      podDisruptionBudget: true
+      tls: true
+    redis:
+      mode: sentinel
+      tls: true
+  messaging:
+    kafka:
+      mode: strimzi
+      kraft: true
+      nodePools: true
+      tls: true
+      sasl: true
+      quotas: true
+      rackAwareness: true
+  workflows:
+    temporal:
+      mode: operator
+      namespaces:
+        - m8-system
+        - m8-operations
+        - m8-provisioning
+        - m8-authentication
+        - m8-analytics
+      archival: true
+      mTLS: true
+      visibilityStore: postgresql
+      smokeWorkflow: true
+  identity:
+    keycloak:
+      mode: operator
+      realm: m8
+      adminSecretRef: keycloak-admin
+      webAuthn: true
+      otp: true
+      ciba: true
+      stepUp: true
+  authorization:
+    spiceDB:
+      mode: operator
+      datastore: postgresql
+      schemaRef: spicedb-schema-m8
+      replicas: 3
+      tls: true
+      spiffeIdentity: true
+      consistency: fully-consistent
+  observability:
+    mode: operator
+    collectorAgent: true
+    collectorGateway: true
+    prometheus: true
+    alertmanager: true
+    grafana: true
+    loki: true
+    tempo: true
+    kubeStateMetrics: true
+    nodeExporter: true
+    blackboxExporter: true
+  security:
+    podSecurityStandards: true
+    runAsNonRootRequired: true
+    readOnlyRootFilesystem: true
+    requireRequestsLimits: true
+    forbidPrivileged: true
+    forbidHostPath: true
+    forbidHostNetwork: true
+    trustedRegistries:
+      - registry.m8.io
+      - registry.internal.example.com
+    forbidLatestTag: true
+    cosign:
+      enforce: true
+      publicKeyRef: m8-release-signing-key
+    sbomRequired: true
+    auditPolicies: true
+  backup:
+    enabled: true
+    velero:
+      enabled: true
+    objectStorage:
+      endpoint: https://s3.example.com
+      bucket: m8-platform-backup
+      region: eu
+      credentialsRef: backup-object-storage
+    schedule: "0 */6 * * *"
+    retention: 720h
+    verifyOnCreate: true
+  modules:
+    console: true
+    resourceManager: true
+    identity: true
+    authentication: true
+    access: true
+    gateway: true
+    policyStudio: true
+    audit: true
+    operations: true
+    idempotency: true
+    health: true
+    alerting: true
+    notifications: true
+    provisioning: true
+  upgrade:
+    channel: stable
+    allowedWindows:
+      - Sat 00:00-04:00 Europe/Vienna
+    requireBackup: true

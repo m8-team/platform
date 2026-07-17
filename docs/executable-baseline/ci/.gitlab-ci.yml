@@ -1,0 +1,40 @@
+stages:
+  - validate
+  - test
+  - security
+  - build
+  - acceptance
+
+baseline-validate:
+  stage: validate
+  image: python:3.12
+  script:
+    - pip install pyyaml jsonschema
+    - cd ci
+    - make schema-check proto-check architecture-check
+
+go-test:
+  stage: test
+  image: golang:1.23
+  script:
+    - cd repository
+    - go test ./...
+
+security-baseline:
+  stage: security
+  image: alpine:3.21
+  script:
+    - echo "Run secret, dependency, container and IaC scanners here."
+
+build-images:
+  stage: build
+  image: docker:27
+  services: [docker:27-dind]
+  script:
+    - echo "Build immutable service images from release manifest."
+
+acceptance:
+  stage: acceptance
+  image: python:3.12
+  script:
+    - echo "Deploy ephemeral environment and execute acceptance manifests."

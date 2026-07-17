@@ -1,0 +1,1860 @@
+catalog_id: M8-EVT-000
+version: '0.1'
+events:
+- id: EVT-RM-001
+  requirement_ids:
+  - RM-FR-001
+  name: OrganizationCreated
+  event_type: m8.resource_manager.organization_created.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.OrganizationCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-002
+  requirement_ids:
+  - RM-FR-002
+  name: OrganizationUpdated
+  event_type: m8.resource_manager.organization_updated.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.OrganizationUpdated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-003
+  requirement_ids:
+  - RM-FR-003
+  name: OrganizationSuspended
+  event_type: m8.resource_manager.organization_suspended.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.OrganizationSuspended
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-004
+  requirement_ids:
+  - RM-FR-004
+  name: OrganizationRestored
+  event_type: m8.resource_manager.organization_restored.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.OrganizationRestored
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-005
+  requirement_ids:
+  - RM-FR-005
+  name: OrganizationArchived
+  event_type: m8.resource_manager.organization_archived.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.OrganizationArchived
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-010
+  requirement_ids:
+  - RM-FR-010
+  name: WorkspaceCreated
+  event_type: m8.resource_manager.workspace_created.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.WorkspaceCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-011
+  requirement_ids:
+  - RM-FR-011
+  name: WorkspaceUpdated
+  event_type: m8.resource_manager.workspace_updated.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.WorkspaceUpdated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-012
+  requirement_ids:
+  - RM-FR-012
+  name: WorkspaceSuspensionChanged
+  event_type: m8.resource_manager.workspace_suspension_changed.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.WorkspaceSuspensionChanged
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-020
+  requirement_ids:
+  - RM-FR-020
+  name: ProjectCreated
+  event_type: m8.resource_manager.project_created.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ProjectCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-021
+  requirement_ids:
+  - RM-FR-021
+  name: ProjectMoved
+  event_type: m8.resource_manager.project_moved.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ProjectMoved
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-022
+  requirement_ids:
+  - RM-FR-022
+  name: ProjectDeletionRequested
+  event_type: m8.resource_manager.project_deletion_requested.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ProjectDeletionRequested
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-023
+  requirement_ids:
+  - RM-FR-023
+  name: ProjectSuspended
+  event_type: m8.resource_manager.project_suspended.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ProjectSuspended
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-024
+  requirement_ids:
+  - RM-FR-024
+  name: ProjectRestored
+  event_type: m8.resource_manager.project_restored.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ProjectRestored
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-030
+  requirement_ids:
+  - RM-FR-030
+  name: ServiceRegistered
+  event_type: m8.resource_manager.service_registered.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ServiceRegistered
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-031
+  requirement_ids:
+  - RM-FR-031
+  name: ServiceRegistrationUpdated
+  event_type: m8.resource_manager.service_registration_updated.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ServiceRegistrationUpdated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-032
+  requirement_ids:
+  - RM-FR-032
+  name: ServiceUnregistered
+  event_type: m8.resource_manager.service_unregistered.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ServiceUnregistered
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-044
+  requirement_ids:
+  - RM-FR-044
+  name: UpdateResourceLabelsCompleted
+  event_type: m8.resource_manager.update_resource_labels_completed.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.UpdateResourceLabelsCompleted
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RM-050
+  requirement_ids:
+  - RM-FR-050
+  name: ResourceLifecycleChanged
+  event_type: m8.resource_manager.resource_lifecycle_changed.v1
+  producer: m8-resource-manager
+  context: Resource Manager
+  topic: m8.resource_manager.events.v1
+  schema: m8.resource_manager.v1.ResourceLifecycleChanged
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-001
+  requirement_ids:
+  - ID-FR-001
+  name: UserPoolCreated
+  event_type: m8.identity.user_pool_created.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserPoolCreated
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-002
+  requirement_ids:
+  - ID-FR-002
+  name: UserPoolUpdated
+  event_type: m8.identity.user_pool_updated.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserPoolUpdated
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-003
+  requirement_ids:
+  - ID-FR-003
+  name: UserPoolSuspended
+  event_type: m8.identity.user_pool_suspended.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserPoolSuspended
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-010
+  requirement_ids:
+  - ID-FR-010
+  name: UserCreated
+  event_type: m8.identity.user_created.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserCreated
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-011
+  requirement_ids:
+  - ID-FR-011
+  name: UserProfileUpdated
+  event_type: m8.identity.user_profile_updated.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserProfileUpdated
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-012
+  requirement_ids:
+  - ID-FR-012
+  name: UserDisabled
+  event_type: m8.identity.user_disabled.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserDisabled
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-013
+  requirement_ids:
+  - ID-FR-013
+  name: UserRestored
+  event_type: m8.identity.user_restored.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserRestored
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-020
+  requirement_ids:
+  - ID-FR-020
+  name: ExternalIdentityLinked
+  event_type: m8.identity.external_identity_linked.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.ExternalIdentityLinked
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-021
+  requirement_ids:
+  - ID-FR-021
+  name: DetectExternalIdentityConflictCompleted
+  event_type: m8.identity.detect_external_identity_conflict_completed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.DetectExternalIdentityConflictCompleted
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-022
+  requirement_ids:
+  - ID-FR-022
+  name: ExternalIdentityUnlinked
+  event_type: m8.identity.external_identity_unlinked.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.ExternalIdentityUnlinked
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-030
+  requirement_ids:
+  - ID-FR-030
+  name: CreateGroupCompleted
+  event_type: m8.identity.create_group_completed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.CreateGroupCompleted
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-031
+  requirement_ids:
+  - ID-FR-031
+  name: UpdateGroupCompleted
+  event_type: m8.identity.update_group_completed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UpdateGroupCompleted
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-032
+  requirement_ids:
+  - ID-FR-032
+  name: MembershipAdded
+  event_type: m8.identity.membership_added.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.MembershipAdded
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-033
+  requirement_ids:
+  - ID-FR-033
+  name: MembershipRemoved
+  event_type: m8.identity.membership_removed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.MembershipRemoved
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-040
+  requirement_ids:
+  - ID-FR-040
+  name: UsersMerged
+  event_type: m8.identity.users_merged.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UsersMerged
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-041
+  requirement_ids:
+  - ID-FR-041
+  name: DetectPotentialDuplicatesCompleted
+  event_type: m8.identity.detect_potential_duplicates_completed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.DetectPotentialDuplicatesCompleted
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-050
+  requirement_ids:
+  - ID-FR-050
+  name: UserPrivacyActionCompleted
+  event_type: m8.identity.user_privacy_action_completed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.UserPrivacyActionCompleted
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ID-060
+  requirement_ids:
+  - ID-FR-060
+  name: IdentityLifecycleChanged
+  event_type: m8.identity.identity_lifecycle_changed.v1
+  producer: m8-identity
+  context: Identity
+  topic: m8.identity.events.v1
+  schema: m8.identity.v1.IdentityLifecycleChanged
+  partition_key: subject_id
+  ordering_scope: subject_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-001
+  requirement_ids:
+  - AUTH-FR-001
+  - AUTH-FR-017
+  name: AuthenticationStarted
+  event_type: m8.authentication.authentication_started.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationStarted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-002
+  requirement_ids:
+  - AUTH-FR-002
+  name: SelectAuthenticationProviderCompleted
+  event_type: m8.authentication.select_authentication_provider_completed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.SelectAuthenticationProviderCompleted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-003
+  requirement_ids:
+  - AUTH-FR-003
+  name: AuthenticationChallengeCreated
+  event_type: m8.authentication.authentication_challenge_created.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationChallengeCreated
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-006
+  requirement_ids:
+  - AUTH-FR-006
+  name: AuthenticationCancelled
+  event_type: m8.authentication.authentication_cancelled.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationCancelled
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-007
+  requirement_ids:
+  - AUTH-FR-007
+  name: AuthenticationProviderCallbackProcessed
+  event_type: m8.authentication.authentication_provider_callback_processed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationProviderCallbackProcessed
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-008
+  requirement_ids:
+  - AUTH-FR-008
+  name: AuthenticationExpired
+  event_type: m8.authentication.authentication_expired.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationExpired
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-009
+  requirement_ids:
+  - AUTH-FR-009
+  name: AuthenticationFailed
+  event_type: m8.authentication.authentication_failed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationFailed
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-010
+  requirement_ids:
+  - AUTH-FR-010
+  name: AuthenticationHandoffCreated
+  event_type: m8.authentication.authentication_handoff_created.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationHandoffCreated
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-011
+  requirement_ids:
+  - AUTH-FR-011
+  name: AuthenticationHandoffRedeemed
+  event_type: m8.authentication.authentication_handoff_redeemed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationHandoffRedeemed
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-012
+  requirement_ids:
+  - AUTH-FR-012
+  name: AuthenticationSessionCreated
+  event_type: m8.authentication.authentication_session_created.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationSessionCreated
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-013
+  requirement_ids:
+  - AUTH-FR-013
+  name: AuthenticationSessionRevoked
+  event_type: m8.authentication.authentication_session_revoked.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationSessionRevoked
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-015
+  requirement_ids:
+  - AUTH-FR-015
+  name: AuthenticationClientRegistered
+  event_type: m8.authentication.authentication_client_registered.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationClientRegistered
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-016
+  requirement_ids:
+  - AUTH-FR-016
+  name: AuthenticationClientPolicyUpdated
+  event_type: m8.authentication.authentication_client_policy_updated.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationClientPolicyUpdated
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-018
+  requirement_ids:
+  - AUTH-FR-018
+  name: CibaAuthenticationStarted
+  event_type: m8.authentication.ciba_authentication_started.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.CibaAuthenticationStarted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-019
+  requirement_ids:
+  - AUTH-FR-019
+  name: CibaDecisionProcessed
+  event_type: m8.authentication.ciba_decision_processed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.CibaDecisionProcessed
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-020
+  requirement_ids:
+  - AUTH-FR-020
+  name: StepUpStarted
+  event_type: m8.authentication.step_up_started.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.StepUpStarted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-021
+  requirement_ids:
+  - AUTH-FR-021
+  name: SelectStepUpChallengeCompleted
+  event_type: m8.authentication.select_step_up_challenge_completed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.SelectStepUpChallengeCompleted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-022
+  requirement_ids:
+  - AUTH-FR-022
+  name: OtpChallengeSent
+  event_type: m8.authentication.otp_challenge_sent.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.OtpChallengeSent
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-023
+  requirement_ids:
+  - AUTH-FR-023
+  name: OtpVerified
+  event_type: m8.authentication.otp_verified.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.OtpVerified
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-024
+  requirement_ids:
+  - AUTH-FR-024
+  name: AuthenticationChallengeResent
+  event_type: m8.authentication.authentication_challenge_resent.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationChallengeResent
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-025
+  requirement_ids:
+  - AUTH-FR-025
+  name: WebAuthnAssertionVerified
+  event_type: m8.authentication.web_authn_assertion_verified.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.WebAuthnAssertionVerified
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-026
+  requirement_ids:
+  - AUTH-FR-026
+  name: WebAuthnCredentialRegistered
+  event_type: m8.authentication.web_authn_credential_registered.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.WebAuthnCredentialRegistered
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-027
+  requirement_ids:
+  - AUTH-FR-027
+  name: FederatedAuthenticationStarted
+  event_type: m8.authentication.federated_authentication_started.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.FederatedAuthenticationStarted
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-028
+  requirement_ids:
+  - AUTH-FR-028
+  name: FederatedCallbackProcessed
+  event_type: m8.authentication.federated_callback_processed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.FederatedCallbackProcessed
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-029
+  requirement_ids:
+  - AUTH-FR-029
+  name: ClientAccessRevoked
+  event_type: m8.authentication.client_access_revoked.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.ClientAccessRevoked
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUTH-030
+  requirement_ids:
+  - AUTH-FR-030
+  name: AuthenticationLifecycleChanged
+  event_type: m8.authentication.authentication_lifecycle_changed.v1
+  producer: m8-authentication
+  context: Authentication
+  topic: m8.authentication.events.v1
+  schema: m8.authentication.v1.AuthenticationLifecycleChanged
+  partition_key: authentication_id
+  ordering_scope: authentication_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: true
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-010
+  requirement_ids:
+  - ACC-FR-010
+  name: CreatePermissionDefinitionCompleted
+  event_type: m8.access.create_permission_definition_completed.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.CreatePermissionDefinitionCompleted
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-011
+  requirement_ids:
+  - ACC-FR-011
+  name: RoleCreated
+  event_type: m8.access.role_created.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-012
+  requirement_ids:
+  - ACC-FR-012
+  name: RoleUpdated
+  event_type: m8.access.role_updated.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleUpdated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-013
+  requirement_ids:
+  - ACC-FR-013
+  name: RoleDeleted
+  event_type: m8.access.role_deleted.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleDeleted
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-014
+  requirement_ids:
+  - ACC-FR-014
+  name: RoleBindingCreated
+  event_type: m8.access.role_binding_created.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleBindingCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-015
+  requirement_ids:
+  - ACC-FR-015
+  name: RoleBindingRevoked
+  event_type: m8.access.role_binding_revoked.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleBindingRevoked
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-016
+  requirement_ids:
+  - ACC-FR-016
+  name: RoleBindingExpirationChanged
+  event_type: m8.access.role_binding_expiration_changed.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.RoleBindingExpirationChanged
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-020
+  requirement_ids:
+  - ACC-FR-020
+  name: AccessRelationshipCreated
+  event_type: m8.access.access_relationship_created.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AccessRelationshipCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-021
+  requirement_ids:
+  - ACC-FR-021
+  name: AccessRelationshipDeleted
+  event_type: m8.access.access_relationship_deleted.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AccessRelationshipDeleted
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-040
+  requirement_ids:
+  - ACC-FR-040
+  name: AccessReviewCreated
+  event_type: m8.access.access_review_created.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AccessReviewCreated
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-041
+  requirement_ids:
+  - ACC-FR-041
+  name: AccessReviewCompleted
+  event_type: m8.access.access_review_completed.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AccessReviewCompleted
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-050
+  requirement_ids:
+  - ACC-FR-050
+  name: AuthorizationModelPublished
+  event_type: m8.access.authorization_model_published.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AuthorizationModelPublished
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-ACC-060
+  requirement_ids:
+  - ACC-FR-060
+  name: AccessRelationshipChanged
+  event_type: m8.access.access_relationship_changed.v1
+  producer: m8-access
+  context: Access
+  topic: m8.access.events.v1
+  schema: m8.access.v1.AccessRelationshipChanged
+  partition_key: resource_id
+  ordering_scope: resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-005
+  requirement_ids:
+  - RISK-FR-005
+  name: RiskDecisionExpired
+  event_type: m8.risk_decision.risk_decision_expired.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskDecisionExpired
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-010
+  requirement_ids:
+  - RISK-FR-010
+  name: RiskPolicyCreated
+  event_type: m8.risk_decision.risk_policy_created.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskPolicyCreated
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-011
+  requirement_ids:
+  - RISK-FR-011
+  name: RiskPolicyPublished
+  event_type: m8.risk_decision.risk_policy_published.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskPolicyPublished
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-012
+  requirement_ids:
+  - RISK-FR-012
+  name: RiskPolicyRolledBack
+  event_type: m8.risk_decision.risk_policy_rolled_back.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskPolicyRolledBack
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-020
+  requirement_ids:
+  - RISK-FR-020
+  name: DeviceSignalsIngested
+  event_type: m8.risk_decision.device_signals_ingested.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.DeviceSignalsIngested
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-022
+  requirement_ids:
+  - RISK-FR-022
+  name: ExternalRiskSignalIngested
+  event_type: m8.risk_decision.external_risk_signal_ingested.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.ExternalRiskSignalIngested
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-030
+  requirement_ids:
+  - RISK-FR-030
+  name: ManualRiskReviewCreated
+  event_type: m8.risk_decision.manual_risk_review_created.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.ManualRiskReviewCreated
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-031
+  requirement_ids:
+  - RISK-FR-031
+  name: ManualRiskReviewCompleted
+  event_type: m8.risk_decision.manual_risk_review_completed.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.ManualRiskReviewCompleted
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-040
+  requirement_ids:
+  - RISK-FR-040
+  name: RiskFeedbackCreated
+  event_type: m8.risk_decision.risk_feedback_created.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskFeedbackCreated
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-RISK-050
+  requirement_ids:
+  - RISK-FR-050
+  name: RiskDecisionRecorded
+  event_type: m8.risk_decision.risk_decision_recorded.v1
+  producer: m8-risk-decision
+  context: Risk Decision
+  topic: m8.risk_decision.events.v1
+  schema: m8.risk_decision.v1.RiskDecisionRecorded
+  partition_key: assessment_id
+  ordering_scope: assessment_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-001
+  requirement_ids:
+  - PROV-FR-001
+  name: ResourceDefinitionRegistered
+  event_type: m8.provisioning.resource_definition_registered.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ResourceDefinitionRegistered
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-002
+  requirement_ids:
+  - PROV-FR-002
+  name: ResourceDefinitionPublished
+  event_type: m8.provisioning.resource_definition_published.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ResourceDefinitionPublished
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-003
+  requirement_ids:
+  - PROV-FR-003
+  name: ProvisioningDriverRegistered
+  event_type: m8.provisioning.provisioning_driver_registered.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ProvisioningDriverRegistered
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-004
+  requirement_ids:
+  - PROV-FR-004
+  name: ProvisioningDriverDisabled
+  event_type: m8.provisioning.provisioning_driver_disabled.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ProvisioningDriverDisabled
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-010
+  requirement_ids:
+  - PROV-FR-010
+  name: ManagedResourceCreated
+  event_type: m8.provisioning.managed_resource_created.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceCreated
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-011
+  requirement_ids:
+  - PROV-FR-011
+  name: ManagedResourceDesiredStateUpdated
+  event_type: m8.provisioning.managed_resource_desired_state_updated.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceDesiredStateUpdated
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-012
+  requirement_ids:
+  - PROV-FR-012
+  name: ManagedResourceDeletionRequested
+  event_type: m8.provisioning.managed_resource_deletion_requested.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceDeletionRequested
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-020
+  requirement_ids:
+  - PROV-FR-020
+  name: SelectPlacementCompleted
+  event_type: m8.provisioning.select_placement_completed.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.SelectPlacementCompleted
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-021
+  requirement_ids:
+  - PROV-FR-021
+  name: PlacementPinned
+  event_type: m8.provisioning.placement_pinned.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.PlacementPinned
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-030
+  requirement_ids:
+  - PROV-FR-030
+  name: ManagedResourceReconciled
+  event_type: m8.provisioning.managed_resource_reconciled.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceReconciled
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-032
+  requirement_ids:
+  - PROV-FR-032
+  name: ManagedResourceDriftDetected
+  event_type: m8.provisioning.managed_resource_drift_detected.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceDriftDetected
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-033
+  requirement_ids:
+  - PROV-FR-033
+  name: ManagedResourceDriftRemediated
+  event_type: m8.provisioning.managed_resource_drift_remediated.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceDriftRemediated
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-034
+  requirement_ids:
+  - PROV-FR-034
+  name: ManagedResourceImported
+  event_type: m8.provisioning.managed_resource_imported.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManagedResourceImported
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-040
+  requirement_ids:
+  - PROV-FR-040
+  name: ProvisioningStepRetried
+  event_type: m8.provisioning.provisioning_step_retried.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ProvisioningStepRetried
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-041
+  requirement_ids:
+  - PROV-FR-041
+  name: ProvisioningCompensationCompleted
+  event_type: m8.provisioning.provisioning_compensation_completed.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ProvisioningCompensationCompleted
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-042
+  requirement_ids:
+  - PROV-FR-042
+  name: ManualRemediationCreated
+  event_type: m8.provisioning.manual_remediation_created.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ManualRemediationCreated
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-PROV-060
+  requirement_ids:
+  - PROV-FR-060
+  name: ProvisioningLifecycleChanged
+  event_type: m8.provisioning.provisioning_lifecycle_changed.v1
+  producer: m8-provisioning
+  context: Provisioning
+  topic: m8.provisioning.events.v1
+  schema: m8.provisioning.v1.ProvisioningLifecycleChanged
+  partition_key: managed_resource_id
+  ordering_scope: managed_resource_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-AUD-001
+  requirement_ids:
+  - AUD-FR-001
+  name: AuditEventAccepted
+  event_type: m8.audit.audit_event_accepted.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AuditEventAccepted
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-004
+  requirement_ids:
+  - AUD-FR-004
+  name: PersistAuditEventCompleted
+  event_type: m8.audit.persist_audit_event_completed.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.PersistAuditEventCompleted
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-005
+  requirement_ids:
+  - AUD-FR-005
+  name: AcknowledgeRequiredAuditEventCompleted
+  event_type: m8.audit.acknowledge_required_audit_event_completed.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AcknowledgeRequiredAuditEventCompleted
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-020
+  requirement_ids:
+  - AUD-FR-020
+  name: AuditExportCreated
+  event_type: m8.audit.audit_export_created.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AuditExportCreated
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-030
+  requirement_ids:
+  - AUD-FR-030
+  name: AuditRetentionApplied
+  event_type: m8.audit.audit_retention_applied.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AuditRetentionApplied
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-031
+  requirement_ids:
+  - AUD-FR-031
+  name: AuditLegalHoldChanged
+  event_type: m8.audit.audit_legal_hold_changed.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AuditLegalHoldChanged
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-AUD-040
+  requirement_ids:
+  - AUD-FR-040
+  name: AuditIntegrityVerified
+  event_type: m8.audit.audit_integrity_verified.v1
+  producer: m8-audit
+  context: Audit
+  topic: m8.audit.events.v1
+  schema: m8.audit.v1.AuditIntegrityVerified
+  partition_key: audit_event_id
+  ordering_scope: audit_event_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: per audit retention policy
+  status: proposed
+- id: EVT-OPS-004
+  requirement_ids:
+  - OPS-FR-004
+  name: OperationCancellationRequested
+  event_type: m8.operations.operation_cancellation_requested.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationCancellationRequested
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-005
+  requirement_ids:
+  - OPS-FR-005
+  name: OperationDeleted
+  event_type: m8.operations.operation_deleted.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationDeleted
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-006
+  requirement_ids:
+  - OPS-FR-006
+  name: OperationProgressUpdated
+  event_type: m8.operations.operation_progress_updated.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationProgressUpdated
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-007
+  requirement_ids:
+  - OPS-FR-007
+  name: OperationCompleted
+  event_type: m8.operations.operation_completed.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationCompleted
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-008
+  requirement_ids:
+  - OPS-FR-008
+  name: OperationFailed
+  event_type: m8.operations.operation_failed.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationFailed
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-009
+  requirement_ids:
+  - OPS-FR-009
+  name: OperationWorkflowLinked
+  event_type: m8.operations.operation_workflow_linked.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationWorkflowLinked
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed
+- id: EVT-OPS-010
+  requirement_ids:
+  - OPS-FR-010
+  name: OperationStarted
+  event_type: m8.operations.operation_started.v1
+  producer: operation owner service
+  context: Common Operation
+  topic: m8.operations.events.v1
+  schema: m8.operations.v1.OperationStarted
+  partition_key: operation_id
+  ordering_scope: operation_id
+  delivery: at-least-once
+  deduplication_key: event_id
+  contains_pii: false
+  retention: 30d hot / archive by policy
+  status: proposed

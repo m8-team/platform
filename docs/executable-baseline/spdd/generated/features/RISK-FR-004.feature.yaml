@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RISK_FR_004
+  requirement_id: RISK-FR-004
+  title: Получить Risk Assessment
+  status: APPROVED
+  context: RISK
+  release: MVP-3
+traceability:
+  capability: CAP-RISK-04
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Получить Risk Assessment
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RISK-FR-004-AC-01
+  statement: Ответ не раскрывает чувствительные detection rules вызывающему без permission.
+- id: RISK-FR-004-AC-02
+  statement: Decision immutable после фиксации; correction создаёт новое assessment.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

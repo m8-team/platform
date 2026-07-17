@@ -1,0 +1,4284 @@
+catalog_id: M8-REQ-000
+version: '1.0'
+status: APPROVED
+requirements:
+- id: ACC-DATA-001
+  title: Источник истины отношений доступа
+  capability: CAP-AUTHZ-05
+  context: null
+  owner: Access` / `m8-access
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-DATA-001-AC-01
+    statement: Восстановление SpiceDB возможно из authoritative Access data и event log/outbox.
+  - id: ACC-DATA-001-AC-02
+    statement: Другие сервисы не записывают tuples напрямую.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-001
+  title: Проверить Permission
+  capability: CAP-AUTHZ-06
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-001-AC-01
+    statement: Результат ALLOW/DENY воспроизводим для revision модели.
+  - id: ACC-FR-001-AC-02
+    statement: Timeout или недоступность движка обрабатывается по fail mode операции.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-002
+  title: Пакетно проверить Permissions
+  capability: CAP-AUTHZ-07
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-002-AC-01
+    statement: Порядок результатов соответствует входным items.
+  - id: ACC-FR-002-AC-02
+    statement: Ошибка одного item не скрывает результаты остальных, если контракт допускает partial response.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-003
+  title: Объяснить решение Access
+  capability: CAP-AUTHZ-08
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-003-AC-01
+    statement: Explanation доступно только с отдельным permission.
+  - id: ACC-FR-003-AC-02
+    statement: Внешнему пользователю не раскрываются чувствительные отношения третьих лиц.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-004
+  title: Получить эффективные Permissions субъекта
+  capability: CAP-AUTHZ-10
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-004-AC-01
+    statement: Результат имеет model revision/freshness.
+  - id: ACC-FR-004-AC-02
+    statement: Пагинация стабильна и не обещает глобальный полный список без scope.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-005
+  title: Получить Subjects с доступом к ресурсу
+  capability: CAP-AUTHZ-10
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-005-AC-01
+    statement: Операция ограничена permission и размером.
+  - id: ACC-FR-005-AC-02
+    statement: Неперечислимые отношения возвращают явное ограничение.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-010
+  title: Создать Permission definition
+  capability: CAP-AUTHZ-02
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-010-AC-01
+    statement: Имя уникально в model version.
+  - id: ACC-FR-010-AC-02
+    statement: Несовместимое изменение требует новой model version.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-011
+  title: Создать Role
+  capability: CAP-AUTHZ-03
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-011-AC-01
+    statement: Role не содержит несуществующий permission.
+  - id: ACC-FR-011-AC-02
+    statement: Системные роли защищены от несанкционированного изменения.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-012
+  title: Изменить Role
+  capability: CAP-AUTHZ-03
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-012-AC-01
+    statement: Change impact показывает затрагиваемые scopes.
+  - id: ACC-FR-012-AC-02
+    statement: Изменение публикует RoleUpdated после commit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-013
+  title: Удалить Role
+  capability: CAP-AUTHZ-03
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-013-AC-01
+    statement: Активные bindings блокируют удаление или обрабатываются отдельной Operation.
+  - id: ACC-FR-013-AC-02
+    statement: Role ID не переиспользуется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-014
+  title: Создать RoleBinding
+  capability: CAP-AUTHZ-04
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-014-AC-01
+    statement: Subject, Role и ResourceReference валидны.
+  - id: ACC-FR-014-AC-02
+    statement: Дубликат binding идемпотентен.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-015
+  title: Отозвать RoleBinding
+  capability: CAP-AUTHZ-04
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-015-AC-01
+    statement: После подтверждённой синхронизации check больше не разрешает доступ.
+  - id: ACC-FR-015-AC-02
+    statement: До синхронизации freshness/degraded state наблюдаемы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-016
+  title: Установить срок RoleBinding
+  capability: CAP-AUTHZ-04
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-016-AC-01
+    statement: Просроченное binding не участвует в решении.
+  - id: ACC-FR-016-AC-02
+    statement: Истечение публикуется и аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-020
+  title: Создать Relationship
+  capability: CAP-AUTHZ-05
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-020-AC-01
+    statement: Relation допустим текущей model version.
+  - id: ACC-FR-020-AC-02
+    statement: Запись в SpiceDB выполняется через Access adapter.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-021
+  title: Удалить Relationship
+  capability: CAP-AUTHZ-05
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-021-AC-01
+    statement: Повтор удаления считается успешным или not present по контракту без побочного эффекта.
+  - id: ACC-FR-021-AC-02
+    statement: Публикуется RelationshipDeleted.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-022
+  title: Пакетно изменить Relationships
+  capability: CAP-AUTHZ-05
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-022-AC-01
+    statement: Невалидный item не приводит к частичному commit, если запрошена atomic mode.
+  - id: ACC-FR-022-AC-02
+    statement: Размер batch ограничен.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-030
+  title: Симулировать изменение доступа
+  capability: CAP-AUTHZ-09
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-030-AC-01
+    statement: Simulation не изменяет authoritative store.
+  - id: ACC-FR-030-AC-02
+    statement: Ответ содержит model revision и differences.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-031
+  title: Проверить policy impact
+  capability: CAP-AUTHZ-09
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-031-AC-01
+    statement: Test corpus версионируется.
+  - id: ACC-FR-031-AC-02
+    statement: Изменение критических решений блокирует publish без approval.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-040
+  title: Создать Access Review
+  capability: CAP-AUTHZ-11
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-040-AC-01
+    statement: Snapshot review scope фиксируется.
+  - id: ACC-FR-040-AC-02
+    statement: Review не меняет binding до явного решения.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-041
+  title: Подтвердить или отозвать доступ
+  capability: CAP-AUTHZ-11
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-041-AC-01
+    statement: Reviewer не может подтвердить собственный доступ, если segregation policy запрещает.
+  - id: ACC-FR-041-AC-02
+    statement: Решение аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-050
+  title: Опубликовать Authorization Model
+  capability: CAP-AUTHZ-01
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-050-AC-01
+    statement: Breaking model требует migration.
+  - id: ACC-FR-050-AC-02
+    statement: Rollback возвращает ранее совместимую version без потери authoritative relationships.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-051
+  title: Синхронизировать Access с SpiceDB
+  capability: CAP-AUTHZ-12
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-051-AC-01
+    statement: Внутренние SpiceDB types не выходят в public API.
+  - id: ACC-FR-051-AC-02
+    statement: Reconciliation обнаруживает пропуски и лишние tuples.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-FR-060
+  title: Публиковать факты Access
+  capability: CAP-AUTHZ-13
+  context: null
+  owner: Access` / `m8-access
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-FR-060-AC-01
+    statement: Event payload минимален и versioned.
+  - id: ACC-FR-060-AC-02
+    statement: Событие следует authoritative commit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-NFR-001
+  title: Задержка CheckPermission
+  capability: CAP-AUTHZ-06
+  context: null
+  owner: Access` / `m8-access
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-NFR-001-AC-01
+    statement: Метрика измеряется отдельно для cache hit и engine call.
+  - id: ACC-NFR-001-AC-02
+    statement: Correctness не жертвуется ради устаревшего allow cache.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ACC-SEC-001
+  title: Fail mode проверок доступа
+  capability: CAP-AUTHZ-06
+  context: null
+  owner: Access` / `m8-access
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: ACC-SEC-001-AC-01
+    statement: Fail-open допускается только для явно классифицированной некритической функции и принятого ADR.
+  - id: ACC-SEC-001-AC-02
+    statement: Degraded decision помечается и наблюдается.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-DATA-001
+  title: Неизменяемость AuditEvent
+  capability: CAP-AUD-03
+  context: null
+  owner: Audit` / `m8-audit
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-DATA-001-AC-01
+    statement: Нет публичного UpdateAuditEvent.
+  - id: AUD-DATA-001-AC-02
+    statement: Storage policy предотвращает неаудируемое изменение и раннее удаление.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-001
+  title: Принять AuditEvent
+  capability: CAP-AUD-01
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-001-AC-01
+    statement: Событие валидируется до хранения.
+  - id: AUD-FR-001-AC-02
+    statement: Повтор event_id не создаёт вторую запись.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-002
+  title: Проверить происхождение AuditEvent
+  capability: CAP-AUD-02
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-002-AC-01
+    statement: Непроверенный producer отклоняется.
+  - id: AUD-FR-002-AC-02
+    statement: Clock skew обрабатывается и помечается.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-003
+  title: Проверить минимизацию данных
+  capability: CAP-AUD-10
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-003-AC-01
+    statement: Token/OTP/private key patterns блокируются.
+  - id: AUD-FR-003-AC-02
+    statement: Редактирование не меняет смысл outcome.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-004
+  title: Сохранить AuditEvent неизменяемо
+  capability: CAP-AUD-03
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-004-AC-01
+    statement: Исправление создаёт отдельную correction record.
+  - id: AUD-FR-004-AC-02
+    statement: Операционная учетная запись не имеет прямого update доступа.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-005
+  title: Подтвердить доставку обязательного события
+  capability: CAP-AUD-11
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-005-AC-01
+    statement: Пропуск sequence/reconciliation window создаёт alert.
+  - id: AUD-FR-005-AC-02
+    statement: Producer может безопасно повторить событие.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-010
+  title: Искать AuditEvent
+  capability: CAP-AUD-05
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-010-AC-01
+    statement: Поиск ограничен Access permission и privacy rules.
+  - id: AUD-FR-010-AC-02
+    statement: Пагинация стабильна для snapshot/query window.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-011
+  title: Получить событие по ID
+  capability: CAP-AUD-05
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-011-AC-01
+    statement: Недоступное событие не раскрывается.
+  - id: AUD-FR-011-AC-02
+    statement: Ответ содержит schema version и ingestion time.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-012
+  title: Построить цепочку по correlation
+  capability: CAP-AUD-06
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-012-AC-01
+    statement: Разрывы обозначаются явно.
+  - id: AUD-FR-012-AC-02
+    statement: Порядок использует event time и ingestion metadata.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-013
+  title: Получить историю ресурса
+  capability: CAP-AUD-06
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-013-AC-01
+    statement: Resource tombstone сохраняет возможность поиска.
+  - id: AUD-FR-013-AC-02
+    statement: Личные данные минимизированы по current disclosure policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-020
+  title: Создать ExportJob
+  capability: CAP-AUD-07
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-020-AC-01
+    statement: Export scope фиксируется на старте.
+  - id: AUD-FR-020-AC-02
+    statement: Массовый экспорт требует специального permission и может требовать Risk Decision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-021
+  title: Получить экспорт
+  capability: CAP-AUD-07
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-021-AC-01
+    statement: Ссылка имеет TTL и привязку к actor/client.
+  - id: AUD-FR-021-AC-02
+    statement: Получение экспорта также аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-030
+  title: Применить Retention Policy
+  capability: CAP-AUD-08
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-030-AC-01
+    statement: Уничтожение необратимо и само аудируется агрегированным evidence.
+  - id: AUD-FR-030-AC-02
+    statement: Policy version фиксируется для каждого decision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-031
+  title: Установить Legal Hold
+  capability: CAP-AUD-08
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-031-AC-01
+    statement: Hold имеет owner, reason, scope и expiry/review.
+  - id: AUD-FR-031-AC-02
+    statement: Снятие hold требует отдельного permission.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-040
+  title: Проверить целостность хранения
+  capability: CAP-AUD-04
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-040-AC-01
+    statement: Нарушение создаёт security incident.
+  - id: AUD-FR-040-AC-02
+    statement: Проверка не изменяет исходные записи.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-041
+  title: Предоставить integrity proof
+  capability: CAP-AUD-04
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-041-AC-01
+    statement: Proof не раскрывает недоступные события.
+  - id: AUD-FR-041-AC-02
+    statement: Алгоритм и версия указаны.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-FR-050
+  title: Аудировать действия над Audit
+  capability: CAP-AUD-12
+  context: null
+  owner: Audit` / `m8-audit
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-FR-050-AC-01
+    statement: Audit-on-audit хранится с теми же гарантиями.
+  - id: AUD-FR-050-AC-02
+    statement: Рекурсивная запись не создаёт бесконечный цикл.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-NFR-001
+  title: Надёжность приёма AuditEvent
+  capability: CAP-AUD-01
+  context: null
+  owner: Audit` / `m8-audit
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-NFR-001-AC-01
+    statement: Ack выдаётся только после durable commit.
+  - id: AUD-NFR-001-AC-02
+    statement: Producer retry безопасен по event_id.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUD-SEC-001
+  title: Разделение полномочий Audit
+  capability: CAP-AUD-09
+  context: null
+  owner: Audit` / `m8-audit
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: AUD-SEC-001-AC-01
+    statement: Одна базовая роль не получает автоматически все полномочия.
+  - id: AUD-SEC-001-AC-02
+    statement: Критические administrative actions требуют step-up по policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-DATA-001
+  title: Источник истины AuthenticationTransaction
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-DATA-001-AC-01
+    statement: Provider data хранится как external reference и normalized state.
+  - id: AUTH-DATA-001-AC-02
+    statement: Callback не может пропустить проверку допустимого domain transition.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-DATA-002
+  title: Срок хранения authentication data
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-DATA-002-AC-01
+    statement: Expired secrets удаляются раньше metadata.
+  - id: AUTH-DATA-002-AC-02
+    statement: Retention различает operational record и Audit evidence.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-001
+  title: Начать AuthenticationTransaction
+  capability: CAP-AUTHN-03
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-001-AC-01
+    statement: Возвращаются authentication_id, state, expires_at и Operation при длительном старте.
+  - id: AUTH-FR-001-AC-02
+    statement: Транзакция и Outbox фиксируются атомарно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-002
+  title: Выбрать Authentication Provider
+  capability: CAP-AUTHN-02
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-002-AC-01
+    statement: Недоступный requested provider возвращает контролируемую ошибку или policy fallback.
+  - id: AUTH-FR-002-AC-02
+    statement: Выбор фиксируется без раскрытия внутренней конфигурации.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-003
+  title: Создать Challenge
+  capability: CAP-AUTHN-04
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-003-AC-01
+    statement: Одновременно активные challenges соответствуют policy.
+  - id: AUTH-FR-003-AC-02
+    statement: Challenge secret не хранится в открытом виде.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-004
+  title: Получить состояние Authentication
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-004-AC-01
+    statement: State отражает committed domain state.
+  - id: AUTH-FR-004-AC-02
+    statement: Caller видит только собственную или разрешённую транзакцию.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-005
+  title: Ожидать изменение Authentication
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-005-AC-01
+    statement: Timeout возвращает текущее состояние.
+  - id: AUTH-FR-005-AC-02
+    statement: Повтор wait безопасен и не изменяет агрегат.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-006
+  title: Отменить Authentication
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-006-AC-01
+    statement: COMPLETED транзакция не переходит в CANCELLED.
+  - id: AUTH-FR-006-AC-02
+    statement: Provider cancellation выполняется best effort и фиксируется отдельно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-007
+  title: Завершить Authentication по provider callback
+  capability: CAP-AUTHN-04
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-007-AC-01
+    statement: Callback аутентифицируется и дедуплицируется.
+  - id: AUTH-FR-007-AC-02
+    statement: Повтор callback не создаёт вторую session/handoff.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-008
+  title: Истечь AuthenticationTransaction
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-008-AC-01
+    statement: Истечение идемпотентно.
+  - id: AUTH-FR-008-AC-02
+    statement: Поздний callback не возобновляет expired transaction.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-009
+  title: Завершить Authentication отказом
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-009-AC-01
+    statement: Внешняя техническая ошибка отделена от user denial.
+  - id: AUTH-FR-009-AC-02
+    statement: Ошибка не содержит секретов provider.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-010
+  title: Создать Handoff
+  capability: CAP-AUTHN-12
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-010-AC-01
+    statement: Handoff имеет короткий TTL и одноразовое использование.
+  - id: AUTH-FR-010-AC-02
+    statement: Raw tokens не возвращаются там, где контракт требует authorization code/session handoff.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-011
+  title: Погасить Handoff
+  capability: CAP-AUTHN-12
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-011-AC-01
+    statement: Повтор использования отклоняется.
+  - id: AUTH-FR-011-AC-02
+    statement: Client binding проверяется до раскрытия результата.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-012
+  title: Создать Authentication Session reference
+  capability: CAP-AUTHN-13
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-012-AC-01
+    statement: Session reference не является access token.
+  - id: AUTH-FR-012-AC-02
+    statement: Revocation state синхронизируется по определённому контракту.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-013
+  title: Отозвать Authentication Session
+  capability: CAP-AUTHN-13
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-013-AC-01
+    statement: Отзыв идемпотентен.
+  - id: AUTH-FR-013-AC-02
+    statement: Завершение внешнего provider session отслеживается Operation или событием.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-014
+  title: Проверить активность Client
+  capability: CAP-AUTHN-01
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-014-AC-01
+    statement: Disabled Client не может начать flow.
+  - id: AUTH-FR-014-AC-02
+    statement: Изменение Client policy не меняет уже завершённую транзакцию.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-015
+  title: Зарегистрировать Client
+  capability: CAP-AUTHN-01
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-015-AC-01
+    statement: Секрет создаётся или привязывается через безопасный механизм.
+  - id: AUTH-FR-015-AC-02
+    statement: Public и confidential client имеют разные обязательные проверки.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-016
+  title: Изменить Client policy
+  capability: CAP-AUTHN-01
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-016-AC-01
+    statement: Ослабление критической policy требует отдельного permission и audit.
+  - id: AUTH-FR-016-AC-02
+    statement: Несовместимые active flows обрабатываются по documented policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-017
+  title: Повторная аутентификация после невозможности refresh
+  capability: CAP-AUTHN-09
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-017-AC-01
+    statement: Новая транзакция не продолжает failed refresh attempt.
+  - id: AUTH-FR-017-AC-02
+    statement: Одинаковый idempotency key возвращает один authentication_id.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-018
+  title: Запустить CIBA-аутентификацию
+  capability: CAP-AUTHN-05
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-018-AC-01
+    statement: Клиент не получает device-bound secret.
+  - id: AUTH-FR-018-AC-02
+    statement: Polling/push поведение соответствует policy и rate limits.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-019
+  title: Обработать CIBA approval или denial
+  capability: CAP-AUTHN-05
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-019-AC-01
+    statement: Approval связан с исходной транзакцией и субъектом.
+  - id: AUTH-FR-019-AC-02
+    statement: Повторное подтверждение после completion не меняет результат.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-020
+  title: Выполнить step-up
+  capability: CAP-AUTHN-10
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-020-AC-01
+    statement: Step-up не понижает AAL.
+  - id: AUTH-FR-020-AC-02
+    statement: Истёкший step-up нельзя применить к новой операции без policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-021
+  title: Выбрать step-up challenge
+  capability: CAP-AUTHN-10
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-021-AC-01
+    statement: Недостаточный метод не считается успешным.
+  - id: AUTH-FR-021-AC-02
+    statement: Fallback соответствует policy и Risk Decision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-022
+  title: Отправить OTP challenge
+  capability: CAP-AUTHN-06
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-022-AC-01
+    statement: Ответ не раскрывает полный адрес назначения.
+  - id: AUTH-FR-022-AC-02
+    statement: Повторная отправка инвалидирует или сохраняет предыдущий код согласно policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-023
+  title: Проверить OTP
+  capability: CAP-AUTHN-06
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-023-AC-01
+    statement: Успешный код нельзя использовать повторно.
+  - id: AUTH-FR-023-AC-02
+    statement: Превышение попыток блокирует challenge и создаёт risk signal.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-024
+  title: Повторить отправку Challenge
+  capability: CAP-AUTHN-04
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-024-AC-01
+    statement: Слишком ранний запрос возвращает retry_after.
+  - id: AUTH-FR-024-AC-02
+    statement: Повтор не создаёт новую AuthenticationTransaction.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-025
+  title: Проверить WebAuthn assertion
+  capability: CAP-AUTHN-07
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-025-AC-01
+    statement: Replay и неверный origin отклоняются.
+  - id: AUTH-FR-025-AC-02
+    statement: Clone suspicion формирует risk signal.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-026
+  title: Зарегистрировать WebAuthn credential
+  capability: CAP-AUTHN-07
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-026-AC-01
+    statement: Регистрация требует достаточного AAL.
+  - id: AUTH-FR-026-AC-02
+    statement: Credential public data хранится у определённого владельца без private key.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-027
+  title: Начать федеративную аутентификацию
+  capability: CAP-AUTHN-08
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-027-AC-01
+    statement: Callback state и nonce проверяются.
+  - id: AUTH-FR-027-AC-02
+    statement: Внешние claims преобразуются через ACL и затем разрешаются Identity.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-028
+  title: Обработать federated callback
+  capability: CAP-AUTHN-08
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-028-AC-01
+    statement: Непроверенный claim не становится Subject.
+  - id: AUTH-FR-028-AC-02
+    statement: Конфликт external identity не вызывает автоматический account takeover.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-029
+  title: Отозвать Client access
+  capability: CAP-AUTHN-13
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-029-AC-01
+    statement: Отзыв не затрагивает другие Client без явного scope.
+  - id: AUTH-FR-029-AC-02
+    statement: Результат и незавершённые внешние действия видны в Operation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-FR-030
+  title: Публиковать факты аутентификации
+  capability: CAP-AUTHN-14
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-FR-030-AC-01
+    statement: События не содержат token, OTP или raw credential.
+  - id: AUTH-FR-030-AC-02
+    statement: Каждое событие имеет transaction revision и correlation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-NFR-001
+  title: Задержка старта Authentication
+  capability: CAP-AUTHN-03
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-NFR-001-AC-01
+    statement: Измерение включает Identity и Risk calls в nominal mode.
+  - id: AUTH-NFR-001-AC-02
+    statement: Provider initiation, требующий длительного времени, возвращает Operation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-NFR-002
+  title: Доступность проверки состояния
+  capability: CAP-AUTHN-11
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-NFR-002-AC-01
+    statement: Read path не зависит от доступности внешнего provider для committed state.
+  - id: AUTH-NFR-002-AC-02
+    statement: Degraded provider state обозначается отдельно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-SEC-001
+  title: Защита callback и handoff
+  capability: CAP-AUTHN-12
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-SEC-001-AC-01
+    statement: Повторный callback или handoff не создаёт новый успех.
+  - id: AUTH-SEC-001-AC-02
+    statement: Неверный binding отклоняется и формирует security audit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: AUTH-SEC-002
+  title: Ограничение частоты authentication attempts
+  capability: CAP-AUTHN-04
+  context: null
+  owner: Authentication` / `m8-authentication
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: AUTH-SEC-002-AC-01
+    statement: Превышение лимита возвращает retry metadata без раскрытия существования Subject.
+  - id: AUTH-SEC-002-AC-02
+    statement: Risk Decision получает агрегированные сигналы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-DATA-001
+  title: Источник истины внутреннего Subject
+  capability: CAP-ID-07
+  context: null
+  owner: Identity` / `m8-identity
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-DATA-001-AC-01
+    statement: Authentication хранит SubjectReference, а не копию профиля.
+  - id: ID-DATA-001-AC-02
+    statement: Access хранит subject ID и тип, но не состояние профиля как authoritative data.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-DATA-002
+  title: Классификация атрибутов профиля
+  capability: CAP-ID-03
+  context: null
+  owner: Identity` / `m8-identity
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-DATA-002-AC-01
+    statement: Неизвестный атрибут отклоняется или хранится только в явно разрешённом extension namespace.
+  - id: ID-DATA-002-AC-02
+    statement: Чувствительные поля не появляются в событиях по умолчанию.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-001
+  title: Создать User Pool
+  capability: CAP-ID-01
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-001-AC-01
+    statement: Project существует и ACTIVE.
+  - id: ID-FR-001-AC-02
+    statement: User Pool ID уникален и публикуется UserPoolCreated.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-002
+  title: Изменить User Pool
+  capability: CAP-ID-01
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-002-AC-01
+    statement: Несовместимое удаление обязательного атрибута требует migration plan.
+  - id: ID-FR-002-AC-02
+    statement: Изменение не затрагивает другие User Pool.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-003
+  title: Приостановить User Pool
+  capability: CAP-ID-01
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-003-AC-01
+    statement: Существующие ссылки сохраняются.
+  - id: ID-FR-003-AC-02
+    statement: Authentication получает состояние через API или projection event.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-010
+  title: Создать User
+  capability: CAP-ID-02
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-010-AC-01
+    statement: Профиль соответствует активной schema version.
+  - id: ID-FR-010-AC-02
+    statement: Повтор с тем же idempotency key не создаёт дубль.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-011
+  title: Изменить профиль User
+  capability: CAP-ID-03
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-011-AC-01
+    statement: Неуказанные атрибуты не изменяются.
+  - id: ID-FR-011-AC-02
+    statement: Чувствительные изменения фиксируются в Audit без старого секретного значения.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-012
+  title: Отключить User
+  capability: CAP-ID-09
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-012-AC-01
+    statement: Identity публикует UserDisabled.
+  - id: ID-FR-012-AC-02
+    statement: Существующие Access relationships не удаляются скрыто.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-013
+  title: Восстановить User
+  capability: CAP-ID-09
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-013-AC-01
+    statement: Восстановление невозможно после окончательной privacy erasure.
+  - id: ID-FR-013-AC-02
+    statement: Действие аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-014
+  title: Заблокировать User по безопасности
+  capability: CAP-ID-09
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-014-AC-01
+    statement: Authentication отклоняет новый flow.
+  - id: ID-FR-014-AC-02
+    statement: Снятие lock требует отдельного permission.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-015
+  title: Получить User
+  capability: CAP-ID-02
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-015-AC-01
+    statement: Ответ минимизирован по permission и purpose.
+  - id: ID-FR-015-AC-02
+    statement: Недоступный User не раскрывается.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-016
+  title: Искать User
+  capability: CAP-ID-07
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-016-AC-01
+    statement: Результаты ограничены scope и permission.
+  - id: ID-FR-016-AC-02
+    statement: Нечёткий поиск по чувствительным данным выключен по умолчанию.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-020
+  title: Связать External Identity
+  capability: CAP-ID-06
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-020-AC-01
+    statement: Пара issuer+subject уникальна глобально в области политики.
+  - id: ID-FR-020-AC-02
+    statement: Конфликт не приводит к автоматическому merge.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-021
+  title: Обнаружить конфликт External Identity
+  capability: CAP-ID-06
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-021-AC-01
+    statement: Возвращается доменная ошибка IDENTITY_CONFLICT.
+  - id: ID-FR-021-AC-02
+    statement: Событие не раскрывает данные другого пользователя вызывающему клиенту.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-022
+  title: Отвязать External Identity
+  capability: CAP-ID-06
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-022-AC-01
+    statement: Нельзя оставить пользователя без разрешённого способа входа, если policy это запрещает.
+  - id: ID-FR-022-AC-02
+    statement: Отвязка аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-023
+  title: Разрешить Subject по issuer+subject
+  capability: CAP-ID-07
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-023-AC-01
+    statement: Disabled/erased состояния возвращаются явно для доверенного caller.
+  - id: ID-FR-023-AC-02
+    statement: Профиль не возвращается без отдельной необходимости.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-024
+  title: Разрешить Subject по email или phone
+  capability: CAP-ID-07
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-024-AC-01
+    statement: Неподтверждённый адрес не используется как надёжная внешняя идентичность.
+  - id: ID-FR-024-AC-02
+    statement: Неоднозначный результат возвращает AMBIGUOUS_SUBJECT.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-030
+  title: Создать Group
+  capability: CAP-ID-04
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-030-AC-01
+    statement: Group имеет стабильный ID.
+  - id: ID-FR-030-AC-02
+    statement: Имя уникально в документированном scope.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-031
+  title: Изменить Group
+  capability: CAP-ID-04
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-031-AC-01
+    statement: Membership не меняется через update Group.
+  - id: ID-FR-031-AC-02
+    statement: Revision увеличивается один раз на commit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-032
+  title: Добавить Membership
+  capability: CAP-ID-05
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-032-AC-01
+    statement: Дубликат не создаёт вторую связь.
+  - id: ID-FR-032-AC-02
+    statement: Membership не является RoleBinding и не предоставляет permission сам по себе.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-033
+  title: Удалить Membership
+  capability: CAP-ID-05
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-033-AC-01
+    statement: Публикуется MembershipRemoved.
+  - id: ID-FR-033-AC-02
+    statement: Потребители применяют собственную policy обработки.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-034
+  title: Перечислить Membership
+  capability: CAP-ID-05
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-034-AC-01
+    statement: Результат не раскрывает недоступные области.
+  - id: ID-FR-034-AC-02
+    statement: Page token связан с фильтром.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-040
+  title: Объединить дубли User
+  capability: CAP-ID-08
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-040-AC-01
+    statement: Операция является длительной и обратимой до commit point.
+  - id: ID-FR-040-AC-02
+    statement: Конфликты профиля и external identity разрешаются явно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-041
+  title: Обнаружить потенциальные дубли
+  capability: CAP-ID-08
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-041-AC-01
+    statement: Кандидат содержит объяснимые matching signals.
+  - id: ID-FR-041-AC-02
+    statement: Доступ к candidates ограничен специальным permission.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-050
+  title: Обезличить или удалить User
+  capability: CAP-ID-10
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-050-AC-01
+    statement: Активные credentials/sessions отзываются через интеграционный процесс.
+  - id: ID-FR-050-AC-02
+    statement: Audit сохраняет actor-independent evidence без лишних персональных данных.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-FR-060
+  title: Публиковать факты жизненного цикла
+  capability: CAP-ID-10
+  context: null
+  owner: Identity` / `m8-identity
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-FR-060-AC-01
+    statement: События содержат owner revision.
+  - id: ID-FR-060-AC-02
+    statement: Профильные атрибуты включаются только при документированной необходимости.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-NFR-001
+  title: Задержка разрешения Subject
+  capability: CAP-ID-07
+  context: null
+  owner: Identity` / `m8-identity
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-NFR-001-AC-01
+    statement: Метрика разделяется по типу идентификатора.
+  - id: ID-NFR-001-AC-02
+    statement: Кэш не возвращает пользователя после получения UserDisabled beyond freshness target.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: ID-SEC-001
+  title: Защита операций merge и deletion
+  capability: CAP-ID-08
+  context: null
+  owner: Identity` / `m8-identity
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: ID-SEC-001-AC-01
+    statement: Недостаточный AAL приводит к CHALLENGE, а не к частичному выполнению.
+  - id: ID-SEC-001-AC-02
+    statement: Каждый шаг длительной операции аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-DATA-001
+  title: Владение Operation предметным контекстом
+  capability: CAP-OPS-01
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-DATA-001-AC-01
+    statement: Нет центрального сервиса, принимающего предметные решения за owner.
+  - id: OPS-DATA-001-AC-02
+    statement: Owner определяет cancelability, result и retention.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-001
+  title: Получить Operation
+  capability: CAP-OPS-02
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-001-AC-01
+    statement: Caller имеет доступ к owner resource scope.
+  - id: OPS-FR-001-AC-02
+    statement: Ответ не раскрывает internal workflow ID без необходимости.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-002
+  title: Перечислить Operations
+  capability: CAP-OPS-02
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-002-AC-01
+    statement: Пагинация стабильна.
+  - id: OPS-FR-002-AC-02
+    statement: Список ограничен доступным scope.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-003
+  title: Ожидать Operation
+  capability: CAP-OPS-04
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-003-AC-01
+    statement: Timeout возвращает текущую Operation.
+  - id: OPS-FR-003-AC-02
+    statement: Wait не создаёт новую работу.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-004
+  title: Запросить Cancellation
+  capability: CAP-OPS-05
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-004-AC-01
+    statement: Cancellation request отделён от факта CANCELLED.
+  - id: OPS-FR-004-AC-02
+    statement: После commit point возвращается CANNOT_CANCEL.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-005
+  title: Удалить запись Operation
+  capability: CAP-OPS-08
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-005-AC-01
+    statement: Удаление не удаляет Audit и предметный ресурс.
+  - id: OPS-FR-005-AC-02
+    statement: Незавершённая Operation не удаляется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-006
+  title: Обновить Progress
+  capability: CAP-OPS-03
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-006-AC-01
+    statement: Percent находится 0..100 и не уменьшается без нового attempt semantics.
+  - id: OPS-FR-006-AC-02
+    statement: Progress не используется как authoritative resource state.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-007
+  title: Завершить Operation результатом
+  capability: CAP-OPS-06
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-007-AC-01
+    statement: Terminal state immutable.
+  - id: OPS-FR-007-AC-02
+    statement: Result type соответствует operation type.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-008
+  title: Завершить Operation ошибкой
+  capability: CAP-OPS-07
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-008-AC-01
+    statement: Ошибка безопасна для caller.
+  - id: OPS-FR-008-AC-02
+    statement: Internal cause доступна только telemetry.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-009
+  title: Связать Operation с Workflow
+  capability: CAP-OPS-09
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-009-AC-01
+    statement: Workflow restart не создаёт новую Operation.
+  - id: OPS-FR-009-AC-02
+    statement: Один owner operation может иметь несколько workflow runs по retry policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-FR-010
+  title: Идемпотентно начать длительную работу
+  capability: CAP-OPS-10
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-FR-010-AC-01
+    statement: Повтор возвращает исходную Operation.
+  - id: OPS-FR-010-AC-02
+    statement: Несовместимый payload с тем же key отклоняется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: OPS-NFR-001
+  title: Доступность чтения Operation
+  capability: CAP-OPS-02
+  context: null
+  owner: Common Operation` / `operation owner service
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: OPS-NFR-001-AC-01
+    statement: Read path не требует доступности Temporal.
+  - id: OPS-NFR-001-AC-02
+    statement: Последнее committed состояние возвращается при недоступном workflow engine.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-ARC-001
+  title: База данных принадлежит одному сервису
+  capability: CAP-GOV-07
+  context: null
+  owner: Platform` / `all services
+  type: architecture
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-ARC-001-AC-01
+    statement: Запрещённые подключения и импорты выявляются архитектурными проверками.
+  - id: PLT-ARC-001-AC-02
+    statement: Межконтекстное чтение выполняется API, событием или локальной проекцией.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-ARC-002
+  title: Transactional Outbox для интеграционных фактов
+  capability: CAP-INT-04
+  context: null
+  owner: Platform` / `event publishers
+  type: architecture
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-ARC-002-AC-01
+    statement: Сбой брокера после commit не приводит к потере события.
+  - id: PLT-ARC-002-AC-02
+    statement: Публикация до commit агрегата запрещена.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-ARC-003
+  title: Inbox и дедупликация потребителей
+  capability: CAP-INT-05
+  context: null
+  owner: Platform` / `event consumers
+  type: architecture
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-ARC-003-AC-01
+    statement: Повтор event_id не создаёт повторный предметный эффект.
+  - id: PLT-ARC-003-AC-02
+    statement: Устаревшая revision не перезаписывает более новое состояние проекции.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-ARC-004
+  title: Отсутствие распределённых транзакций
+  capability: CAP-INT-09
+  context: null
+  owner: Platform` / `all services
+  type: architecture
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-ARC-004-AC-01
+    statement: Межсервисный процесс имеет владельца и явные состояния.
+  - id: PLT-ARC-004-AC-02
+    statement: Необратимые шаги имеют порядок, timeout и ручное восстановление.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-ARC-005
+  title: Антикоррупционный слой внешних систем
+  capability: CAP-INT-10
+  context: null
+  owner: Platform` / `integration owners
+  type: architecture
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-ARC-005-AC-01
+    statement: Внешняя ошибка преобразуется в каноническую ошибку M8.
+  - id: PLT-ARC-005-AC-02
+    statement: Замена поставщика не требует изменения агрегатов и публичных контрактов.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-001
+  title: Единая ресурсная область запроса
+  capability: CAP-RM-05
+  context: null
+  owner: Platform` / `all services
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-001-AC-01
+    statement: Запрос без обязательной области отклоняется до выполнения бизнес-операции.
+  - id: PLT-FR-001-AC-02
+    statement: Область передаётся в авторизацию, аудит, трассировку и предметную операцию без неявного изменения.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-002
+  title: Единый контекст вызова
+  capability: CAP-OBS-08
+  context: null
+  owner: Platform` / `all services
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-002-AC-01
+    statement: Идентификаторы сохраняются при синхронных и асинхронных переходах.
+  - id: PLT-FR-002-AC-02
+    statement: Отсутствующие технические идентификаторы создаются на границе входа, но actor и scope не выдумываются.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-003
+  title: Единая модель длительных операций
+  capability: CAP-OPS-01
+  context: null
+  owner: Platform` / `all operation owners
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-003-AC-01
+    statement: Повтор команды с тем же idempotency key возвращает ту же Operation.
+  - id: PLT-FR-003-AC-02
+    statement: Operation отделена от состояния предметного ресурса и содержит типизированный result или error.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-004
+  title: Обязательный аудит значимых изменений
+  capability: CAP-AUD-01
+  context: null
+  owner: Platform` / `all services
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-004-AC-01
+    statement: AuditEvent содержит actor, target, action, outcome и correlation_id.
+  - id: PLT-FR-004-AC-02
+    statement: Секреты и необработанные учётные данные в аудит не попадают.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-005
+  title: Обязательная проверка доступа
+  capability: CAP-AUTHZ-06
+  context: null
+  owner: Platform` / `all public services
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-005-AC-01
+    statement: Отсутствие решения Access приводит к fail-closed для mutation и чувствительного чтения.
+  - id: PLT-FR-005-AC-02
+    statement: Проверяемые permission и resource reference фиксируются в трассе и аудите.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-006
+  title: Проверка риска для чувствительных действий
+  capability: CAP-RISK-02
+  context: null
+  owner: Platform` / `sensitive action owners
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-006-AC-01
+    statement: DENY блокирует выполнение.
+  - id: PLT-FR-006-AC-02
+    statement: CHALLENGE приводит к step-up и повторной оценке, а не к обходу решения.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-007
+  title: Идемпотентные мутации
+  capability: CAP-OPS-10
+  context: null
+  owner: Platform` / `all services
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-007-AC-01
+    statement: Повтор с тем же ключом и эквивалентным телом возвращает исходный результат.
+  - id: PLT-FR-007-AC-02
+    statement: Повтор с тем же ключом и несовместимым телом отклоняется конфликтом.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-FR-008
+  title: Версионируемые публичные контракты
+  capability: CAP-GOV-05
+  context: null
+  owner: Platform` / `contract owners
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-FR-008-AC-01
+    statement: Удаление или изменение смысла опубликованного поля блокируется CI.
+  - id: PLT-FR-008-AC-02
+    statement: Несовместимое изменение выпускается новой major-версией с планом миграции.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-GOV-001
+  title: Трассировка требования
+  capability: CAP-GOV-04
+  context: null
+  owner: Architecture Governance` / `repository/CI
+  type: governance
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-GOV-001-AC-01
+    statement: CI выявляет отсутствующие или битые ссылки.
+  - id: PLT-GOV-001-AC-02
+    statement: Release scope не включает requirement без verification evidence.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-GOV-002
+  title: Structured Prompt для реализации
+  capability: CAP-GOV-09
+  context: null
+  owner: Architecture Governance` / `SPDD tooling
+  type: governance
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-GOV-002-AC-01
+    statement: Prompt содержит include/exclude scope и forbidden dependencies.
+  - id: PLT-GOV-002-AC-02
+    statement: Результат включает implementation manifest и проходит независимый Review Prompt.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-GOV-003
+  title: Контрактный design gate
+  capability: CAP-GOV-05
+  context: null
+  owner: Architecture Governance` / `contract owners
+  type: governance
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-GOV-003-AC-01
+    statement: Contract ID и owner присвоены до кода.
+  - id: PLT-GOV-003-AC-02
+    statement: buf breaking/schema compatibility checks добавлены.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-NFR-001
+  title: Доступность критических API
+  capability: CAP-OBS-05
+  context: null
+  owner: Platform` / `critical service owners
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-NFR-001-AC-01
+    statement: SLI рассчитывается по серверным результатам и исключает только документированные client errors.
+  - id: PLT-NFR-001-AC-02
+    statement: Нарушение error budget блокирует рискованные релизы по принятой политике.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-NFR-002
+  title: Сквозная трассировка
+  capability: CAP-OBS-01
+  context: null
+  owner: Platform` / `all services
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-NFR-002-AC-01
+    statement: Trace context проходит через брокер и Temporal workflow.
+  - id: PLT-NFR-002-AC-02
+    statement: По operation_id можно найти исходный request_id и ключевые downstream spans.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-NFR-003
+  title: Восстановление после сбоя
+  capability: CAP-INT-07
+  context: null
+  owner: Platform` / `service owners
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-NFR-003-AC-01
+    statement: Outbox backlog обрабатывается после восстановления.
+  - id: PLT-NFR-003-AC-02
+    statement: Повтор workflow или consumer delivery не нарушает инварианты.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-SEC-001
+  title: Запрет секретов в наблюдаемости
+  capability: CAP-OBS-02
+  context: null
+  owner: Platform` / `all services
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-SEC-001-AC-01
+    statement: Автоматический secret scanning не обнаруживает секретные поля в telemetry fixtures.
+  - id: PLT-SEC-001-AC-02
+    statement: Поля маскируются до сериализации события или записи журнала.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-SEC-002
+  title: Взаимная идентификация сервисов
+  capability: CAP-AUTHZ-06
+  context: null
+  owner: Platform` / `platform runtime
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-SEC-002-AC-01
+    statement: Анонимный межсервисный mutation отклоняется.
+  - id: PLT-SEC-002-AC-02
+    statement: Ротация service credential не требует остановки платформы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-SEC-003
+  title: Минимизация персональных данных
+  capability: CAP-ID-03
+  context: null
+  owner: Platform` / `data owners
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-SEC-003-AC-01
+    statement: Новая копия персонального атрибута имеет owner, purpose, retention и deletion rule.
+  - id: PLT-SEC-003-AC-02
+    statement: Privacy deletion обновляет или удаляет допустимые проекции.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PLT-SEC-004
+  title: Неподделываемый actor context
+  capability: CAP-AUD-02
+  context: null
+  owner: Platform` / `edge and service middleware
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: PLT-SEC-004-AC-01
+    statement: Попытка подмены actor field не меняет effective actor.
+  - id: PLT-SEC-004-AC-02
+    statement: Сервисные действия различают initiating actor и executing service.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-DATA-001
+  title: Разделение desired и observed state
+  capability: CAP-PROV-05
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-DATA-001-AC-01
+    statement: Client не может записывать observed fields.
+  - id: PROV-DATA-001-AC-02
+    statement: Каждое observed state имеет source, time и desired revision correlation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-001
+  title: Зарегистрировать ResourceDefinition
+  capability: CAP-PROV-01
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-001-AC-01
+    statement: Definition проходит validation и compatibility check.
+  - id: PROV-FR-001-AC-02
+    statement: Draft version не используется для новых ресурсов до publish.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-002
+  title: Опубликовать ResourceDefinition
+  capability: CAP-PROV-01
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-002-AC-01
+    statement: Breaking schema имеет migration strategy.
+  - id: PROV-FR-002-AC-02
+    statement: Active version выбирается явно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-003
+  title: Зарегистрировать Driver
+  capability: CAP-PROV-02
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-003-AC-01
+    statement: Driver проходит conformance tests.
+  - id: PROV-FR-003-AC-02
+    statement: Секреты подключения хранятся вне definition.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-004
+  title: Отключить Driver
+  capability: CAP-PROV-02
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-004-AC-01
+    statement: Существующие resources получают degraded/maintenance policy.
+  - id: PROV-FR-004-AC-02
+    statement: Отключение аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-010
+  title: Создать ManagedResource
+  capability: CAP-PROV-03
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-010-AC-01
+    statement: Project ACTIVE и caller авторизован.
+  - id: PROV-FR-010-AC-02
+    statement: Desired state и Outbox/Operation фиксируются атомарно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-011
+  title: Изменить desired state
+  capability: CAP-PROV-03
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-011-AC-01
+    statement: Невалидное или запрещённое изменение отклоняется до commit.
+  - id: PROV-FR-011-AC-02
+    statement: Observed state не перезаписывается клиентом.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-012
+  title: Удалить ManagedResource
+  capability: CAP-PROV-10
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-012-AC-01
+    statement: Необратимость подтверждается policy/step-up при необходимости.
+  - id: PROV-FR-012-AC-02
+    statement: Partial deletion видима и допускает remediation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-013
+  title: Приостановить reconciliation
+  capability: CAP-PROV-08
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-013-AC-01
+    statement: Pause не маскирует drift.
+  - id: PROV-FR-013-AC-02
+    statement: Resume продолжает с актуальной desired revision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-014
+  title: Возобновить reconciliation
+  capability: CAP-PROV-08
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-014-AC-01
+    statement: Duplicate resume не создаёт параллельный workflow.
+  - id: PROV-FR-014-AC-02
+    statement: Stale workflow не применяет старую revision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-020
+  title: Выбрать Placement
+  capability: CAP-PROV-04
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-020-AC-01
+    statement: Placement decision объяснимо и versioned.
+  - id: PROV-FR-020-AC-02
+    statement: Недоступная capacity возвращает WAIT/FAILED без скрытой смены требований.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-021
+  title: Закрепить Placement
+  capability: CAP-PROV-04
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-021-AC-01
+    statement: Driver получает normalized placement reference.
+  - id: PROV-FR-021-AC-02
+    statement: Автоматическая миграция между регионами не выполняется без policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-030
+  title: Выполнить Reconciliation
+  capability: CAP-PROV-05
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-030-AC-01
+    statement: Reconciliation идемпотентен.
+  - id: PROV-FR-030-AC-02
+    statement: Action plan основан на конкретной desired revision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-031
+  title: Получить observed state
+  capability: CAP-PROV-05
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-031-AC-01
+    statement: Raw provider payload не становится public contract.
+  - id: PROV-FR-031-AC-02
+    statement: Freshness и last_observed_at возвращаются.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-032
+  title: Обнаружить Drift
+  capability: CAP-PROV-07
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-032-AC-01
+    statement: Drift event не создаётся повторно без изменения fingerprint.
+  - id: PROV-FR-032-AC-02
+    statement: Игнорируемые поля определены policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-033
+  title: Исправить Drift
+  capability: CAP-PROV-07
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-033-AC-01
+    statement: AUTO remediation не выполняет запрещённые destructive actions.
+  - id: PROV-FR-033-AC-02
+    statement: Manual approval сохраняется в Audit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-034
+  title: Принять внешний ресурс под управление
+  capability: CAP-PROV-03
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-034-AC-01
+    statement: Import не изменяет внешний ресурс до approval.
+  - id: PROV-FR-034-AC-02
+    statement: Конфликты desired state показываются явно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-040
+  title: Повторить неуспешный шаг
+  capability: CAP-PROV-08
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-040-AC-01
+    statement: Permanent error не повторяется бесконечно.
+  - id: PROV-FR-040-AC-02
+    statement: Количество попыток и next_retry_at наблюдаемы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-041
+  title: Выполнить Compensation
+  capability: CAP-PROV-09
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-041-AC-01
+    statement: Необратимый шаг обозначается commit point.
+  - id: PROV-FR-041-AC-02
+    statement: Ошибка compensation переводит ресурс в NEEDS_ATTENTION.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-042
+  title: Создать Manual Remediation
+  capability: CAP-PROV-09
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-042-AC-01
+    statement: Действие оператора проверяется Access/Risk.
+  - id: PROV-FR-042-AC-02
+    statement: Результат возвращается process workflow.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-050
+  title: Получить Outputs
+  capability: CAP-PROV-11
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-050-AC-01
+    statement: Secret output возвращается только через secret reference.
+  - id: PROV-FR-050-AC-02
+    statement: Output связан с observed revision.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-051
+  title: Получить состояние ManagedResource
+  capability: CAP-PROV-12
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-051-AC-01
+    statement: Resource state не подменяется Operation state.
+  - id: PROV-FR-051-AC-02
+    statement: Ошибка имеет канонический код и remediation hint.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-FR-060
+  title: Публиковать Provisioning events
+  capability: CAP-PROV-13
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-FR-060-AC-01
+    statement: Event содержит resource and revision identifiers.
+  - id: PROV-FR-060-AC-02
+    statement: Provider-specific details минимизированы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-NFR-001
+  title: Время начала Provisioning Operation
+  capability: CAP-PROV-03
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-NFR-001-AC-01
+    statement: Внешний provider не вызывается в критическом пути ответа.
+  - id: PROV-NFR-001-AC-02
+    statement: Operation и desired state уже committed.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: PROV-SEC-001
+  title: Секреты управляемых ресурсов
+  capability: CAP-PROV-11
+  context: null
+  owner: Provisioning` / `m8-provisioning
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: PROV-SEC-001-AC-01
+    statement: Public API возвращает secret reference или redacted value.
+  - id: PROV-SEC-001-AC-02
+    statement: Driver получает секрет только в момент выполнения и не логирует его.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-DATA-001
+  title: Неизменяемость Risk Assessment
+  capability: CAP-RISK-04
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-DATA-001-AC-01
+    statement: Correction создаёт новое assessment с reference на предыдущее.
+  - id: RISK-DATA-001-AC-02
+    statement: Retention входных signals соответствует privacy policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-001
+  title: Оценить риск Authentication
+  capability: CAP-RISK-01
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-001-AC-01
+    statement: Результат содержит decision, score/band, policy version и reasons.
+  - id: RISK-FR-001-AC-02
+    statement: Отсутствующие обязательные сигналы обрабатываются по policy, а не нулевым значением.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-002
+  title: Оценить риск привилегированного действия
+  capability: CAP-RISK-03
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-002-AC-01
+    statement: Decision привязан к action, actor и target.
+  - id: RISK-FR-002-AC-02
+    statement: Истёкшее решение нельзя повторно использовать.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-003
+  title: Вернуть ALLOW/DENY/CHALLENGE/REVIEW
+  capability: CAP-RISK-04
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-003-AC-01
+    statement: Outcome имеет machine-readable reason codes.
+  - id: RISK-FR-003-AC-02
+    statement: CHALLENGE содержит requested assurance/method constraints.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-004
+  title: Получить Risk Assessment
+  capability: CAP-RISK-04
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-004-AC-01
+    statement: Ответ не раскрывает чувствительные detection rules вызывающему без permission.
+  - id: RISK-FR-004-AC-02
+    statement: Decision immutable после фиксации; correction создаёт новое assessment.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-005
+  title: Истечь Risk Decision
+  capability: CAP-RISK-04
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-005-AC-01
+    statement: TTL зависит от action/policy.
+  - id: RISK-FR-005-AC-02
+    statement: Повторная оценка получает новый assessment_id.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-010
+  title: Создать Risk Policy
+  capability: CAP-RISK-05
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-010-AC-01
+    statement: Draft не влияет на production decisions.
+  - id: RISK-FR-010-AC-02
+    statement: Policy проходит schema и semantic validation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-011
+  title: Опубликовать Risk Policy
+  capability: CAP-RISK-05
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-011-AC-01
+    statement: Publish требует permission и audit.
+  - id: RISK-FR-011-AC-02
+    statement: Активная версия выбирается детерминированно.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-012
+  title: Откатить Risk Policy
+  capability: CAP-RISK-05
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-012-AC-01
+    statement: Откат не изменяет исторические assessments.
+  - id: RISK-FR-012-AC-02
+    statement: Причина и actor фиксируются.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-013
+  title: Симулировать Risk Policy
+  capability: CAP-RISK-09
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-013-AC-01
+    statement: Результат сравнивается с baseline.
+  - id: RISK-FR-013-AC-02
+    statement: Sensitive dataset access контролируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-014
+  title: Объяснить Risk Decision
+  capability: CAP-RISK-04
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-014-AC-01
+    statement: Внутренние антифрод-правила могут быть скрыты по disclosure policy.
+  - id: RISK-FR-014-AC-02
+    statement: Объяснение воспроизводимо для policy version и input snapshot.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-020
+  title: Принять device signals
+  capability: CAP-RISK-06
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-020-AC-01
+    statement: Неизвестный или неподтверждённый signal не считается достоверным.
+  - id: RISK-FR-020-AC-02
+    statement: Device identifier минимизирован и защищён.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-021
+  title: Проверить velocity
+  capability: CAP-RISK-07
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-021-AC-01
+    statement: Окна и thresholds задаются policy.
+  - id: RISK-FR-021-AC-02
+    statement: Повтор одного idempotent request не удваивает business count.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-022
+  title: Принять external risk signal
+  capability: CAP-RISK-02
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-022-AC-01
+    statement: Сбой источника не подменяется безопасным значением.
+  - id: RISK-FR-022-AC-02
+    statement: Сигнал имеет expiry.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-030
+  title: Создать Manual Review
+  capability: CAP-RISK-10
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-030-AC-01
+    statement: Case не содержит запрещённых секретов.
+  - id: RISK-FR-030-AC-02
+    statement: Повтор assessment не создаёт дубликат case.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-031
+  title: Завершить Manual Review
+  capability: CAP-RISK-10
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-031-AC-01
+    statement: Reviewer action требует permission и audit.
+  - id: RISK-FR-031-AC-02
+    statement: Решение после SLA expiry обрабатывается по owner policy.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-040
+  title: Сформировать feedback
+  capability: CAP-RISK-11
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-040-AC-01
+    statement: Feedback не меняет исторический decision.
+  - id: RISK-FR-040-AC-02
+    statement: Источник и confidence фиксируются.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-FR-050
+  title: Публиковать факты Risk
+  capability: CAP-RISK-12
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-FR-050-AC-01
+    statement: Чувствительные signal values не публикуются без необходимости.
+  - id: RISK-FR-050-AC-02
+    statement: Event связан с action correlation.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-NFR-001
+  title: Задержка онлайн-решения
+  capability: CAP-RISK-01
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-NFR-001-AC-01
+    statement: Медленный внешний signal не блокирует beyond deadline; применяется policy missing-signal behavior.
+  - id: RISK-NFR-001-AC-02
+    statement: Timeout outcome детерминирован и наблюдаем.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RISK-SEC-001
+  title: Защита моделей и reason disclosure
+  capability: CAP-RISK-05
+  context: null
+  owner: Risk Decision` / `m8-risk-decision
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: RISK-SEC-001-AC-01
+    statement: Обычный caller получает достаточный reason code без раскрытия механизмов обхода.
+  - id: RISK-SEC-001-AC-02
+    statement: Административное чтение аудируется.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-3
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-DATA-001
+  title: Источник истины ресурсной иерархии
+  capability: CAP-RM-05
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-DATA-001-AC-01
+    statement: Другие сервисы хранят только ссылки или проекции.
+  - id: RM-DATA-001-AC-02
+    statement: Любое расхождение проекции исправляется из событий или reconciliation с Resource Manager.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-DATA-002
+  title: Исторические ссылки на удалённые ресурсы
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: data
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-DATA-002-AC-01
+    statement: Tombstone не позволяет выполнять новые операции.
+  - id: RM-DATA-002-AC-02
+    statement: Retention и окончательное уничтожение документированы.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-001
+  title: Создать Organization
+  capability: CAP-RM-01
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-001-AC-01
+    statement: Создаётся один агрегат и событие OrganizationCreated.
+  - id: RM-FR-001-AC-02
+    statement: Повтор идемпотентного запроса возвращает исходный ресурс.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-002
+  title: Изменить Organization
+  capability: CAP-RM-01
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-002-AC-01
+    statement: Несовпадающая revision возвращает конфликт.
+  - id: RM-FR-002-AC-02
+    statement: Изменённые поля отражаются в событии без передачи секретных данных.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-003
+  title: Приостановить Organization
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-003-AC-01
+    statement: Существующие данные сохраняются.
+  - id: RM-FR-003-AC-02
+    statement: Новая mutation в приостановленной области отклоняется, кроме разрешённых recovery operations.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-004
+  title: Восстановить Organization
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-004-AC-01
+    statement: Восстановление возможно только из SUSPENDED.
+  - id: RM-FR-004-AC-02
+    statement: Действие фиксируется в Audit.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-005
+  title: Архивировать Organization
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-005-AC-01
+    statement: Активные Workspace блокируют завершение или запускают управляемый процесс.
+  - id: RM-FR-005-AC-02
+    statement: Архивная Organization недоступна для новых ресурсов.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-010
+  title: Создать Workspace
+  capability: CAP-RM-02
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-010-AC-01
+    statement: Родитель существует и ACTIVE.
+  - id: RM-FR-010-AC-02
+    statement: Workspace получает стабильный resource path.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-011
+  title: Изменить Workspace
+  capability: CAP-RM-02
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-011-AC-01
+    statement: Parent organization не меняется обычным update.
+  - id: RM-FR-011-AC-02
+    statement: Update публикует WorkspaceUpdated.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-012
+  title: Приостановить или восстановить Workspace
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-012-AC-01
+    statement: Состояние дочерних ресурсов явно учитывается при policy evaluation.
+  - id: RM-FR-012-AC-02
+    statement: Решение не меняет данные Access напрямую.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-020
+  title: Создать Project
+  capability: CAP-RM-03
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-020-AC-01
+    statement: Project имеет уникальный ID и parent reference.
+  - id: RM-FR-020-AC-02
+    statement: Создание доступно только с требуемым permission.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-021
+  title: Переместить Project
+  capability: CAP-RM-08
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-021-AC-01
+    statement: До commit проверены политики исходной и целевой областей.
+  - id: RM-FR-021-AC-02
+    statement: Публикуется ProjectMoved с old_parent и new_parent.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-022
+  title: Удалить Project с зависимостями
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-022-AC-01
+    statement: Project переходит в DELETING до завершения участников.
+  - id: RM-FR-022-AC-02
+    statement: Timeout или отказ участника виден в Operation и допускает retry/manual resolution.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-023
+  title: Приостановить Project
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-023-AC-01
+    statement: Read-only операции остаются доступны согласно Access.
+  - id: RM-FR-023-AC-02
+    statement: Состояние распространяется потребителям событием.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-024
+  title: Восстановить Project
+  capability: CAP-RM-07
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-024-AC-01
+    statement: Восстановление проходит Access и при необходимости Risk Decision.
+  - id: RM-FR-024-AC-02
+    statement: Сохраняется прежний Project ID и hierarchy path.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-030
+  title: Зарегистрировать Service
+  capability: CAP-RM-04
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-030-AC-01
+    statement: Project существует и разрешает регистрацию.
+  - id: RM-FR-030-AC-02
+    statement: Service name уникально в документированной области.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-031
+  title: Изменить регистрацию Service
+  capability: CAP-RM-04
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-031-AC-01
+    statement: Нельзя сменить Project обычным update.
+  - id: RM-FR-031-AC-02
+    statement: Изменения публикуются versioned event.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-032
+  title: Снять Service с регистрации
+  capability: CAP-RM-04
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-032-AC-01
+    statement: Service становится RETIRED или DELETED согласно policy.
+  - id: RM-FR-032-AC-02
+    statement: Исторический Audit продолжает разрешать ссылку на ID.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-040
+  title: Получить ресурс по ID
+  capability: CAP-RM-09
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-040-AC-01
+    statement: Несуществующий ресурс возвращает NOT_FOUND без раскрытия чужого scope.
+  - id: RM-FR-040-AC-02
+    statement: Ответ содержит revision и lifecycle state.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-041
+  title: Перечислить дочерние ресурсы
+  capability: CAP-RM-05
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-041-AC-01
+    statement: Page token нельзя использовать с другим фильтром.
+  - id: RM-FR-041-AC-02
+    statement: Результат ограничен effective access scope.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-042
+  title: Получить полный путь ресурса
+  capability: CAP-RM-05
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-042-AC-01
+    statement: Путь строится из authoritative hierarchy.
+  - id: RM-FR-042-AC-02
+    statement: Удалённые исторические родители обозначаются без восстановления активного состояния.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-043
+  title: Искать ресурсы
+  capability: CAP-RM-09
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-043-AC-01
+    statement: Поиск не раскрывает наличие недоступных ресурсов.
+  - id: RM-FR-043-AC-02
+    statement: Результаты имеют documented freshness.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-044
+  title: Обновить labels через FieldMask
+  capability: CAP-RM-06
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-044-AC-01
+    statement: Неуказанные поля не изменяются.
+  - id: RM-FR-044-AC-02
+    statement: Системные labels защищены от пользовательской записи.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-1
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-FR-050
+  title: Публиковать lifecycle events
+  capability: CAP-RM-10
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-FR-050-AC-01
+    statement: Event содержит resource_id, parent, state и revision.
+  - id: RM-FR-050-AC-02
+    statement: Событие фиксируется через Outbox в транзакции агрегата.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-NFR-001
+  title: Задержка чтения ресурса
+  capability: CAP-RM-09
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: non-functional
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-NFR-001-AC-01
+    statement: SLI измеряется на серверной стороне без client/network time.
+  - id: RM-NFR-001-AC-02
+    statement: Нагрузка и размер ресурса определены в performance profile.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner
+- id: RM-SEC-001
+  title: Авторизация управления иерархией
+  capability: CAP-RM-01
+  context: null
+  owner: Resource Manager` / `m8-resource-manager
+  type: security
+  priority: MUST
+  acceptance_criteria:
+  - id: RM-SEC-001-AC-01
+    statement: Move проверяет права в исходной и целевой областях.
+  - id: RM-SEC-001-AC-02
+    statement: Недоступный parent не раскрывается через различие ошибок.
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+  approval_status: APPROVED
+  delivery_status: PLANNED
+  release: MVP-2
+  approved_on: '2026-07-10'
+  approved_by: Platform Architecture Owner

@@ -1,0 +1,128 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH-017
+  kind: feature
+  title: Повторная CIBA-аутентификация после невозможности refresh
+  status: ready_for_review
+  owner_context: Authentication
+  owner_service: m8-authentication
+traceability:
+  requirements:
+  - AUTH-FR-017
+  - AUTH-FR-001
+  - AUTH-FR-018
+  - PLT-FR-003
+  - PLT-FR-007
+  - PLT-ARC-002
+  acceptance_criteria:
+  - AUTH-FR-017-AC-01
+  - AUTH-FR-017-AC-02
+  - AUTH-FR-017-AC-03
+  - AUTH-FR-017-AC-04
+  - AUTH-FR-017-AC-05
+  - AUTH-FR-017-AC-06
+  - AUTH-FR-017-AC-07
+  api_contracts:
+  - API-AUTH-001
+  event_contracts:
+  - EVT-AUTH-017
+  error_contracts:
+  - ERR-AUTH-001
+  - ERR-AUTH-002
+  - ERR-AUTH-003
+  - ERR-AUTH-004
+  - ERR-AUTH-009
+  - ERR-AUTH-010
+  - ERR-COMMON-008
+  data_contracts:
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-OPS-001
+  - DATA-COMMON-001
+  - DATA-COMMON-003
+  adrs:
+  - ADR-0002
+  - ADR-0004
+  - ADR-0005
+  - ADR-0006
+  - ADR-0008
+  - ADR-0009
+objective: Реализовать идемпотентный StartAuthentication для intent REAUTHENTICATE с новой AuthenticationTransaction, Risk
+  Decision, CIBA workflow, Operation и Transactional Outbox.
+scope:
+  include:
+  - domain transaction and invariants
+  - application use case
+  - 'YDB transaction: aggregate + operation + idempotency + outbox'
+  - Identity/Risk/Keycloak ports and ACL
+  - Temporal workflow
+  - audit, metrics, traces
+  - unit/integration/contract/acceptance tests
+  exclude:
+  - refresh token validation
+  - token issuance
+  - изменение Identity/Access/Risk storage
+  - breaking protobuf change
+  - UI
+domain:
+  aggregates:
+  - AuthenticationTransaction
+  invariants:
+  - new transaction is independent from failed refresh
+  - same idempotency key + same hash returns same result
+  - same key + different hash fails
+  - DENY never calls provider
+  - aggregate and outbox commit atomically
+  states:
+  - CREATED
+  - CHALLENGE_PENDING
+  - AUTHENTICATED
+  - COMPLETED
+  - FAILED
+  - CANCELLED
+  - EXPIRED
+dependencies:
+  allowed:
+  - ClientRepository
+  - IdentityGateway
+  - RiskDecisionGateway
+  - AuthenticationRepository
+  - OperationRepository
+  - IdempotencyRepository
+  - OutboxRepository
+  - TemporalStarter
+  - Clock
+  - IdGenerator
+  forbidden:
+  - Identity database
+  - Risk database
+  - direct Keycloak types in domain
+  - sync broker publish before commit
+  - raw refresh token
+security:
+- authenticated client/service
+- permission check
+- risk fail closed
+- secret minimization
+- rate limit
+- trusted actor context
+observability:
+- trace_id/request_id/correlation_id/authentication_id/operation_id
+- metrics start latency, outcome, retries
+- structured logs without secrets
+- AuditEvent for start/outcome
+tasks:
+- SP-TASK-AUTH-017-01
+- SP-TASK-AUTH-017-02
+- SP-TASK-AUTH-017-03
+- SP-TASK-AUTH-017-04
+- SP-TASK-AUTH-017-05
+- SP-TASK-AUTH-017-06
+definition_of_done:
+- all acceptance criteria pass
+- buf compatibility passes
+- architecture boundaries pass
+- outbox/idempotency concurrency tests pass
+- security fixtures contain no secrets
+- traceability registry updated
+- review prompt verdict PASS

@@ -1,0 +1,21 @@
+groups:
+- name: m8-platform
+  rules:
+  - alert: M8HighErrorRate
+    expr: service_error_ratio > 0.01 for 10m
+    severity: page
+  - alert: M8LatencySLOBreach
+    expr: service_latency_p95 > service_slo_latency for 15m
+    severity: ticket
+  - alert: M8OutboxLag
+    expr: outbox_oldest_pending_seconds > 60
+    severity: page
+  - alert: M8InboxFailures
+    expr: rate(inbox_failed_total[5m]) > 1
+    severity: page
+  - alert: M8AuditDeliveryFailure
+    expr: audit_required_delivery_failures > 0
+    severity: page
+  - alert: M8OperationStuck
+    expr: operation_running_age_seconds > operation_timeout_seconds
+    severity: ticket

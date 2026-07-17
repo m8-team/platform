@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: m8-platform
+  namespace: argocd
+spec:
+  description: Project for M8 Platform
+  sourceRepos:
+    - "https://github.com/m8-team/platform.git"
+    - "https://archive.apache.org/dist/flink/flink-kubernetes-operator-1.15.0/"
+  destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  orphanedResources:
+    warn: true

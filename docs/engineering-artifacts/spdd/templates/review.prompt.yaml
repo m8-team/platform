@@ -1,0 +1,23 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-REVIEW-<CTX>-<NNN>
+  kind: review
+  feature: SP-FEATURE-...
+checks:
+- requirements_coverage
+- domain_invariants
+- context_boundaries
+- api_compatibility
+- event_delivery
+- idempotency
+- security
+- audit
+- observability
+- tests
+- traceability
+blocking_findings: []
+output:
+- verdict
+- findings
+- evidence
+- required_changes

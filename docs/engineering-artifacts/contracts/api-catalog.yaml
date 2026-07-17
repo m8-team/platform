@@ -1,0 +1,2656 @@
+catalog_id: M8-API-000
+version: '0.1'
+contracts:
+- id: API-RM-001
+  requirement_ids:
+  - RM-FR-001
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/CreateOrganization
+  method: CreateOrganization
+  title: Создать Organization
+  visibility: public
+  operation: command
+  request: CreateOrganizationRequest
+  response: CreateOrganizationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.create.organization
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-002
+  requirement_ids:
+  - RM-FR-002
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/UpdateOrganization
+  method: UpdateOrganization
+  title: Изменить Organization
+  visibility: public
+  operation: command
+  request: UpdateOrganizationRequest
+  response: UpdateOrganizationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.update.organization
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-003
+  requirement_ids:
+  - RM-FR-003
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/SuspendOrganization
+  method: SuspendOrganization
+  title: Приостановить Organization
+  visibility: public
+  operation: command
+  request: SuspendOrganizationRequest
+  response: SuspendOrganizationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.suspend.organization
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-004
+  requirement_ids:
+  - RM-FR-004
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/RestoreOrganization
+  method: RestoreOrganization
+  title: Восстановить Organization
+  visibility: public
+  operation: command
+  request: RestoreOrganizationRequest
+  response: RestoreOrganizationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.restore.organization
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-005
+  requirement_ids:
+  - RM-FR-005
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/ArchiveOrganization
+  method: ArchiveOrganization
+  title: Архивировать Organization
+  visibility: public
+  operation: command
+  request: ArchiveOrganizationRequest
+  response: ArchiveOrganizationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.archive.organization
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-010
+  requirement_ids:
+  - RM-FR-010
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/CreateWorkspace
+  method: CreateWorkspace
+  title: Создать Workspace
+  visibility: public
+  operation: command
+  request: CreateWorkspaceRequest
+  response: CreateWorkspaceResponse
+  idempotency_required: true
+  permission: m8.resource_manager.create.workspace
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-011
+  requirement_ids:
+  - RM-FR-011
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/UpdateWorkspace
+  method: UpdateWorkspace
+  title: Изменить Workspace
+  visibility: public
+  operation: command
+  request: UpdateWorkspaceRequest
+  response: UpdateWorkspaceResponse
+  idempotency_required: true
+  permission: m8.resource_manager.update.workspace
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-012
+  requirement_ids:
+  - RM-FR-012
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/SetWorkspaceSuspension
+  method: SetWorkspaceSuspension
+  title: Приостановить или восстановить Workspace
+  visibility: public
+  operation: command
+  request: SetWorkspaceSuspensionRequest
+  response: SetWorkspaceSuspensionResponse
+  idempotency_required: true
+  permission: m8.resource_manager.set.workspace.suspension
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-020
+  requirement_ids:
+  - RM-FR-020
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/CreateProject
+  method: CreateProject
+  title: Создать Project
+  visibility: public
+  operation: command
+  request: CreateProjectRequest
+  response: CreateProjectResponse
+  idempotency_required: true
+  permission: m8.resource_manager.create.project
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-021
+  requirement_ids:
+  - RM-FR-021
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/MoveProject
+  method: MoveProject
+  title: Переместить Project
+  visibility: public
+  operation: command
+  request: MoveProjectRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.resource_manager.move.project
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-022
+  requirement_ids:
+  - RM-FR-022
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/DeleteProject
+  method: DeleteProject
+  title: Удалить Project с зависимостями
+  visibility: public
+  operation: command
+  request: DeleteProjectRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.resource_manager.delete.project
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-023
+  requirement_ids:
+  - RM-FR-023
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/SuspendProject
+  method: SuspendProject
+  title: Приостановить Project
+  visibility: public
+  operation: command
+  request: SuspendProjectRequest
+  response: SuspendProjectResponse
+  idempotency_required: true
+  permission: m8.resource_manager.suspend.project
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-024
+  requirement_ids:
+  - RM-FR-024
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/RestoreProject
+  method: RestoreProject
+  title: Восстановить Project
+  visibility: public
+  operation: command
+  request: RestoreProjectRequest
+  response: RestoreProjectResponse
+  idempotency_required: true
+  permission: m8.resource_manager.restore.project
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-030
+  requirement_ids:
+  - RM-FR-030
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/RegisterService
+  method: RegisterService
+  title: Зарегистрировать Service
+  visibility: public
+  operation: command
+  request: RegisterServiceRequest
+  response: RegisterServiceResponse
+  idempotency_required: true
+  permission: m8.resource_manager.register.service
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-031
+  requirement_ids:
+  - RM-FR-031
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/UpdateServiceRegistration
+  method: UpdateServiceRegistration
+  title: Изменить регистрацию Service
+  visibility: public
+  operation: command
+  request: UpdateServiceRegistrationRequest
+  response: UpdateServiceRegistrationResponse
+  idempotency_required: true
+  permission: m8.resource_manager.update.service.registration
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-032
+  requirement_ids:
+  - RM-FR-032
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/UnregisterService
+  method: UnregisterService
+  title: Снять Service с регистрации
+  visibility: public
+  operation: command
+  request: UnregisterServiceRequest
+  response: UnregisterServiceResponse
+  idempotency_required: true
+  permission: m8.resource_manager.unregister.service
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-040
+  requirement_ids:
+  - RM-FR-040
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/GetResource
+  method: GetResource
+  title: Получить ресурс по ID
+  visibility: public
+  operation: query
+  request: GetResourceRequest
+  response: GetResourceResponse
+  idempotency_required: false
+  permission: m8.resource_manager.get.resource
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-041
+  requirement_ids:
+  - RM-FR-041
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/ListChildResources
+  method: ListChildResources
+  title: Перечислить дочерние ресурсы
+  visibility: public
+  operation: query
+  request: ListChildResourcesRequest
+  response: ListChildResourcesResponse
+  idempotency_required: false
+  permission: m8.resource_manager.list.child.resources
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-042
+  requirement_ids:
+  - RM-FR-042
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/GetResourcePath
+  method: GetResourcePath
+  title: Получить полный путь ресурса
+  visibility: public
+  operation: query
+  request: GetResourcePathRequest
+  response: GetResourcePathResponse
+  idempotency_required: false
+  permission: m8.resource_manager.get.resource.path
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-043
+  requirement_ids:
+  - RM-FR-043
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/SearchResources
+  method: SearchResources
+  title: Искать ресурсы
+  visibility: public
+  operation: query
+  request: SearchResourcesRequest
+  response: SearchResourcesResponse
+  idempotency_required: false
+  permission: m8.resource_manager.search.resources
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RM-044
+  requirement_ids:
+  - RM-FR-044
+  context: Resource Manager
+  service: ResourceManagerService
+  package: m8.resource_manager.v1
+  rpc: m8.resource_manager.v1.ResourceManagerService/UpdateResourceLabels
+  method: UpdateResourceLabels
+  title: Обновить labels через FieldMask
+  visibility: public
+  operation: command
+  request: UpdateResourceLabelsRequest
+  response: UpdateResourceLabelsResponse
+  idempotency_required: true
+  permission: m8.resource_manager.update.resource.labels
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-001
+  requirement_ids:
+  - ID-FR-001
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/CreateUserPool
+  method: CreateUserPool
+  title: Создать User Pool
+  visibility: public
+  operation: command
+  request: CreateUserPoolRequest
+  response: CreateUserPoolResponse
+  idempotency_required: true
+  permission: m8.identity.create.user.pool
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-002
+  requirement_ids:
+  - ID-FR-002
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/UpdateUserPool
+  method: UpdateUserPool
+  title: Изменить User Pool
+  visibility: public
+  operation: command
+  request: UpdateUserPoolRequest
+  response: UpdateUserPoolResponse
+  idempotency_required: true
+  permission: m8.identity.update.user.pool
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-003
+  requirement_ids:
+  - ID-FR-003
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/SuspendUserPool
+  method: SuspendUserPool
+  title: Приостановить User Pool
+  visibility: public
+  operation: command
+  request: SuspendUserPoolRequest
+  response: SuspendUserPoolResponse
+  idempotency_required: true
+  permission: m8.identity.suspend.user.pool
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-010
+  requirement_ids:
+  - ID-FR-010
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/CreateUser
+  method: CreateUser
+  title: Создать User
+  visibility: public
+  operation: command
+  request: CreateUserRequest
+  response: CreateUserResponse
+  idempotency_required: true
+  permission: m8.identity.create.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-011
+  requirement_ids:
+  - ID-FR-011
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/UpdateUserProfile
+  method: UpdateUserProfile
+  title: Изменить профиль User
+  visibility: public
+  operation: command
+  request: UpdateUserProfileRequest
+  response: UpdateUserProfileResponse
+  idempotency_required: true
+  permission: m8.identity.update.user.profile
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-012
+  requirement_ids:
+  - ID-FR-012
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/DisableUser
+  method: DisableUser
+  title: Отключить User
+  visibility: public
+  operation: command
+  request: DisableUserRequest
+  response: DisableUserResponse
+  idempotency_required: true
+  permission: m8.identity.disable.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-013
+  requirement_ids:
+  - ID-FR-013
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/RestoreUser
+  method: RestoreUser
+  title: Восстановить User
+  visibility: public
+  operation: command
+  request: RestoreUserRequest
+  response: RestoreUserResponse
+  idempotency_required: true
+  permission: m8.identity.restore.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-014
+  requirement_ids:
+  - ID-FR-014
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/SecurityBlockUser
+  method: SecurityBlockUser
+  title: Заблокировать User по безопасности
+  visibility: public
+  operation: command
+  request: SecurityBlockUserRequest
+  response: SecurityBlockUserResponse
+  idempotency_required: true
+  permission: m8.identity.security.block.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-015
+  requirement_ids:
+  - ID-FR-015
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/GetUser
+  method: GetUser
+  title: Получить User
+  visibility: public
+  operation: query
+  request: GetUserRequest
+  response: GetUserResponse
+  idempotency_required: false
+  permission: m8.identity.get.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-016
+  requirement_ids:
+  - ID-FR-016
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/SearchUsers
+  method: SearchUsers
+  title: Искать User
+  visibility: public
+  operation: query
+  request: SearchUsersRequest
+  response: SearchUsersResponse
+  idempotency_required: false
+  permission: m8.identity.search.users
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-020
+  requirement_ids:
+  - ID-FR-020
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/LinkExternalIdentity
+  method: LinkExternalIdentity
+  title: Связать External Identity
+  visibility: public
+  operation: command
+  request: LinkExternalIdentityRequest
+  response: LinkExternalIdentityResponse
+  idempotency_required: true
+  permission: m8.identity.link.external.identity
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-021
+  requirement_ids:
+  - ID-FR-021
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/DetectExternalIdentityConflict
+  method: DetectExternalIdentityConflict
+  title: Обнаружить конфликт External Identity
+  visibility: public
+  operation: command
+  request: DetectExternalIdentityConflictRequest
+  response: DetectExternalIdentityConflictResponse
+  idempotency_required: true
+  permission: m8.identity.detect.external.identity.conflict
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-022
+  requirement_ids:
+  - ID-FR-022
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/UnlinkExternalIdentity
+  method: UnlinkExternalIdentity
+  title: Отвязать External Identity
+  visibility: public
+  operation: command
+  request: UnlinkExternalIdentityRequest
+  response: UnlinkExternalIdentityResponse
+  idempotency_required: true
+  permission: m8.identity.unlink.external.identity
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-023
+  requirement_ids:
+  - ID-FR-023
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/ResolveSubjectByExternalIdentity
+  method: ResolveSubjectByExternalIdentity
+  title: Разрешить Subject по issuer+subject
+  visibility: public
+  operation: query
+  request: ResolveSubjectByExternalIdentityRequest
+  response: ResolveSubjectByExternalIdentityResponse
+  idempotency_required: false
+  permission: m8.identity.resolve.subject.by.external.identity
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-024
+  requirement_ids:
+  - ID-FR-024
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/ResolveSubjectByContact
+  method: ResolveSubjectByContact
+  title: Разрешить Subject по email или phone
+  visibility: public
+  operation: query
+  request: ResolveSubjectByContactRequest
+  response: ResolveSubjectByContactResponse
+  idempotency_required: false
+  permission: m8.identity.resolve.subject.by.contact
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-030
+  requirement_ids:
+  - ID-FR-030
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/CreateGroup
+  method: CreateGroup
+  title: Создать Group
+  visibility: public
+  operation: command
+  request: CreateGroupRequest
+  response: CreateGroupResponse
+  idempotency_required: true
+  permission: m8.identity.create.group
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-031
+  requirement_ids:
+  - ID-FR-031
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/UpdateGroup
+  method: UpdateGroup
+  title: Изменить Group
+  visibility: public
+  operation: command
+  request: UpdateGroupRequest
+  response: UpdateGroupResponse
+  idempotency_required: true
+  permission: m8.identity.update.group
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-032
+  requirement_ids:
+  - ID-FR-032
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/AddMembership
+  method: AddMembership
+  title: Добавить Membership
+  visibility: public
+  operation: command
+  request: AddMembershipRequest
+  response: AddMembershipResponse
+  idempotency_required: true
+  permission: m8.identity.add.membership
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-033
+  requirement_ids:
+  - ID-FR-033
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/RemoveMembership
+  method: RemoveMembership
+  title: Удалить Membership
+  visibility: public
+  operation: command
+  request: RemoveMembershipRequest
+  response: RemoveMembershipResponse
+  idempotency_required: true
+  permission: m8.identity.remove.membership
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-034
+  requirement_ids:
+  - ID-FR-034
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/ListMemberships
+  method: ListMemberships
+  title: Перечислить Membership
+  visibility: public
+  operation: query
+  request: ListMembershipsRequest
+  response: ListMembershipsResponse
+  idempotency_required: false
+  permission: m8.identity.list.memberships
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-040
+  requirement_ids:
+  - ID-FR-040
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/MergeUsers
+  method: MergeUsers
+  title: Объединить дубли User
+  visibility: public
+  operation: command
+  request: MergeUsersRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.identity.merge.users
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-041
+  requirement_ids:
+  - ID-FR-041
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/DetectPotentialDuplicates
+  method: DetectPotentialDuplicates
+  title: Обнаружить потенциальные дубли
+  visibility: public
+  operation: command
+  request: DetectPotentialDuplicatesRequest
+  response: DetectPotentialDuplicatesResponse
+  idempotency_required: true
+  permission: m8.identity.detect.potential.duplicates
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ID-050
+  requirement_ids:
+  - ID-FR-050
+  context: Identity
+  service: IdentityService
+  package: m8.identity.v1
+  rpc: m8.identity.v1.IdentityService/DeleteOrAnonymizeUser
+  method: DeleteOrAnonymizeUser
+  title: Обезличить или удалить User
+  visibility: public
+  operation: command
+  request: DeleteOrAnonymizeUserRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.identity.delete.or.anonymize.user
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-001
+  requirement_ids:
+  - AUTH-FR-001
+  - AUTH-FR-017
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/StartAuthentication
+  method: StartAuthentication
+  title: Начать AuthenticationTransaction
+  visibility: public
+  operation: command
+  request: StartAuthenticationRequest
+  response: StartAuthenticationResponse
+  idempotency_required: true
+  permission: m8.authentication.start.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-002
+  requirement_ids:
+  - AUTH-FR-002
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/SelectAuthenticationProvider
+  method: SelectAuthenticationProvider
+  title: Выбрать Authentication Provider
+  visibility: internal
+  operation: command
+  request: SelectAuthenticationProviderRequest
+  response: SelectAuthenticationProviderResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-003
+  requirement_ids:
+  - AUTH-FR-003
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/CreateAuthenticationChallenge
+  method: CreateAuthenticationChallenge
+  title: Создать Challenge
+  visibility: internal
+  operation: command
+  request: CreateAuthenticationChallengeRequest
+  response: CreateAuthenticationChallengeResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-004
+  requirement_ids:
+  - AUTH-FR-004
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/GetAuthentication
+  method: GetAuthentication
+  title: Получить состояние Authentication
+  visibility: public
+  operation: query
+  request: GetAuthenticationRequest
+  response: GetAuthenticationResponse
+  idempotency_required: false
+  permission: m8.authentication.get.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-005
+  requirement_ids:
+  - AUTH-FR-005
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/WaitAuthentication
+  method: WaitAuthentication
+  title: Ожидать изменение Authentication
+  visibility: public
+  operation: command
+  request: WaitAuthenticationRequest
+  response: WaitAuthenticationResponse
+  idempotency_required: true
+  permission: m8.authentication.wait.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-006
+  requirement_ids:
+  - AUTH-FR-006
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/CancelAuthentication
+  method: CancelAuthentication
+  title: Отменить Authentication
+  visibility: public
+  operation: command
+  request: CancelAuthenticationRequest
+  response: CancelAuthenticationResponse
+  idempotency_required: true
+  permission: m8.authentication.cancel.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-007
+  requirement_ids:
+  - AUTH-FR-007
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/HandleProviderCallback
+  method: HandleProviderCallback
+  title: Завершить Authentication по provider callback
+  visibility: internal
+  operation: command
+  request: HandleProviderCallbackRequest
+  response: HandleProviderCallbackResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-008
+  requirement_ids:
+  - AUTH-FR-008
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/ExpireAuthentication
+  method: ExpireAuthentication
+  title: Истечь AuthenticationTransaction
+  visibility: admin
+  operation: command
+  request: ExpireAuthenticationRequest
+  response: ExpireAuthenticationResponse
+  idempotency_required: true
+  permission: m8.authentication.expire.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-009
+  requirement_ids:
+  - AUTH-FR-009
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/FailAuthentication
+  method: FailAuthentication
+  title: Завершить Authentication отказом
+  visibility: admin
+  operation: command
+  request: FailAuthenticationRequest
+  response: FailAuthenticationResponse
+  idempotency_required: true
+  permission: m8.authentication.fail.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-010
+  requirement_ids:
+  - AUTH-FR-010
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/CreateAuthenticationHandoff
+  method: CreateAuthenticationHandoff
+  title: Создать Handoff
+  visibility: public
+  operation: command
+  request: CreateAuthenticationHandoffRequest
+  response: CreateAuthenticationHandoffResponse
+  idempotency_required: true
+  permission: m8.authentication.create.authentication.handoff
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-011
+  requirement_ids:
+  - AUTH-FR-011
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/RedeemAuthenticationHandoff
+  method: RedeemAuthenticationHandoff
+  title: Погасить Handoff
+  visibility: public
+  operation: command
+  request: RedeemAuthenticationHandoffRequest
+  response: RedeemAuthenticationHandoffResponse
+  idempotency_required: true
+  permission: m8.authentication.redeem.authentication.handoff
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-012
+  requirement_ids:
+  - AUTH-FR-012
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/CreateAuthenticationSessionReference
+  method: CreateAuthenticationSessionReference
+  title: Создать Authentication Session reference
+  visibility: internal
+  operation: command
+  request: CreateAuthenticationSessionReferenceRequest
+  response: CreateAuthenticationSessionReferenceResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-013
+  requirement_ids:
+  - AUTH-FR-013
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/RevokeAuthenticationSession
+  method: RevokeAuthenticationSession
+  title: Отозвать Authentication Session
+  visibility: public
+  operation: command
+  request: RevokeAuthenticationSessionRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.revoke.authentication.session
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-014
+  requirement_ids:
+  - AUTH-FR-014
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/ValidateClient
+  method: ValidateClient
+  title: Проверить активность Client
+  visibility: public
+  operation: query
+  request: ValidateClientRequest
+  response: ValidateClientResponse
+  idempotency_required: false
+  permission: m8.authentication.validate.client
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-015
+  requirement_ids:
+  - AUTH-FR-015
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/RegisterClient
+  method: RegisterClient
+  title: Зарегистрировать Client
+  visibility: public
+  operation: command
+  request: RegisterClientRequest
+  response: RegisterClientResponse
+  idempotency_required: true
+  permission: m8.authentication.register.client
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-016
+  requirement_ids:
+  - AUTH-FR-016
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/UpdateClientPolicy
+  method: UpdateClientPolicy
+  title: Изменить Client policy
+  visibility: public
+  operation: command
+  request: UpdateClientPolicyRequest
+  response: UpdateClientPolicyResponse
+  idempotency_required: true
+  permission: m8.authentication.update.client.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-018
+  requirement_ids:
+  - AUTH-FR-018
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/StartCibaAuthentication
+  method: StartCibaAuthentication
+  title: Запустить CIBA-аутентификацию
+  visibility: public
+  operation: command
+  request: StartCibaAuthenticationRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.start.ciba.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-019
+  requirement_ids:
+  - AUTH-FR-019
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/HandleCibaDecision
+  method: HandleCibaDecision
+  title: Обработать CIBA approval или denial
+  visibility: public
+  operation: command
+  request: HandleCibaDecisionRequest
+  response: HandleCibaDecisionResponse
+  idempotency_required: true
+  permission: m8.authentication.handle.ciba.decision
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-020
+  requirement_ids:
+  - AUTH-FR-020
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/StartStepUp
+  method: StartStepUp
+  title: Выполнить step-up
+  visibility: public
+  operation: command
+  request: StartStepUpRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.start.step.up
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-021
+  requirement_ids:
+  - AUTH-FR-021
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/SelectStepUpChallenge
+  method: SelectStepUpChallenge
+  title: Выбрать step-up challenge
+  visibility: public
+  operation: command
+  request: SelectStepUpChallengeRequest
+  response: SelectStepUpChallengeResponse
+  idempotency_required: true
+  permission: m8.authentication.select.step.up.challenge
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-022
+  requirement_ids:
+  - AUTH-FR-022
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/SendOtpChallenge
+  method: SendOtpChallenge
+  title: Отправить OTP challenge
+  visibility: public
+  operation: command
+  request: SendOtpChallengeRequest
+  response: SendOtpChallengeResponse
+  idempotency_required: true
+  permission: m8.authentication.send.otp.challenge
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-023
+  requirement_ids:
+  - AUTH-FR-023
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/VerifyOtp
+  method: VerifyOtp
+  title: Проверить OTP
+  visibility: public
+  operation: query
+  request: VerifyOtpRequest
+  response: VerifyOtpResponse
+  idempotency_required: false
+  permission: m8.authentication.verify.otp
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-024
+  requirement_ids:
+  - AUTH-FR-024
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/ResendAuthenticationChallenge
+  method: ResendAuthenticationChallenge
+  title: Повторить отправку Challenge
+  visibility: public
+  operation: command
+  request: ResendAuthenticationChallengeRequest
+  response: ResendAuthenticationChallengeResponse
+  idempotency_required: true
+  permission: m8.authentication.resend.authentication.challenge
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-025
+  requirement_ids:
+  - AUTH-FR-025
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/VerifyWebAuthnAssertion
+  method: VerifyWebAuthnAssertion
+  title: Проверить WebAuthn assertion
+  visibility: public
+  operation: query
+  request: VerifyWebAuthnAssertionRequest
+  response: VerifyWebAuthnAssertionResponse
+  idempotency_required: false
+  permission: m8.authentication.verify.web.authn.assertion
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-026
+  requirement_ids:
+  - AUTH-FR-026
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/RegisterWebAuthnCredential
+  method: RegisterWebAuthnCredential
+  title: Зарегистрировать WebAuthn credential
+  visibility: public
+  operation: command
+  request: RegisterWebAuthnCredentialRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.register.web.authn.credential
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-027
+  requirement_ids:
+  - AUTH-FR-027
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/StartFederatedAuthentication
+  method: StartFederatedAuthentication
+  title: Начать федеративную аутентификацию
+  visibility: public
+  operation: command
+  request: StartFederatedAuthenticationRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.start.federated.authentication
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-028
+  requirement_ids:
+  - AUTH-FR-028
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/HandleFederatedCallback
+  method: HandleFederatedCallback
+  title: Обработать federated callback
+  visibility: public
+  operation: command
+  request: HandleFederatedCallbackRequest
+  response: HandleFederatedCallbackResponse
+  idempotency_required: true
+  permission: m8.authentication.handle.federated.callback
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUTH-029
+  requirement_ids:
+  - AUTH-FR-029
+  context: Authentication
+  service: AuthenticationService
+  package: m8.authentication.v1
+  rpc: m8.authentication.v1.AuthenticationService/RevokeClientAccess
+  method: RevokeClientAccess
+  title: Отозвать Client access
+  visibility: public
+  operation: command
+  request: RevokeClientAccessRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.authentication.revoke.client.access
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-001
+  requirement_ids:
+  - ACC-FR-001
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CheckPermission
+  method: CheckPermission
+  title: Проверить Permission
+  visibility: public
+  operation: query
+  request: CheckPermissionRequest
+  response: CheckPermissionResponse
+  idempotency_required: false
+  permission: m8.access.check.permission
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-002
+  requirement_ids:
+  - ACC-FR-002
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/BatchCheckPermissions
+  method: BatchCheckPermissions
+  title: Пакетно проверить Permissions
+  visibility: public
+  operation: query
+  request: BatchCheckPermissionsRequest
+  response: BatchCheckPermissionsResponse
+  idempotency_required: false
+  permission: m8.access.batch.check.permissions
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-003
+  requirement_ids:
+  - ACC-FR-003
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/ExplainAccessDecision
+  method: ExplainAccessDecision
+  title: Объяснить решение Access
+  visibility: public
+  operation: query
+  request: ExplainAccessDecisionRequest
+  response: ExplainAccessDecisionResponse
+  idempotency_required: false
+  permission: m8.access.explain.access.decision
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-004
+  requirement_ids:
+  - ACC-FR-004
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/ListEffectivePermissions
+  method: ListEffectivePermissions
+  title: Получить эффективные Permissions субъекта
+  visibility: public
+  operation: query
+  request: ListEffectivePermissionsRequest
+  response: ListEffectivePermissionsResponse
+  idempotency_required: false
+  permission: m8.access.list.effective.permissions
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-005
+  requirement_ids:
+  - ACC-FR-005
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/ListSubjectsWithAccess
+  method: ListSubjectsWithAccess
+  title: Получить Subjects с доступом к ресурсу
+  visibility: public
+  operation: query
+  request: ListSubjectsWithAccessRequest
+  response: ListSubjectsWithAccessResponse
+  idempotency_required: false
+  permission: m8.access.list.subjects.with.access
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-010
+  requirement_ids:
+  - ACC-FR-010
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CreatePermissionDefinition
+  method: CreatePermissionDefinition
+  title: Создать Permission definition
+  visibility: public
+  operation: command
+  request: CreatePermissionDefinitionRequest
+  response: CreatePermissionDefinitionResponse
+  idempotency_required: true
+  permission: m8.access.create.permission.definition
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-011
+  requirement_ids:
+  - ACC-FR-011
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CreateRole
+  method: CreateRole
+  title: Создать Role
+  visibility: public
+  operation: command
+  request: CreateRoleRequest
+  response: CreateRoleResponse
+  idempotency_required: true
+  permission: m8.access.create.role
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-012
+  requirement_ids:
+  - ACC-FR-012
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/UpdateRole
+  method: UpdateRole
+  title: Изменить Role
+  visibility: public
+  operation: command
+  request: UpdateRoleRequest
+  response: UpdateRoleResponse
+  idempotency_required: true
+  permission: m8.access.update.role
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-013
+  requirement_ids:
+  - ACC-FR-013
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/DeleteRole
+  method: DeleteRole
+  title: Удалить Role
+  visibility: public
+  operation: command
+  request: DeleteRoleRequest
+  response: DeleteRoleResponse
+  idempotency_required: true
+  permission: m8.access.delete.role
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-014
+  requirement_ids:
+  - ACC-FR-014
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CreateRoleBinding
+  method: CreateRoleBinding
+  title: Создать RoleBinding
+  visibility: public
+  operation: command
+  request: CreateRoleBindingRequest
+  response: CreateRoleBindingResponse
+  idempotency_required: true
+  permission: m8.access.create.role.binding
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-015
+  requirement_ids:
+  - ACC-FR-015
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/RevokeRoleBinding
+  method: RevokeRoleBinding
+  title: Отозвать RoleBinding
+  visibility: public
+  operation: command
+  request: RevokeRoleBindingRequest
+  response: RevokeRoleBindingResponse
+  idempotency_required: true
+  permission: m8.access.revoke.role.binding
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-016
+  requirement_ids:
+  - ACC-FR-016
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/SetRoleBindingExpiration
+  method: SetRoleBindingExpiration
+  title: Установить срок RoleBinding
+  visibility: public
+  operation: command
+  request: SetRoleBindingExpirationRequest
+  response: SetRoleBindingExpirationResponse
+  idempotency_required: true
+  permission: m8.access.set.role.binding.expiration
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-020
+  requirement_ids:
+  - ACC-FR-020
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CreateRelationship
+  method: CreateRelationship
+  title: Создать Relationship
+  visibility: public
+  operation: command
+  request: CreateRelationshipRequest
+  response: CreateRelationshipResponse
+  idempotency_required: true
+  permission: m8.access.create.relationship
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-021
+  requirement_ids:
+  - ACC-FR-021
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/DeleteRelationship
+  method: DeleteRelationship
+  title: Удалить Relationship
+  visibility: public
+  operation: command
+  request: DeleteRelationshipRequest
+  response: DeleteRelationshipResponse
+  idempotency_required: true
+  permission: m8.access.delete.relationship
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-022
+  requirement_ids:
+  - ACC-FR-022
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/BatchUpdateRelationships
+  method: BatchUpdateRelationships
+  title: Пакетно изменить Relationships
+  visibility: public
+  operation: command
+  request: BatchUpdateRelationshipsRequest
+  response: BatchUpdateRelationshipsResponse
+  idempotency_required: true
+  permission: m8.access.batch.update.relationships
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-030
+  requirement_ids:
+  - ACC-FR-030
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/SimulateAccessChange
+  method: SimulateAccessChange
+  title: Симулировать изменение доступа
+  visibility: public
+  operation: query
+  request: SimulateAccessChangeRequest
+  response: SimulateAccessChangeResponse
+  idempotency_required: false
+  permission: m8.access.simulate.access.change
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-031
+  requirement_ids:
+  - ACC-FR-031
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CheckPolicyImpact
+  method: CheckPolicyImpact
+  title: Проверить policy impact
+  visibility: public
+  operation: query
+  request: CheckPolicyImpactRequest
+  response: CheckPolicyImpactResponse
+  idempotency_required: false
+  permission: m8.access.check.policy.impact
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-040
+  requirement_ids:
+  - ACC-FR-040
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CreateAccessReview
+  method: CreateAccessReview
+  title: Создать Access Review
+  visibility: public
+  operation: command
+  request: CreateAccessReviewRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.access.create.access.review
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-041
+  requirement_ids:
+  - ACC-FR-041
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/CompleteAccessReview
+  method: CompleteAccessReview
+  title: Подтвердить или отозвать доступ
+  visibility: public
+  operation: command
+  request: CompleteAccessReviewRequest
+  response: CompleteAccessReviewResponse
+  idempotency_required: true
+  permission: m8.access.complete.access.review
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-050
+  requirement_ids:
+  - ACC-FR-050
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/PublishAuthorizationModel
+  method: PublishAuthorizationModel
+  title: Опубликовать Authorization Model
+  visibility: admin
+  operation: command
+  request: PublishAuthorizationModelRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.access.publish.authorization.model
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-ACC-051
+  requirement_ids:
+  - ACC-FR-051
+  context: Access
+  service: AccessService
+  package: m8.access.v1
+  rpc: m8.access.v1.AccessService/SynchronizeSpiceDB
+  method: SynchronizeSpiceDB
+  title: Синхронизировать Access с SpiceDB
+  visibility: admin
+  operation: command
+  request: SynchronizeSpiceDBRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.access.synchronize.spice.db
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-001
+  requirement_ids:
+  - RISK-FR-001
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/EvaluateAuthenticationRisk
+  method: EvaluateAuthenticationRisk
+  title: Оценить риск Authentication
+  visibility: public
+  operation: command
+  request: EvaluateAuthenticationRiskRequest
+  response: EvaluateAuthenticationRiskResponse
+  idempotency_required: true
+  permission: m8.risk_decision.evaluate.authentication.risk
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-002
+  requirement_ids:
+  - RISK-FR-002
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/EvaluatePrivilegedActionRisk
+  method: EvaluatePrivilegedActionRisk
+  title: Оценить риск привилегированного действия
+  visibility: public
+  operation: command
+  request: EvaluatePrivilegedActionRiskRequest
+  response: EvaluatePrivilegedActionRiskResponse
+  idempotency_required: true
+  permission: m8.risk_decision.evaluate.privileged.action.risk
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-003
+  requirement_ids:
+  - RISK-FR-003
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/ResolveRiskDecision
+  method: ResolveRiskDecision
+  title: Вернуть ALLOW/DENY/CHALLENGE/REVIEW
+  visibility: internal
+  operation: command
+  request: ResolveRiskDecisionRequest
+  response: ResolveRiskDecisionResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-004
+  requirement_ids:
+  - RISK-FR-004
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/GetRiskAssessment
+  method: GetRiskAssessment
+  title: Получить Risk Assessment
+  visibility: public
+  operation: query
+  request: GetRiskAssessmentRequest
+  response: GetRiskAssessmentResponse
+  idempotency_required: false
+  permission: m8.risk_decision.get.risk.assessment
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-005
+  requirement_ids:
+  - RISK-FR-005
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/ExpireRiskDecision
+  method: ExpireRiskDecision
+  title: Истечь Risk Decision
+  visibility: public
+  operation: command
+  request: ExpireRiskDecisionRequest
+  response: ExpireRiskDecisionResponse
+  idempotency_required: true
+  permission: m8.risk_decision.expire.risk.decision
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-010
+  requirement_ids:
+  - RISK-FR-010
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/CreateRiskPolicy
+  method: CreateRiskPolicy
+  title: Создать Risk Policy
+  visibility: public
+  operation: command
+  request: CreateRiskPolicyRequest
+  response: CreateRiskPolicyResponse
+  idempotency_required: true
+  permission: m8.risk_decision.create.risk.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-011
+  requirement_ids:
+  - RISK-FR-011
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/PublishRiskPolicy
+  method: PublishRiskPolicy
+  title: Опубликовать Risk Policy
+  visibility: admin
+  operation: command
+  request: PublishRiskPolicyRequest
+  response: PublishRiskPolicyResponse
+  idempotency_required: true
+  permission: m8.risk_decision.publish.risk.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-012
+  requirement_ids:
+  - RISK-FR-012
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/RollbackRiskPolicy
+  method: RollbackRiskPolicy
+  title: Откатить Risk Policy
+  visibility: admin
+  operation: command
+  request: RollbackRiskPolicyRequest
+  response: RollbackRiskPolicyResponse
+  idempotency_required: true
+  permission: m8.risk_decision.rollback.risk.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-013
+  requirement_ids:
+  - RISK-FR-013
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/SimulateRiskPolicy
+  method: SimulateRiskPolicy
+  title: Симулировать Risk Policy
+  visibility: public
+  operation: query
+  request: SimulateRiskPolicyRequest
+  response: SimulateRiskPolicyResponse
+  idempotency_required: false
+  permission: m8.risk_decision.simulate.risk.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-014
+  requirement_ids:
+  - RISK-FR-014
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/ExplainRiskDecision
+  method: ExplainRiskDecision
+  title: Объяснить Risk Decision
+  visibility: public
+  operation: query
+  request: ExplainRiskDecisionRequest
+  response: ExplainRiskDecisionResponse
+  idempotency_required: false
+  permission: m8.risk_decision.explain.risk.decision
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-020
+  requirement_ids:
+  - RISK-FR-020
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/IngestDeviceSignals
+  method: IngestDeviceSignals
+  title: Принять device signals
+  visibility: public
+  operation: command
+  request: IngestDeviceSignalsRequest
+  response: IngestDeviceSignalsResponse
+  idempotency_required: true
+  permission: m8.risk_decision.ingest.device.signals
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-021
+  requirement_ids:
+  - RISK-FR-021
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/CheckVelocity
+  method: CheckVelocity
+  title: Проверить velocity
+  visibility: public
+  operation: query
+  request: CheckVelocityRequest
+  response: CheckVelocityResponse
+  idempotency_required: false
+  permission: m8.risk_decision.check.velocity
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-022
+  requirement_ids:
+  - RISK-FR-022
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/IngestExternalRiskSignal
+  method: IngestExternalRiskSignal
+  title: Принять external risk signal
+  visibility: public
+  operation: command
+  request: IngestExternalRiskSignalRequest
+  response: IngestExternalRiskSignalResponse
+  idempotency_required: true
+  permission: m8.risk_decision.ingest.external.risk.signal
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-030
+  requirement_ids:
+  - RISK-FR-030
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/CreateManualReview
+  method: CreateManualReview
+  title: Создать Manual Review
+  visibility: public
+  operation: command
+  request: CreateManualReviewRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.risk_decision.create.manual.review
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-031
+  requirement_ids:
+  - RISK-FR-031
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/CompleteManualReview
+  method: CompleteManualReview
+  title: Завершить Manual Review
+  visibility: public
+  operation: command
+  request: CompleteManualReviewRequest
+  response: CompleteManualReviewResponse
+  idempotency_required: true
+  permission: m8.risk_decision.complete.manual.review
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-RISK-040
+  requirement_ids:
+  - RISK-FR-040
+  context: Risk Decision
+  service: RiskDecisionService
+  package: m8.risk_decision.v1
+  rpc: m8.risk_decision.v1.RiskDecisionService/CreateRiskFeedback
+  method: CreateRiskFeedback
+  title: Сформировать feedback
+  visibility: public
+  operation: command
+  request: CreateRiskFeedbackRequest
+  response: CreateRiskFeedbackResponse
+  idempotency_required: true
+  permission: m8.risk_decision.create.risk.feedback
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-PROV-001
+  requirement_ids:
+  - PROV-FR-001
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/RegisterResourceDefinition
+  method: RegisterResourceDefinition
+  title: Зарегистрировать ResourceDefinition
+  visibility: public
+  operation: command
+  request: RegisterResourceDefinitionRequest
+  response: RegisterResourceDefinitionResponse
+  idempotency_required: true
+  permission: m8.provisioning.register.resource.definition
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-002
+  requirement_ids:
+  - PROV-FR-002
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/PublishResourceDefinition
+  method: PublishResourceDefinition
+  title: Опубликовать ResourceDefinition
+  visibility: public
+  operation: command
+  request: PublishResourceDefinitionRequest
+  response: PublishResourceDefinitionResponse
+  idempotency_required: true
+  permission: m8.provisioning.publish.resource.definition
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-003
+  requirement_ids:
+  - PROV-FR-003
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/RegisterDriver
+  method: RegisterDriver
+  title: Зарегистрировать Driver
+  visibility: admin
+  operation: command
+  request: RegisterDriverRequest
+  response: RegisterDriverResponse
+  idempotency_required: true
+  permission: m8.provisioning.register.driver
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-004
+  requirement_ids:
+  - PROV-FR-004
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/DisableDriver
+  method: DisableDriver
+  title: Отключить Driver
+  visibility: admin
+  operation: command
+  request: DisableDriverRequest
+  response: DisableDriverResponse
+  idempotency_required: true
+  permission: m8.provisioning.disable.driver
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-010
+  requirement_ids:
+  - PROV-FR-010
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/CreateManagedResource
+  method: CreateManagedResource
+  title: Создать ManagedResource
+  visibility: public
+  operation: command
+  request: CreateManagedResourceRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.create.managed.resource
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-011
+  requirement_ids:
+  - PROV-FR-011
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/UpdateDesiredState
+  method: UpdateDesiredState
+  title: Изменить desired state
+  visibility: public
+  operation: command
+  request: UpdateDesiredStateRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.update.desired.state
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-012
+  requirement_ids:
+  - PROV-FR-012
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/DeleteManagedResource
+  method: DeleteManagedResource
+  title: Удалить ManagedResource
+  visibility: public
+  operation: command
+  request: DeleteManagedResourceRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.delete.managed.resource
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-013
+  requirement_ids:
+  - PROV-FR-013
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/PauseReconciliation
+  method: PauseReconciliation
+  title: Приостановить reconciliation
+  visibility: public
+  operation: command
+  request: PauseReconciliationRequest
+  response: PauseReconciliationResponse
+  idempotency_required: true
+  permission: m8.provisioning.pause.reconciliation
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-014
+  requirement_ids:
+  - PROV-FR-014
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/ResumeReconciliation
+  method: ResumeReconciliation
+  title: Возобновить reconciliation
+  visibility: public
+  operation: command
+  request: ResumeReconciliationRequest
+  response: ResumeReconciliationResponse
+  idempotency_required: true
+  permission: m8.provisioning.resume.reconciliation
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-020
+  requirement_ids:
+  - PROV-FR-020
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/SelectPlacement
+  method: SelectPlacement
+  title: Выбрать Placement
+  visibility: internal
+  operation: command
+  request: SelectPlacementRequest
+  response: SelectPlacementResponse
+  idempotency_required: true
+  permission: null
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-021
+  requirement_ids:
+  - PROV-FR-021
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/PinPlacement
+  method: PinPlacement
+  title: Закрепить Placement
+  visibility: internal
+  operation: command
+  request: PinPlacementRequest
+  response: PinPlacementResponse
+  idempotency_required: true
+  permission: null
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-030
+  requirement_ids:
+  - PROV-FR-030
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/ReconcileManagedResource
+  method: ReconcileManagedResource
+  title: Выполнить Reconciliation
+  visibility: internal
+  operation: command
+  request: ReconcileManagedResourceRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: null
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-031
+  requirement_ids:
+  - PROV-FR-031
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/GetObservedState
+  method: GetObservedState
+  title: Получить observed state
+  visibility: public
+  operation: query
+  request: GetObservedStateRequest
+  response: GetObservedStateResponse
+  idempotency_required: false
+  permission: m8.provisioning.get.observed.state
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-032
+  requirement_ids:
+  - PROV-FR-032
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/DetectDrift
+  method: DetectDrift
+  title: Обнаружить Drift
+  visibility: internal
+  operation: command
+  request: DetectDriftRequest
+  response: DetectDriftResponse
+  idempotency_required: true
+  permission: null
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-033
+  requirement_ids:
+  - PROV-FR-033
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/RemediateDrift
+  method: RemediateDrift
+  title: Исправить Drift
+  visibility: public
+  operation: command
+  request: RemediateDriftRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.remediate.drift
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-034
+  requirement_ids:
+  - PROV-FR-034
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/ImportManagedResource
+  method: ImportManagedResource
+  title: Принять внешний ресурс под управление
+  visibility: public
+  operation: command
+  request: ImportManagedResourceRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.import.managed.resource
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-040
+  requirement_ids:
+  - PROV-FR-040
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/RetryProvisioningStep
+  method: RetryProvisioningStep
+  title: Повторить неуспешный шаг
+  visibility: admin
+  operation: command
+  request: RetryProvisioningStepRequest
+  response: RetryProvisioningStepResponse
+  idempotency_required: true
+  permission: m8.provisioning.retry.provisioning.step
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-041
+  requirement_ids:
+  - PROV-FR-041
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/RunCompensation
+  method: RunCompensation
+  title: Выполнить Compensation
+  visibility: admin
+  operation: command
+  request: RunCompensationRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.run.compensation
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-042
+  requirement_ids:
+  - PROV-FR-042
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/CreateManualRemediation
+  method: CreateManualRemediation
+  title: Создать Manual Remediation
+  visibility: admin
+  operation: command
+  request: CreateManualRemediationRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.provisioning.create.manual.remediation
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-050
+  requirement_ids:
+  - PROV-FR-050
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/GetManagedResourceOutputs
+  method: GetManagedResourceOutputs
+  title: Получить Outputs
+  visibility: public
+  operation: query
+  request: GetManagedResourceOutputsRequest
+  response: GetManagedResourceOutputsResponse
+  idempotency_required: false
+  permission: m8.provisioning.get.managed.resource.outputs
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-PROV-051
+  requirement_ids:
+  - PROV-FR-051
+  context: Provisioning
+  service: ProvisioningService
+  package: m8.provisioning.v1
+  rpc: m8.provisioning.v1.ProvisioningService/GetManagedResource
+  method: GetManagedResource
+  title: Получить состояние ManagedResource
+  visibility: public
+  operation: query
+  request: GetManagedResourceRequest
+  response: GetManagedResourceResponse
+  idempotency_required: false
+  permission: m8.provisioning.get.managed.resource
+  consistency: C1 local desired state + C2 external reconciliation
+  status: proposed
+- id: API-AUD-001
+  requirement_ids:
+  - AUD-FR-001
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/IngestAuditEvent
+  method: IngestAuditEvent
+  title: Принять AuditEvent
+  visibility: public
+  operation: command
+  request: IngestAuditEventRequest
+  response: IngestAuditEventResponse
+  idempotency_required: true
+  permission: m8.audit.ingest.audit.event
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-002
+  requirement_ids:
+  - AUD-FR-002
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/ValidateAuditEventProvenance
+  method: ValidateAuditEventProvenance
+  title: Проверить происхождение AuditEvent
+  visibility: internal
+  operation: query
+  request: ValidateAuditEventProvenanceRequest
+  response: ValidateAuditEventProvenanceResponse
+  idempotency_required: false
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-003
+  requirement_ids:
+  - AUD-FR-003
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/ValidateAuditDataMinimization
+  method: ValidateAuditDataMinimization
+  title: Проверить минимизацию данных
+  visibility: internal
+  operation: query
+  request: ValidateAuditDataMinimizationRequest
+  response: ValidateAuditDataMinimizationResponse
+  idempotency_required: false
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-004
+  requirement_ids:
+  - AUD-FR-004
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/PersistAuditEvent
+  method: PersistAuditEvent
+  title: Сохранить AuditEvent неизменяемо
+  visibility: internal
+  operation: command
+  request: PersistAuditEventRequest
+  response: PersistAuditEventResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-005
+  requirement_ids:
+  - AUD-FR-005
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/AcknowledgeRequiredAuditEvent
+  method: AcknowledgeRequiredAuditEvent
+  title: Подтвердить доставку обязательного события
+  visibility: internal
+  operation: command
+  request: AcknowledgeRequiredAuditEventRequest
+  response: AcknowledgeRequiredAuditEventResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-010
+  requirement_ids:
+  - AUD-FR-010
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/SearchAuditEvents
+  method: SearchAuditEvents
+  title: Искать AuditEvent
+  visibility: public
+  operation: query
+  request: SearchAuditEventsRequest
+  response: SearchAuditEventsResponse
+  idempotency_required: false
+  permission: m8.audit.search.audit.events
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-011
+  requirement_ids:
+  - AUD-FR-011
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/GetAuditEvent
+  method: GetAuditEvent
+  title: Получить событие по ID
+  visibility: public
+  operation: query
+  request: GetAuditEventRequest
+  response: GetAuditEventResponse
+  idempotency_required: false
+  permission: m8.audit.get.audit.event
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-012
+  requirement_ids:
+  - AUD-FR-012
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/GetCorrelationChain
+  method: GetCorrelationChain
+  title: Построить цепочку по correlation
+  visibility: public
+  operation: query
+  request: GetCorrelationChainRequest
+  response: GetCorrelationChainResponse
+  idempotency_required: false
+  permission: m8.audit.get.correlation.chain
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-013
+  requirement_ids:
+  - AUD-FR-013
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/GetResourceHistory
+  method: GetResourceHistory
+  title: Получить историю ресурса
+  visibility: public
+  operation: query
+  request: GetResourceHistoryRequest
+  response: GetResourceHistoryResponse
+  idempotency_required: false
+  permission: m8.audit.get.resource.history
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-020
+  requirement_ids:
+  - AUD-FR-020
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/CreateAuditExport
+  method: CreateAuditExport
+  title: Создать ExportJob
+  visibility: public
+  operation: command
+  request: CreateAuditExportRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.audit.create.audit.export
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-021
+  requirement_ids:
+  - AUD-FR-021
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/GetAuditExport
+  method: GetAuditExport
+  title: Получить экспорт
+  visibility: public
+  operation: query
+  request: GetAuditExportRequest
+  response: GetAuditExportResponse
+  idempotency_required: false
+  permission: m8.audit.get.audit.export
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-030
+  requirement_ids:
+  - AUD-FR-030
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/ApplyRetentionPolicy
+  method: ApplyRetentionPolicy
+  title: Применить Retention Policy
+  visibility: admin
+  operation: command
+  request: ApplyRetentionPolicyRequest
+  response: google.longrunning.Operation
+  idempotency_required: true
+  permission: m8.audit.apply.retention.policy
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-031
+  requirement_ids:
+  - AUD-FR-031
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/SetLegalHold
+  method: SetLegalHold
+  title: Установить Legal Hold
+  visibility: admin
+  operation: command
+  request: SetLegalHoldRequest
+  response: SetLegalHoldResponse
+  idempotency_required: true
+  permission: m8.audit.set.legal.hold
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-040
+  requirement_ids:
+  - AUD-FR-040
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/VerifyAuditIntegrity
+  method: VerifyAuditIntegrity
+  title: Проверить целостность хранения
+  visibility: admin
+  operation: query
+  request: VerifyAuditIntegrityRequest
+  response: google.longrunning.Operation
+  idempotency_required: false
+  permission: m8.audit.verify.audit.integrity
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-041
+  requirement_ids:
+  - AUD-FR-041
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/GetIntegrityProof
+  method: GetIntegrityProof
+  title: Предоставить integrity proof
+  visibility: admin
+  operation: query
+  request: GetIntegrityProofRequest
+  response: GetIntegrityProofResponse
+  idempotency_required: false
+  permission: m8.audit.get.integrity.proof
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-AUD-050
+  requirement_ids:
+  - AUD-FR-050
+  context: Audit
+  service: AuditService
+  package: m8.audit.v1
+  rpc: m8.audit.v1.AuditService/AuditAuditAccess
+  method: AuditAuditAccess
+  title: Аудировать действия над Audit
+  visibility: admin
+  operation: command
+  request: AuditAuditAccessRequest
+  response: AuditAuditAccessResponse
+  idempotency_required: true
+  permission: m8.audit.audit.audit.access
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-001
+  requirement_ids:
+  - OPS-FR-001
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/GetOperation
+  method: GetOperation
+  title: Получить Operation
+  visibility: public
+  operation: query
+  request: GetOperationRequest
+  response: GetOperationResponse
+  idempotency_required: false
+  permission: m8.operations.get.operation
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-002
+  requirement_ids:
+  - OPS-FR-002
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/ListOperations
+  method: ListOperations
+  title: Перечислить Operations
+  visibility: public
+  operation: query
+  request: ListOperationsRequest
+  response: ListOperationsResponse
+  idempotency_required: false
+  permission: m8.operations.list.operations
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-003
+  requirement_ids:
+  - OPS-FR-003
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/WaitOperation
+  method: WaitOperation
+  title: Ожидать Operation
+  visibility: public
+  operation: command
+  request: WaitOperationRequest
+  response: WaitOperationResponse
+  idempotency_required: true
+  permission: m8.operations.wait.operation
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-004
+  requirement_ids:
+  - OPS-FR-004
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/CancelOperation
+  method: CancelOperation
+  title: Запросить Cancellation
+  visibility: public
+  operation: command
+  request: CancelOperationRequest
+  response: CancelOperationResponse
+  idempotency_required: true
+  permission: m8.operations.cancel.operation
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-005
+  requirement_ids:
+  - OPS-FR-005
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/DeleteOperation
+  method: DeleteOperation
+  title: Удалить запись Operation
+  visibility: public
+  operation: command
+  request: DeleteOperationRequest
+  response: DeleteOperationResponse
+  idempotency_required: true
+  permission: m8.operations.delete.operation
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-006
+  requirement_ids:
+  - OPS-FR-006
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/UpdateOperationProgress
+  method: UpdateOperationProgress
+  title: Обновить Progress
+  visibility: internal
+  operation: command
+  request: UpdateOperationProgressRequest
+  response: UpdateOperationProgressResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-007
+  requirement_ids:
+  - OPS-FR-007
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/CompleteOperation
+  method: CompleteOperation
+  title: Завершить Operation результатом
+  visibility: internal
+  operation: command
+  request: CompleteOperationRequest
+  response: CompleteOperationResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-008
+  requirement_ids:
+  - OPS-FR-008
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/FailOperation
+  method: FailOperation
+  title: Завершить Operation ошибкой
+  visibility: internal
+  operation: command
+  request: FailOperationRequest
+  response: FailOperationResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-009
+  requirement_ids:
+  - OPS-FR-009
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/LinkOperationWorkflow
+  method: LinkOperationWorkflow
+  title: Связать Operation с Workflow
+  visibility: internal
+  operation: command
+  request: LinkOperationWorkflowRequest
+  response: LinkOperationWorkflowResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed
+- id: API-OPS-010
+  requirement_ids:
+  - OPS-FR-010
+  context: Common Operation
+  service: OperationsService
+  package: m8.operations.v1
+  rpc: m8.operations.v1.OperationsService/StartIdempotentOperation
+  method: StartIdempotentOperation
+  title: Идемпотентно начать длительную работу
+  visibility: internal
+  operation: command
+  request: StartIdempotentOperationRequest
+  response: StartIdempotentOperationResponse
+  idempotency_required: true
+  permission: null
+  consistency: C0 — локальная строгая согласованность
+  status: proposed

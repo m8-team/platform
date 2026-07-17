@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PROV_FR_002
+  requirement_id: PROV-FR-002
+  title: Опубликовать ResourceDefinition
+  status: APPROVED
+  context: PROV
+  release: MVP-3
+traceability:
+  capability: CAP-PROV-01
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Опубликовать ResourceDefinition
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PROV-FR-002-AC-01
+  statement: Breaking schema имеет migration strategy.
+- id: PROV-FR-002-AC-02
+  statement: Active version выбирается явно.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

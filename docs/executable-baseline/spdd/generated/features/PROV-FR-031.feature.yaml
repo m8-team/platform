@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-PROV_FR_031
+  requirement_id: PROV-FR-031
+  title: Получить observed state
+  status: APPROVED
+  context: PROV
+  release: MVP-3
+traceability:
+  capability: CAP-PROV-05
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Получить observed state
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: PROV-FR-031-AC-01
+  statement: Raw provider payload не становится public contract.
+- id: PROV-FR-031-AC-02
+  statement: Freshness и last_observed_at возвращаются.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

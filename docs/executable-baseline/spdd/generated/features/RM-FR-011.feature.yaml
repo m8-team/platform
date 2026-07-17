@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RM_FR_011
+  requirement_id: RM-FR-011
+  title: Изменить Workspace
+  status: APPROVED
+  context: RM
+  release: MVP-2
+traceability:
+  capability: CAP-RM-02
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Изменить Workspace
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RM-FR-011-AC-01
+  statement: Parent organization не меняется обычным update.
+- id: RM-FR-011-AC-02
+  statement: Update публикует WorkspaceUpdated.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

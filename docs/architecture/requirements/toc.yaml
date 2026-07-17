@@ -1,0 +1,55 @@
+title: Requirements Catalog
+href: index.md
+items:
+  - name: Обзор и модель
+    href: overview/index.md
+    items:
+      - name: 0. Управление артефактом
+        href: overview/00-artifact-control.md
+      - name: 1. Модель требования
+        href: overview/01-requirement-model.md
+      - name: 2. Сводная карта распределения
+        href: overview/02-distribution-map.md
+  - name: Требования по контекстам
+    href: contexts/index.md
+    items:
+      - name: 3. Платформенные и сквозные требования
+        href: contexts/03-platform-cross-cutting.md
+      - name: 4. Resource Manager
+        href: contexts/04-resource-manager.md
+      - name: 5. Identity
+        href: contexts/05-identity.md
+      - name: 6. Authentication
+        href: contexts/06-authentication.md
+      - name: 7. Access
+        href: contexts/07-access.md
+      - name: 8. Risk Decision
+        href: contexts/08-risk-decision.md
+      - name: 9. Provisioning
+        href: contexts/09-provisioning.md
+      - name: 10. Audit
+        href: contexts/10-audit.md
+      - name: 11. Common Operation
+        href: contexts/11-common-operation.md
+  - name: Управление и SPDD
+    href: governance/index.md
+    items:
+      - name: 12. Архитектурное управление и SPDD
+        href: governance/12-architecture-governance-spdd.md
+      - name: 13. Сквозные сценарии и декомпозиция требований
+        href: governance/13-cross-cutting-scenarios.md
+      - name: 14. Карта подготовки контрактов
+        href: governance/14-contract-preparation-map.md
+      - name: 15. Приоритеты реализации
+        href: governance/15-implementation-priorities.md
+      - name: 16. SPDD backlog
+        href: governance/16-spdd-backlog.md
+      - name: 17. Требования к машинному реестру
+        href: governance/17-machine-registry.md
+  - name: Приложения
+    href: appendices/index.md
+    items:
+      - name: Приложение A. Шаблон нового требования
+        href: appendices/appendix-a-requirement-template.md
+      - name: Приложение B. Проверка целостности редакции
+        href: appendices/appendix-b-integrity-check.md

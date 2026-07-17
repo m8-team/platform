@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH_SEC_001
+  requirement_id: AUTH-SEC-001
+  title: Защита callback и handoff
+  status: APPROVED
+  context: AUTH
+  release: MVP-2
+traceability:
+  capability: CAP-AUTHN-12
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Защита callback и handoff
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUTH-SEC-001-AC-01
+  statement: Повторный callback или handoff не создаёт новый успех.
+- id: AUTH-SEC-001-AC-02
+  statement: Неверный binding отклоняется и формирует security audit.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: m8-platform
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: platform
+            path: gitops/components/platform
+            wave: "0"
+  template:
+    metadata:
+      name: "m8-{{name}}"
+      annotations:
+        argocd.argoproj.io/sync-wave: "{{wave}}"
+    spec:
+      project: m8-platform
+      source:
+        repoURL: https://github.com/m8-team/platform.git
+        targetRevision: main
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: m8-system
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+          - RespectIgnoreDifferences=true

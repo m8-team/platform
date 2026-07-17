@@ -1,0 +1,317 @@
+syntax = "proto3";
+
+package m8.authentication.v1;
+
+import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/authentication/v1;authenticationv1";
+
+service AuthenticationService {
+    // AUTH-FR-006 | public | idempotency=true
+    rpc CancelAuthentication (CancelAuthenticationRequest) returns (CancelAuthenticationResponse);
+    // AUTH-FR-003 | internal | idempotency=true
+    rpc CreateAuthenticationChallenge (CreateAuthenticationChallengeRequest) returns (CreateAuthenticationChallengeResponse);
+    // AUTH-FR-010 | public | idempotency=true
+    rpc CreateAuthenticationHandoff (CreateAuthenticationHandoffRequest) returns (CreateAuthenticationHandoffResponse);
+    // AUTH-FR-012 | internal | idempotency=true
+    rpc CreateAuthenticationSessionReference (CreateAuthenticationSessionReferenceRequest) returns (CreateAuthenticationSessionReferenceResponse);
+    // AUTH-FR-008 | admin | idempotency=true
+    rpc ExpireAuthentication (ExpireAuthenticationRequest) returns (ExpireAuthenticationResponse);
+    // AUTH-FR-009 | admin | idempotency=true
+    rpc FailAuthentication (FailAuthenticationRequest) returns (FailAuthenticationResponse);
+    // AUTH-FR-004 | public | idempotency=false
+    rpc GetAuthentication (GetAuthenticationRequest) returns (GetAuthenticationResponse);
+    // AUTH-FR-019 | public | idempotency=true
+    rpc HandleCibaDecision (HandleCibaDecisionRequest) returns (HandleCibaDecisionResponse);
+    // AUTH-FR-028 | public | idempotency=true
+    rpc HandleFederatedCallback (HandleFederatedCallbackRequest) returns (HandleFederatedCallbackResponse);
+    // AUTH-FR-007 | internal | idempotency=true
+    rpc HandleProviderCallback (HandleProviderCallbackRequest) returns (HandleProviderCallbackResponse);
+    // AUTH-FR-011 | public | idempotency=true
+    rpc RedeemAuthenticationHandoff (RedeemAuthenticationHandoffRequest) returns (RedeemAuthenticationHandoffResponse);
+    // AUTH-FR-015 | public | idempotency=true
+    rpc RegisterClient (RegisterClientRequest) returns (RegisterClientResponse);
+    // AUTH-FR-026 | public | idempotency=true
+    rpc RegisterWebAuthnCredential (RegisterWebAuthnCredentialRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-024 | public | idempotency=true
+    rpc ResendAuthenticationChallenge (ResendAuthenticationChallengeRequest) returns (ResendAuthenticationChallengeResponse);
+    // AUTH-FR-013 | public | idempotency=true
+    rpc RevokeAuthenticationSession (RevokeAuthenticationSessionRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-029 | public | idempotency=true
+    rpc RevokeClientAccess (RevokeClientAccessRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-002 | internal | idempotency=true
+    rpc SelectAuthenticationProvider (SelectAuthenticationProviderRequest) returns (SelectAuthenticationProviderResponse);
+    // AUTH-FR-021 | public | idempotency=true
+    rpc SelectStepUpChallenge (SelectStepUpChallengeRequest) returns (SelectStepUpChallengeResponse);
+    // AUTH-FR-022 | public | idempotency=true
+    rpc SendOtpChallenge (SendOtpChallengeRequest) returns (SendOtpChallengeResponse);
+    // AUTH-FR-001, AUTH-FR-017 | public | idempotency=true
+    rpc StartAuthentication (StartAuthenticationRequest) returns (StartAuthenticationResponse);
+    // AUTH-FR-018 | public | idempotency=true
+    rpc StartCibaAuthentication (StartCibaAuthenticationRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-027 | public | idempotency=true
+    rpc StartFederatedAuthentication (StartFederatedAuthenticationRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-020 | public | idempotency=true
+    rpc StartStepUp (StartStepUpRequest) returns (m8.common.v1.Operation);
+    // AUTH-FR-016 | public | idempotency=true
+    rpc UpdateClientPolicy (UpdateClientPolicyRequest) returns (UpdateClientPolicyResponse);
+    // AUTH-FR-014 | public | idempotency=false
+    rpc ValidateClient (ValidateClientRequest) returns (ValidateClientResponse);
+    // AUTH-FR-023 | public | idempotency=false
+    rpc VerifyOtp (VerifyOtpRequest) returns (VerifyOtpResponse);
+    // AUTH-FR-025 | public | idempotency=false
+    rpc VerifyWebAuthnAssertion (VerifyWebAuthnAssertionRequest) returns (VerifyWebAuthnAssertionResponse);
+    // AUTH-FR-005 | public | idempotency=true
+    rpc WaitAuthentication (WaitAuthenticationRequest) returns (WaitAuthenticationResponse);
+}
+
+
+message CancelAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message CancelAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message CreateAuthenticationChallengeRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message CreateAuthenticationChallengeResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message CreateAuthenticationHandoffRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message CreateAuthenticationHandoffResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message CreateAuthenticationSessionReferenceRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message CreateAuthenticationSessionReferenceResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message ExpireAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message ExpireAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message FailAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message FailAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message GetAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message GetAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message HandleCibaDecisionRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message HandleCibaDecisionResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message HandleFederatedCallbackRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message HandleFederatedCallbackResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message HandleProviderCallbackRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message HandleProviderCallbackResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message RedeemAuthenticationHandoffRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message RedeemAuthenticationHandoffResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message RegisterClientRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message RegisterClientResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message RegisterWebAuthnCredentialRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message ResendAuthenticationChallengeRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message ResendAuthenticationChallengeResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message RevokeAuthenticationSessionRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message RevokeClientAccessRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message SelectAuthenticationProviderRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message SelectAuthenticationProviderResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message SelectStepUpChallengeRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message SelectStepUpChallengeResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message SendOtpChallengeRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message SendOtpChallengeResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message StartAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message StartAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message StartCibaAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message StartFederatedAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message StartStepUpRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message UpdateClientPolicyRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message UpdateClientPolicyResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message ValidateClientRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message ValidateClientResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message VerifyOtpRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message VerifyOtpResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message VerifyWebAuthnAssertionRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message VerifyWebAuthnAssertionResponse {
+    m8.common.v1.ContractResponse response = 1;
+}
+
+
+message WaitAuthenticationRequest {
+    m8.common.v1.ContractRequest request = 1;
+}
+
+
+message WaitAuthenticationResponse {
+    m8.common.v1.ContractResponse response = 1;
+}

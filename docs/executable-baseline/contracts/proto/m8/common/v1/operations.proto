@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package m8.common.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/common/v1;commonv1";
+
+enum OperationState {
+    OPERATION_STATE_UNSPECIFIED = 0;
+    OPERATION_STATE_PENDING = 1;
+    OPERATION_STATE_RUNNING = 2;
+    OPERATION_STATE_SUCCEEDED = 3;
+    OPERATION_STATE_FAILED = 4;
+    OPERATION_STATE_CANCELLED = 5;
+}
+
+message OperationMetadata {
+    OperationState state = 1;
+    int32 progress_percent = 2;
+    string stage = 3;
+    string message = 4;
+    string workflow_id = 5;
+    string workflow_run_id = 6;
+    google.protobuf.Timestamp create_time = 7;
+    google.protobuf.Timestamp update_time = 8;
+}
+
+message Operation {
+    string name = 1;
+    OperationMetadata metadata = 2;
+    bool done = 3;
+    oneof outcome {
+        google.protobuf.Any response = 4;
+        google.rpc.Status error = 5;
+    }
+}

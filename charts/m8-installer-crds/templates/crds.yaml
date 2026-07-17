@@ -1,0 +1,966 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: platforminstallations.installer.m8.io
+spec:
+  group: installer.m8.io
+  scope: Namespaced
+  names:
+    plural: platforminstallations
+    singular: platforminstallation
+    kind: PlatformInstallation
+    shortNames:
+      - m8pi
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Version
+          type: string
+          jsonPath: .spec.platformVersion
+        - name: Profile
+          type: string
+          jsonPath: .spec.profile
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              type: object
+              required: [platformVersion]
+              properties:
+                platformVersion:
+                  type: string
+                  minLength: 1
+                profile:
+                  type: string
+                  default: development
+                  enum: [demo, development, staging, production, air-gapped]
+                cluster:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    minimumNodes:
+                      type: integer
+                      minimum: 1
+                    requiredArchitectures:
+                      type: array
+                      items:
+                        type: string
+                    requireTopologyLabels:
+                      type: boolean
+                    storageClasses:
+                      type: array
+                      items:
+                        type: object
+                        required: [name]
+                        properties:
+                          name:
+                            type: string
+                          required:
+                            type: boolean
+                          defaultClass:
+                            type: boolean
+                    clusters:
+                      type: array
+                      items:
+                        type: object
+                        required: [name, role]
+                        properties:
+                          name:
+                            type: string
+                          role:
+                            type: string
+                            enum: [management, workload, data, edge, observability, disaster-recovery]
+                          region:
+                            type: string
+                          enabled:
+                            type: boolean
+                network:
+                  type: object
+                  properties:
+                    cilium:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        version:
+                          type: string
+                        hubbleRelay:
+                          type: boolean
+                        hubbleUI:
+                          type: boolean
+                    existingCNI:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        version:
+                          type: string
+                        managedBy:
+                          type: string
+                        compatible:
+                          type: boolean
+                    networkPolicies:
+                      type: boolean
+                    wireGuardEncryption:
+                      type: boolean
+                    kubeProxyReplacement:
+                      type: string
+                    dnsPolicies:
+                      type: boolean
+                    eastWestServiceMesh:
+                      type: boolean
+                    allowCNIReplacement:
+                      type: boolean
+                    managementPolicy:
+                      type: string
+                      enum: [create, adopt, observe]
+                gateway:
+                  type: object
+                  properties:
+                    envoyGateway:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        version:
+                          type: string
+                        replicas:
+                          type: integer
+                          minimum: 0
+                    gatewayClassName:
+                      type: string
+                    controllerName:
+                      type: string
+                    externalDNS:
+                      type: boolean
+                    tlsTermination:
+                      type: boolean
+                    allowedHostnames:
+                      type: array
+                      items:
+                        type: string
+                    managementPolicy:
+                      type: string
+                      enum: [create, adopt, observe]
+                certificates:
+                  type: object
+                  properties:
+                    certManager:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonOperator"
+                    issuers:
+                      type: array
+                      items:
+                        type: object
+                        required: [name, type]
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                            enum: [internal-ca, acme, corporate-ca, vault-pki]
+                          default:
+                            type: boolean
+                          secretRef:
+                            type: string
+                          server:
+                            type: string
+                          email:
+                            type: string
+                trust:
+                  type: object
+                  properties:
+                    trustManager:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonOperator"
+                    spire:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        version:
+                          type: string
+                        serverReplicas:
+                          type: integer
+                        oidcDiscoveryProvider:
+                          type: boolean
+                        csiDriver:
+                          type: boolean
+                        nodeAttestation:
+                          type: string
+                        workloadAttestation:
+                          type: string
+                    trustDomain:
+                      type: string
+                    federation:
+                      type: array
+                      items:
+                        type: object
+                        required: [trustDomain, bundleURL]
+                        properties:
+                          trustDomain:
+                            type: string
+                          bundleURL:
+                            type: string
+                gitOps:
+                  type: object
+                  properties:
+                    argoCD:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        version:
+                          type: string
+                        namespace:
+                          type: string
+                        ssoWithKeycloak:
+                          type: boolean
+                    repository:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonRepository"
+                    privateRepository:
+                      type: boolean
+                    automatedSync:
+                      type: boolean
+                    selfHeal:
+                      type: boolean
+                    prune:
+                      type: boolean
+                secrets:
+                  type: object
+                  properties:
+                    provider:
+                      type: string
+                      enum: [external-secrets, vault, aws-secrets-manager, azure-key-vault, google-secret-manager, yandex-lockbox, sops-age, kubernetes]
+                    externalSecretsOperator:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonOperator"
+                    storeRef:
+                      type: string
+                    allowKubernetesSecrets:
+                      type: boolean
+                databases:
+                  type: object
+                  properties:
+                    postgresql:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonDataComponent"
+                    ydb:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonDataComponent"
+                    redis:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonDataComponent"
+                messaging:
+                  type: object
+                  properties:
+                    kafka:
+                      $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/commonDataComponent"
+                workflows:
+                  type: object
+                  properties:
+                    temporal:
+                      type: object
+                      properties:
+                        mode:
+                          type: string
+                          enum: [external, operator, disabled]
+                        namespaces:
+                          type: array
+                          items:
+                            type: string
+                        retention:
+                          type: string
+                        archival:
+                          type: boolean
+                        mTLS:
+                          type: boolean
+                        visibilityStore:
+                          type: string
+                        smokeWorkflow:
+                          type: boolean
+                identity:
+                  type: object
+                  properties:
+                    keycloak:
+                      type: object
+                      properties:
+                        mode:
+                          type: string
+                          enum: [external, operator, disabled]
+                        realm:
+                          type: string
+                        adminSecretRef:
+                          type: string
+                        webAuthn:
+                          type: boolean
+                        otp:
+                          type: boolean
+                        ciba:
+                          type: boolean
+                        stepUp:
+                          type: boolean
+                authorization:
+                  type: object
+                  properties:
+                    spiceDB:
+                      type: object
+                      properties:
+                        mode:
+                          type: string
+                          enum: [external, operator, disabled]
+                        datastore:
+                          type: string
+                        schemaRef:
+                          type: string
+                        replicas:
+                          type: integer
+                        tls:
+                          type: boolean
+                        spiffeIdentity:
+                          type: boolean
+                        consistency:
+                          type: string
+                observability:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                      enum: [external, operator, disabled]
+                    externalOTLPEndpoint:
+                      type: string
+                    externalBackend:
+                      type: string
+                security:
+                  type: object
+                  properties:
+                    podSecurityStandards:
+                      type: boolean
+                    runAsNonRootRequired:
+                      type: boolean
+                    readOnlyRootFilesystem:
+                      type: boolean
+                    requireRequestsLimits:
+                      type: boolean
+                    forbidPrivileged:
+                      type: boolean
+                    forbidHostPath:
+                      type: boolean
+                    forbidHostNetwork:
+                      type: boolean
+                    trustedRegistries:
+                      type: array
+                      items:
+                        type: string
+                    forbidLatestTag:
+                      type: boolean
+                    cosign:
+                      type: object
+                      properties:
+                        enforce:
+                          type: boolean
+                        publicKeyRef:
+                          type: string
+                    sbomRequired:
+                      type: boolean
+                backup:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    objectStorage:
+                      type: object
+                      properties:
+                        endpoint:
+                          type: string
+                        bucket:
+                          type: string
+                        region:
+                          type: string
+                        credentialsRef:
+                          type: string
+                    schedule:
+                      type: string
+                    retention:
+                      type: string
+                    verifyOnCreate:
+                      type: boolean
+                modules:
+                  type: object
+                  properties:
+                    console:
+                      type: boolean
+                    resourceManager:
+                      type: boolean
+                    identity:
+                      type: boolean
+                    authentication:
+                      type: boolean
+                    access:
+                      type: boolean
+                    gateway:
+                      type: boolean
+                    policyStudio:
+                      type: boolean
+                    audit:
+                      type: boolean
+                    operations:
+                      type: boolean
+                    idempotency:
+                      type: boolean
+                    health:
+                      type: boolean
+                    alerting:
+                      type: boolean
+                    notifications:
+                      type: boolean
+                    provisioning:
+                      type: boolean
+                upgrade:
+                  type: object
+                  properties:
+                    channel:
+                      type: string
+                    allowedWindows:
+                      type: array
+                      items:
+                        type: string
+                    requireBackup:
+                      type: boolean
+                    autoApplyPatchUpdates:
+                      type: boolean
+                airGap:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    bundleRef:
+                      type: string
+                    privateRegistry:
+                      type: string
+                    privateGitRepository:
+                      type: string
+                    privateOCIRegistry:
+                      type: string
+                    internalCARef:
+                      type: string
+                commonOperator:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    version:
+                      type: string
+                commonRepository:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                    revision:
+                      type: string
+                    path:
+                      type: string
+                    credentialsRef:
+                      type: string
+                    signaturePolicy:
+                      type: string
+                commonDataComponent:
+                  type: object
+                  properties:
+                    mode:
+                      type: string
+                    external:
+                      type: object
+                      properties:
+                        endpoint:
+                          type: string
+                        credentialsRef:
+                          type: string
+                        tls:
+                          type: boolean
+                    ha:
+                      type: boolean
+                    tls:
+                      type: boolean
+                    monitoring:
+                      type: boolean
+            status:
+              type: object
+              properties:
+                observedGeneration:
+                  type: integer
+                  format: int64
+                phase:
+                  type: string
+                  enum: [Pending, Validating, Planning, Bootstrapping, Installing, Migrating, Verifying, Ready, Degraded, Failed, Upgrading, RollingBack, BackingUp, Restoring, Uninstalling]
+                platformVersion:
+                  type: string
+                conditions:
+                  type: array
+                  x-kubernetes-list-type: map
+                  x-kubernetes-list-map-keys: [type]
+                  items:
+                    type: object
+                    required: [type, status, lastTransitionTime, reason, message]
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      observedGeneration:
+                        type: integer
+                        format: int64
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+                components:
+                  type: array
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name:
+                        type: string
+                      namespace:
+                        type: string
+                      version:
+                        type: string
+                      phase:
+                        type: string
+                      ready:
+                        type: boolean
+                      lastError:
+                        type: string
+                endpoints:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, type]
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                      url:
+                        type: string
+                      internal:
+                        type: boolean
+                      ready:
+                        type: boolean
+                lastOperation:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    phase:
+                      type: string
+                    startedAt:
+                      type: string
+                      format: date-time
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: platformreleases.installer.m8.io
+spec:
+  group: installer.m8.io
+  scope: Cluster
+  names:
+    plural: platformreleases
+    singular: platformrelease
+    kind: PlatformRelease
+    shortNames:
+      - m8rel
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              type: object
+              required: [kubernetes, components]
+              properties:
+                kubernetes:
+                  type: object
+                  required: [minVersion]
+                  properties:
+                    minVersion:
+                      type: string
+                    maxVersion:
+                      type: string
+                components:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    required: [version]
+                    properties:
+                      version:
+                        type: string
+                        not:
+                          enum: [latest, main, master]
+                      chart:
+                        $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/artifact"
+                      images:
+                        type: array
+                        items:
+                          $ref: "#/spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/artifact"
+                      crdVersions:
+                        type: array
+                        items:
+                          type: string
+                      dependencies:
+                        type: array
+                        items:
+                          type: string
+                      supportedUpgradePaths:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            from:
+                              type: string
+                            to:
+                              type: string
+                            classification:
+                              type: string
+                      rollbackSupport:
+                        type: object
+                        properties:
+                          supported:
+                            type: boolean
+                          boundary:
+                            type: string
+                      migrationRequirements:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            component:
+                              type: string
+                            irreversible:
+                              type: boolean
+                      resources:
+                        type: object
+                        properties:
+                          cpu:
+                            type: string
+                          memory:
+                            type: string
+                          storage:
+                            type: string
+                artifact:
+                  type: object
+                  required: [repository, digest]
+                  properties:
+                    name:
+                      type: string
+                    repository:
+                      type: string
+                    version:
+                      type: string
+                      not:
+                        enum: [latest, main, master]
+                    digest:
+                      type: string
+                      pattern: "^sha256:[a-fA-F0-9]{64}$"
+                    signature:
+                      type: string
+                    sbom:
+                      type: string
+                security:
+                  type: object
+                compatibility:
+                  type: object
+                releaseNotes:
+                  type: string
+                signature:
+                  type: object
+                  properties:
+                    algorithm:
+                      type: string
+                    value:
+                      type: string
+                    keyRef:
+                      type: string
+            status:
+              type: object
+              properties:
+                verified:
+                  type: boolean
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: installationoperations.installer.m8.io
+spec:
+  group: installer.m8.io
+  scope: Namespaced
+  names:
+    plural: installationoperations
+    singular: installationoperation
+    kind: InstallationOperation
+    shortNames:
+      - m8op
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            metadata:
+              type: object
+            spec:
+              type: object
+              required: [operationID, type, installationRef]
+              properties:
+                operationID:
+                  type: string
+                type:
+                  type: string
+                  enum: [bootstrap, install, upgrade, rollback, backup, restore, uninstall]
+                installationRef:
+                  type: string
+                requestedVersion:
+                  type: string
+                planDigest:
+                  type: string
+                requestedBy:
+                  type: string
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                startedAt:
+                  type: string
+                  format: date-time
+                completedAt:
+                  type: string
+                  format: date-time
+                currentStep:
+                  type: string
+                completedSteps:
+                  type: array
+                  items:
+                    type: string
+                failedStep:
+                  type: string
+                retryCount:
+                  type: integer
+                error:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    message:
+                      type: string
+                    transient:
+                      type: boolean
+                    remediation:
+                      type: string
+                checkpoints:
+                  type: array
+                  items:
+                    type: object
+                    required: [name, stepID, createdAt]
+                    properties:
+                      name:
+                        type: string
+                      stepID:
+                        type: string
+                      digest:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                logsRef:
+                  type: string
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: backups.installer.m8.io
+spec:
+  group: installer.m8.io
+  scope: Namespaced
+  names:
+    plural: backups
+    singular: backup
+    kind: Backup
+    shortNames:
+      - m8backup
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            metadata:
+              type: object
+            spec:
+              type: object
+              required: [installationRef]
+              properties:
+                installationRef:
+                  type: string
+                components:
+                  type: array
+                  items:
+                    type: string
+                storageRef:
+                  type: string
+                verify:
+                  type: boolean
+                requestedBy:
+                  type: string
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                startedAt:
+                  type: string
+                  format: date-time
+                completedAt:
+                  type: string
+                  format: date-time
+                platformVersion:
+                  type: string
+                artifactDigest:
+                  type: string
+                verified:
+                  type: boolean
+                componentArtifacts:
+                  type: array
+                  items:
+                    type: object
+                    required: [component, kind, uri]
+                    properties:
+                      component:
+                        type: string
+                      kind:
+                        type: string
+                      uri:
+                        type: string
+                      digest:
+                        type: string
+                error:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: restoreplans.installer.m8.io
+spec:
+  group: installer.m8.io
+  scope: Namespaced
+  names:
+    plural: restoreplans
+    singular: restoreplan
+    kind: RestorePlan
+    shortNames:
+      - m8restore
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      schema:
+        openAPIV3Schema:
+          type: object
+          required: [spec]
+          properties:
+            metadata:
+              type: object
+            spec:
+              type: object
+              required: [installationRef, backupRef]
+              properties:
+                installationRef:
+                  type: string
+                backupRef:
+                  type: string
+                sourcePlatformVersion:
+                  type: string
+                targetPlatformVersion:
+                  type: string
+                maintenanceActions:
+                  type: array
+                  items:
+                    type: string
+                replaceResources:
+                  type: array
+                  items:
+                    type: string
+                expectedRPO:
+                  type: string
+                expectedRTO:
+                  type: string
+                risks:
+                  type: array
+                  items:
+                    type: string
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                approved:
+                  type: boolean
+                verified:
+                  type: boolean
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                error:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true

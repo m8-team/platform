@@ -1,0 +1,5626 @@
+registry_id: M8-TRACE-000
+version: '0.1'
+records:
+- requirement_id: PLT-FR-001
+  title: Единая ресурсная область запроса
+  capability_ids:
+  - CAP-RM-05
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §1.5
+  - §8
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-001-AC-01
+  - PLT-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-002
+  title: Единый контекст вызова
+  capability_ids:
+  - CAP-OBS-08
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §10
+  - §18
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-002-AC-01
+  - PLT-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-003
+  title: Единая модель длительных операций
+  capability_ids:
+  - CAP-OPS-01
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-003-AC-01
+  - PLT-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-004
+  title: Обязательный аудит значимых изменений
+  capability_ids:
+  - CAP-AUD-01
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §14
+  - §15
+  - §18
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-004-AC-01
+  - PLT-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-005
+  title: Обязательная проверка доступа
+  capability_ids:
+  - CAP-AUTHZ-06
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §8
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-005-AC-01
+  - PLT-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-006
+  title: Проверка риска для чувствительных действий
+  capability_ids:
+  - CAP-RISK-02
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-006-AC-01
+  - PLT-FR-006-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-007
+  title: Идемпотентные мутации
+  capability_ids:
+  - CAP-OPS-10
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §4
+  - §12
+  - §14
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-007-AC-01
+  - PLT-FR-007-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-FR-008
+  title: Версионируемые публичные контракты
+  capability_ids:
+  - CAP-GOV-05
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §12
+  - §13
+  - §23
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-FR-008-AC-01
+  - PLT-FR-008-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-ARC-001
+  title: База данных принадлежит одному сервису
+  capability_ids:
+  - CAP-GOV-07
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §4
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-ARC-001-AC-01
+  - PLT-ARC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-ARC-002
+  title: Transactional Outbox для интеграционных фактов
+  capability_ids:
+  - CAP-INT-04
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §13
+  - §14
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-ARC-002-AC-01
+  - PLT-ARC-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-ARC-003
+  title: Inbox и дедупликация потребителей
+  capability_ids:
+  - CAP-INT-05
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §13
+  - §14
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-ARC-003-AC-01
+  - PLT-ARC-003-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-ARC-004
+  title: Отсутствие распределённых транзакций
+  capability_ids:
+  - CAP-INT-09
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §14
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-ARC-004-AC-01
+  - PLT-ARC-004-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-ARC-005
+  title: Антикоррупционный слой внешних систем
+  capability_ids:
+  - CAP-INT-10
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §8
+  - §9
+  - §14
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-ARC-005-AC-01
+  - PLT-ARC-005-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-SEC-001
+  title: Запрет секретов в наблюдаемости
+  capability_ids:
+  - CAP-OBS-02
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §15
+  - §18
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-SEC-001-AC-01
+  - PLT-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-SEC-002
+  title: Взаимная идентификация сервисов
+  capability_ids:
+  - CAP-AUTHZ-06
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-SEC-002-AC-01
+  - PLT-SEC-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-SEC-003
+  title: Минимизация персональных данных
+  capability_ids:
+  - CAP-ID-03
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §11
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-SEC-003-AC-01
+  - PLT-SEC-003-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-SEC-004
+  title: Неподделываемый actor context
+  capability_ids:
+  - CAP-AUD-02
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §10
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-SEC-004-AC-01
+  - PLT-SEC-004-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-NFR-001
+  title: Доступность критических API
+  capability_ids:
+  - CAP-OBS-05
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §18
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-NFR-001-AC-01
+  - PLT-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-NFR-002
+  title: Сквозная трассировка
+  capability_ids:
+  - CAP-OBS-01
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §18
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-NFR-002-AC-01
+  - PLT-NFR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-NFR-003
+  title: Восстановление после сбоя
+  capability_ids:
+  - CAP-INT-07
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §14
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-NFR-003-AC-01
+  - PLT-NFR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RM-FR-001
+  title: Создать Organization
+  capability_ids:
+  - CAP-RM-01
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-001
+  event_contract_ids:
+  - EVT-RM-001
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-001-AC-01
+  - RM-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-002
+  title: Изменить Organization
+  capability_ids:
+  - CAP-RM-01
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-002
+  event_contract_ids:
+  - EVT-RM-002
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-002-AC-01
+  - RM-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-003
+  title: Приостановить Organization
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-003
+  event_contract_ids:
+  - EVT-RM-003
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-003-AC-01
+  - RM-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-004
+  title: Восстановить Organization
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-004
+  event_contract_ids:
+  - EVT-RM-004
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-004-AC-01
+  - RM-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-005
+  title: Архивировать Organization
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-005
+  event_contract_ids:
+  - EVT-RM-005
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-005-AC-01
+  - RM-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-010
+  title: Создать Workspace
+  capability_ids:
+  - CAP-RM-02
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-010
+  event_contract_ids:
+  - EVT-RM-010
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-010-AC-01
+  - RM-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-011
+  title: Изменить Workspace
+  capability_ids:
+  - CAP-RM-02
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-011
+  event_contract_ids:
+  - EVT-RM-011
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-011-AC-01
+  - RM-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-012
+  title: Приостановить или восстановить Workspace
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-012
+  event_contract_ids:
+  - EVT-RM-012
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-012-AC-01
+  - RM-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-020
+  title: Создать Project
+  capability_ids:
+  - CAP-RM-03
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-020
+  event_contract_ids:
+  - EVT-RM-020
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-020-AC-01
+  - RM-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-021
+  title: Переместить Project
+  capability_ids:
+  - CAP-RM-08
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-021
+  event_contract_ids:
+  - EVT-RM-021
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-021-AC-01
+  - RM-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-022
+  title: Удалить Project с зависимостями
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-022
+  event_contract_ids:
+  - EVT-RM-022
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-022-AC-01
+  - RM-FR-022-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-023
+  title: Приостановить Project
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-023
+  event_contract_ids:
+  - EVT-RM-023
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-023-AC-01
+  - RM-FR-023-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-024
+  title: Восстановить Project
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-024
+  event_contract_ids:
+  - EVT-RM-024
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-024-AC-01
+  - RM-FR-024-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-030
+  title: Зарегистрировать Service
+  capability_ids:
+  - CAP-RM-04
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-030
+  event_contract_ids:
+  - EVT-RM-030
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-030-AC-01
+  - RM-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-031
+  title: Изменить регистрацию Service
+  capability_ids:
+  - CAP-RM-04
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-031
+  event_contract_ids:
+  - EVT-RM-031
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-031-AC-01
+  - RM-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-032
+  title: Снять Service с регистрации
+  capability_ids:
+  - CAP-RM-04
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-032
+  event_contract_ids:
+  - EVT-RM-032
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-032-AC-01
+  - RM-FR-032-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-040
+  title: Получить ресурс по ID
+  capability_ids:
+  - CAP-RM-09
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-040
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-040-AC-01
+  - RM-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-041
+  title: Перечислить дочерние ресурсы
+  capability_ids:
+  - CAP-RM-05
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-041
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-041-AC-01
+  - RM-FR-041-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-042
+  title: Получить полный путь ресурса
+  capability_ids:
+  - CAP-RM-05
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-042
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-042-AC-01
+  - RM-FR-042-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-043
+  title: Искать ресурсы
+  capability_ids:
+  - CAP-RM-09
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-043
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-043-AC-01
+  - RM-FR-043-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-044
+  title: Обновить labels через FieldMask
+  capability_ids:
+  - CAP-RM-06
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids:
+  - API-RM-044
+  event_contract_ids:
+  - EVT-RM-044
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-044-AC-01
+  - RM-FR-044-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-FR-050
+  title: Публиковать lifecycle events
+  capability_ids:
+  - CAP-RM-10
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §6.8
+  - §7
+  - §9.2
+  - §11
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-RM-050
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-FR-050-AC-01
+  - RM-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RM-DATA-001
+  title: Источник истины ресурсной иерархии
+  capability_ids:
+  - CAP-RM-05
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-DATA-001-AC-01
+  - RM-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RM-DATA-002
+  title: Исторические ссылки на удалённые ресурсы
+  capability_ids:
+  - CAP-RM-07
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-DATA-002-AC-01
+  - RM-DATA-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RM-SEC-001
+  title: Авторизация управления иерархией
+  capability_ids:
+  - CAP-RM-01
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-SEC-001-AC-01
+  - RM-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RM-NFR-001
+  title: Задержка чтения ресурса
+  capability_ids:
+  - CAP-RM-09
+  owner_context: Resource Manager
+  owner_service: m8-resource-manager
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RM-001
+  - DATA-RM-002
+  - DATA-RM-003
+  - DATA-RM-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RM-NFR-001-AC-01
+  - RM-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ID-FR-001
+  title: Создать User Pool
+  capability_ids:
+  - CAP-ID-01
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-001
+  event_contract_ids:
+  - EVT-ID-001
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-001-AC-01
+  - ID-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-002
+  title: Изменить User Pool
+  capability_ids:
+  - CAP-ID-01
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-002
+  event_contract_ids:
+  - EVT-ID-002
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-002-AC-01
+  - ID-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-003
+  title: Приостановить User Pool
+  capability_ids:
+  - CAP-ID-01
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-003
+  event_contract_ids:
+  - EVT-ID-003
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-003-AC-01
+  - ID-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-010
+  title: Создать User
+  capability_ids:
+  - CAP-ID-02
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-010
+  event_contract_ids:
+  - EVT-ID-010
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-010-AC-01
+  - ID-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-011
+  title: Изменить профиль User
+  capability_ids:
+  - CAP-ID-03
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-011
+  event_contract_ids:
+  - EVT-ID-011
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-011-AC-01
+  - ID-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-012
+  title: Отключить User
+  capability_ids:
+  - CAP-ID-09
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-012
+  event_contract_ids:
+  - EVT-ID-012
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-012-AC-01
+  - ID-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-013
+  title: Восстановить User
+  capability_ids:
+  - CAP-ID-09
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-013
+  event_contract_ids:
+  - EVT-ID-013
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-013-AC-01
+  - ID-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-014
+  title: Заблокировать User по безопасности
+  capability_ids:
+  - CAP-ID-09
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-014
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-014-AC-01
+  - ID-FR-014-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-015
+  title: Получить User
+  capability_ids:
+  - CAP-ID-02
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-015
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-015-AC-01
+  - ID-FR-015-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-016
+  title: Искать User
+  capability_ids:
+  - CAP-ID-07
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-016
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-016-AC-01
+  - ID-FR-016-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-020
+  title: Связать External Identity
+  capability_ids:
+  - CAP-ID-06
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-020
+  event_contract_ids:
+  - EVT-ID-020
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-020-AC-01
+  - ID-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-021
+  title: Обнаружить конфликт External Identity
+  capability_ids:
+  - CAP-ID-06
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-021
+  event_contract_ids:
+  - EVT-ID-021
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-021-AC-01
+  - ID-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-022
+  title: Отвязать External Identity
+  capability_ids:
+  - CAP-ID-06
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-022
+  event_contract_ids:
+  - EVT-ID-022
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-022-AC-01
+  - ID-FR-022-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-023
+  title: Разрешить Subject по issuer+subject
+  capability_ids:
+  - CAP-ID-07
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-023
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-023-AC-01
+  - ID-FR-023-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-024
+  title: Разрешить Subject по email или phone
+  capability_ids:
+  - CAP-ID-07
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-024
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-024-AC-01
+  - ID-FR-024-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-030
+  title: Создать Group
+  capability_ids:
+  - CAP-ID-04
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-030
+  event_contract_ids:
+  - EVT-ID-030
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-030-AC-01
+  - ID-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-031
+  title: Изменить Group
+  capability_ids:
+  - CAP-ID-04
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-031
+  event_contract_ids:
+  - EVT-ID-031
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-031-AC-01
+  - ID-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-032
+  title: Добавить Membership
+  capability_ids:
+  - CAP-ID-05
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-032
+  event_contract_ids:
+  - EVT-ID-032
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-032-AC-01
+  - ID-FR-032-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-033
+  title: Удалить Membership
+  capability_ids:
+  - CAP-ID-05
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-033
+  event_contract_ids:
+  - EVT-ID-033
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-033-AC-01
+  - ID-FR-033-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-034
+  title: Перечислить Membership
+  capability_ids:
+  - CAP-ID-05
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-034
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-034-AC-01
+  - ID-FR-034-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-040
+  title: Объединить дубли User
+  capability_ids:
+  - CAP-ID-08
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-040
+  event_contract_ids:
+  - EVT-ID-040
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-040-AC-01
+  - ID-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-041
+  title: Обнаружить потенциальные дубли
+  capability_ids:
+  - CAP-ID-08
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-041
+  event_contract_ids:
+  - EVT-ID-041
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-041-AC-01
+  - ID-FR-041-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-050
+  title: Обезличить или удалить User
+  capability_ids:
+  - CAP-ID-10
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids:
+  - API-ID-050
+  event_contract_ids:
+  - EVT-ID-050
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-050-AC-01
+  - ID-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-FR-060
+  title: Публиковать факты жизненного цикла
+  capability_ids:
+  - CAP-ID-10
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §6.9
+  - §7
+  - §9.3
+  - §11
+  - §15
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-ID-060
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-FR-060-AC-01
+  - ID-FR-060-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ID-DATA-001
+  title: Источник истины внутреннего Subject
+  capability_ids:
+  - CAP-ID-07
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-DATA-001-AC-01
+  - ID-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ID-DATA-002
+  title: Классификация атрибутов профиля
+  capability_ids:
+  - CAP-ID-03
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §11
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-DATA-002-AC-01
+  - ID-DATA-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ID-SEC-001
+  title: Защита операций merge и deletion
+  capability_ids:
+  - CAP-ID-08
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-SEC-001-AC-01
+  - ID-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ID-NFR-001
+  title: Задержка разрешения Subject
+  capability_ids:
+  - CAP-ID-07
+  owner_context: Identity
+  owner_service: m8-identity
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ID-001
+  - DATA-ID-002
+  - DATA-ID-003
+  - DATA-ID-004
+  - DATA-ID-005
+  - DATA-ID-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ID-NFR-001-AC-01
+  - ID-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-FR-001
+  title: Начать AuthenticationTransaction
+  capability_ids:
+  - CAP-AUTHN-03
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-001
+  event_contract_ids:
+  - EVT-AUTH-001
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-001-AC-01
+  - AUTH-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-002
+  title: Выбрать Authentication Provider
+  capability_ids:
+  - CAP-AUTHN-02
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-002
+  event_contract_ids:
+  - EVT-AUTH-002
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-002-AC-01
+  - AUTH-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-003
+  title: Создать Challenge
+  capability_ids:
+  - CAP-AUTHN-04
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-003
+  event_contract_ids:
+  - EVT-AUTH-003
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-003-AC-01
+  - AUTH-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-004
+  title: Получить состояние Authentication
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-004
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-004-AC-01
+  - AUTH-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-005
+  title: Ожидать изменение Authentication
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-005
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-005-AC-01
+  - AUTH-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-006
+  title: Отменить Authentication
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-006
+  event_contract_ids:
+  - EVT-AUTH-006
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-006-AC-01
+  - AUTH-FR-006-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-007
+  title: Завершить Authentication по provider callback
+  capability_ids:
+  - CAP-AUTHN-04
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-007
+  event_contract_ids:
+  - EVT-AUTH-007
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-007-AC-01
+  - AUTH-FR-007-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-008
+  title: Истечь AuthenticationTransaction
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-008
+  event_contract_ids:
+  - EVT-AUTH-008
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-008-AC-01
+  - AUTH-FR-008-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-009
+  title: Завершить Authentication отказом
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-009
+  event_contract_ids:
+  - EVT-AUTH-009
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-009-AC-01
+  - AUTH-FR-009-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-010
+  title: Создать Handoff
+  capability_ids:
+  - CAP-AUTHN-12
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-010
+  event_contract_ids:
+  - EVT-AUTH-010
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-010-AC-01
+  - AUTH-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-011
+  title: Погасить Handoff
+  capability_ids:
+  - CAP-AUTHN-12
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-011
+  event_contract_ids:
+  - EVT-AUTH-011
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-011-AC-01
+  - AUTH-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-012
+  title: Создать Authentication Session reference
+  capability_ids:
+  - CAP-AUTHN-13
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-012
+  event_contract_ids:
+  - EVT-AUTH-012
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-012-AC-01
+  - AUTH-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-013
+  title: Отозвать Authentication Session
+  capability_ids:
+  - CAP-AUTHN-13
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-013
+  event_contract_ids:
+  - EVT-AUTH-013
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-013-AC-01
+  - AUTH-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-014
+  title: Проверить активность Client
+  capability_ids:
+  - CAP-AUTHN-01
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-014
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-014-AC-01
+  - AUTH-FR-014-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-015
+  title: Зарегистрировать Client
+  capability_ids:
+  - CAP-AUTHN-01
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-015
+  event_contract_ids:
+  - EVT-AUTH-015
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-015-AC-01
+  - AUTH-FR-015-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-016
+  title: Изменить Client policy
+  capability_ids:
+  - CAP-AUTHN-01
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-016
+  event_contract_ids:
+  - EVT-AUTH-016
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-016-AC-01
+  - AUTH-FR-016-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-017
+  title: Повторная аутентификация после невозможности refresh
+  capability_ids:
+  - CAP-AUTHN-09
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-001
+  event_contract_ids:
+  - EVT-AUTH-001
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids:
+  - SP-FEATURE-AUTH-017
+  test_ids:
+  - AUTH-FR-017-AC-01
+  - AUTH-FR-017-AC-02
+  release_evidence_ids: []
+  coverage_status: pilot-complete
+- requirement_id: AUTH-FR-018
+  title: Запустить CIBA-аутентификацию
+  capability_ids:
+  - CAP-AUTHN-05
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-018
+  event_contract_ids:
+  - EVT-AUTH-018
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-018-AC-01
+  - AUTH-FR-018-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-019
+  title: Обработать CIBA approval или denial
+  capability_ids:
+  - CAP-AUTHN-05
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-019
+  event_contract_ids:
+  - EVT-AUTH-019
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-019-AC-01
+  - AUTH-FR-019-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-020
+  title: Выполнить step-up
+  capability_ids:
+  - CAP-AUTHN-10
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-020
+  event_contract_ids:
+  - EVT-AUTH-020
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-020-AC-01
+  - AUTH-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-021
+  title: Выбрать step-up challenge
+  capability_ids:
+  - CAP-AUTHN-10
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-021
+  event_contract_ids:
+  - EVT-AUTH-021
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-021-AC-01
+  - AUTH-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-022
+  title: Отправить OTP challenge
+  capability_ids:
+  - CAP-AUTHN-06
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-022
+  event_contract_ids:
+  - EVT-AUTH-022
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-022-AC-01
+  - AUTH-FR-022-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-023
+  title: Проверить OTP
+  capability_ids:
+  - CAP-AUTHN-06
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-023
+  event_contract_ids:
+  - EVT-AUTH-023
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-023-AC-01
+  - AUTH-FR-023-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-024
+  title: Повторить отправку Challenge
+  capability_ids:
+  - CAP-AUTHN-04
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-024
+  event_contract_ids:
+  - EVT-AUTH-024
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-024-AC-01
+  - AUTH-FR-024-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-025
+  title: Проверить WebAuthn assertion
+  capability_ids:
+  - CAP-AUTHN-07
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-025
+  event_contract_ids:
+  - EVT-AUTH-025
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-025-AC-01
+  - AUTH-FR-025-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-026
+  title: Зарегистрировать WebAuthn credential
+  capability_ids:
+  - CAP-AUTHN-07
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-026
+  event_contract_ids:
+  - EVT-AUTH-026
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-026-AC-01
+  - AUTH-FR-026-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-027
+  title: Начать федеративную аутентификацию
+  capability_ids:
+  - CAP-AUTHN-08
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-027
+  event_contract_ids:
+  - EVT-AUTH-027
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-027-AC-01
+  - AUTH-FR-027-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-028
+  title: Обработать federated callback
+  capability_ids:
+  - CAP-AUTHN-08
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-028
+  event_contract_ids:
+  - EVT-AUTH-028
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-028-AC-01
+  - AUTH-FR-028-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-029
+  title: Отозвать Client access
+  capability_ids:
+  - CAP-AUTHN-13
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids:
+  - API-AUTH-029
+  event_contract_ids:
+  - EVT-AUTH-029
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-029-AC-01
+  - AUTH-FR-029-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-FR-030
+  title: Публиковать факты аутентификации
+  capability_ids:
+  - CAP-AUTHN-14
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §6.10
+  - §7
+  - §9.4
+  - §15
+  - §16
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-AUTH-030
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-FR-030-AC-01
+  - AUTH-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUTH-DATA-001
+  title: Источник истины AuthenticationTransaction
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-DATA-001-AC-01
+  - AUTH-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-DATA-002
+  title: Срок хранения authentication data
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §11
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-DATA-002-AC-01
+  - AUTH-DATA-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-SEC-001
+  title: Защита callback и handoff
+  capability_ids:
+  - CAP-AUTHN-12
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-SEC-001-AC-01
+  - AUTH-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-SEC-002
+  title: Ограничение частоты authentication attempts
+  capability_ids:
+  - CAP-AUTHN-04
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-SEC-002-AC-01
+  - AUTH-SEC-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-NFR-001
+  title: Задержка старта Authentication
+  capability_ids:
+  - CAP-AUTHN-03
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-NFR-001-AC-01
+  - AUTH-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUTH-NFR-002
+  title: Доступность проверки состояния
+  capability_ids:
+  - CAP-AUTHN-11
+  owner_context: Authentication
+  owner_service: m8-authentication
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUTH-001
+  - DATA-AUTH-002
+  - DATA-AUTH-003
+  - DATA-AUTH-004
+  - DATA-AUTH-005
+  - DATA-AUTH-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUTH-NFR-002-AC-01
+  - AUTH-NFR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ACC-FR-001
+  title: Проверить Permission
+  capability_ids:
+  - CAP-AUTHZ-06
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-001
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids:
+  - SP-FEATURE-ACC_FR_001
+  - SP-TASK-ACC_FR_001-01
+  test_ids:
+  - ACC-FR-001-AC-01
+  - ACC-FR-001-AC-02
+  - internal/access/domain/check_permission_test.go
+  - internal/access/app/usecase/check_permission_test.go
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-002
+  title: Пакетно проверить Permissions
+  capability_ids:
+  - CAP-AUTHZ-07
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-002
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-002-AC-01
+  - ACC-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-003
+  title: Объяснить решение Access
+  capability_ids:
+  - CAP-AUTHZ-08
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-003
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-003-AC-01
+  - ACC-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-004
+  title: Получить эффективные Permissions субъекта
+  capability_ids:
+  - CAP-AUTHZ-10
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-004
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-004-AC-01
+  - ACC-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-005
+  title: Получить Subjects с доступом к ресурсу
+  capability_ids:
+  - CAP-AUTHZ-10
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-005
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-005-AC-01
+  - ACC-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-010
+  title: Создать Permission definition
+  capability_ids:
+  - CAP-AUTHZ-02
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-010
+  event_contract_ids:
+  - EVT-ACC-010
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-010-AC-01
+  - ACC-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-011
+  title: Создать Role
+  capability_ids:
+  - CAP-AUTHZ-03
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-011
+  event_contract_ids:
+  - EVT-ACC-011
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-011-AC-01
+  - ACC-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-012
+  title: Изменить Role
+  capability_ids:
+  - CAP-AUTHZ-03
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-012
+  event_contract_ids:
+  - EVT-ACC-012
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-012-AC-01
+  - ACC-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-013
+  title: Удалить Role
+  capability_ids:
+  - CAP-AUTHZ-03
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-013
+  event_contract_ids:
+  - EVT-ACC-013
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-013-AC-01
+  - ACC-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-014
+  title: Создать RoleBinding
+  capability_ids:
+  - CAP-AUTHZ-04
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-014
+  event_contract_ids:
+  - EVT-ACC-014
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-014-AC-01
+  - ACC-FR-014-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-015
+  title: Отозвать RoleBinding
+  capability_ids:
+  - CAP-AUTHZ-04
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-015
+  event_contract_ids:
+  - EVT-ACC-015
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-015-AC-01
+  - ACC-FR-015-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-016
+  title: Установить срок RoleBinding
+  capability_ids:
+  - CAP-AUTHZ-04
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-016
+  event_contract_ids:
+  - EVT-ACC-016
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-016-AC-01
+  - ACC-FR-016-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-020
+  title: Создать Relationship
+  capability_ids:
+  - CAP-AUTHZ-05
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-020
+  event_contract_ids:
+  - EVT-ACC-020
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-020-AC-01
+  - ACC-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-021
+  title: Удалить Relationship
+  capability_ids:
+  - CAP-AUTHZ-05
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-021
+  event_contract_ids:
+  - EVT-ACC-021
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-021-AC-01
+  - ACC-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-022
+  title: Пакетно изменить Relationships
+  capability_ids:
+  - CAP-AUTHZ-05
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-022
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-022-AC-01
+  - ACC-FR-022-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-030
+  title: Симулировать изменение доступа
+  capability_ids:
+  - CAP-AUTHZ-09
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-030
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-030-AC-01
+  - ACC-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-031
+  title: Проверить policy impact
+  capability_ids:
+  - CAP-AUTHZ-09
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-031
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-031-AC-01
+  - ACC-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-040
+  title: Создать Access Review
+  capability_ids:
+  - CAP-AUTHZ-11
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-040
+  event_contract_ids:
+  - EVT-ACC-040
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-040-AC-01
+  - ACC-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-041
+  title: Подтвердить или отозвать доступ
+  capability_ids:
+  - CAP-AUTHZ-11
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-041
+  event_contract_ids:
+  - EVT-ACC-041
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-041-AC-01
+  - ACC-FR-041-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-050
+  title: Опубликовать Authorization Model
+  capability_ids:
+  - CAP-AUTHZ-01
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-050
+  event_contract_ids:
+  - EVT-ACC-050
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-050-AC-01
+  - ACC-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-051
+  title: Синхронизировать Access с SpiceDB
+  capability_ids:
+  - CAP-AUTHZ-12
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids:
+  - API-ACC-051
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-051-AC-01
+  - ACC-FR-051-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-FR-060
+  title: Публиковать факты Access
+  capability_ids:
+  - CAP-AUTHZ-13
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §6.11
+  - §7
+  - §9.5
+  - §15
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-ACC-060
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-FR-060-AC-01
+  - ACC-FR-060-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: ACC-DATA-001
+  title: Источник истины отношений доступа
+  capability_ids:
+  - CAP-AUTHZ-05
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-DATA-001-AC-01
+  - ACC-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ACC-SEC-001
+  title: Fail mode проверок доступа
+  capability_ids:
+  - CAP-AUTHZ-06
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-SEC-001-AC-01
+  - ACC-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: ACC-NFR-001
+  title: Задержка CheckPermission
+  capability_ids:
+  - CAP-AUTHZ-06
+  owner_context: Access
+  owner_service: m8-access
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-ACC-001
+  - DATA-ACC-002
+  - DATA-ACC-003
+  - DATA-ACC-004
+  - DATA-ACC-005
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - ACC-NFR-001-AC-01
+  - ACC-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RISK-FR-001
+  title: Оценить риск Authentication
+  capability_ids:
+  - CAP-RISK-01
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-001
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-001-AC-01
+  - RISK-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-002
+  title: Оценить риск привилегированного действия
+  capability_ids:
+  - CAP-RISK-03
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-002
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-002-AC-01
+  - RISK-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-003
+  title: Вернуть ALLOW/DENY/CHALLENGE/REVIEW
+  capability_ids:
+  - CAP-RISK-04
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-003
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-003-AC-01
+  - RISK-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-004
+  title: Получить Risk Assessment
+  capability_ids:
+  - CAP-RISK-04
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-004
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-004-AC-01
+  - RISK-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-005
+  title: Истечь Risk Decision
+  capability_ids:
+  - CAP-RISK-04
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-005
+  event_contract_ids:
+  - EVT-RISK-005
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-005-AC-01
+  - RISK-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-010
+  title: Создать Risk Policy
+  capability_ids:
+  - CAP-RISK-05
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-010
+  event_contract_ids:
+  - EVT-RISK-010
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-010-AC-01
+  - RISK-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-011
+  title: Опубликовать Risk Policy
+  capability_ids:
+  - CAP-RISK-05
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-011
+  event_contract_ids:
+  - EVT-RISK-011
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-011-AC-01
+  - RISK-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-012
+  title: Откатить Risk Policy
+  capability_ids:
+  - CAP-RISK-05
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-012
+  event_contract_ids:
+  - EVT-RISK-012
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-012-AC-01
+  - RISK-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-013
+  title: Симулировать Risk Policy
+  capability_ids:
+  - CAP-RISK-09
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-013
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-013-AC-01
+  - RISK-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-014
+  title: Объяснить Risk Decision
+  capability_ids:
+  - CAP-RISK-04
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-014
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-014-AC-01
+  - RISK-FR-014-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-020
+  title: Принять device signals
+  capability_ids:
+  - CAP-RISK-06
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-020
+  event_contract_ids:
+  - EVT-RISK-020
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-020-AC-01
+  - RISK-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-021
+  title: Проверить velocity
+  capability_ids:
+  - CAP-RISK-07
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-021
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-021-AC-01
+  - RISK-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-022
+  title: Принять external risk signal
+  capability_ids:
+  - CAP-RISK-02
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-022
+  event_contract_ids:
+  - EVT-RISK-022
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-022-AC-01
+  - RISK-FR-022-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-030
+  title: Создать Manual Review
+  capability_ids:
+  - CAP-RISK-10
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-030
+  event_contract_ids:
+  - EVT-RISK-030
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-030-AC-01
+  - RISK-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-031
+  title: Завершить Manual Review
+  capability_ids:
+  - CAP-RISK-10
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-031
+  event_contract_ids:
+  - EVT-RISK-031
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-031-AC-01
+  - RISK-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-040
+  title: Сформировать feedback
+  capability_ids:
+  - CAP-RISK-11
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids:
+  - API-RISK-040
+  event_contract_ids:
+  - EVT-RISK-040
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-040-AC-01
+  - RISK-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-FR-050
+  title: Публиковать факты Risk
+  capability_ids:
+  - CAP-RISK-12
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §6.12
+  - §7
+  - §9.6
+  - §15
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-RISK-050
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-FR-050-AC-01
+  - RISK-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: RISK-DATA-001
+  title: Неизменяемость Risk Assessment
+  capability_ids:
+  - CAP-RISK-04
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-DATA-001-AC-01
+  - RISK-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RISK-SEC-001
+  title: Защита моделей и reason disclosure
+  capability_ids:
+  - CAP-RISK-05
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-SEC-001-AC-01
+  - RISK-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: RISK-NFR-001
+  title: Задержка онлайн-решения
+  capability_ids:
+  - CAP-RISK-01
+  owner_context: Risk Decision
+  owner_service: m8-risk-decision
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-RISK-001
+  - DATA-RISK-002
+  - DATA-RISK-003
+  - DATA-RISK-004
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - RISK-NFR-001-AC-01
+  - RISK-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PROV-FR-001
+  title: Зарегистрировать ResourceDefinition
+  capability_ids:
+  - CAP-PROV-01
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-001
+  event_contract_ids:
+  - EVT-PROV-001
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-001-AC-01
+  - PROV-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-002
+  title: Опубликовать ResourceDefinition
+  capability_ids:
+  - CAP-PROV-01
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-002
+  event_contract_ids:
+  - EVT-PROV-002
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-002-AC-01
+  - PROV-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-003
+  title: Зарегистрировать Driver
+  capability_ids:
+  - CAP-PROV-02
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-003
+  event_contract_ids:
+  - EVT-PROV-003
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-003-AC-01
+  - PROV-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-004
+  title: Отключить Driver
+  capability_ids:
+  - CAP-PROV-02
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-004
+  event_contract_ids:
+  - EVT-PROV-004
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-004-AC-01
+  - PROV-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-010
+  title: Создать ManagedResource
+  capability_ids:
+  - CAP-PROV-03
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-010
+  event_contract_ids:
+  - EVT-PROV-010
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-010-AC-01
+  - PROV-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-011
+  title: Изменить desired state
+  capability_ids:
+  - CAP-PROV-03
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-011
+  event_contract_ids:
+  - EVT-PROV-011
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-011-AC-01
+  - PROV-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-012
+  title: Удалить ManagedResource
+  capability_ids:
+  - CAP-PROV-10
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-012
+  event_contract_ids:
+  - EVT-PROV-012
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-012-AC-01
+  - PROV-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-013
+  title: Приостановить reconciliation
+  capability_ids:
+  - CAP-PROV-08
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-013
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-013-AC-01
+  - PROV-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-014
+  title: Возобновить reconciliation
+  capability_ids:
+  - CAP-PROV-08
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-014
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-014-AC-01
+  - PROV-FR-014-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-020
+  title: Выбрать Placement
+  capability_ids:
+  - CAP-PROV-04
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-020
+  event_contract_ids:
+  - EVT-PROV-020
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-020-AC-01
+  - PROV-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-021
+  title: Закрепить Placement
+  capability_ids:
+  - CAP-PROV-04
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-021
+  event_contract_ids:
+  - EVT-PROV-021
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-021-AC-01
+  - PROV-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-030
+  title: Выполнить Reconciliation
+  capability_ids:
+  - CAP-PROV-05
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-030
+  event_contract_ids:
+  - EVT-PROV-030
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-030-AC-01
+  - PROV-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-031
+  title: Получить observed state
+  capability_ids:
+  - CAP-PROV-05
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-031
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-031-AC-01
+  - PROV-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-032
+  title: Обнаружить Drift
+  capability_ids:
+  - CAP-PROV-07
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-032
+  event_contract_ids:
+  - EVT-PROV-032
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-032-AC-01
+  - PROV-FR-032-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-033
+  title: Исправить Drift
+  capability_ids:
+  - CAP-PROV-07
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-033
+  event_contract_ids:
+  - EVT-PROV-033
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-033-AC-01
+  - PROV-FR-033-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-034
+  title: Принять внешний ресурс под управление
+  capability_ids:
+  - CAP-PROV-03
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-034
+  event_contract_ids:
+  - EVT-PROV-034
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-034-AC-01
+  - PROV-FR-034-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-040
+  title: Повторить неуспешный шаг
+  capability_ids:
+  - CAP-PROV-08
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-040
+  event_contract_ids:
+  - EVT-PROV-040
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-040-AC-01
+  - PROV-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-041
+  title: Выполнить Compensation
+  capability_ids:
+  - CAP-PROV-09
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-041
+  event_contract_ids:
+  - EVT-PROV-041
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-041-AC-01
+  - PROV-FR-041-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-042
+  title: Создать Manual Remediation
+  capability_ids:
+  - CAP-PROV-09
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-042
+  event_contract_ids:
+  - EVT-PROV-042
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-042-AC-01
+  - PROV-FR-042-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-050
+  title: Получить Outputs
+  capability_ids:
+  - CAP-PROV-11
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-050
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-050-AC-01
+  - PROV-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-051
+  title: Получить состояние ManagedResource
+  capability_ids:
+  - CAP-PROV-12
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids:
+  - API-PROV-051
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-051-AC-01
+  - PROV-FR-051-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-FR-060
+  title: Публиковать Provisioning events
+  capability_ids:
+  - CAP-PROV-13
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §6.13
+  - §7
+  - §9.7
+  - §14
+  - §16
+  api_contract_ids: []
+  event_contract_ids:
+  - EVT-PROV-060
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-FR-060-AC-01
+  - PROV-FR-060-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: PROV-DATA-001
+  title: Разделение desired и observed state
+  capability_ids:
+  - CAP-PROV-05
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-DATA-001-AC-01
+  - PROV-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PROV-SEC-001
+  title: Секреты управляемых ресурсов
+  capability_ids:
+  - CAP-PROV-11
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-SEC-001-AC-01
+  - PROV-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PROV-NFR-001
+  title: Время начала Provisioning Operation
+  capability_ids:
+  - CAP-PROV-03
+  owner_context: Provisioning
+  owner_service: m8-provisioning
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-PROV-001
+  - DATA-PROV-002
+  - DATA-PROV-003
+  - DATA-PROV-004
+  - DATA-PROV-005
+  - DATA-PROV-006
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PROV-NFR-001-AC-01
+  - PROV-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUD-FR-001
+  title: Принять AuditEvent
+  capability_ids:
+  - CAP-AUD-01
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-001
+  event_contract_ids:
+  - EVT-AUD-001
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-001-AC-01
+  - AUD-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-002
+  title: Проверить происхождение AuditEvent
+  capability_ids:
+  - CAP-AUD-02
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-002
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-002-AC-01
+  - AUD-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-003
+  title: Проверить минимизацию данных
+  capability_ids:
+  - CAP-AUD-10
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-003
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-003-AC-01
+  - AUD-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-004
+  title: Сохранить AuditEvent неизменяемо
+  capability_ids:
+  - CAP-AUD-03
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-004
+  event_contract_ids:
+  - EVT-AUD-004
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-004-AC-01
+  - AUD-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-005
+  title: Подтвердить доставку обязательного события
+  capability_ids:
+  - CAP-AUD-11
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-005
+  event_contract_ids:
+  - EVT-AUD-005
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-005-AC-01
+  - AUD-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-010
+  title: Искать AuditEvent
+  capability_ids:
+  - CAP-AUD-05
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-010
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-010-AC-01
+  - AUD-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-011
+  title: Получить событие по ID
+  capability_ids:
+  - CAP-AUD-05
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-011
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-011-AC-01
+  - AUD-FR-011-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-012
+  title: Построить цепочку по correlation
+  capability_ids:
+  - CAP-AUD-06
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-012
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-012-AC-01
+  - AUD-FR-012-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-013
+  title: Получить историю ресурса
+  capability_ids:
+  - CAP-AUD-06
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-013
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-013-AC-01
+  - AUD-FR-013-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-020
+  title: Создать ExportJob
+  capability_ids:
+  - CAP-AUD-07
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-020
+  event_contract_ids:
+  - EVT-AUD-020
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-020-AC-01
+  - AUD-FR-020-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-021
+  title: Получить экспорт
+  capability_ids:
+  - CAP-AUD-07
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-021
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-021-AC-01
+  - AUD-FR-021-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-030
+  title: Применить Retention Policy
+  capability_ids:
+  - CAP-AUD-08
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-030
+  event_contract_ids:
+  - EVT-AUD-030
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-030-AC-01
+  - AUD-FR-030-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-031
+  title: Установить Legal Hold
+  capability_ids:
+  - CAP-AUD-08
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-031
+  event_contract_ids:
+  - EVT-AUD-031
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-031-AC-01
+  - AUD-FR-031-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-040
+  title: Проверить целостность хранения
+  capability_ids:
+  - CAP-AUD-04
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-040
+  event_contract_ids:
+  - EVT-AUD-040
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-040-AC-01
+  - AUD-FR-040-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-041
+  title: Предоставить integrity proof
+  capability_ids:
+  - CAP-AUD-04
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-041
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-041-AC-01
+  - AUD-FR-041-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-FR-050
+  title: Аудировать действия над Audit
+  capability_ids:
+  - CAP-AUD-12
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §6.14
+  - §7
+  - §9.8
+  - §11
+  - §15
+  api_contract_ids:
+  - API-AUD-050
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-FR-050-AC-01
+  - AUD-FR-050-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: AUD-DATA-001
+  title: Неизменяемость AuditEvent
+  capability_ids:
+  - CAP-AUD-03
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §11
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-DATA-001-AC-01
+  - AUD-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUD-SEC-001
+  title: Разделение полномочий Audit
+  capability_ids:
+  - CAP-AUD-09
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §15
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-SEC-001-AC-01
+  - AUD-SEC-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: AUD-NFR-001
+  title: Надёжность приёма AuditEvent
+  capability_ids:
+  - CAP-AUD-01
+  owner_context: Audit
+  owner_service: m8-audit
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids:
+  - DATA-AUD-001
+  - DATA-AUD-002
+  - DATA-AUD-003
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - AUD-NFR-001-AC-01
+  - AUD-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: OPS-FR-001
+  title: Получить Operation
+  capability_ids:
+  - CAP-OPS-02
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-001
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-001-AC-01
+  - OPS-FR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-002
+  title: Перечислить Operations
+  capability_ids:
+  - CAP-OPS-02
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-002
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-002-AC-01
+  - OPS-FR-002-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-003
+  title: Ожидать Operation
+  capability_ids:
+  - CAP-OPS-04
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-003
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-003-AC-01
+  - OPS-FR-003-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-004
+  title: Запросить Cancellation
+  capability_ids:
+  - CAP-OPS-05
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-004
+  event_contract_ids:
+  - EVT-OPS-004
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-004-AC-01
+  - OPS-FR-004-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-005
+  title: Удалить запись Operation
+  capability_ids:
+  - CAP-OPS-08
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-005
+  event_contract_ids:
+  - EVT-OPS-005
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-005-AC-01
+  - OPS-FR-005-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-006
+  title: Обновить Progress
+  capability_ids:
+  - CAP-OPS-03
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-006
+  event_contract_ids:
+  - EVT-OPS-006
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-006-AC-01
+  - OPS-FR-006-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-007
+  title: Завершить Operation результатом
+  capability_ids:
+  - CAP-OPS-06
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-007
+  event_contract_ids:
+  - EVT-OPS-007
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-007-AC-01
+  - OPS-FR-007-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-008
+  title: Завершить Operation ошибкой
+  capability_ids:
+  - CAP-OPS-07
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-008
+  event_contract_ids:
+  - EVT-OPS-008
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-008-AC-01
+  - OPS-FR-008-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-009
+  title: Связать Operation с Workflow
+  capability_ids:
+  - CAP-OPS-09
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-009
+  event_contract_ids:
+  - EVT-OPS-009
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-009-AC-01
+  - OPS-FR-009-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-FR-010
+  title: Идемпотентно начать длительную работу
+  capability_ids:
+  - CAP-OPS-10
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §16
+  api_contract_ids:
+  - API-OPS-010
+  event_contract_ids:
+  - EVT-OPS-010
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-FR-010-AC-01
+  - OPS-FR-010-AC-02
+  release_evidence_ids: []
+  coverage_status: contract-mapped
+- requirement_id: OPS-DATA-001
+  title: Владение Operation предметным контекстом
+  capability_ids:
+  - CAP-OPS-01
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §10
+  - §11
+  - §16
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-DATA-001-AC-01
+  - OPS-DATA-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: OPS-NFR-001
+  title: Доступность чтения Operation
+  capability_ids:
+  - CAP-OPS-02
+  owner_context: Common Operation
+  owner_service: operation owner service
+  pads_refs:
+  - §19
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - OPS-NFR-001-AC-01
+  - OPS-NFR-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-GOV-001
+  title: Трассировка требования
+  capability_ids:
+  - CAP-GOV-04
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §20
+  - §21
+  - §23
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-GOV-001-AC-01
+  - PLT-GOV-001-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-GOV-002
+  title: Structured Prompt для реализации
+  capability_ids:
+  - CAP-GOV-09
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §22
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-GOV-002-AC-01
+  - PLT-GOV-002-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy
+- requirement_id: PLT-GOV-003
+  title: Контрактный design gate
+  capability_ids:
+  - CAP-GOV-05
+  owner_context: Platform
+  owner_service: all services
+  pads_refs:
+  - §12
+  - §13
+  - §22
+  - §23
+  api_contract_ids: []
+  event_contract_ids: []
+  data_contract_ids: []
+  adr_ids: []
+  prompt_ids: []
+  test_ids:
+  - PLT-GOV-003-AC-01
+  - PLT-GOV-003-AC-02
+  release_evidence_ids: []
+  coverage_status: architecture-policy

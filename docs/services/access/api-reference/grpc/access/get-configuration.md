@@ -12,7 +12,7 @@ rpc GetConfiguration (GetConfigurationRequest) returns (ConfigurationResponse)
 
 ## GetConfigurationRequest
 
-GetConfigurationRequest is empty for AuthZEN metadata discovery.
+GetConfigurationRequest requests the singleton Access configuration resource.
 
 ```json
 {}
@@ -32,7 +32,8 @@ ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
   "search_action_endpoint": "string",
   "capabilities": [
     "string"
-  ]
+  ],
+  "signed_metadata": "string"
 }
 ```
 
@@ -45,3 +46,4 @@ ConfigurationResponse is the AuthZEN Policy Decision Point metadata response.
 | search_subject_endpoint | string | Optional. URL of the Subject Search API endpoint. |
 | search_action_endpoint | string | Optional. URL of the Action Search API endpoint. |
 | capabilities[] | string | Optional. Capability URNs supported by this PDP. |
+| signed_metadata | string | Optional. Signed metadata JWT that cryptographically protects metadata contents. |

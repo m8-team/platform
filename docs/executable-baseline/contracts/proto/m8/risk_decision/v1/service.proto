@@ -1,0 +1,198 @@
+syntax = "proto3";
+
+    package m8.risk_decision.v1;
+
+    import "m8/common/v1/common.proto";
+import "m8/common/v1/operations.proto";
+
+    option go_package = "github.com/m8-platform/m8/gen/go/m8/risk_decision/v1;riskdecisionv1";
+
+    service RiskDecisionService {
+      // RISK-FR-021 | public | idempotency=false
+  rpc CheckVelocity (CheckVelocityRequest) returns (CheckVelocityResponse);
+  // RISK-FR-031 | public | idempotency=true
+  rpc CompleteManualReview (CompleteManualReviewRequest) returns (CompleteManualReviewResponse);
+  // RISK-FR-030 | public | idempotency=true
+  rpc CreateManualReview (CreateManualReviewRequest) returns (m8.common.v1.Operation);
+  // RISK-FR-040 | public | idempotency=true
+  rpc CreateRiskFeedback (CreateRiskFeedbackRequest) returns (CreateRiskFeedbackResponse);
+  // RISK-FR-010 | public | idempotency=true
+  rpc CreateRiskPolicy (CreateRiskPolicyRequest) returns (CreateRiskPolicyResponse);
+  // RISK-FR-001 | public | idempotency=true
+  rpc EvaluateAuthenticationRisk (EvaluateAuthenticationRiskRequest) returns (EvaluateAuthenticationRiskResponse);
+  // RISK-FR-002 | public | idempotency=true
+  rpc EvaluatePrivilegedActionRisk (EvaluatePrivilegedActionRiskRequest) returns (EvaluatePrivilegedActionRiskResponse);
+  // RISK-FR-005 | public | idempotency=true
+  rpc ExpireRiskDecision (ExpireRiskDecisionRequest) returns (ExpireRiskDecisionResponse);
+  // RISK-FR-014 | public | idempotency=false
+  rpc ExplainRiskDecision (ExplainRiskDecisionRequest) returns (ExplainRiskDecisionResponse);
+  // RISK-FR-004 | public | idempotency=false
+  rpc GetRiskAssessment (GetRiskAssessmentRequest) returns (GetRiskAssessmentResponse);
+  // RISK-FR-020 | public | idempotency=true
+  rpc IngestDeviceSignals (IngestDeviceSignalsRequest) returns (IngestDeviceSignalsResponse);
+  // RISK-FR-022 | public | idempotency=true
+  rpc IngestExternalRiskSignal (IngestExternalRiskSignalRequest) returns (IngestExternalRiskSignalResponse);
+  // RISK-FR-011 | admin | idempotency=true
+  rpc PublishRiskPolicy (PublishRiskPolicyRequest) returns (PublishRiskPolicyResponse);
+  // RISK-FR-003 | internal | idempotency=true
+  rpc ResolveRiskDecision (ResolveRiskDecisionRequest) returns (ResolveRiskDecisionResponse);
+  // RISK-FR-012 | admin | idempotency=true
+  rpc RollbackRiskPolicy (RollbackRiskPolicyRequest) returns (RollbackRiskPolicyResponse);
+  // RISK-FR-013 | public | idempotency=false
+  rpc SimulateRiskPolicy (SimulateRiskPolicyRequest) returns (SimulateRiskPolicyResponse);
+    }
+
+
+                message CheckVelocityRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CheckVelocityResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CompleteManualReviewRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CompleteManualReviewResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateManualReviewRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRiskFeedbackRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRiskFeedbackResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message CreateRiskPolicyRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message CreateRiskPolicyResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message EvaluateAuthenticationRiskRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message EvaluateAuthenticationRiskResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message EvaluatePrivilegedActionRiskRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message EvaluatePrivilegedActionRiskResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ExpireRiskDecisionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ExpireRiskDecisionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ExplainRiskDecisionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ExplainRiskDecisionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message GetRiskAssessmentRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message GetRiskAssessmentResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message IngestDeviceSignalsRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message IngestDeviceSignalsResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message IngestExternalRiskSignalRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message IngestExternalRiskSignalResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message PublishRiskPolicyRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message PublishRiskPolicyResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message ResolveRiskDecisionRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message ResolveRiskDecisionResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message RollbackRiskPolicyRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message RollbackRiskPolicyResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }
+
+
+                message SimulateRiskPolicyRequest {
+                  m8.common.v1.ContractRequest request = 1;
+                }
+
+
+                message SimulateRiskPolicyResponse {
+                  m8.common.v1.ContractResponse response = 1;
+                }

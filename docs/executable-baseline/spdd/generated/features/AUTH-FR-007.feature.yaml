@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-AUTH_FR_007
+  requirement_id: AUTH-FR-007
+  title: Завершить Authentication по provider callback
+  status: APPROVED
+  context: AUTH
+  release: MVP-1
+traceability:
+  capability: CAP-AUTHN-04
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Завершить Authentication по provider callback
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: AUTH-FR-007-AC-01
+  statement: Callback аутентифицируется и дедуплицируется.
+- id: AUTH-FR-007-AC-02
+  statement: Повтор callback не создаёт вторую session/handoff.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

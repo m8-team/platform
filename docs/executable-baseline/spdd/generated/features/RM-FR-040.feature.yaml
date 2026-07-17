@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RM_FR_040
+  requirement_id: RM-FR-040
+  title: Получить ресурс по ID
+  status: APPROVED
+  context: RM
+  release: MVP-1
+traceability:
+  capability: CAP-RM-09
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Получить ресурс по ID
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RM-FR-040-AC-01
+  statement: Несуществующий ресурс возвращает NOT_FOUND без раскрытия чужого scope.
+- id: RM-FR-040-AC-02
+  statement: Ответ содержит revision и lifecycle state.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

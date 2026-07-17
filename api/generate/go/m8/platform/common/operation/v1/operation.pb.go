@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: m8/platform/common/operation/v1/operation.proto
 
-package operation
+package common
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -371,7 +371,7 @@ const file_m8_platform_common_operation_v1_operation_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1f\n" +
 	"\x04name\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x04R\x04name\"b\n" +
 	"\x11OperationResponse\x12M\n" +
-	"\bresource\x18\x01 \x01(\v2,.m8.platform.common.operation.v1.ResourceRefB\x03\xe0A\x03R\bresourceBJZHgithub.com/m8-team/go-genproto/m8/platform/common/operation/v1;operationb\x06proto3"
+	"\bresource\x18\x01 \x01(\v2,.m8.platform.common.operation.v1.ResourceRefB\x03\xe0A\x03R\bresourceBGZEgithub.com/m8-team/go-genproto/m8/platform/common/operation/v1;commonb\x06proto3"
 
 var (
 	file_m8_platform_common_operation_v1_operation_proto_rawDescOnce sync.Once

@@ -1,0 +1,53 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-REVIEW-AUTH-017
+  kind: review
+  feature: SP-FEATURE-AUTH-017
+blocking_checks:
+  requirements:
+  - AC-01..AC-07 have executable evidence
+  domain:
+  - new transaction independent
+  - valid transitions only
+  boundaries:
+  - no foreign DB
+  - no provider types in domain
+  api:
+  - protobuf compatibility
+  - validation
+  - permission
+  - idempotency metadata
+  events:
+  - outbox atomicity
+  - no secrets
+  - event revision/order
+  security:
+  - risk fail closed
+  - rate limit
+  - trusted actor
+  - no enumeration leak
+  reliability:
+  - retry classification
+  - workflow replay safety
+  - concurrency idempotency
+  observability:
+  - metrics, traces, audit with IDs
+  tests:
+  - unit
+  - integration
+  - contract
+  - acceptance
+  - security
+  - architecture
+  traceability:
+  - all IDs resolve and evidence attached
+verdicts:
+- PASS
+- PASS_WITH_NON_BLOCKING_FINDINGS
+- FAIL
+output:
+- verdict
+- blocking_findings
+- non_blocking_findings
+- evidence
+- required_changes

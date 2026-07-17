@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RISK_NFR_001
+  requirement_id: RISK-NFR-001
+  title: Задержка онлайн-решения
+  status: APPROVED
+  context: RISK
+  release: MVP-3
+traceability:
+  capability: CAP-RISK-01
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Задержка онлайн-решения
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RISK-NFR-001-AC-01
+  statement: Медленный внешний signal не блокирует beyond deadline; применяется policy missing-signal behavior.
+- id: RISK-NFR-001-AC-02
+  statement: Timeout outcome детерминирован и наблюдаем.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

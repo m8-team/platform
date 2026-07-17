@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package m8.common.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-platform/m8/gen/go/m8/common/v1;commonv1";
+
+message RequestContext {
+    string request_id = 1;
+    string correlation_id = 2;
+    string causation_id = 3;
+    string actor_id = 4;
+    string subject_id = 5;
+    string client_id = 6;
+    string organization_id = 7;
+    string workspace_id = 8;
+    string project_id = 9;
+    string trace_id = 10;
+    string source_ip = 11;
+    string user_agent = 12;
+}
+
+message ResourceReference {
+    string type = 1;
+    string id = 2;
+    string name = 3;
+    string project_id = 4;
+}
+
+message SubjectReference {
+    string type = 1;
+    string id = 2;
+    string issuer = 3;
+}
+
+message ActorReference {
+    string type = 1;
+    string id = 2;
+    string display_name = 3;
+}
+
+message PageRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+}
+
+message PageResponse {
+    string next_page_token = 1;
+    int64 total_size = 2;
+}
+
+message MutationMetadata {
+    string idempotency_key = 1;
+    string etag = 2;
+    uint64 expected_revision = 3;
+    google.protobuf.FieldMask update_mask = 4;
+}
+
+message OperationReference {
+    string name = 1;
+    bool done = 2;
+    int32 progress_percent = 3;
+}
+
+message ContractRequest {
+    RequestContext context = 1;
+    string parent = 2;
+    string name = 3;
+    string resource_id = 4;
+    google.protobuf.Struct resource = 5;
+    MutationMetadata mutation = 6;
+    PageRequest page = 7;
+    string filter = 8;
+    string order_by = 9;
+    google.protobuf.Struct arguments = 10;
+}
+
+message ContractResponse {
+    google.protobuf.Struct resource = 1;
+    repeated google.protobuf.Struct resources = 2;
+    PageResponse page = 3;
+    OperationReference operation = 4;
+    google.protobuf.Struct result = 5;
+}
+
+message EventEnvelope {
+    string event_id = 1;
+    string event_type = 2;
+    string schema_version = 3;
+    string producer = 4;
+    google.protobuf.Timestamp occurred_at = 5;
+    string correlation_id = 6;
+    string causation_id = 7;
+    string aggregate_type = 8;
+    string aggregate_id = 9;
+    uint64 aggregate_revision = 10;
+    ResourceReference scope = 11;
+    ActorReference actor = 12;
+    google.protobuf.Any data = 13;
+    map<string, string> attributes = 14;
+}

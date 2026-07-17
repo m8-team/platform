@@ -1,0 +1,19 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-RM_FR_022-02
+  requirement_id: RM-FR-022
+  type: implementation-and-tests
+  status: APPROVED
+allowed_paths:
+- services/rm/
+- proto/
+- tests/
+forbidden_changes:
+- another bounded context's internal model
+- another service's database
+- published contract without breaking-change review
+outputs:
+- changed files
+- test results
+- traceability update
+- decision notes

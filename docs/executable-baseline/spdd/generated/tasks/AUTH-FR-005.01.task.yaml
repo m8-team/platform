@@ -1,0 +1,19 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-TASK-AUTH_FR_005-01
+  requirement_id: AUTH-FR-005
+  type: contract-and-domain
+  status: APPROVED
+allowed_paths:
+- services/auth/
+- proto/
+- tests/
+forbidden_changes:
+- another bounded context's internal model
+- another service's database
+- published contract without breaking-change review
+outputs:
+- changed files
+- test results
+- traceability update
+- decision notes

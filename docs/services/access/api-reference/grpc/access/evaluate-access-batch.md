@@ -67,7 +67,7 @@ EvaluateAccessBatchRequest evaluates one or more access decisions.
 
 ## EvaluateAccessBatchResponse
 
-EvaluateAccessBatchResponse returns decisions in the same order as request evaluations.
+EvaluateAccessBatchResponse returns evaluation decisions in execution order.
 
 ```json
 {
@@ -82,7 +82,7 @@ EvaluateAccessBatchResponse returns decisions in the same order as request evalu
 
 | Field | Type | Description |
 | --- | --- | --- |
-| evaluations[] | EvaluateAccessResponse | Output only. Evaluation results; order matches the request evaluation order. |
+| evaluations[] | EvaluateAccessResponse | Output only. Evaluation results in execution order.<br/>For execute_all, order matches the full request evaluation order.<br/>For short-circuit semantics, the array may contain only the evaluated prefix |
 
 ## Subject
 
@@ -179,7 +179,7 @@ Evaluation is one item in a batch evaluation request.
 | subject | Subject | Optional. Item-level subject; overrides the batch-level subject when set. |
 | action | Action | Optional. Item-level action; overrides the batch-level action when set. |
 | resource | Resource | Optional. Item-level resource; overrides the batch-level resource when set. |
-| context | Struct | Optional. Item-level context; combined with or overrides batch-level context by PDP policy. |
+| context | Struct | Optional. Item-level context; overrides the batch-level context when set. |
 
 ## EvaluateAccessResponse
 

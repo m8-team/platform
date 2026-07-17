@@ -1,0 +1,28 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: M8 API Contract
+type: object
+required:
+- id
+- requirement_ids
+- package
+- rpc
+- method
+- visibility
+- operation
+properties:
+  id:
+    pattern: ^API-[A-Z]+-[0-9]{3}$
+  requirement_ids:
+    type: array
+    minItems: 1
+  visibility:
+    enum:
+    - public
+    - admin
+    - internal
+  operation:
+    enum:
+    - command
+    - query
+  idempotency_required:
+    type: boolean

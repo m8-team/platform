@@ -1,0 +1,252 @@
+# Local ClickStack values for M8 kind development.
+#
+# This is intentionally small and self-contained:
+# - ClickStack UI/API via HyperDX
+# - ClickHouse + MongoDB managed by the ClickStack operators
+# - OpenTelemetry Collector as a DaemonSet for local Kubernetes logs and metrics
+# - OTLP gRPC/HTTP receivers for application traces, metrics and logs
+
+hyperdx:
+  config:
+    FRONTEND_URL: "http://localhost:8080"
+    HYPERDX_LOG_LEVEL: "info"
+    USAGE_STATS_ENABLED: "false"
+  secrets:
+    HYPERDX_API_KEY: "m8-local-clickstack-api-key"
+    CLICKHOUSE_PASSWORD: "m8-local-otelcollector"
+    CLICKHOUSE_APP_PASSWORD: "m8-local-hyperdx"
+    MONGODB_PASSWORD: "m8-local-hyperdx"
+  deployment:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+mongodb:
+  spec:
+    members: 1
+
+clickhouse:
+  keeper:
+    spec:
+      replicas: 1
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  cluster:
+    spec:
+      replicas: 1
+      shards: 1
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+
+additionalManifests:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: m8-clickstack-otel-custom-config
+      namespace: "{{ .Release.Namespace }}"
+    data:
+      custom.config.yaml: |
+        receivers:
+          file_log/m8-kubernetes:
+            exclude:
+              - /var/log/pods/{{ .Release.Namespace }}_{{ .Release.Name }}-otel-collector*_*/otel-collector/*.log
+            include:
+              - /var/log/pods/*/*/*.log
+            include_file_name: false
+            include_file_path: true
+            operators:
+              - id: container-parser
+                max_log_size: 102400
+                type: container
+            retry_on_failure:
+              enabled: true
+            start_at: end
+          hostmetrics/m8-node:
+            collection_interval: 30s
+            root_path: /hostfs
+            scrapers:
+              cpu: {}
+              disk: {}
+              filesystem:
+                exclude_fs_types:
+                  fs_types:
+                    - autofs
+                    - binfmt_misc
+                    - bpf
+                    - cgroup2
+                    - configfs
+                    - debugfs
+                    - devpts
+                    - devtmpfs
+                    - fusectl
+                    - hugetlbfs
+                    - iso9660
+                    - mqueue
+                    - nsfs
+                    - overlay
+                    - proc
+                    - procfs
+                    - pstore
+                    - rpc_pipefs
+                    - securityfs
+                    - selinuxfs
+                    - squashfs
+                    - sysfs
+                    - tracefs
+                  match_type: strict
+                exclude_mount_points:
+                  match_type: regexp
+                  mount_points:
+                    - /dev/*
+                    - /proc/*
+                    - /sys/*
+                    - /run/k3s/containerd/*
+                    - /var/lib/docker/*
+                    - /var/lib/kubelet/*
+                    - /snap/*
+              load: {}
+              memory: {}
+              network: {}
+          kubeletstats/m8-node:
+            auth_type: serviceAccount
+            collection_interval: 30s
+            endpoint: ${env:K8S_NODE_IP}:10250
+            # kind kubelet certificates usually do not include node IP SANs.
+            insecure_skip_verify: true
+
+        processors:
+          k8s_attributes/m8:
+            extract:
+              labels:
+                - from: pod
+                  key_regex: (.*)
+                  tag_name: $$1
+              metadata:
+                - k8s.namespace.name
+                - k8s.pod.name
+                - k8s.pod.uid
+                - k8s.node.name
+                - k8s.pod.start_time
+                - k8s.deployment.name
+                - k8s.replicaset.name
+                - k8s.daemonset.name
+                - k8s.statefulset.name
+                - k8s.container.name
+                - container.image.name
+                - container.image.tag
+              otel_annotations: true
+            filter:
+              node_from_env_var: K8S_NODE_NAME
+            passthrough: false
+            pod_association:
+              - sources:
+                  - from: resource_attribute
+                    name: k8s.pod.ip
+              - sources:
+                  - from: resource_attribute
+                    name: k8s.pod.uid
+              - sources:
+                  - from: connection
+
+        service:
+          pipelines:
+            logs/m8-kubernetes:
+              receivers:
+                - file_log/m8-kubernetes
+              processors:
+                - memory_limiter
+                - k8s_attributes/m8
+                - transform
+                - batch
+              exporters:
+                - clickhouse
+            metrics/m8-host:
+              receivers:
+                - hostmetrics/m8-node
+                - kubeletstats/m8-node
+              processors:
+                - memory_limiter
+                - batch
+              exporters:
+                - clickhouse
+            logs/m8-otlp:
+              receivers:
+                - otlp/hyperdx
+              processors:
+                - memory_limiter
+                - k8s_attributes/m8
+                - transform
+                - batch
+              exporters:
+                - clickhouse
+            metrics/m8-otlp:
+              receivers:
+                - otlp/hyperdx
+              processors:
+                - memory_limiter
+                - k8s_attributes/m8
+                - batch
+              exporters:
+                - clickhouse
+            traces/m8-otlp:
+              receivers:
+                - otlp/hyperdx
+              processors:
+                - memory_limiter
+                - k8s_attributes/m8
+                - batch
+              exporters:
+                - clickhouse
+
+otel-collector:
+  image:
+    tag: "2.27.0"
+  mode: daemonset
+  service:
+    enabled: true
+    type: ClusterIP
+  extraEnvs:
+    - name: CUSTOM_OTELCOL_CONFIG_FILE
+      value: /etc/otelcol-contrib/custom.config.yaml
+  extraVolumes:
+    - name: m8-clickstack-otel-custom-config
+      configMap:
+        name: m8-clickstack-otel-custom-config
+  extraVolumeMounts:
+    - name: m8-clickstack-otel-custom-config
+      mountPath: /etc/otelcol-contrib/custom.config.yaml
+      subPath: custom.config.yaml
+      readOnly: true
+  presets:
+    logsCollection:
+      enabled: true
+      includeCollectorLogs: false
+    hostMetrics:
+      enabled: true
+    kubeletMetrics:
+      enabled: true
+    clusterMetrics:
+      enabled: true
+    kubernetesAttributes:
+      enabled: true
+      extractAllPodLabels: true
+      extractAllPodAnnotations: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi

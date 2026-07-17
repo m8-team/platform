@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-ID_SEC_001
+  requirement_id: ID-SEC-001
+  title: Защита операций merge и deletion
+  status: APPROVED
+  context: ID
+  release: MVP-2
+traceability:
+  capability: CAP-ID-08
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Защита операций merge и deletion
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: ID-SEC-001-AC-01
+  statement: Недостаточный AAL приводит к CHALLENGE, а не к частичному выполнению.
+- id: ID-SEC-001-AC-02
+  statement: Каждый шаг длительной операции аудируется.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

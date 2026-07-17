@@ -1,0 +1,17 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-REVIEW-ACC_FR_022
+  requirement_id: ACC-FR-022
+  status: APPROVED
+checks:
+- requirement coverage
+- bounded-context ownership
+- API/event compatibility
+- idempotency and concurrency
+- security and audit
+- observability
+- tests and release evidence
+decision:
+- APPROVE
+- REQUEST_CHANGES
+- BLOCK

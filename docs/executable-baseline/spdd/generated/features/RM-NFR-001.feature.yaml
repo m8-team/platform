@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RM_NFR_001
+  requirement_id: RM-NFR-001
+  title: Задержка чтения ресурса
+  status: APPROVED
+  context: RM
+  release: MVP-2
+traceability:
+  capability: CAP-RM-09
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Задержка чтения ресурса
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RM-NFR-001-AC-01
+  statement: SLI измеряется на серверной стороне без client/network time.
+- id: RM-NFR-001-AC-02
+  statement: Нагрузка и размер ресурса определены в performance profile.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached

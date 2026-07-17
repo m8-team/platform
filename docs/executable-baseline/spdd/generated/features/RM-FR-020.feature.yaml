@@ -1,0 +1,41 @@
+spdd_version: '1.0'
+metadata:
+  id: SP-FEATURE-RM_FR_020
+  requirement_id: RM-FR-020
+  title: Создать Project
+  status: APPROVED
+  context: RM
+  release: MVP-1
+traceability:
+  capability: CAP-RM-03
+  api_contracts: []
+  event_contracts: []
+  data_entities: []
+objective: Создать Project
+scope:
+  include:
+  - domain model
+  - application use case
+  - contracts
+  - tests
+  - observability
+  - audit
+  exclude:
+  - unrelated contexts
+  - unapproved contract changes
+  - direct access to another service database
+constraints:
+- Follow PADS v1.0 and SPDD Constitution.
+- Preserve bounded-context ownership.
+- Use Outbox/Inbox for integration facts.
+- Mutation must be idempotent and auditable.
+acceptance:
+- id: RM-FR-020-AC-01
+  statement: Project имеет уникальный ID и parent reference.
+- id: RM-FR-020-AC-02
+  statement: Создание доступно только с требуемым permission.
+definition_of_done:
+- code and tests pass
+- traceability is complete
+- architecture checks pass
+- release evidence is attached
