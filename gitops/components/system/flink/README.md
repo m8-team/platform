@@ -19,4 +19,5 @@ Production notes:
 - Mirror `ghcr.io/apache/flink-kubernetes-operator:1.15.0` and `flink:2.2.0` into the private registry and pin both by digest before production use.
 - Replace local filesystem checkpoint/savepoint paths with object storage.
 - Enable the operator admission webhook only after wiring non-default certificate and keystore secret management.
+- Operator `1.15.0` uses `jobManager.resource` and `taskManager.resource`; do not use the newer `resources` fields until the installed CRD supports them.
 - Keep Flink application jobs in separate GitOps paths as `FlinkSessionJob` resources; this component owns only the runtime session cluster.

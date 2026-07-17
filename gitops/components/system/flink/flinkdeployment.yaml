@@ -31,19 +31,11 @@ spec:
                 - ALL
   jobManager:
     replicas: 1
-    resources:
-      requests:
-        cpu: "1"
-        memory: "1536m"
-      limits:
-        cpu: "2"
-        memory: "2048m"
+    resource:
+      cpu: 1
+      memory: "1536m"
   taskManager:
     replicas: 2
-    resources:
-      requests:
-        cpu: "2"
-        memory: "2048m"
-      limits:
-        cpu: "4"
-        memory: "4096m"
+    resource:
+      cpu: 2
+      memory: "2048m"
