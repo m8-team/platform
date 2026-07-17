@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: m8-flink-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-46"
+spec:
+  project: m8-platform
+  source:
+    repoURL: https://archive.apache.org/dist/flink/flink-kubernetes-operator-1.15.0/
+    chart: flink-kubernetes-operator
+    targetRevision: 1.15.0
+    helm:
+      releaseName: flink-kubernetes-operator
+      values: |
+        image:
+          repository: ghcr.io/apache/flink-kubernetes-operator
+          tag: 1.15.0
+          digest: sha256:5372e4461b433ee37391b0ee3fc3e4029980d14e9b64576b0cb78493d1cafe3a
+          pullPolicy: IfNotPresent
+        watchNamespaces:
+          - m8-data
+        operatorServiceAccount:
+          create: true
+          name: m8-flink-operator
+        jobServiceAccount:
+          create: true
+          name: m8-flink
+        operatorPod:
+          labels:
+            app.kubernetes.io/part-of: m8-platform
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1024Mi
+        webhook:
+          create: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: m8-data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: m8-flink
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-45"
+spec:
+  project: m8-platform
+  source:
+    repoURL: https://github.com/m8-team/platform.git
+    targetRevision: main
+    path: gitops/components/system/flink
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: m8-data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true

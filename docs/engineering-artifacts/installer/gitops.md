@@ -30,22 +30,15 @@ Files:
 - `gitops/root/appproject.yaml`
 - `gitops/root/applicationset.yaml`
 
-The root `ApplicationSet` emits component applications for data operators, data clusters, identity, observability, gateway, M8 services, routes, bootstrap data and smoke tests.
+The root `ApplicationSet` emits the default platform application. Optional platform dependencies are represented as separate Argo CD `Application` manifests under `gitops/optional`.
 
 ## Sync Waves
 
 | Wave | Application |
 | ---: | --- |
-| -60 | `m8-data-operators` |
-| -50 | `m8-data-clusters` |
-| -40 | `m8-identity-authorization` |
-| -30 | `m8-observability` |
-| -20 | `m8-envoy-gateway` |
-| -10 | `m8-shared-services` |
-| 0 | `m8-applications` |
-| 10 | `m8-routes-policies` |
-| 20 | `m8-bootstrap-data` |
-| 30 | `m8-smoke-tests` |
+| -46 | `m8-flink-operator` optional Flink Kubernetes Operator |
+| -45 | `m8-flink` optional Flink session runtime |
+| 0 | `m8-platform` default platform services and UI |
 
 ## Environment Overlays
 
@@ -59,13 +52,38 @@ Future overlays should be Kustomize or Helm values overlays under `gitops/enviro
 
 Deployable M8 application services live under:
 
-- `gitops/components/m8-applications/services`
+- `gitops/components/platform/services`
 
-The root `ApplicationSet` reconciles this tree through the `m8-m8-applications` Argo CD Application. Each service gets its own directory with a local `kustomization.yaml`, Deployment, Service, ServiceAccount and optional policy manifests. The initial service scaffold is:
+The root `ApplicationSet` reconciles this tree through the `m8-platform` Argo CD Application. Each service gets its own directory with a local `kustomization.yaml`, Deployment, Service, ServiceAccount and optional policy manifests. The initial service scaffold is:
 
-- `gitops/components/m8-applications/services/resource-manager`
+- `gitops/components/platform/services/resource-manager`
 
 Infrastructure operators, data clusters, identity, authorization, observability and gateway resources must stay in their earlier sync-wave components, not in the application services tree.
+
+## Optional System Components
+
+Optional platform dependencies live under:
+
+- `gitops/components/system/<component>`
+
+They are enabled by applying an Argo CD `Application` manifest from:
+
+- `gitops/optional/<component>/application.yaml`
+
+Flink is the first optional system component:
+
+- Operator Application: `m8-flink-operator`
+- Runtime component: `gitops/components/system/flink`
+- Enabling Application: `gitops/optional/flink/application.yaml`
+- Target namespace: `m8-data`
+
+Enable it after bootstrap:
+
+```bash
+kubectl apply -f gitops/optional/flink/application.yaml
+```
+
+Flink is intentionally not installed by the default root `ApplicationSet`. Production deployments must mirror and digest-pin the operator and runtime images from the release catalog and replace local filesystem checkpoints with object storage. Runtime clusters are declared through `flink.apache.org/v1beta1` `FlinkDeployment`; jobs should be added separately as `FlinkSessionJob` manifests.
 
 ## Health And Readiness
 

@@ -174,6 +174,43 @@ spec:
         digest: sha256:ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd1
       rollbackSupport:
         supported: true
+    flink-kubernetes-operator:
+      version: "1.15.0"
+      chart:
+        repository: https://archive.apache.org/dist/flink/flink-kubernetes-operator-1.15.0/
+        version: "1.15.0"
+        digest: sha256:73948033f014820b832dece5f9f3551b58de6227b8300c590a5db8a6ac7893dc
+      images:
+        - name: flink-kubernetes-operator
+          repository: ghcr.io/apache/flink-kubernetes-operator
+          version: "1.15.0"
+          digest: sha256:5372e4461b433ee37391b0ee3fc3e4029980d14e9b64576b0cb78493d1cafe3a
+      crdVersions:
+        - flink.apache.org/v1beta1
+      dependencies:
+        - kubernetes
+      rollbackSupport:
+        supported: true
+      resources:
+        cpu: "1"
+        memory: 1024Mi
+        storage: 0Gi
+    flink:
+      version: "2.2.0"
+      images:
+        - name: flink
+          repository: docker.io/library/flink
+          version: "2.2.0"
+          digest: sha256:7ecfab9d5e8ec6987a248b32f6605b5fe9bcb7347aea0d7b1bc3976588408681
+      dependencies:
+        - flink-kubernetes-operator
+      rollbackSupport:
+        supported: true
+        boundary: Flink jobs require savepoint-aware rollback outside the runtime component.
+      resources:
+        cpu: "5"
+        memory: 6Gi
+        storage: 0Gi
     keycloak-operator:
       version: "26.2.0"
       chart:
