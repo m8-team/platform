@@ -13,6 +13,7 @@ spec:
   serviceAccount: m8-flink
   flinkConfiguration:
     taskmanager.numberOfTaskSlots: "2"
+    rest.profiling.enabled: "true"
     state.checkpoints.dir: file:///tmp/flink-checkpoints
     state.savepoints.dir: file:///tmp/flink-savepoints
     kubernetes.operator.job.upgrade.last-state.max.allowed.checkpoint.age: "1 h"
