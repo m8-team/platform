@@ -89,7 +89,7 @@
             },
             "method": "GET",
             "header": [],
-            "url": "{{http_base_url}}/livez",
+            "url": "{{health_base_url}}/livez",
             "description": "Process liveness probe."
           },
           "response": []
@@ -102,7 +102,7 @@
             },
             "method": "GET",
             "header": [],
-            "url": "{{http_base_url}}/readyz",
+            "url": "{{health_base_url}}/readyz",
             "description": "Dependency-aware readiness probe."
           },
           "response": []
@@ -115,7 +115,7 @@
             },
             "method": "GET",
             "header": [],
-            "url": "{{http_base_url}}/startupz",
+            "url": "{{health_base_url}}/startupz",
             "description": "Startup probe."
           },
           "response": []
@@ -128,7 +128,7 @@
             },
             "method": "GET",
             "header": [],
-            "url": "{{http_base_url}}/healthz",
+            "url": "{{health_base_url}}/healthz",
             "description": "Detailed health endpoint."
           },
           "response": []
@@ -446,6 +446,11 @@
     {
       "key": "http_base_url",
       "value": "http://127.0.0.1:8080",
+      "type": "string"
+    },
+    {
+      "key": "health_base_url",
+      "value": "http://127.0.0.1:8081",
       "type": "string"
     },
     {

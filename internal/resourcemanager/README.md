@@ -90,7 +90,8 @@ The Resource Manager module is composed through `resourcemanager.Module(config)`
 
 The `resource-manager` process also accepts:
 
-- `M8_HEALTH_HTTP_ADDR` (default `:8080`; health and REST listener);
+- `M8_HTTP_ADDR` (default `:8080`; REST listener);
+- `M8_HEALTH_HTTP_ADDR` (default `:8081`; health, readiness and startup listener);
 - `M8_GRPC_ADDR` (default `:9090`);
 - `M8_RM_ALLOW_UNAUTHENTICATED` (default `false`);
 - `M8_RM_SOFT_DELETE_RETENTION` (default `720h`);

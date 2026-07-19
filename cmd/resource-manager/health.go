@@ -22,24 +22,44 @@ type HealthHTTPConfig struct {
 	Address string
 }
 
+type HTTPConfig struct {
+	Address string
+}
+
+type resourceManagerHTTPHandler struct {
+	http.Handler
+}
+
+type healthHTTPHandler struct {
+	http.Handler
+}
+
 const yaRuHealthCheckName = "Ping ya.ru"
 
-func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
+func resourceManagerHTTPModule(cfg HTTPConfig) fx.Option {
 	return fx.Module(
 		"resource-manager-http",
 		fx.Supply(cfg.normalized()),
 		fx.Provide(newResourceManagerHTTPHandler),
+		fx.Invoke(registerResourceManagerHTTPServer),
+	)
+}
+
+func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
+	return fx.Module(
+		"resource-manager-health-http",
+		fx.Supply(cfg.normalized()),
+		fx.Provide(newHealthHTTPHandler),
 		fx.Invoke(registerResourceManagerHealthChecks),
 		fx.Invoke(registerHealthHTTPServer),
 	)
 }
 
 func newResourceManagerHTTPHandler(
-	registry health.Registry,
 	organizationServer resourcemanagerpb.OrganizationServiceServer,
-) (http.Handler, error) {
+) (resourceManagerHTTPHandler, error) {
 	if organizationServer == nil {
-		return nil, errors.New("organization HTTP service is required")
+		return resourceManagerHTTPHandler{}, errors.New("organization HTTP service is required")
 	}
 
 	gateway := runtime.NewServeMux(
@@ -57,14 +77,16 @@ func newResourceManagerHTTPHandler(
 		gateway,
 		organizationServer,
 	); err != nil {
-		return nil, fmt.Errorf("register organization HTTP gateway: %w", err)
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register organization HTTP gateway: %w", err)
 	}
 
+	return resourceManagerHTTPHandler{Handler: gateway}, nil
+}
+
+func newHealthHTTPHandler(registry health.Registry) healthHTTPHandler {
 	mux := http.NewServeMux()
 	healthhttp.NewHandler(registry).RegisterRoutes(mux)
-	mux.Handle("/", gateway)
-
-	return mux, nil
+	return healthHTTPHandler{Handler: mux}
 }
 
 func registerResourceManagerHealthChecks(registry health.Registry) error {
@@ -85,22 +107,35 @@ func registerResourceManagerHealthChecks(registry health.Registry) error {
 	})
 }
 
-func registerHealthHTTPServer(lifecycle fx.Lifecycle, handler http.Handler, cfg HealthHTTPConfig) error {
+func registerResourceManagerHTTPServer(
+	lifecycle fx.Lifecycle,
+	handler resourceManagerHTTPHandler,
+	cfg HTTPConfig,
+) error {
 	cfg = cfg.normalized()
-	if cfg.Address == "" {
-		return fmt.Errorf("%w: health http address is empty", ErrInvalidConfigValue)
+	return registerHTTPServer(lifecycle, "resource manager http", cfg.Address, handler.Handler)
+}
+
+func registerHealthHTTPServer(lifecycle fx.Lifecycle, handler healthHTTPHandler, cfg HealthHTTPConfig) error {
+	cfg = cfg.normalized()
+	return registerHTTPServer(lifecycle, "health http", cfg.Address, handler.Handler)
+}
+
+func registerHTTPServer(lifecycle fx.Lifecycle, name, address string, handler http.Handler) error {
+	if address == "" {
+		return fmt.Errorf("%w: %s address is empty", ErrInvalidConfigValue, name)
 	}
 
 	server := &http.Server{
-		Addr:    cfg.Address,
+		Addr:    address,
 		Handler: handler,
 	}
 
 	lifecycle.Append(fx.Hook{
 		OnStart: func(context.Context) error {
-			listener, err := net.Listen("tcp", cfg.Address)
+			listener, err := net.Listen("tcp", address)
 			if err != nil {
-				return fmt.Errorf("listen health http %s: %w", cfg.Address, err)
+				return fmt.Errorf("listen %s %s: %w", name, address, err)
 			}
 
 			go func() {
@@ -111,7 +146,7 @@ func registerHealthHTTPServer(lifecycle fx.Lifecycle, handler http.Handler, cfg 
 		},
 		OnStop: func(ctx context.Context) error {
 			if err := server.Shutdown(ctx); err != nil {
-				return fmt.Errorf("shutdown health http: %w", err)
+				return fmt.Errorf("shutdown %s: %w", name, err)
 			}
 
 			return nil
@@ -119,6 +154,15 @@ func registerHealthHTTPServer(lifecycle fx.Lifecycle, handler http.Handler, cfg 
 	})
 
 	return nil
+}
+
+func (c HTTPConfig) normalized() HTTPConfig {
+	c.Address = strings.TrimSpace(c.Address)
+	if c.Address == "" {
+		c.Address = defaultHTTPAddress
+	}
+
+	return c
 }
 
 func (c HealthHTTPConfig) normalized() HealthHTTPConfig {

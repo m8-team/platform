@@ -13,6 +13,7 @@ import (
 
 const (
 	envDebug                = "M8_DEBUG"
+	envHTTPAddress          = "M8_HTTP_ADDR"
 	envHealthHTTPAddress    = "M8_HEALTH_HTTP_ADDR"
 	envGRPCAddress          = "M8_GRPC_ADDR"
 	envAllowUnauthenticated = "M8_RM_ALLOW_UNAUTHENTICATED"
@@ -21,7 +22,8 @@ const (
 )
 
 const (
-	defaultHealthHTTPAddress   = ":8080"
+	defaultHTTPAddress         = ":8080"
+	defaultHealthHTTPAddress   = ":8081"
 	defaultGRPCAddress         = ":9090"
 	defaultSoftDeleteRetention = 30 * 24 * time.Hour
 	minimumPageTokenKeyLength  = 32
@@ -31,6 +33,7 @@ var ErrInvalidConfigValue = errors.New("invalid config value")
 
 type Config struct {
 	Debug                bool
+	HTTP                 HTTPConfig
 	HealthHTTP           HealthHTTPConfig
 	GRPC                 grpcserver.Config
 	AllowUnauthenticated bool
@@ -47,6 +50,7 @@ func loadConfig(lookup func(string) (string, bool)) (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	httpAddress := stringEnv(lookup, envHTTPAddress, defaultHTTPAddress)
 	healthHTTPAddress := stringEnv(lookup, envHealthHTTPAddress, defaultHealthHTTPAddress)
 	grpcAddress := stringEnv(lookup, envGRPCAddress, defaultGRPCAddress)
 	allowUnauthenticated, err := boolEnv(lookup, envAllowUnauthenticated, false)
@@ -69,6 +73,7 @@ func loadConfig(lookup func(string) (string, bool)) (Config, error) {
 
 	return Config{
 		Debug:                debug,
+		HTTP:                 HTTPConfig{Address: httpAddress},
 		AllowUnauthenticated: allowUnauthenticated,
 		SoftDeleteRetention:  softDeleteRetention,
 		PageTokenKey:         pageTokenKey,

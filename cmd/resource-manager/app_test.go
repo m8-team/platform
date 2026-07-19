@@ -16,6 +16,7 @@ import (
 
 func TestNewAppBuilds(t *testing.T) {
 	app := NewApp(Config{
+		HTTP:       HTTPConfig{Address: "127.0.0.1:0"},
 		HealthHTTP: HealthHTTPConfig{Address: "127.0.0.1:0"},
 		GRPC:       grpcserver.Config{Address: "127.0.0.1:0"},
 	})
@@ -26,6 +27,7 @@ func TestNewAppBuilds(t *testing.T) {
 
 func TestAppRegistersOrganizationServiceBeforeStart(t *testing.T) {
 	cfg := Config{
+		HTTP:       HTTPConfig{Address: "127.0.0.1:0"},
 		HealthHTTP: HealthHTTPConfig{Address: "127.0.0.1:0"},
 		GRPC:       grpcserver.Config{Address: "127.0.0.1:0"},
 	}
@@ -99,8 +101,20 @@ func TestOrganizationRESTGatewayDeniesMutationsByDefault(t *testing.T) {
 	}
 }
 
-func TestResourceManagerHTTPHandlerKeepsHealthRoutes(t *testing.T) {
+func TestResourceManagerHTTPHandlerDoesNotExposeHealthRoutes(t *testing.T) {
 	handler := buildHTTPHandler(t, false)
+	request := httptest.NewRequest(http.MethodGet, "/livez", nil)
+	response := httptest.NewRecorder()
+
+	handler.ServeHTTP(response, request)
+
+	if response.Code != http.StatusNotFound {
+		t.Fatalf("GET /livez status = %d, want %d; body = %s", response.Code, http.StatusNotFound, response.Body)
+	}
+}
+
+func TestHealthHTTPHandlerKeepsHealthRoutes(t *testing.T) {
+	handler := buildHealthHTTPHandler(t)
 	request := httptest.NewRequest(http.MethodGet, "/livez", nil)
 	response := httptest.NewRecorder()
 
@@ -115,19 +129,41 @@ func buildHTTPHandler(t *testing.T, allowUnauthenticated bool) http.Handler {
 	t.Helper()
 
 	cfg := Config{
+		HTTP:                 HTTPConfig{Address: "127.0.0.1:0"},
 		HealthHTTP:           HealthHTTPConfig{Address: "127.0.0.1:0"},
 		GRPC:                 grpcserver.Config{Address: "127.0.0.1:0"},
 		AllowUnauthenticated: allowUnauthenticated,
 	}
-	var handler http.Handler
-	options := append(appOptions(cfg), fx.Populate(&handler))
+	var wrapped resourceManagerHTTPHandler
+	options := append(appOptions(cfg), fx.Populate(&wrapped))
 	app := fx.New(options...)
 	if err := app.Err(); err != nil {
 		t.Fatalf("build app: %v", err)
 	}
-	if handler == nil {
+	if wrapped.Handler == nil {
 		t.Fatal("HTTP handler is nil")
 	}
 
-	return handler
+	return wrapped.Handler
+}
+
+func buildHealthHTTPHandler(t *testing.T) http.Handler {
+	t.Helper()
+
+	cfg := Config{
+		HTTP:       HTTPConfig{Address: "127.0.0.1:0"},
+		HealthHTTP: HealthHTTPConfig{Address: "127.0.0.1:0"},
+		GRPC:       grpcserver.Config{Address: "127.0.0.1:0"},
+	}
+	var wrapped healthHTTPHandler
+	options := append(appOptions(cfg), fx.Populate(&wrapped))
+	app := fx.New(options...)
+	if err := app.Err(); err != nil {
+		t.Fatalf("build app: %v", err)
+	}
+	if wrapped.Handler == nil {
+		t.Fatal("health HTTP handler is nil")
+	}
+
+	return wrapped.Handler
 }

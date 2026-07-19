@@ -15,6 +15,9 @@ func TestLoadConfigDefaults(t *testing.T) {
 	if cfg.Debug {
 		t.Fatal("Debug = true, want false")
 	}
+	if cfg.HTTP.Address != defaultHTTPAddress {
+		t.Fatalf("HTTP.Address = %q, want %q", cfg.HTTP.Address, defaultHTTPAddress)
+	}
 	if cfg.HealthHTTP.Address != defaultHealthHTTPAddress {
 		t.Fatalf("HealthHTTP.Address = %q, want %q", cfg.HealthHTTP.Address, defaultHealthHTTPAddress)
 	}
@@ -56,6 +59,7 @@ func TestLoadConfigInvalidDebug(t *testing.T) {
 
 func TestLoadConfigHealthHTTPAddress(t *testing.T) {
 	cfg, err := loadConfig(mapLookup(map[string]string{
+		envHTTPAddress:       " 127.0.0.1:8088 ",
 		envHealthHTTPAddress: " 127.0.0.1:9090 ",
 	}))
 	if err != nil {
@@ -64,6 +68,9 @@ func TestLoadConfigHealthHTTPAddress(t *testing.T) {
 
 	if cfg.HealthHTTP.Address != "127.0.0.1:9090" {
 		t.Fatalf("HealthHTTP.Address = %q, want 127.0.0.1:9090", cfg.HealthHTTP.Address)
+	}
+	if cfg.HTTP.Address != "127.0.0.1:8088" {
+		t.Fatalf("HTTP.Address = %q, want 127.0.0.1:8088", cfg.HTTP.Address)
 	}
 }
 

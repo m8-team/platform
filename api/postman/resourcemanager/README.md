@@ -43,7 +43,8 @@ M8_RM_ALLOW_UNAUTHENTICATED=true go run ./cmd/resource-manager
 
 Default endpoints:
 
-- health and Organization REST server: `http://127.0.0.1:8080`
+- Organization REST server: `http://127.0.0.1:8080`
+- health server: `http://127.0.0.1:8081`
 - plaintext gRPC server: `127.0.0.1:9090`
 
 Current runtime support is intentionally documented here so the collection
@@ -51,7 +52,7 @@ does not create a false expectation:
 
 | Interface | Current status |
 | --- | --- |
-| HTTP health (`/livez`, `/readyz`, `/startupz`, `/healthz`) | Available |
+| HTTP health (`/livez`, `/readyz`, `/startupz`, `/healthz`) | Available on the dedicated health listener |
 | `OrganizationService` REST | Registered through gRPC-Gateway |
 | `WorkspaceService` REST | Contract exists, but is not registered yet |
 | `ServiceService` REST | Contract exists, but is not registered yet |

@@ -15,6 +15,7 @@ func NewApp(cfg Config) *fx.App {
 func appOptions(cfg Config) []fx.Option {
 	options := []fx.Option{
 		health.FxModule,
+		resourceManagerHTTPModule(cfg.HTTP),
 		healthHTTPModule(cfg.HealthHTTP),
 		grpcserver.Module(cfg.GRPC),
 		resourcemanager.Module(resourcemanager.Config{
