@@ -21,7 +21,8 @@ export interface FetchOrganizationsOptions {
 
 export async function fetchOrganizations({signal}: FetchOrganizationsOptions = {}): Promise<ListOrganizationsResponse> {
   const apiBaseUrl = (import.meta.env.VITE_RESOURCE_MANAGER_API_URL ?? '').replace(/\/$/, '')
-  const response = await fetch(
+  const response = await loggedFetch(
+    'resource-manager',
     `${apiBaseUrl}/resource-manager/v1/organizations?pageSize=100&orderBy=name&showDeleted=false`,
     {
       headers: {Accept: 'application/json'},
@@ -34,3 +35,4 @@ export async function fetchOrganizations({signal}: FetchOrganizationsOptions = {
   }
   return (await response.json()) as ListOrganizationsResponse
 }
+import {loggedFetch} from '../../../platform/http/serviceRequestLog'

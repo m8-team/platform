@@ -1,5 +1,5 @@
 import {useMemo} from 'react'
-import {ActionsPanel, Icon, Label, Text} from '@gravity-ui/uikit'
+import {ActionsPanel, ClipboardButton, Icon, Label, Text} from '@gravity-ui/uikit'
 import {ArrowRight, Copy} from '@gravity-ui/icons'
 import type {ColumnDef} from '@gravity-ui/table/tanstack'
 import {toaster} from '@gravity-ui/uikit/toaster-singleton'
@@ -31,7 +31,18 @@ export function OrganizationsTable({
         size: 260,
         cell: ({row}) => (
           <div className="m8-organization-name">
-            <Text variant="body-2">{row.original.name || t('organizations.unnamed')}</Text>
+            <div className="m8-copyable-cell">
+              <Text variant="body-2" ellipsis>{row.original.name || t('organizations.unnamed')}</Text>
+              {row.original.name ? (
+                <ClipboardButton
+                  text={row.original.name}
+                  view="flat-secondary"
+                  size="s"
+                  tooltipInitialText={t('resource.copy')}
+                  tooltipSuccessText={t('resource.copied')}
+                />
+              ) : null}
+            </div>
             {row.original.description ? (
               <Text variant="caption-2" color="secondary" ellipsis>
                 {row.original.description}
@@ -50,7 +61,21 @@ export function OrganizationsTable({
         accessorKey: 'id',
         header: t('organizations.column.id'),
         size: 300,
-        cell: ({getValue}) => <span className="m8-mono">{getValue<string>()}</span>,
+        cell: ({getValue}) => {
+          const id = getValue<string>()
+          return (
+            <div className="m8-copyable-cell">
+              <span className="m8-mono">{id}</span>
+              <ClipboardButton
+                text={id}
+                view="flat-secondary"
+                size="s"
+                tooltipInitialText={t('resource.copy')}
+                tooltipSuccessText={t('resource.copied')}
+              />
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'version',

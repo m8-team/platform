@@ -53,6 +53,7 @@ import {
 import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
+import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsTable} from './modules/resource-manager/components/OrganizationsTable'
 import {useOrganizationsQuery} from './modules/resource-manager/queries/organizations'
 import {
@@ -65,7 +66,7 @@ import type {AppLanguage, Translate, TranslationKey} from './i18n'
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
-type FooterPanel = 'notifications' | 'support' | 'account'
+type FooterPanel = 'notifications' | 'support' | 'request-console' | 'account'
 
 interface Project {
   name: string
@@ -629,6 +630,13 @@ function App() {
         ),
       },
       {
+        id: 'request-console',
+        open: activeFooterPanel === 'request-console',
+        size: 560,
+        hideVeil: true,
+        children: <ServiceRequestConsole t={t} />,
+      },
+      {
         id: 'account',
         open: activeFooterPanel === 'account',
         size: 360,
@@ -776,6 +784,17 @@ function App() {
                 current={activeFooterPanel === 'support'}
                 onItemClick={() => {
                   setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
+                }}
+                compact={footerCompact}
+              />
+              <FooterItem
+                id="request-console"
+                icon={Code}
+                title={t('footer.requestConsole')}
+                tooltipText={t('footer.requestConsole')}
+                current={activeFooterPanel === 'request-console'}
+                onItemClick={() => {
+                  setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')
                 }}
                 compact={footerCompact}
               />
