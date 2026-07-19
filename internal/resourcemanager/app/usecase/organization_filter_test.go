@@ -51,9 +51,13 @@ func TestParseOrganizationFilter(t *testing.T) {
 		{name: "logical or", raw: `state == "ACTIVE" || state == "SUSPENDED"`, wantErr: true},
 		{name: "non boolean", raw: `name`, wantErr: true},
 		{name: "empty state list", raw: `state in []`, wantErr: true},
+		{name: "membership on name", raw: `name in ["Production"]`, wantErr: true},
+		{name: "membership on label", raw: `labels.team in ["platform"]`, wantErr: true},
 		{name: "invalid state", raw: `state == "UNKNOWN"`, wantErr: true},
 		{name: "duplicate state", raw: `state == "ACTIVE" && state == "SUSPENDED"`, wantErr: true},
+		{name: "duplicate state in list", raw: `state in ["ACTIVE", "ACTIVE"]`, wantErr: true},
 		{name: "duplicate label", raw: `labels.team == "one" && labels["team"] == "two"`, wantErr: true},
+		{name: "empty label key", raw: `labels[""] == "value"`, wantErr: true},
 		{name: "oversized", raw: strings.Repeat("x", maximumOrganizationFilterRunes+1), wantErr: true},
 	}
 

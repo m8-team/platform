@@ -75,6 +75,12 @@ func NewOrganizationService(
 	if len(config.PageTokenKey) < minimumPageTokenKeyLength {
 		return nil, ErrInvalidPageTokenKey
 	}
+	if organizationFilterParserError != nil {
+		return nil, fmt.Errorf(
+			"initialize organization filter parser: %w",
+			organizationFilterParserError,
+		)
+	}
 
 	return &OrganizationService{
 		repository:        repository,

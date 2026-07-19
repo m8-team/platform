@@ -63,6 +63,9 @@ metadata and the typed response declared by the protobuf contract.
 List filters use CEL syntax. The supported v1 subset is equality on `state`,
 `name`, and `labels.<key>` or `labels["key"]`, joined with `&&`. State also
 supports membership expressions such as `state in ["ACTIVE", "SUSPENDED"]`.
+CEL parsing and resource limits come from `internal/platform/filter`; Resource
+Manager translates its neutral predicates into the module-owned typed
+repository filter and validates states, operators, and duplicate conditions.
 Ordering accepts one of `id`, `name`, `create_time`, or `update_time`,
 optionally followed by `asc` or `desc`.
 

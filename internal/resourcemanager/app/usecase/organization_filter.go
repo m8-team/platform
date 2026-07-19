@@ -4,39 +4,28 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"unicode/utf8"
 
-	"github.com/google/cel-go/cel"
-	"github.com/google/cel-go/common/ast"
-	"github.com/google/cel-go/common/operators"
+	platformfilter "github.com/m8-team/platform/internal/platform/filter"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 )
 
 const maximumOrganizationFilterRunes = 1024
 
-var organizationFilterEnvironment, organizationFilterEnvironmentError = cel.NewEnv(
-	cel.ClearMacros(),
-	cel.ParserExpressionSizeLimit(maximumOrganizationFilterRunes),
-	cel.ParserRecursionLimit(32),
-	cel.Variable("state", cel.StringType),
-	cel.Variable("name", cel.StringType),
-	cel.Variable("labels", cel.MapType(cel.StringType, cel.StringType)),
+var organizationFilterParser, organizationFilterParserError = platformfilter.NewCELParser(
+	platformfilter.CELParserConfig{
+		MaxExpressionRunes: maximumOrganizationFilterRunes,
+		Variables: []platformfilter.Variable{
+			platformfilter.ScalarVariable("state", platformfilter.StringKind),
+			platformfilter.ScalarVariable("name", platformfilter.StringKind),
+			platformfilter.MapVariable(
+				"labels",
+				platformfilter.StringKind,
+				platformfilter.StringKind,
+			),
+		},
+	},
 )
-
-type organizationFilterFieldKind uint8
-
-const (
-	organizationFilterFieldUnknown organizationFilterFieldKind = iota
-	organizationFilterFieldState
-	organizationFilterFieldName
-	organizationFilterFieldLabel
-)
-
-type organizationFilterField struct {
-	kind     organizationFilterFieldKind
-	labelKey string
-}
 
 type organizationFilterBuilder struct {
 	filter   ports.OrganizationFilter
@@ -44,46 +33,33 @@ type organizationFilterBuilder struct {
 }
 
 func parseOrganizationFilter(raw string) (ports.OrganizationFilter, error) {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return ports.OrganizationFilter{}, nil
-	}
-	if utf8.RuneCountInString(raw) > maximumOrganizationFilterRunes {
+	if organizationFilterParserError != nil {
 		return ports.OrganizationFilter{}, fmt.Errorf(
-			"%w: exceeds %d characters",
-			ErrInvalidOrganizationFilter,
-			maximumOrganizationFilterRunes,
-		)
-	}
-	if organizationFilterEnvironmentError != nil {
-		return ports.OrganizationFilter{}, fmt.Errorf(
-			"%w: initialize CEL environment: %v",
-			ErrInvalidOrganizationFilter,
-			organizationFilterEnvironmentError,
+			"initialize organization filter parser: %w",
+			organizationFilterParserError,
 		)
 	}
 
-	checked, issues := organizationFilterEnvironment.Compile(raw)
-	if issues != nil && issues.Err() != nil {
+	expression, err := organizationFilterParser.Parse(raw)
+	if err != nil {
 		return ports.OrganizationFilter{}, fmt.Errorf(
-			"%w: CEL expression: %v",
+			"%w: %v",
 			ErrInvalidOrganizationFilter,
-			issues.Err(),
-		)
-	}
-	if !checked.OutputType().IsEquivalentType(cel.BoolType) {
-		return ports.OrganizationFilter{}, fmt.Errorf(
-			"%w: CEL expression must return bool, got %s",
-			ErrInvalidOrganizationFilter,
-			checked.OutputType(),
+			err,
 		)
 	}
 
 	builder := organizationFilterBuilder{
 		filter: ports.OrganizationFilter{LabelsEqual: make(map[string]string)},
 	}
-	if err := builder.add(checked.NativeRep().Expr()); err != nil {
-		return ports.OrganizationFilter{}, fmt.Errorf("%w: %v", ErrInvalidOrganizationFilter, err)
+	for _, predicate := range expression.Predicates() {
+		if err := builder.add(predicate); err != nil {
+			return ports.OrganizationFilter{}, fmt.Errorf(
+				"%w: %v",
+				ErrInvalidOrganizationFilter,
+				err,
+			)
+		}
 	}
 
 	if len(builder.filter.LabelsEqual) == 0 {
@@ -93,47 +69,33 @@ func parseOrganizationFilter(raw string) (ports.OrganizationFilter, error) {
 	return builder.filter, nil
 }
 
-func (b *organizationFilterBuilder) add(expression ast.Expr) error {
-	if expression.Kind() != ast.CallKind {
-		return fmt.Errorf("unsupported CEL expression; expected equality, membership, or conjunction")
-	}
-
-	call := expression.AsCall()
-	switch call.FunctionName() {
-	case operators.LogicalAnd:
-		if len(call.Args()) != 2 {
-			return fmt.Errorf("invalid CEL conjunction")
-		}
-		if err := b.add(call.Args()[0]); err != nil {
-			return err
-		}
-		return b.add(call.Args()[1])
-	case operators.Equals:
-		return b.addEquality(call.Args())
-	case operators.In, operators.OldIn:
-		return b.addStateMembership(call.Args())
+func (b *organizationFilterBuilder) add(predicate platformfilter.Predicate) error {
+	switch predicate.Operator() {
+	case platformfilter.EqualsOperator:
+		return b.addEquality(predicate)
+	case platformfilter.InOperator:
+		return b.addStateMembership(predicate)
 	default:
-		return fmt.Errorf("unsupported CEL operator or function %q", call.FunctionName())
+		return fmt.Errorf("unsupported filter operator %d", predicate.Operator())
 	}
 }
 
-func (b *organizationFilterBuilder) addEquality(arguments []ast.Expr) error {
-	if len(arguments) != 2 {
-		return fmt.Errorf("invalid CEL equality")
+func (b *organizationFilterBuilder) addEquality(predicate platformfilter.Predicate) error {
+	values := predicate.Values()
+	if len(values) != 1 {
+		return fmt.Errorf("equality requires exactly one value")
+	}
+	field := predicate.Field()
+	value, ok := values[0].AsString()
+	if !ok {
+		return fmt.Errorf("%s must be compared with a string literal", field.Name())
 	}
 
-	field, fieldOK := parseOrganizationFilterField(arguments[0])
-	value, valueOK := parseStringLiteral(arguments[1])
-	if !fieldOK || !valueOK {
-		field, fieldOK = parseOrganizationFilterField(arguments[1])
-		value, valueOK = parseStringLiteral(arguments[0])
-	}
-	if !fieldOK || !valueOK {
-		return fmt.Errorf("equality must compare a supported field with a string literal")
-	}
-
-	switch field.kind {
-	case organizationFilterFieldState:
+	switch field.Name() {
+	case "state":
+		if _, hasKey := field.Key(); hasKey {
+			return fmt.Errorf("state does not support a map key")
+		}
 		if len(b.filter.States) != 0 {
 			return fmt.Errorf("duplicate state predicate")
 		}
@@ -142,46 +104,49 @@ func (b *organizationFilterBuilder) addEquality(arguments []ast.Expr) error {
 			return err
 		}
 		b.filter.States = []organization.State{state}
-	case organizationFilterFieldName:
+	case "name":
+		if _, hasKey := field.Key(); hasKey {
+			return fmt.Errorf("name does not support a map key")
+		}
 		if b.seenName {
 			return fmt.Errorf("duplicate name predicate")
 		}
 		b.seenName = true
 		b.filter.NameEquals = &value
-	case organizationFilterFieldLabel:
-		if field.labelKey == "" {
-			return fmt.Errorf("label key is empty")
+	case "labels":
+		key, err := organizationLabelKey(field)
+		if err != nil {
+			return err
 		}
-		if _, duplicate := b.filter.LabelsEqual[field.labelKey]; duplicate {
-			return fmt.Errorf("duplicate label predicate %q", field.labelKey)
+		if _, duplicate := b.filter.LabelsEqual[key]; duplicate {
+			return fmt.Errorf("duplicate label predicate %q", key)
 		}
-		b.filter.LabelsEqual[field.labelKey] = value
+		b.filter.LabelsEqual[key] = value
 	default:
-		return fmt.Errorf("unsupported field")
+		return fmt.Errorf("unsupported field %q", field.Name())
 	}
 
 	return nil
 }
 
-func (b *organizationFilterBuilder) addStateMembership(arguments []ast.Expr) error {
-	if len(arguments) != 2 {
-		return fmt.Errorf("invalid CEL membership expression")
-	}
-	field, ok := parseOrganizationFilterField(arguments[0])
-	if !ok || field.kind != organizationFilterFieldState {
+func (b *organizationFilterBuilder) addStateMembership(predicate platformfilter.Predicate) error {
+	field := predicate.Field()
+	_, hasKey := field.Key()
+	if field.Name() != "state" || hasKey {
 		return fmt.Errorf("membership is supported only for state")
 	}
 	if len(b.filter.States) != 0 {
 		return fmt.Errorf("duplicate state predicate")
 	}
-	if arguments[1].Kind() != ast.ListKind || arguments[1].AsList().Size() == 0 {
+	values := predicate.Values()
+	if len(values) == 0 {
 		return fmt.Errorf("state membership requires a non-empty string list")
 	}
 
-	seen := make(map[organization.State]struct{}, arguments[1].AsList().Size())
-	states := make([]organization.State, 0, arguments[1].AsList().Size())
-	for _, element := range arguments[1].AsList().Elements() {
-		value, ok := parseStringLiteral(element)
+	seen := make(map[organization.State]struct{}, len(values))
+	states := make([]organization.State, 0, len(values))
+	for _, literal := range values {
+		value, ok := literal.AsString()
 		if !ok {
 			return fmt.Errorf("state membership values must be string literals")
 		}
@@ -199,50 +164,19 @@ func (b *organizationFilterBuilder) addStateMembership(arguments []ast.Expr) err
 	return nil
 }
 
-func parseOrganizationFilterField(expression ast.Expr) (organizationFilterField, bool) {
-	switch expression.Kind() {
-	case ast.IdentKind:
-		switch expression.AsIdent() {
-		case "state":
-			return organizationFilterField{kind: organizationFilterFieldState}, true
-		case "name":
-			return organizationFilterField{kind: organizationFilterFieldName}, true
-		default:
-			return organizationFilterField{}, false
-		}
-	case ast.SelectKind:
-		selection := expression.AsSelect()
-		if !selection.IsTestOnly() && isLabelsIdentifier(selection.Operand()) {
-			return organizationFilterField{
-				kind:     organizationFilterFieldLabel,
-				labelKey: selection.FieldName(),
-			}, true
-		}
-	case ast.CallKind:
-		call := expression.AsCall()
-		if call.FunctionName() != operators.Index || len(call.Args()) != 2 || !isLabelsIdentifier(call.Args()[0]) {
-			return organizationFilterField{}, false
-		}
-		key, ok := parseStringLiteral(call.Args()[1])
-		if !ok {
-			return organizationFilterField{}, false
-		}
-		return organizationFilterField{kind: organizationFilterFieldLabel, labelKey: key}, true
+func organizationLabelKey(field platformfilter.FieldReference) (string, error) {
+	literal, ok := field.Key()
+	if !ok {
+		return "", fmt.Errorf("labels require a map key")
 	}
-
-	return organizationFilterField{}, false
-}
-
-func isLabelsIdentifier(expression ast.Expr) bool {
-	return expression.Kind() == ast.IdentKind && expression.AsIdent() == "labels"
-}
-
-func parseStringLiteral(expression ast.Expr) (string, bool) {
-	if expression.Kind() != ast.LiteralKind {
-		return "", false
+	key, ok := literal.AsString()
+	if !ok {
+		return "", fmt.Errorf("label key must be a string literal")
 	}
-	value, ok := expression.AsLiteral().Value().(string)
-	return value, ok
+	if key == "" {
+		return "", fmt.Errorf("label key is empty")
+	}
+	return key, nil
 }
 
 func parseOrganizationFilterState(value string) (organization.State, error) {
