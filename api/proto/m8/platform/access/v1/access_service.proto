@@ -10,7 +10,7 @@ import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 
-option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
 
 // AccessService exposes AuthZEN-compatible authorization decision APIs.
 service AccessService {
@@ -83,9 +83,7 @@ service AccessService {
 
   // Returns the AuthZEN discovery configuration for this Policy Decision Point.
   rpc GetConfiguration(GetConfigurationRequest) returns (ConfigurationResponse) {
-    option (google.api.http) = {
-      get: "/.well-known/authzen-configuration"
-    };
+    option (google.api.http) = {get: "/.well-known/authzen-configuration"};
     option (gnostic.openapi.v3.operation) = {
       summary: "Configuration"
       description: "Returns the AuthZEN discovery configuration for this Policy Decision Point."
@@ -122,8 +120,8 @@ message EvaluateAccessRequest {
 message EvaluateAccessResponse {
   // Output only. Access decision; true means permit, false means deny.
   bool decision = 1 [
-      (google.api.field_behavior) = REQUIRED,
-      (google.api.field_behavior) = OUTPUT_ONLY
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY
   ];
 
   // Output only. Decision context, including optional reasons or error details.

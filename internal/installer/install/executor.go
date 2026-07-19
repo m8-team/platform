@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
-	installerhelm "github.com/m8platform/platform/internal/installer/helm"
-	installerkubernetes "github.com/m8platform/platform/internal/installer/kubernetes"
-	"github.com/m8platform/platform/internal/installer/operations"
-	"github.com/m8platform/platform/internal/installer/planner"
+	installerv1alpha1 "github.com/m8-team/platform/api/installer/v1alpha1"
+	installerhelm "github.com/m8-team/platform/internal/installer/helm"
+	installerkubernetes "github.com/m8-team/platform/internal/installer/kubernetes"
+	"github.com/m8-team/platform/internal/installer/operations"
+	"github.com/m8-team/platform/internal/installer/planner"
 )
 
 type Executor struct {

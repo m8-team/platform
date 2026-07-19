@@ -7,7 +7,7 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/resource-manager/organizations:
+    /resource-manager/v1/organizations:
         get:
             tags:
                 - OrganizationService
@@ -81,7 +81,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/organizations/{organization.id}:
+    /resource-manager/v1/organizations/{organization.id}:
         patch:
             tags:
                 - OrganizationService
@@ -115,7 +115,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/organizations/{organizationId}:
+    /resource-manager/v1/organizations/{organizationId}:
         get:
             tags:
                 - OrganizationService
@@ -174,7 +174,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/organizations/{organizationId}:undelete:
+    /resource-manager/v1/organizations/{organizationId}:undelete:
         post:
             tags:
                 - OrganizationService

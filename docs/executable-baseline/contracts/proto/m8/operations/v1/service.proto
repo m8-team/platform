@@ -4,7 +4,7 @@ syntax = "proto3";
 
   import "m8/common/v1/common.proto";
 
-  option go_package = "github.com/m8-platform/m8/gen/go/m8/operations/v1;operationsv1";
+  option go_package = "github.com/m8-team/platform/gen/go/m8/operations/v1;operationsv1";
 
   service OperationsService {
     // OPS-FR-004 | public | idempotency=true

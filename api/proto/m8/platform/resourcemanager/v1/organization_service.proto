@@ -7,8 +7,8 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/field_mask.proto";
 import "google/longrunning/operations.proto";
+import "google/protobuf/field_mask.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/organization.proto";
 
@@ -242,7 +242,5 @@ message UndeleteOrganizationRequest {
 // Response returned by completed organization long-running operations.
 message OrganizationOperationResponse {
   // Output only. Organization affected by the operation.
-  Organization organization = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY
-  ];
+  Organization organization = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

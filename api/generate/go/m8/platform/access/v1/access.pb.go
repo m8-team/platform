@@ -447,7 +447,7 @@ const file_m8_platform_access_v1_access_proto_rawDesc = "" +
 	"\asubject\x18\x01 \x01(\v2\x1e.m8.platform.access.v1.SubjectB\x03\xe0A\x01R\asubject\x12:\n" +
 	"\x06action\x18\x02 \x01(\v2\x1d.m8.platform.access.v1.ActionB\x03\xe0A\x01R\x06action\x12@\n" +
 	"\bresource\x18\x03 \x01(\v2\x1f.m8.platform.access.v1.ResourceB\x03\xe0A\x01R\bresource\x126\n" +
-	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontextB?Z=github.com/m8-platform/m8/gen/go/m8/platform/access/v1;accessb\x06proto3"
+	"\acontext\x18\x04 \x01(\v2\x17.google.protobuf.StructB\x03\xe0A\x01R\acontextB=Z;github.com/m8-team/go-genproto/m8/platform/access/v1;accessb\x06proto3"
 
 var (
 	file_m8_platform_access_v1_access_proto_rawDescOnce sync.Once

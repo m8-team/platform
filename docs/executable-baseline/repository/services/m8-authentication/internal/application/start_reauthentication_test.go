@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/m8-platform/m8/internal/platform/idempotency"
-	"github.com/m8-platform/m8/internal/platform/operation"
-	"github.com/m8-platform/m8/services/m8-authentication/internal/domain"
+	"github.com/m8-team/platform/internal/platform/idempotency"
+	"github.com/m8-team/platform/internal/platform/operation"
+	"github.com/m8-team/platform/services/m8-authentication/internal/domain"
 )
 
 type clients struct{ client domain.Client }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/m8platform/platform/internal/access/domain"
+	"github.com/m8-team/platform/internal/access/domain"
 	"go.uber.org/fx"
 )
 

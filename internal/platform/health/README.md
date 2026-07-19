@@ -82,7 +82,7 @@ if err != nil {
 import (
     "net/http"
 
-    healthhttp "github.com/m8platform/platform/internal/platform/health/adapters/http"
+    healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
 )
 
 registry := health.NewRegistry()
@@ -99,7 +99,7 @@ The HTTP adapter returns JSON snapshots. `HEALTHY` and `DEGRADED` return HTTP 20
 import (
     "time"
 
-    healthgrpc "github.com/m8platform/platform/internal/platform/health/adapters/grpc"
+    healthgrpc "github.com/m8-team/platform/internal/platform/health/adapters/grpc"
     grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
 )
 

@@ -4,7 +4,7 @@ info:
   description: 'OrganizationService manages organizations: it lets clients create, read, list, update, archive, and restore them.'
   version: v1
 paths:
-  /v1/resource-manager/organizations:
+  /resource-manager/v1/organizations:
     get:
       summary: List
       description: Returns a paginated list of organizations available to the caller.
@@ -74,7 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/organizations/{organization.id}:
+  /resource-manager/v1/organizations/{organization.id}:
     patch:
       summary: Update
       description: Updates mutable fields of an existing organization.
@@ -106,7 +106,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/organizations/{organizationId}:
+  /resource-manager/v1/organizations/{organizationId}:
     get:
       summary: Get
       description: Returns a single organization by its UUID.
@@ -161,7 +161,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/organizations/{organizationId}:undelete:
+  /resource-manager/v1/organizations/{organizationId}:undelete:
     post:
       summary: Undelete
       description: Restores a previously soft-deleted organization.

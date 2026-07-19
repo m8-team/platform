@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/m8platform/platform/internal/platform/health"
+	"github.com/m8-team/platform/internal/platform/health"
 )
 
 func TestPingCheckSuccess(t *testing.T) {

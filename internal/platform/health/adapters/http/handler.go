@@ -5,7 +5,7 @@ import (
 	nethttp "net/http"
 	"time"
 
-	"github.com/m8platform/platform/internal/platform/health"
+	"github.com/m8-team/platform/internal/platform/health"
 )
 
 type Handler struct {

@@ -21,7 +21,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ConfigurationResponse'
-    /v1/access/evaluation:
+    /access/v1/evaluation:
         post:
             tags:
                 - AccessService
@@ -41,7 +41,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/EvaluateAccessResponse'
-    /v1/access/evaluations:
+    /access/v1/evaluations:
         post:
             tags:
                 - AccessService
@@ -61,7 +61,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/EvaluateAccessBatchResponse'
-    /v1/access/search/action:
+    /access/v1/search/action:
         post:
             tags:
                 - AccessService
@@ -81,7 +81,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchActionsResponse'
-    /v1/access/search/resource:
+    /access/v1/search/resource:
         post:
             tags:
                 - AccessService
@@ -101,7 +101,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SearchResourcesResponse'
-    /v1/access/search/subject:
+    /access/v1/search/subject:
         post:
             tags:
                 - AccessService
@@ -237,6 +237,8 @@ components:
                     description: Optional. Request context such as time, environment, or request metadata.
             description: EvaluateAccessRequest is the AuthZEN Access Evaluation API request.
         EvaluateAccessResponse:
+            required:
+                - decision
             type: object
             properties:
                 decision:

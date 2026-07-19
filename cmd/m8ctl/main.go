@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/m8platform/platform/internal/installer/cli"
+	"github.com/m8-team/platform/internal/installer/cli"
 )
 
 func main() {

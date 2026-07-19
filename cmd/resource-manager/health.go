@@ -8,15 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/m8platform/platform/internal/platform/health"
-	healthhttp "github.com/m8platform/platform/internal/platform/health/adapters/http"
-	"github.com/m8platform/platform/internal/platform/health/checks"
+	"github.com/m8-team/platform/internal/platform/health"
+	healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
+	"github.com/m8-team/platform/internal/platform/health/checks"
 	"go.uber.org/fx"
 )
 
 type HealthHTTPConfig struct {
 	Address string
 }
+
+const yaRuHealthCheckName = "Ping ya.ru"
 
 func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 	return fx.Module(
@@ -30,22 +32,18 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 func registerResourceManagerHealthChecks(registry health.Registry) error {
 	return health.Register(registry, health.Config{
 		Spec: health.Spec{
-			Name: "Ping ya.ru",
+			Name: yaRuHealthCheckName,
 			Target: health.Target{
-				Kind:   health.TargetKindModule,
-				Name:   "11ya.ru",
+				Kind:   health.TargetKindDependency,
+				Name:   "ya.ru",
 				Module: "resource-manager",
 			},
-			Kinds: []health.Kind{
-				health.KindReadiness,
-				health.KindLiveness,
-				health.KindStartup,
-			},
+			Kinds:       []health.Kind{health.KindReadiness},
 			Criticality: health.CriticalityOptional,
 			Timeout:     1 * time.Second,
 			Interval:    10 * time.Second,
 		},
-		Check: checks.NewHTTPCheck("ya.ru", http.DefaultClient, "https://google.com"),
+		Check: checks.NewHTTPCheck("ya.ru", http.DefaultClient, "https://ya.ru"),
 	})
 }
 

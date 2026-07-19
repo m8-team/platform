@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/m8platform/platform/internal/platform/health"
+	"github.com/m8-team/platform/internal/platform/health"
 )
 
 var errPingFuncRequired = errors.New("ping function is required")

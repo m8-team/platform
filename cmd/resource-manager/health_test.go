@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/m8platform/platform/internal/platform/health"
+	"github.com/m8-team/platform/internal/platform/health"
 )
 
 func TestRegisterResourceManagerHealthChecks(t *testing.T) {

@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	"github.com/m8platform/platform/internal/access/domain"
+	"github.com/m8-team/platform/internal/access/domain"
 )
 
 type CheckPermissionCommand struct {

@@ -321,7 +321,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/GetOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/GetOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -341,7 +341,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/ListOrganizations", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/ListOrganizations", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -361,7 +361,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/CreateOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/CreateOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -381,7 +381,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UpdateOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization.id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UpdateOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -401,7 +401,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/DeleteOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/DeleteOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -421,7 +421,7 @@ func RegisterOrganizationServiceHandlerServer(ctx context.Context, mux *runtime.
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UndeleteOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}:undelete"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UndeleteOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -479,7 +479,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/GetOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/GetOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -496,7 +496,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/ListOrganizations", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/ListOrganizations", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -513,7 +513,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/CreateOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/CreateOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -530,7 +530,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UpdateOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization.id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UpdateOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization.id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -547,7 +547,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/DeleteOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/DeleteOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -564,7 +564,7 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UndeleteOrganization", runtime.WithHTTPPathPattern("/v1/resource-manager/organizations/{organization_id}:undelete"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrganizationService/UndeleteOrganization", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}:undelete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -581,12 +581,12 @@ func RegisterOrganizationServiceHandlerClient(ctx context.Context, mux *runtime.
 }
 
 var (
-	pattern_OrganizationService_GetOrganization_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "resource-manager", "organizations", "organization_id"}, ""))
-	pattern_OrganizationService_ListOrganizations_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "resource-manager", "organizations"}, ""))
-	pattern_OrganizationService_CreateOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "resource-manager", "organizations"}, ""))
-	pattern_OrganizationService_UpdateOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "resource-manager", "organizations", "organization.id"}, ""))
-	pattern_OrganizationService_DeleteOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "resource-manager", "organizations", "organization_id"}, ""))
-	pattern_OrganizationService_UndeleteOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "resource-manager", "organizations", "organization_id"}, "undelete"))
+	pattern_OrganizationService_GetOrganization_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "organizations", "organization_id"}, ""))
+	pattern_OrganizationService_ListOrganizations_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "organizations"}, ""))
+	pattern_OrganizationService_CreateOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "organizations"}, ""))
+	pattern_OrganizationService_UpdateOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "organizations", "organization.id"}, ""))
+	pattern_OrganizationService_DeleteOrganization_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "organizations", "organization_id"}, ""))
+	pattern_OrganizationService_UndeleteOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "organizations", "organization_id"}, "undelete"))
 )
 
 var (

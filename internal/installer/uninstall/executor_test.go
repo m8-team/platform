@@ -3,7 +3,7 @@ package uninstall
 import (
 	"testing"
 
-	"github.com/m8platform/platform/internal/installer/planner"
+	"github.com/m8-team/platform/internal/installer/planner"
 )
 
 func TestArgoApplicationNames(t *testing.T) {

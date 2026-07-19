@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	installerv1alpha1 "github.com/m8platform/platform/api/installer/v1alpha1"
-	"github.com/m8platform/platform/internal/installer/preflight"
+	installerv1alpha1 "github.com/m8-team/platform/api/installer/v1alpha1"
+	"github.com/m8-team/platform/internal/installer/preflight"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"

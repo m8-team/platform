@@ -33,6 +33,19 @@ This document is intentionally grounded in the existing protobuf contracts and s
 
 The goal of this specification is not to invent a new model, but to define how the current contracts should be implemented as a coherent domain, application layer, persistence model, and event source for adjacent platform services.
 
+## Implementation Status
+
+`OrganizationService` now has a clean-architecture vertical slice covering its
+six protobuf RPCs. It includes lifecycle domain behavior, optimistic
+concurrency, authorization and hierarchy ports, signed keyset pagination,
+manual RPC-aware validation, gRPC status mapping, and completed LRO responses.
+
+The executable currently composes process-local persistence and a placeholder
+Workspace-child projection. These adapters are for local development and
+contract testing only. Durable storage, transactional outbox/idempotency,
+Access integration, and a pollable `google.longrunning.Operations` backend
+remain production follow-up work.
+
 ## Scope
 
 Resource Manager is in scope for the following responsibilities:
