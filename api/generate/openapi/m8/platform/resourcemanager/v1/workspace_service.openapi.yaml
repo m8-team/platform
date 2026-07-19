@@ -7,7 +7,7 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/resource-manager/workspaces:
+    /resource-manager/v1/workspaces:
         get:
             tags:
                 - WorkspaceService
@@ -98,7 +98,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/workspaces/{id}:
+    /resource-manager/v1/workspaces/{id}:
         get:
             tags:
                 - WorkspaceService
@@ -157,7 +157,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/workspaces/{id}:undelete:
+    /resource-manager/v1/workspaces/{id}:undelete:
         post:
             tags:
                 - WorkspaceService
@@ -180,7 +180,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/workspaces/{workspace.id}:
+    /resource-manager/v1/workspaces/{workspace.id}:
         patch:
             tags:
                 - WorkspaceService

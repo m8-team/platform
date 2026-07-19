@@ -1,0 +1,447 @@
+{
+  "info": {
+    "_postman_id": "7e1585e3-8fe6-4a16-b922-3e7555081f73",
+    "name": "M8 Resource Manager - REST",
+    "description": "REST requests generated from the current google.api.http annotations under api/proto/m8/platform/resourcemanager/v1. The current HTTP runtime exposes health endpoints only; business routes are ready for the future gRPC-Gateway and currently return 404. Run folders in order to capture IDs and optimistic-lock versions automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test(\"Status code is 2xx\", function () {",
+          "    pm.expect(pm.response.code).to.be.within(200, 299);",
+          "});",
+          "",
+          "let body;",
+          "try {",
+          "    body = pm.response.json();",
+          "} catch (error) {",
+          "    body = null;",
+          "}",
+          "",
+          "if (body) {",
+          "    const path = pm.request.url.getPath();",
+          "    const resources = [",
+          "        { segment: '/organizations', singular: 'organization', plural: 'organizations' },",
+          "        { segment: '/workspaces', singular: 'workspace', plural: 'workspaces' },",
+          "        { segment: '/services', singular: 'service', plural: 'services' }",
+          "    ];",
+          "",
+          "    const descriptor = resources.find(function (resource) {",
+          "        return path.indexOf(resource.segment) !== -1;",
+          "    });",
+          "",
+          "    if (descriptor) {",
+          "        let resource = null;",
+          "        if (body.response && body.response[descriptor.singular]) {",
+          "            resource = body.response[descriptor.singular];",
+          "        } else if (body[descriptor.singular]) {",
+          "            resource = body[descriptor.singular];",
+          "        } else if (body.id) {",
+          "            resource = body;",
+          "        } else if (Array.isArray(body[descriptor.plural]) && body[descriptor.plural].length > 0) {",
+          "            resource = body[descriptor.plural][0];",
+          "        }",
+          "",
+          "        if (resource && resource.id) {",
+          "            pm.environment.set(descriptor.singular + '_id', resource.id);",
+          "        }",
+          "        if (resource && resource.version !== undefined) {",
+          "            pm.environment.set(descriptor.singular + '_version', String(resource.version));",
+          "        }",
+          "        if (body.nextPageToken !== undefined) {",
+          "            pm.environment.set(descriptor.singular + '_page_token', body.nextPageToken);",
+          "        }",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "description": "HTTP endpoints implemented by the current Resource Manager runtime.",
+      "item": [
+        {
+          "name": "Liveness",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/livez",
+            "description": "Process liveness probe."
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/readyz",
+            "description": "Dependency-aware readiness probe."
+          },
+          "response": []
+        },
+        {
+          "name": "Startup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/startupz",
+            "description": "Startup probe."
+          },
+          "response": []
+        },
+        {
+          "name": "Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/healthz",
+            "description": "Detailed health endpoint."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Organizations",
+      "description": "OrganizationService REST transcoding contract.",
+      "item": [
+        {
+          "name": "01 CreateOrganization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"postman-org-{{$timestamp}}\",\n  \"description\": \"Created by Postman over REST\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/organizations",
+            "description": "Creates an organization. The HTTP body is the Organization resource itself, not a CreateOrganizationRequest wrapper."
+          },
+          "response": []
+        },
+        {
+          "name": "02 GetOrganization",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/organizations/{{organization_id}}",
+            "description": "Gets one organization by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "03 ListOrganizations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/organizations?pageSize={{page_size}}&pageToken={{organization_page_token}}&filter={{filter}}&orderBy={{order_by}}&showDeleted={{show_deleted}}",
+            "description": "Lists organizations with pagination, filtering, ordering, and optional soft-deleted resources."
+          },
+          "response": []
+        },
+        {
+          "name": "04 UpdateOrganization",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{organization_id}}\",\n  \"name\": \"postman-org-updated\",\n  \"description\": \"Updated by Postman over REST\",\n  \"version\": \"{{organization_version}}\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/organizations/{{organization_id}}?updateMask=name,description,labels",
+            "description": "Updates mutable organization fields using an optimistic-lock version. The HTTP body is the Organization resource."
+          },
+          "response": []
+        },
+        {
+          "name": "05 DeleteOrganization",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/organizations/{{organization_id}}?version={{organization_version}}&allowMissing={{allow_missing}}",
+            "description": "Soft-deletes an organization."
+          },
+          "response": []
+        },
+        {
+          "name": "06 UndeleteOrganization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{http_base_url}}/resource-manager/v1/organizations/{{organization_id}}:undelete",
+            "description": "Restores a soft-deleted organization. This route has no request body."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Workspaces",
+      "description": "WorkspaceService REST transcoding contract. Run Organizations first so organization_id is available.",
+      "item": [
+        {
+          "name": "01 CreateWorkspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"postman-workspace-{{$timestamp}}\",\n  \"description\": \"Created by Postman over REST\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces?organizationId={{organization_id}}",
+            "description": "Creates a workspace under organizationId. The HTTP body is the Workspace resource."
+          },
+          "response": []
+        },
+        {
+          "name": "02 GetWorkspace",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces/{{workspace_id}}",
+            "description": "Gets one workspace by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "03 ListWorkspaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces?organizationId={{organization_id}}&pageSize={{page_size}}&pageToken={{workspace_page_token}}&filter={{filter}}&orderBy={{order_by}}&showDeleted={{show_deleted}}",
+            "description": "Lists workspaces under an organization."
+          },
+          "response": []
+        },
+        {
+          "name": "04 UpdateWorkspace",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{workspace_id}}\",\n  \"name\": \"postman-workspace-updated\",\n  \"description\": \"Updated by Postman over REST\",\n  \"version\": \"{{workspace_version}}\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces/{{workspace_id}}?updateMask=name,description,labels",
+            "description": "Updates mutable workspace fields using an optimistic-lock version."
+          },
+          "response": []
+        },
+        {
+          "name": "05 DeleteWorkspace",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces/{{workspace_id}}?version={{workspace_version}}&allowMissing={{allow_missing}}",
+            "description": "Soft-deletes a workspace."
+          },
+          "response": []
+        },
+        {
+          "name": "06 UndeleteWorkspace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{http_base_url}}/resource-manager/v1/workspaces/{{workspace_id}}:undelete",
+            "description": "Restores a soft-deleted workspace. This route has no request body."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "description": "ServiceService REST transcoding contract. Run Workspaces first so workspace_id is available.",
+      "item": [
+        {
+          "name": "01 CreateService",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"postman-service-{{$timestamp}}\",\n  \"description\": \"Created by Postman over REST\",\n  \"environment\": \"{{service_environment}}\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/services?workspaceId={{workspace_id}}",
+            "description": "Creates a service under workspaceId. environment is required and immutable. The HTTP body is the Service resource."
+          },
+          "response": []
+        },
+        {
+          "name": "02 GetService",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/services/{{service_id}}",
+            "description": "Gets one service by UUID."
+          },
+          "response": []
+        },
+        {
+          "name": "03 ListServices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/services?workspaceId={{workspace_id}}&pageSize={{page_size}}&pageToken={{service_page_token}}&filter={{filter}}&orderBy={{order_by}}&showDeleted={{show_deleted}}",
+            "description": "Lists services under a workspace. Set filter to environment = \"prod\" to select an environment."
+          },
+          "response": []
+        },
+        {
+          "name": "04 UpdateService",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{service_id}}\",\n  \"name\": \"postman-service-updated\",\n  \"description\": \"Updated by Postman over REST\",\n  \"environment\": \"{{service_environment}}\",\n  \"version\": \"{{service_version}}\",\n  \"labels\": {\n    \"m8.io/source\": \"postman\",\n    \"m8.io/protocol\": \"rest\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{http_base_url}}/resource-manager/v1/services/{{service_id}}?updateMask=name,description,labels",
+            "description": "Updates mutable service fields. environment is sent to satisfy resource validation but is intentionally absent from updateMask because it is immutable."
+          },
+          "response": []
+        },
+        {
+          "name": "05 DeleteService",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{http_base_url}}/resource-manager/v1/services/{{service_id}}?version={{service_version}}&allowMissing={{allow_missing}}",
+            "description": "Soft-deletes a service."
+          },
+          "response": []
+        },
+        {
+          "name": "06 UndeleteService",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{http_base_url}}/resource-manager/v1/services/{{service_id}}:undelete",
+            "description": "Restores a soft-deleted service. This route has no request body."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "http_base_url",
+      "value": "http://127.0.0.1:8080",
+      "type": "string"
+    }
+  ]
+}
