@@ -249,13 +249,21 @@ function redact(value: unknown, depth = 0): unknown {
 }
 
 function isSensitiveKey(key: string) {
-  return /authorization|token|password|secret|cookie|api[-_]?key|credential|signature|session|otp|assertion|saml|client[-_]?data|csrf|baggage|(^|[-_])code($|[-_])/i.test(
-    key,
+  const normalizedKey = key.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase()
+
+  return (
+    /(?:^|[-_])(?:authorization|password|passwd|secret|cookie|credential|signature|session|otp|assertion|saml|csrf|baggage)(?:$|[-_])/.test(
+      normalizedKey,
+    ) ||
+    /(?:^|[-_])(?:access|refresh|identity|id|auth)[-_]?token(?:$|[-_])/.test(normalizedKey) ||
+    /(?:^|[-_])api[-_]?key(?:$|[-_])/.test(normalizedKey) ||
+    /(?:^|[-_])client[-_]?data(?:$|[-_])/.test(normalizedKey) ||
+    normalizedKey === 'token'
   )
 }
 
 function isSensitiveParameterKey(key: string) {
-  return isSensitiveKey(key) || /^(?:state|nonce)$/i.test(key)
+  return isSensitiveKey(key) || /^(?:authorization[-_]?code|auth[-_]?code|code)$/i.test(key)
 }
 
 function limitValue(value: string, maximumLength = MAXIMUM_VALUE_LENGTH) {
