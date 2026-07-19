@@ -331,6 +331,25 @@
   border-top: 1px solid var(--g-color-line-generic);
 }
 
+.m8-resource-table-sort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+.m8-resource-table-row_selected {
+  background: var(--g-color-base-selection);
+}
+
 .m8-resource-table-filters {
   width: min(420px, 100%);
   padding: 12px 14px;

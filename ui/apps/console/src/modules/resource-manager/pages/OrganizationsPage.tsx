@@ -1,15 +1,15 @@
 import {useCallback, useMemo, useState} from 'react'
 import {ArrowRotateRight} from '@gravity-ui/icons'
-import type {SortingState} from '@gravity-ui/table/tanstack'
 import {Button, Card, Icon, Text} from '@gravity-ui/uikit'
 import {useRouter} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
+import type {ResourceTableSortingState} from '../../../components/ResourceTable'
 import type {AppLanguage, Translate} from '../../../i18n'
 import {OrganizationsTable} from '../components/OrganizationsTable'
 import {useOrganizationsQuery} from '../queries/organizations'
 
-const defaultSorting: SortingState = [{id: 'name', desc: false}]
+const defaultSorting: ResourceTableSortingState = [{column: 'name', order: 'asc'}]
 
 export interface OrganizationsPageProps {
   language: AppLanguage
@@ -22,7 +22,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const [pageSize, setPageSize] = useState(20)
   const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
   const [nameFilter, setNameFilter] = useState('')
-  const [sorting, setSorting] = useState<SortingState>(defaultSorting)
+  const [sorting, setSorting] = useState<ResourceTableSortingState>(defaultSorting)
   const filter = useMemo(() => buildNameFilter(nameFilter), [nameFilter])
   const orderBy = useMemo(() => buildOrderBy(sorting), [sorting])
   const organizationsQuery = useOrganizationsQuery({
@@ -45,7 +45,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
     [resetPagination],
   )
   const handleSortingUpdate = useCallback(
-    (value: SortingState) => {
+    (value: ResourceTableSortingState) => {
       setSorting(value.length > 0 ? [value[0]] : defaultSorting)
       resetPagination()
     },
@@ -154,7 +154,7 @@ function buildNameFilter(value: string) {
   return name ? `name == ${JSON.stringify(name)}` : undefined
 }
 
-function buildOrderBy(sorting: SortingState) {
+function buildOrderBy(sorting: ResourceTableSortingState) {
   const selected = sorting[0] ?? defaultSorting[0]
   const fieldByColumn: Record<string, string> = {
     id: 'id',
@@ -162,6 +162,6 @@ function buildOrderBy(sorting: SortingState) {
     createTime: 'create_time',
     updateTime: 'update_time',
   }
-  const field = fieldByColumn[selected.id] ?? 'name'
-  return `${field} ${selected.desc ? 'desc' : 'asc'}`
+  const field = fieldByColumn[selected.column] ?? 'name'
+  return `${field} ${selected.order}`
 }

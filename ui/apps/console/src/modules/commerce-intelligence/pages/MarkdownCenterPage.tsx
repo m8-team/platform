@@ -1,11 +1,10 @@
 import {useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {Scatter, ScatterChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
 import {GuardrailList} from '../components/GuardrailList'
 import {getMarkdownCandidates} from '../mock/queries'
@@ -24,7 +23,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<MarkdownCandidate, unknown>[] = [
+const columns: DataTableColumn<MarkdownCandidate>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'currentPrice', header: 'Текущая цена'},

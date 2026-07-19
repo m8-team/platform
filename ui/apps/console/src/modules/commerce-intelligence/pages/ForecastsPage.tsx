@@ -1,9 +1,8 @@
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {Heatmap} from '../components/Heatmap'
 import {InsightPanel} from '../components/InsightPanel'
 import {getForecasts} from '../mock/queries'
@@ -22,7 +21,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<ForecastRiskSku, unknown>[] = [
+const columns: DataTableColumn<ForecastRiskSku>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'category', header: 'Категория'},

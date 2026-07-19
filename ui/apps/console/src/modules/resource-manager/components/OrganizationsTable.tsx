@@ -1,5 +1,5 @@
 import {ResourceTable} from '../../../components/ResourceTable'
-import type {SortingState} from '@gravity-ui/table/tanstack'
+import type {ResourceTableSortingState} from '../../../components/ResourceTable'
 
 import type {AppLanguage, Translate} from '../../../i18n'
 import type {Organization} from '../api/organizations'
@@ -15,9 +15,9 @@ export interface OrganizationsTableProps {
   total: number
   paginationDisabled: boolean
   nameFilter: string
-  sorting: SortingState
+  sorting: ResourceTableSortingState
   onFilterUpdate: (value: string) => void
-  onSortingUpdate: (value: SortingState) => void
+  onSortingUpdate: (value: ResourceTableSortingState) => void
   onPaginationUpdate: (page: number, pageSize: number) => void
   onOrganizationActivate: (organization: Organization) => void
   t: Translate
@@ -71,11 +71,8 @@ export function OrganizationsTable({
       }}
       settings={{
         storageKey: 'm8.resource-manager.organizations.table-settings',
-        enableSearch: true,
-        searchPlaceholder: t('organizations.settings.searchPlaceholder'),
       }}
       onRowActivate={onOrganizationActivate}
-      getRowAriaLabel={(organization) => organization.name || organization.id}
       renderSelectionActions={({selectedItems, clearSelection}) => (
         <OrganizationActionsPanel
           organizations={selectedItems}

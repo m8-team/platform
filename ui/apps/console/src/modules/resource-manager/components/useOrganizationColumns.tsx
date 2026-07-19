@@ -1,25 +1,25 @@
 import {useMemo} from 'react'
 import {ClipboardButton, Text} from '@gravity-ui/uikit'
-import type {ColumnDef} from '@gravity-ui/table/tanstack'
 
+import type {ResourceTableColumn} from '../../../components/ResourceTable'
 import type {AppLanguage, Translate} from '../../../i18n'
 import type {Organization} from '../api/organizations'
 import {CopyableOrganizationID, OrganizationStateLabel} from './OrganizationTableCells'
 
 export function useOrganizationColumns(language: AppLanguage, t: Translate) {
-  return useMemo<ColumnDef<Organization>[]>(
+  return useMemo<ResourceTableColumn<Organization>[]>(
     () => [
       {
-        accessorKey: 'name',
-        header: t('organizations.column.name'),
-        size: 260,
-        cell: ({row}) => (
+        id: 'name',
+        name: t('organizations.column.name'),
+        width: 260,
+        template: (organization) => (
           <div className="m8-organization-name">
             <div className="m8-copyable-cell">
-              <Text variant="body-2" ellipsis>{row.original.name || t('organizations.unnamed')}</Text>
-              {row.original.name ? (
+              <Text variant="body-2" ellipsis>{organization.name || t('organizations.unnamed')}</Text>
+              {organization.name ? (
                 <ClipboardButton
-                  text={row.original.name}
+                  text={organization.name}
                   view="flat-secondary"
                   size="s"
                   tooltipInitialText={t('resource.copy')}
@@ -27,43 +27,43 @@ export function useOrganizationColumns(language: AppLanguage, t: Translate) {
                 />
               ) : null}
             </div>
-            {row.original.description ? (
-              <Text variant="caption-2" color="secondary" ellipsis>{row.original.description}</Text>
+            {organization.description ? (
+              <Text variant="caption-2" color="secondary" ellipsis>{organization.description}</Text>
             ) : null}
           </div>
         ),
       },
       {
-        accessorKey: 'state',
-        header: t('organizations.column.state'),
-        size: 150,
-        enableSorting: false,
-        cell: ({getValue}) => <OrganizationStateLabel state={getValue<Organization['state']>()} />,
+        id: 'state',
+        name: t('organizations.column.state'),
+        width: 150,
+        meta: {sortable: false},
+        template: (organization) => <OrganizationStateLabel state={organization.state} />,
       },
       {
-        accessorKey: 'id',
-        header: t('organizations.column.id'),
-        size: 300,
-        cell: ({getValue}) => <CopyableOrganizationID id={getValue<string>()} t={t} />,
+        id: 'id',
+        name: t('organizations.column.id'),
+        width: 300,
+        template: (organization) => <CopyableOrganizationID id={organization.id} t={t} />,
       },
       {
-        accessorKey: 'version',
-        header: t('organizations.column.version'),
-        size: 100,
-        enableSorting: false,
-        cell: ({getValue}) => getValue<string | number>() ?? '—',
+        id: 'version',
+        name: t('organizations.column.version'),
+        width: 100,
+        meta: {sortable: false},
+        template: (organization) => organization.version ?? '—',
       },
       {
-        accessorKey: 'createTime',
-        header: t('organizations.column.created'),
-        size: 190,
-        cell: ({getValue}) => formatDate(getValue<string>(), language),
+        id: 'createTime',
+        name: t('organizations.column.created'),
+        width: 190,
+        template: (organization) => formatDate(organization.createTime, language),
       },
       {
-        accessorKey: 'updateTime',
-        header: t('organizations.column.updated'),
-        size: 190,
-        cell: ({getValue}) => formatDate(getValue<string>(), language),
+        id: 'updateTime',
+        name: t('organizations.column.updated'),
+        width: 190,
+        template: (organization) => formatDate(organization.updateTime, language),
       },
     ],
     [language, t],

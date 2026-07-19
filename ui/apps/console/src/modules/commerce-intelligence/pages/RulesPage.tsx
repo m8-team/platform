@@ -1,16 +1,15 @@
 import {useState} from 'react'
 import {Button, Text, TextInput} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {getRules} from '../mock/queries'
 import type {Rule} from '../mock/types'
 import {notifyAction} from '../utils'
 import {CommercePage, ErrorState, LoadingState, StatusCell} from './pageCommon'
 
-const columns: ColumnDef<Rule, unknown>[] = [
+const columns: DataTableColumn<Rule>[] = [
   {accessorKey: 'name', header: 'Название'},
   {accessorKey: 'type', header: 'Тип'},
   {accessorKey: 'scope', header: 'Область действия'},

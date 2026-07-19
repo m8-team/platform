@@ -288,6 +288,12 @@
   border-radius: 10px;
 }
 
+.ci-table .m8-resource-table-shell {
+  overflow: auto;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 10px;
+}
+
 .ci-table table {
   width: 100%;
   min-width: 980px;
@@ -328,7 +334,7 @@
 }
 
 .ci-table tbody tr:hover,
-.ci-table__row_selected {
+.ci-table .m8-resource-table-row_selected {
   background: #eef5ff;
 }
 

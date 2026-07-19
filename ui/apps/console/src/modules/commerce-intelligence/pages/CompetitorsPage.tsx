@@ -1,11 +1,10 @@
 import {useState} from 'react'
 import {Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
 import {Heatmap} from '../components/Heatmap'
 import {getCompetitors} from '../mock/queries'
@@ -23,7 +22,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<CompetitorMatch, unknown>[] = [
+const columns: DataTableColumn<CompetitorMatch>[] = [
   {accessorKey: 'sku', header: 'Наш SKU'},
   {accessorKey: 'competitor', header: 'Конкурент'},
   {accessorKey: 'competitorProduct', header: 'Товар конкурента'},

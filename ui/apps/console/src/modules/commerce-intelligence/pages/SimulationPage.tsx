@@ -1,11 +1,10 @@
 import {useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {GuardrailList} from '../components/GuardrailList'
 import {ScenarioBuilder} from '../components/ScenarioBuilder'
 import {WhatIfControls} from '../components/WhatIfControls'
@@ -25,7 +24,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const plannerColumns: ColumnDef<SimulationPlannerRow, unknown>[] = [
+const plannerColumns: DataTableColumn<SimulationPlannerRow>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'currentPrice', header: 'Текущая цена'},
   {accessorKey: 'markdown', header: 'Предлагаемая уценка'},

@@ -1,10 +1,9 @@
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {Bar, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ApprovalQueue} from '../components/ApprovalQueue'
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {Heatmap} from '../components/Heatmap'
 import {InsightPanel} from '../components/InsightPanel'
 import {getOverviewDashboard} from '../mock/queries'
@@ -21,7 +20,7 @@ const filters = [
   {key: 'scenario', label: 'Сценарий', options: [{value: 'base', content: 'Базовый'}, {value: 'margin', content: 'Максимум маржи'}]},
 ]
 
-const recommendationColumns: ColumnDef<PriceAction, unknown>[] = [
+const recommendationColumns: DataTableColumn<PriceAction>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'currentPrice', header: 'Текущая'},

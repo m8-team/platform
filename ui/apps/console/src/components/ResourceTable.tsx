@@ -1,27 +1,28 @@
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import type {ReactNode} from 'react'
-import {getSettingsColumn, selectionColumn, Table, useTable} from '@gravity-ui/table'
+import {Gear} from '@gravity-ui/icons'
 import {
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-} from '@gravity-ui/table/tanstack'
+  Button,
+  Checkbox,
+  Icon,
+  Pagination,
+  Table,
+  TableColumnSetup,
+  TextInput,
+} from '@gravity-ui/uikit'
 import type {
-  ColumnDef,
-  RowSelectionState,
-  SortingState,
-  Updater,
-  VisibilityState,
-} from '@gravity-ui/table/tanstack'
-import {Pagination, TextInput} from '@gravity-ui/uikit'
+  TableColumnConfig,
+  TableColumnSetupItem,
+  TableDataItem,
+} from '@gravity-ui/uikit'
 
-const selectionColumnId = '_select'
+const selectionColumnId = '_selection'
 const settingsColumnId = '_settings'
+
+type ColumnVisibility = Record<string, boolean>
 
 export interface ResourceTableSettings {
   storageKey?: string
-  enableSearch?: boolean
-  searchPlaceholder?: string
 }
 
 export interface ResourceTableClientPagination {
@@ -59,10 +60,17 @@ export interface ResourceTableServerFiltering extends ResourceTableFilteringBase
 
 export type ResourceTableFiltering = ResourceTableClientFiltering | ResourceTableServerFiltering
 
+export interface ResourceTableSortItem {
+  column: string
+  order: 'asc' | 'desc'
+}
+
+export type ResourceTableSortingState = ResourceTableSortItem[]
+
 export interface ResourceTableSorting {
   mode: 'server'
-  value: SortingState
-  onUpdate: (value: SortingState) => void
+  value: ResourceTableSortingState
+  onUpdate: (value: ResourceTableSortingState) => void
 }
 
 export interface ResourceTableSelectionActions<TData> {
@@ -70,16 +78,18 @@ export interface ResourceTableSelectionActions<TData> {
   clearSelection: () => void
 }
 
-export interface ResourceTableProps<TData> {
+export type ResourceTableColumn<TData> = TableColumnConfig<TData>
+
+export interface ResourceTableProps<TData extends TableDataItem> {
   data: TData[]
-  columns: ColumnDef<TData>[]
-  getRowId: (item: TData) => string
+  columns: ResourceTableColumn<TData>[]
+  getRowId: (item: TData, index: number) => string
   loading?: boolean
   loadingContent: string
   emptyContent: string
   className?: string
   onRowActivate?: (item: TData) => void
-  getRowAriaLabel?: (item: TData) => string
+  getRowClassNames?: (item: TData) => string[]
   selectable?: boolean
   onSelectedRowsChange?: (items: TData[]) => void
   settings?: ResourceTableSettings
@@ -90,7 +100,7 @@ export interface ResourceTableProps<TData> {
   sorting?: ResourceTableSorting
 }
 
-export function ResourceTable<TData>({
+export function ResourceTable<TData extends TableDataItem>({
   data,
   columns,
   getRowId,
@@ -99,7 +109,7 @@ export function ResourceTable<TData>({
   emptyContent,
   className,
   onRowActivate,
-  getRowAriaLabel,
+  getRowClassNames,
   selectable = false,
   onSelectedRowsChange,
   settings,
@@ -109,118 +119,158 @@ export function ResourceTable<TData>({
   sortable = false,
   sorting: controlledSorting,
 }: ResourceTableProps<TData>) {
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [internalPage, setInternalPage] = useState(1)
   const [internalPageSize, setInternalPageSize] = useState(
     pagination?.mode === 'client' ? pagination.defaultPageSize ?? 20 : 20,
   )
+  const [internalSorting, setInternalSorting] = useState<ResourceTableSortingState>([])
+  const [internalFilter, setInternalFilter] = useState('')
+  const initialSettings = useMemo(
+    () => readTableSettings(settings?.storageKey),
+    [settings?.storageKey],
+  )
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
+    initialSettings.columnVisibility,
+  )
+  const [columnOrder, setColumnOrder] = useState<string[]>(initialSettings.columnOrder)
+
   const serverPagination = pagination?.mode === 'server'
   const page = serverPagination ? pagination.page : internalPage
   const pageSize = serverPagination ? pagination.pageSize : internalPageSize
-  const [internalSorting, setInternalSorting] = useState<SortingState>([])
-  const sorting = controlledSorting?.value ?? internalSorting
-  const serverSorting = controlledSorting?.mode === 'server'
-  const [internalFilter, setInternalFilter] = useState('')
   const serverFiltering = filtering?.mode === 'server'
   const globalFilter = serverFiltering ? filtering.value : internalFilter
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
-    readTableSettings(settings?.storageKey).columnVisibility,
+  const serverSorting = controlledSorting?.mode === 'server'
+  const sorting = controlledSorting?.value ?? internalSorting
+
+  const orderedColumns = useMemo(
+    () => orderColumns(columns, columnOrder),
+    [columnOrder, columns],
   )
-  const [columnOrder, setColumnOrder] = useState<string[]>(() => {
-    const storedOrder = readTableSettings(settings?.storageKey).columnOrder
-    return storedOrder.length === 0 ? [] : normalizeColumnOrder(storedOrder, selectable, Boolean(settings))
-  })
-  const tableColumns = useMemo(
-    () => [
-      ...(selectable ? [selectionColumn as ColumnDef<TData>] : []),
-      ...columns,
-      ...(settings
-        ? [
-            getSettingsColumn<TData>(settingsColumnId, {
-              sortable: true,
-              filterable: true,
-              enableSearch: settings.enableSearch,
-              searchPlaceholder: settings.searchPlaceholder,
-            }),
-          ]
-        : []),
-    ],
-    [columns, selectable, settings],
+  const visibleColumns = useMemo(
+    () => orderedColumns.filter((column) => columnVisibility[column.id] !== false),
+    [columnVisibility, orderedColumns],
   )
-  const updateColumnVisibility = useCallback(
-    (updater: Updater<VisibilityState>) => {
-      setColumnVisibility((current) => {
-        const next = applyUpdater(updater, current)
-        persistTableSettings(settings?.storageKey, next, columnOrder)
-        return next
-      })
-    },
-    [columnOrder, settings?.storageKey],
+  const filteredData = useMemo(
+    () =>
+      filtering && !serverFiltering
+        ? filterRows(data, columns, globalFilter)
+        : data,
+    [columns, data, filtering, globalFilter, serverFiltering],
   )
-  const updateColumnOrder = useCallback(
-    (updater: Updater<string[]>) => {
-      setColumnOrder((current) => {
-        const requested = applyUpdater(updater, current)
-        const next = normalizeColumnOrder(requested, selectable, Boolean(settings))
-        persistTableSettings(settings?.storageKey, columnVisibility, next)
-        return next
-      })
-    },
-    [columnVisibility, selectable, settings],
+  const sortedData = useMemo(
+    () =>
+      sortable && !serverSorting
+        ? sortRows(filteredData, columns, sorting)
+        : filteredData,
+    [columns, filteredData, serverSorting, sortable, sorting],
   )
-  const table = useTable({
-    columns: tableColumns,
-    data,
-    getRowId,
-    enableRowSelection: selectable,
-    enableMultiRowSelection: selectable,
-    enableSorting: sortable,
-    onRowSelectionChange: setRowSelection,
-    onColumnOrderChange: updateColumnOrder,
-    onColumnVisibilityChange: updateColumnVisibility,
-    onSortingChange: (updater) => {
-      const next = applyUpdater(updater, sorting)
-      if (serverSorting) controlledSorting.onUpdate(next)
-      else setInternalSorting(next)
-    },
-    onGlobalFilterChange: (updater) => {
-      const next = applyUpdater(updater, globalFilter)
-      if (serverFiltering) filtering.onUpdate(next)
-      else setInternalFilter(next)
-    },
-    getFilteredRowModel: filtering && !serverFiltering ? getFilteredRowModel() : undefined,
-    getSortedRowModel: sortable && !serverSorting ? getSortedRowModel() : undefined,
-    getPaginationRowModel: pagination && !serverPagination ? getPaginationRowModel() : undefined,
-    manualPagination: serverPagination,
-    manualFiltering: serverFiltering,
-    manualSorting: serverSorting,
-    state: {
-      rowSelection,
-      columnOrder,
-      columnVisibility,
-      sorting,
-      globalFilter,
-      pagination: {pageIndex: page - 1, pageSize},
-    },
-  })
-  const filteredRowCount = serverPagination
-    ? pagination.total
-    : filtering
-      ? table.getFilteredRowModel().rows.length
-      : data.length
+  const filteredRowCount = serverPagination ? pagination.total : sortedData.length
   const lastPage = Math.max(1, Math.ceil(filteredRowCount / pageSize))
   const effectivePage = Math.min(page, lastPage)
-
-  const selectedItems = useMemo(
-    () => data.filter((item) => rowSelection[getRowId(item)]),
-    [data, getRowId, rowSelection],
+  const displayedData = useMemo(
+    () =>
+      serverPagination
+        ? sortedData
+        : sortedData.slice((effectivePage - 1) * pageSize, effectivePage * pageSize),
+    [effectivePage, pageSize, serverPagination, sortedData],
   )
+
+  const selectedItems = useMemo(() => {
+    const selected = new Set(selectedIds)
+    return data.filter((item, index) => selected.has(getRowId(item, index)))
+  }, [data, getRowId, selectedIds])
 
   useEffect(() => {
     onSelectedRowsChange?.(selectedItems)
   }, [onSelectedRowsChange, selectedItems])
 
-  const activate = (item: TData) => onRowActivate?.(item)
+  const updateSorting = useCallback(
+    (column: string) => {
+      const current = sorting.find((item) => item.column === column)
+      const next: ResourceTableSortingState = current
+        ? current.order === 'asc'
+          ? [{column, order: 'desc'}]
+          : []
+        : [{column, order: 'asc'}]
+
+      if (serverSorting) controlledSorting.onUpdate(next)
+      else {
+        setInternalSorting(next)
+        setInternalPage(1)
+      }
+    },
+    [controlledSorting, serverSorting, sorting],
+  )
+
+  const renderedColumns = useMemo(() => {
+    const contentColumns = visibleColumns.map((column) =>
+      sortable && column.meta?.sortable !== false
+        ? withSortingHeader(column, sorting, updateSorting)
+        : column,
+    )
+    const result: ResourceTableColumn<TData>[] = []
+
+    if (selectable) {
+      result.push(
+        createSelectionColumn(displayedData, selectedIds, setSelectedIds, getRowId),
+      )
+    }
+    result.push(...contentColumns)
+
+    if (settings) {
+      result.push({
+        id: settingsColumnId,
+        width: 52,
+        align: 'center',
+        name: () => (
+          <TableColumnSetup
+            items={createSettingsItems(columns, columnOrder, columnVisibility)}
+            sortable
+            showStatus
+            popupPlacement={['bottom-end', 'bottom', 'top-end', 'top']}
+            renderSwitcher={({onClick, onKeyDown}) => (
+              <Button
+                view="flat-secondary"
+                size="m"
+                aria-label="Настройки таблицы"
+                onClick={onClick}
+                onKeyDown={onKeyDown}
+              >
+                <Icon data={Gear} size={16} />
+              </Button>
+            )}
+            onUpdate={(items) => {
+              const nextOrder = items.map((item) => item.id)
+              const nextVisibility = Object.fromEntries(
+                items.map((item) => [item.id, item.selected !== false]),
+              )
+              setColumnOrder(nextOrder)
+              setColumnVisibility(nextVisibility)
+              persistTableSettings(settings.storageKey, nextVisibility, nextOrder)
+            }}
+          />
+        ),
+        template: () => null,
+        meta: {sortable: false},
+      })
+    }
+
+    return result
+  }, [
+    columnOrder,
+    columnVisibility,
+    columns,
+    displayedData,
+    getRowId,
+    selectable,
+    selectedIds,
+    settings,
+    sortable,
+    sorting,
+    updateSorting,
+    visibleColumns,
+  ])
 
   return (
     <div className="m8-resource-table">
@@ -241,30 +291,27 @@ export function ResourceTable<TData>({
       ) : null}
       <div className="m8-resource-table-shell" aria-busy={loading}>
         <Table
-          table={table}
-          size="m"
+          data={displayedData}
+          columns={renderedColumns}
+          width="max"
           className={className}
-          emptyContent={loading ? loadingContent : emptyContent}
+          emptyMessage={loading ? loadingContent : emptyContent}
+          getRowDescriptor={(item, index) => {
+            const id = getRowId(item, index)
+            return {
+              id,
+              interactive: Boolean(onRowActivate),
+              classNames: [
+                ...(getRowClassNames?.(item) ?? []),
+                ...(selectedIds.includes(id) ? ['m8-resource-table-row_selected'] : []),
+              ],
+            }
+          }}
           onRowClick={
             onRowActivate
-              ? (row, event) => {
-                  if (!isInteractiveTarget(event.target)) activate(row.original)
+              ? (item, _index, event) => {
+                  if (!isInteractiveTarget(event.target)) onRowActivate(item)
                 }
-              : undefined
-          }
-          rowAttributes={
-            onRowActivate
-              ? (row) => ({
-                  tabIndex: 0,
-                  'aria-label': getRowAriaLabel?.(row.original),
-                  onKeyDown: (event) => {
-                    if (isInteractiveTarget(event.target)) return
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      activate(row.original)
-                    }
-                  },
-                })
               : undefined
           }
         />
@@ -283,28 +330,188 @@ export function ResourceTable<TData>({
               if (serverPagination) {
                 if (!pagination.disabled) pagination.onUpdate(nextPage, nextPageSize)
               } else {
-                setInternalPage(nextPage)
+                setInternalPage(nextPageSize === pageSize ? nextPage : 1)
                 setInternalPageSize(nextPageSize)
               }
             }}
             showPages={!serverPagination}
             showInput={false}
-            className={serverPagination && pagination.disabled ? 'm8-resource-table-pagination_disabled' : undefined}
+            className={
+              serverPagination && pagination.disabled
+                ? 'm8-resource-table-pagination_disabled'
+                : undefined
+            }
           />
         </div>
       ) : null}
-      {selectedItems.length > 0 && renderSelectionActions
-        ? (
-            <div className="m8-selection-actions-footer">
-              {renderSelectionActions({
-                selectedItems,
-                clearSelection: () => setRowSelection({}),
-              })}
-            </div>
-          )
-        : null}
+      {selectedItems.length > 0 && renderSelectionActions ? (
+        <div className="m8-selection-actions-footer">
+          {renderSelectionActions({
+            selectedItems,
+            clearSelection: () => setSelectedIds([]),
+          })}
+        </div>
+      ) : null}
     </div>
   )
+}
+
+function createSelectionColumn<TData extends TableDataItem>(
+  displayedData: TData[],
+  selectedIds: string[],
+  setSelectedIds: (ids: string[]) => void,
+  getRowId: (item: TData, index: number) => string,
+): ResourceTableColumn<TData> {
+  const displayedIds = displayedData.map(getRowId)
+  const selected = new Set(selectedIds)
+  const selectedOnPage = displayedIds.filter((id) => selected.has(id)).length
+
+  return {
+    id: selectionColumnId,
+    width: 48,
+    align: 'center',
+    name: () => (
+      <Checkbox
+        size="l"
+        checked={displayedIds.length > 0 && selectedOnPage === displayedIds.length}
+        indeterminate={selectedOnPage > 0 && selectedOnPage < displayedIds.length}
+        disabled={displayedIds.length === 0}
+        aria-label="Выбрать все строки"
+        onUpdate={(checked) => {
+          if (checked) {
+            setSelectedIds([...new Set([...selectedIds, ...displayedIds])])
+          } else {
+            const pageIds = new Set(displayedIds)
+            setSelectedIds(selectedIds.filter((id) => !pageIds.has(id)))
+          }
+        }}
+      />
+    ),
+    template: (item, index) => {
+      const id = getRowId(item, index)
+      return (
+        <span onClick={(event) => event.stopPropagation()}>
+          <Checkbox
+            size="l"
+            checked={selected.has(id)}
+            aria-label={`Выбрать строку ${id}`}
+            onUpdate={(checked) =>
+              setSelectedIds(
+                checked
+                  ? [...new Set([...selectedIds, id])]
+                  : selectedIds.filter((selectedId) => selectedId !== id),
+              )
+            }
+          />
+        </span>
+      )
+    },
+    meta: {sortable: false},
+  }
+}
+
+function withSortingHeader<TData>(
+  column: ResourceTableColumn<TData>,
+  sorting: ResourceTableSortingState,
+  onUpdate: (column: string) => void,
+): ResourceTableColumn<TData> {
+  const current = sorting.find((item) => item.column === column.id)
+  const title = resolveColumnTitle(column)
+
+  return {
+    ...column,
+    name: () => (
+      <button
+        type="button"
+        className="m8-resource-table-sort"
+        onClick={(event) => {
+          event.stopPropagation()
+          onUpdate(column.id)
+        }}
+      >
+        <span>{title}</span>
+        <span aria-hidden>{current?.order === 'asc' ? '↑' : current?.order === 'desc' ? '↓' : ''}</span>
+      </button>
+    ),
+  }
+}
+
+function filterRows<TData>(
+  data: TData[],
+  columns: ResourceTableColumn<TData>[],
+  rawFilter: string,
+) {
+  const filter = rawFilter.trim().toLocaleLowerCase()
+  if (!filter) return data
+
+  return data.filter((item) =>
+    columns.some((column) =>
+      String(readColumnValue(item, column.id) ?? '')
+        .toLocaleLowerCase()
+        .includes(filter),
+    ),
+  )
+}
+
+function sortRows<TData>(
+  data: TData[],
+  columns: ResourceTableColumn<TData>[],
+  sorting: ResourceTableSortingState,
+) {
+  const selected = sorting[0]
+  if (!selected) return data
+  const column = columns.find((item) => item.id === selected.column)
+  if (!column || column.meta?.sortable === false) return data
+
+  const compare = column.meta?.compare as
+    | ((left: TData, right: TData) => number)
+    | undefined
+  return [...data].sort((left, right) => {
+    const result = compare
+      ? compare(left, right)
+      : compareValues(
+          readColumnValue(left, selected.column),
+          readColumnValue(right, selected.column),
+        )
+    return selected.order === 'desc' ? -result : result
+  })
+}
+
+function compareValues(left: unknown, right: unknown) {
+  if (left === right) return 0
+  if (left === undefined || left === null) return -1
+  if (right === undefined || right === null) return 1
+  if (typeof left === 'number' && typeof right === 'number') return left - right
+  return String(left).localeCompare(String(right))
+}
+
+function readColumnValue<TData>(item: TData, columnId: string) {
+  return (item as Record<string, unknown>)[columnId]
+}
+
+function createSettingsItems<TData>(
+  columns: ResourceTableColumn<TData>[],
+  order: string[],
+  visibility: ColumnVisibility,
+): TableColumnSetupItem[] {
+  return orderColumns(columns, order).map((column) => ({
+    id: column.id,
+    title: resolveColumnTitle(column),
+    selected: visibility[column.id] !== false,
+  }))
+}
+
+function resolveColumnTitle<TData>(column: ResourceTableColumn<TData>): ReactNode {
+  if (typeof column.name === 'function') return column.name()
+  return column.name ?? column.id
+}
+
+function orderColumns<TData>(columns: ResourceTableColumn<TData>[], order: string[]) {
+  const byId = new Map(columns.map((column) => [column.id, column]))
+  return [
+    ...order.map((id) => byId.get(id)).filter((column): column is ResourceTableColumn<TData> => Boolean(column)),
+    ...columns.filter((column) => !order.includes(column.id)),
+  ]
 }
 
 function isInteractiveTarget(target: EventTarget | null) {
@@ -312,7 +519,7 @@ function isInteractiveTarget(target: EventTarget | null) {
 }
 
 interface StoredTableSettings {
-  columnVisibility: VisibilityState
+  columnVisibility: ColumnVisibility
   columnOrder: string[]
 }
 
@@ -331,26 +538,13 @@ function readTableSettings(storageKey: string | undefined): StoredTableSettings 
 
 function persistTableSettings(
   storageKey: string | undefined,
-  columnVisibility: VisibilityState,
+  columnVisibility: ColumnVisibility,
   columnOrder: string[],
 ) {
   if (!storageKey || typeof window === 'undefined') return
   try {
     window.localStorage.setItem(storageKey, JSON.stringify({columnVisibility, columnOrder}))
   } catch {
-    // Table settings are an optional enhancement; storage restrictions must not break the table.
+    // Настройки таблицы необязательны и не должны ломать основной интерфейс.
   }
-}
-
-function normalizeColumnOrder(order: string[], selectable: boolean, withSettings: boolean) {
-  const contentColumns = order.filter((id) => id !== selectionColumnId && id !== settingsColumnId)
-  return [
-    ...(selectable ? [selectionColumnId] : []),
-    ...contentColumns,
-    ...(withSettings ? [settingsColumnId] : []),
-  ]
-}
-
-function applyUpdater<T>(updater: Updater<T>, current: T): T {
-  return typeof updater === 'function' ? (updater as (old: T) => T)(current) : updater
 }

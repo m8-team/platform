@@ -1,11 +1,10 @@
 import {useMemo, useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
-import {DataTable} from '../components/DataTable'
+import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
 import {getProducts} from '../mock/queries'
 import type {Product} from '../mock/types'
@@ -24,7 +23,7 @@ const filters = [
   {key: 'risk', label: 'Складской риск', options: [{value: 'all', content: 'Любой'}, {value: 'risk', content: 'Риск'}, {value: 'normal', content: 'Норма'}]},
 ]
 
-const columns: ColumnDef<Product, unknown>[] = [
+const columns: DataTableColumn<Product>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'category', header: 'Категория'},

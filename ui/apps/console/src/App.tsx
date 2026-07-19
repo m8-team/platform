@@ -7,12 +7,14 @@ import {
   Icon,
   Label,
   Select,
+  Table,
   Text,
   TextInput,
   ThemeProvider,
   ToasterComponent,
   ToasterProvider,
 } from '@gravity-ui/uikit'
+import type {TableColumnConfig} from '@gravity-ui/uikit'
 import {toaster} from '@gravity-ui/uikit/toaster-singleton'
 import {AsideHeader, FooterItem} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
@@ -1312,54 +1314,55 @@ function ProjectTable({
     )
   }
 
+  const columns: TableColumnConfig<Project>[] = [
+    {
+      id: 'name',
+      name: t('projects.column.project'),
+      width: 250,
+      template: (project) => (
+        <div className="m8-project-cell">
+          <span className={`m8-status-dot m8-status-dot_${project.status.toLowerCase()}`} />
+          <div>
+            <Text variant="body-2">{project.name}</Text>
+            <Text variant="caption-2" color="secondary">
+              {project.lastOperation}
+            </Text>
+          </div>
+        </div>
+      ),
+    },
+    {id: 'projectId', name: t('projects.column.projectId'), width: 180, className: 'm8-mono'},
+    {id: 'workspace', name: t('projects.column.workspace'), width: 150, className: 'm8-mono'},
+    {id: 'organization', name: t('projects.column.organization'), width: 150, className: 'm8-mono'},
+    {
+      id: 'status',
+      name: t('projects.column.status'),
+      width: 130,
+      template: (project) => <StatusLabel status={project.status} t={t} />,
+    },
+    {id: 'desiredState', name: t('projects.column.desiredState'), width: 140},
+    {id: 'actualState', name: t('projects.column.actualState'), width: 140},
+    {id: 'updated', name: t('projects.column.updated'), width: 150},
+    {id: 'owner', name: t('projects.column.owner'), width: 180, className: 'm8-mono'},
+  ]
+
   return (
     <div className="m8-table-shell">
-      <table className="m8-project-table">
-        <thead>
-          <tr>
-            <th>{t('projects.column.project')}</th>
-            <th>{t('projects.column.projectId')}</th>
-            <th>{t('projects.column.workspace')}</th>
-            <th>{t('projects.column.organization')}</th>
-            <th>{t('projects.column.status')}</th>
-            <th>{t('projects.column.desiredState')}</th>
-            <th>{t('projects.column.actualState')}</th>
-            <th>{t('projects.column.updated')}</th>
-            <th>{t('projects.column.owner')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map((project) => (
-            <tr
-              key={project.projectId}
-              className={project.projectId === selectedProjectId ? 'm8-project-table__row_selected' : undefined}
-              onClick={() => onSelectProject(project.projectId)}
-            >
-              <td>
-                <div className="m8-project-cell">
-                  <span className={`m8-status-dot m8-status-dot_${project.status.toLowerCase()}`} />
-                  <div>
-                    <Text variant="body-2">{project.name}</Text>
-                    <Text variant="caption-2" color="secondary">
-                      {project.lastOperation}
-                    </Text>
-                  </div>
-                </div>
-              </td>
-              <td className="m8-mono">{project.projectId}</td>
-              <td className="m8-mono">{project.workspace}</td>
-              <td className="m8-mono">{project.organization}</td>
-              <td>
-                <StatusLabel status={project.status} t={t} />
-              </td>
-              <td>{project.desiredState}</td>
-              <td>{project.actualState}</td>
-              <td>{project.updated}</td>
-              <td className="m8-mono">{project.owner}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table
+        data={projects}
+        columns={columns}
+        width="max"
+        className="m8-project-table"
+        getRowDescriptor={(project) => ({
+          id: project.projectId,
+          interactive: true,
+          classNames:
+            project.projectId === selectedProjectId
+              ? ['m8-project-table__row_selected']
+              : [],
+        })}
+        onRowClick={(project) => onSelectProject(project.projectId)}
+      />
     </div>
   )
 }
