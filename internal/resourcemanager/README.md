@@ -2,13 +2,14 @@
 
 ## Responsibility
 
-Owns organizations, workspaces, projects, resource catalog metadata and platform-level resource intent.
+Owns organizations, workspaces, services, service environment assignment, resource catalog metadata and platform-level resource intent.
 
 ## Owns
 
 - Organization
 - Workspace
-- Project
+- Service
+- Immutable environment assignment for each Service
 - Resource catalog metadata
 - Platform-level desired and actual state summary
 
@@ -30,10 +31,10 @@ Owns organizations, workspaces, projects, resource catalog metadata and platform
 - GetWorkspace
 - UpdateWorkspace
 - DeleteWorkspace
-- CreateProject
-- GetProject
-- UpdateProject
-- DeleteProject
+- CreateService
+- GetService
+- UpdateService
+- DeleteService
 
 ## Events Published
 
@@ -43,9 +44,9 @@ Owns organizations, workspaces, projects, resource catalog metadata and platform
 - WorkspaceCreated
 - WorkspaceUpdated
 - WorkspaceDeleted
-- ProjectCreated
-- ProjectUpdated
-- ProjectDeleted
+- ServiceCreated
+- ServiceUpdated
+- ServiceDeleted
 
 ## Events Consumed
 

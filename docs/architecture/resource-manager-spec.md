@@ -12,14 +12,14 @@ In the current contract set, Resource Manager owns exactly three resource types:
 
 - `Organization`
 - `Workspace`
-- `Project`
+- `Service`
 
 The canonical hierarchy is fixed as:
 
 ```text
 Organization
   -> Workspace
-       -> Project
+       -> Service
 ```
 
 This document is intentionally grounded in the existing protobuf contracts and service APIs:
@@ -28,8 +28,8 @@ This document is intentionally grounded in the existing protobuf contracts and s
 - `organization_service.proto`
 - `workspace.proto`
 - `workspace_service.proto`
-- `project.proto`
-- `project_service.proto`
+- `service.proto`
+- `service_service.proto`
 
 The goal of this specification is not to invent a new model, but to define how the current contracts should be implemented as a coherent domain, application layer, persistence model, and event source for adjacent platform services.
 
@@ -37,8 +37,9 @@ The goal of this specification is not to invent a new model, but to define how t
 
 Resource Manager is in scope for the following responsibilities:
 
-- canonical storage of `Organization`, `Workspace`, and `Project`
+- canonical storage of `Organization`, `Workspace`, and `Service`
 - canonical parent-child hierarchy between these resources
+- immutable environment assignment for each `Service`
 - lifecycle management for these resources
 - soft-delete and undelete semantics
 - optimistic concurrency through `version`
@@ -79,15 +80,18 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 - mutable fields: `name`, `description`, `labels`
 - server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
 - delete is soft-delete only
-- delete is blocked while there are non-deleted projects
+- delete is blocked while there are non-deleted services
 - undelete requires existing non-deleted parent organization
 
-### Aggregate: Project
+### Aggregate: Service
 
 - identity field: `id`
 - parent field: `workspace_id`
+- environment field: `environment`
 - type: UUID string
 - parent link is immutable after creation
+- environment is a required immutable lowercase slug such as `dev`, `stage`, or `prod`
+- the same logical application in different environments is represented by separate services
 - mutable fields: `name`, `description`, `labels`
 - server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
 - delete is soft-delete only
@@ -98,7 +102,9 @@ The domain naturally fits three aggregates, each mapped directly to an existing 
 
 - `Organization` has no parent.
 - `Workspace` always belongs to exactly one `Organization`.
-- `Project` always belongs to exactly one `Workspace`.
+- `Service` always belongs to exactly one `Workspace`.
+- `Service` always belongs to exactly one environment.
+- `environment` is immutable and must match the API slug validation rules.
 - Parent link is immutable after creation.
 - Child creation requires an existing, non-deleted parent.
 - Undelete of a child requires an existing, non-deleted parent.
@@ -118,10 +124,10 @@ Commands:
 - `UpdateWorkspace`
 - `DeleteWorkspace`
 - `UndeleteWorkspace`
-- `CreateProject`
-- `UpdateProject`
-- `DeleteProject`
-- `UndeleteProject`
+- `CreateService`
+- `UpdateService`
+- `DeleteService`
+- `UndeleteService`
 
 Queries:
 
@@ -129,8 +135,8 @@ Queries:
 - `ListOrganizations`
 - `GetWorkspace`
 - `ListWorkspaces`
-- `GetProject`
-- `ListProjects`
+- `GetService`
+- `ListServices`
 
 ## Domain Events
 
@@ -152,16 +158,16 @@ Workspace events:
 - `workspace.undeleted`
 - `workspace.purged`
 
-Project events:
+Service events:
 
-- `project.created`
-- `project.updated`
-- `project.state_changed`
-- `project.archived`
-- `project.unarchived`
-- `project.deleted`
-- `project.undeleted`
-- `project.purged`
+- `service.created`
+- `service.updated`
+- `service.state_changed`
+- `service.archived`
+- `service.unarchived`
+- `service.deleted`
+- `service.undeleted`
+- `service.purged`
 
 Envelope fields:
 

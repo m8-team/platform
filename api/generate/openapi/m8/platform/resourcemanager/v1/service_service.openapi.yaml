@@ -7,13 +7,13 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
-    /v1/resource-manager/projects:
+    /resource-manager/v1/services:
         get:
             tags:
-                - ProjectService
+                - ServiceService
             summary: List
-            description: Returns a paginated list of projects under the specified workspace UUID.
-            operationId: ListProjects
+            description: Returns a paginated list of services under the specified workspace UUID.
+            operationId: ListServices
             parameters:
                 - name: workspaceId
                   in: query
@@ -26,9 +26,9 @@ paths:
                 - name: pageSize
                   in: query
                   description: |-
-                    Optional. The maximum number of projects to return.
+                    Optional. The maximum number of services to return.
                      Valid values are in the range 0 to 1000.
-                     If omitted, the service returns up to 50 projects.
+                     If omitted, the service returns up to 50 services.
                      The service may return fewer results than requested.
                   schema:
                     type: integer
@@ -36,10 +36,10 @@ paths:
                 - name: pageToken
                   in: query
                   description: |-
-                    Optional. A page token returned by a previous `ListProjects` call.
+                    Optional. A page token returned by a previous `ListServices` call.
                      Use this field to retrieve the next page of results.
 
-                     When paginating, all other parameters provided to `ListProjects`
+                     When paginating, all other parameters provided to `ListServices`
                      must match the call that produced the page token.
                      The token must not exceed 1024 characters.
                   schema:
@@ -47,7 +47,9 @@ paths:
                 - name: filter
                   in: query
                   description: |-
-                    Optional. AIP-160 compatible filter expression.
+                    Optional. AIP-160 compatible filter expression. The environment field may
+                     be used to select services in a specific environment, for example
+                     `environment = "prod"`.
                      The expression must not exceed 1024 characters.
                   schema:
                     type: string
@@ -60,7 +62,7 @@ paths:
                     type: string
                 - name: showDeleted
                   in: query
-                  description: Optional. If true, soft-deleted projects are included in the response.
+                  description: Optional. If true, soft-deleted services are included in the response.
                   schema:
                     type: boolean
             responses:
@@ -69,13 +71,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListProjectsResponse'
+                                $ref: '#/components/schemas/ListServicesResponse'
         post:
             tags:
-                - ProjectService
+                - ServiceService
             summary: Create
-            description: Creates a new project under the specified workspace UUID.
-            operationId: CreateProject
+            description: Creates a new service under the specified workspace UUID.
+            operationId: CreateService
             parameters:
                 - name: workspaceId
                   in: query
@@ -89,7 +91,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Project'
+                            $ref: '#/components/schemas/Service'
                 required: true
             responses:
                 "200":
@@ -98,18 +100,18 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/projects/{id}:
+    /resource-manager/v1/services/{id}:
         get:
             tags:
-                - ProjectService
+                - ServiceService
             summary: Get
-            description: Returns a single project by its UUID.
-            operationId: GetProject
+            description: Returns a single service by its UUID.
+            operationId: GetService
             parameters:
                 - name: id
                   in: path
                   description: |-
-                    Required. Stable unique identifier of the project to retrieve.
+                    Required. Stable unique identifier of the service to retrieve.
                      The value must be a valid UUID string.
                   required: true
                   schema:
@@ -120,18 +122,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Project'
+                                $ref: '#/components/schemas/Service'
         delete:
             tags:
-                - ProjectService
+                - ServiceService
             summary: Delete
-            description: Soft-deletes a project by its UUID.
-            operationId: DeleteProject
+            description: Soft-deletes a service by its UUID.
+            operationId: DeleteService
             parameters:
                 - name: id
                   in: path
                   description: |-
-                    Required. Stable unique identifier of the project to delete.
+                    Required. Stable unique identifier of the service to delete.
                      The value must be a valid UUID string.
                   required: true
                   schema:
@@ -139,14 +141,14 @@ paths:
                 - name: version
                   in: query
                   description: |-
-                    Optional. The version of the project.
+                    Optional. The version of the service.
                      If provided, the value must exactly match the current server-side version.
                   schema:
                     type: string
                 - name: allowMissing
                   in: query
                   description: |-
-                    Optional. If true, the request succeeds even if the project does not
+                    Optional. If true, the request succeeds even if the service does not
                      exist or has already been soft-deleted.
                   schema:
                     type: boolean
@@ -157,18 +159,18 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/projects/{id}:undelete:
+    /resource-manager/v1/services/{id}:undelete:
         post:
             tags:
-                - ProjectService
+                - ServiceService
             summary: Undelete
-            description: Restores a previously soft-deleted project.
-            operationId: UndeleteProject
+            description: Restores a previously soft-deleted service.
+            operationId: UndeleteService
             parameters:
                 - name: id
                   in: path
                   description: |-
-                    Required. Stable unique identifier of the project to restore.
+                    Required. Stable unique identifier of the service to restore.
                      The value must be a valid UUID string.
                   required: true
                   schema:
@@ -180,15 +182,15 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Operation'
-    /v1/resource-manager/projects/{project.id}:
+    /resource-manager/v1/services/{service.id}:
         patch:
             tags:
-                - ProjectService
+                - ServiceService
             summary: Update
-            description: Updates mutable fields of an existing project.
-            operationId: UpdateProject
+            description: Updates mutable fields of an existing service.
+            operationId: UpdateService
             parameters:
-                - name: project.id
+                - name: service.id
                   in: path
                   required: true
                   schema:
@@ -205,7 +207,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Project'
+                            $ref: '#/components/schemas/Service'
                 required: true
             responses:
                 "200":
@@ -451,14 +453,14 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedLinkOrReference'
-        ListProjectsResponse:
+        ListServicesResponse:
             type: object
             properties:
-                projects:
+                services:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Project'
-                    description: Projects returned for the current page.
+                        $ref: '#/components/schemas/Service'
+                    description: Services returned for the current page.
                 nextPageToken:
                     type: string
                     description: |-
@@ -466,9 +468,9 @@ components:
                          This field is empty when there are no more results.
                 totalSize:
                     type: integer
-                    description: The total number of projects that match the request.
+                    description: The total number of services that match the request.
                     format: int32
-            description: One page of projects returned by ListProjects.
+            description: One page of services returned by ListServices.
         MediaType:
             type: object
             properties:
@@ -753,84 +755,6 @@ components:
                     items:
                         $ref: '#/components/schemas/NamedAny'
             description: Describes the operations available on a single path. A Path Item MAY be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
-        Project:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: |-
-                        Identifier. Stable unique identifier of the project.
-                         The value is generated by the server and is returned as a UUID string.
-                         The value is immutable after creation.
-                         Clients must not provide this field when creating a project.
-                workspaceId:
-                    readOnly: true
-                    type: string
-                    description: |-
-                        Output only. Stable unique identifier of the parent workspace.
-                         The value is set by the server from the create request and is returned as
-                         a UUID string. The parent workspace of a project never changes.
-                state:
-                    readOnly: true
-                    enum:
-                        - STATE_UNSPECIFIED
-                        - CREATING
-                        - ACTIVE
-                        - ARCHIVED
-                        - DELETING
-                        - DELETED
-                        - FAILED
-                    type: string
-                    description: |-
-                        Output only. Server-computed lifecycle state of the project.
-                         The value is always one of the defined non-zero enum values.
-                    format: enum
-                name:
-                    type: string
-                    description: |-
-                        Optional. Human-readable name of the project.
-                         The value may be updated by clients and must not exceed 256 characters.
-                description:
-                    type: string
-                    description: |-
-                        Optional. Free-form description of the project.
-                         The value may be updated by clients and must not exceed 1024 characters.
-                createTime:
-                    readOnly: true
-                    type: string
-                    description: Output only. Time when the project was created.
-                    format: date-time
-                updateTime:
-                    readOnly: true
-                    type: string
-                    description: Output only. Time when the project was most recently updated.
-                    format: date-time
-                deleteTime:
-                    readOnly: true
-                    type: string
-                    description: Output only. Time when the project was soft-deleted.
-                    format: date-time
-                purgeTime:
-                    readOnly: true
-                    type: string
-                    description: Output only. Time when the soft-deleted project is scheduled to be purged.
-                    format: date-time
-                version:
-                    type: string
-                    description: |-
-                        Optional. Resource version used for optimistic concurrency control.
-                         If this value is provided on update or delete, it must exactly match the
-                         current server-side version or the request is rejected. Clients must not set
-                         this field when creating a project.
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: |-
-                        Optional. Client-provided labels for tooling and integrations.
-                         Use namespaced keys such as "example.com/key" to avoid collisions between
-                         independent producers of labels.
-            description: Project stores canonical metadata for a project resource within a workspace.
         Properties:
             type: object
             properties:
@@ -1049,6 +973,92 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/NamedServerVariable'
+        Service:
+            required:
+                - environment
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: |-
+                        Identifier. Stable unique identifier of the service.
+                         The value is generated by the server and is returned as a UUID string.
+                         The value is immutable after creation.
+                         Clients must not provide this field when creating a service.
+                workspaceId:
+                    readOnly: true
+                    type: string
+                    description: |-
+                        Output only. Stable unique identifier of the parent workspace.
+                         The value is set by the server from the create request and is returned as
+                         a UUID string. The parent workspace of a service never changes.
+                state:
+                    readOnly: true
+                    enum:
+                        - STATE_UNSPECIFIED
+                        - CREATING
+                        - ACTIVE
+                        - ARCHIVED
+                        - DELETING
+                        - DELETED
+                        - FAILED
+                    type: string
+                    description: |-
+                        Output only. Server-computed lifecycle state of the service.
+                         The value is always one of the defined non-zero enum values.
+                    format: enum
+                name:
+                    type: string
+                    description: |-
+                        Optional. Human-readable name of the service.
+                         The value may be updated by clients and must not exceed 256 characters.
+                description:
+                    type: string
+                    description: |-
+                        Optional. Free-form description of the service.
+                         The value may be updated by clients and must not exceed 1024 characters.
+                createTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the service was created.
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the service was most recently updated.
+                    format: date-time
+                deleteTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the service was soft-deleted.
+                    format: date-time
+                purgeTime:
+                    readOnly: true
+                    type: string
+                    description: Output only. Time when the soft-deleted service is scheduled to be purged.
+                    format: date-time
+                version:
+                    type: string
+                    description: |-
+                        Optional. Resource version used for optimistic concurrency control.
+                         If this value is provided on update or delete, it must exactly match the
+                         current server-side version or the request is rejected. Clients must not set
+                         this field when creating a service.
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: |-
+                        Optional. Client-provided labels for tooling and integrations.
+                         Use namespaced keys such as "example.com/key" to avoid collisions between
+                         independent producers of labels.
+                environment:
+                    type: string
+                    description: |-
+                        Required. Immutable deployment environment of the service, such as
+                         "dev", "stage", or "prod". Use a lowercase DNS-label-compatible value
+                         so environments can be extended without changing the API contract.
+            description: Service stores canonical metadata for a service resource within a workspace.
         StringArray:
             type: object
             properties:
@@ -1082,4 +1092,4 @@ components:
                         $ref: '#/components/schemas/NamedAny'
             description: A metadata object that allows for more fine-tuned XML model definitions.  When using arrays, XML element names are *not* inferred (for singular/plural forms) and the `name` property SHOULD be used to add that information. See examples for expected behavior.
 tags:
-    - name: ProjectService
+    - name: ServiceService

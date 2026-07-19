@@ -219,7 +219,7 @@ type ResourceRef struct {
 	//
 	//	resourcemanager.organization
 	//	resourcemanager.workspace
-	//	resourcemanager.project
+	//	resourcemanager.service
 	//	provisioning.kafka_topic
 	//	provisioning.database
 	//	identity.user

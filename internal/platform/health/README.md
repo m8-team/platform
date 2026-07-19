@@ -106,7 +106,7 @@ import (
 adapter := healthgrpc.NewAdapter(
     registry,
     healthgrpc.WithPeriod(5*time.Second),
-    healthgrpc.WithServiceNames("m8.resource-manager.v1.ProjectService"),
+    healthgrpc.WithServiceNames("m8.platform.resourcemanager.v1.ServiceService"),
 )
 
 grpc_health_v1.RegisterHealthServer(grpcServer, adapter.Server())
