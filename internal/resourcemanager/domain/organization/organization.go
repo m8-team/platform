@@ -2,7 +2,6 @@ package organization
 
 import (
 	"fmt"
-	"math"
 	"time"
 	"unicode/utf8"
 
@@ -390,8 +389,8 @@ func validateMutationTime(now, lastUpdate time.Time) error {
 }
 
 func validateVersion(version types.Version) error {
-	if version.IsZero() || version.Uint64() > math.MaxInt64 {
-		return fmt.Errorf("%w: %s", ErrInvalidOrganizationVersion, version)
+	if err := version.Validate(); err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidOrganizationVersion, err)
 	}
 	return nil
 }

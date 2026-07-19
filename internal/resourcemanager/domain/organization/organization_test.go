@@ -155,7 +155,7 @@ func TestRehydrateValidation(t *testing.T) {
 		{name: "unspecified state", mutate: func(s *Snapshot) { s.State = StateUnspecified }, wantErr: ErrInvalidOrganizationState},
 		{name: "unknown state", mutate: func(s *Snapshot) { s.State = State(99) }, wantErr: ErrInvalidOrganizationState},
 		{name: "zero version", mutate: func(s *Snapshot) { s.Version = 0 }, wantErr: ErrInvalidOrganizationVersion},
-		{name: "version beyond API range", mutate: func(s *Snapshot) { s.Version = types.Version(math.MaxInt64) + 1 }, wantErr: ErrInvalidOrganizationVersion},
+		{name: "negative version", mutate: func(s *Snapshot) { s.Version = types.Version(-1) }, wantErr: ErrInvalidOrganizationVersion},
 		{name: "zero create time", mutate: func(s *Snapshot) { s.CreateTime = time.Time{} }, wantErr: ErrEmptyOrganizationTime},
 		{name: "zero update time", mutate: func(s *Snapshot) { s.UpdateTime = time.Time{} }, wantErr: ErrEmptyOrganizationTime},
 		{name: "update before create", mutate: func(s *Snapshot) { s.UpdateTime = s.CreateTime.Add(-time.Second) }, wantErr: ErrInvalidOrganizationTime},
@@ -402,7 +402,7 @@ func TestCheckVersion(t *testing.T) {
 		{name: "omitted", expected: 0},
 		{name: "match", expected: types.InitialVersion},
 		{name: "mismatch", expected: 2, wantErr: ErrVersionMismatch},
-		{name: "outside int64 range", expected: types.Version(math.MaxInt64) + 1, wantErr: ErrInvalidOrganizationVersion},
+		{name: "negative", expected: types.Version(-1), wantErr: ErrInvalidOrganizationVersion},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
