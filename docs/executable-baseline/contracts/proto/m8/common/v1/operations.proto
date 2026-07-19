@@ -6,7 +6,7 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
 
-option go_package = "github.com/m8-platform/m8/gen/go/m8/common/v1;commonv1";
+option go_package = "github.com/m8-team/platform/gen/go/m8/common/v1;commonv1";
 
 enum OperationState {
     OPERATION_STATE_UNSPECIFIED = 0;

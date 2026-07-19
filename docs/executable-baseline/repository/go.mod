@@ -1,3 +1,3 @@
-module github.com/m8-platform/m8
+module github.com/m8-team/platform
 
 go 1.23.2

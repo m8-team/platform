@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"m8/internal/platform/idempotency/domain"
+	"github.com/m8-team/platform/internal/platform/idempotency/domain"
 )
 
 // Store is the application port implemented by persistence adapters:

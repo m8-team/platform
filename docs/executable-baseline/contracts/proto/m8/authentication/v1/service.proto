@@ -5,7 +5,7 @@ package m8.authentication.v1;
 import "m8/common/v1/common.proto";
 import "m8/common/v1/operations.proto";
 
-option go_package = "github.com/m8-platform/m8/gen/go/m8/authentication/v1;authenticationv1";
+option go_package = "github.com/m8-team/platform/gen/go/m8/authentication/v1;authenticationv1";
 
 service AuthenticationService {
     // AUTH-FR-006 | public | idempotency=true

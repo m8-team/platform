@@ -6,7 +6,7 @@
 
 .m8-actionbar {
   position: sticky;
-  top: 0;
+  top: var(--gn-top-alert-height, 0px);
   z-index: 10;
   border-bottom: 1px solid var(--g-color-line-generic);
   background: var(--g-color-base-background);

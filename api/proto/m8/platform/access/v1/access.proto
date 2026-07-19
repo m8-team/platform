@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/m8-platform/m8/gen/go/m8/platform/access/v1;access";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
 
 // Subject identifies the principal for an AuthZEN access evaluation.
 message Subject {

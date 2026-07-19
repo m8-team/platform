@@ -5,7 +5,7 @@ syntax = "proto3";
     import "m8/common/v1/common.proto";
 import "m8/common/v1/operations.proto";
 
-    option go_package = "github.com/m8-platform/m8/gen/go/m8/provisioning/v1;provisioningv1";
+    option go_package = "github.com/m8-team/platform/gen/go/m8/provisioning/v1;provisioningv1";
 
     service ProvisioningService {
       // PROV-FR-010 | public | idempotency=true

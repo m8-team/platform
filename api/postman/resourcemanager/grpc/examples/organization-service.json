@@ -1,0 +1,47 @@
+{
+  "service": "m8.platform.resourcemanager.v1.OrganizationService",
+  "runtimeStatus": "registered",
+  "methods": {
+    "GetOrganization": {
+      "organizationId": "{{organization_id}}"
+    },
+    "ListOrganizations": {
+      "pageSize": 50,
+      "pageToken": "{{organization_page_token}}",
+      "filter": "",
+      "orderBy": "name",
+      "showDeleted": false
+    },
+    "CreateOrganization": {
+      "organization": {
+        "name": "postman-org-{{$timestamp}}",
+        "description": "Created by Postman over gRPC",
+        "labels": {
+          "m8.io/source": "postman",
+          "m8.io/protocol": "grpc"
+        }
+      }
+    },
+    "UpdateOrganization": {
+      "organization": {
+        "id": "{{organization_id}}",
+        "name": "postman-org-updated",
+        "description": "Updated by Postman over gRPC",
+        "version": "{{organization_version}}",
+        "labels": {
+          "m8.io/source": "postman",
+          "m8.io/protocol": "grpc"
+        }
+      },
+      "updateMask": "name,description,labels"
+    },
+    "DeleteOrganization": {
+      "organizationId": "{{organization_id}}",
+      "version": "{{organization_version}}",
+      "allowMissing": false
+    },
+    "UndeleteOrganization": {
+      "organizationId": "{{organization_id}}"
+    }
+  }
+}

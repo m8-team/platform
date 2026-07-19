@@ -193,12 +193,12 @@ items:
                               path: overview.md
                               alias: overview
                     mode: link
-                  - name: Project
+                  - name: Service
                     include:
-                      path: services/resource-manager/api-reference/rest/project
+                      path: services/resource-manager/api-reference/rest/service
                       includers:
                         - name: openapi
-                          input: _generated/openapi/services/resourcemanager/project-service/openapi.yaml
+                          input: _generated/openapi/services/resourcemanager/service-service/openapi.yaml
                           leadingPage:
                             name: Overview
                             spec:

@@ -1,6 +1,6 @@
 package query
 
-import "github.com/m8platform/platform/internal/access/domain"
+import "github.com/m8-team/platform/internal/access/domain"
 
 type CheckPermissionResult struct {
 	Decision      string

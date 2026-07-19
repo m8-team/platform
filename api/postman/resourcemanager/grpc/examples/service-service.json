@@ -1,0 +1,51 @@
+{
+  "service": "m8.platform.resourcemanager.v1.ServiceService",
+  "runtimeStatus": "contract-only; not registered in the current server",
+  "methods": {
+    "GetService": {
+      "id": "{{service_id}}"
+    },
+    "ListServices": {
+      "workspaceId": "{{workspace_id}}",
+      "pageSize": 50,
+      "pageToken": "{{service_page_token}}",
+      "filter": "environment = \"{{service_environment}}\"",
+      "orderBy": "name",
+      "showDeleted": false
+    },
+    "CreateService": {
+      "workspaceId": "{{workspace_id}}",
+      "service": {
+        "name": "postman-service-{{$timestamp}}",
+        "description": "Created by Postman over gRPC",
+        "environment": "{{service_environment}}",
+        "labels": {
+          "m8.io/source": "postman",
+          "m8.io/protocol": "grpc"
+        }
+      }
+    },
+    "UpdateService": {
+      "service": {
+        "id": "{{service_id}}",
+        "name": "postman-service-updated",
+        "description": "Updated by Postman over gRPC",
+        "environment": "{{service_environment}}",
+        "version": "{{service_version}}",
+        "labels": {
+          "m8.io/source": "postman",
+          "m8.io/protocol": "grpc"
+        }
+      },
+      "updateMask": "name,description,labels"
+    },
+    "DeleteService": {
+      "id": "{{service_id}}",
+      "version": "{{service_version}}",
+      "allowMissing": false
+    },
+    "UndeleteService": {
+      "id": "{{service_id}}"
+    }
+  }
+}

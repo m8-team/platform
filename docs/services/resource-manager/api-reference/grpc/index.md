@@ -9,5 +9,5 @@
 | Service | Description |
 | --- | --- |
 | [Organization](./organization/index.md) | Use this API to create, list, view, update, soft-delete, and undelete organizations. |
-| [Project](./project/index.md) | Use this API to create, list, view, update, soft-delete, and undelete projects. |
+| [Service](./service/index.md) | Use this API to create, list, view, update, soft-delete, and undelete services. |
 | [Workspace](./workspace/index.md) | Use this API to create, list, view, update, soft-delete, and undelete workspaces. |

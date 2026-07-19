@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/m8platform/platform/internal/access/app/command"
-	"github.com/m8platform/platform/internal/access/app/ports"
-	"github.com/m8platform/platform/internal/access/domain"
+	"github.com/m8-team/platform/internal/access/app/command"
+	"github.com/m8-team/platform/internal/access/app/ports"
+	"github.com/m8-team/platform/internal/access/domain"
 )
 
 func TestCheckPermissionHandlerReturnsDeterministicRevisionDecision(t *testing.T) {

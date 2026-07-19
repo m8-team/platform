@@ -1,0 +1,31 @@
+package organization
+
+import "errors"
+
+var (
+	ErrNilOrganization                = errors.New("organization is nil")
+	ErrEmptyOrganizationID            = errors.New("organization id is empty")
+	ErrInvalidOrganizationID          = errors.New("organization id is invalid")
+	ErrInvalidOrganizationState       = errors.New("organization state is invalid")
+	ErrInvalidStateTransition         = errors.New("organization state transition is invalid")
+	ErrEmptyOrganizationTime          = errors.New("organization time is empty")
+	ErrInvalidOrganizationTime        = errors.New("organization timestamps are inconsistent")
+	ErrTimeBeforeLastUpdate           = errors.New("organization mutation time is before the last update")
+	ErrInvalidOrganizationName        = errors.New("organization name is not valid UTF-8")
+	ErrOrganizationNameTooLong        = errors.New("organization name is too long")
+	ErrInvalidOrganizationDescription = errors.New("organization description is not valid UTF-8")
+	ErrOrganizationDescriptionTooLong = errors.New("organization description is too long")
+	ErrInvalidOrganizationLabel       = errors.New("organization label is not valid UTF-8")
+	ErrInvalidOrganizationVersion     = errors.New("organization version is invalid")
+	ErrVersionMismatch                = errors.New("organization version mismatch")
+	ErrVersionOverflow                = errors.New("organization version overflow")
+	ErrNoOrganizationUpdates          = errors.New("organization update has no fields")
+	ErrOrganizationDeleted            = errors.New("organization is deleted")
+	ErrOrganizationAlreadyDeleted     = errors.New("organization is already deleted")
+	ErrOrganizationNotDeleted         = errors.New("organization is not deleted")
+	ErrDeleteTimeRequired             = errors.New("organization delete time is required")
+	ErrPurgeTimeRequired              = errors.New("organization purge time is required")
+	ErrInvalidPurgeTime               = errors.New("organization purge time must be after delete time")
+	ErrPurgeTimePassed                = errors.New("organization purge time has passed")
+	ErrUnexpectedDeletionTimes        = errors.New("non-deleted organization has deletion timestamps")
+)

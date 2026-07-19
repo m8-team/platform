@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/m8platform/platform/internal/access/app/command"
-	"github.com/m8platform/platform/internal/access/app/ports"
-	"github.com/m8platform/platform/internal/access/app/query"
-	"github.com/m8platform/platform/internal/access/domain"
+	"github.com/m8-team/platform/internal/access/app/command"
+	"github.com/m8-team/platform/internal/access/app/ports"
+	"github.com/m8-team/platform/internal/access/app/query"
+	"github.com/m8-team/platform/internal/access/domain"
 )
 
 var ErrPermissionEngineRequired = errors.New("permission engine is required")

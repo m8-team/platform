@@ -152,7 +152,7 @@ ResourceRef is a generic reference to any M8 Platform resource.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| type | string | Required. Resource type.<br/><br/>Recommended format:<br/>{service}.{resource}<br/><br/>Examples:<br/>resourcemanager.organization<br/>resourcemanager.workspace<br/>resourcemanager.project<br/>provisioning.kafka_topic<br/>provisioning.database<br/>identity.user<br/>access.permission_schema |
+| type | string | Required. Resource type.<br/><br/>Recommended format:<br/>{service}.{resource}<br/><br/>Examples:<br/>resourcemanager.organization<br/>resourcemanager.workspace<br/>resourcemanager.service<br/>provisioning.kafka_topic<br/>provisioning.database<br/>identity.user<br/>access.permission_schema |
 | id | string | Required. Stable resource identifier.<br/><br/>For Resource Manager resources this is usually UUID.<br/>For external/provider resources this may be provider-specific. |
 | name | string | Optional. Full resource name.<br/><br/>Examples:<br/>organizations/{organization_id} |
 

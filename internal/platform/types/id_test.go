@@ -1,13 +1,21 @@
 package types
 
 import (
+	"encoding"
+	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
 )
 
 const validID = "018f3f16-9950-7a48-9d12-9fb6d8f4c8f2"
+
+var (
+	_ encoding.TextMarshaler   = ID{}
+	_ encoding.TextUnmarshaler = (*ID)(nil)
+)
 
 func TestIDCreationAndMethods(t *testing.T) {
 	raw := uuid.MustParse(validID)
@@ -46,6 +54,14 @@ func TestIDCreationAndMethods(t *testing.T) {
 	if parsed.String() != validID {
 		t.Fatalf("String() = %q, want %q", parsed.String(), validID)
 	}
+
+	uppercase, err := Parse(strings.ToUpper(validID))
+	if err != nil {
+		t.Fatalf("Parse(uppercase) error = %v", err)
+	}
+	if uppercase.String() != validID {
+		t.Fatalf("uppercase String() = %q, want %q", uppercase.String(), validID)
+	}
 	if !parsed.Equal(fromUUID) {
 		t.Fatal("Equal() = false, want true")
 	}
@@ -65,6 +81,26 @@ func TestIDErrors(t *testing.T) {
 		{
 			name:    "parse invalid uuid",
 			run:     func() error { _, err := Parse("not-a-uuid"); return err },
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "parse raw hex uuid",
+			run:     func() error { _, err := Parse(strings.ReplaceAll(validID, "-", "")); return err },
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "parse uuid in braces",
+			run:     func() error { _, err := Parse("{" + validID + "}"); return err },
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "parse uuid urn",
+			run:     func() error { _, err := Parse("urn:uuid:" + validID); return err },
+			wantErr: ErrInvalidID,
+		},
+		{
+			name:    "parse uuid with whitespace",
+			run:     func() error { _, err := Parse(" " + validID); return err },
 			wantErr: ErrInvalidID,
 		},
 		{
@@ -94,6 +130,64 @@ func TestIDErrors(t *testing.T) {
 				t.Fatalf("error = %v, want %v", err, tt.wantErr)
 			}
 		})
+	}
+}
+
+func TestIDTextAndJSONRoundTrip(t *testing.T) {
+	id := MustParse(validID)
+
+	text, err := id.MarshalText()
+	if err != nil {
+		t.Fatalf("MarshalText() error = %v", err)
+	}
+	if string(text) != validID {
+		t.Fatalf("MarshalText() = %q, want %q", text, validID)
+	}
+
+	var fromText ID
+	if err := fromText.UnmarshalText(text); err != nil {
+		t.Fatalf("UnmarshalText() error = %v", err)
+	}
+	if !fromText.Equal(id) {
+		t.Fatalf("UnmarshalText() = %s, want %s", fromText, id)
+	}
+
+	encoded, err := json.Marshal(id)
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if string(encoded) != `"`+validID+`"` {
+		t.Fatalf("json.Marshal() = %s, want %q", encoded, validID)
+	}
+
+	var fromJSON ID
+	if err := json.Unmarshal(encoded, &fromJSON); err != nil {
+		t.Fatalf("json.Unmarshal() error = %v", err)
+	}
+	if !fromJSON.Equal(id) {
+		t.Fatalf("json.Unmarshal() = %s, want %s", fromJSON, id)
+	}
+}
+
+func TestIDUnmarshalRejectsInvalidInputWithoutMutation(t *testing.T) {
+	id := MustParse(validID)
+	original := id
+
+	if err := id.UnmarshalText([]byte("not-a-uuid")); !errors.Is(err, ErrInvalidID) {
+		t.Fatalf("UnmarshalText() error = %v, want %v", err, ErrInvalidID)
+	}
+	if !id.Equal(original) {
+		t.Fatalf("ID changed after failed unmarshal: got %s, want %s", id, original)
+	}
+
+	var nilID *ID
+	if err := nilID.UnmarshalText([]byte(validID)); !errors.Is(err, ErrInvalidID) {
+		t.Fatalf("nil UnmarshalText() error = %v, want %v", err, ErrInvalidID)
+	}
+
+	var zero ID
+	if _, err := zero.MarshalText(); !errors.Is(err, ErrZeroID) {
+		t.Fatalf("zero MarshalText() error = %v, want %v", err, ErrZeroID)
 	}
 }
 

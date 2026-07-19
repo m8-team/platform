@@ -4,7 +4,7 @@ info:
   description: 'WorkspaceService manages workspaces inside organizations: it lets clients create, read, list, update, archive, and restore them.'
   version: v1
 paths:
-  /v1/resource-manager/workspaces:
+  /resource-manager/v1/workspaces:
     get:
       summary: List
       description: Returns a paginated list of workspaces under the specified organization UUID.
@@ -91,7 +91,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/workspaces/{id}:
+  /resource-manager/v1/workspaces/{id}:
     get:
       summary: Get
       description: Returns a single workspace by its UUID.
@@ -146,7 +146,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/workspaces/{id}:undelete:
+  /resource-manager/v1/workspaces/{id}:undelete:
     post:
       summary: Undelete
       description: Restores a previously soft-deleted workspace.
@@ -167,7 +167,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Operation'
-  /v1/resource-manager/workspaces/{workspace.id}:
+  /resource-manager/v1/workspaces/{workspace.id}:
     patch:
       summary: Update
       description: Updates mutable fields of an existing workspace.

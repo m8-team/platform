@@ -7,7 +7,7 @@ import "google/protobuf/field_mask.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/m8-platform/m8/gen/go/m8/common/v1;commonv1";
+option go_package = "github.com/m8-team/platform/gen/go/m8/common/v1;commonv1";
 
 message RequestContext {
     string request_id = 1;
