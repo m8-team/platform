@@ -636,7 +636,7 @@ function App() {
               open: activeFooterPanel === 'request-console',
               size: 560,
               hideVeil: false,
-              children: <ServiceRequestConsole t={t} />,
+              children: <ServiceRequestConsole t={t} onClose={() => setActiveFooterPanel(null)} />,
             },
           ]
         : []),

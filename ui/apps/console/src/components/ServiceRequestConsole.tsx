@@ -1,12 +1,13 @@
 import {useSyncExternalStore} from 'react'
-import {Accordion, Button, DefinitionList, Label, Text} from '@gravity-ui/uikit'
+import {TrashBin, Xmark} from '@gravity-ui/icons'
+import {Button, DefinitionList, Icon, Label, Text} from '@gravity-ui/uikit'
 
 import {JsonPreview} from './JsonPreview'
 import {serviceRequestLog} from '../platform/http/serviceRequestLog'
 import type {ServiceRequestRecord} from '../platform/http/serviceRequestLog'
 import type {Translate} from '../i18n'
 
-export function ServiceRequestConsole({t}: {t: Translate}) {
+export function ServiceRequestConsole({t, onClose}: {t: Translate; onClose: () => void}) {
   const records = useSyncExternalStore(
     serviceRequestLog.subscribe,
     serviceRequestLog.getSnapshot,
@@ -17,37 +18,41 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
     <div className="m8-request-console">
       <div className="m8-request-console__header">
         <Text as="h2" variant="header-1">{t('requestConsole.title')}</Text>
-        <Button view="outlined" disabled={records.length === 0} onClick={serviceRequestLog.clear}>
-          {t('requestConsole.clear')}
-        </Button>
+        <div className="m8-request-console__header-actions">
+          <Button
+            view="flat"
+            size="m"
+            disabled={records.length === 0}
+            aria-label={t('requestConsole.clear')}
+            title={t('requestConsole.clear')}
+            onClick={serviceRequestLog.clear}
+          >
+            <Icon data={TrashBin} size={18} />
+          </Button>
+          <Button
+            view="flat"
+            size="m"
+            aria-label={t('requestConsole.close')}
+            title={t('requestConsole.close')}
+            onClick={onClose}
+          >
+            <Icon data={Xmark} size={18} />
+          </Button>
+        </div>
       </div>
       <div className="m8-request-console__records">
         {records.length === 0 ? (
           <Text variant="body-2" color="secondary">{t('requestConsole.empty')}</Text>
-        ) : (
-          <Accordion
-            className="m8-request-console__accordion"
-            arrowPosition="end"
-            ariaLevel={3}
-            ariaLabel={t('requestConsole.title')}
-          >
-            {records.map((record) => (
-              <Accordion.Item
-                value={record.id}
-                key={record.id}
-                keepMounted={false}
-                summary={(
-                  <div className="m8-request-console__summary">
-                    <span className="m8-mono">{record.method}</span>
-                    <Text ellipsis>{record.url}</Text>
-                    <RequestStatusLabel record={record} pendingText={t('requestConsole.pending')} />
-                  </div>
-                )}
-              >
+        ) : records.map((record) => (
+          <details className="m8-request-console__record" key={record.id}>
+            <summary className="m8-request-console__summary">
+              <span className="m8-mono">{record.method}</span>
+              <Text ellipsis>{record.url}</Text>
+              <RequestStatusLabel record={record} pendingText={t('requestConsole.pending')} />
+            </summary>
                 <DefinitionList
                   className="m8-request-console__definitions"
                   direction="horizontal"
-                  responsive
                   nameMaxWidth={145}
                   aria-label={`${record.method} ${record.url}`}
                 >
@@ -85,10 +90,8 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
                     <DefinitionList.Item name={t('requestConsole.error')}>{record.error}</DefinitionList.Item>
                   ) : null}
                 </DefinitionList>
-              </Accordion.Item>
-            ))}
-          </Accordion>
-        )}
+          </details>
+        ))}
       </div>
     </div>
   )
