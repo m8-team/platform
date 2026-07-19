@@ -343,6 +343,11 @@
   border-top: 1px solid var(--g-color-line-generic);
 }
 
+.m8-resource-table-pagination_disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .m8-selection-actions-footer {
   position: sticky;
   z-index: 10;

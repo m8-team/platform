@@ -54,8 +54,8 @@ import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
-import {OrganizationsTable} from './modules/resource-manager/components/OrganizationsTable'
-import {useOrganizationsQuery} from './modules/resource-manager/queries/organizations'
+import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {isServiceRequestLoggingEnabled} from './platform/http/serviceRequestLog'
 import {
   createTranslator,
   fallbackLanguage,
@@ -629,13 +629,17 @@ function App() {
           />
         ),
       },
-      {
-        id: 'request-console',
-        open: activeFooterPanel === 'request-console',
-        size: 560,
-        hideVeil: true,
-        children: <ServiceRequestConsole t={t} />,
-      },
+      ...(isServiceRequestLoggingEnabled
+        ? [
+            {
+              id: 'request-console',
+              open: activeFooterPanel === 'request-console',
+              size: 560,
+              hideVeil: true,
+              children: <ServiceRequestConsole t={t} />,
+            },
+          ]
+        : []),
       {
         id: 'account',
         open: activeFooterPanel === 'account',
@@ -787,17 +791,19 @@ function App() {
                 }}
                 compact={footerCompact}
               />
-              <FooterItem
-                id="request-console"
-                icon={Code}
-                title={t('footer.requestConsole')}
-                tooltipText={t('footer.requestConsole')}
-                current={activeFooterPanel === 'request-console'}
-                onItemClick={() => {
-                  setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')
-                }}
-                compact={footerCompact}
-              />
+              {isServiceRequestLoggingEnabled ? (
+                <FooterItem
+                  id="request-console"
+                  icon={Code}
+                  title={t('footer.requestConsole')}
+                  tooltipText={t('footer.requestConsole')}
+                  current={activeFooterPanel === 'request-console'}
+                  onItemClick={() => {
+                    setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')
+                  }}
+                  compact={footerCompact}
+                />
+              ) : null}
               <FooterItem
                 id="account"
                 icon={Person}
@@ -1065,103 +1071,7 @@ function OverviewStackChart({
 
 export function ResourceOrganizationsPage() {
   const {language, t} = useConsoleI18n()
-  const router = useRouter()
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
-  const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
-  const organizationsQuery = useOrganizationsQuery({pageSize, pageToken: pageTokens[page]})
-
-  const organizations = organizationsQuery.data?.organizations ?? []
-  const handlePaginationUpdate = useCallback(
-    (nextPage: number, nextPageSize: number) => {
-      if (nextPageSize !== pageSize) {
-        setPageSize(nextPageSize)
-        setPage(1)
-        setPageTokens({1: ''})
-        return
-      }
-
-      if (nextPage === page + 1) {
-        const nextPageToken = organizationsQuery.data?.nextPageToken
-        if (!nextPageToken) return
-        setPageTokens((current) => ({...current, [nextPage]: nextPageToken}))
-      } else if (nextPage > 1 && pageTokens[nextPage] === undefined) {
-        return
-      }
-      setPage(nextPage)
-    },
-    [organizationsQuery.data?.nextPageToken, page, pageSize, pageTokens],
-  )
-
-  return (
-    <main className="m8-page__body">
-      <section className="m8-page__content">
-        <div className="m8-page__heading">
-          <div>
-            <ConsoleBreadcrumbs
-              items={[
-                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
-                {text: t('menu.resources.organizations')},
-              ]}
-            />
-            <Text as="h1" variant="display-1">
-              {t('page.organizations.title')}
-            </Text>
-            <Text as="p" variant="body-2" color="secondary">
-              {t('page.organizations.description')}
-            </Text>
-          </div>
-          <Button
-            view="outlined"
-            loading={organizationsQuery.isFetching}
-            onClick={() => void organizationsQuery.refetch()}
-          >
-            <Icon data={ArrowRotateRight} size={16} />
-            {t('organizations.refresh')}
-          </Button>
-        </div>
-
-        <Card view="outlined" type="container" className="m8-table-card">
-          <div className="m8-card-header">
-            <div>
-              <Text as="h2" variant="header-1">
-                {t('organizations.inventory')}
-              </Text>
-              <Text variant="caption-2" color="secondary">
-                {t('organizations.total')}: {organizationsQuery.data?.totalSize ?? organizations.length}
-              </Text>
-            </div>
-          </div>
-
-          {organizationsQuery.isError ? (
-            <div className="m8-organizations-message" role="alert">
-              <Text variant="body-2">{t('organizations.error')}</Text>
-              <Text variant="caption-2" color="secondary">
-                {organizationsQuery.error instanceof Error ? organizationsQuery.error.message : null}
-              </Text>
-            </div>
-          ) : (
-            <OrganizationsTable
-              organizations={organizations}
-              language={language}
-              loading={organizationsQuery.isLoading}
-              page={page}
-              pageSize={pageSize}
-              total={organizationsQuery.data?.totalSize ?? organizations.length}
-              onPaginationUpdate={handlePaginationUpdate}
-              t={t}
-              onOrganizationActivate={(organization) =>
-                void router.navigate({
-                    to: '/resource-manager/organizations/$organizationId',
-                    params: {organizationId: organization.id},
-                })
-              }
-            />
-          )}
-        </Card>
-      </section>
-    </main>
-  )
+  return <OrganizationsPage language={language} t={t} />
 }
 
 export function ResourceOrganizationDetailsPage() {

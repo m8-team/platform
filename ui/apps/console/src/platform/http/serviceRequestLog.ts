@@ -15,6 +15,9 @@ export interface ServiceRequestRecord {
 let records: ServiceRequestRecord[] = []
 const listeners = new Set<() => void>()
 
+export const isServiceRequestLoggingEnabled =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_REQUEST_CONSOLE === 'true'
+
 export const serviceRequestLog = {
   subscribe(listener: () => void) {
     listeners.add(listener)
@@ -30,6 +33,8 @@ export const serviceRequestLog = {
 }
 
 export async function loggedFetch(service: string, input: RequestInfo | URL, init: RequestInit = {}) {
+  if (!isServiceRequestLoggingEnabled) return fetch(input, init)
+
   const startedAt = performance.now()
   const url = resolveURL(input)
   const id = crypto.randomUUID()
@@ -79,11 +84,20 @@ function collectParameters(searchParams: URLSearchParams) {
 }
 
 function sanitizeBody(body: BodyInit | null | undefined): unknown {
+  if (!body) return undefined
+  if (body instanceof URLSearchParams) return collectParameters(body)
+  if (body instanceof FormData) return '[FORM_DATA_OMITTED]'
   if (typeof body !== 'string' || body.length === 0) return undefined
+  if (body.length > 8192) return '[BODY_OMITTED: exceeds 8 KiB]'
+
   try {
     return redact(JSON.parse(body) as unknown)
   } catch {
-    return body.length > 2048 ? `${body.slice(0, 2048)}…` : body
+    if (body.includes('=')) {
+      const parameters = new URLSearchParams(body)
+      if ([...parameters.keys()].length > 0) return collectParameters(parameters)
+    }
+    return '[NON_JSON_BODY_OMITTED]'
   }
 }
 

@@ -1,4 +1,4 @@
-import {keepPreviousData, queryOptions, useQuery} from '@tanstack/react-query'
+import {queryOptions, useQuery} from '@tanstack/react-query'
 
 import {fetchOrganizations} from '../api/organizations'
 
@@ -10,13 +10,14 @@ export const organizationQueryKeys = {
 export interface OrganizationsQueryParameters {
   pageSize: number
   pageToken?: string
+  filter?: string
+  orderBy: string
 }
 
 export function organizationsQueryOptions(parameters: OrganizationsQueryParameters) {
   return queryOptions({
     queryKey: organizationQueryKeys.list(parameters),
     queryFn: ({signal}) => fetchOrganizations({...parameters, signal}),
-    placeholderData: keepPreviousData,
     staleTime: 30_000,
   })
 }

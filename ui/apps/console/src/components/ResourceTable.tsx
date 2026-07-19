@@ -24,16 +24,45 @@ export interface ResourceTableSettings {
   searchPlaceholder?: string
 }
 
-export interface ResourceTablePagination {
-  page?: number
-  pageSize?: number
-  total?: number
+export interface ResourceTableClientPagination {
+  mode: 'client'
+  defaultPageSize?: number
   pageSizeOptions?: number[]
-  onUpdate?: (page: number, pageSize: number) => void
 }
 
-export interface ResourceTableFiltering {
+export interface ResourceTableServerPagination {
+  mode: 'server'
+  page: number
+  pageSize: number
+  total: number
+  disabled?: boolean
+  pageSizeOptions?: number[]
+  onUpdate: (page: number, pageSize: number) => void
+}
+
+export type ResourceTablePagination = ResourceTableClientPagination | ResourceTableServerPagination
+
+interface ResourceTableFilteringBase {
   searchPlaceholder?: string
+  ariaLabel?: string
+}
+
+export interface ResourceTableClientFiltering extends ResourceTableFilteringBase {
+  mode: 'client'
+}
+
+export interface ResourceTableServerFiltering extends ResourceTableFilteringBase {
+  mode: 'server'
+  value: string
+  onUpdate: (value: string) => void
+}
+
+export type ResourceTableFiltering = ResourceTableClientFiltering | ResourceTableServerFiltering
+
+export interface ResourceTableSorting {
+  mode: 'server'
+  value: SortingState
+  onUpdate: (value: SortingState) => void
 }
 
 export interface ResourceTableSelectionActions<TData> {
@@ -50,6 +79,7 @@ export interface ResourceTableProps<TData> {
   emptyContent: string
   className?: string
   onRowActivate?: (item: TData) => void
+  getRowAriaLabel?: (item: TData) => string
   selectable?: boolean
   onSelectedRowsChange?: (items: TData[]) => void
   settings?: ResourceTableSettings
@@ -57,6 +87,7 @@ export interface ResourceTableProps<TData> {
   pagination?: ResourceTablePagination
   filtering?: ResourceTableFiltering
   sortable?: boolean
+  sorting?: ResourceTableSorting
 }
 
 export function ResourceTable<TData>({
@@ -68,6 +99,7 @@ export function ResourceTable<TData>({
   emptyContent,
   className,
   onRowActivate,
+  getRowAriaLabel,
   selectable = false,
   onSelectedRowsChange,
   settings,
@@ -75,15 +107,22 @@ export function ResourceTable<TData>({
   pagination,
   filtering,
   sortable = false,
+  sorting: controlledSorting,
 }: ResourceTableProps<TData>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [internalPage, setInternalPage] = useState(1)
-  const [internalPageSize, setInternalPageSize] = useState(pagination?.pageSize ?? 20)
-  const page = pagination?.page ?? internalPage
-  const pageSize = pagination?.pageSize ?? internalPageSize
-  const serverPagination = Boolean(pagination?.onUpdate)
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
+  const [internalPageSize, setInternalPageSize] = useState(
+    pagination?.mode === 'client' ? pagination.defaultPageSize ?? 20 : 20,
+  )
+  const serverPagination = pagination?.mode === 'server'
+  const page = serverPagination ? pagination.page : internalPage
+  const pageSize = serverPagination ? pagination.pageSize : internalPageSize
+  const [internalSorting, setInternalSorting] = useState<SortingState>([])
+  const sorting = controlledSorting?.value ?? internalSorting
+  const serverSorting = controlledSorting?.mode === 'server'
+  const [internalFilter, setInternalFilter] = useState('')
+  const serverFiltering = filtering?.mode === 'server'
+  const globalFilter = serverFiltering ? filtering.value : internalFilter
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
     readTableSettings(settings?.storageKey).columnVisibility,
   )
@@ -139,12 +178,22 @@ export function ResourceTable<TData>({
     onRowSelectionChange: setRowSelection,
     onColumnOrderChange: updateColumnOrder,
     onColumnVisibilityChange: updateColumnVisibility,
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: filtering ? getFilteredRowModel() : undefined,
-    getSortedRowModel: sortable ? getSortedRowModel() : undefined,
+    onSortingChange: (updater) => {
+      const next = applyUpdater(updater, sorting)
+      if (serverSorting) controlledSorting.onUpdate(next)
+      else setInternalSorting(next)
+    },
+    onGlobalFilterChange: (updater) => {
+      const next = applyUpdater(updater, globalFilter)
+      if (serverFiltering) filtering.onUpdate(next)
+      else setInternalFilter(next)
+    },
+    getFilteredRowModel: filtering && !serverFiltering ? getFilteredRowModel() : undefined,
+    getSortedRowModel: sortable && !serverSorting ? getSortedRowModel() : undefined,
     getPaginationRowModel: pagination && !serverPagination ? getPaginationRowModel() : undefined,
     manualPagination: serverPagination,
+    manualFiltering: serverFiltering,
+    manualSorting: serverSorting,
     state: {
       rowSelection,
       columnOrder,
@@ -155,7 +204,7 @@ export function ResourceTable<TData>({
     },
   })
   const filteredRowCount = serverPagination
-    ? pagination?.total ?? data.length
+    ? pagination.total
     : filtering
       ? table.getFilteredRowModel().rows.length
       : data.length
@@ -180,11 +229,12 @@ export function ResourceTable<TData>({
           <TextInput
             value={globalFilter}
             placeholder={filtering.searchPlaceholder}
+            aria-label={filtering.ariaLabel ?? filtering.searchPlaceholder}
             hasClear
             onUpdate={(value) => {
-              setGlobalFilter(value)
-              if (pagination?.onUpdate) pagination.onUpdate(1, pageSize)
-              else setInternalPage(1)
+              if (serverFiltering) filtering.onUpdate(value)
+              else setInternalFilter(value)
+              if (!serverPagination) setInternalPage(1)
             }}
           />
         </div>
@@ -206,6 +256,7 @@ export function ResourceTable<TData>({
             onRowActivate
               ? (row) => ({
                   tabIndex: 0,
+                  'aria-label': getRowAriaLabel?.(row.original),
                   onKeyDown: (event) => {
                     if (isInteractiveTarget(event.target)) return
                     if (event.key === 'Enter' || event.key === ' ') {
@@ -218,22 +269,27 @@ export function ResourceTable<TData>({
           }
         />
       </div>
-      {pagination && data.length > 0 ? (
-        <div className="m8-resource-table-pagination">
+      {pagination && filteredRowCount > 0 ? (
+        <div
+          className="m8-resource-table-pagination"
+          aria-disabled={serverPagination && pagination.disabled ? true : undefined}
+        >
           <Pagination
             page={effectivePage}
             pageSize={pageSize}
             total={filteredRowCount}
             pageSizeOptions={pagination.pageSizeOptions ?? [10, 20, 50, 100]}
             onUpdate={(nextPage, nextPageSize) => {
-              if (pagination.onUpdate) pagination.onUpdate(nextPage, nextPageSize)
-              else {
+              if (serverPagination) {
+                if (!pagination.disabled) pagination.onUpdate(nextPage, nextPageSize)
+              } else {
                 setInternalPage(nextPage)
                 setInternalPageSize(nextPageSize)
               }
             }}
             showPages={!serverPagination}
             showInput={false}
+            className={serverPagination && pagination.disabled ? 'm8-resource-table-pagination_disabled' : undefined}
           />
         </div>
       ) : null}
@@ -279,7 +335,11 @@ function persistTableSettings(
   columnOrder: string[],
 ) {
   if (!storageKey || typeof window === 'undefined') return
-  window.localStorage.setItem(storageKey, JSON.stringify({columnVisibility, columnOrder}))
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify({columnVisibility, columnOrder}))
+  } catch {
+    // Table settings are an optional enhancement; storage restrictions must not break the table.
+  }
 }
 
 function normalizeColumnOrder(order: string[], selectable: boolean, withSettings: boolean) {
