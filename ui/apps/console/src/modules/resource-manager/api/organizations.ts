@@ -1,4 +1,4 @@
-import {loggedFetch} from '../../../platform/http/serviceRequestLog'
+import {loggedFetch} from '../../../platform/http/loggedFetch'
 
 const organizationStates = new Set<Organization['state']>([
   'CREATING',

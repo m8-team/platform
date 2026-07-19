@@ -55,7 +55,7 @@ import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
-import {isServiceRequestLoggingEnabled} from './platform/http/serviceRequestLog'
+import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {
   createTranslator,
   fallbackLanguage,

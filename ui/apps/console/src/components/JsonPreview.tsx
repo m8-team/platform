@@ -83,6 +83,10 @@ function JsonCodeBlock({
     compact ? 'm8-json-preview_compact' : '',
     expanded ? 'm8-json-preview_expanded' : '',
   ].filter(Boolean).join(' ')
+  const highlightedContent = useMemo(
+    () => (preview.json ? highlightJSON(preview.text) : preview.text),
+    [preview],
+  )
 
   return (
     <div className={className}>
@@ -101,7 +105,7 @@ function JsonCodeBlock({
         />
       </div>
       <pre tabIndex={0}>
-        <code>{preview.json ? highlightJSON(preview.text) : preview.text}</code>
+        <code>{highlightedContent}</code>
       </pre>
     </div>
   )
