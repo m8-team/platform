@@ -39,7 +39,9 @@ paths:
                 - name: filter
                   in: query
                   description: |-
-                    Optional. AIP-160 style filter expression.
+                    Optional. CEL filter expression. The supported subset includes equality
+                     predicates for `state`, `name`, and `labels`, conjunction with `&&`, and
+                     state membership such as `state in ["ACTIVE", "SUSPENDED"]`.
                      The expression must not exceed 1024 characters.
                   schema:
                     type: string

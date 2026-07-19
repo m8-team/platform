@@ -153,9 +153,9 @@ message ListServicesRequest {
     (buf.validate.field).string.max_len = 1024
   ];
 
-  // Optional. AIP-160 compatible filter expression. The environment field may
+  // Optional. CEL filter expression. The environment field may
   // be used to select services in a specific environment, for example
-  // `environment = "prod"`.
+  // `environment == "prod"`.
   // The expression must not exceed 1024 characters.
   string filter = 4 [
     (google.api.field_behavior) = OPTIONAL,

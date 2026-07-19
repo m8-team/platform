@@ -47,7 +47,7 @@ paths:
                 - name: filter
                   in: query
                   description: |-
-                    Optional. AIP-160 compatible filter expression.
+                    Optional. CEL filter expression.
                      The expression must not exceed 1024 characters.
                   schema:
                     type: string

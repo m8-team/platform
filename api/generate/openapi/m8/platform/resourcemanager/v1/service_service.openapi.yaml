@@ -47,9 +47,9 @@ paths:
                 - name: filter
                   in: query
                   description: |-
-                    Optional. AIP-160 compatible filter expression. The environment field may
+                    Optional. CEL filter expression. The environment field may
                      be used to select services in a specific environment, for example
-                     `environment = "prod"`.
+                     `environment == "prod"`.
                      The expression must not exceed 1024 characters.
                   schema:
                     type: string

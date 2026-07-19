@@ -93,7 +93,7 @@ type ListWorkspacesRequest struct {
 	// must match the call that produced the page token.
 	// The token must not exceed 1024 characters.
 	PageToken string `protobuf:"bytes,3,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Optional. AIP-160 compatible filter expression.
+	// Optional. CEL filter expression.
 	// The expression must not exceed 1024 characters.
 	Filter string `protobuf:"bytes,4,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional. AIP-132 compatible ordering expression.

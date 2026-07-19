@@ -89,7 +89,9 @@ type ListOrganizationsRequest struct {
 	// must match the call that produced the page token.
 	// The token must not exceed 1024 characters.
 	PageToken string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
-	// Optional. AIP-160 style filter expression.
+	// Optional. CEL filter expression. The supported subset includes equality
+	// predicates for `state`, `name`, and `labels`, conjunction with `&&`, and
+	// state membership such as `state in ["ACTIVE", "SUSPENDED"]`.
 	// The expression must not exceed 1024 characters.
 	Filter string `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
 	// Optional. AIP-132 style ordering expression.

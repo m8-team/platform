@@ -384,7 +384,7 @@
             "method": "GET",
             "header": [],
             "url": "{{http_base_url}}/resource-manager/v1/services?workspaceId={{workspace_id}}&pageSize={{page_size}}&pageToken={{service_page_token}}&filter={{filter}}&orderBy={{order_by}}&showDeleted={{show_deleted}}",
-            "description": "Lists services under a workspace. Set filter to environment = \"prod\" to select an environment."
+            "description": "Lists services under a workspace. Set the CEL filter to environment == \"prod\" to select an environment."
           },
           "response": []
         },

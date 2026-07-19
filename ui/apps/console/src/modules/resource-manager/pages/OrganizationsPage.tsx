@@ -151,7 +151,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
 
 function buildNameFilter(value: string) {
   const name = value.trim()
-  return name ? `name = ${JSON.stringify(name)}` : undefined
+  return name ? `name == ${JSON.stringify(name)}` : undefined
 }
 
 function buildOrderBy(sorting: SortingState) {

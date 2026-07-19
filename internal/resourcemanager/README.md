@@ -60,9 +60,11 @@ metadata and the typed response declared by the protobuf contract.
   the caller authorization scope, effective page size, filter, ordering, and
   `show_deleted` flag.
 
-The supported v1 filter subset is equality on `state`, `name`, and
-`labels.<key>`, joined with `AND`. Ordering accepts one of `id`, `name`,
-`create_time`, or `update_time`, optionally followed by `asc` or `desc`.
+List filters use CEL syntax. The supported v1 subset is equality on `state`,
+`name`, and `labels.<key>` or `labels["key"]`, joined with `&&`. State also
+supports membership expressions such as `state in ["ACTIVE", "SUSPENDED"]`.
+Ordering accepts one of `id`, `name`, `create_time`, or `update_time`,
+optionally followed by `asc` or `desc`.
 
 ## Events Published
 

@@ -9,7 +9,7 @@
       "workspaceId": "{{workspace_id}}",
       "pageSize": 50,
       "pageToken": "{{service_page_token}}",
-      "filter": "environment = \"{{service_environment}}\"",
+      "filter": "environment == \"{{service_environment}}\"",
       "orderBy": "name",
       "showDeleted": false
     },

@@ -142,7 +142,9 @@ message ListOrganizationsRequest {
     (buf.validate.field).string.max_len = 1024
   ];
 
-  // Optional. AIP-160 style filter expression.
+  // Optional. CEL filter expression. The supported subset includes equality
+  // predicates for `state`, `name`, and `labels`, conjunction with `&&`, and
+  // state membership such as `state in ["ACTIVE", "SUSPENDED"]`.
   // The expression must not exceed 1024 characters.
   string filter = 3 [
     (google.api.field_behavior) = OPTIONAL,

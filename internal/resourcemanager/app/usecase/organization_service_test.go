@@ -178,7 +178,7 @@ func TestOrganizationServiceListUsesSignedKeysetTokens(t *testing.T) {
 			PageSize: 2, PageToken: first.NextPageToken, OrderBy: "name desc",
 		},
 		"filter": {
-			PageSize: 2, PageToken: first.NextPageToken, OrderBy: "name asc", Filter: `labels.environment = "prod"`,
+			PageSize: 2, PageToken: first.NextPageToken, OrderBy: "name asc", Filter: `labels.environment == "prod"`,
 		},
 		"show deleted": {
 			PageSize: 2, PageToken: first.NextPageToken, OrderBy: "name asc", ShowDeleted: true,
@@ -223,7 +223,7 @@ func TestOrganizationServiceListFiltersAndDeletedVisibility(t *testing.T) {
 	assertOrganizationNames(t, visible.Organizations, "Development")
 
 	deleted, err := h.service.List(context.Background(), query.ListOrganizations{
-		Filter:      `state = "DELETED" AND labels.environment = "prod" AND labels.team = "platform"`,
+		Filter:      `state == "DELETED" && labels.environment == "prod" && labels.team == "platform"`,
 		ShowDeleted: true,
 	})
 	if err != nil {
@@ -231,7 +231,7 @@ func TestOrganizationServiceListFiltersAndDeletedVisibility(t *testing.T) {
 	}
 	assertOrganizationNames(t, deleted.Organizations, "Production")
 
-	_, err = h.service.List(context.Background(), query.ListOrganizations{Filter: `description = "unsupported"`})
+	_, err = h.service.List(context.Background(), query.ListOrganizations{Filter: `description == "unsupported"`})
 	if !errors.Is(err, usecase.ErrInvalidOrganizationFilter) {
 		t.Fatalf("List(unsupported filter) error = %v, want %v", err, usecase.ErrInvalidOrganizationFilter)
 	}
