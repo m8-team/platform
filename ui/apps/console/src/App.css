@@ -403,8 +403,6 @@
 }
 
 .m8-request-console {
-  display: grid;
-  grid-template-rows: auto auto;
   box-sizing: border-box;
   min-height: 100%;
   padding: 20px;
