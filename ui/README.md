@@ -42,4 +42,5 @@ pnpm build
 The service request console is enabled automatically during Vite development.
 For a diagnostic production build, opt in explicitly with
 `VITE_ENABLE_REQUEST_CONSOLE=true`; request tokens and sensitive body fields are
-redacted.
+redacted. Response previews are limited to JSON payloads up to 32 KiB, and
+unknown or sensitive header values are omitted.

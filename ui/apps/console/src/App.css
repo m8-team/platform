@@ -441,7 +441,7 @@
 
 .m8-request-console__record dl {
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
+  grid-template-columns: 145px minmax(0, 1fr);
   gap: 8px 12px;
   margin: 0;
   padding: 12px;

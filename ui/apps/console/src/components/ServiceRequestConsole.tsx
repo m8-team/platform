@@ -36,9 +36,20 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
             <dl>
               <dt>{t('requestConsole.service')}</dt><dd>{record.service}</dd>
               <dt>{t('requestConsole.parameters')}</dt><dd><RequestValue value={record.parameters} /></dd>
-              {record.body !== undefined ? <><dt>{t('requestConsole.body')}</dt><dd><RequestValue value={record.body} /></dd></> : null}
+              <dt>{t('requestConsole.requestHeaders')}</dt><dd><RequestValue value={record.requestHeaders} /></dd>
+              <dt>{t('requestConsole.requestBody')}</dt><dd><RequestValue value={record.requestBody} /></dd>
               <dt>{t('requestConsole.startedAt')}</dt><dd>{new Date(record.startedAt).toLocaleTimeString()}</dd>
               <dt>{t('requestConsole.duration')}</dt><dd>{record.durationMs === undefined ? '—' : `${record.durationMs} ms`}</dd>
+              <dt>{t('requestConsole.responseStatus')}</dt><dd>{statusText(record)}</dd>
+              <dt>{t('requestConsole.responseHeaders')}</dt><dd><RequestValue value={record.responseHeaders} /></dd>
+              <dt>{t('requestConsole.responseBody')}</dt>
+              <dd>
+                <RequestValue
+                  value={record.responseBody}
+                  pending={record.responseBodyPending}
+                  pendingText={t('requestConsole.responseBodyPending')}
+                />
+              </dd>
               {record.error ? <><dt>{t('requestConsole.error')}</dt><dd>{record.error}</dd></> : null}
             </dl>
           </details>
@@ -48,8 +59,27 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
   )
 }
 
-function RequestValue({value}: {value: unknown}) {
-  return <pre>{JSON.stringify(value, null, 2)}</pre>
+function RequestValue({
+  value,
+  pending = false,
+  pendingText,
+}: {
+  value: unknown
+  pending?: boolean
+  pendingText?: string
+}) {
+  if (pending) return <Text variant="caption-2" color="secondary">{pendingText ?? '…'}</Text>
+  if (value === undefined) return <Text variant="caption-2" color="secondary">—</Text>
+  return <pre>{formatRequestValue(value)}</pre>
+}
+
+function formatRequestValue(value: unknown) {
+  if (typeof value === 'string') return value
+  try {
+    return JSON.stringify(value, null, 2)
+  } catch {
+    return '[VALUE_UNAVAILABLE]'
+  }
 }
 
 function statusText(record: ServiceRequestRecord) {
