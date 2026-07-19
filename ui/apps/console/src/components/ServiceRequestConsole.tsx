@@ -40,7 +40,7 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
                   <div className="m8-request-console__summary">
                     <span className="m8-mono">{record.method}</span>
                     <Text ellipsis>{record.url}</Text>
-                    <Label theme={statusTheme(record)}>{statusText(record)}</Label>
+                    <RequestStatusLabel record={record} pendingText={t('requestConsole.pending')} />
                   </div>
                 )}
               >
@@ -68,7 +68,7 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
                     {record.durationMs === undefined ? '—' : `${record.durationMs} ms`}
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.responseStatus')}>
-                    {statusText(record)}
+                    <RequestStatusLabel record={record} pendingText={t('requestConsole.pending')} />
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.responseHeaders')}>
                     <RequestValue value={record.responseHeaders} t={t} />
@@ -120,8 +120,15 @@ function RequestValue({
 }
 
 function statusText(record: ServiceRequestRecord) {
-  if (record.pending) return '…'
   return record.status === undefined ? 'ERR' : String(record.status)
+}
+
+function RequestStatusLabel({record, pendingText}: {record: ServiceRequestRecord; pendingText: string}) {
+  return (
+    <Label theme={statusTheme(record)} loading={record.pending}>
+      {record.pending ? pendingText : statusText(record)}
+    </Label>
+  )
 }
 
 function statusTheme(record: ServiceRequestRecord) {
