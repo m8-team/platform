@@ -420,45 +420,34 @@
 .m8-request-console__records {
   display: grid;
   align-content: start;
-  gap: 8px;
   min-height: 0;
   overflow: auto;
 }
 
-.m8-request-console__record {
-  border: 1px solid var(--g-color-line-generic);
-  border-radius: 8px;
+.m8-request-console__accordion {
+  width: 100%;
 }
 
-.m8-request-console__record summary {
+.m8-request-console__summary {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  cursor: pointer;
-}
-
-.m8-request-console__record dl {
-  display: grid;
-  grid-template-columns: 145px minmax(0, 1fr);
-  gap: 8px 12px;
-  margin: 0;
-  padding: 12px;
-  border-top: 1px solid var(--g-color-line-generic);
-}
-
-.m8-request-console__record dt {
-  color: var(--g-color-text-secondary);
-}
-
-.m8-request-console__record dd {
+  width: 100%;
   min-width: 0;
-  margin: 0;
+}
+
+.m8-request-console__definitions {
+  width: 100%;
+  --g-definition-list-item-gap: 8px;
+}
+
+.m8-request-console__definitions .g-definition-list__definition {
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.m8-request-console__record pre {
+.m8-request-console__definitions pre {
   margin: 0;
   overflow: auto;
   font: inherit;
