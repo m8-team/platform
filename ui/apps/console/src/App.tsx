@@ -53,6 +53,9 @@ import {
 import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
+import {ServiceRequestConsole} from './components/ServiceRequestConsole'
+import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {
   createTranslator,
   fallbackLanguage,
@@ -63,7 +66,7 @@ import type {AppLanguage, Translate, TranslationKey} from './i18n'
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
-type FooterPanel = 'notifications' | 'support' | 'account'
+type FooterPanel = 'notifications' | 'support' | 'request-console' | 'account'
 
 interface Project {
   name: string
@@ -626,6 +629,19 @@ function App() {
           />
         ),
       },
+      ...(isServiceRequestLoggingEnabled
+        ? [
+            {
+              id: 'request-console',
+              open: activeFooterPanel === 'request-console',
+              size: 560,
+              className: 'm8-api-debug-panel',
+              contentOverflow: 'auto' as const,
+              hideVeil: false,
+              children: <ServiceRequestConsole t={t} onClose={() => setActiveFooterPanel(null)} />,
+            },
+          ]
+        : []),
       {
         id: 'account',
         open: activeFooterPanel === 'account',
@@ -777,6 +793,19 @@ function App() {
                 }}
                 compact={footerCompact}
               />
+              {isServiceRequestLoggingEnabled ? (
+                <FooterItem
+                  id="request-console"
+                  icon={Code}
+                  title={t('footer.requestConsole')}
+                  tooltipText={t('footer.requestConsole')}
+                  current={activeFooterPanel === 'request-console'}
+                  onItemClick={() => {
+                    setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')
+                  }}
+                  compact={footerCompact}
+                />
+              ) : null}
               <FooterItem
                 id="account"
                 icon={Person}
@@ -1043,15 +1072,8 @@ function OverviewStackChart({
 }
 
 export function ResourceOrganizationsPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.organizations')}
-      title={t('page.organizations.title')}
-      description={t('page.organizations.description')}
-    />
-  )
+  const {language, t} = useConsoleI18n()
+  return <OrganizationsPage language={language} t={t} />
 }
 
 export function ResourceOrganizationDetailsPage() {
