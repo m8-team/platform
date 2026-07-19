@@ -13,11 +13,16 @@ func Module() fx.Option {
 		"resource-manager-organization-grpc",
 		fx.Provide(newOperationIDGenerator),
 		fx.Provide(NewOrganizationServer),
+		fx.Provide(asOrganizationServiceServer),
 		fx.Provide(fx.Annotate(
 			newRegistration,
 			fx.ResultTags(grpcserver.RegistrationResultTag),
 		)),
 	)
+}
+
+func asOrganizationServiceServer(server *OrganizationServer) resourcemanagerpb.OrganizationServiceServer {
+	return server
 }
 
 type uuidOperationIDGenerator struct{}

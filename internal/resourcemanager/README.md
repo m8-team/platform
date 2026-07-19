@@ -36,10 +36,12 @@ Owns organizations, workspaces, services, service environment assignment, resour
 - UpdateService
 - DeleteService
 
-`OrganizationService` is implemented end to end for gRPC: create, get, list,
-update, soft-delete, and undelete. Mutations return an already-completed
-`google.longrunning.Operation` containing common operation metadata and the
-typed response declared by the protobuf contract.
+`OrganizationService` is implemented end to end for gRPC and REST/JSON:
+create, get, list, update, soft-delete, and undelete. The REST gateway shares
+the process HTTP listener with the health endpoints and uses the canonical
+`/resource-manager/v1/organizations...` routes. Mutations return an
+already-completed `google.longrunning.Operation` containing common operation
+metadata and the typed response declared by the protobuf contract.
 
 ## Organization Semantics
 
@@ -88,6 +90,7 @@ The Resource Manager module is composed through `resourcemanager.Module(config)`
 
 The `resource-manager` process also accepts:
 
+- `M8_HEALTH_HTTP_ADDR` (default `:8080`; health and REST listener);
 - `M8_GRPC_ADDR` (default `:9090`);
 - `M8_RM_ALLOW_UNAUTHENTICATED` (default `false`);
 - `M8_RM_SOFT_DELETE_RETENTION` (default `720h`);

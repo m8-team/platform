@@ -5,6 +5,7 @@ go 1.26.1
 require (
 	cloud.google.com/go/longrunning v1.2.0
 	github.com/google/uuid v1.6.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
 	github.com/m8-team/go-genproto v0.0.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/fx v1.24.0
@@ -48,7 +49,6 @@ require (
 	github.com/google/gnostic v0.7.1 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/gosuri/uitable v0.0.4 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect

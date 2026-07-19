@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "7e1585e3-8fe6-4a16-b922-3e7555081f73",
     "name": "M8 Resource Manager - REST",
-    "description": "REST requests generated from the current google.api.http annotations under api/proto/m8/platform/resourcemanager/v1. The current HTTP runtime exposes health endpoints only; business routes are ready for the future gRPC-Gateway and currently return 404. Run folders in order to capture IDs and optimistic-lock versions automatically.",
+    "description": "REST requests generated from the current google.api.http annotations under api/proto/m8/platform/resourcemanager/v1. Health and Organization routes are registered on the current HTTP runtime. Workspace and Service routes remain contract-only until their adapters are registered. Run folders in order to capture IDs and optimistic-lock versions automatically.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -132,7 +132,7 @@
     },
     {
       "name": "Organizations",
-      "description": "OrganizationService REST transcoding contract.",
+      "description": "Registered OrganizationService REST gateway.",
       "item": [
         {
           "name": "01 CreateOrganization",
@@ -234,7 +234,7 @@
     },
     {
       "name": "Workspaces",
-      "description": "WorkspaceService REST transcoding contract. Run Organizations first so organization_id is available.",
+      "description": "WorkspaceService REST transcoding contract; not registered in the current runtime. Run Organizations first so organization_id is available.",
       "item": [
         {
           "name": "01 CreateWorkspace",
@@ -336,7 +336,7 @@
     },
     {
       "name": "Services",
-      "description": "ServiceService REST transcoding contract. Run Workspaces first so workspace_id is available.",
+      "description": "ServiceService REST transcoding contract; not registered in the current runtime. Run Workspaces first so workspace_id is available.",
       "item": [
         {
           "name": "01 CreateService",

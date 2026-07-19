@@ -38,7 +38,7 @@ M8_RM_ALLOW_UNAUTHENTICATED=true go run ./cmd/resource-manager
 
 Default endpoints:
 
-- health HTTP server: `http://127.0.0.1:8080`
+- health and Organization REST server: `http://127.0.0.1:8080`
 - plaintext gRPC server: `127.0.0.1:9090`
 
 Current runtime support is intentionally documented here so the collection
@@ -47,17 +47,19 @@ does not create a false expectation:
 | Interface | Current status |
 | --- | --- |
 | HTTP health (`/livez`, `/readyz`, `/startupz`, `/healthz`) | Available |
-| Resource Manager REST routes | Contract exists, but no gRPC-Gateway is registered yet |
+| `OrganizationService` REST | Registered through gRPC-Gateway |
+| `WorkspaceService` REST | Contract exists, but is not registered yet |
+| `ServiceService` REST | Contract exists, but is not registered yet |
 | `OrganizationService` gRPC | Registered |
 | `WorkspaceService` gRPC | Contract exists, but is not registered yet |
 | `ServiceService` gRPC | Contract exists, but is not registered yet |
 | gRPC server reflection | Not enabled; import proto definitions manually |
 | `google.longrunning.Operations` polling | Not registered; current Organization mutations return completed operations |
 
-Until the HTTP gateway is added, the business requests in the REST collection
-will return HTTP 404 from the current health-only HTTP server. They already use
-the canonical paths from the current protobuf annotations:
-`/resource-manager/v1/...`.
+Organization requests in the REST collection use the registered canonical
+paths `/resource-manager/v1/organizations...`. Workspace and Service requests
+remain contract examples and return HTTP 404 until their application adapters
+and gateway handlers are registered.
 
 ## Resource hierarchy
 
