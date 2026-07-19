@@ -1066,9 +1066,32 @@ function OverviewStackChart({
 export function ResourceOrganizationsPage() {
   const {language, t} = useConsoleI18n()
   const router = useRouter()
-  const organizationsQuery = useOrganizationsQuery()
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
+  const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
+  const organizationsQuery = useOrganizationsQuery({pageSize, pageToken: pageTokens[page]})
 
   const organizations = organizationsQuery.data?.organizations ?? []
+  const handlePaginationUpdate = useCallback(
+    (nextPage: number, nextPageSize: number) => {
+      if (nextPageSize !== pageSize) {
+        setPageSize(nextPageSize)
+        setPage(1)
+        setPageTokens({1: ''})
+        return
+      }
+
+      if (nextPage === page + 1) {
+        const nextPageToken = organizationsQuery.data?.nextPageToken
+        if (!nextPageToken) return
+        setPageTokens((current) => ({...current, [nextPage]: nextPageToken}))
+      } else if (nextPage > 1 && pageTokens[nextPage] === undefined) {
+        return
+      }
+      setPage(nextPage)
+    },
+    [organizationsQuery.data?.nextPageToken, page, pageSize, pageTokens],
+  )
 
   return (
     <main className="m8-page__body">
@@ -1122,6 +1145,10 @@ export function ResourceOrganizationsPage() {
               organizations={organizations}
               language={language}
               loading={organizationsQuery.isLoading}
+              page={page}
+              pageSize={pageSize}
+              total={organizationsQuery.data?.totalSize ?? organizations.length}
+              onPaginationUpdate={handlePaginationUpdate}
               t={t}
               onOrganizationActivate={(organization) =>
                 void router.navigate({

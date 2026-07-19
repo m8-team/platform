@@ -25,8 +25,11 @@ export interface ResourceTableSettings {
 }
 
 export interface ResourceTablePagination {
+  page?: number
   pageSize?: number
+  total?: number
   pageSizeOptions?: number[]
+  onUpdate?: (page: number, pageSize: number) => void
 }
 
 export interface ResourceTableFiltering {
@@ -74,8 +77,11 @@ export function ResourceTable<TData>({
   sortable = false,
 }: ResourceTableProps<TData>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(pagination?.pageSize ?? 20)
+  const [internalPage, setInternalPage] = useState(1)
+  const [internalPageSize, setInternalPageSize] = useState(pagination?.pageSize ?? 20)
+  const page = pagination?.page ?? internalPage
+  const pageSize = pagination?.pageSize ?? internalPageSize
+  const serverPagination = Boolean(pagination?.onUpdate)
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
@@ -137,7 +143,8 @@ export function ResourceTable<TData>({
     onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: filtering ? getFilteredRowModel() : undefined,
     getSortedRowModel: sortable ? getSortedRowModel() : undefined,
-    getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
+    getPaginationRowModel: pagination && !serverPagination ? getPaginationRowModel() : undefined,
+    manualPagination: serverPagination,
     state: {
       rowSelection,
       columnOrder,
@@ -147,7 +154,11 @@ export function ResourceTable<TData>({
       pagination: {pageIndex: page - 1, pageSize},
     },
   })
-  const filteredRowCount = filtering ? table.getFilteredRowModel().rows.length : data.length
+  const filteredRowCount = serverPagination
+    ? pagination?.total ?? data.length
+    : filtering
+      ? table.getFilteredRowModel().rows.length
+      : data.length
   const lastPage = Math.max(1, Math.ceil(filteredRowCount / pageSize))
   const effectivePage = Math.min(page, lastPage)
 
@@ -172,7 +183,8 @@ export function ResourceTable<TData>({
             hasClear
             onUpdate={(value) => {
               setGlobalFilter(value)
-              setPage(1)
+              if (pagination?.onUpdate) pagination.onUpdate(1, pageSize)
+              else setInternalPage(1)
             }}
           />
         </div>
@@ -214,9 +226,14 @@ export function ResourceTable<TData>({
             total={filteredRowCount}
             pageSizeOptions={pagination.pageSizeOptions ?? [10, 20, 50, 100]}
             onUpdate={(nextPage, nextPageSize) => {
-              setPage(nextPage)
-              setPageSize(nextPageSize)
+              if (pagination.onUpdate) pagination.onUpdate(nextPage, nextPageSize)
+              else {
+                setInternalPage(nextPage)
+                setInternalPageSize(nextPageSize)
+              }
             }}
+            showPages={!serverPagination}
+            showInput={false}
           />
         </div>
       ) : null}

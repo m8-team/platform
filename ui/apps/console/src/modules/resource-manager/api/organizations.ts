@@ -16,14 +16,22 @@ export interface ListOrganizationsResponse {
 }
 
 export interface FetchOrganizationsOptions {
+  pageSize: number
+  pageToken?: string
   signal?: AbortSignal
 }
 
-export async function fetchOrganizations({signal}: FetchOrganizationsOptions = {}): Promise<ListOrganizationsResponse> {
+export async function fetchOrganizations({pageSize, pageToken, signal}: FetchOrganizationsOptions): Promise<ListOrganizationsResponse> {
   const apiBaseUrl = (import.meta.env.VITE_RESOURCE_MANAGER_API_URL ?? '').replace(/\/$/, '')
+  const parameters = new URLSearchParams({
+    pageSize: String(pageSize),
+    orderBy: 'name',
+    showDeleted: 'false',
+  })
+  if (pageToken) parameters.set('pageToken', pageToken)
   const response = await loggedFetch(
     'resource-manager',
-    `${apiBaseUrl}/resource-manager/v1/organizations?pageSize=100&orderBy=name&showDeleted=false`,
+    `${apiBaseUrl}/resource-manager/v1/organizations?${parameters}`,
     {
       headers: {Accept: 'application/json'},
       credentials: 'same-origin',

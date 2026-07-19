@@ -12,6 +12,10 @@ export interface OrganizationsTableProps {
   organizations: Organization[]
   language: AppLanguage
   loading: boolean
+  page: number
+  pageSize: number
+  total: number
+  onPaginationUpdate: (page: number, pageSize: number) => void
   onOrganizationActivate: (organization: Organization) => void
   t: Translate
 }
@@ -20,6 +24,10 @@ export function OrganizationsTable({
   organizations,
   language,
   loading,
+  page,
+  pageSize,
+  total,
+  onPaginationUpdate,
   onOrganizationActivate,
   t,
 }: OrganizationsTableProps) {
@@ -111,7 +119,13 @@ export function OrganizationsTable({
       selectable
       sortable
       filtering={{searchPlaceholder: t('organizations.filters.searchPlaceholder')}}
-      pagination={{pageSize: 20, pageSizeOptions: [10, 20, 50, 100]}}
+      pagination={{
+        page,
+        pageSize,
+        total,
+        pageSizeOptions: [10, 20, 50, 100],
+        onUpdate: onPaginationUpdate,
+      }}
       settings={{
         storageKey: 'm8.resource-manager.organizations.table-settings',
         enableSearch: true,
