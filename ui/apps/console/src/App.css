@@ -320,6 +320,72 @@
   color: var(--g-color-text-secondary);
 }
 
+.m8-resource-table {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.m8-resource-table-shell {
+  overflow-x: auto;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.m8-resource-table-filters {
+  width: min(420px, 100%);
+  padding: 12px 14px;
+}
+
+.m8-resource-table-pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 14px;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.m8-selection-actions-footer {
+  position: sticky;
+  z-index: 10;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  pointer-events: none;
+}
+
+.m8-selection-actions-panel {
+  width: 100%;
+  border-radius: 0;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 24%);
+  pointer-events: auto;
+}
+
+.m8-organizations-table {
+  width: 100%;
+  min-width: 1080px;
+}
+
+.m8-organizations-table tbody tr {
+  cursor: pointer;
+}
+
+.m8-organizations-table tbody tr:focus-visible {
+  outline: 2px solid var(--g-color-line-focus);
+  outline-offset: -2px;
+}
+
+.m8-organization-name {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.m8-organizations-message {
+  display: grid;
+  gap: 4px;
+  padding: 28px 14px;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
 .m8-project-cell {
   display: flex;
   align-items: center;

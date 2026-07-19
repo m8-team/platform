@@ -53,6 +53,8 @@ import {
 import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
+import {OrganizationsTable} from './modules/resource-manager/components/OrganizationsTable'
+import {useOrganizationsQuery} from './modules/resource-manager/queries/organizations'
 import {
   createTranslator,
   fallbackLanguage,
@@ -1043,14 +1045,76 @@ function OverviewStackChart({
 }
 
 export function ResourceOrganizationsPage() {
-  const {t} = useConsoleI18n()
+  const {language, t} = useConsoleI18n()
+  const router = useRouter()
+  const organizationsQuery = useOrganizationsQuery()
+
+  const organizations = organizationsQuery.data?.organizations ?? []
 
   return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.organizations')}
-      title={t('page.organizations.title')}
-      description={t('page.organizations.description')}
-    />
+    <main className="m8-page__body">
+      <section className="m8-page__content">
+        <div className="m8-page__heading">
+          <div>
+            <ConsoleBreadcrumbs
+              items={[
+                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
+                {text: t('menu.resources.organizations')},
+              ]}
+            />
+            <Text as="h1" variant="display-1">
+              {t('page.organizations.title')}
+            </Text>
+            <Text as="p" variant="body-2" color="secondary">
+              {t('page.organizations.description')}
+            </Text>
+          </div>
+          <Button
+            view="outlined"
+            loading={organizationsQuery.isFetching}
+            onClick={() => void organizationsQuery.refetch()}
+          >
+            <Icon data={ArrowRotateRight} size={16} />
+            {t('organizations.refresh')}
+          </Button>
+        </div>
+
+        <Card view="outlined" type="container" className="m8-table-card">
+          <div className="m8-card-header">
+            <div>
+              <Text as="h2" variant="header-1">
+                {t('organizations.inventory')}
+              </Text>
+              <Text variant="caption-2" color="secondary">
+                {t('organizations.total')}: {organizationsQuery.data?.totalSize ?? organizations.length}
+              </Text>
+            </div>
+          </div>
+
+          {organizationsQuery.isError ? (
+            <div className="m8-organizations-message" role="alert">
+              <Text variant="body-2">{t('organizations.error')}</Text>
+              <Text variant="caption-2" color="secondary">
+                {organizationsQuery.error instanceof Error ? organizationsQuery.error.message : null}
+              </Text>
+            </div>
+          ) : (
+            <OrganizationsTable
+              organizations={organizations}
+              language={language}
+              loading={organizationsQuery.isLoading}
+              t={t}
+              onOrganizationActivate={(organization) =>
+                void router.navigate({
+                    to: '/resource-manager/organizations/$organizationId',
+                    params: {organizationId: organization.id},
+                })
+              }
+            />
+          )}
+        </Card>
+      </section>
+    </main>
   )
 }
 

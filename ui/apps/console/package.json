@@ -14,6 +14,7 @@
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/icons": "^2.20.0",
     "@gravity-ui/navigation": "^6.1.2",
+    "@gravity-ui/table": "^1.17.0",
     "@gravity-ui/uikit": "^7.44.2",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.17",
