@@ -635,7 +635,7 @@ function App() {
               id: 'request-console',
               open: activeFooterPanel === 'request-console',
               size: 560,
-              hideVeil: true,
+              hideVeil: false,
               children: <ServiceRequestConsole t={t} />,
             },
           ]

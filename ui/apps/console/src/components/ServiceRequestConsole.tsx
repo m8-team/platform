@@ -1,6 +1,7 @@
 import {useSyncExternalStore} from 'react'
 import {Accordion, Button, DefinitionList, Label, Text} from '@gravity-ui/uikit'
 
+import {JsonPreview} from './JsonPreview'
 import {serviceRequestLog} from '../platform/http/serviceRequestLog'
 import type {ServiceRequestRecord} from '../platform/http/serviceRequestLog'
 import type {Translate} from '../i18n'
@@ -15,10 +16,7 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
   return (
     <div className="m8-request-console">
       <div className="m8-request-console__header">
-        <div>
-          <Text as="h2" variant="header-1">{t('requestConsole.title')}</Text>
-          <Text variant="caption-2" color="secondary">{t('requestConsole.description')}</Text>
-        </div>
+        <Text as="h2" variant="header-1">{t('requestConsole.title')}</Text>
         <Button view="outlined" disabled={records.length === 0} onClick={serviceRequestLog.clear}>
           {t('requestConsole.clear')}
         </Button>
@@ -55,13 +53,13 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
                 >
                   <DefinitionList.Item name={t('requestConsole.service')}>{record.service}</DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.parameters')}>
-                    <RequestValue value={record.parameters} />
+                    <RequestValue value={record.parameters} t={t} />
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.requestHeaders')}>
-                    <RequestValue value={record.requestHeaders} />
+                    <RequestValue value={record.requestHeaders} t={t} />
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.requestBody')}>
-                    <RequestValue value={record.requestBody} />
+                    <RequestValue value={record.requestBody} t={t} />
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.startedAt')}>
                     {new Date(record.startedAt).toLocaleTimeString()}
@@ -73,13 +71,14 @@ export function ServiceRequestConsole({t}: {t: Translate}) {
                     {statusText(record)}
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.responseHeaders')}>
-                    <RequestValue value={record.responseHeaders} />
+                    <RequestValue value={record.responseHeaders} t={t} />
                   </DefinitionList.Item>
                   <DefinitionList.Item name={t('requestConsole.responseBody')}>
                     <RequestValue
                       value={record.responseBody}
                       pending={record.responseBodyPending}
                       pendingText={t('requestConsole.responseBodyPending')}
+                      t={t}
                     />
                   </DefinitionList.Item>
                   {record.error ? (
@@ -99,23 +98,25 @@ function RequestValue({
   value,
   pending = false,
   pendingText,
+  t,
 }: {
   value: unknown
   pending?: boolean
   pendingText?: string
+  t: Translate
 }) {
   if (pending) return <Text variant="caption-2" color="secondary">{pendingText ?? '…'}</Text>
   if (value === undefined) return <Text variant="caption-2" color="secondary">—</Text>
-  return <pre>{formatRequestValue(value)}</pre>
-}
-
-function formatRequestValue(value: unknown) {
-  if (typeof value === 'string') return value
-  try {
-    return JSON.stringify(value, null, 2)
-  } catch {
-    return '[VALUE_UNAVAILABLE]'
-  }
+  return (
+    <JsonPreview
+      value={value}
+      copyText={t('resource.copy')}
+      copiedText={t('resource.copied')}
+      openText={t('requestConsole.openJson')}
+      overlayTitle={t('requestConsole.jsonPreview')}
+      closeText={t('requestConsole.closeJson')}
+    />
+  )
 }
 
 function statusText(record: ServiceRequestRecord) {

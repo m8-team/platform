@@ -421,7 +421,8 @@
   display: grid;
   align-content: start;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .m8-request-console__accordion {
@@ -443,15 +444,112 @@
 }
 
 .m8-request-console__definitions .g-definition-list__definition {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.m8-request-console__definitions pre {
+.m8-json-preview {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 6px;
+  background: var(--g-color-base-generic-ultralight);
+}
+
+.m8-json-preview__actions {
+  position: absolute;
+  z-index: 1;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+  background: var(--g-color-base-generic-ultralight);
+}
+
+.m8-json-preview pre {
+  box-sizing: border-box;
+  max-height: 360px;
   margin: 0;
+  padding: 10px 42px 10px 12px;
   overflow: auto;
-  font: inherit;
-  white-space: pre-wrap;
+  font-family: var(--g-text-code-font-family);
+  font-size: var(--g-text-code-1-font-size);
+  line-height: var(--g-text-code-1-line-height);
+  white-space: pre;
+  tab-size: 2;
+}
+
+.m8-json-preview_compact::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--g-color-base-generic-ultralight));
+  content: "";
+  pointer-events: none;
+}
+
+.m8-json-preview_compact pre {
+  max-height: 150px;
+  overflow: hidden;
+}
+
+.m8-json-preview_expanded {
+  height: 100%;
+  min-height: 0;
+}
+
+.m8-json-preview_expanded pre {
+  max-height: none;
+  height: 100%;
+  min-height: 0;
+}
+
+.m8-json-overlay {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  width: min(920px, calc(100vw - 48px));
+  height: min(760px, calc(100vh - 48px));
+  padding: 20px;
+}
+
+.m8-json-overlay__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.m8-json-preview pre:focus-visible {
+  outline: 2px solid var(--g-color-line-focus);
+  outline-offset: -2px;
+}
+
+.m8-json-preview__token_key {
+  color: var(--g-color-text-link);
+}
+
+.m8-json-preview__token_string {
+  color: var(--g-color-text-positive);
+}
+
+.m8-json-preview__token_number {
+  color: var(--g-color-text-warning);
+}
+
+.m8-json-preview__token_boolean {
+  color: var(--g-color-text-info);
+}
+
+.m8-json-preview__token_null {
+  color: var(--g-color-text-secondary);
 }
 
 .m8-organizations-message {
