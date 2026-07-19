@@ -32,6 +32,11 @@
           "    body = null;",
           "}",
           "",
+          "function setRuntimeVariable(name, value) {",
+          "    pm.collectionVariables.set(name, value);",
+          "    pm.environment.set(name, value);",
+          "}",
+          "",
           "if (body) {",
           "    const path = pm.request.url.getPath();",
           "    const resources = [",
@@ -57,13 +62,13 @@
           "        }",
           "",
           "        if (resource && resource.id) {",
-          "            pm.environment.set(descriptor.singular + '_id', resource.id);",
+          "            setRuntimeVariable(descriptor.singular + '_id', resource.id);",
           "        }",
           "        if (resource && resource.version !== undefined) {",
-          "            pm.environment.set(descriptor.singular + '_version', String(resource.version));",
+          "            setRuntimeVariable(descriptor.singular + '_version', String(resource.version));",
           "        }",
           "        if (body.nextPageToken !== undefined) {",
-          "            pm.environment.set(descriptor.singular + '_page_token', body.nextPageToken);",
+          "            setRuntimeVariable(descriptor.singular + '_page_token', body.nextPageToken);",
           "        }",
           "    }",
           "}"
@@ -441,6 +446,86 @@
     {
       "key": "http_base_url",
       "value": "http://127.0.0.1:8080",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "page_size",
+      "value": "50",
+      "type": "string"
+    },
+    {
+      "key": "filter",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_by",
+      "value": "name",
+      "type": "string"
+    },
+    {
+      "key": "show_deleted",
+      "value": "false",
+      "type": "string"
+    },
+    {
+      "key": "allow_missing",
+      "value": "false",
+      "type": "string"
+    },
+    {
+      "key": "organization_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organization_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "organization_page_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workspace_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workspace_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workspace_page_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_version",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_page_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "service_environment",
+      "value": "dev",
       "type": "string"
     }
   ]

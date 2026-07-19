@@ -27,6 +27,11 @@ The authoritative API contracts are:
 5. Run requests in folder order. Successful create/get/update responses save
    resource IDs and versions to the environment automatically.
 
+The REST collection also contains fallback values for pagination, booleans,
+resource IDs, and the local base URL. Requests therefore resolve variables
+even when no Postman environment is selected; selecting the environment is
+still recommended when values must persist outside the collection.
+
 ## Local runtime
 
 For local gRPC testing without an authentication adapter, start the service
