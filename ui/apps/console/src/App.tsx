@@ -635,6 +635,8 @@ function App() {
               id: 'request-console',
               open: activeFooterPanel === 'request-console',
               size: 560,
+              className: 'm8-api-debug-panel',
+              contentOverflow: 'auto' as const,
               hideVeil: false,
               children: <ServiceRequestConsole t={t} onClose={() => setActiveFooterPanel(null)} />,
             },

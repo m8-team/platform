@@ -1,4 +1,4 @@
-import {useSyncExternalStore} from 'react'
+import {useState, useSyncExternalStore} from 'react'
 import {TrashBin, Xmark} from '@gravity-ui/icons'
 import {Button, DefinitionList, Icon, Label, Text} from '@gravity-ui/uikit'
 
@@ -13,6 +13,23 @@ export function ServiceRequestConsole({t, onClose}: {t: Translate; onClose: () =
     serviceRequestLog.getSnapshot,
     serviceRequestLog.getSnapshot,
   )
+  const [openRecordIds, setOpenRecordIds] = useState<ReadonlySet<string>>(() => new Set())
+
+  const handleRecordToggle = (recordId: string, open: boolean) => {
+    setOpenRecordIds((current) => {
+      if (current.has(recordId) === open) return current
+
+      const next = new Set(current)
+      if (open) next.add(recordId)
+      else next.delete(recordId)
+      return next
+    })
+  }
+
+  const handleClear = () => {
+    serviceRequestLog.clear()
+    setOpenRecordIds(new Set())
+  }
 
   return (
     <div className="m8-request-console">
@@ -25,7 +42,7 @@ export function ServiceRequestConsole({t, onClose}: {t: Translate; onClose: () =
             disabled={records.length === 0}
             aria-label={t('requestConsole.clear')}
             title={t('requestConsole.clear')}
-            onClick={serviceRequestLog.clear}
+            onClick={handleClear}
           >
             <Icon data={TrashBin} size={18} />
           </Button>
@@ -44,7 +61,12 @@ export function ServiceRequestConsole({t, onClose}: {t: Translate; onClose: () =
         {records.length === 0 ? (
           <Text variant="body-2" color="secondary">{t('requestConsole.empty')}</Text>
         ) : records.map((record) => (
-          <details className="m8-request-console__record" key={record.id}>
+          <details
+            className="m8-request-console__record"
+            key={record.id}
+            open={openRecordIds.has(record.id)}
+            onToggle={(event) => handleRecordToggle(record.id, event.currentTarget.open)}
+          >
             <summary className="m8-request-console__summary">
               <span className="m8-mono">{record.method}</span>
               <Text ellipsis>{record.url}</Text>
