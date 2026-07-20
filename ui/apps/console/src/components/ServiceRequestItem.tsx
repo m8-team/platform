@@ -141,11 +141,11 @@ function buildCurlExample(record: ServiceRequestRecord) {
   const parts = [`curl --request ${record.method.toUpperCase()}`, shellQuote(url.toString())]
   for (const [key, values] of Object.entries(record.requestHeaders)) {
     if (key === '__truncated__') continue
-    for (const value of values) parts.push('--header', shellQuote(`${key}: ${value}`))
+    for (const value of values) parts.push(`--header ${shellQuote(`${key}: ${value}`)}`)
   }
 
   const body = serializeCurlBody(record.requestBody)
-  if (body !== undefined) parts.push('--data-raw', shellQuote(body))
+  if (body !== undefined) parts.push(`--data-raw ${shellQuote(body)}`)
   return parts.map((part, index) => index === 0 ? part : `  ${part}`).join(' \\\n')
 }
 

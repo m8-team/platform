@@ -428,6 +428,12 @@
   width: 100%;
 }
 
+.m8-request-console__menu-counts {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .m8-request-console__header {
   display: flex;
   align-items: flex-start;

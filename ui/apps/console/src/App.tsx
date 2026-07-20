@@ -500,10 +500,22 @@ function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
   const [collapsedMenuGroupIds, setCollapsedMenuGroupIds] = useState(readInitialCollapsedMenuGroups)
   const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
-  const serviceRequestCount = useSyncExternalStore(
+  const serviceRequestRecords = useSyncExternalStore(
     serviceRequestLog.subscribe,
-    () => serviceRequestLog.getSnapshot().length,
-    () => serviceRequestLog.getSnapshot().length,
+    serviceRequestLog.getSnapshot,
+    serviceRequestLog.getSnapshot,
+  )
+  const serviceRequestCounts = useMemo(
+    () => serviceRequestRecords.reduce(
+      (counts, record) => {
+        if (record.pending) return counts
+        if (record.status !== undefined && record.status < 400 && !record.error) counts.success += 1
+        else counts.failure += 1
+        return counts
+      },
+      {success: 0, failure: 0},
+    ),
+    [serviceRequestRecords],
   )
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
@@ -815,7 +827,12 @@ function App() {
                   icon={Code}
                   title={t('footer.requestConsole')}
                   tooltipText={t('footer.requestConsole')}
-                  rightAdornment={<Label theme="info">{serviceRequestCount}</Label>}
+                  rightAdornment={(
+                    <span className="m8-request-console__menu-counts">
+                      <Label theme="success">{serviceRequestCounts.success}</Label>
+                      <Label theme="danger">{serviceRequestCounts.failure}</Label>
+                    </span>
+                  )}
                   current={activeFooterPanel === 'request-console'}
                   onItemClick={() => {
                     setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')

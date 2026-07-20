@@ -14,6 +14,7 @@ func TestParseOrganizationFilter(t *testing.T) {
 	t.Parallel()
 
 	production := "Production"
+	cyrillic := "л"
 	tests := []struct {
 		name    string
 		raw     string
@@ -21,6 +22,11 @@ func TestParseOrganizationFilter(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "empty"},
+		{
+			name: "unicode name",
+			raw:  `name == "л"`,
+			want: ports.OrganizationFilter{NameEquals: &cyrillic},
+		},
 		{
 			name: "equalities with both label access forms",
 			raw:  `state == "DELETED" && name == "Production" && labels.environment == "prod" && labels["example.com/team"] == "platform"`,
