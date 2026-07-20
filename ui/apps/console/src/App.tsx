@@ -1,4 +1,12 @@
-import {createContext, useCallback, useContext, useEffect, useMemo, useState} from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import {
   Avatar,
   Button,
@@ -58,6 +66,7 @@ import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
+import {serviceRequestLog} from './platform/http/serviceRequestLog'
 import {
   createTranslator,
   fallbackLanguage,
@@ -491,6 +500,11 @@ function App() {
   const [compact, setCompact] = useState(readInitialNavigationCompact)
   const [collapsedMenuGroupIds, setCollapsedMenuGroupIds] = useState(readInitialCollapsedMenuGroups)
   const [activeFooterPanel, setActiveFooterPanel] = useState<FooterPanel | null>(null)
+  const serviceRequestCount = useSyncExternalStore(
+    serviceRequestLog.subscribe,
+    () => serviceRequestLog.getSnapshot().length,
+    () => serviceRequestLog.getSnapshot().length,
+  )
   const [organization, setOrganization] = useState('org_m8_finance_6b21d0')
   const [workspace, setWorkspace] = useState('ws_prod-eu1')
   const [projectId, setProjectId] = useState('prj_2e41d7a9c0bf4e55')
@@ -801,6 +815,7 @@ function App() {
                   icon={Code}
                   title={t('footer.requestConsole')}
                   tooltipText={t('footer.requestConsole')}
+                  rightAdornment={<Label theme="info">{serviceRequestCount}</Label>}
                   current={activeFooterPanel === 'request-console'}
                   onItemClick={() => {
                     setActiveFooterPanel(activeFooterPanel === 'request-console' ? null : 'request-console')

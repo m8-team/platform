@@ -52,6 +52,16 @@ function ServiceRequestDetails({record, t}: {record: ServiceRequestRecord; t: Tr
       <DefinitionList.Item name={t('requestConsole.requestBody')}>
         <RequestValue value={record.requestBody} t={t} />
       </DefinitionList.Item>
+      <DefinitionList.Item name={t('requestConsole.curl')}>
+        <JsonPreview
+          value={buildCurlExample(record)}
+          copyText={t('resource.copy')}
+          copiedText={t('resource.copied')}
+          openText={t('requestConsole.openCurl')}
+          overlayTitle={t('requestConsole.curlPreview')}
+          closeText={t('requestConsole.closeCurl')}
+        />
+      </DefinitionList.Item>
       <DefinitionList.Item name={t('requestConsole.startedAt')}>
         {new Date(record.startedAt).toLocaleTimeString()}
       </DefinitionList.Item>
@@ -119,6 +129,38 @@ function RequestMethodLabel({method}: {method: string}) {
       {normalizedMethod}
     </Label>
   )
+}
+
+function buildCurlExample(record: ServiceRequestRecord) {
+  const url = new URL(record.url, record.origin)
+  for (const [key, values] of Object.entries(record.parameters)) {
+    if (key === '__truncated__') continue
+    for (const value of values) url.searchParams.append(key, value)
+  }
+
+  const parts = [`curl --request ${record.method.toUpperCase()}`, shellQuote(url.toString())]
+  for (const [key, values] of Object.entries(record.requestHeaders)) {
+    if (key === '__truncated__') continue
+    for (const value of values) parts.push('--header', shellQuote(`${key}: ${value}`))
+  }
+
+  const body = serializeCurlBody(record.requestBody)
+  if (body !== undefined) parts.push('--data-raw', shellQuote(body))
+  return parts.map((part, index) => index === 0 ? part : `  ${part}`).join(' \\\n')
+}
+
+function serializeCurlBody(body: unknown) {
+  if (body === undefined) return undefined
+  if (typeof body === 'string') return body
+  try {
+    return JSON.stringify(body)
+  } catch {
+    return undefined
+  }
+}
+
+function shellQuote(value: string) {
+  return `'${value.replaceAll("'", `'"'"'`)}'`
 }
 
 function RequestStatusLabel({record, pendingText}: {record: ServiceRequestRecord; pendingText: string}) {
