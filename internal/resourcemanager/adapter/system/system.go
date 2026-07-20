@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
+	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 )
 
 type Clock struct{}
@@ -25,6 +26,10 @@ func NewIDGenerator() *IDGenerator {
 
 func (*IDGenerator) NewID() organization.ID {
 	return organization.NewID()
+}
+
+func (*IDGenerator) NewWorkspaceID() workspace.ID {
+	return workspace.NewID()
 }
 
 func (*IDGenerator) NewOperationID() string {

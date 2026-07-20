@@ -17,12 +17,6 @@ import (
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 )
 
-const (
-	minimumPageTokenKeyLength = 32
-	maximumPageTokenLength    = 1024
-	pageTokenVersion          = 1
-)
-
 var (
 	ErrInvalidOrganizationPageSize  = errors.New("invalid organization page size")
 	ErrInvalidOrganizationPageToken = errors.New("invalid organization page token")

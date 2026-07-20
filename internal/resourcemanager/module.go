@@ -36,9 +36,12 @@ func Module(cfg Config) fx.Option {
 		fx.Provide(newOrganizationLookup),
 		fx.Provide(newOrganizationAuthorizer),
 		fx.Provide(newClock),
+		fx.Provide(newSystemIDGenerator),
 		fx.Provide(newIDGenerator),
+		fx.Provide(newWorkspaceIDGenerator),
 		fx.Provide(newWorkspaceChildren),
 		fx.Provide(newOrganizationServiceConfig),
+		fx.Provide(newWorkspaceServiceConfig),
 		fx.Provide(usecase.NewOrganizationService),
 		fx.Provide(usecase.NewWorkspaceService),
 		fx.Invoke(configureModule),
@@ -92,12 +95,27 @@ func newClock() ports.Clock {
 	return system.NewClock()
 }
 
-func newIDGenerator() ports.IDGenerator {
+func newSystemIDGenerator() *system.IDGenerator {
 	return system.NewIDGenerator()
 }
 
-func newWorkspaceChildren() ports.WorkspaceChildren {
-	return memory.NewWorkspaceChildren()
+func newIDGenerator(generator *system.IDGenerator) ports.IDGenerator {
+	return generator
+}
+
+func newWorkspaceIDGenerator(generator *system.IDGenerator) ports.WorkspaceIDGenerator {
+	return generator
+}
+
+func newWorkspaceChildren(repository ports.WorkspaceRepository) ports.WorkspaceChildren {
+	return repository
+}
+
+func newWorkspaceServiceConfig(config usecase.OrganizationServiceConfig) usecase.WorkspaceServiceConfig {
+	return usecase.WorkspaceServiceConfig{
+		SoftDeleteRetention: config.SoftDeleteRetention,
+		PageTokenKey:        append([]byte(nil), config.PageTokenKey...),
+	}
 }
 
 func newOrganizationServiceConfig(cfg Config) (usecase.OrganizationServiceConfig, error) {

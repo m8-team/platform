@@ -57,9 +57,13 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 
 func newResourceManagerHTTPHandler(
 	organizationServer resourcemanagerpb.OrganizationServiceServer,
+	workspaceServer resourcemanagerpb.WorkspaceServiceServer,
 ) (resourceManagerHTTPHandler, error) {
 	if organizationServer == nil {
 		return resourceManagerHTTPHandler{}, errors.New("organization HTTP service is required")
+	}
+	if workspaceServer == nil {
+		return resourceManagerHTTPHandler{}, errors.New("workspace HTTP service is required")
 	}
 
 	gateway := runtime.NewServeMux(
@@ -78,6 +82,13 @@ func newResourceManagerHTTPHandler(
 		organizationServer,
 	); err != nil {
 		return resourceManagerHTTPHandler{}, fmt.Errorf("register organization HTTP gateway: %w", err)
+	}
+	if err := resourcemanagerpb.RegisterWorkspaceServiceHandlerServer(
+		context.Background(),
+		gateway,
+		workspaceServer,
+	); err != nil {
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register workspace HTTP gateway: %w", err)
 	}
 
 	return resourceManagerHTTPHandler{Handler: gateway}, nil

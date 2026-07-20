@@ -164,6 +164,16 @@ func (o *Organization) Version() types.Version    { return o.version }
 func (o *Organization) Labels() map[string]string { return cloneLabels(o.labels) }
 func (o *Organization) IsDeleted() bool           { return o.state == StateDeleted }
 
+func (o *Organization) CanCreateWorkspace() error {
+	if o == nil {
+		return ErrNilOrganization
+	}
+	if o.state != StateActive {
+		return fmt.Errorf("%w: current state %s", ErrOrganizationNotActive, o.state)
+	}
+	return nil
+}
+
 // CheckVersion checks an optional optimistic concurrency precondition. Zero
 // means that the caller did not supply a precondition.
 func (o *Organization) CheckVersion(expected types.Version) error {

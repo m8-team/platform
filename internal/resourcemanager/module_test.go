@@ -14,7 +14,7 @@ func TestModuleBuildsWithValidConfig(t *testing.T) {
 			ServiceName: "resource-manager",
 			Debug:       true,
 		}),
-		fx.Invoke(func(*usecase.OrganizationService) {}),
+		fx.Invoke(func(*usecase.OrganizationService, *usecase.WorkspaceService) {}),
 		fx.NopLogger,
 	)
 	if err := app.Err(); err != nil {

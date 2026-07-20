@@ -77,17 +77,6 @@ func (f OrganizationOrderField) IsValid() bool {
 	}
 }
 
-type SortDirection string
-
-const (
-	SortDirectionAscending  SortDirection = "asc"
-	SortDirectionDescending SortDirection = "desc"
-)
-
-func (d SortDirection) IsValid() bool {
-	return d == SortDirectionAscending || d == SortDirectionDescending
-}
-
 type OrganizationFilter struct {
 	States      []organization.State
 	NameEquals  *string

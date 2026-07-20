@@ -15,6 +15,7 @@ func Module() fx.Option {
 		fx.Provide(NewOrganizationServer),
 		fx.Provide(NewWorkspaceServer),
 		fx.Provide(asOrganizationServiceServer),
+		fx.Provide(asWorkspaceServiceServer),
 		fx.Provide(fx.Annotate(
 			newRegistration,
 			fx.ResultTags(grpcserver.RegistrationResultTag),
@@ -23,6 +24,10 @@ func Module() fx.Option {
 }
 
 func asOrganizationServiceServer(server *OrganizationServer) resourcemanagerpb.OrganizationServiceServer {
+	return server
+}
+
+func asWorkspaceServiceServer(server *WorkspaceServer) resourcemanagerpb.WorkspaceServiceServer {
 	return server
 }
 

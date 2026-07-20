@@ -451,6 +451,20 @@ func mustNewOrganization(t *testing.T) *Organization {
 	return aggregate
 }
 
+func TestCanCreateWorkspaceRequiresActiveOrganization(t *testing.T) {
+	t.Parallel()
+
+	active := mustNewOrganization(t)
+	if err := active.CanCreateWorkspace(); err != nil {
+		t.Fatalf("active CanCreateWorkspace() error = %v", err)
+	}
+	deleted := mustNewOrganization(t)
+	deleteOrganization(t, deleted)
+	if err := deleted.CanCreateWorkspace(); !errors.Is(err, ErrOrganizationNotActive) {
+		t.Fatalf("deleted CanCreateWorkspace() error = %v, want %v", err, ErrOrganizationNotActive)
+	}
+}
+
 func deleteOrganization(t *testing.T, aggregate *Organization) {
 	t.Helper()
 	if err := aggregate.Delete(DeleteParams{Now: testUpdateTime, PurgeTime: testPurgeTime}); err != nil {

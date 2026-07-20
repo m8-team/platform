@@ -23,6 +23,7 @@ var (
 	ErrOrganizationDeleted            = errors.New("organization is deleted")
 	ErrOrganizationAlreadyDeleted     = errors.New("organization is already deleted")
 	ErrOrganizationNotDeleted         = errors.New("organization is not deleted")
+	ErrOrganizationNotActive          = errors.New("organization is not active")
 	ErrDeleteTimeRequired             = errors.New("organization delete time is required")
 	ErrPurgeTimeRequired              = errors.New("organization purge time is required")
 	ErrInvalidPurgeTime               = errors.New("organization purge time must be after delete time")

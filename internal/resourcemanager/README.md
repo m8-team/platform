@@ -29,8 +29,10 @@ Owns organizations, workspaces, services, service environment assignment, resour
 - DeleteOrganization
 - CreateWorkspace
 - GetWorkspace
+- ListWorkspaces
 - UpdateWorkspace
 - DeleteWorkspace
+- UndeleteWorkspace
 - CreateService
 - GetService
 - UpdateService
@@ -45,9 +47,9 @@ metadata and the typed response declared by the protobuf contract.
 
 `WorkspaceService` is also implemented end to end for gRPC and REST/JSON. It
 supports create, get, list, update, soft-delete, and undelete, preserves the
-immutable parent Organization relationship, and rejects creation below a
-missing or deleted Organization. Workspace mutations use the same version and
-retention semantics as Organization mutations.
+immutable parent Organization relationship, and permits creation only below an
+`ACTIVE` Organization. Workspace mutations use the same version and retention
+semantics as Organization mutations.
 
 ## Organization Semantics
 
@@ -74,6 +76,21 @@ Manager translates its neutral predicates into the module-owned typed
 repository filter and validates states, operators, and duplicate conditions.
 Ordering accepts one of `id`, `name`, `create_time`, or `update_time`,
 optionally followed by `asc` or `desc`.
+
+## Workspace Semantics
+
+- Workspace has its own typed ID, state, errors, aggregate, and persistence
+  snapshot; it does not reuse the Organization aggregate.
+- The parent `organization_id` is required, immutable, and preserved by
+  persistence clones and rehydration.
+- Create and undelete require an `ACTIVE` parent Organization.
+- Workspace and Organization hierarchy mutations share a coordination boundary
+  so an Organization cannot be deleted concurrently with child creation or
+  restoration in the in-memory adapter.
+- Organization delete is rejected while a non-deleted Workspace exists.
+- List supports the same CEL subset and ordering fields as Organization List.
+  Its HMAC-signed keyset token is also bound to `organization_id`, preventing a
+  cursor issued for one parent from being reused under another.
 
 ## Events Published
 
@@ -116,11 +133,14 @@ constraint to the repository query as well as its `ScopeKey`.
 
 ## Current Adapter Scope
 
-The current composition deliberately uses an in-process repository and an
-empty Workspace-child projection. It is suitable for local development and
-contract tests, not durable production storage. A production composition must
-replace both with the module-owned database/projection, implement a
-transactional outbox and persistent idempotency, and connect authorization to
-M8 Access. It must also add audit publication, request telemetry, and the
-deployment's rate-limit policy. The returned LRO is completed synchronously;
-an Operations polling backend is not registered yet.
+The current composition deliberately uses in-process Organization and Workspace
+repositories. The Workspace repository also supplies the hierarchy check and
+coordination lock consumed by Organization and Workspace mutations. This is
+suitable for local development and contract tests, not durable production
+storage. A production composition must replace these with module-owned durable
+storage and one transaction/coordinator spanning parent state checks and child
+mutations. It must also implement a transactional outbox and persistent
+idempotency, and connect authorization to M8 Access. Audit publication, request
+telemetry, and the deployment's rate-limit policy are not wired yet. Returned
+LROs are completed synchronously; an Operations polling backend is not
+registered yet.

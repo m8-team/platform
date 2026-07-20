@@ -22,6 +22,10 @@ type IDGenerator interface {
 	NewID() organization.ID
 }
 
+type WorkspaceIDGenerator interface {
+	NewWorkspaceID() workspace.ID
+}
+
 type AuthorizationAction string
 
 const (
@@ -54,4 +58,5 @@ type Authorizer interface {
 
 type WorkspaceChildren interface {
 	HasNonDeleted(ctx context.Context, organizationID organization.ID) (bool, error)
+	WithOrganizationLock(ctx context.Context, organizationID organization.ID, fn func(context.Context) error) error
 }

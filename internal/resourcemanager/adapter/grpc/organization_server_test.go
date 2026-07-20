@@ -381,3 +381,11 @@ type stubWorkspaceChildren struct {
 func (s *stubWorkspaceChildren) HasNonDeleted(context.Context, organization.ID) (bool, error) {
 	return s.hasChildren, s.err
 }
+
+func (s *stubWorkspaceChildren) WithOrganizationLock(
+	ctx context.Context,
+	_ organization.ID,
+	fn func(context.Context) error,
+) error {
+	return fn(ctx)
+}

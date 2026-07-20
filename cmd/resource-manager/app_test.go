@@ -42,6 +42,10 @@ func TestAppRegistersOrganizationServiceBeforeStart(t *testing.T) {
 	if _, exists := server.GetServiceInfo()[serviceName]; !exists {
 		t.Fatalf("gRPC service %q is not registered", serviceName)
 	}
+	workspaceServiceName := resourcemanagerpb.WorkspaceService_ServiceDesc.ServiceName
+	if _, exists := server.GetServiceInfo()[workspaceServiceName]; !exists {
+		t.Fatalf("gRPC service %q is not registered", workspaceServiceName)
+	}
 }
 
 func TestOrganizationRESTGatewayCreatesOrganization(t *testing.T) {
@@ -99,6 +103,68 @@ func TestOrganizationRESTGatewayDeniesMutationsByDefault(t *testing.T) {
 	if response.Code != http.StatusForbidden {
 		t.Fatalf("POST organization status = %d, want %d; body = %s", response.Code, http.StatusForbidden, response.Body)
 	}
+}
+
+func TestWorkspaceRESTGatewayCreatesAndListsWorkspace(t *testing.T) {
+	handler := buildHTTPHandler(t, true)
+	organizationID := createOrganizationThroughREST(t, handler)
+
+	createRequest := httptest.NewRequest(
+		http.MethodPost,
+		"/resource-manager/v1/workspaces?organizationId="+organizationID,
+		strings.NewReader(`{"name":"production","labels":{"environment":"prod"}}`),
+	)
+	createRequest.Header.Set("Content-Type", "application/json")
+	createResponse := httptest.NewRecorder()
+	handler.ServeHTTP(createResponse, createRequest)
+	if createResponse.Code != http.StatusOK {
+		t.Fatalf("POST workspace status = %d, want %d; body = %s", createResponse.Code, http.StatusOK, createResponse.Body)
+	}
+	operation := &longrunningpb.Operation{}
+	if err := protojson.Unmarshal(createResponse.Body.Bytes(), operation); err != nil {
+		t.Fatalf("decode workspace operation: %v", err)
+	}
+	created := &resourcemanagerpb.WorkspaceOperationResponse{}
+	if err := operation.GetResponse().UnmarshalTo(created); err != nil {
+		t.Fatalf("decode workspace operation response: %v", err)
+	}
+	if created.GetWorkspace().GetOrganizationId() != organizationID || created.GetWorkspace().GetName() != "production" {
+		t.Fatalf("created workspace = %+v", created.GetWorkspace())
+	}
+
+	listRequest := httptest.NewRequest(http.MethodGet, "/resource-manager/v1/workspaces?organizationId="+organizationID, nil)
+	listResponse := httptest.NewRecorder()
+	handler.ServeHTTP(listResponse, listRequest)
+	if listResponse.Code != http.StatusOK {
+		t.Fatalf("GET workspaces status = %d, want %d; body = %s", listResponse.Code, http.StatusOK, listResponse.Body)
+	}
+	list := &resourcemanagerpb.ListWorkspacesResponse{}
+	if err := protojson.Unmarshal(listResponse.Body.Bytes(), list); err != nil {
+		t.Fatalf("decode workspace list: %v", err)
+	}
+	if len(list.GetWorkspaces()) != 1 || list.GetWorkspaces()[0].GetId() != created.GetWorkspace().GetId() {
+		t.Fatalf("workspace list = %+v", list.GetWorkspaces())
+	}
+}
+
+func createOrganizationThroughREST(t *testing.T, handler http.Handler) string {
+	t.Helper()
+	request := httptest.NewRequest(http.MethodPost, "/resource-manager/v1/organizations", strings.NewReader(`{"name":"parent"}`))
+	request.Header.Set("Content-Type", "application/json")
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("POST parent organization status = %d; body = %s", response.Code, response.Body)
+	}
+	operation := &longrunningpb.Operation{}
+	if err := protojson.Unmarshal(response.Body.Bytes(), operation); err != nil {
+		t.Fatal(err)
+	}
+	created := &resourcemanagerpb.OrganizationOperationResponse{}
+	if err := operation.GetResponse().UnmarshalTo(created); err != nil {
+		t.Fatal(err)
+	}
+	return created.GetOrganization().GetId()
 }
 
 func TestResourceManagerHTTPHandlerDoesNotExposeHealthRoutes(t *testing.T) {

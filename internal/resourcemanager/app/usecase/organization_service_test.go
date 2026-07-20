@@ -731,6 +731,14 @@ func (w *fakeWorkspaceChildren) HasNonDeleted(_ context.Context, _ organization.
 	return w.hasNonDeleted, w.err
 }
 
+func (w *fakeWorkspaceChildren) WithOrganizationLock(
+	ctx context.Context,
+	_ organization.ID,
+	fn func(context.Context) error,
+) error {
+	return fn(ctx)
+}
+
 type conflictingRepository struct {
 	*memory.OrganizationRepository
 	conflictOnNextUpdate bool

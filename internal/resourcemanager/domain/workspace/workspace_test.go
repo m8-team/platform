@@ -12,7 +12,7 @@ func TestWorkspaceLifecycleAndParent(t *testing.T) {
 	now := time.Date(2026, 7, 20, 12, 0, 0, 0, time.UTC)
 	organizationID := organization.NewID()
 	value, err := workspace.New(workspace.CreateParams{
-		ID:             organization.NewID(),
+		ID:             workspace.NewID(),
 		OrganizationID: organizationID,
 		Name:           "Production",
 		Now:            now,
@@ -27,13 +27,13 @@ func TestWorkspaceLifecycleAndParent(t *testing.T) {
 		t.Fatalf("new workspace state/version = %s/%d", value.State(), value.Version().Int64())
 	}
 
-	if err := value.Delete(now.Add(time.Minute), now.Add(24*time.Hour), value.Version()); err != nil {
+	if err := value.Delete(workspace.DeleteParams{Now: now.Add(time.Minute), PurgeTime: now.Add(24 * time.Hour), ExpectedVersion: value.Version()}); err != nil {
 		t.Fatalf("Delete() error = %v", err)
 	}
 	if !value.IsDeleted() || value.DeleteTime() == nil || value.PurgeTime() == nil {
 		t.Fatal("Delete() did not retain a tombstone")
 	}
-	if err := value.Undelete(now.Add(2 * time.Minute)); err != nil {
+	if err := value.Undelete(workspace.UndeleteParams{Now: now.Add(2 * time.Minute), ExpectedVersion: value.Version()}); err != nil {
 		t.Fatalf("Undelete() error = %v", err)
 	}
 	if value.IsDeleted() || value.DeleteTime() != nil || value.PurgeTime() != nil {
@@ -42,8 +42,34 @@ func TestWorkspaceLifecycleAndParent(t *testing.T) {
 }
 
 func TestWorkspaceRequiresParentOrganization(t *testing.T) {
-	_, err := workspace.New(workspace.CreateParams{ID: organization.NewID(), Now: time.Now()})
+	_, err := workspace.New(workspace.CreateParams{ID: workspace.NewID(), Now: time.Now()})
 	if err == nil {
 		t.Fatal("New() error = nil, want invalid parent error")
+	}
+}
+
+func TestWorkspaceSnapshotPreservesImmutableParentAndDetachesData(t *testing.T) {
+	now := time.Date(2026, 7, 20, 12, 0, 0, 0, time.UTC)
+	parentID := organization.NewID()
+	value, err := workspace.New(workspace.CreateParams{
+		ID:             workspace.NewID(),
+		OrganizationID: parentID,
+		Labels:         map[string]string{"team": "platform"},
+		Now:            now,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	snapshot := value.Snapshot()
+	rehydrated, err := workspace.Rehydrate(snapshot)
+	if err != nil {
+		t.Fatalf("Rehydrate() error = %v", err)
+	}
+	if !rehydrated.OrganizationID().Equal(parentID) {
+		t.Fatalf("OrganizationID() = %s, want %s", rehydrated.OrganizationID(), parentID)
+	}
+	snapshot.Labels["team"] = "mutated"
+	if rehydrated.Labels()["team"] != "platform" {
+		t.Fatal("Rehydrate() retained snapshot label alias")
 	}
 }

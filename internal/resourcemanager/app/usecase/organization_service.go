@@ -232,45 +232,53 @@ func (s *OrganizationService) Delete(
 		return nil, err
 	}
 
-	value, err := s.repository.Get(ctx, cmd.ID)
+	var result *organization.Organization
+	err := s.workspaceChildren.WithOrganizationLock(ctx, cmd.ID, func(ctx context.Context) error {
+		value, err := s.repository.Get(ctx, cmd.ID)
+		if err != nil {
+			if cmd.AllowMissing && errors.Is(err, ports.ErrOrganizationNotFound) {
+				return nil
+			}
+			return fmt.Errorf("get organization for delete: %w", err)
+		}
+		if value.IsDeleted() {
+			if cmd.AllowMissing {
+				result = value
+				return nil
+			}
+			return organization.ErrOrganizationAlreadyDeleted
+		}
+		if err := value.CheckVersion(cmd.ExpectedVersion); err != nil {
+			return err
+		}
+
+		hasChildren, err := s.workspaceChildren.HasNonDeleted(ctx, cmd.ID)
+		if err != nil {
+			return fmt.Errorf("check organization workspaces: %w", err)
+		}
+		if hasChildren {
+			return ErrOrganizationHasWorkspaces
+		}
+
+		expectedStoredVersion := value.Version()
+		now := s.clock.Now().UTC()
+		if err := value.Delete(organization.DeleteParams{
+			Now:             now,
+			PurgeTime:       now.Add(s.retention),
+			ExpectedVersion: cmd.ExpectedVersion,
+		}); err != nil {
+			return err
+		}
+		if err := s.repository.Update(ctx, value, expectedStoredVersion); err != nil {
+			return fmt.Errorf("delete organization: %w", err)
+		}
+		result = value.Clone()
+		return nil
+	})
 	if err != nil {
-		if cmd.AllowMissing && errors.Is(err, ports.ErrOrganizationNotFound) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("get organization for delete: %w", err)
-	}
-	if value.IsDeleted() {
-		if cmd.AllowMissing {
-			return value, nil
-		}
-		return nil, organization.ErrOrganizationAlreadyDeleted
-	}
-	if err := value.CheckVersion(cmd.ExpectedVersion); err != nil {
 		return nil, err
 	}
-
-	hasChildren, err := s.workspaceChildren.HasNonDeleted(ctx, cmd.ID)
-	if err != nil {
-		return nil, fmt.Errorf("check organization workspaces: %w", err)
-	}
-	if hasChildren {
-		return nil, ErrOrganizationHasWorkspaces
-	}
-
-	expectedStoredVersion := value.Version()
-	now := s.clock.Now().UTC()
-	if err := value.Delete(organization.DeleteParams{
-		Now:             now,
-		PurgeTime:       now.Add(s.retention),
-		ExpectedVersion: cmd.ExpectedVersion,
-	}); err != nil {
-		return nil, err
-	}
-	if err := s.repository.Update(ctx, value, expectedStoredVersion); err != nil {
-		return nil, fmt.Errorf("delete organization: %w", err)
-	}
-
-	return value.Clone(), nil
+	return result, nil
 }
 
 func (s *OrganizationService) Undelete(
