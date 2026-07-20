@@ -65,6 +65,7 @@ import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {WorkspacesPage} from './modules/resource-manager/pages/WorkspacesPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {serviceRequestLog} from './platform/http/serviceRequestLog'
 import {
@@ -1123,15 +1124,8 @@ export function ResourceOrganizationDetailsPage() {
 }
 
 export function ResourceWorkspacesPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.workspaces')}
-      title={t('page.workspaces.title')}
-      description={t('page.workspaces.description')}
-    />
-  )
+  const {language, t} = useConsoleI18n()
+  return <WorkspacesPage language={language} t={t} />
 }
 
 export function ResourceWorkspaceDetailsPage() {
