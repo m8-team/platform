@@ -16,6 +16,7 @@ var organizationFilterParser, organizationFilterParserError = platformfilter.New
 	platformfilter.CELParserConfig{
 		MaxExpressionRunes: maximumOrganizationFilterRunes,
 		Variables: []platformfilter.Variable{
+			platformfilter.ScalarVariable("id", platformfilter.StringKind),
 			platformfilter.ScalarVariable("state", platformfilter.StringKind),
 			platformfilter.ScalarVariable("name", platformfilter.StringKind),
 			platformfilter.MapVariable(
@@ -29,6 +30,7 @@ var organizationFilterParser, organizationFilterParserError = platformfilter.New
 
 type organizationFilterBuilder struct {
 	filter   ports.OrganizationFilter
+	seenID   bool
 	seenName bool
 }
 
@@ -66,6 +68,7 @@ func parseOrganizationFilter(raw string) (ports.OrganizationFilter, error) {
 		builder.filter.LabelsEqual = nil
 	}
 	slices.Sort(builder.filter.States)
+	slices.SortFunc(builder.filter.IDs, func(a, b organization.ID) int { return strings.Compare(a.String(), b.String()) })
 	return builder.filter, nil
 }
 
@@ -92,6 +95,16 @@ func (b *organizationFilterBuilder) addEquality(predicate platformfilter.Predica
 	}
 
 	switch field.Name() {
+	case "id":
+		if _, hasKey := field.Key(); hasKey || b.seenID {
+			return fmt.Errorf("invalid or duplicate id predicate")
+		}
+		id, err := organization.ParseID(value)
+		if err != nil {
+			return fmt.Errorf("invalid organization id: %w", err)
+		}
+		b.seenID = true
+		b.filter.IDs = []organization.ID{id}
 	case "state":
 		if _, hasKey := field.Key(); hasKey {
 			return fmt.Errorf("state does not support a map key")
@@ -132,6 +145,27 @@ func (b *organizationFilterBuilder) addEquality(predicate platformfilter.Predica
 func (b *organizationFilterBuilder) addStateMembership(predicate platformfilter.Predicate) error {
 	field := predicate.Field()
 	_, hasKey := field.Key()
+	if field.Name() == "id" && !hasKey {
+		if b.seenID {
+			return fmt.Errorf("duplicate id predicate")
+		}
+		b.seenID = true
+		for _, literal := range predicate.Values() {
+			value, ok := literal.AsString()
+			if !ok {
+				return fmt.Errorf("id membership values must be string literals")
+			}
+			id, err := organization.ParseID(value)
+			if err != nil {
+				return fmt.Errorf("invalid organization id: %w", err)
+			}
+			b.filter.IDs = append(b.filter.IDs, id)
+		}
+		if len(b.filter.IDs) == 0 {
+			return fmt.Errorf("id membership requires a non-empty string list")
+		}
+		return nil
+	}
 	if field.Name() != "state" || hasKey {
 		return fmt.Errorf("membership is supported only for state")
 	}

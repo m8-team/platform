@@ -12,13 +12,13 @@ paths:
             tags:
                 - WorkspaceService
             summary: List
-            description: Returns a paginated list of workspaces under the specified organization UUID.
+            description: Returns a paginated list of workspaces, optionally filtered by organization UUID.
             operationId: ListWorkspaces
             parameters:
                 - name: organizationId
                   in: query
                   description: |-
-                    Required. Stable unique identifier of the parent organization.
+                    Optional. Stable unique identifier of the parent organization.
                      The value must be a valid UUID string.
                      In the HTTP API, pass this field in the query string.
                   schema:

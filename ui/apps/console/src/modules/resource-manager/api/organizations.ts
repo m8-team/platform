@@ -65,6 +65,20 @@ export async function fetchOrganizations({
   return parseListOrganizationsResponse(await response.json())
 }
 
+export async function fetchOrganizationsByIds(ids: string[], signal?: AbortSignal) {
+  if (ids.length === 0) return {organizations: [], totalSize: 0} satisfies ListOrganizationsResponse
+  const chunks: string[][] = []
+  for (let index = 0; index < ids.length; index += 20) chunks.push(ids.slice(index, index + 20))
+  const pages = await Promise.all(chunks.map((chunk) => fetchOrganizations({
+    pageSize: chunk.length,
+    filter: `id in [${chunk.map((id) => JSON.stringify(id)).join(', ')}]`,
+    orderBy: 'name asc',
+    signal,
+  })))
+  const organizations = pages.flatMap((page) => page.organizations)
+  return {organizations, totalSize: organizations.length} satisfies ListOrganizationsResponse
+}
+
 function parseListOrganizationsResponse(value: unknown): ListOrganizationsResponse {
   if (!isRecord(value)) throw new Error('Resource Manager returned an invalid organizations response')
 

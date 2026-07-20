@@ -24,15 +24,13 @@ export interface Workspace {
 }
 
 export async function fetchAllWorkspaces(
-  organizationIds: string[],
   signal?: AbortSignal,
 ): Promise<ListWorkspacesResponse> {
-  const pages = await Promise.all(organizationIds.map((organizationId) => fetchOrganizationWorkspaces(organizationId, signal)))
-  const workspaces = pages.flat()
+  const workspaces = await fetchOrganizationWorkspaces(undefined, signal)
   return {workspaces, totalSize: workspaces.length}
 }
 
-async function fetchOrganizationWorkspaces(organizationId: string, signal?: AbortSignal) {
+async function fetchOrganizationWorkspaces(organizationId: string | undefined, signal?: AbortSignal) {
   const result: Workspace[] = []
   let pageToken: string | undefined
   do {
@@ -50,7 +48,7 @@ export interface ListWorkspacesResponse {
 }
 
 export interface FetchWorkspacesOptions {
-  organizationId: string
+  organizationId?: string
   pageSize: number
   pageToken?: string
   filter?: string
@@ -68,11 +66,11 @@ export async function fetchWorkspaces({
 }: FetchWorkspacesOptions): Promise<ListWorkspacesResponse> {
   const apiBaseUrl = (import.meta.env.VITE_RESOURCE_MANAGER_API_URL ?? '').replace(/\/$/, '')
   const parameters = new URLSearchParams({
-    organizationId,
     pageSize: String(pageSize),
     orderBy,
     showDeleted: 'false',
   })
+  if (organizationId) parameters.set('organizationId', organizationId)
   if (pageToken) parameters.set('pageToken', pageToken)
   if (filter) parameters.set('filter', filter)
 

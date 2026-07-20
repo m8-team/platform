@@ -77,7 +77,7 @@ func (x *GetWorkspaceRequest) GetId() string {
 // Request to list workspaces in an organization with pagination and optional filtering.
 type ListWorkspacesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Required. Stable unique identifier of the parent organization.
+	// Optional. Stable unique identifier of the parent organization.
 	// The value must be a valid UUID string.
 	// In the HTTP API, pass this field in the query string.
 	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
@@ -532,7 +532,7 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\x13GetWorkspaceRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x9a\x02\n" +
 	"\x15ListWorkspacesRequest\x124\n" +
-	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12*\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x12*\n" +
 	"\tpage_size\x18\x02 \x01(\x05B\r\xe0A\x01\xbaH\a\x1a\x05\x18\xe8\a(\x00R\bpageSize\x12*\n" +
 	"\n" +
 	"page_token\x18\x03 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\bR\tpageToken\x12#\n" +
@@ -561,10 +561,10 @@ const file_m8_platform_resourcemanager_v1_workspace_service_proto_rawDesc = "" +
 	"\x18UndeleteWorkspaceRequest\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"j\n" +
 	"\x1aWorkspaceOperationResponse\x12L\n" +
-	"\tworkspace\x18\x01 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\x03\xe0A\x03R\tworkspace2\xf1\x0f\n" +
+	"\tworkspace\x18\x01 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceB\x03\xe0A\x03R\tworkspace2\xe6\x0f\n" +
 	"\x10WorkspaceService\x12\xe0\x01\n" +
-	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"p\xdaA\x02id\xbaG<\x12\x03Get\x1a'Returns a single workspace by its UUID.*\fGetWorkspace\x82\xd3\xe4\x93\x02&\x12$/resource-manager/v1/workspaces/{id}\x12\xa3\x02\n" +
-	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\xa1\x01\xdaA\x0forganization_id\xbaGe\x12\x04List\x1aMReturns a paginated list of workspaces under the specified organization UUID.*\x0eListWorkspaces\x82\xd3\xe4\x93\x02!\x12\x1f/resource-manager/v1/workspaces\x12\xe7\x02\n" +
+	"\fGetWorkspace\x123.m8.platform.resourcemanager.v1.GetWorkspaceRequest\x1a).m8.platform.resourcemanager.v1.Workspace\"p\xdaA\x02id\xbaG<\x12\x03Get\x1a'Returns a single workspace by its UUID.*\fGetWorkspace\x82\xd3\xe4\x93\x02&\x12$/resource-manager/v1/workspaces/{id}\x12\x98\x02\n" +
+	"\x0eListWorkspaces\x125.m8.platform.resourcemanager.v1.ListWorkspacesRequest\x1a6.m8.platform.resourcemanager.v1.ListWorkspacesResponse\"\x96\x01\xdaA\x00\xbaGi\x12\x04List\x1aQReturns a paginated list of workspaces, optionally filtered by organization UUID.*\x0eListWorkspaces\x82\xd3\xe4\x93\x02!\x12\x1f/resource-manager/v1/workspaces\x12\xe7\x02\n" +
 	"\x0fCreateWorkspace\x126.m8.platform.resourcemanager.v1.CreateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xfc\x01\xcaAO\n" +
 	"\x1aWorkspaceOperationResponse\x121m8.platform.common.operation.v1.OperationMetadata\xdaA\x19organization_id,workspace\xbaGY\x12\x06Create\x1a>Creates a new workspace under the specified organization UUID.*\x0fCreateWorkspace\x82\xd3\xe4\x93\x02,:\tworkspace\"\x1f/resource-manager/v1/workspaces\x12\xe4\x02\n" +
 	"\x0fUpdateWorkspace\x126.m8.platform.resourcemanager.v1.UpdateWorkspaceRequest\x1a\x1d.google.longrunning.Operation\"\xf9\x01\xcaAO\n" +

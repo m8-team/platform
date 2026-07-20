@@ -6,7 +6,7 @@ import {useRouter} from '@tanstack/react-router'
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
 import type {AppLanguage, Translate} from '../../../i18n'
 import {WorkspacesTable} from '../components/WorkspacesTable'
-import {useOrganizationsQuery} from '../queries/organizations'
+import {useOrganizationsByIdsQuery} from '../queries/organizations'
 import {useWorkspacesQuery} from '../queries/workspaces'
 
 const allOrganizationsValue = '__all__'
@@ -14,13 +14,13 @@ const allOrganizationsValue = '__all__'
 export function WorkspacesPage({language, t}: {language: AppLanguage; t: Translate}) {
   const router = useRouter()
   const [organizationFilter, setOrganizationFilter] = useState(allOrganizationsValue)
-  const organizationsQuery = useOrganizationsQuery({pageSize: 1000, orderBy: 'name asc'})
-  const organizations = useMemo(
-    () => organizationsQuery.data?.organizations ?? [],
-    [organizationsQuery.data?.organizations],
+  const workspacesQuery = useWorkspacesQuery()
+  const organizationIds = useMemo(
+    () => [...new Set((workspacesQuery.data?.workspaces ?? []).map(({organizationId}) => organizationId).filter(Boolean))].sort(),
+    [workspacesQuery.data?.workspaces],
   )
-  const organizationIds = useMemo(() => organizations.map(({id}) => id), [organizations])
-  const workspacesQuery = useWorkspacesQuery({organizationIds})
+  const organizationsQuery = useOrganizationsByIdsQuery(organizationIds)
+  const organizations = useMemo(() => organizationsQuery.data?.organizations ?? [], [organizationsQuery.data?.organizations])
   const organizationNames = useMemo(
     () => new Map(organizations.map(({id, name}) => [id, name || id])),
     [organizations],

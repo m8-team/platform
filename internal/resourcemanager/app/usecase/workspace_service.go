@@ -146,14 +146,16 @@ func (s *WorkspaceService) Get(ctx context.Context, q query.GetWorkspace) (*work
 }
 
 func (s *WorkspaceService) List(ctx context.Context, q query.ListWorkspaces) (query.ListWorkspacesResult, error) {
-	if err := q.OrganizationID.Validate(); err != nil {
-		return query.ListWorkspacesResult{}, err
-	}
 	if err := s.authorize(ctx, ports.ActionListWorkspaces, q.OrganizationID, workspace.ID{}); err != nil {
 		return query.ListWorkspacesResult{}, err
 	}
-	if _, err := s.organizations.Get(ctx, q.OrganizationID); err != nil {
-		return query.ListWorkspacesResult{}, fmt.Errorf("get parent organization for list: %w", err)
+	if !q.OrganizationID.IsZero() {
+		if err := q.OrganizationID.Validate(); err != nil {
+			return query.ListWorkspacesResult{}, err
+		}
+		if _, err := s.organizations.Get(ctx, q.OrganizationID); err != nil {
+			return query.ListWorkspacesResult{}, fmt.Errorf("get parent organization for list: %w", err)
+		}
 	}
 	authorizationScope, err := s.authorizer.ScopeKey(ctx)
 	if err != nil {

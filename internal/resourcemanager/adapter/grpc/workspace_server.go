@@ -92,9 +92,13 @@ func (s *WorkspaceServer) ListWorkspaces(
 	if utf8.RuneCountInString(request.GetOrderBy()) > maxOrderByRunes {
 		return nil, invalidArgument("order_by exceeds 128 characters")
 	}
-	organizationID, err := parseCanonicalOrganizationID(request.GetOrganizationId())
-	if err != nil {
-		return nil, invalidArgument("organization_id must be a canonical non-zero UUID")
+	var organizationID organization.ID
+	if request.GetOrganizationId() != "" {
+		var err error
+		organizationID, err = parseCanonicalOrganizationID(request.GetOrganizationId())
+		if err != nil {
+			return nil, invalidArgument("organization_id must be a canonical non-zero UUID")
+		}
 	}
 
 	result, err := s.application.List(ctx, query.ListWorkspaces{

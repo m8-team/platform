@@ -188,6 +188,9 @@ func contextError(ctx context.Context) error {
 }
 
 func matchesOrganization(value *organization.Organization, filter ports.OrganizationFilter) bool {
+	if len(filter.IDs) > 0 && !containsOrganizationID(filter.IDs, value.ID()) {
+		return false
+	}
 	if !filter.ShowDeleted && value.State() == organization.StateDeleted {
 		return false
 	}
@@ -206,6 +209,15 @@ func matchesOrganization(value *organization.Organization, filter ports.Organiza
 	}
 
 	return true
+}
+
+func containsOrganizationID(ids []organization.ID, target organization.ID) bool {
+	for _, id := range ids {
+		if id.Equal(target) {
+			return true
+		}
+	}
+	return false
 }
 
 func containsState(states []organization.State, target organization.State) bool {

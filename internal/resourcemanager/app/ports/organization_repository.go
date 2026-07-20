@@ -78,6 +78,7 @@ func (f OrganizationOrderField) IsValid() bool {
 }
 
 type OrganizationFilter struct {
+	IDs         []organization.ID
 	States      []organization.State
 	NameEquals  *string
 	LabelsEqual map[string]string

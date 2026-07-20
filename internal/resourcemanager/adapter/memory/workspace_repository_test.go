@@ -32,6 +32,14 @@ func TestWorkspaceRepositoryListsOnlyRequestedParent(t *testing.T) {
 	if len(result.Workspaces) != 1 || !result.Workspaces[0].OrganizationID().Equal(firstParent) {
 		t.Fatalf("List() returned %d values for wrong parent", len(result.Workspaces))
 	}
+
+	all, err := repository.List(context.Background(), ports.ListWorkspacesOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(all.Workspaces) != 2 {
+		t.Fatalf("List() without parent returned %d values, want 2", len(all.Workspaces))
+	}
 }
 
 func TestWorkspaceRepositoryCompareAndSwapAndHierarchyProjection(t *testing.T) {

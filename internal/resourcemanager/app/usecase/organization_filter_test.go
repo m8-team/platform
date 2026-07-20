@@ -15,6 +15,8 @@ func TestParseOrganizationFilter(t *testing.T) {
 
 	production := "Production"
 	cyrillic := "л"
+	firstID := organization.MustParseID("018f3f16-9950-7a48-9d12-9fb6d8f4c8f2")
+	secondID := organization.MustParseID("018f3f16-9950-7a48-9d12-9fb6d8f4c8f3")
 	tests := []struct {
 		name    string
 		raw     string
@@ -22,6 +24,11 @@ func TestParseOrganizationFilter(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "empty"},
+		{
+			name: "id membership",
+			raw:  `id in ["018f3f16-9950-7a48-9d12-9fb6d8f4c8f3", "018f3f16-9950-7a48-9d12-9fb6d8f4c8f2"]`,
+			want: ports.OrganizationFilter{IDs: []organization.ID{firstID, secondID}},
+		},
 		{
 			name: "unicode name",
 			raw:  `name == "л"`,
@@ -60,6 +67,7 @@ func TestParseOrganizationFilter(t *testing.T) {
 		{name: "membership on name", raw: `name in ["Production"]`, wantErr: true},
 		{name: "membership on label", raw: `labels.team in ["platform"]`, wantErr: true},
 		{name: "invalid state", raw: `state == "UNKNOWN"`, wantErr: true},
+		{name: "invalid id", raw: `id == "invalid"`, wantErr: true},
 		{name: "duplicate state", raw: `state == "ACTIVE" && state == "SUSPENDED"`, wantErr: true},
 		{name: "duplicate state in list", raw: `state in ["ACTIVE", "ACTIVE"]`, wantErr: true},
 		{name: "duplicate label", raw: `labels.team == "one" && labels["team"] == "two"`, wantErr: true},

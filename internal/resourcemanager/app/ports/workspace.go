@@ -133,8 +133,10 @@ func (o ListWorkspacesOptions) WithDefaults() ListWorkspacesOptions {
 func (o ListWorkspacesOptions) Validate() error {
 	o = o.WithDefaults()
 
-	if err := o.OrganizationID.Validate(); err != nil {
-		return fmt.Errorf("%w: organization id: %v", ErrInvalidListWorkspacesOptions, err)
+	if !o.OrganizationID.IsZero() {
+		if err := o.OrganizationID.Validate(); err != nil {
+			return fmt.Errorf("%w: organization id: %v", ErrInvalidListWorkspacesOptions, err)
+		}
 	}
 	if o.PageSize < 1 || o.PageSize > MaxWorkspacePageSize {
 		return fmt.Errorf(

@@ -144,7 +144,7 @@ func (r *WorkspaceRepository) List(
 	r.mu.RLock()
 	values := make([]*workspace.Workspace, 0, len(r.workspaces))
 	for _, value := range r.workspaces {
-		if value.OrganizationID().Equal(options.OrganizationID) && matchesWorkspace(value, options.Filter) {
+		if (options.OrganizationID.IsZero() || value.OrganizationID().Equal(options.OrganizationID)) && matchesWorkspace(value, options.Filter) {
 			values = append(values, value.Clone())
 		}
 	}

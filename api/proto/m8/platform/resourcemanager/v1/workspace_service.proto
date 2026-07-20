@@ -30,14 +30,13 @@ service WorkspaceService {
     };
   }
 
-  // Returns a page of workspaces for the specified organization.
-  // In the HTTP API, the organization UUID is passed in the query string.
+  // Returns a page of workspaces, optionally limited to one organization.
   rpc ListWorkspaces(ListWorkspacesRequest) returns (ListWorkspacesResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/workspaces"};
-    option (google.api.method_signature) = "organization_id";
+    option (google.api.method_signature) = "";
     option (gnostic.openapi.v3.operation) = {
       summary: "List"
-      description: "Returns a paginated list of workspaces under the specified organization UUID."
+      description: "Returns a paginated list of workspaces, optionally filtered by organization UUID."
       operation_id: "ListWorkspaces"
     };
   }
@@ -122,11 +121,11 @@ message GetWorkspaceRequest {
 
 // Request to list workspaces in an organization with pagination and optional filtering.
 message ListWorkspacesRequest {
-  // Required. Stable unique identifier of the parent organization.
+  // Optional. Stable unique identifier of the parent organization.
   // The value must be a valid UUID string.
   // In the HTTP API, pass this field in the query string.
   string organization_id = 1 [
-    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OPTIONAL,
     (buf.validate.field).string.uuid = true
   ];
 

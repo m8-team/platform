@@ -37,8 +37,7 @@ const (
 type WorkspaceServiceClient interface {
 	// Returns one workspace by its UUID.
 	GetWorkspace(ctx context.Context, in *GetWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
-	// Returns a page of workspaces for the specified organization.
-	// In the HTTP API, the organization UUID is passed in the query string.
+	// Returns a page of workspaces, optionally limited to one organization.
 	ListWorkspaces(ctx context.Context, in *ListWorkspacesRequest, opts ...grpc.CallOption) (*ListWorkspacesResponse, error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
@@ -128,8 +127,7 @@ func (c *workspaceServiceClient) UndeleteWorkspace(ctx context.Context, in *Unde
 type WorkspaceServiceServer interface {
 	// Returns one workspace by its UUID.
 	GetWorkspace(context.Context, *GetWorkspaceRequest) (*Workspace, error)
-	// Returns a page of workspaces for the specified organization.
-	// In the HTTP API, the organization UUID is passed in the query string.
+	// Returns a page of workspaces, optionally limited to one organization.
 	ListWorkspaces(context.Context, *ListWorkspacesRequest) (*ListWorkspacesResponse, error)
 	// Creates a new workspace inside the specified organization.
 	// In the HTTP API, the organization UUID is passed in the query string.
