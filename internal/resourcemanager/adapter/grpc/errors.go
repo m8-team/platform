@@ -7,6 +7,7 @@ import (
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
 	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
+	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -35,11 +36,15 @@ func mapError(err error) error {
 	case errors.Is(err, ports.ErrPermissionDenied):
 		return status.Error(codes.PermissionDenied, "permission denied")
 	case errors.Is(err, ports.ErrOrganizationNotFound),
+		errors.Is(err, ports.ErrWorkspaceNotFound),
 		errors.Is(err, organization.ErrOrganizationAlreadyDeleted):
-		return status.Error(codes.NotFound, "organization not found")
+		return status.Error(codes.NotFound, "resource not found")
 	case errors.Is(err, ports.ErrOrganizationAlreadyExists):
 		return status.Error(codes.AlreadyExists, "organization already exists")
+	case errors.Is(err, ports.ErrWorkspaceAlreadyExists):
+		return status.Error(codes.AlreadyExists, "workspace already exists")
 	case errors.Is(err, ports.ErrOrganizationVersionConflict),
+		errors.Is(err, ports.ErrWorkspaceVersionConflict),
 		errors.Is(err, organization.ErrVersionMismatch):
 		return status.Error(codes.Aborted, "organization version conflict")
 	case errors.Is(err, ports.ErrOrganizationRepositoryUnavailable):
@@ -57,6 +62,8 @@ func mapError(err error) error {
 		errors.Is(err, organization.ErrNoOrganizationUpdates):
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, usecase.ErrOrganizationHasWorkspaces),
+		errors.Is(err, usecase.ErrParentOrganizationDeleted),
+		errors.Is(err, workspace.ErrWorkspaceNotDeleted),
 		errors.Is(err, organization.ErrOrganizationDeleted),
 		errors.Is(err, organization.ErrOrganizationNotDeleted),
 		errors.Is(err, organization.ErrInvalidStateTransition),

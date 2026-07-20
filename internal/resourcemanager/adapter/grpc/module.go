@@ -13,6 +13,7 @@ func Module() fx.Option {
 		"resource-manager-organization-grpc",
 		fx.Provide(newOperationIDGenerator),
 		fx.Provide(NewOrganizationServer),
+		fx.Provide(NewWorkspaceServer),
 		fx.Provide(asOrganizationServiceServer),
 		fx.Provide(fx.Annotate(
 			newRegistration,
@@ -35,9 +36,10 @@ func (uuidOperationIDGenerator) NewOperationID() string {
 	return uuid.NewString()
 }
 
-func newRegistration(server *OrganizationServer) grpcserver.Registration {
+func newRegistration(server *OrganizationServer, workspaceServer *WorkspaceServer) grpcserver.Registration {
 	return func(registrar grpc.ServiceRegistrar) error {
 		resourcemanagerpb.RegisterOrganizationServiceServer(registrar, server)
+		resourcemanagerpb.RegisterWorkspaceServiceServer(registrar, workspaceServer)
 		return nil
 	}
 }

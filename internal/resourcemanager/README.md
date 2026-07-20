@@ -43,6 +43,12 @@ the process HTTP listener with the health endpoints and uses the canonical
 already-completed `google.longrunning.Operation` containing common operation
 metadata and the typed response declared by the protobuf contract.
 
+`WorkspaceService` is also implemented end to end for gRPC and REST/JSON. It
+supports create, get, list, update, soft-delete, and undelete, preserves the
+immutable parent Organization relationship, and rejects creation below a
+missing or deleted Organization. Workspace mutations use the same version and
+retention semantics as Organization mutations.
+
 ## Organization Semantics
 
 - IDs are server-generated canonical UUIDs.

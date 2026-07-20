@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
+	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 )
 
 var (
@@ -30,11 +31,18 @@ const (
 	ActionUpdateOrganization   AuthorizationAction = "resourcemanager.organizations.update"
 	ActionDeleteOrganization   AuthorizationAction = "resourcemanager.organizations.delete"
 	ActionUndeleteOrganization AuthorizationAction = "resourcemanager.organizations.undelete"
+	ActionCreateWorkspace      AuthorizationAction = "resourcemanager.workspaces.create"
+	ActionGetWorkspace         AuthorizationAction = "resourcemanager.workspaces.get"
+	ActionListWorkspaces       AuthorizationAction = "resourcemanager.workspaces.list"
+	ActionUpdateWorkspace      AuthorizationAction = "resourcemanager.workspaces.update"
+	ActionDeleteWorkspace      AuthorizationAction = "resourcemanager.workspaces.delete"
+	ActionUndeleteWorkspace    AuthorizationAction = "resourcemanager.workspaces.undelete"
 )
 
 type AuthorizationRequest struct {
 	Action         AuthorizationAction
 	OrganizationID organization.ID
+	WorkspaceID    workspace.ID
 }
 
 type Authorizer interface {

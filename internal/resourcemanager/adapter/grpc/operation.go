@@ -8,6 +8,7 @@ import (
 	commonpb "github.com/m8-team/go-genproto/m8/platform/common/operation/v1"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
+	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -73,6 +74,33 @@ func newResourceRef(id organization.ID) *commonpb.ResourceRef {
 		Id:   id.String(),
 		Name: "organizations/" + id.String(),
 	}
+}
+
+func (s *WorkspaceServer) operation(value *workspace.Workspace, deleting bool) (*longrunningpb.Operation, error) {
+	resource := &commonpb.ResourceRef{Type: workspace.ResourceType, Id: value.ID().String(), Name: "workspaces/" + value.ID().String()}
+	var response proto.Message = &commonpb.OperationResponse{Resource: resource}
+	if !deleting {
+		mapped, err := workspaceToProto(value)
+		if err != nil {
+			return nil, err
+		}
+		response = &resourcemanagerpb.WorkspaceOperationResponse{Workspace: mapped}
+	}
+	now := s.clock.Now().UTC()
+	timestamp, err := timestampFromTime(now)
+	if err != nil {
+		return nil, err
+	}
+	operationID := s.operationIDs.NewOperationID()
+	metadata, err := anypb.New(&commonpb.OperationMetadata{OperationId: operationID, Resource: resource, State: commonpb.OperationMetadata_SUCCEEDED, CreateTime: timestamp, StartTime: timestamppb.New(now), UpdateTime: timestamppb.New(now), EndTime: timestamppb.New(now)})
+	if err != nil {
+		return nil, err
+	}
+	packed, err := anypb.New(response)
+	if err != nil {
+		return nil, err
+	}
+	return &longrunningpb.Operation{Name: "operations/" + operationID, Metadata: metadata, Done: true, Result: &longrunningpb.Operation_Response{Response: packed}}, nil
 }
 
 func timestampFromTime(value time.Time) (*timestamppb.Timestamp, error) {

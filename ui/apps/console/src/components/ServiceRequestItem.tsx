@@ -25,7 +25,7 @@ export const ServiceRequestItem = memo(function ServiceRequestItem({
       onToggle={(event) => onOpenChange(record.id, event.currentTarget.open)}
     >
       <summary className="m8-request-console__summary">
-        <span className="m8-mono">{record.method}</span>
+        <RequestMethodLabel method={record.method} />
         <Text ellipsis>{record.url}</Text>
         <RequestStatusLabel record={record} pendingText={t('requestConsole.pending')} />
       </summary>
@@ -102,6 +102,22 @@ function RequestValue({
       overlayTitle={t('requestConsole.jsonPreview')}
       closeText={t('requestConsole.closeJson')}
     />
+  )
+}
+
+function RequestMethodLabel({method}: {method: string}) {
+  const normalizedMethod = method.toUpperCase()
+  const themeByMethod = {
+    POST: 'success',
+    GET: 'info',
+    PATCH: 'warning',
+    DELETE: 'danger',
+  } as const
+
+  return (
+    <Label theme={themeByMethod[normalizedMethod as keyof typeof themeByMethod] ?? 'normal'}>
+      {normalizedMethod}
+    </Label>
   )
 }
 

@@ -32,12 +32,15 @@ func Module(cfg Config) fx.Option {
 		"resourcemanager",
 		fx.Supply(cfg.normalized()),
 		fx.Provide(newOrganizationRepository),
+		fx.Provide(newWorkspaceRepository),
+		fx.Provide(newOrganizationLookup),
 		fx.Provide(newOrganizationAuthorizer),
 		fx.Provide(newClock),
 		fx.Provide(newIDGenerator),
 		fx.Provide(newWorkspaceChildren),
 		fx.Provide(newOrganizationServiceConfig),
 		fx.Provide(usecase.NewOrganizationService),
+		fx.Provide(usecase.NewWorkspaceService),
 		fx.Invoke(configureModule),
 	)
 }
@@ -71,6 +74,11 @@ func (c Config) normalized() Config {
 
 func newOrganizationRepository() ports.OrganizationRepository {
 	return memory.NewOrganizationRepository()
+}
+
+func newWorkspaceRepository() ports.WorkspaceRepository { return memory.NewWorkspaceRepository() }
+func newOrganizationLookup(repository ports.OrganizationRepository) ports.OrganizationLookup {
+	return repository
 }
 
 func newOrganizationAuthorizer(cfg Config) ports.Authorizer {
