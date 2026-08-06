@@ -155,12 +155,19 @@ message EvaluateAccessBatchRequest {
   ];
 }
 
-// EvaluateAccessBatchResponse returns evaluation decisions in execution order.
+// EvaluateAccessBatchResponse returns either one fallback decision or batch decisions.
 message EvaluateAccessBatchResponse {
   // Output only. Evaluation results in execution order.
   // For execute_all, order matches the full request evaluation order.
-  // For short-circuit semantics, the array may contain only the evaluated prefix
+  // For short-circuit semantics, the array may contain only the evaluated prefix.
+  // This field must be omitted when the request evaluations list is absent or empty.
   repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Decision for the single-evaluation fallback when request evaluations are absent or empty.
+  optional bool decision = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Decision context for the single-evaluation fallback.
+  google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EvaluateAccessBatchOptions controls batch evaluation execution semantics.
@@ -307,13 +314,23 @@ message ConfigurationResponse {
   // Required. HTTPS Policy Decision Point identifier without query or fragment components.
   string policy_decision_point = 1 [
     json_name = "policy_decision_point",
-    (buf.validate.field).string.uri = true
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string = {
+      min_len: 1
+      uri: true
+    }
   ];
 
-  // Required. URL of the Access Evaluation API endpoint.
+  // Required. HTTPS URL of the Access Evaluation API endpoint.
   string access_evaluation_endpoint = 2 [
     json_name = "access_evaluation_endpoint",
-    (buf.validate.field).string.uri = true
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string = {
+      min_len: 1
+      uri: true
+    }
   ];
 
   // Optional. URL of the Access Evaluations API endpoint.
@@ -344,7 +361,7 @@ message ConfigurationResponse {
     (buf.validate.field).string.uri = true
   ];
 
-  // Optional. Capability URNs supported by this PDP.
+  // Optional. Capability URNs supported by this PDP. Omit this field when no capability is advertised.
   repeated string capabilities = 7 [(buf.validate.field).repeated = {
     max_items: 64
     items: {
