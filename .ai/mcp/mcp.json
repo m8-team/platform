@@ -1,5 +1,14 @@
 {
   "mcpServers": {
+    "gortex": {
+      "command": "/opt/homebrew/bin/gortex",
+      "args": [
+        "mcp",
+        "--index",
+        "/Users/serg/GolandProjects/platform",
+        "--watch"
+      ]
+    },
     "gravity": {
       "url": "https://gravity-ai.ydb-qdrant.tech/mcp"
     }

@@ -1613,3 +1613,33 @@ go test ./... passes unless repository state prevents it
 ```
 
 If tests or checks cannot be run, Codex must clearly state why.
+
+<!-- gortex:communities:start -->
+<!-- gortex:skills:start -->
+## Community Skills
+
+| Area | Description | Skill |
+|------|-------------|-------|
+| Resourcemanager V1 8 Dirs Google Golang Org Grpc Status | 995 symbols | `/gortex-resourcemanager-v1-8-dirs-google-golang-org-grpc-status` |
+| App Usecase 11 Dirs | 713 symbols | `/gortex-app-usecase-11-dirs` |
+| Iam V1 9 Dirs | 652 symbols | `/gortex-iam-v1-9-dirs` |
+| Iam V1 6 Dirs | 651 symbols | `/gortex-iam-v1-6-dirs` |
+| App Usecase 17 Dirs | 580 symbols | `/gortex-app-usecase-17-dirs` |
+| App Usecase 12 Dirs | 455 symbols | `/gortex-app-usecase-12-dirs` |
+| Src Validation 15 Dirs | 265 symbols | `/gortex-src-validation-15-dirs` |
+| V1 Resourcemanagerconnect 9 Dirs | 260 symbols | `/gortex-v1-resourcemanagerconnect-9-dirs` |
+| Commerce Intelligence Pages 25 Dirs | 259 symbols | `/gortex-commerce-intelligence-pages-25-dirs` |
+| Platform Health 4 Dirs | 197 symbols | `/gortex-platform-health-4-dirs` |
+| Resourcemanager V1 8 Dirs New | 194 symbols | `/gortex-resourcemanager-v1-8-dirs-new` |
+| Installer V1alpha1 5 Dirs | 187 symbols | `/gortex-installer-v1alpha1-5-dirs` |
+| Adapter Grpc 4 Dirs Invalidargument | 182 symbols | `/gortex-adapter-grpc-4-dirs-invalidargument` |
+| Adapter Grpc 4 Dirs Workspace | 166 symbols | `/gortex-adapter-grpc-4-dirs-workspace` |
+| Resource Manager 8 Dirs | 163 symbols | `/gortex-resource-manager-8-dirs` |
+| Iam V1 7 Dirs Byte | 157 symbols | `/gortex-iam-v1-7-dirs-byte` |
+| Executable Baseline Repository | 142 symbols | `/gortex-executable-baseline-repository` |
+| Iam V1 7 Dirs Slice | 134 symbols | `/gortex-iam-v1-7-dirs-slice` |
+| Resourcemanager V1 9 Dirs | 133 symbols | `/gortex-resourcemanager-v1-9-dirs` |
+| Adapter Grpc 3 Dirs | 133 symbols | `/gortex-adapter-grpc-3-dirs` |
+<!-- gortex:skills:end -->
+
+<!-- gortex:communities:end -->
