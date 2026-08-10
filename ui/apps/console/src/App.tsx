@@ -15,14 +15,12 @@ import {
   Icon,
   Label,
   Select,
-  Table,
   Text,
   TextInput,
   ThemeProvider,
   ToasterComponent,
   ToasterProvider,
 } from '@gravity-ui/uikit'
-import type {TableColumnConfig} from '@gravity-ui/uikit'
 import {toaster} from '@gravity-ui/uikit/toaster-singleton'
 import {AsideHeader, FooterItem} from '@gravity-ui/navigation'
 import type {AsideHeaderItem, MenuGroup, PanelItemProps} from '@gravity-ui/navigation'
@@ -64,6 +62,8 @@ import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
+import {ProjectTable, StatusLabel} from './modules/resource-manager/components/ProjectTable'
+import type {Project, ProjectStatus} from './modules/resource-manager/components/ProjectTable'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
 import {WorkspacesPage} from './modules/resource-manager/pages/WorkspacesPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
@@ -77,21 +77,7 @@ import {
 import type {AppLanguage, Translate, TranslationKey} from './i18n'
 import './App.css'
 
-type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
 type FooterPanel = 'notifications' | 'support' | 'request-console' | 'account'
-
-interface Project {
-  name: string
-  projectId: string
-  workspace: string
-  organization: string
-  status: ProjectStatus
-  desiredState: string
-  actualState: string
-  updated: string
-  owner: string
-  lastOperation: string
-}
 
 interface ConsoleSelection {
   organization: string
@@ -1214,7 +1200,7 @@ export function ResourceProjectsPage() {
               />
             </label>
             <Switcher
-              label="Workspace"
+              label={t('action.workspace')}
               value={[workspace]}
               options={workspaceOptions}
               onUpdate={(next) => {
@@ -1229,13 +1215,13 @@ export function ResourceProjectsPage() {
               }}
             />
             <Switcher
-              label="Status"
+              label={t('projects.column.status')}
               value={[status]}
               options={statusOptions}
               onUpdate={(next) => setStatus(next[0] ?? status)}
             />
             <Switcher
-              label="Owner"
+              label={t('projects.column.owner')}
               value={[owner]}
               options={ownerOptions}
               onUpdate={(next) => setOwner(next[0] ?? owner)}
@@ -1318,81 +1304,6 @@ function ResourcePlaceholderPage({
   )
 }
 
-function ProjectTable({
-  projects,
-  selectedProjectId,
-  onSelectProject,
-  t,
-}: {
-  projects: Project[]
-  selectedProjectId: string
-  onSelectProject: (projectId: string) => void
-  t: Translate
-}) {
-  if (projects.length === 0) {
-    return (
-      <div className="m8-empty-table">
-        <Text variant="body-2">{t('projects.empty')}</Text>
-        <Text variant="caption-2" color="secondary">
-          {t('projects.emptyDescription')}
-        </Text>
-      </div>
-    )
-  }
-
-  const columns: TableColumnConfig<Project>[] = [
-    {
-      id: 'name',
-      name: t('projects.column.project'),
-      width: 250,
-      template: (project) => (
-        <div className="m8-project-cell">
-          <span className={`m8-status-dot m8-status-dot_${project.status.toLowerCase()}`} />
-          <div>
-            <Text variant="body-2">{project.name}</Text>
-            <Text variant="caption-2" color="secondary">
-              {project.lastOperation}
-            </Text>
-          </div>
-        </div>
-      ),
-    },
-    {id: 'projectId', name: t('projects.column.projectId'), width: 180, className: 'm8-mono'},
-    {id: 'workspace', name: t('projects.column.workspace'), width: 150, className: 'm8-mono'},
-    {id: 'organization', name: t('projects.column.organization'), width: 150, className: 'm8-mono'},
-    {
-      id: 'status',
-      name: t('projects.column.status'),
-      width: 130,
-      template: (project) => <StatusLabel status={project.status} t={t} />,
-    },
-    {id: 'desiredState', name: t('projects.column.desiredState'), width: 140},
-    {id: 'actualState', name: t('projects.column.actualState'), width: 140},
-    {id: 'updated', name: t('projects.column.updated'), width: 150},
-    {id: 'owner', name: t('projects.column.owner'), width: 180, className: 'm8-mono'},
-  ]
-
-  return (
-    <div className="m8-table-shell">
-      <Table
-        data={projects}
-        columns={columns}
-        width="max"
-        className="m8-project-table"
-        getRowDescriptor={(project) => ({
-          id: project.projectId,
-          interactive: true,
-          classNames:
-            project.projectId === selectedProjectId
-              ? ['m8-project-table__row_selected']
-              : [],
-        })}
-        onRowClick={(project) => onSelectProject(project.projectId)}
-      />
-    </div>
-  )
-}
-
 function AsidePanel({
   title,
   description,
@@ -1434,28 +1345,12 @@ interface SwitcherProps {
 function Switcher({label, value, options, onUpdate}: SwitcherProps) {
   return (
     <div className="m8-field m8-switcher">
+      <Text variant="caption-2" color="secondary">
+        {label}
+      </Text>
       <Select aria-label={label} value={value} options={options} width="max" onUpdate={onUpdate} />
     </div>
   )
-}
-
-function StatusLabel({status, t}: {status: ProjectStatus; t: Translate}) {
-  const themeByStatus: Record<ProjectStatus, 'success' | 'warning' | 'danger' | 'info' | 'normal'> = {
-    Active: 'success',
-    Suspended: 'warning',
-    Failed: 'danger',
-    Provisioning: 'info',
-    Deleting: 'warning',
-  }
-  const statusTitleKey: Record<ProjectStatus, TranslationKey> = {
-    Active: 'status.Active',
-    Suspended: 'status.Suspended',
-    Failed: 'status.Failed',
-    Provisioning: 'status.Provisioning',
-    Deleting: 'status.Deleting',
-  }
-
-  return <Label theme={themeByStatus[status]}>{t(statusTitleKey[status])}</Label>
 }
 
 export default App
