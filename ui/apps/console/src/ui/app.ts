@@ -3,7 +3,7 @@ import {createNextApp} from '@json-render/next/server';
 import {appSpec} from '@/ui/specs/app';
 
 export const {
-    Page,
+    getPageData,
     generateMetadata,
     generateStaticParams,
 } = createNextApp({
