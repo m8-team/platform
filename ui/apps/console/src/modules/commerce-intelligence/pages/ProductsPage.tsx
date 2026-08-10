@@ -1,8 +1,8 @@
 import {useMemo, useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
@@ -80,17 +80,13 @@ export function ProductsPage() {
 
           <div className="ci-grid ci-grid_1-1-1">
             <ChartCard title="Распределение портфеля по категориям">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={query.data.portfolioDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar name="SKU" dataKey="sku" fill="#2f6fed" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.portfolioDistribution}
+                xKey="category"
+                ariaLabel="Распределение количества SKU по категориям"
+                height="small"
+                series={[{kind: 'bar', dataKey: 'sku', name: 'SKU'}]}
+              />
             </ChartCard>
             <ChartCard title="Карта рисков">
               <MiniBars items={riskBars} />

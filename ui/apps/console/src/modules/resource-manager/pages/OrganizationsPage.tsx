@@ -5,15 +5,22 @@ import {useRouter} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
 import type {ResourceTableSortingState} from '../../../components/ResourceTable'
+import {useConsoleI18n} from '../../../console/ConsoleContext'
 import type {AppLanguage, Translate} from '../../../i18n'
 import {OrganizationsTable} from '../components/OrganizationsTable'
 import {useOrganizationsQuery} from '../queries/organizations'
+import {resourceManagerRoutes} from '../routes'
 
 const defaultSorting: ResourceTableSortingState = [{column: 'name', order: 'asc'}]
 
 export interface OrganizationsPageProps {
   language: AppLanguage
   t: Translate
+}
+
+export function ResourceOrganizationsPage() {
+  const {language, t} = useConsoleI18n()
+  return <OrganizationsPage language={language} t={t} />
 }
 
 export function OrganizationsPage({language, t}: OrganizationsPageProps) {
@@ -79,7 +86,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
           <div>
             <ConsoleBreadcrumbs
               items={[
-                {text: t('breadcrumb.resourceManager'), href: '/resource-manager'},
+                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
                 {text: t('menu.resources.organizations')},
               ]}
             />
@@ -137,7 +144,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
               t={t}
               onOrganizationActivate={(organization) =>
                 void router.navigate({
-                  to: '/resource-manager/organizations/$organizationId',
+                  to: resourceManagerRoutes.organizations.detail,
                   params: {organizationId: organization.id},
                 })
               }

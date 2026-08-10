@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bem-react/classname": "^1.8.0",
+    "@gravity-ui/charts": "^1.57.2",
     "@gravity-ui/i18n": "^1.8.0",
     "@gravity-ui/icons": "^2.20.0",
     "@gravity-ui/navigation": "^6.1.2",
@@ -19,8 +21,7 @@
     "@tanstack/react-router": "^1.170.17",
     "@tanstack/store": "^0.11.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "recharts": "^3.9.2"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

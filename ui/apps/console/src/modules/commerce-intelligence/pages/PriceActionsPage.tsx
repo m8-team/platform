@@ -1,9 +1,9 @@
 import {useCallback, useMemo, useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ActionToolbar} from '../components/ActionToolbar'
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
@@ -102,19 +102,16 @@ export function PriceActionsPage() {
           </ChartCard>
 
           <ChartCard title="Ожидание vs факт по примененным изменениям">
-            <div className="ci-chart">
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={query.data.appliedVsActual}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar name="Ожидание" dataKey="expected" fill="#2f6fed" />
-                  <Bar name="Факт" dataKey="actual" fill="#1a9b68" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <BusinessChart
+              data={query.data.appliedVsActual}
+              xKey="name"
+              ariaLabel="Сравнение ожидаемого и фактического результата изменений цен"
+              height="medium"
+              series={[
+                {kind: 'bar', dataKey: 'expected', name: 'Ожидание'},
+                {kind: 'bar', dataKey: 'actual', name: 'Факт'},
+              ]}
+            />
           </ChartCard>
 
           <DetailDrawer

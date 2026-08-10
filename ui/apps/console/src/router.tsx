@@ -1,15 +1,19 @@
 import {createRootRoute, createRoute, createRouter} from '@tanstack/react-router'
 
-import App, {
-  ResourceManagerOverviewPage,
+import App from './App'
+import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+import {ResourceOrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {ResourceManagerOverviewPage} from './modules/resource-manager/pages/ResourceManagerOverviewPage'
+import {
   ResourceOrganizationDetailsPage,
-  ResourceOrganizationsPage,
+  ResourceWorkspaceDetailsPage,
+} from './modules/resource-manager/pages/ResourcePlaceholderPage'
+import {
   ResourceProjectDetailsPage,
   ResourceProjectsPage,
-  ResourceWorkspaceDetailsPage,
-  ResourceWorkspacesPage,
-} from './App'
-import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+} from './modules/resource-manager/pages/ResourceProjectsPage'
+import {ResourceWorkspacesPage} from './modules/resource-manager/pages/WorkspacesPage'
+import {resourceManagerRoutes} from './modules/resource-manager/routes'
 
 const rootRoute = createRootRoute({
   component: App,
@@ -23,43 +27,43 @@ const indexRoute = createRoute({
 
 const resourceManagerRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager',
+  path: resourceManagerRoutes.overview,
   component: ResourceManagerOverviewPage,
 })
 
 const resourceOrganizationsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/organizations',
+  path: resourceManagerRoutes.organizations.list,
   component: ResourceOrganizationsPage,
 })
 
 const resourceOrganizationDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/organizations/$organizationId',
+  path: resourceManagerRoutes.organizations.detail,
   component: ResourceOrganizationDetailsPage,
 })
 
 const resourceWorkspacesRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/workspaces',
+  path: resourceManagerRoutes.workspaces.list,
   component: ResourceWorkspacesPage,
 })
 
 const resourceWorkspaceDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/workspaces/$workspaceId',
+  path: resourceManagerRoutes.workspaces.detail,
   component: ResourceWorkspaceDetailsPage,
 })
 
 const resourceProjectsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/projects',
+  path: resourceManagerRoutes.projects.list,
   component: ResourceProjectsPage,
 })
 
 const resourceProjectDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/resource-manager/projects/$projectId',
+  path: resourceManagerRoutes.projects.detail,
   component: ResourceProjectDetailsPage,
 })
 

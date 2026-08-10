@@ -1,7 +1,7 @@
 import {useQuery} from '@tanstack/react-query'
-import {Bar, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ApprovalQueue} from '../components/ApprovalQueue'
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {Heatmap} from '../components/Heatmap'
@@ -53,22 +53,18 @@ export function OverviewPage() {
 
           <div className="ci-grid ci-grid_2-1">
             <ChartCard title="Прогноз спроса vs фактические продажи" subtitle="Прогноз, факт, границы и промо-события">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={query.data.forecast}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line name="Прогноз" type="monotone" dataKey="forecast" stroke="#2f6fed" strokeWidth={2} dot={false} />
-                    <Line name="Факт. продажи" type="monotone" dataKey="actual" stroke="#1a9b68" strokeWidth={2} dot={false} />
-                    <Line name="Верхняя граница" type="monotone" dataKey="upper" stroke="#9fb7ff" strokeDasharray="4 4" dot={false} />
-                    <Line name="Нижняя граница" type="monotone" dataKey="lower" stroke="#9fb7ff" strokeDasharray="4 4" dot={false} />
-                    <Bar name="Промо-события" dataKey="promo" fill="#f2c94c" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.forecast}
+                xKey="date"
+                ariaLabel="Прогноз спроса, фактические продажи и промо-события"
+                series={[
+                  {dataKey: 'forecast', name: 'Прогноз', emphasis: true},
+                  {dataKey: 'actual', name: 'Факт. продажи', emphasis: true},
+                  {dataKey: 'upper', name: 'Верхняя граница', dashed: true},
+                  {dataKey: 'lower', name: 'Нижняя граница', dashed: true},
+                  {kind: 'bar', dataKey: 'promo', name: 'Промо-события'},
+                ]}
+              />
             </ChartCard>
 
             <InsightPanel insights={query.data.insights} />

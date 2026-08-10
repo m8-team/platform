@@ -4,12 +4,19 @@ import {Button, Card, Icon, Select, Text} from '@gravity-ui/uikit'
 import {useRouter} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
+import {useConsoleI18n} from '../../../console/ConsoleContext'
 import type {AppLanguage, Translate} from '../../../i18n'
 import {WorkspacesTable} from '../components/WorkspacesTable'
 import {useOrganizationsByIdsQuery} from '../queries/organizations'
 import {useWorkspacesQuery} from '../queries/workspaces'
+import {resourceManagerRoutes} from '../routes'
 
 const allOrganizationsValue = '__all__'
+
+export function ResourceWorkspacesPage() {
+  const {language, t} = useConsoleI18n()
+  return <WorkspacesPage language={language} t={t} />
+}
 
 export function WorkspacesPage({language, t}: {language: AppLanguage; t: Translate}) {
   const router = useRouter()
@@ -53,7 +60,7 @@ export function WorkspacesPage({language, t}: {language: AppLanguage; t: Transla
       <section className="m8-page__content">
         <div className="m8-page__heading">
           <div>
-            <ConsoleBreadcrumbs items={[{text: t('breadcrumb.resourceManager'), href: '/resource-manager'}, {text: t('menu.resources.workspaces')}]} />
+            <ConsoleBreadcrumbs items={[{text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview}, {text: t('menu.resources.workspaces')}]} />
             <Text as="h1" variant="display-1">{t('page.workspaces.title')}</Text>
             <Text as="p" variant="body-2" color="secondary">{t('page.workspaces.description')}</Text>
           </div>
@@ -87,7 +94,7 @@ export function WorkspacesPage({language, t}: {language: AppLanguage; t: Transla
               workspaces={workspaces}
               language={language}
               loading={loading}
-              onWorkspaceActivate={(workspace) => void router.navigate({to: '/resource-manager/workspaces/$workspaceId', params: {workspaceId: workspace.id}})}
+              onWorkspaceActivate={(workspace) => void router.navigate({to: resourceManagerRoutes.workspaces.detail, params: {workspaceId: workspace.id}})}
               t={t}
             />
           )}

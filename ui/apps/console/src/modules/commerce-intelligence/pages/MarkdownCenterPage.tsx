@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {Scatter, ScatterChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
@@ -74,17 +74,14 @@ export function MarkdownCenterPage() {
               </div>
             </ChartCard>
             <ChartCard title="Сезонный риск vs позиция запасов">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={220}>
-                  <ScatterChart>
-                    <CartesianGrid />
-                    <XAxis dataKey="risk" name="Сезонный риск" />
-                    <YAxis dataKey="stock" name="Запасы" />
-                    <Tooltip cursor={{strokeDasharray: '3 3'}} />
-                    <Scatter name="SKU" data={riskPoints} fill="#2f6fed" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={riskPoints}
+                xKey="risk"
+                ariaLabel="Сезонный риск в сравнении с запасами"
+                height="small"
+                xAxisTitle="Сезонный риск"
+                series={[{kind: 'scatter', dataKey: 'stock', name: 'Запасы'}]}
+              />
             </ChartCard>
             <GuardrailList title="Политики и guardrails разметки" items={query.data.guardrails} />
           </div>

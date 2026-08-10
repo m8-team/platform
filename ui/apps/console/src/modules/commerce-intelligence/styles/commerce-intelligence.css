@@ -272,6 +272,18 @@
   min-height: 220px;
 }
 
+.ci-chart_height_small {
+  height: 220px;
+}
+
+.ci-chart_height_medium {
+  height: 240px;
+}
+
+.ci-chart_height_large {
+  height: 280px;
+}
+
 .ci-table {
   display: grid;
   gap: 10px;

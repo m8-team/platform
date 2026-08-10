@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {GuardrailList} from '../components/GuardrailList'
@@ -62,20 +62,17 @@ export function SimulationPage() {
 
           <div className="ci-grid ci-grid_1-1">
             <ChartCard title="Влияние изменения цены">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={query.data.priceImpact}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="markdown" label={{value: 'Средняя уценка %', position: 'insideBottom', offset: -4}} />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line name="Выручка" dataKey="revenue" stroke="#2f6fed" strokeWidth={2} />
-                    <Line name="Маржа" dataKey="margin" stroke="#1a9b68" strokeWidth={2} />
-                    <Line name="Продано единиц" dataKey="units" stroke="#f2994a" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.priceImpact}
+                xKey="markdown"
+                ariaLabel="Влияние средней уценки на выручку, маржу и продажи"
+                xAxisTitle="Средняя уценка %"
+                series={[
+                  {dataKey: 'revenue', name: 'Выручка', emphasis: true},
+                  {dataKey: 'margin', name: 'Маржа', emphasis: true},
+                  {dataKey: 'units', name: 'Продано единиц', emphasis: true},
+                ]}
+              />
             </ChartCard>
             <GuardrailList title="Guardrails сценариев" items={query.data.guardrails} />
           </div>

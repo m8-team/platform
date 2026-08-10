@@ -3,21 +3,7 @@ import {Label, Table, Text} from '@gravity-ui/uikit'
 import type {TableColumnConfig} from '@gravity-ui/uikit'
 
 import type {Translate, TranslationKey} from '../../../i18n'
-
-export type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
-
-export interface Project {
-  name: string
-  projectId: string
-  workspace: string
-  organization: string
-  status: ProjectStatus
-  desiredState: string
-  actualState: string
-  updated: string
-  owner: string
-  lastOperation: string
-}
+import type {Project, ProjectStatus} from '../model/project'
 
 const themeByStatus: Record<ProjectStatus, 'success' | 'warning' | 'danger' | 'info' | 'normal'> = {
   Active: 'success',

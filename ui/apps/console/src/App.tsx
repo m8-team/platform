@@ -1,22 +1,10 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  useSyncExternalStore,
-} from 'react'
+import {useCallback, useEffect, useMemo, useState, useSyncExternalStore} from 'react'
 import {
   Avatar,
   Button,
-  Card,
   configure,
-  Icon,
   Label,
-  Select,
   Text,
-  TextInput,
   ThemeProvider,
   ToasterComponent,
   ToasterProvider,
@@ -43,7 +31,6 @@ import {
   GearPlay,
   Layers,
   ListUl,
-  Magnifier,
   NodesRight,
   OctagonXmark,
   Person,
@@ -59,13 +46,13 @@ import {
 } from '@gravity-ui/icons'
 
 import {ConsoleActionBar} from './components/ConsoleActionBar'
-import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
-import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
-import {ProjectTable, StatusLabel} from './modules/resource-manager/components/ProjectTable'
-import type {Project, ProjectStatus} from './modules/resource-manager/components/ProjectTable'
-import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
-import {WorkspacesPage} from './modules/resource-manager/pages/WorkspacesPage'
+import {ConsoleI18nContext, ConsoleSelectionContext} from './console/ConsoleContext'
+import type {ConsoleI18n, ConsoleSelection} from './console/ConsoleContext'
+import {workspaceOptionConfigs} from './modules/resource-manager/config/projectFilters'
+import {translateOptions} from './modules/resource-manager/lib/translateOptions'
+import {projects} from './modules/resource-manager/model/projectFixtures'
+import {resourceManagerRoutes} from './modules/resource-manager/routes'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {serviceRequestLog} from './platform/http/serviceRequestLog'
 import {
@@ -74,177 +61,19 @@ import {
   isAppLanguage,
   languageOptions as languageOptionConfigs,
 } from './i18n'
-import type {AppLanguage, Translate, TranslationKey} from './i18n'
+import type {AppLanguage, TranslationKey} from './i18n'
 import './App.css'
 
 type FooterPanel = 'notifications' | 'support' | 'request-console' | 'account'
-
-interface ConsoleSelection {
-  organization: string
-  workspace: string
-  projectId: string
-  projectOptions: Array<{value: string; content: string}>
-  setWorkspace: (value: string) => void
-  setProjectId: (value: string) => void
-}
-
-interface ConsoleI18n {
-  language: AppLanguage
-  t: Translate
-}
-
-const ConsoleSelectionContext = createContext<ConsoleSelection | null>(null)
-const ConsoleI18nContext = createContext<ConsoleI18n | null>(null)
 
 const languageStorageKey = 'm8.console.language'
 const navigationCompactStorageKey = 'm8.console.navigation.compact'
 const menuGroupCollapsedStorageKey = 'm8.console.menu-groups.collapsed'
 
-const resourceManagerRoutes = {
-  overview: '/resource-manager',
-  organizations: {
-    list: '/resource-manager/organizations',
-    detail: '/resource-manager/organizations/:organizationId',
-  },
-  workspaces: {
-    list: '/resource-manager/workspaces',
-    detail: '/resource-manager/workspaces/:workspaceId',
-  },
-  projects: {
-    list: '/resource-manager/projects',
-    detail: '/resource-manager/projects/:projectId',
-  },
-} as const
-
 const organizationOptions = [
   {value: 'org_m8_finance_6b21d0', content: 'Acme'},
   {value: 'org_m8_billing_91f2c5', content: 'Billing'},
 ]
-
-const workspaceOptionConfigs = [
-  {value: 'ws_prod-eu1', titleKey: 'workspace.platform'},
-  {value: 'ws_shared-eu1', titleKey: 'workspace.sharedServices'},
-  {value: 'ws_legacy-eu1', titleKey: 'workspace.legacy'},
-] satisfies Array<{value: string; titleKey: TranslationKey}>
-
-const statusOptionConfigs = [
-  {value: 'all', titleKey: 'status.all'},
-  {value: 'Active', titleKey: 'status.Active'},
-  {value: 'Suspended', titleKey: 'status.Suspended'},
-  {value: 'Failed', titleKey: 'status.Failed'},
-  {value: 'Provisioning', titleKey: 'status.Provisioning'},
-  {value: 'Deleting', titleKey: 'status.Deleting'},
-] satisfies Array<{value: ProjectStatus | 'all'; titleKey: TranslationKey}>
-
-const ownerOptionConfigs = [
-  {value: 'all', titleKey: 'owner.all'},
-  {value: 'usr_19bd4027_sre', content: 'usr_19bd4027_sre'},
-  {value: 'usr_2f0c81aa_sec', content: 'usr_2f0c81aa_sec'},
-] satisfies Array<{value: string; content?: string; titleKey?: TranslationKey}>
-
-const projects: Project[] = [
-  {
-    name: 'IAM',
-    projectId: 'prj_2e41d7a9c0bf4e55',
-    workspace: 'ws_prod-eu1',
-    organization: 'org_m8_finance_6b21d0',
-    status: 'Provisioning',
-    desiredState: 'Running',
-    actualState: 'Provisioning',
-    updated: '2026-06-23 09:31',
-    owner: 'usr_19bd4027_sre',
-    lastOperation: 'op_9fe2304db1a44e88',
-  },
-  {
-    name: 'partner-settlement',
-    projectId: 'prj_6d90aa31f48c4b8e',
-    workspace: 'ws_prod-eu1',
-    organization: 'org_m8_finance_6b21d0',
-    status: 'Suspended',
-    desiredState: 'Suspended',
-    actualState: 'Suspended',
-    updated: '2026-06-22 18:07',
-    owner: 'usr_2f0c81aa_sec',
-    lastOperation: 'op_63ab7e02d4104ba1',
-  },
-  {
-    name: 'invoice-export',
-    projectId: 'prj_41c2de83b7764a09',
-    workspace: 'ws_shared-eu1',
-    organization: 'org_m8_billing_91f2c5',
-    status: 'Failed',
-    desiredState: 'Running',
-    actualState: 'Failed',
-    updated: '2026-06-23 08:55',
-    owner: 'usr_8b17d6f0_ops',
-    lastOperation: 'op_3a7c8a2148ff47a2',
-  },
-  {
-    name: 'legacy-reports',
-    projectId: 'prj_9aa4c11d0e744f3a',
-    workspace: 'ws_legacy-eu1',
-    organization: 'org_m8_finance_6b21d0',
-    status: 'Deleting',
-    desiredState: 'Deleted',
-    actualState: 'Deleting',
-    updated: '2026-06-23 07:14',
-    owner: 'usr_64ea18c2_admin',
-    lastOperation: 'op_bdc4221d8b714c9d',
-  },
-]
-
-const resourceOverviewMix = [
-  {labelKey: 'overview.resource.database', value: 42, tone: 'brand'},
-  {labelKey: 'overview.resource.kafka', value: 31, tone: 'info'},
-  {labelKey: 'overview.resource.cache', value: 18, tone: 'positive'},
-  {labelKey: 'overview.resource.storage', value: 9, tone: 'warning'},
-] satisfies Array<{labelKey: TranslationKey; value: number; tone: OverviewTone}>
-
-const resourceOverviewLifecycle = [
-  {labelKey: 'status.Active', value: 78, tone: 'positive'},
-  {labelKey: 'status.Provisioning', value: 12, tone: 'info'},
-  {labelKey: 'status.Suspended', value: 6, tone: 'warning'},
-  {labelKey: 'status.Failed', value: 4, tone: 'danger'},
-] satisfies Array<{labelKey: TranslationKey; value: number; tone: OverviewTone}>
-
-const resourceOverviewOperations = [
-  {
-    titleKey: 'overview.operation.projectCreate',
-    descriptionKey: 'overview.operation.projectCreateDescription',
-    theme: 'info',
-  },
-  {
-    titleKey: 'overview.operation.workspaceSuspend',
-    descriptionKey: 'overview.operation.workspaceSuspendDescription',
-    theme: 'warning',
-  },
-  {
-    titleKey: 'overview.operation.resourceReconcile',
-    descriptionKey: 'overview.operation.resourceReconcileDescription',
-    theme: 'success',
-  },
-] satisfies Array<{
-  titleKey: TranslationKey
-  descriptionKey: TranslationKey
-  theme: 'success' | 'warning' | 'danger' | 'info' | 'normal'
-}>
-
-const resourceOverviewSignals = [
-  {
-    titleKey: 'overview.signal.sourceOfTruth',
-    descriptionKey: 'overview.signal.sourceOfTruthDescription',
-  },
-  {
-    titleKey: 'overview.signal.safeMutations',
-    descriptionKey: 'overview.signal.safeMutationsDescription',
-  },
-  {
-    titleKey: 'overview.signal.auditReady',
-    descriptionKey: 'overview.signal.auditReadyDescription',
-  },
-] satisfies Array<{titleKey: TranslationKey; descriptionKey: TranslationKey}>
-
-type OverviewTone = 'brand' | 'info' | 'positive' | 'warning' | 'danger'
 
 type MenuGroupConfig = Omit<MenuGroup, 'title'> & {titleKey: TranslationKey}
 type MenuItemConfig = Omit<AsideHeaderItem, 'title'> & {titleKey: TranslationKey}
@@ -470,16 +299,6 @@ function readInitialCollapsedMenuGroups() {
   } catch {
     return createDefaultCollapsedMenuGroups()
   }
-}
-
-function translateOptions<T extends string>(
-  options: Array<{value: T; content?: string; titleKey?: TranslationKey}>,
-  t: Translate,
-) {
-  return options.map((option) => ({
-    value: option.value,
-    content: option.titleKey ? t(option.titleKey) : option.content ?? option.value,
-  }))
 }
 
 function App() {
@@ -884,426 +703,6 @@ function App() {
   )
 }
 
-function useConsoleSelection() {
-  const selection = useContext(ConsoleSelectionContext)
-
-  if (!selection) {
-    throw new Error('Console selection context is not available')
-  }
-
-  return selection
-}
-
-function useConsoleI18n() {
-  const i18n = useContext(ConsoleI18nContext)
-
-  if (!i18n) {
-    throw new Error('Console i18n context is not available')
-  }
-
-  return i18n
-}
-
-export function ResourceManagerOverviewPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <main className="m8-page__body">
-      <section className="m8-page__content">
-        <div className="m8-page__heading">
-          <div>
-            <ConsoleBreadcrumbs
-              items={[
-                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
-                {text: t('menu.resources.overview')},
-              ]}
-            />
-            <Text as="h1" variant="display-1">
-              {t('page.resourceManager.title')}
-            </Text>
-            <Text as="p" variant="body-2" color="secondary">
-              {t('page.resourceManager.description')}
-            </Text>
-          </div>
-
-          <div className="m8-summary m8-summary_overview">
-            <Metric
-              label={t('overview.metric.organizations')}
-              value="2"
-              description={t('overview.metric.organizationsDescription')}
-            />
-            <Metric
-              label={t('overview.metric.workspaces')}
-              value="3"
-              description={t('overview.metric.workspacesDescription')}
-            />
-            <Metric
-              label={t('overview.metric.projects')}
-              value="147"
-              description={t('overview.metric.projectsDescription')}
-            />
-            <Metric
-              label={t('overview.metric.operations')}
-              value="9"
-              description={t('overview.metric.operationsDescription')}
-              tone="warning"
-            />
-          </div>
-        </div>
-
-        <div className="m8-overview-grid">
-          <Card view="outlined" type="container" className="m8-overview-card">
-            <OverviewCardHeader title={t('overview.hierarchy.title')} description={t('overview.hierarchy.description')} />
-            <div className="m8-overview-hierarchy">
-              <OverviewHierarchyNode label={t('overview.hierarchy.organizations')} value="2" />
-              <OverviewHierarchyNode label={t('overview.hierarchy.workspaces')} value="3" />
-              <OverviewHierarchyNode label={t('overview.hierarchy.projects')} value="147" />
-              <OverviewHierarchyNode label={t('overview.hierarchy.resources')} value="612" />
-            </div>
-          </Card>
-
-          <Card view="outlined" type="container" className="m8-overview-card">
-            <OverviewCardHeader title={t('overview.resourceMix.title')} description={t('overview.resourceMix.description')} />
-            <OverviewBarChart items={resourceOverviewMix} t={t} />
-          </Card>
-
-          <Card view="outlined" type="container" className="m8-overview-card">
-            <OverviewCardHeader title={t('overview.lifecycle.title')} description={t('overview.lifecycle.description')} />
-            <OverviewStackChart items={resourceOverviewLifecycle} t={t} />
-          </Card>
-
-          <Card view="outlined" type="container" className="m8-overview-card">
-            <OverviewCardHeader title={t('overview.operations.title')} description={t('overview.operations.description')} />
-            <div className="m8-overview-list">
-              {resourceOverviewOperations.map((operation) => (
-                <div className="m8-overview-list__item" key={operation.titleKey}>
-                  <div>
-                    <Text variant="body-2">{t(operation.titleKey)}</Text>
-                    <Text variant="caption-2" color="secondary">
-                      {t(operation.descriptionKey)}
-                    </Text>
-                  </div>
-                  <Label theme={operation.theme}>{t('overview.operation.running')}</Label>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card view="outlined" type="container" className="m8-overview-card m8-overview-card_full">
-            <OverviewCardHeader title={t('overview.info.title')} description={t('overview.info.description')} />
-            <div className="m8-overview-signals">
-              {resourceOverviewSignals.map((signal) => (
-                <div className="m8-overview-signal" key={signal.titleKey}>
-                  <Icon data={Check} size={16} />
-                  <div>
-                    <Text variant="body-2">{t(signal.titleKey)}</Text>
-                    <Text variant="caption-2" color="secondary">
-                      {t(signal.descriptionKey)}
-                    </Text>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </section>
-    </main>
-  )
-}
-
-function OverviewCardHeader({title, description}: {title: string; description: string}) {
-  return (
-    <div>
-      <Text as="h2" variant="header-1">
-        {title}
-      </Text>
-      <Text variant="caption-2" color="secondary">
-        {description}
-      </Text>
-    </div>
-  )
-}
-
-function OverviewHierarchyNode({label, value}: {label: string; value: string}) {
-  return (
-    <div className="m8-overview-hierarchy__node">
-      <Text variant="caption-2" color="secondary">
-        {label}
-      </Text>
-      <Text variant="header-2">{value}</Text>
-    </div>
-  )
-}
-
-function OverviewBarChart({
-  items,
-  t,
-}: {
-  items: Array<{labelKey: TranslationKey; value: number; tone: OverviewTone}>
-  t: Translate
-}) {
-  return (
-    <div className="m8-bar-chart">
-      {items.map((item) => (
-        <div className="m8-bar-chart__row" key={item.labelKey}>
-          <Text variant="caption-2" color="secondary">
-            {t(item.labelKey)}
-          </Text>
-          <div className="m8-bar-chart__track" aria-hidden="true">
-            <div className={`m8-bar-chart__bar m8-overview-tone_${item.tone}`} style={{width: `${item.value}%`}} />
-          </div>
-          <Text variant="caption-2">{item.value}%</Text>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function OverviewStackChart({
-  items,
-  t,
-}: {
-  items: Array<{labelKey: TranslationKey; value: number; tone: OverviewTone}>
-  t: Translate
-}) {
-  return (
-    <div className="m8-stack-chart-shell">
-      <div className="m8-stack-chart" aria-hidden="true">
-        {items.map((item) => (
-          <span
-            className={`m8-stack-chart__segment m8-overview-tone_${item.tone}`}
-            key={item.labelKey}
-            style={{width: `${item.value}%`}}
-          />
-        ))}
-      </div>
-      <div className="m8-stack-chart__legend">
-        {items.map((item) => (
-          <div className="m8-stack-chart__legend-item" key={item.labelKey}>
-            <span className={`m8-stack-chart__dot m8-overview-tone_${item.tone}`} />
-            <Text variant="caption-2" color="secondary">
-              {t(item.labelKey)}
-            </Text>
-            <Text variant="caption-2">{item.value}%</Text>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export function ResourceOrganizationsPage() {
-  const {language, t} = useConsoleI18n()
-  return <OrganizationsPage language={language} t={t} />
-}
-
-export function ResourceOrganizationDetailsPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.organizations')}
-      title={t('page.organizationDetails.title')}
-      description={t('page.organizationDetails.description')}
-    />
-  )
-}
-
-export function ResourceWorkspacesPage() {
-  const {language, t} = useConsoleI18n()
-  return <WorkspacesPage language={language} t={t} />
-}
-
-export function ResourceWorkspaceDetailsPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.workspaces')}
-      title={t('page.workspaceDetails.title')}
-      description={t('page.workspaceDetails.description')}
-    />
-  )
-}
-
-export function ResourceProjectDetailsPage() {
-  return <ResourceProjectsPage />
-}
-
-export function ResourceProjectsPage() {
-  const {organization, workspace, projectId, setWorkspace, setProjectId} = useConsoleSelection()
-  const {t} = useConsoleI18n()
-  const [status, setStatus] = useState('all')
-  const [owner, setOwner] = useState('all')
-  const [search, setSearch] = useState('')
-  const workspaceOptions = useMemo(() => translateOptions(workspaceOptionConfigs, t), [t])
-  const statusOptions = useMemo(() => translateOptions(statusOptionConfigs, t), [t])
-  const ownerOptions = useMemo(() => translateOptions(ownerOptionConfigs, t), [t])
-
-  const visibleProjects = useMemo(() => {
-    const searchValue = search.trim().toLowerCase()
-
-    return projects.filter((project) => {
-      const matchesSearch =
-        searchValue.length === 0 ||
-        [project.name, project.projectId, project.owner, project.lastOperation].some((value) =>
-          value.toLowerCase().includes(searchValue),
-        )
-
-      return (
-        matchesSearch &&
-        project.organization === organization &&
-        project.workspace === workspace &&
-        (status === 'all' || project.status === status) &&
-        (owner === 'all' || project.owner === owner)
-      )
-    })
-  }, [organization, owner, search, status, workspace])
-
-  return (
-    <main className="m8-page__body">
-      <section className="m8-page__content">
-        <div className="m8-page__heading">
-          <div>
-            <ConsoleBreadcrumbs
-              items={[
-                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
-                {text: t('projects.title')},
-              ]}
-            />
-            <Text as="h1" variant="display-1">
-              {t('projects.title')}
-            </Text>
-            <Text as="p" variant="body-2" color="secondary">
-              {t('projects.description')}
-            </Text>
-          </div>
-
-          <div className="m8-summary">
-            <Metric label={t('projects.metric.projects')} value="147" description={t('projects.metric.projectsDescription')} />
-            <Metric label={t('projects.metric.failed')} value="2" description={t('projects.metric.failedDescription')} tone="danger" />
-            <Metric label={t('projects.metric.deleting')} value="4" description={t('projects.metric.deletingDescription')} tone="warning" />
-          </div>
-        </div>
-
-        <Card view="outlined" type="container" className="m8-filter-card">
-          <div className="m8-filters">
-            <label className="m8-field">
-              <Text variant="caption-2" color="secondary">
-                {t('projects.search')}
-              </Text>
-              <TextInput
-                value={search}
-                placeholder={t('projects.searchPlaceholder')}
-                startContent={<Icon data={Magnifier} size={14} />}
-                onUpdate={setSearch}
-              />
-            </label>
-            <Switcher
-              label={t('action.workspace')}
-              value={[workspace]}
-              options={workspaceOptions}
-              onUpdate={(next) => {
-                const nextWorkspace = next[0] ?? workspace
-                setWorkspace(nextWorkspace)
-                const nextProject = projects.find(
-                  (project) => project.organization === organization && project.workspace === nextWorkspace,
-                )
-                if (nextProject) {
-                  setProjectId(nextProject.projectId)
-                }
-              }}
-            />
-            <Switcher
-              label={t('projects.column.status')}
-              value={[status]}
-              options={statusOptions}
-              onUpdate={(next) => setStatus(next[0] ?? status)}
-            />
-            <Switcher
-              label={t('projects.column.owner')}
-              value={[owner]}
-              options={ownerOptions}
-              onUpdate={(next) => setOwner(next[0] ?? owner)}
-            />
-          </div>
-        </Card>
-
-        <div className="m8-workspace">
-          <Card view="outlined" type="container" className="m8-table-card">
-            <div className="m8-card-header">
-              <div>
-                  <Text as="h2" variant="header-1">
-                  {t('projects.inventory')}
-                </Text>
-                <Text variant="caption-2" color="secondary">
-                  {t('projects.inventoryDescription')}
-                </Text>
-              </div>
-                <div className="m8-labels">
-                  {statusOptions.slice(1).map((option) => (
-                  <StatusLabel key={option.value} status={option.value as ProjectStatus} t={t} />
-                  ))}
-                </div>
-            </div>
-
-              <ProjectTable
-                projects={visibleProjects}
-                selectedProjectId={projectId}
-                onSelectProject={setProjectId}
-                t={t}
-              />
-          </Card>
-        </div>
-      </section>
-    </main>
-  )
-}
-
-function ResourcePlaceholderPage({
-  current,
-  title,
-  description,
-}: {
-  current: string
-  title: string
-  description: string
-}) {
-  const {t} = useConsoleI18n()
-
-  return (
-    <main className="m8-page__body">
-      <section className="m8-page__content">
-        <div className="m8-page__heading">
-          <div>
-            <ConsoleBreadcrumbs
-              items={[
-                {text: t('breadcrumb.resourceManager'), href: resourceManagerRoutes.overview},
-                {text: current},
-              ]}
-            />
-            <Text as="h1" variant="display-1">
-              {title}
-            </Text>
-            <Text as="p" variant="body-2" color="secondary">
-              {description}
-            </Text>
-          </div>
-        </div>
-
-        <Card view="outlined" type="container" className="m8-placeholder-card">
-          <Text as="h2" variant="header-1">
-            {t('page.placeholder.title')}
-          </Text>
-          <Text variant="body-2" color="secondary">
-            {t('page.placeholder.description')}
-          </Text>
-        </Card>
-      </section>
-    </main>
-  )
-}
-
 function AsidePanel({
   title,
   description,
@@ -1331,24 +730,6 @@ function AsidePanel({
           </Button>
         ))}
       </div>
-    </div>
-  )
-}
-
-interface SwitcherProps {
-  label: string
-  value: string[]
-  options: Array<{value: string; content: string}>
-  onUpdate: (value: string[]) => void
-}
-
-function Switcher({label, value, options, onUpdate}: SwitcherProps) {
-  return (
-    <div className="m8-field m8-switcher">
-      <Text variant="caption-2" color="secondary">
-        {label}
-      </Text>
-      <Select aria-label={label} value={value} options={options} width="max" onUpdate={onUpdate} />
     </div>
   )
 }

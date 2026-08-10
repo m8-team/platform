@@ -1,6 +1,6 @@
 import {useQuery} from '@tanstack/react-query'
-import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {Heatmap} from '../components/Heatmap'
@@ -56,38 +56,30 @@ export function ForecastsPage() {
           <KpiGrid items={query.data.kpis} />
           <div className="ci-grid ci-grid_2-1">
             <ChartCard title="Прогноз vs факт">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={query.data.forecastVsActual}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line name="Прогноз" dataKey="forecast" stroke="#2f6fed" strokeWidth={2} dot={false} />
-                    <Line name="Факт" dataKey="actual" stroke="#1a9b68" strokeWidth={2} dot={false} />
-                    <Line name="Верхняя граница" dataKey="upper" stroke="#9fb7ff" strokeDasharray="4 4" dot={false} />
-                    <Line name="Нижняя граница" dataKey="lower" stroke="#9fb7ff" strokeDasharray="4 4" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.forecastVsActual}
+                xKey="date"
+                ariaLabel="Сравнение прогноза и фактического спроса"
+                series={[
+                  {dataKey: 'forecast', name: 'Прогноз', emphasis: true},
+                  {dataKey: 'actual', name: 'Факт', emphasis: true},
+                  {dataKey: 'upper', name: 'Верхняя граница', dashed: true},
+                  {dataKey: 'lower', name: 'Нижняя граница', dashed: true},
+                ]}
+              />
             </ChartCard>
             <InsightPanel title="Почему изменится спрос" insights={query.data.insights} />
           </div>
 
           <div className="ci-grid ci-grid_1-1">
             <ChartCard title="Точность прогноза по категориям">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={query.data.categoryAccuracy}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar name="WAPE" dataKey="wape" fill="#2f6fed" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.categoryAccuracy}
+                xKey="category"
+                ariaLabel="Точность прогноза WAPE по категориям"
+                height="medium"
+                series={[{kind: 'bar', dataKey: 'wape', name: 'WAPE'}]}
+              />
             </ChartCard>
             <ChartCard title="Матрица складского риска">
               <Heatmap rows={query.data.inventoryRiskMatrix} />

@@ -1,8 +1,8 @@
 import {useState} from 'react'
 import {Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
+import {BusinessChart} from '../components/BusinessChart'
 import {ChartCard} from '../components/ChartCard'
 import {DataTable, type DataTableColumn} from '../components/DataTable'
 import {DetailDrawer} from '../components/DetailDrawer'
@@ -59,36 +59,28 @@ export function CompetitorsPage() {
           <KpiGrid items={query.data.kpis} />
           <div className="ci-grid ci-grid_2-1">
             <ChartCard title="Динамика индекса цен vs M8">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={query.data.trend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line dataKey="M8" stroke="#2f6fed" strokeWidth={2} dot={false} />
-                    <Line dataKey="Amazon" stroke="#f2994a" dot={false} />
-                    <Line dataKey="Walmart" stroke="#1a9b68" dot={false} />
-                    <Line dataKey="Target" stroke="#9b51e0" dot={false} />
-                    <Line dataKey="Best Buy" stroke="#eb5757" dot={false} />
-                    <Line dataKey="Newegg" stroke="#56ccf2" dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.trend}
+                xKey="date"
+                ariaLabel="Динамика индекса цен M8 и конкурентов"
+                series={[
+                  {dataKey: 'M8', emphasis: true},
+                  {dataKey: 'Amazon'},
+                  {dataKey: 'Walmart'},
+                  {dataKey: 'Target'},
+                  {dataKey: 'Best Buy'},
+                  {dataKey: 'Newegg'},
+                ]}
+              />
             </ChartCard>
             <ChartCard title="Лестница рынка — AirPods Pro 2">
-              <div className="ci-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={query.data.ladder} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="name" type="category" />
-                    <Tooltip />
-                    <Bar dataKey="price" fill="#2f6fed" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <BusinessChart
+                data={query.data.ladder}
+                xKey="name"
+                ariaLabel="Лестница рыночных цен на AirPods Pro 2"
+                orientation="horizontal"
+                series={[{kind: 'bar', dataKey: 'price', name: 'Цена'}]}
+              />
             </ChartCard>
           </div>
 
