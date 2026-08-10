@@ -1,0 +1,38 @@
+{
+  "name": "console",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@bem-react/classname": "^1.8.0",
+    "@gravity-ui/charts": "^1.57.2",
+    "@gravity-ui/icons": "^2.21.0",
+    "@gravity-ui/navigation": "^6.4.0",
+    "@gravity-ui/table": "^1.20.1",
+    "@gravity-ui/uikit": "^7.47.2",
+    "@json-render/core": "^0.19.0",
+    "@json-render/next": "^0.19.0",
+    "@json-render/react": "^0.19.0",
+    "@tanstack/react-query": "^5.101.4",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@json-render/devtools": "^0.19.0",
+    "@json-render/devtools-react": "^0.19.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "typescript": "^5"
+  },
+  "packageManager": "pnpm@10.12.1"
+}
