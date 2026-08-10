@@ -4,11 +4,13 @@ import {defineRegistry} from '@json-render/react';
 import {
     Button,
     Card,
+    Switch,
     Text,
 } from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {catalog} from '@/ui/catalog/catalog';
+import {useAppTheme} from '@/ui/runtime/theme-context';
 
 const gaps = {
     xs: 4,
@@ -103,6 +105,22 @@ export const {registry} = defineRegistry(catalog, {
                 {children}
             </Card>
         ),
+
+        ThemeSwitcher: ({props}) => {
+            const {theme, setTheme} = useAppTheme();
+
+            return (
+                <Switch
+                    checked={theme === 'dark'}
+                    size="l"
+                    onUpdate={(checked) => {
+                        setTheme(checked ? 'dark' : 'light');
+                    }}
+                >
+                    {props.label}
+                </Switch>
+            );
+        },
 
         Button: ({props, emit}) => (
             <Button

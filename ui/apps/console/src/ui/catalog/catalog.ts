@@ -49,6 +49,13 @@ export const catalog = defineCatalog(schema, {
             }),
         },
 
+        ThemeSwitcher: {
+            description: 'Switch between light and dark application themes.',
+            props: z.object({
+                label: z.string().default('Dark theme'),
+            }),
+        },
+
         Button: {
             description: 'User action button.',
             props: z.object({

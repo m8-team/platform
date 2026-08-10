@@ -49,11 +49,20 @@ export const appSpec: NextAppSpec = {
                             gap: 'l',
                         },
                         children: [
+                            'themeSwitcher',
                             'title',
                             'description',
                             'button',
                             'card',
                         ],
+                    },
+
+                    themeSwitcher: {
+                        type: 'ThemeSwitcher',
+                        props: {
+                            label: 'Dark theme',
+                        },
+                        children: [],
                     },
 
                     title: {
