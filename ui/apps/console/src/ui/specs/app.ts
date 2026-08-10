@@ -51,6 +51,7 @@ export const appSpec: NextAppSpec = {
                         children: [
                             'title',
                             'description',
+                            'button',
                             'card',
                         ],
                     },
@@ -69,6 +70,15 @@ export const appSpec: NextAppSpec = {
                         props: {
                             text: 'Declarative platform UI powered by json-render.',
                             tone: 'secondary',
+                        },
+                        children: [],
+                    },
+
+                    button: {
+                        type: 'Button',
+                        props: {
+                            label: 'Get started',
+                            view: 'action',
                         },
                         children: [],
                     },
