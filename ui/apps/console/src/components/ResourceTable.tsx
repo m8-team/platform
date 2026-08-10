@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import type {ReactNode} from 'react'
 import {Gear} from '@gravity-ui/icons'
 import {
@@ -180,10 +180,14 @@ export function ResourceTable<TData extends TableDataItem>({
     const selected = new Set(selectedIds)
     return data.filter((item, index) => selected.has(getRowId(item, index)))
   }, [data, getRowId, selectedIds])
+  const lastNotifiedSelectedIds = useRef(selectedIds)
 
   useEffect(() => {
+    if (haveSameIds(lastNotifiedSelectedIds.current, selectedIds)) return
+
+    lastNotifiedSelectedIds.current = selectedIds
     onSelectedRowsChange?.(selectedItems)
-  }, [onSelectedRowsChange, selectedItems])
+  }, [onSelectedRowsChange, selectedIds, selectedItems])
 
   const updateSorting = useCallback(
     (column: string) => {
@@ -354,6 +358,13 @@ export function ResourceTable<TData extends TableDataItem>({
       ) : null}
     </div>
   )
+}
+
+function haveSameIds(left: string[], right: string[]) {
+  if (left.length !== right.length) return false
+
+  const rightIds = new Set(right)
+  return left.every((id) => rightIds.has(id))
 }
 
 function createSelectionColumn<TData extends TableDataItem>(

@@ -30,6 +30,8 @@ export function BusinessChart({
 }: BusinessChartProps) {
   const scatterOnly = series.every(({kind = 'line'}) => kind === 'scatter')
   const horizontalBars = orientation === 'horizontal'
+  const categories = data.map((row, index) => String(readChartValue(row, xKey) ?? index + 1))
+  const hasCategories = categories.length > 0
   const chartData: ChartData = {
     legend: {enabled: series.length > 1},
     series: {
@@ -83,10 +85,16 @@ export function BusinessChart({
       }),
     },
     xAxis: {
-      type: horizontalBars || scatterOnly ? 'linear' : 'category',
+      type: horizontalBars || scatterOnly || !hasCategories ? 'linear' : 'category',
+      categories: !horizontalBars && !scatterOnly && hasCategories ? categories : undefined,
       title: xAxisTitle ? {text: xAxisTitle} : undefined,
     },
-    yAxis: [{type: horizontalBars ? 'category' : 'linear'}],
+    yAxis: [
+      {
+        type: horizontalBars && hasCategories ? 'category' : 'linear',
+        categories: horizontalBars && hasCategories ? categories : undefined,
+      },
+    ],
   }
 
   return (

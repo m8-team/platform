@@ -25,6 +25,8 @@ const filters = [
 
 const tabs = ['Черновики', 'На проверке', 'Согласовано', 'Запланировано', 'Применено', 'Отклонено']
 
+const getPriceActionRowId = (row: PriceAction) => row.id
+
 export function PriceActionsPage() {
   const {values, setFilter, resetFilters} = usePageFilters(filters)
   const [activeTab, setActiveTab] = useState('Черновики')
@@ -85,7 +87,7 @@ export function PriceActionsPage() {
             <DataTable
               data={filteredActions}
               columns={columns}
-              getRowId={(row) => row.id}
+              getRowId={getPriceActionRowId}
               enableRowSelection
               onSelectedRowsChange={onSelectionChange}
               onRowClick={setSelectedAction}
