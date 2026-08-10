@@ -3,6 +3,7 @@ import type {ReactNode} from 'react'
 import {useMemo, useState} from 'react'
 import {Button, Card, Text} from '@gravity-ui/uikit'
 
+import '../styles/commerce-intelligence.css'
 import {AppShell} from '../components/AppShell'
 import {FilterBar} from '../components/FilterBar'
 import type {FilterConfig, FilterValues} from '../components/FilterBar'

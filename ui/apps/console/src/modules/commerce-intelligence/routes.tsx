@@ -1,37 +1,44 @@
-/* eslint-disable react-refresh/only-export-components */
-import {ApprovalsPage} from './pages/ApprovalsPage'
-import {CompetitorsPage} from './pages/CompetitorsPage'
-import {ForecastsPage} from './pages/ForecastsPage'
-import {IntegrationsPage} from './pages/IntegrationsPage'
-import {MarkdownCenterPage} from './pages/MarkdownCenterPage'
-import {OverviewPage} from './pages/OverviewPage'
-import {PriceActionsPage} from './pages/PriceActionsPage'
-import {ProductsPage} from './pages/ProductsPage'
-import {RulesPage} from './pages/RulesPage'
-import {SimulationPage} from './pages/SimulationPage'
+import {lazyRouteComponent} from '@tanstack/react-router'
 
 export const commerceIntelligenceRoutes = [
-  {path: '/commerce-intelligence/overview', component: OverviewPage},
-  {path: '/commerce-intelligence/price-actions', component: PriceActionsPage},
-  {path: '/commerce-intelligence/products', component: ProductsPage},
-  {path: '/commerce-intelligence/competitors', component: CompetitorsPage},
-  {path: '/commerce-intelligence/forecasts', component: ForecastsPage},
-  {path: '/commerce-intelligence/markdown', component: MarkdownCenterPage},
-  {path: '/commerce-intelligence/simulation', component: SimulationPage},
-  {path: '/commerce-intelligence/rules', component: RulesPage},
-  {path: '/commerce-intelligence/approvals', component: ApprovalsPage},
-  {path: '/commerce-intelligence/integrations', component: IntegrationsPage},
+  {
+    path: '/commerce-intelligence/overview',
+    component: lazyRouteComponent(() => import('./pages/OverviewPage'), 'OverviewPage'),
+  },
+  {
+    path: '/commerce-intelligence/price-actions',
+    component: lazyRouteComponent(() => import('./pages/PriceActionsPage'), 'PriceActionsPage'),
+  },
+  {
+    path: '/commerce-intelligence/products',
+    component: lazyRouteComponent(() => import('./pages/ProductsPage'), 'ProductsPage'),
+  },
+  {
+    path: '/commerce-intelligence/competitors',
+    component: lazyRouteComponent(() => import('./pages/CompetitorsPage'), 'CompetitorsPage'),
+  },
+  {
+    path: '/commerce-intelligence/forecasts',
+    component: lazyRouteComponent(() => import('./pages/ForecastsPage'), 'ForecastsPage'),
+  },
+  {
+    path: '/commerce-intelligence/markdown',
+    component: lazyRouteComponent(() => import('./pages/MarkdownCenterPage'), 'MarkdownCenterPage'),
+  },
+  {
+    path: '/commerce-intelligence/simulation',
+    component: lazyRouteComponent(() => import('./pages/SimulationPage'), 'SimulationPage'),
+  },
+  {
+    path: '/commerce-intelligence/rules',
+    component: lazyRouteComponent(() => import('./pages/RulesPage'), 'RulesPage'),
+  },
+  {
+    path: '/commerce-intelligence/approvals',
+    component: lazyRouteComponent(() => import('./pages/ApprovalsPage'), 'ApprovalsPage'),
+  },
+  {
+    path: '/commerce-intelligence/integrations',
+    component: lazyRouteComponent(() => import('./pages/IntegrationsPage'), 'IntegrationsPage'),
+  },
 ] as const
-
-export {
-  ApprovalsPage,
-  CompetitorsPage,
-  ForecastsPage,
-  IntegrationsPage,
-  MarkdownCenterPage,
-  OverviewPage,
-  PriceActionsPage,
-  ProductsPage,
-  RulesPage,
-  SimulationPage,
-}

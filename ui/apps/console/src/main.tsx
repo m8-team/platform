@@ -5,7 +5,6 @@ import {RouterProvider} from '@tanstack/react-router'
 import './reset.css'
 import '@gravity-ui/uikit/styles/fonts.css'
 import '@gravity-ui/uikit/styles/styles.css'
-import './modules/commerce-intelligence/styles/commerce-intelligence.css'
 
 import {router} from './router.tsx'
 
