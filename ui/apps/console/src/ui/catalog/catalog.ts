@@ -60,13 +60,5 @@ export const catalog = defineCatalog(schema, {
         },
     },
 
-    actions: {
-        executeOperation: {
-            description: 'Execute an allow-listed M8 backend operation.',
-        },
-
-        invalidateQuery: {
-            description: 'Invalidate a registered M8 query.',
-        },
-    },
+    actions: {},
 });
