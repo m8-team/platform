@@ -79,6 +79,10 @@ export const appSpec: NextAppSpec = {
                         props: {
                             label: 'Get started',
                             view: 'action',
+                            toast: {
+                                title: 'M8 Platform',
+                                content: 'Welcome to M8 Platform',
+                            },
                         },
                         children: [],
                     },

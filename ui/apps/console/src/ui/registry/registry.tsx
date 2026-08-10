@@ -6,6 +6,7 @@ import {
     Card,
     Text,
 } from '@gravity-ui/uikit';
+import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {catalog} from '@/ui/catalog/catalog';
 
@@ -107,7 +108,17 @@ export const {registry} = defineRegistry(catalog, {
             <Button
                 view={props.view}
                 size="l"
-                onClick={() => emit('press')}
+                onClick={() => {
+                    if (props.toast) {
+                        toaster.add({
+                            name: `button-${props.label}`,
+                            title: props.toast.title,
+                            content: props.toast.content,
+                            theme: 'success',
+                        });
+                    }
+                    emit('press');
+                }}
             >
                 {props.label}
             </Button>

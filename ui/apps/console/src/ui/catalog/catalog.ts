@@ -56,6 +56,12 @@ export const catalog = defineCatalog(schema, {
                 view: z
                     .enum(['normal', 'action', 'outlined', 'flat', 'raised'])
                     .default('normal'),
+                toast: z
+                    .object({
+                        title: z.string(),
+                        content: z.string().optional(),
+                    })
+                    .optional(),
             }),
         },
     },
