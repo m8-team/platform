@@ -6,17 +6,17 @@ import '@gravity-ui/uikit/styles/styles.css';
 import {Providers} from '@/ui/runtime/providers';
 
 export default function Layout({
-                                   children,
+                                 children,
                                }: {
-    children: ReactNode;
+  children: ReactNode;
 }) {
-    return (
-        <html lang="ru">
-        <body>
-        <Providers>
-            {children}
-        </Providers>
-        </body>
-        </html>
-    );
+  return (
+    <html lang="ru">
+    <body>
+    <Providers>
+      {children}
+    </Providers>
+    </body>
+    </html>
+  );
 }
