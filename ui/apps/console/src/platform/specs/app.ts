@@ -1,6 +1,6 @@
 import type {NextAppSpec} from '@json-render/next';
 
-import {resourceManagerModule} from '@/modules/resource-manager/module';
+import {resourceManagerModule} from '@m8/resource-manager-module';
 import {defineModules} from '@/platform/modules/define-modules';
 
 const moduleSpec = defineModules([resourceManagerModule]).buildNextAppSpec();

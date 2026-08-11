@@ -20,6 +20,8 @@
     "@json-render/core": "^0.19.0",
     "@json-render/next": "^0.19.0",
     "@json-render/react": "^0.19.0",
+    "@m8/json-render-module-sdk": "workspace:*",
+    "@m8/resource-manager-module": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
     "next": "16.3.0",
     "react": "19.2.8",
