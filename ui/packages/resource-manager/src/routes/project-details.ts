@@ -1,4 +1,4 @@
-import type {RouteSpec} from '@m8/core';
+import type {ModuleRouteSpec} from '@m8/core';
 
 export const projectDetailsRoute = {
   metadata: {title: 'Project'},
@@ -6,7 +6,7 @@ export const projectDetailsRoute = {
   queries: {
     project: {
       query: 'resource-manager.projects.get',
-      input: {projectId: {$param: 'projectId'}},
+      input: {projectId: {$state: '/__runtime/params/projectId'}},
     },
   },
   page: {
@@ -21,14 +21,14 @@ export const projectDetailsRoute = {
         type: 'ResourceHeader',
         props: {
           resourceType: 'project',
-          resource: {$state: '/queries/project/data'},
+          resource: {$state: '/__runtime/queries/project/data'},
         },
         children: [],
       },
       properties: {
         type: 'PropertyList',
         props: {
-          value: {$state: '/queries/project/data'},
+          value: {$state: '/__runtime/queries/project/data'},
           fields: [
             {field: 'id', title: 'Project ID'},
             {field: 'organizationId', title: 'Organization'},
@@ -53,12 +53,15 @@ export const projectDetailsRoute = {
         on: {
           press: {
             action: 'executeOperation',
+            confirm: {
+              title: 'Delete project?',
+              message: 'This action cannot be undone.',
+              confirmLabel: 'Delete project',
+              variant: 'danger',
+            },
             params: {
               operation: 'resource-manager.projects.delete',
-              input: {
-                projectId: {$state: '/queries/project/data/id'},
-                version: {$state: '/queries/project/data/version'},
-              },
+              input: {$state: '/__runtime/queries/project/data/deleteInput'},
             },
           },
         },
@@ -66,4 +69,4 @@ export const projectDetailsRoute = {
       },
     },
   },
-} satisfies RouteSpec;
+} satisfies ModuleRouteSpec;

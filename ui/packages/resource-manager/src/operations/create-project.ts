@@ -16,6 +16,7 @@ export const createProjectOperation = defineOperation({
     operationId: z.string(),
     resourceId: z.string().optional(),
   }),
+  requiredPermission: 'resource-manager.projects.create',
   execute: async ({input, signal}) => {
     const result = await resourceManagerApi.projects.create(input, {signal});
     return {
@@ -23,5 +24,5 @@ export const createProjectOperation = defineOperation({
       resourceId: result.resourceId,
     };
   },
-  completion: {invalidate: ['resource-manager.projects.list']},
+  invalidate: ['resource-manager.projects.list'],
 });

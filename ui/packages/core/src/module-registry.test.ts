@@ -4,8 +4,6 @@ import {defineModule} from './define-module';
 import {
   CircularModuleDependencyError,
   DuplicateModuleError,
-  DuplicateOperationError,
-  DuplicateQueryError,
   MissingModuleDependencyError,
   RouteCollisionError,
 } from './errors';
@@ -26,16 +24,6 @@ function module(overrides: Record<string, unknown> = {}) {
 describe('ModuleRegistry', () => {
   it('rejects duplicate module IDs', () => {
     expect(() => defineModules([module(), module()])).toThrow(DuplicateModuleError);
-  });
-
-  it.each([
-    ['query', {queries: [{id: 'first.shared'}]}, DuplicateQueryError],
-    ['operation', {operations: [{id: 'first.shared'}]}, DuplicateOperationError],
-  ])('rejects duplicate %s IDs', (_kind, contribution, ErrorType) => {
-    expect(() => defineModules([
-      module(contribution),
-      module({id: 'second', routes: {'/second': {page}}, ...contribution}),
-    ])).toThrow(ErrorType);
   });
 
   it('rejects missing required dependencies but permits missing optional ones', () => {
@@ -71,9 +59,12 @@ describe('ModuleRegistry', () => {
     ])).toThrow(RouteCollisionError);
   });
 
-  it('rejects an unknown route query', () => {
-    expect(() => defineModules([module({routes: {'/first': {page, queries: {data: {query: 'first.missing'}}}}})]))
-      .toThrow(/unknown query/);
+  it('returns modules in dependency-safe declaration order for a valid graph', () => {
+    const registry = defineModules([
+      module(),
+      module({id: 'second', routes: {'/second': {page}}, dependencies: {required: ['first']}}),
+    ]);
+    expect(registry.getModules().map(item => item.id)).toEqual(['first', 'second']);
   });
 
   it('returns immutable module contributions', () => {

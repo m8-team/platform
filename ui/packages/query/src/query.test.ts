@@ -2,9 +2,8 @@ import {describe, expect, it, vi} from 'vitest';
 import {z} from 'zod';
 
 import {defineQuery} from './definition';
-import {DuplicateQueryError} from './errors';
+import {DuplicateQueryError, UnknownQueryError} from './errors';
 import {normalizeQueryInput, QueryRegistry} from './registry';
-import {resolveInput} from './resolve-input';
 
 function query(execute = vi.fn(async ({input}: {input: {value: string}}) => ({value: input.value}))) {
   return defineQuery({
@@ -21,10 +20,16 @@ describe('QueryRegistry', () => {
     expect(() => new QueryRegistry([query(), query()])).toThrow(DuplicateQueryError);
   });
 
+  it('rejects unknown IDs', () => {
+    expect(() => new QueryRegistry().require('missing')).toThrow(UnknownQueryError);
+  });
+
   it('validates input and output and creates an ID-prefixed key', async () => {
     const registry = new QueryRegistry([query()]);
     expect(() => registry.queryKey('test.get', {})).toThrow();
-    expect(registry.queryKey('test.get', {value: 'a'})).toEqual(['test.get', 'test', 'a']);
+    expect(registry.queryKey('test.get', {value: 'a'})).toEqual([
+      'query', 'test.get', null, null, null, null, null, 'test', 'a',
+    ]);
     await expect(registry.execute('test.get', {value: 'a'}, new AbortController().signal))
       .resolves.toEqual({value: 'a'});
 
@@ -32,6 +37,17 @@ describe('QueryRegistry', () => {
     await expect(new QueryRegistry([invalidOutput]).execute(
       'test.get', {value: 'a'}, new AbortController().signal,
     )).rejects.toThrow();
+  });
+
+  it('isolates cache keys by tenant, resource scope and actor', () => {
+    const registry = new QueryRegistry([query()]);
+    const first = registry.queryKey('test.get', {value: 'a'}, {
+      tenantId: 'tenant-a', organizationId: 'org-a', actor: {id: 'user-a'},
+    });
+    const second = registry.queryKey('test.get', {value: 'a'}, {
+      tenantId: 'tenant-b', organizationId: 'org-a', actor: {id: 'user-a'},
+    });
+    expect(first).not.toEqual(second);
   });
 
   it('forwards AbortSignal', async () => {
@@ -59,28 +75,5 @@ describe('QueryRegistry', () => {
       .toEqual({nullable: null, search: ''});
     expect(schema.parse(normalizeQueryInput(schema, {optional: null, nullable: null, search: ''})))
       .toEqual({nullable: null, search: ''});
-  });
-});
-
-describe('resolveInput', () => {
-  const sources = {
-    state: {filters: {search: 'needle'}},
-    params: {projectId: 'prj_1'},
-    context: {organization: {id: 'org_1'}},
-    queries: {organization: {data: {id: 'org_2'}}},
-  };
-
-  it('resolves state, params and context recursively', () => {
-    expect(resolveInput({
-      search: {$state: '/filters/search'},
-      projectId: {$param: '/projectId'},
-      organizationId: {$context: '/organization/id'},
-      queryOrganizationId: {$query: '/organization/data/id'},
-      literal: {$literal: {$state: '/filters/search'}},
-    }, sources)).toEqual({search: 'needle', projectId: 'prj_1', organizationId: 'org_1', queryOrganizationId: 'org_2', literal: {$state: '/filters/search'}});
-  });
-
-  it('returns undefined for missing paths', () => {
-    expect(resolveInput({$state: '/missing'}, sources)).toBeUndefined();
   });
 });

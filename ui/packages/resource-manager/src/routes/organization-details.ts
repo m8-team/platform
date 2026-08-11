@@ -1,4 +1,4 @@
-import type {RouteSpec} from '@m8/core';
+import type {ModuleRouteSpec} from '@m8/core';
 
 export const organizationDetailsRoute = {
   metadata: {title: 'Organization'},
@@ -6,12 +6,12 @@ export const organizationDetailsRoute = {
   queries: {
     organization: {
       query: 'resource-manager.organizations.get',
-      input: {organizationId: {$param: 'organizationId'}},
+      input: {organizationId: {$state: '/__runtime/params/organizationId'}},
     },
     projects: {
       query: 'resource-manager.projects.list',
       input: {
-        organizationId: {$param: 'organizationId'},
+        organizationId: {$state: '/__runtime/params/organizationId'},
         limit: 50,
       },
     },
@@ -28,14 +28,14 @@ export const organizationDetailsRoute = {
         type: 'ResourceHeader',
         props: {
           resourceType: 'organization',
-          resource: {$state: '/queries/organization/data'},
+          resource: {$state: '/__runtime/queries/organization/data'},
         },
         children: [],
       },
       summary: {
         type: 'PropertyList',
         props: {
-          value: {$state: '/queries/organization/data'},
+          value: {$state: '/__runtime/queries/organization/data'},
           fields: [
             {field: 'id', title: 'ID'},
             {field: 'status', title: 'Status'},
@@ -45,17 +45,16 @@ export const organizationDetailsRoute = {
         children: [],
       },
       'projects-title': {
-        type: 'SectionHeader',
-        props: {title: 'Projects'},
+        type: 'Heading',
+        props: {text: 'Projects', level: '2'},
         children: [],
       },
       projects: {
         type: 'ResourceTable',
         props: {
           resourceType: 'project',
-          rows: {$state: '/queries/projects/data/items'},
-          loading: {$state: '/queries/projects/loading'},
-          rowHrefTemplate: '/resource-manager/projects/{id}',
+          rows: {$state: '/__runtime/queries/projects/data/items'},
+          loading: {$state: '/__runtime/queries/projects/fetching'},
           columns: [
             {field: 'name', title: 'Name'},
             {field: 'status', title: 'Status'},
@@ -66,4 +65,4 @@ export const organizationDetailsRoute = {
       },
     },
   },
-} satisfies RouteSpec;
+} satisfies ModuleRouteSpec;

@@ -1,23 +1,11 @@
 import type {NextRouteSpec} from '@json-render/next';
-
-export type ExpressionValue =
-  | null
-  | string
-  | number
-  | boolean
-  | readonly ExpressionValue[]
-  | {readonly [key: string]: ExpressionValue}
-  | {$state: string}
-  | {$param: string}
-  | {$query: string}
-  | {$context: string}
-  | {$literal: ExpressionValue};
+import type {PropExpression} from '@json-render/core';
+import type {z} from 'zod';
 
 export interface QueryBinding {
-  /** Query ID from Query Registry. */
-  query: string;
-  input?: Readonly<Record<string, ExpressionValue>>;
-  enabled?: ExpressionValue;
+  readonly query: string;
+  readonly input?: Readonly<Record<string, PropExpression>>;
+  readonly enabled?: PropExpression<boolean>;
 }
 
 export interface Navigation {
@@ -31,7 +19,7 @@ export interface RouteAccess {
   permission?: string;
 }
 
-export type RouteSpec = NextRouteSpec & {
+export type ModuleRouteSpec = NextRouteSpec & {
   navigation?: Navigation;
   access?: RouteAccess;
   queries?: Readonly<Record<string, QueryBinding>>;
@@ -42,19 +30,38 @@ export interface ModuleDependencyDefinition {
   optional?: readonly string[];
 }
 
-export interface QueryDefinitionRef {
+export interface ModuleQueryContribution {
   readonly id: string;
+  readonly input: z.ZodType;
+  readonly output: z.ZodType;
+  readonly queryKey?: (input: never, context: RuntimeContext) => readonly unknown[];
+  readonly execute: (execution: {
+    readonly input: never;
+    readonly signal: AbortSignal;
+    readonly context: RuntimeContext;
+  }) => Promise<unknown>;
 }
 
-export interface OperationDefinitionRef {
+export interface ModuleOperationContribution {
   readonly id: string;
+  readonly mode?: 'immediate' | 'long-running';
+  readonly input: z.ZodType;
+  readonly output: z.ZodType;
+  readonly requiredPermission?: string;
+  readonly invalidate?: readonly string[];
+  readonly execute: (execution: {
+    readonly input: never;
+    readonly signal: AbortSignal;
+    readonly context: RuntimeContext;
+  }) => Promise<unknown>;
 }
 
 export interface RuntimeContext {
   actor?: Readonly<{id: string; displayName?: string}>;
-  organization?: Readonly<{id: string}>;
-  workspace?: Readonly<{id: string}>;
-  project?: Readonly<{id: string}>;
+  tenantId?: string;
+  organizationId?: string;
+  workspaceId?: string;
+  projectId?: string;
   module?: Readonly<{id: string}>;
   permissions?: readonly string[];
   features?: readonly string[];
@@ -68,7 +75,7 @@ export interface ModuleDefinition {
   readonly icon?: string;
   readonly order?: number;
   readonly dependencies?: ModuleDependencyDefinition;
-  readonly routes?: Readonly<Record<`/${string}`, RouteSpec>>;
-  readonly queries?: readonly QueryDefinitionRef[];
-  readonly operations?: readonly OperationDefinitionRef[];
+  readonly routes?: Readonly<Record<`/${string}`, ModuleRouteSpec>>;
+  readonly queries?: readonly ModuleQueryContribution[];
+  readonly operations?: readonly ModuleOperationContribution[];
 }

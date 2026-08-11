@@ -23,20 +23,6 @@ export class OperationAuthorizationError extends OperationRuntimeError {
   }
 }
 
-export class OperationConfirmationDeclinedError extends OperationRuntimeError {
-  override readonly name = 'OperationConfirmationDeclinedError';
-  constructor(readonly operationId: string) {
-    super(`Operation "${operationId}" was not confirmed.`);
-  }
-}
-
-export class MissingConfirmationAdapterError extends OperationRuntimeError {
-  override readonly name = 'MissingConfirmationAdapterError';
-  constructor(readonly operationId: string) {
-    super(`Operation "${operationId}" requires a confirmation adapter.`);
-  }
-}
-
 export class MissingLongRunningOperationAdapterError extends OperationRuntimeError {
   override readonly name = 'MissingLongRunningOperationAdapterError';
   constructor(readonly operationId: string) {

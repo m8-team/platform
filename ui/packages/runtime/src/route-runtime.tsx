@@ -1,11 +1,10 @@
 'use client';
 
 import {useEffect, useMemo, useState, type ReactNode} from 'react';
+import {resolveElementProps, resolvePropValue} from '@json-render/core';
 import {useStateStore} from '@json-render/react';
 import {useRegisteredQuery} from '@m8/query/react';
-import {resolveInput, type InputResolutionContext} from '@m8/query';
-import type {QueryBinding, RouteAccess, RuntimeContext} from '@m8/core';
-import {usePathname} from 'next/navigation';
+import type {QueryBinding, RouteAccess} from '@m8/core';
 
 import {useRuntime} from './provider';
 
@@ -13,74 +12,62 @@ function errorValue(error: unknown): unknown {
   return error instanceof Error ? {name: error.name, message: error.message} : error;
 }
 
-function QueryBinding({name, binding, sources}: {
-  name: string;
-  binding: QueryBinding;
-  sources: InputResolutionContext;
-}) {
+function RegisteredQueryBinding({name, binding}: {name: string; binding: QueryBinding}) {
   const {context} = useRuntime();
   const store = useStateStore();
-  const input = useMemo(() => resolveInput(binding.input ?? {}, sources), [binding.input, sources]);
-  const enabled = binding.enabled === undefined ? true : Boolean(resolveInput(binding.enabled, sources));
+  const state = store.state;
+  const input = useMemo(
+    () => resolveElementProps(binding.input ?? {}, {stateModel: state}),
+    [binding.input, state],
+  );
+  const enabled = binding.enabled === undefined
+    ? true
+    : Boolean(resolvePropValue(binding.enabled, {stateModel: state}));
   const result = useRegisteredQuery(binding.query, input, enabled, context);
+
   useEffect(() => {
-    store.update({
-      [`/queries/${name}/data`]: result.data,
-      [`/queries/${name}/loading`]: result.isLoading || result.isFetching,
-      [`/queries/${name}/error`]: result.error ? errorValue(result.error) : null,
+    store.set(`/__runtime/queries/${name}`, {
+      status: result.status,
+      data: result.data,
+      error: result.error ? errorValue(result.error) : null,
+      fetching: result.isFetching,
     });
-  }, [name, result.data, result.error, result.isFetching, result.isLoading, store]);
+  }, [name, result.data, result.error, result.isFetching, result.status, store]);
   return null;
 }
 
-function resolveRouteParams(pattern: string, pathname: string): Record<string, string | string[]> {
-  const segments = pattern.split('/').filter(Boolean);
-  const values = pathname.split('/').filter(Boolean);
-  const result: Record<string, string | string[]> = {};
-  segments.forEach((segment, index) => {
-    const optionalCatchAll = segment.match(/^\[\[\.\.\.(.+)\]\]$/);
-    const catchAll = segment.match(/^\[\.\.\.(.+)\]$/);
-    const dynamic = segment.match(/^\[(.+)\]$/);
-    if (optionalCatchAll) result[optionalCatchAll[1]!] = values.slice(index);
-    else if (catchAll) result[catchAll[1]!] = values.slice(index);
-    else if (dynamic && values[index] !== undefined) result[dynamic[1]!] = values[index]!;
-  });
-  return result;
-}
-
-export function RouteRuntimeBoundary({bindings = {}, access, path = '/', children}: {
+export function RouteRuntimeBoundary({bindings = {}, access, children}: {
   bindings?: Readonly<Record<string, QueryBinding>>;
   access?: RouteAccess;
-  path?: string;
   children?: ReactNode;
 }) {
   const runtime = useRuntime();
   const store = useStateStore();
-  const pathname = usePathname();
-  const params = useMemo(() => resolveRouteParams(path, pathname), [path, pathname]);
   const [allowed, setAllowed] = useState(access?.permission ? null : true);
-  const state = store.state;
-  const sources = useMemo(() => ({
-    state,
-    params,
-    queries: store.get('/queries'),
-    context: runtime.context,
-  }), [params, runtime.context, state, store]);
 
   useEffect(() => {
-    if (!access?.permission) return setAllowed(true);
+    store.set('/__runtime/context', runtime.context);
+  }, [runtime.context, store]);
+
+  useEffect(() => {
+    if (!access?.permission) {
+      setAllowed(true);
+      return;
+    }
     const controller = new AbortController();
     void Promise.resolve(runtime.authorization?.can({
       permission: access.permission,
       context: runtime.context,
       signal: controller.signal,
-    }) ?? false).then(value => { if (!controller.signal.aborted) setAllowed(value); });
+    }) ?? false).then(value => {
+      if (!controller.signal.aborted) setAllowed(value);
+    });
     return () => controller.abort();
   }, [access?.permission, runtime.authorization, runtime.context]);
 
   if (allowed === null) return null;
   if (!allowed) return <div role="alert">Access denied</div>;
   return <>{Object.entries(bindings).map(([name, binding]) => (
-    <QueryBinding key={name} name={name} binding={binding} sources={sources} />
+    <RegisteredQueryBinding key={name} name={name} binding={binding} />
   ))}{children}</>;
 }

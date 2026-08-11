@@ -1,4 +1,4 @@
-import type {RouteSpec} from '@m8/core';
+import type {ModuleRouteSpec} from '@m8/core';
 
 export const projectsRoute = {
   metadata: {title: 'Projects'},
@@ -28,14 +28,16 @@ export const projectsRoute = {
       },
       ui: {
         createProjectOpen: false,
+        createProjectError: false,
       },
+      form: {createProject: {name: '', organizationId: '', description: ''}},
     },
     root: 'page',
     elements: {
       page: {
         type: 'Page',
         props: {},
-        children: ['header', 'filters', 'table'],
+        children: ['header', 'create-form', 'filters', 'table'],
       },
       header: {
         type: 'PageHeader',
@@ -56,6 +58,47 @@ export const projectsRoute = {
         },
         children: [],
       },
+      'create-form': {
+        type: 'Card',
+        visible: {$state: '/ui/createProjectOpen'},
+        props: {title: 'Create project', titleLevel: '2'},
+        children: ['create-name', 'create-organization', 'create-description', 'create-submit', 'create-cancel'],
+      },
+      'create-name': {
+        type: 'TextInput',
+        props: {label: 'Name', value: {$bindState: '/form/createProject/name'}},
+        children: [],
+      },
+      'create-organization': {
+        type: 'TextInput',
+        props: {label: 'Organization ID', value: {$bindState: '/form/createProject/organizationId'}},
+        children: [],
+      },
+      'create-description': {
+        type: 'TextInput',
+        props: {label: 'Description', value: {$bindState: '/form/createProject/description'}},
+        children: [],
+      },
+      'create-submit': {
+        type: 'Button',
+        props: {label: 'Create', view: 'action'},
+        on: {press: {
+          action: 'executeOperation',
+          params: {
+            operation: 'resource-manager.projects.create',
+            input: {$state: '/form/createProject'},
+          },
+          onSuccess: {set: {'/ui/createProjectOpen': false}},
+          onError: {set: {'/ui/createProjectError': true}},
+        }},
+        children: [],
+      },
+      'create-cancel': {
+        type: 'Button',
+        props: {label: 'Cancel', view: 'flat'},
+        on: {press: {action: 'setState', params: {statePath: '/ui/createProjectOpen', value: false}}},
+        children: [],
+      },
       filters: {
         type: 'FilterBar',
         props: {
@@ -69,9 +112,8 @@ export const projectsRoute = {
         type: 'ResourceTable',
         props: {
           resourceType: 'project',
-          rows: {$state: '/queries/projects/data/items'},
-          loading: {$state: '/queries/projects/loading'},
-          rowHrefTemplate: '/resource-manager/projects/{id}',
+          rows: {$state: '/__runtime/queries/projects/data/items'},
+          loading: {$state: '/__runtime/queries/projects/fetching'},
           columns: [
             {field: 'name', title: 'Project'},
             {field: 'organizationId', title: 'Organization'},
@@ -83,4 +125,4 @@ export const projectsRoute = {
       },
     },
   },
-} satisfies RouteSpec;
+} satisfies ModuleRouteSpec;

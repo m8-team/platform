@@ -14,7 +14,10 @@ export interface QueryDefinition<
   readonly id: string;
   readonly input: TInputSchema;
   readonly output: TOutputSchema;
-  readonly queryKey: (input: z.output<TInputSchema>) => readonly unknown[];
+  readonly queryKey?: (
+    input: z.output<TInputSchema>,
+    context: RuntimeContext,
+  ) => readonly unknown[];
   readonly execute: (
     context: QueryExecutionContext<z.output<TInputSchema>>,
   ) => Promise<z.input<TOutputSchema>>;

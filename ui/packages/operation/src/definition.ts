@@ -1,12 +1,6 @@
 import type {RuntimeContext} from '@m8/core';
 import type {z} from 'zod';
 
-export interface OperationConfirmation {
-  readonly title: string;
-  readonly description?: string;
-  readonly confirmLabel?: string;
-}
-
 export interface OperationExecutionContext<TInput> {
   readonly input: TInput;
   readonly signal: AbortSignal;
@@ -22,10 +16,7 @@ export interface OperationDefinition<
   readonly input: TInputSchema;
   readonly output: TOutputSchema;
   readonly requiredPermission?: string;
-  readonly destructive?: boolean;
-  readonly confirmation?: OperationConfirmation;
   readonly invalidate?: readonly string[];
-  readonly completion?: {readonly invalidate?: readonly string[]};
   readonly execute: (
     context: OperationExecutionContext<z.output<TInputSchema>>,
   ) => Promise<z.input<TOutputSchema>>;

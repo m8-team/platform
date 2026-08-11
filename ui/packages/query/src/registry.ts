@@ -22,6 +22,16 @@ export function normalizeQueryInput(schema: z.ZodType, input: unknown): unknown 
   return normalizeObjectInput(schema, input);
 }
 
+export function runtimeScopeKey(context: RuntimeContext): readonly unknown[] {
+  return [
+    context.tenantId ?? null,
+    context.organizationId ?? null,
+    context.workspaceId ?? null,
+    context.projectId ?? null,
+    context.actor?.id ?? null,
+  ];
+}
+
 export class QueryRegistry {
   private readonly definitions = new Map<string, RegisteredQueryDefinition>();
 
@@ -56,9 +66,15 @@ export class QueryRegistry {
     return definition.input.parse(normalizeQueryInput(definition.input, input)) as z.output<TDefinition['input']>;
   }
 
-  queryKey(queryId: string, input: unknown): readonly unknown[] {
+  queryKey(queryId: string, input: unknown, context: RuntimeContext = {}): readonly unknown[] {
     const definition = this.require(queryId);
-    return [definition.id, ...definition.queryKey(this.parseInput(definition, input))];
+    const parsedInput = this.parseInput(definition, input);
+    return [
+      'query',
+      definition.id,
+      ...runtimeScopeKey(context),
+      ...(definition.queryKey?.(parsedInput, context) ?? [parsedInput]),
+    ];
   }
 
   async execute(queryId: string, input: unknown, signal: AbortSignal, context: RuntimeContext = {}): Promise<unknown> {
@@ -72,8 +88,8 @@ export class QueryRegistry {
 export class QueryRuntime {
   constructor(readonly registry: QueryRegistry) {}
 
-  queryKey(queryId: string, input: unknown): readonly unknown[] {
-    return this.registry.queryKey(queryId, input);
+  queryKey(queryId: string, input: unknown, context: RuntimeContext = {}): readonly unknown[] {
+    return this.registry.queryKey(queryId, input, context);
   }
 
   execute(queryId: string, input: unknown, signal: AbortSignal, context: RuntimeContext = {}): Promise<unknown> {

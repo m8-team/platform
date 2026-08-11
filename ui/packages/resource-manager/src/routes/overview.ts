@@ -1,4 +1,4 @@
-import type {RouteSpec} from '@m8/core';
+import type {ModuleRouteSpec} from '@m8/core';
 
 export const overviewRoute = {
   metadata: {title: 'Resource Manager'},
@@ -7,7 +7,7 @@ export const overviewRoute = {
     icon: 'House',
     order: 10,
   },
-  access: {permission: 'resource-manager.read'},
+  access: {permission: 'resource-manager.overview.read'},
   page: {
     root: 'page',
     elements: {
@@ -51,4 +51,4 @@ export const overviewRoute = {
       },
     },
   },
-} satisfies RouteSpec;
+} satisfies ModuleRouteSpec;

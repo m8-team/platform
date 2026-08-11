@@ -1,6 +1,7 @@
 import type {NextAppSpec} from '@json-render/next';
 import type {ModuleRegistry, ModuleDefinition} from '@m8/core';
 import {normalizePath} from '@m8/core';
+import {withRuntimeState} from './state';
 
 export function buildNextAppSpec(
   modules: ModuleRegistry<readonly ModuleDefinition[]>,
@@ -16,17 +17,18 @@ export function buildNextAppSpec(
       const {navigation: _navigation, access, queries, ...nativeRoute} = route;
       const page = nativeRoute.page;
       if (!page) continue;
-      const boundaryId = '__m8_route_runtime';
+      const boundaryId = '__route_runtime';
       routes[normalizePath(routePath)] = {
         ...nativeRoute,
         page: {
           ...page,
+          state: withRuntimeState(page.state),
           root: boundaryId,
           elements: {
             ...page.elements,
             [boundaryId]: {
               type: '__RouteRuntime',
-              props: {bindings: queries ?? {}, access, path: normalizePath(routePath)},
+              props: {bindings: queries ?? {}, access},
               children: [page.root],
             },
           },

@@ -35,7 +35,6 @@ export interface RuntimeProviderProps {
   readonly operations: OperationRuntime;
   readonly context: RuntimeContext;
   readonly authorization?: RuntimeAuthorizationAdapter;
-  readonly navigate?: (href: string) => void;
   readonly theme?: 'light' | 'dark' | 'light-hc' | 'dark-hc';
   readonly children: ReactNode;
 }
@@ -48,7 +47,6 @@ export function RuntimeProvider({
   operations,
   context,
   authorization,
-  navigate,
   theme = 'light',
   children,
 }: RuntimeProviderProps) {
@@ -57,11 +55,9 @@ export function RuntimeProvider({
   const handlers = useMemo(
     () => createActionHandlers({
       operations,
-      queryClient,
       getContext: () => contextRef.current,
-      navigate,
     }),
-    [navigate, operations, queryClient],
+    [operations],
   );
 
   const runtimeRegistry = useMemo(() => ({

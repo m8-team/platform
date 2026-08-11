@@ -5,7 +5,6 @@ import {
   QueryClient,
   QueryClientProvider,
   useQuery,
-  useQueryClient,
 } from '@tanstack/react-query';
 
 import {QueryRuntime} from '../registry';
@@ -33,29 +32,10 @@ export function useRegisteredQuery(queryId: string, input: unknown, enabled = tr
   const runtime = useContext(RuntimeContext);
   if (!runtime) throw new Error('useRegisteredQuery must be used within QueryProvider.');
   return useQuery({
-    queryKey: runtime.queryKey(queryId, input),
+    queryKey: runtime.queryKey(queryId, input, context),
     queryFn: ({signal}) => runtime.execute(queryId, input, signal, context),
     enabled,
   });
-}
-
-export function useInvalidateQuery() {
-  const runtime = useContext(RuntimeContext);
-  const queryClient = useQueryClient();
-  if (!runtime) throw new Error('useInvalidateQuery must be used within QueryProvider.');
-  return (queryId: string) => {
-    const definition = runtime.registry.require(queryId);
-    return queryClient.invalidateQueries({queryKey: [definition.id]});
-  };
-}
-
-export function invalidateQuery(
-  queryClient: QueryClient,
-  runtime: QueryRuntime,
-  queryId: string,
-) {
-  runtime.registry.require(queryId);
-  return queryClient.invalidateQueries({queryKey: [queryId]});
 }
 
 export {QueryClient};

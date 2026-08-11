@@ -1,17 +1,9 @@
-import type {
-  ModuleDefinition,
-  OperationDefinitionRef,
-  QueryDefinitionRef,
-} from './types';
+import type {ModuleDefinition, ModuleRouteSpec} from './types';
 import {
   CircularModuleDependencyError,
   DuplicateModuleError,
-  DuplicateOperationError,
-  DuplicateQueryError,
   MissingModuleDependencyError,
   RouteCollisionError,
-  UnknownRouteOperationError,
-  UnknownRouteQueryError,
   InvalidModuleNamespaceError,
 } from './errors';
 import {canonicalizeRoute, normalizePath} from './routes';
@@ -20,16 +12,6 @@ export class ModuleRegistry<
   const TModules extends readonly ModuleDefinition[],
 > {
   private readonly modulesById = new Map<string, ModuleDefinition>();
-
-  private readonly queriesById = new Map<
-    string,
-    {moduleId: string; definition: QueryDefinitionRef}
-  >();
-
-  private readonly operationsById = new Map<
-    string,
-    {moduleId: string; definition: OperationDefinitionRef}
-  >();
 
   constructor(private readonly modules: TModules) {
     this.validate();
@@ -43,19 +25,7 @@ export class ModuleRegistry<
     return this.modulesById.get(moduleId);
   }
 
-  getQuery(queryId: string): QueryDefinitionRef | undefined {
-    return this.queriesById.get(queryId)?.definition;
-  }
-
-  getQueries(): readonly QueryDefinitionRef[] {
-    return [...this.queriesById.values()].map(value => value.definition);
-  }
-
-  getOperations(): readonly OperationDefinitionRef[] {
-    return [...this.operationsById.values()].map(value => value.definition);
-  }
-
-  getRoutes(): ReadonlyArray<Readonly<{moduleId: string; path: string; route: import('./types').RouteSpec}>> {
+  getRoutes(): ReadonlyArray<Readonly<{moduleId: string; path: string; route: ModuleRouteSpec}>> {
     return this.modules.flatMap(moduleDefinition =>
       Object.entries(moduleDefinition.routes ?? {}).map(([path, route]) => ({
         moduleId: moduleDefinition.id,
@@ -65,18 +35,12 @@ export class ModuleRegistry<
     );
   }
 
-  getOperation(operationId: string): OperationDefinitionRef | undefined {
-    return this.operationsById.get(operationId)?.definition;
-  }
-
   private validate(): void {
     this.validateModules();
     this.validateDependencies();
     this.validateCircularDependencies();
-    this.validateQueries();
-    this.validateOperations();
+    this.validateContributionNamespaces();
     this.validateRoutes();
-    this.validateRouteReferences();
   }
 
   private validateModules(): void {
@@ -133,50 +97,17 @@ export class ModuleRegistry<
     }
   }
 
-  private validateQueries(): void {
+  private validateContributionNamespaces(): void {
     for (const moduleDefinition of this.modules) {
       for (const query of moduleDefinition.queries ?? []) {
-        const existing = this.queriesById.get(query.id);
-
-        if (existing) {
-          throw new DuplicateQueryError(
-            query.id,
-            existing.moduleId,
-            moduleDefinition.id,
-          );
-        }
         if (!query.id.startsWith(`${moduleDefinition.id}.`)) {
           throw new InvalidModuleNamespaceError(moduleDefinition.id, query.id);
         }
-
-        this.queriesById.set(query.id, {
-          moduleId: moduleDefinition.id,
-          definition: query,
-        });
       }
-    }
-  }
-
-  private validateOperations(): void {
-    for (const moduleDefinition of this.modules) {
       for (const operation of moduleDefinition.operations ?? []) {
-        const existing = this.operationsById.get(operation.id);
-
-        if (existing) {
-          throw new DuplicateOperationError(
-            operation.id,
-            existing.moduleId,
-            moduleDefinition.id,
-          );
-        }
         if (!operation.id.startsWith(`${moduleDefinition.id}.`)) {
           throw new InvalidModuleNamespaceError(moduleDefinition.id, operation.id);
         }
-
-        this.operationsById.set(operation.id, {
-          moduleId: moduleDefinition.id,
-          definition: operation,
-        });
       }
     }
   }
@@ -203,26 +134,6 @@ export class ModuleRegistry<
     }
   }
 
-  private validateRouteReferences(): void {
-    for (const {path, route} of this.getRoutes()) {
-      for (const binding of Object.values(route.queries ?? {})) {
-        if (!this.queriesById.has(binding.query)) throw new UnknownRouteQueryError(path, binding.query);
-      }
-      const visit = (value: unknown): void => {
-        if (Array.isArray(value)) return value.forEach(visit);
-        if (value === null || typeof value !== 'object') return;
-        const record = value as Record<string, unknown>;
-        if (record.action === 'executeOperation' && record.params && typeof record.params === 'object') {
-          const operationId = (record.params as Record<string, unknown>).operation;
-          if (typeof operationId === 'string' && !this.operationsById.has(operationId)) {
-            throw new UnknownRouteOperationError(path, operationId);
-          }
-        }
-        Object.values(record).forEach(visit);
-      };
-      visit(route.page);
-    }
-  }
 }
 
 export function defineModules<

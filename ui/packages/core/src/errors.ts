@@ -1,13 +1,9 @@
 export type ModuleRegistryErrorCode =
   | 'MODULE_REGISTRY_ERROR'
   | 'MODULE_DUPLICATE'
-  | 'QUERY_DUPLICATE'
-  | 'OPERATION_DUPLICATE'
   | 'MODULE_DEPENDENCY_MISSING'
   | 'MODULE_DEPENDENCY_CYCLE'
   | 'ROUTE_COLLISION'
-  | 'QUERY_REFERENCE_UNKNOWN'
-  | 'OPERATION_REFERENCE_UNKNOWN'
   | 'MODULE_NAMESPACE_INVALID';
 
 export class ModuleRegistryError extends Error {
@@ -16,22 +12,6 @@ export class ModuleRegistryError extends Error {
 
   constructor(message: string) {
     super(message);
-  }
-}
-
-export class UnknownRouteQueryError extends ModuleRegistryError {
-  override readonly name = 'InvalidModuleError';
-  override readonly code = 'QUERY_REFERENCE_UNKNOWN';
-  constructor(readonly route: string, readonly queryId: string) {
-    super(`Route "${route}" references unknown query "${queryId}".`);
-  }
-}
-
-export class UnknownRouteOperationError extends ModuleRegistryError {
-  override readonly name = 'InvalidModuleError';
-  override readonly code = 'OPERATION_REFERENCE_UNKNOWN';
-  constructor(readonly route: string, readonly operationId: string) {
-    super(`Route "${route}" references unknown operation "${operationId}".`);
   }
 }
 
@@ -49,36 +29,6 @@ export class DuplicateModuleError extends ModuleRegistryError {
 
   constructor(readonly moduleId: string) {
     super(`Duplicate module id: "${moduleId}"`);
-  }
-}
-
-export class DuplicateQueryError extends ModuleRegistryError {
-  override readonly name = 'DuplicateQueryError';
-  override readonly code = 'QUERY_DUPLICATE';
-
-  constructor(
-    readonly queryId: string,
-    readonly firstModuleId: string,
-    readonly secondModuleId: string,
-  ) {
-    super(
-      `Duplicate query id: "${queryId}". Declared by modules "${firstModuleId}" and "${secondModuleId}".`,
-    );
-  }
-}
-
-export class DuplicateOperationError extends ModuleRegistryError {
-  override readonly name = 'DuplicateOperationError';
-  override readonly code = 'OPERATION_DUPLICATE';
-
-  constructor(
-    readonly operationId: string,
-    readonly firstModuleId: string,
-    readonly secondModuleId: string,
-  ) {
-    super(
-      `Duplicate operation id: "${operationId}". Declared by modules "${firstModuleId}" and "${secondModuleId}".`,
-    );
   }
 }
 

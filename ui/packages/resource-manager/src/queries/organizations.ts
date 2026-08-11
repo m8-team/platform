@@ -11,6 +11,7 @@ const organizationSchema = z.object({
   parentId: z.string().nullable(),
   status: z.enum(['active', 'suspended', 'deleting']),
   createdAt: z.string(),
+  href: z.string().optional(),
 });
 
 export const listOrganizationsQuery = defineQuery({
@@ -29,7 +30,10 @@ export const listOrganizationsQuery = defineQuery({
   execute: async ({input, signal}) => {
     const result = await resourceManagerApi.organizations.list(input, {signal});
     return {
-      items: result.items,
+      items: result.items.map(item => ({
+        ...item,
+        href: `/resource-manager/organizations/${encodeURIComponent(item.id)}`,
+      })),
       nextCursor: result.nextCursor,
     };
   },

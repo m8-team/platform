@@ -12,7 +12,13 @@ import {registry} from '@/platform/registry/registry';
 import {ThemeContext, type Theme} from '@/platform/runtime/theme-context';
 
 const runtimeContext = {
-  permissions: ['resource-manager.read', 'resource-manager.projects.delete'],
+  permissions: [
+    'resource-manager.overview.read',
+    'resource-manager.organizations.read',
+    'resource-manager.projects.read',
+    'resource-manager.projects.create',
+    'resource-manager.projects.delete',
+  ],
   features: ['resource-manager'],
   edition: 'community',
 } as const;
@@ -21,16 +27,13 @@ export function Providers({children}: {children: ReactNode}) {
   const [theme, setTheme] = useState<Theme>('light');
   const [queryClient] = useState(() => new QueryClient());
   const runtime = useMemo(
-    () => createRuntime({modules: moduleRegistry, catalog: registry, adapters: {
+    () => createRuntime({modules: moduleRegistry, adapters: {
       authorization: {
         can: async ({permission, context}) =>
           context.permissions?.includes(permission) ?? false,
       },
-      confirmation: {
-        confirm: async ({confirmation}) => globalThis.confirm(confirmation.title),
-      },
       queryInvalidation: {
-        invalidate: queryId => queryClient.invalidateQueries({queryKey: [queryId]}).then(() => undefined),
+        invalidate: queryId => queryClient.invalidateQueries({queryKey: ['query', queryId]}).then(() => undefined),
       },
       longRunningOperations: {
         wait: async (operationId, options) => {

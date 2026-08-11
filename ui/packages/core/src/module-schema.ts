@@ -12,6 +12,3 @@ export const moduleManifestSchema = z.object({
     })
     .optional(),
 });
-
-/** @deprecated Metadata-only schema. Use moduleManifestSchema. */
-export const moduleSchema = moduleManifestSchema;

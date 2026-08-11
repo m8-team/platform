@@ -16,12 +16,4 @@ export const navigationComponents = {
     }),
   },
 
-  Link: {
-    description: 'Navigation link to an application route.',
-    props: z.object({
-      label: z.string(),
-      href: z.string().min(1),
-      view: z.enum(['normal', 'primary', 'secondary']).default('normal'),
-    }),
-  },
 };

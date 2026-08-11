@@ -1,4 +1,4 @@
-import type {RouteSpec} from '@m8/core';
+import type {ModuleRouteSpec} from '@m8/core';
 
 export const organizationsRoute = {
   metadata: {title: 'Organizations'},
@@ -44,10 +44,9 @@ export const organizationsRoute = {
       table: {
         type: 'ResourceTable',
         props: {
-          loading: {$state: '/queries/organizations/loading'},
-          rows: {$state: '/queries/organizations/data/items'},
+          loading: {$state: '/__runtime/queries/organizations/fetching'},
+          rows: {$state: '/__runtime/queries/organizations/data/items'},
           resourceType: 'organization',
-          rowHrefTemplate: '/resource-manager/organizations/{id}',
           columns: [
             {field: 'name', title: 'Name'},
             {field: 'status', title: 'Status'},
@@ -58,4 +57,4 @@ export const organizationsRoute = {
       },
     },
   },
-} satisfies RouteSpec;
+} satisfies ModuleRouteSpec;

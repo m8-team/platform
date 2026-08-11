@@ -5,7 +5,7 @@ import {defineOperation} from './definition';
 import {
   DuplicateOperationError,
   OperationAuthorizationError,
-  OperationConfirmationDeclinedError,
+  UnknownOperationError,
 } from './errors';
 import {OperationRegistry} from './registry';
 import {OperationRuntime, type OperationAuditEvent} from './runtime';
@@ -16,8 +16,6 @@ function operation(execute = vi.fn(async ({input}: {input: {id: string}}) => ({i
     input: z.object({id: z.string()}),
     output: z.object({id: z.string()}),
     requiredPermission: 'test.delete',
-    destructive: true,
-    confirmation: {title: 'Delete?'},
     invalidate: ['test.list'],
     execute,
   });
@@ -28,21 +26,15 @@ describe('OperationRuntime', () => {
     expect(() => new OperationRegistry([operation(), operation()])).toThrow(DuplicateOperationError);
   });
 
+  it('rejects unknown IDs', () => {
+    expect(() => new OperationRegistry().require('missing')).toThrow(UnknownOperationError);
+  });
+
   it('denies unauthorized execution', async () => {
     const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => false},
     });
     await expect(runtime.execute('test.delete', {id: '1'})).rejects.toBeInstanceOf(OperationAuthorizationError);
-  });
-
-  it('stops when confirmation is declined', async () => {
-    const execute = vi.fn(async () => ({id: '1'}));
-    const runtime = new OperationRuntime(new OperationRegistry([operation(execute)]), {
-      authorization: {check: async () => true},
-      confirmation: {confirm: async () => false},
-    });
-    await expect(runtime.execute('test.delete', {id: '1'})).rejects.toBeInstanceOf(OperationConfirmationDeclinedError);
-    expect(execute).not.toHaveBeenCalled();
   });
 
   it('validates, executes, audits and invalidates after success', async () => {
@@ -55,7 +47,6 @@ describe('OperationRuntime', () => {
     const controller = new AbortController();
     const runtime = new OperationRuntime(new OperationRegistry([operation(execute)]), {
       authorization: {check: async () => true},
-      confirmation: {confirm: async () => true},
       audit: {record: event => { events.push(event); }},
       queryInvalidation: {invalidate},
     });
@@ -72,7 +63,6 @@ describe('OperationRuntime', () => {
     const failing = operation(vi.fn(async () => { throw new Error('failed'); }));
     const runtime = new OperationRuntime(new OperationRegistry([failing]), {
       authorization: {check: async () => true},
-      confirmation: {confirm: async () => true},
       audit: {record: event => { events.push(event); }},
       queryInvalidation: {invalidate},
     });
@@ -84,39 +74,20 @@ describe('OperationRuntime', () => {
   it('validates input and output', async () => {
     const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => true},
-      confirmation: {confirm: async () => true},
     });
     await expect(runtime.execute('test.delete', {})).rejects.toThrow();
 
     const invalidOutput = operation(vi.fn(async () => ({id: 1} as never)));
     const outputRuntime = new OperationRuntime(new OperationRegistry([invalidOutput]), {
       authorization: {check: async () => true},
-      confirmation: {confirm: async () => true},
     });
     await expect(outputRuntime.execute('test.delete', {id: '1'})).rejects.toThrow();
-  });
-
-  it('requires confirmation for destructive operations without custom copy', async () => {
-    const confirm = vi.fn(async () => true);
-    const destructive = defineOperation({
-      id: 'test.destroy',
-      input: z.object({}),
-      output: z.object({ok: z.boolean()}),
-      destructive: true,
-      execute: async () => ({ok: true}),
-    });
-    const runtime = new OperationRuntime(new OperationRegistry([destructive]), {
-      confirmation: {confirm},
-    });
-    await runtime.execute('test.destroy', {});
-    expect(confirm).toHaveBeenCalledOnce();
   });
 
   it.each(['invalidation', 'audit'] as const)('%s failure does not change successful mutation result', async kind => {
     const report = vi.fn();
     const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => true},
-      confirmation: {confirm: async () => true},
       queryInvalidation: {invalidate: async () => { if (kind === 'invalidation') throw new Error('cache'); }},
       audit: {record: async event => { if (kind === 'audit' && event.phase === 'succeeded') throw new Error('audit'); }},
       errorReporter: {report},
@@ -134,7 +105,7 @@ describe('OperationRuntime', () => {
     const definition = defineOperation({
       id: 'test.create', mode: 'long-running',
       input: z.object({}), output: z.object({operationId: z.string()}),
-      completion: {invalidate: ['test.list']},
+      invalidate: ['test.list'],
       execute: async () => ({operationId: 'op_1'}),
     });
     const controller = new AbortController();

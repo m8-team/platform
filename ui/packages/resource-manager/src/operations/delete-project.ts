@@ -13,19 +13,13 @@ export const deleteProjectOperation = defineOperation({
   output: z.object({
     operationId: z.string(),
   }),
-  destructive: true,
-  confirmation: {
-    title: 'Delete project?',
-    description: 'This action cannot be undone.',
-    confirmLabel: 'Delete project',
-  },
   requiredPermission: 'resource-manager.projects.delete',
   execute: async ({input, signal}) => {
     const result = await resourceManagerApi.projects.delete(input, {signal});
     return {operationId: result.operationId};
   },
-  completion: {invalidate: [
+  invalidate: [
     'resource-manager.projects.list',
     'resource-manager.projects.get',
-  ]},
+  ],
 });

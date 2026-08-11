@@ -2,6 +2,26 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
+export interface OrganizationResource {
+  readonly id: string;
+  readonly name: string;
+  readonly parentId: string | null;
+  readonly status: 'active' | 'suspended' | 'deleting';
+  readonly createdAt: string;
+}
+
+export interface ProjectResource {
+  readonly id: string;
+  readonly organizationId: string;
+  readonly workspaceId: string | null;
+  readonly name: string;
+  readonly description: string | null;
+  readonly status: 'active' | 'suspended' | 'deleting';
+  readonly version: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
 function throwIfAborted(options?: RequestOptions): void {
   options?.signal?.throwIfAborted();
 }
@@ -10,8 +30,9 @@ export const resourceManagerApi = {
   organizations: {
     async list(input: unknown, options?: RequestOptions) {
       throwIfAborted(options);
+      const items: OrganizationResource[] = [];
       return {
-        items: [],
+        items,
         nextCursor: null,
         input,
       };
@@ -32,8 +53,9 @@ export const resourceManagerApi = {
   projects: {
     async list(input: unknown, options?: RequestOptions) {
       throwIfAborted(options);
+      const items: ProjectResource[] = [];
       return {
-        items: [],
+        items,
         nextCursor: null,
         input,
       };
