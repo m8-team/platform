@@ -44,6 +44,21 @@ export const catalog = defineCatalog(schema, {
       }),
     },
 
+    RouteTree: {
+      description: 'Hierarchical navigation tree for application routes.',
+      props: z.object({
+        routes: z
+          .array(
+            z.object({
+              path: z.string().min(1),
+              title: z.string().min(1),
+              href: z.string().min(1).optional(),
+            }),
+          )
+          .min(1),
+      }),
+    },
+
     Link: {
       description: 'Navigation link to an application route.',
       props: z.object({

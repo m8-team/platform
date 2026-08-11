@@ -1,5 +1,7 @@
 'use client';
 
+import {RouteTreeRenderer} from './route-tree';
+
 import {defineRegistry} from '@json-render/react';
 import {
   Box,
@@ -72,6 +74,8 @@ export const {registry} = defineRegistry(catalog, {
     ),
 
     Text: ({props}) => <Text color={props.tone}>{props.text}</Text>,
+    RouteTree: ({props}) => <RouteTreeRenderer routes={props.routes} />,
+
     Link: ({props}) => (
       <Link href={props.href} view={props.view}>
         {props.label}

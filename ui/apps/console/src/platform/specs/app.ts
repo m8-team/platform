@@ -11,8 +11,9 @@ type AppPage = NonNullable<AppRoute['page']>;
 type AppElements = AppPage['elements'];
 
 type RouteDirectoryItem = {
-  id: string;
-  element: AppElements[string];
+  path: string;
+  title: string;
+  href?: string;
 };
 
 const dynamicRoutePattern = /\[[^/]+\]/;
@@ -32,61 +33,17 @@ function compareRoutePaths(left: string, right: string): number {
   return left.localeCompare(right);
 }
 
-function createRouteDirectoryItem(
-  path: string,
-  route: AppRoute,
-  index: number,
-): RouteDirectoryItem {
-  const id = `homeRouteDirectoryItem${index}`;
-  const label = `${getRouteTitle(route, path)} — ${path}`;
-
-  if (dynamicRoutePattern.test(path)) {
-    return {
-      id,
-      element: {
-        type: 'Text',
-        props: {
-          text: `${label} (requires route parameters)`,
-          tone: 'secondary',
-        },
-        children: [],
-      },
-    };
-  }
-
-  return {
-    id,
-    element: {
-      type: 'Link',
-      props: {
-        label,
-        href: path,
-        view: 'primary',
-      },
-      children: [],
-    },
-  };
-}
-
-function createRouteDirectoryElements(routes: AppRoutes): {
-  itemIds: string[];
-  elements: AppElements;
-} {
-  const routeItems = Object.entries(routes)
+function createRouteDirectoryItems(routes: AppRoutes): RouteDirectoryItem[] {
+  return Object.entries(routes)
     .sort(([left], [right]) => compareRoutePaths(left, right))
-    .map(([path, route], index) =>
-      createRouteDirectoryItem(path, route, index),
-    );
-
-  return {
-    itemIds: routeItems.map(({id}) => id),
-    elements: Object.fromEntries(
-      routeItems.map(({id, element}) => [id, element]),
-    ),
-  };
+    .map(([path, route]) => ({
+      path,
+      title: getRouteTitle(route, path),
+      ...(dynamicRoutePattern.test(path) ? {} : {href: path}),
+    }));
 }
 
-function createRouteDirectoryShell(itemIds: string[]): AppElements {
+function createRouteDirectoryShell(routes: RouteDirectoryItem[]): AppElements {
   return {
     homeRouteDirectory: {
       type: 'Card',
@@ -101,7 +58,7 @@ function createRouteDirectoryShell(itemIds: string[]): AppElements {
       props: {
         gap: 'm',
       },
-      children: ['homeRouteDirectoryHint', 'homeRouteDirectoryList'],
+      children: ['homeRouteDirectoryHint', 'homeRouteDirectoryTree'],
     },
     homeRouteDirectoryHint: {
       type: 'Text',
@@ -111,12 +68,12 @@ function createRouteDirectoryShell(itemIds: string[]): AppElements {
       },
       children: [],
     },
-    homeRouteDirectoryList: {
-      type: 'Stack',
+    homeRouteDirectoryTree: {
+      type: 'RouteTree',
       props: {
-        gap: 's',
+        routes,
       },
-      children: itemIds,
+      children: [],
     },
   };
 }
@@ -130,7 +87,10 @@ function addRouteDirectoryToPage(
     return homePage;
   }
 
-  const routeDirectory = createRouteDirectoryElements(routes);
+  const routeDirectory = createRouteDirectoryItems(routes);
+  if (routeDirectory.length === 0) {
+    return homePage;
+  }
 
   return {
     ...homePage,
@@ -140,8 +100,7 @@ function addRouteDirectoryToPage(
         ...homeRoot,
         children: [...(homeRoot.children ?? []), 'homeRouteDirectory'],
       },
-      ...createRouteDirectoryShell(routeDirectory.itemIds),
-      ...routeDirectory.elements,
+      ...createRouteDirectoryShell(routeDirectory),
     },
   };
 }
@@ -262,8 +221,8 @@ const platformSpec: NextAppSpec = {
           card: {
             type: 'Card',
             props: {
-              title: 'Platform status',
-            titleLevel: '2',
+                title: 'Platform status',
+              titleLevel: '2',
             },
             children: ['status'],
           },
