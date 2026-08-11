@@ -3,6 +3,8 @@ import {z} from 'zod';
 
 import {resourceManagerApi} from '../api/client';
 
+const MAX_PAGE_SIZE = 1000;
+
 const organizationSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -16,7 +18,7 @@ export const listOrganizationsQuery = defineQuery({
   input: z.object({
     search: z.string().optional(),
     parentId: z.string().optional(),
-    limit: z.number().default(50),
+    limit: z.number().int().positive().max(MAX_PAGE_SIZE).default(50),
     cursor: z.string().optional(),
   }),
   output: z.object({

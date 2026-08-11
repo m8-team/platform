@@ -38,8 +38,8 @@ describe('ModuleRegistry', () => {
   });
 
   it.each([
-    ['query', {queries: [{id: 'shared'}]}, DuplicateQueryError],
-    ['operation', {operations: [{id: 'shared'}]}, DuplicateOperationError],
+    ['query', {queries: [{id: 'first.shared'}]}, DuplicateQueryError],
+    ['operation', {operations: [{id: 'first.shared'}]}, DuplicateOperationError],
   ])('rejects duplicate %s IDs', (_kind, contribution, ErrorType) => {
     expect(() => defineModules([
       module(contribution),
@@ -70,19 +70,25 @@ describe('ModuleRegistry', () => {
     ])).toThrow(RouteCollisionError);
   });
 
-  it('builds native NextAppSpec routes without M8 metadata', () => {
-    const spec = defineModules([module({routes: {'/': {
-      page,
-      metadata: {title: 'First'},
-      access: {permission: 'read'},
-      navigation: {label: 'First'},
-      queries: {data: {query: 'first.list'}},
-    }}})]).buildNextAppSpec();
+  it.each([
+    ['/projects/[id]', '/projects/[projectId]'],
+    ['/projects/[...slug]', '/projects/[...path]'],
+    ['/projects/[[...slug]]', '/projects/[[...path]]'],
+  ])('rejects canonical dynamic collision %s and %s', (first, second) => {
+    expect(() => defineModules([
+      module({basePath: '/', routes: {[first]: {page}, [second]: {page}}}),
+    ])).toThrow(RouteCollisionError);
+  });
 
-    expect(spec.routes['/first']).toEqual({page, metadata: {title: 'First'}});
-    expect(spec.routes['/first']).not.toHaveProperty('access');
-    expect(spec.routes['/first']).not.toHaveProperty('navigation');
-    expect(spec.routes['/first']).not.toHaveProperty('queries');
+  it('rejects an unknown route query', () => {
+    expect(() => defineModules([module({routes: {'/': {page, queries: {data: {query: 'first.missing'}}}}})]))
+      .toThrow(/unknown query/);
+  });
+
+  it('returns immutable module contributions', () => {
+    const definition = module({queries: [{id: 'first.list'}]});
+    expect(Object.isFrozen(definition)).toBe(true);
+    expect(Object.isFrozen((definition as unknown as {queries: readonly unknown[]}).queries)).toBe(true);
   });
 });
 

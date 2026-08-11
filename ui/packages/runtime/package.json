@@ -19,10 +19,13 @@
     "@m8/core": "workspace:*",
     "@m8/operation": "workspace:*",
     "@m8/query": "workspace:*",
-    "@tanstack/react-query": "^5.101.4",
-    "react": "19.2.8"
+    "@tanstack/react-query": "^5.101.4"
   },
+  "peerDependencies": {"next": "^16.3.0", "react": "^19.2.8", "react-dom": "^19.2.8"},
   "devDependencies": {
+    "next": "16.3.0",
+    "react-dom": "19.2.8",
+    "zod": "^4.4.3",
     "@types/react": "^19",
     "typescript": "^5",
     "vitest": "^3.2.4"

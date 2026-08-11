@@ -11,10 +11,9 @@ export function isModuleEnabled(
 ): boolean {
   const {context, enabledModuleIds} = options;
   if (enabledModuleIds && !enabledModuleIds.includes(module.id)) return false;
-  if (module.access?.permission && !context.permissions?.includes(module.access.permission)) return false;
-  if (module.access?.feature && !context.features?.includes(module.access.feature)) return false;
-  if (module.access?.editions?.length &&
-      (!context.edition || !module.access.editions.includes(context.edition))) return false;
+  if (module.availability?.feature && !context.features?.includes(module.availability.feature)) return false;
+  if (module.availability?.editions?.length &&
+      (!context.edition || !module.availability.editions.includes(context.edition))) return false;
   return true;
 }
 

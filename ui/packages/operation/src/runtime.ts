@@ -3,10 +3,13 @@ import type {M8RuntimeContext} from '@m8/core';
 import type {M8OperationConfirmation} from './definition';
 import {
   MissingConfirmationAdapterError,
+  MissingLongRunningOperationAdapterError,
+  LongRunningOperationFailedError,
   OperationAuthorizationError,
   OperationConfirmationDeclinedError,
 } from './errors';
 import {OperationRegistry} from './registry';
+import type {LongRunningOperationAdapter} from './long-running';
 
 export interface AuthorizationAdapter {
   check(input: {
@@ -41,11 +44,17 @@ export interface QueryInvalidationAdapter {
   invalidate(queryId: string): Promise<void> | void;
 }
 
+export interface RuntimeErrorReporter {
+  report(input: {source: 'operation-audit' | 'operation-invalidation'; operationId: string; error: unknown}): void;
+}
+
 export interface OperationRuntimeAdapters {
   readonly authorization?: AuthorizationAdapter;
   readonly confirmation?: ConfirmationAdapter;
   readonly audit?: OperationAuditAdapter;
   readonly queryInvalidation?: QueryInvalidationAdapter;
+  readonly longRunningOperations?: LongRunningOperationAdapter;
+  readonly errorReporter?: RuntimeErrorReporter;
 }
 
 export interface ExecuteOperationOptions {
@@ -99,24 +108,56 @@ export class M8OperationRuntime {
       if (!confirmed) throw new OperationConfirmationDeclinedError(operationId);
     }
 
-    await this.adapters.audit?.record({operationId, phase: 'started', context});
+    await this.runEffect(operationId, 'operation-audit', () =>
+      this.adapters.audit?.record({operationId, phase: 'started', context}));
 
+    let output: unknown;
     try {
       const rawOutput = await definition.execute({input: parsedInput, signal, context});
-      const output = definition.output.parse(rawOutput);
-      for (const queryId of definition.invalidate ?? []) {
-        await this.adapters.queryInvalidation?.invalidate(queryId);
-      }
-      await this.adapters.audit?.record({operationId, phase: 'succeeded', context});
-      return output;
+      output = definition.output.parse(rawOutput);
     } catch (error) {
-      await this.adapters.audit?.record({
+      await this.runEffect(operationId, 'operation-audit', () => this.adapters.audit?.record({
         operationId,
         phase: signal.aborted ? 'cancelled' : 'failed',
         context,
         error,
-      });
+      }));
       throw error;
+    }
+
+    if (definition.mode === 'long-running') {
+      const operationIdentifier = (output as {operationId?: unknown}).operationId;
+      if (typeof operationIdentifier !== 'string') {
+        throw new TypeError(`Long-running operation "${operationId}" did not return operationId.`);
+      }
+      if (!this.adapters.longRunningOperations) throw new MissingLongRunningOperationAdapterError(operationId);
+      const terminal = await this.adapters.longRunningOperations.wait(operationIdentifier, {signal});
+      if (terminal.status === 'FAILED' || terminal.status === 'CANCELLED') {
+        throw new LongRunningOperationFailedError(operationIdentifier, terminal.status, terminal.error?.message);
+      }
+      if (terminal.status !== 'SUCCEEDED') {
+        throw new TypeError(`Long-running operation adapter returned non-terminal status "${terminal.status}".`);
+      }
+    }
+
+    for (const queryId of definition.completion?.invalidate ?? definition.invalidate ?? []) {
+      await this.runEffect(operationId, 'operation-invalidation', () =>
+        this.adapters.queryInvalidation?.invalidate(queryId));
+    }
+    await this.runEffect(operationId, 'operation-audit', () =>
+      this.adapters.audit?.record({operationId, phase: 'succeeded', context}));
+    return output;
+  }
+
+  private async runEffect(
+    operationId: string,
+    source: 'operation-audit' | 'operation-invalidation',
+    effect: () => Promise<void> | void | undefined,
+  ): Promise<void> {
+    try {
+      await effect();
+    } catch (error) {
+      this.adapters.errorReporter?.report({source, operationId, error});
     }
   }
 }

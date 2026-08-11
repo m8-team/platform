@@ -4,18 +4,8 @@ import {type ReactNode, useMemo, useState} from 'react';
 
 import {ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
-import {M8OperationRuntime, OperationRegistry} from '@m8/operation';
-import {M8QueryRuntime, QueryRegistry} from '@m8/query';
 import {QueryClient} from '@m8/query/react';
-import {M8RuntimeProvider} from '@m8/runtime';
-import {
-  createProjectOperation,
-  deleteProjectOperation,
-  getOrganizationQuery,
-  getProjectQuery,
-  listOrganizationsQuery,
-  listProjectsQuery,
-} from '@m8/resource-manager';
+import {createM8Runtime, M8RuntimeProvider} from '@m8/runtime';
 
 import {moduleRegistry} from '@/platform/modules/registry';
 import {registry} from '@/platform/registry/registry';
@@ -27,25 +17,13 @@ const runtimeContext = {
   edition: 'community',
 } as const;
 
-const queryRuntime = new M8QueryRuntime(new QueryRegistry([
-  listOrganizationsQuery,
-  getOrganizationQuery,
-  listProjectsQuery,
-  getProjectQuery,
-]));
-
-const operationRegistry = new OperationRegistry([
-  createProjectOperation,
-  deleteProjectOperation,
-]);
-
 export function Providers({children}: {children: ReactNode}) {
   const [theme, setTheme] = useState<Theme>('light');
   const [queryClient] = useState(() => new QueryClient());
-  const operationRuntime = useMemo(
-    () => new M8OperationRuntime(operationRegistry, {
+  const runtime = useMemo(
+    () => createM8Runtime({modules: moduleRegistry, catalog: registry, adapters: {
       authorization: {
-        check: async ({permission, context}) =>
+        can: async ({permission, context}) =>
           context.permissions?.includes(permission) ?? false,
       },
       confirmation: {
@@ -54,7 +32,14 @@ export function Providers({children}: {children: ReactNode}) {
       queryInvalidation: {
         invalidate: queryId => queryClient.invalidateQueries({queryKey: [queryId]}).then(() => undefined),
       },
-    }),
+      longRunningOperations: {
+        wait: async (operationId, options) => {
+          options?.signal?.throwIfAborted();
+          return {id: operationId, status: 'SUCCEEDED'};
+        },
+      },
+      errorReporter: {report: error => console.error('M8 runtime secondary effect failed', error)},
+    }}),
     [queryClient],
   );
 
@@ -64,8 +49,9 @@ export function Providers({children}: {children: ReactNode}) {
         modules={moduleRegistry}
         registry={registry}
         queryClient={queryClient}
-        queries={queryRuntime}
-        operations={operationRuntime}
+        queries={runtime.queries}
+        operations={runtime.operations}
+        authorization={runtime.authorization}
         context={runtimeContext}
         theme={theme}
       >

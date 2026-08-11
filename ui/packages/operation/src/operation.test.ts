@@ -111,4 +111,43 @@ describe('M8OperationRuntime', () => {
     await runtime.execute('test.destroy', {});
     expect(confirm).toHaveBeenCalledOnce();
   });
+
+  it.each(['invalidation', 'audit'] as const)('%s failure does not change successful mutation result', async kind => {
+    const report = vi.fn();
+    const runtime = new M8OperationRuntime(new OperationRegistry([operation()]), {
+      authorization: {check: async () => true},
+      confirmation: {confirm: async () => true},
+      queryInvalidation: {invalidate: async () => { if (kind === 'invalidation') throw new Error('cache'); }},
+      audit: {record: async event => { if (kind === 'audit' && event.phase === 'succeeded') throw new Error('audit'); }},
+      errorReporter: {report},
+    });
+    await expect(runtime.execute('test.delete', {id: '1'})).resolves.toEqual({id: '1'});
+    expect(report).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ['SUCCEEDED', true],
+    ['FAILED', false],
+    ['CANCELLED', false],
+  ] as const)('long-running %s invalidates only on success', async (status, invalidates) => {
+    const invalidate = vi.fn();
+    const definition = defineOperation({
+      id: 'test.create', mode: 'long-running',
+      input: z.object({}), output: z.object({operationId: z.string()}),
+      completion: {invalidate: ['test.list']},
+      execute: async () => ({operationId: 'op_1'}),
+    });
+    const controller = new AbortController();
+    const wait = vi.fn(async (_id: string, options?: {signal?: AbortSignal}) => {
+      expect(options?.signal).toBe(controller.signal);
+      return {id: 'op_1', status};
+    });
+    const runtime = new M8OperationRuntime(new OperationRegistry([definition]), {
+      longRunningOperations: {wait}, queryInvalidation: {invalidate},
+    });
+    const result = runtime.execute('test.create', {}, {signal: controller.signal});
+    if (status === 'SUCCEEDED') await expect(result).resolves.toEqual({operationId: 'op_1'});
+    else await expect(result).rejects.toThrow();
+    expect(invalidate).toHaveBeenCalledTimes(invalidates ? 1 : 0);
+  });
 });

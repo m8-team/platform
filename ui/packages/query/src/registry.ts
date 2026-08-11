@@ -1,9 +1,26 @@
 import type {z} from 'zod';
+import type {M8RuntimeContext} from '@m8/core';
 
 import type {M8QueryDefinition} from './definition';
 import {DuplicateQueryError, UnknownQueryError} from './errors';
 
 type QueryDefinition = M8QueryDefinition<z.ZodType, z.ZodType>;
+
+function normalizeObjectInput(schema: z.ZodType, input: unknown): unknown {
+  if (input === null || typeof input !== 'object' || Array.isArray(input)) return input;
+  const candidate = schema as z.ZodType & {shape?: Record<string, z.ZodType>};
+  if (!candidate.shape) return input;
+  return Object.fromEntries(Object.entries(input).flatMap(([key, value]) => {
+    if (value !== null && value !== undefined) return [[key, value]];
+    const field = candidate.shape?.[key];
+    if (value === null && field?.safeParse(null).success) return [[key, null]];
+    return [];
+  }));
+}
+
+export function normalizeQueryInput(schema: z.ZodType, input: unknown): unknown {
+  return normalizeObjectInput(schema, input);
+}
 
 export class QueryRegistry {
   private readonly definitions = new Map<string, QueryDefinition>();
@@ -36,7 +53,7 @@ export class QueryRegistry {
     definition: TDefinition,
     input: unknown,
   ): z.output<TDefinition['input']> {
-    return definition.input.parse(input) as z.output<TDefinition['input']>;
+    return definition.input.parse(normalizeQueryInput(definition.input, input)) as z.output<TDefinition['input']>;
   }
 
   queryKey(queryId: string, input: unknown): readonly unknown[] {
@@ -44,10 +61,10 @@ export class QueryRegistry {
     return [definition.id, ...definition.queryKey(this.parseInput(definition, input))];
   }
 
-  async execute(queryId: string, input: unknown, signal: AbortSignal): Promise<unknown> {
+  async execute(queryId: string, input: unknown, signal: AbortSignal, context: M8RuntimeContext = {}): Promise<unknown> {
     const definition = this.require(queryId);
     const parsedInput = this.parseInput(definition, input);
-    const output = await definition.execute({input: parsedInput, signal});
+    const output = await definition.execute({input: parsedInput, signal, context});
     return definition.output.parse(output);
   }
 }
@@ -59,7 +76,7 @@ export class M8QueryRuntime {
     return this.registry.queryKey(queryId, input);
   }
 
-  execute(queryId: string, input: unknown, signal: AbortSignal): Promise<unknown> {
-    return this.registry.execute(queryId, input, signal);
+  execute(queryId: string, input: unknown, signal: AbortSignal, context: M8RuntimeContext = {}): Promise<unknown> {
+    return this.registry.execute(queryId, input, signal, context);
   }
 }

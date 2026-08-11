@@ -18,12 +18,14 @@ export interface M8OperationDefinition<
   TOutputSchema extends z.ZodType = z.ZodType,
 > {
   readonly id: string;
+  readonly mode?: 'immediate' | 'long-running';
   readonly input: TInputSchema;
   readonly output: TOutputSchema;
   readonly requiredPermission?: string;
   readonly destructive?: boolean;
   readonly confirmation?: M8OperationConfirmation;
   readonly invalidate?: readonly string[];
+  readonly completion?: {readonly invalidate?: readonly string[]};
   readonly execute: (
     context: M8OperationExecutionContext<z.output<TInputSchema>>,
   ) => Promise<z.input<TOutputSchema>>;

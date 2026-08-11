@@ -1,4 +1,3 @@
-import type {NextAppSpec} from '@json-render/next';
 import type {
   M8ModuleDefinition,
   M8OperationDefinitionRef,
@@ -12,15 +11,11 @@ import {
   DuplicateQueryError,
   MissingModuleDependencyError,
   RouteCollisionError,
+  UnknownRouteOperationError,
+  UnknownRouteQueryError,
+  InvalidModuleNamespaceError,
 } from './errors';
-import {joinRoute, normalizePath} from './routes';
-import {toNextRouteSpec} from './to-next-route';
-
-export interface BuildNextAppSpecOptions {
-  metadata?: NextAppSpec['metadata'];
-  layouts?: NextAppSpec['layouts'];
-  state?: NextAppSpec['state'];
-}
+import {canonicalizeRoute, joinRoute, normalizePath} from './routes';
 
 export class ModuleRegistry<
   const TModules extends readonly M8ModuleDefinition[],
@@ -53,33 +48,26 @@ export class ModuleRegistry<
     return this.queriesById.get(queryId)?.definition;
   }
 
-  getOperation(operationId: string): M8OperationDefinitionRef | undefined {
-    return this.operationsById.get(operationId)?.definition;
+  getQueries(): readonly M8QueryDefinitionRef[] {
+    return [...this.queriesById.values()].map(value => value.definition);
   }
 
-  buildNextAppSpec(options: BuildNextAppSpecOptions = {}): NextAppSpec {
-    const routes: NextAppSpec['routes'] = {};
+  getOperations(): readonly M8OperationDefinitionRef[] {
+    return [...this.operationsById.values()].map(value => value.definition);
+  }
 
-    for (const moduleDefinition of this.modules) {
-      for (const [routePath, route] of Object.entries(moduleDefinition.routes ?? {})) {
-        const fullPath = joinRoute(moduleDefinition.basePath, routePath);
-        routes[fullPath] = toNextRouteSpec(route);
-      }
-    }
+  getRoutes(): ReadonlyArray<Readonly<{moduleId: string; path: string; route: import('./types').M8RouteSpec}>> {
+    return this.modules.flatMap(moduleDefinition =>
+      Object.entries(moduleDefinition.routes ?? {}).map(([path, route]) => ({
+        moduleId: moduleDefinition.id,
+        path: joinRoute(moduleDefinition.basePath, path),
+        route,
+      })),
+    );
+  }
 
-    const spec: NextAppSpec = {routes};
-
-    if (options.metadata !== undefined) {
-      spec.metadata = options.metadata;
-    }
-    if (options.layouts !== undefined) {
-      spec.layouts = options.layouts;
-    }
-    if (options.state !== undefined) {
-      spec.state = options.state;
-    }
-
-    return spec;
+  getOperation(operationId: string): M8OperationDefinitionRef | undefined {
+    return this.operationsById.get(operationId)?.definition;
   }
 
   private validate(): void {
@@ -89,6 +77,7 @@ export class ModuleRegistry<
     this.validateQueries();
     this.validateOperations();
     this.validateRoutes();
+    this.validateRouteReferences();
   }
 
   private validateModules(): void {
@@ -172,6 +161,9 @@ export class ModuleRegistry<
             moduleDefinition.id,
           );
         }
+        if (!query.id.startsWith(`${moduleDefinition.id}.`)) {
+          throw new InvalidModuleNamespaceError(moduleDefinition.id, query.id);
+        }
 
         this.queriesById.set(query.id, {
           moduleId: moduleDefinition.id,
@@ -193,6 +185,9 @@ export class ModuleRegistry<
             moduleDefinition.id,
           );
         }
+        if (!operation.id.startsWith(`${moduleDefinition.id}.`)) {
+          throw new InvalidModuleNamespaceError(moduleDefinition.id, operation.id);
+        }
 
         this.operationsById.set(operation.id, {
           moduleId: moduleDefinition.id,
@@ -208,7 +203,8 @@ export class ModuleRegistry<
     for (const moduleDefinition of this.modules) {
       for (const routePath of Object.keys(moduleDefinition.routes ?? {})) {
         const fullPath = joinRoute(moduleDefinition.basePath, routePath);
-        const existingModuleId = routes.get(fullPath);
+        const canonicalPath = canonicalizeRoute(fullPath);
+        const existingModuleId = routes.get(canonicalPath);
 
         if (existingModuleId) {
           throw new RouteCollisionError(
@@ -218,8 +214,29 @@ export class ModuleRegistry<
           );
         }
 
-        routes.set(fullPath, moduleDefinition.id);
+        routes.set(canonicalPath, moduleDefinition.id);
       }
+    }
+  }
+
+  private validateRouteReferences(): void {
+    for (const {path, route} of this.getRoutes()) {
+      for (const binding of Object.values(route.queries ?? {})) {
+        if (!this.queriesById.has(binding.query)) throw new UnknownRouteQueryError(path, binding.query);
+      }
+      const visit = (value: unknown): void => {
+        if (Array.isArray(value)) return value.forEach(visit);
+        if (value === null || typeof value !== 'object') return;
+        const record = value as Record<string, unknown>;
+        if (record.action === 'executeOperation' && record.params && typeof record.params === 'object') {
+          const operationId = (record.params as Record<string, unknown>).operation;
+          if (typeof operationId === 'string' && !this.operationsById.has(operationId)) {
+            throw new UnknownRouteOperationError(path, operationId);
+          }
+        }
+        Object.values(record).forEach(visit);
+      };
+      visit(route.page);
     }
   }
 }

@@ -26,3 +26,12 @@ export function joinRoute(basePath: string, routePath: string): string {
 
   return normalizePath(`${base}/${route.slice(1)}`);
 }
+
+export function canonicalizeRoute(path: string): string {
+  return normalizePath(path).split('/').map(segment => {
+    if (/^\[\[\.\.\.[^\]]+\]\]$/.test(segment)) return '[[...]]';
+    if (/^\[\.\.\.[^\]]+\]$/.test(segment)) return '[...]';
+    if (/^\[[^\]]+\]$/.test(segment)) return '[]';
+    return segment;
+  }).join('/') || '/';
+}

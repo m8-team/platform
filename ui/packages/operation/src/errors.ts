@@ -36,3 +36,17 @@ export class MissingConfirmationAdapterError extends OperationRuntimeError {
     super(`Operation "${operationId}" requires a confirmation adapter.`);
   }
 }
+
+export class MissingLongRunningOperationAdapterError extends OperationRuntimeError {
+  override readonly name = 'MissingLongRunningOperationAdapterError';
+  constructor(readonly operationId: string) {
+    super(`Long-running operation "${operationId}" requires an adapter.`);
+  }
+}
+
+export class LongRunningOperationFailedError extends OperationRuntimeError {
+  override readonly name = 'LongRunningOperationFailedError';
+  constructor(readonly operationId: string, readonly status: 'FAILED' | 'CANCELLED', message?: string) {
+    super(message ?? `Long-running operation "${operationId}" ended with ${status}.`);
+  }
+}

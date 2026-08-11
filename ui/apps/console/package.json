@@ -17,7 +17,6 @@
     "@gravity-ui/charts": "^1.57.2",
     "@gravity-ui/icons": "^2.21.0",
     "@gravity-ui/navigation": "^6.4.0",
-    "@gravity-ui/table": "^1.20.1",
     "@gravity-ui/uikit": "^7.47.2",
     "@json-render/core": "^0.19.0",
     "@json-render/next": "^0.19.0",

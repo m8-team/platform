@@ -22,9 +22,7 @@
   "dependencies": {
     "@m8/core": "workspace:*",
     "@m8/operation": "workspace:*",
-    "@m8/query": "workspace:*"
-  },
-  "peerDependencies": {
+    "@m8/query": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

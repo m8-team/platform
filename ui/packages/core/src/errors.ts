@@ -6,6 +6,9 @@ export type ModuleRegistryErrorCode =
   | 'MODULE_DEPENDENCY_MISSING'
   | 'MODULE_DEPENDENCY_CYCLE'
   | 'ROUTE_COLLISION'
+  | 'QUERY_REFERENCE_UNKNOWN'
+  | 'OPERATION_REFERENCE_UNKNOWN'
+  | 'MODULE_NAMESPACE_INVALID'
   | 'MODULE_BASE_PATH_COLLISION';
 
 export class ModuleRegistryError extends Error {
@@ -14,6 +17,30 @@ export class ModuleRegistryError extends Error {
 
   constructor(message: string) {
     super(message);
+  }
+}
+
+export class UnknownRouteQueryError extends ModuleRegistryError {
+  override readonly name = 'InvalidModuleError';
+  override readonly code = 'QUERY_REFERENCE_UNKNOWN';
+  constructor(readonly route: string, readonly queryId: string) {
+    super(`Route "${route}" references unknown query "${queryId}".`);
+  }
+}
+
+export class UnknownRouteOperationError extends ModuleRegistryError {
+  override readonly name = 'InvalidModuleError';
+  override readonly code = 'OPERATION_REFERENCE_UNKNOWN';
+  constructor(readonly route: string, readonly operationId: string) {
+    super(`Route "${route}" references unknown operation "${operationId}".`);
+  }
+}
+
+export class InvalidModuleNamespaceError extends ModuleRegistryError {
+  override readonly name = 'InvalidModuleError';
+  override readonly code = 'MODULE_NAMESPACE_INVALID';
+  constructor(readonly moduleId: string, readonly contributionId: string) {
+    super(`Module "${moduleId}" cannot own contribution "${contributionId}".`);
   }
 }
 

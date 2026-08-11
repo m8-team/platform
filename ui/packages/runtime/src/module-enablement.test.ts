@@ -8,12 +8,12 @@ const modules: readonly M8ModuleDefinition[] = [
   {id: 'base', title: 'Base', basePath: '/base', routes: {'/': {page}}},
   {
     id: 'feature', title: 'Feature', basePath: '/feature', routes: {'/': {page}},
-    dependencies: {required: ['base']}, access: {feature: 'feature', permission: 'read'},
+    dependencies: {required: ['base']}, availability: {feature: 'feature'},
   },
 ];
 
 describe('selectEnabledModules', () => {
-  it('filters by feature, permission and dependencies', () => {
+  it('filters by availability and dependencies', () => {
     expect(selectEnabledModules(modules, {
       context: {features: ['feature'], permissions: ['read']},
     }).map(module => module.id)).toEqual(['base', 'feature']);

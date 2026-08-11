@@ -1,10 +1,9 @@
 import type {NextAppSpec} from '@json-render/next';
-import {defineModules} from '@m8/core';
-
-import {resourceManagerModule} from '@m8/resource-manager';
+import {buildNextAppSpec} from '@m8/runtime';
+import {moduleRegistry} from '@/platform/modules/registry';
 import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 
-const moduleSpec = defineModules([resourceManagerModule]).buildNextAppSpec();
+const moduleSpec = buildNextAppSpec(moduleRegistry);
 
 type AppRoutes = NextAppSpec['routes'];
 type AppRoute = AppRoutes[string];

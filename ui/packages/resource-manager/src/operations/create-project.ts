@@ -5,6 +5,7 @@ import {resourceManagerApi} from '../api/client';
 
 export const createProjectOperation = defineOperation({
   id: 'resource-manager.projects.create',
+  mode: 'long-running',
   input: z.object({
     organizationId: z.string(),
     workspaceId: z.string().optional(),
@@ -22,5 +23,5 @@ export const createProjectOperation = defineOperation({
       resourceId: result.resourceId,
     };
   },
-  invalidate: ['resource-manager.projects.list'],
+  completion: {invalidate: ['resource-manager.projects.list']},
 });

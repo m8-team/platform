@@ -16,10 +16,13 @@ import {M8QueryRuntime} from '@m8/query';
 import {QueryProvider, type QueryClient} from '@m8/query/react';
 
 import {createM8ActionHandlers} from './actions';
+import type {RuntimeAuthorizationAdapter} from './create-runtime';
+import {RouteRuntimeBoundary} from './route-runtime';
 
 interface M8RuntimeValue {
   readonly modules: ModuleRegistry<readonly M8ModuleDefinition[]>;
   readonly context: M8RuntimeContext;
+  readonly authorization?: RuntimeAuthorizationAdapter;
 }
 
 const RuntimeContext = createContext<M8RuntimeValue | null>(null);
@@ -31,6 +34,7 @@ export interface M8RuntimeProviderProps {
   readonly queries: M8QueryRuntime;
   readonly operations: M8OperationRuntime;
   readonly context: M8RuntimeContext;
+  readonly authorization?: RuntimeAuthorizationAdapter;
   readonly navigate?: (href: string) => void;
   readonly theme?: 'light' | 'dark' | 'light-hc' | 'dark-hc';
   readonly children: ReactNode;
@@ -43,6 +47,7 @@ export function M8RuntimeProvider({
   queries,
   operations,
   context,
+  authorization,
   navigate,
   theme = 'light',
   children,
@@ -59,11 +64,16 @@ export function M8RuntimeProvider({
     [navigate, operations, queryClient],
   );
 
+  const runtimeRegistry = useMemo(() => ({
+    ...registry,
+    __M8RouteRuntime: ({element, children}: {element: {props: Parameters<typeof RouteRuntimeBoundary>[0]}; children?: ReactNode}) =>
+      <RouteRuntimeBoundary {...element.props}>{children}</RouteRuntimeBoundary>,
+  }), [registry]);
   return (
-    <RuntimeContext.Provider value={{modules, context}}>
+    <RuntimeContext.Provider value={{modules, context, authorization}}>
       <ThemeProvider theme={theme}>
         <QueryProvider runtime={queries} queryClient={queryClient}>
-          <NextAppProvider registry={registry} handlers={handlers}>
+          <NextAppProvider registry={runtimeRegistry} handlers={handlers}>
             {children}
           </NextAppProvider>
         </QueryProvider>

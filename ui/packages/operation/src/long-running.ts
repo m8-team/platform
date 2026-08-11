@@ -14,6 +14,6 @@ export interface M8LongRunningOperation<TProgress = unknown, TResult = unknown> 
 }
 
 export interface LongRunningOperationAdapter {
-  get(operationId: string, signal: AbortSignal): Promise<M8LongRunningOperation>;
+  wait(operationId: string, options?: {signal?: AbortSignal}): Promise<M8LongRunningOperation>;
   cancel?(operationId: string, signal: AbortSignal): Promise<void>;
 }

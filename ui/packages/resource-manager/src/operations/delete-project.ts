@@ -5,6 +5,7 @@ import {resourceManagerApi} from '../api/client';
 
 export const deleteProjectOperation = defineOperation({
   id: 'resource-manager.projects.delete',
+  mode: 'long-running',
   input: z.object({
     projectId: z.string(),
     version: z.string(),
@@ -23,8 +24,8 @@ export const deleteProjectOperation = defineOperation({
     const result = await resourceManagerApi.projects.delete(input, {signal});
     return {operationId: result.operationId};
   },
-  invalidate: [
+  completion: {invalidate: [
     'resource-manager.projects.list',
     'resource-manager.projects.get',
-  ],
+  ]},
 });

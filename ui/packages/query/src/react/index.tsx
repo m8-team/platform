@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-query';
 
 import {M8QueryRuntime} from '../registry';
+import type {M8RuntimeContext} from '@m8/core';
 
 const RuntimeContext = createContext<M8QueryRuntime | null>(null);
 
@@ -28,12 +29,12 @@ export function QueryProvider({
   );
 }
 
-export function useM8Query(queryId: string, input: unknown, enabled = true) {
+export function useM8Query(queryId: string, input: unknown, enabled = true, context: M8RuntimeContext = {}) {
   const runtime = useContext(RuntimeContext);
   if (!runtime) throw new Error('useM8Query must be used within QueryProvider.');
   return useQuery({
     queryKey: runtime.queryKey(queryId, input),
-    queryFn: ({signal}) => runtime.execute(queryId, input, signal),
+    queryFn: ({signal}) => runtime.execute(queryId, input, signal, context),
     enabled,
   });
 }

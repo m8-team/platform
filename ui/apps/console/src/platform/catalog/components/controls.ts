@@ -29,7 +29,7 @@ export const controlComponents = {
     props: z.object({
       label: z.string(),
       view: z
-        .enum(['normal', 'action', 'outlined', 'flat', 'raised'])
+        .enum(['normal', 'action', 'outlined', 'outlined-danger', 'flat', 'raised'])
         .default('normal'),
       toast: toastSchema.optional(),
     }),

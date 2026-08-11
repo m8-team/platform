@@ -9,7 +9,9 @@ export type M8ExpressionValue =
   | {readonly [key: string]: M8ExpressionValue}
   | {$state: string}
   | {$param: string}
-  | {$context: string};
+  | {$query: string}
+  | {$context: string}
+  | {$literal: M8ExpressionValue};
 
 export interface M8QueryBinding {
   /** Query ID from Query Registry. */
@@ -27,24 +29,23 @@ export interface M8Navigation {
 
 export interface M8RouteAccess {
   permission?: string;
+}
+
+export interface M8Availability {
   feature?: string;
+  editions?: readonly string[];
 }
 
 export type M8RouteSpec = NextRouteSpec & {
   navigation?: M8Navigation;
   access?: M8RouteAccess;
-  queries?: Record<string, M8QueryBinding>;
+  availability?: M8Availability;
+  queries?: Readonly<Record<string, M8QueryBinding>>;
 };
 
 export interface M8ModuleDependencyDefinition {
   required?: readonly string[];
   optional?: readonly string[];
-}
-
-export interface M8ModuleAccess {
-  permission?: string;
-  feature?: string;
-  editions?: readonly string[];
 }
 
 export interface M8QueryDefinitionRef {
@@ -68,16 +69,16 @@ export interface M8RuntimeContext {
 }
 
 export interface M8ModuleDefinition {
-  id: string;
-  title: string;
-  basePath: `/${string}`;
-  icon?: string;
-  order?: number;
-  access?: M8ModuleAccess;
-  dependencies?: M8ModuleDependencyDefinition;
-  routes?: Record<`/${string}`, M8RouteSpec>;
-  queries?: readonly M8QueryDefinitionRef[];
-  operations?: readonly M8OperationDefinitionRef[];
+  readonly id: string;
+  readonly title: string;
+  readonly basePath: `/${string}`;
+  readonly icon?: string;
+  readonly order?: number;
+  readonly availability?: M8Availability;
+  readonly dependencies?: M8ModuleDependencyDefinition;
+  readonly routes?: Readonly<Record<`/${string}`, M8RouteSpec>>;
+  readonly queries?: readonly M8QueryDefinitionRef[];
+  readonly operations?: readonly M8OperationDefinitionRef[];
 }
 
 /** @deprecated Use M8ModuleDefinition. */

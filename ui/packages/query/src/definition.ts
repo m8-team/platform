@@ -1,8 +1,10 @@
 import type {z} from 'zod';
+import type {M8RuntimeContext} from '@m8/core';
 
 export interface M8QueryExecutionContext<TInput> {
   readonly input: TInput;
   readonly signal: AbortSignal;
+  readonly context: M8RuntimeContext;
 }
 
 export interface M8QueryDefinition<

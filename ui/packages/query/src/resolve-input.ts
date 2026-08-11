@@ -4,6 +4,7 @@ export interface M8InputResolutionContext {
   readonly state?: unknown;
   readonly params?: unknown;
   readonly context?: unknown;
+  readonly queries?: unknown;
 }
 
 function readPath(source: unknown, path: string): unknown {
@@ -16,7 +17,7 @@ function readPath(source: unknown, path: string): unknown {
   return current;
 }
 
-function isBinding(value: unknown, key: '$state' | '$param' | '$context'): value is Record<typeof key, string> {
+function isBinding(value: unknown, key: '$state' | '$param' | '$query' | '$context'): value is Record<typeof key, string> {
   return value !== null && typeof value === 'object' &&
     Object.keys(value).length === 1 && typeof (value as Record<string, unknown>)[key] === 'string';
 }
@@ -27,7 +28,11 @@ export function resolveInput(
 ): unknown {
   if (isBinding(value, '$state')) return readPath(sources.state, value.$state);
   if (isBinding(value, '$param')) return readPath(sources.params, value.$param);
+  if (isBinding(value, '$query')) return readPath(sources.queries, value.$query);
   if (isBinding(value, '$context')) return readPath(sources.context, value.$context);
+  if (value !== null && typeof value === 'object' && '$literal' in value) {
+    return (value as {$literal: unknown}).$literal;
+  }
   if (Array.isArray(value)) return value.map(item => resolveInput(item, sources));
   if (value !== null && typeof value === 'object') {
     return Object.fromEntries(

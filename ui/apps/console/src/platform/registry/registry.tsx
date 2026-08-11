@@ -114,11 +114,12 @@ export const {registry} = defineRegistry(catalog, {
       );
     },
 
-    Button: ({props}) => (
+    Button: ({props, emit}) => (
       <Button
         view={props.view}
         size="l"
         onClick={() => {
+          emit('press');
           if (props.toast) {
             toaster.add({
               name: props.toast.name,
@@ -132,5 +133,15 @@ export const {registry} = defineRegistry(catalog, {
         {props.label}
       </Button>
     ),
+
+    PageHeader: ({props, children}) => <Flex direction="column" gap={2}><Text variant="display-1">{props.title}</Text>{props.description ? <Text color="secondary">{props.description}</Text> : null}{children}</Flex>,
+    Grid: ({props, children}) => <div style={{display: 'grid', gridTemplateColumns: `repeat(${props.columns}, minmax(0, 1fr))`, gap: props.gap === 'l' ? 24 : props.gap === 'm' ? 16 : 8}}>{children}</div>,
+    NavigationCard: ({props}) => <Card type="container" view="outlined" size="l" spacing={{p: 5}}><Link href={props.href}>{props.title}</Link><Text color="secondary">{props.description}</Text></Card>,
+    FilterBar: ({props}) => <Flex gap={2}><Text>{props.searchPlaceholder ?? 'Filters'}</Text>{props.search ? <Text>{props.search}</Text> : null}</Flex>,
+    ResourceTable: ({props}) => props.loading ? <Text>Loading…</Text> : <div>{(props.rows ?? []).map((row, index) => <Card key={String(row.id ?? index)} type="container" view="outlined" spacing={{p: 3}}>{props.columns.map(column => <Text key={column.field}>{column.title}: {String(row[column.field] ?? '')}</Text>)}</Card>)}</div>,
+    ResourceHeader: ({props}) => <Text variant="header-1">{String(props.resource?.name ?? props.resource?.id ?? props.resourceType)}</Text>,
+    PropertyList: ({props}) => <Flex direction="column">{props.fields.map(field => <Text key={field.field}>{field.title}: {String(props.value?.[field.field] ?? '')}</Text>)}</Flex>,
+    SectionHeader: ({props}) => <Text variant="header-2">{props.title}</Text>,
+    DangerZone: ({props, children}) => <Card type="container" view="outlined" spacing={{p: 4}}><Text color="danger">{props.title}</Text>{props.description ? <Text>{props.description}</Text> : null}{children}</Card>,
   },
 });

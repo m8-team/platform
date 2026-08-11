@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 import {defineQuery} from './definition';
 import {DuplicateQueryError} from './errors';
-import {QueryRegistry} from './registry';
+import {normalizeQueryInput, QueryRegistry} from './registry';
 import {resolveInput} from './resolve-input';
 
 function query(execute = vi.fn(async ({input}: {input: {value: string}}) => ({value: input.value}))) {
@@ -43,6 +43,23 @@ describe('QueryRegistry', () => {
     await new QueryRegistry([query(execute)]).execute('test.get', {value: 'a'}, controller.signal);
     expect(execute).toHaveBeenCalledOnce();
   });
+
+  it('forwards runtime context', async () => {
+    const context = {actor: {id: 'usr_1'}};
+    const execute = vi.fn(async ({input, context: received}: {input: {value: string}; context: typeof context}) => {
+      expect(received).toBe(context);
+      return input;
+    });
+    await new QueryRegistry([query(execute)]).execute('test.get', {value: 'a'}, new AbortController().signal, context);
+  });
+
+  it('drops null unset optional fields and preserves nullable fields', () => {
+    const schema = z.object({optional: z.string().optional(), nullable: z.string().nullable(), search: z.string()});
+    expect(normalizeQueryInput(schema, {optional: null, nullable: null, search: ''}))
+      .toEqual({nullable: null, search: ''});
+    expect(schema.parse(normalizeQueryInput(schema, {optional: null, nullable: null, search: ''})))
+      .toEqual({nullable: null, search: ''});
+  });
 });
 
 describe('resolveInput', () => {
@@ -50,6 +67,7 @@ describe('resolveInput', () => {
     state: {filters: {search: 'needle'}},
     params: {projectId: 'prj_1'},
     context: {organization: {id: 'org_1'}},
+    queries: {organization: {data: {id: 'org_2'}}},
   };
 
   it('resolves state, params and context recursively', () => {
@@ -57,7 +75,9 @@ describe('resolveInput', () => {
       search: {$state: '/filters/search'},
       projectId: {$param: '/projectId'},
       organizationId: {$context: '/organization/id'},
-    }, sources)).toEqual({search: 'needle', projectId: 'prj_1', organizationId: 'org_1'});
+      queryOrganizationId: {$query: '/organization/data/id'},
+      literal: {$literal: {$state: '/filters/search'}},
+    }, sources)).toEqual({search: 'needle', projectId: 'prj_1', organizationId: 'org_1', queryOrganizationId: 'org_2', literal: {$state: '/filters/search'}});
   });
 
   it('returns undefined for missing paths', () => {
