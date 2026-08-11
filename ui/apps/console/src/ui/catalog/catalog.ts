@@ -6,6 +6,7 @@ export const catalog = defineCatalog(schema, {
   components: {
     Page: {
       description: 'Top-level application page content container.',
+      slots: ['default'],
       props: z.object({
         width: z.enum(['normal', 'wide', 'full']).default('wide'),
       }),
@@ -13,6 +14,7 @@ export const catalog = defineCatalog(schema, {
 
     Stack: {
       description: 'Vertical stack of child components.',
+      slots: ['default'],
       props: z.object({
         gap: z.enum(['xs', 's', 'm', 'l', 'xl']).default('m'),
       }),
@@ -44,8 +46,10 @@ export const catalog = defineCatalog(schema, {
 
     Card: {
       description: 'Generic content card.',
+      slots: ['default'],
       props: z.object({
         title: z.string().optional(),
+        titleLevel: z.enum(['2', '3']).default('2'),
       }),
     },
 
@@ -65,8 +69,19 @@ export const catalog = defineCatalog(schema, {
           .default('normal'),
         toast: z
           .object({
+            name: z.string().min(1),
             title: z.string(),
             content: z.string().optional(),
+            theme: z
+              .enum([
+                'normal',
+                'info',
+                'success',
+                'warning',
+                'danger',
+                'utility',
+              ])
+              .default('normal'),
           })
           .optional(),
       }),

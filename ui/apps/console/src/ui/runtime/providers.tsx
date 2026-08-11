@@ -7,27 +7,19 @@ import {ThemeProvider, ToasterComponent, ToasterProvider,} from '@gravity-ui/uik
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {registry} from '@/ui/registry/registry';
-import {handlers} from '@/ui/registry/handlers';
-import {type Theme, ThemeContext,} from '@/ui/runtime/theme-context';
+import {ThemeContext, type Theme} from '@/ui/runtime/theme-context';
 
-export function Providers({
-                            children,
-                          }: {
-  children: ReactNode;
-}) {
+export function Providers({children}: {children: ReactNode}) {
   const [theme, setTheme] = useState<Theme>('light');
 
   return (
     <ThemeContext.Provider value={{theme, setTheme}}>
       <ThemeProvider theme={theme}>
         <ToasterProvider toaster={toaster}>
-          <NextAppProvider
-            registry={registry}
-            handlers={handlers}
-          >
+          <NextAppProvider registry={registry}>
             {children}
           </NextAppProvider>
-          <ToasterComponent/>
+          <ToasterComponent />
         </ToasterProvider>
       </ThemeProvider>
     </ThemeContext.Provider>

@@ -89,8 +89,10 @@ export const appSpec: NextAppSpec = {
               label: 'Get started',
               view: 'action',
               toast: {
+                name: 'get-started',
                 title: 'M8 Platform',
                 content: 'Welcome to M8 Platform',
+                theme: 'success',
               },
             },
             children: [],
@@ -100,6 +102,7 @@ export const appSpec: NextAppSpec = {
             type: 'Card',
             props: {
               title: 'Platform status',
+            titleLevel: '2',
             },
             children: ['status'],
           },

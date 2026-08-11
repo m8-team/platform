@@ -2,96 +2,76 @@
 
 import {defineRegistry} from '@json-render/react';
 import {Button, Card, Switch, Text,} from '@gravity-ui/uikit';
+import {Box, Flex, spacing} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {catalog} from '@/ui/catalog/catalog';
 import {useTheme} from '@/ui/runtime/theme-context';
 
 const gaps = {
-  xs: 4,
-  s: 8,
-  m: 16,
-  l: 24,
-  xl: 32,
+  xs: 1,
+  s: 2,
+  m: 4,
+  l: 6,
+  xl: 8,
+} as const;
+
+const pageMaxWidths = {
+  normal: 1200,
+  wide: 1600,
+  full: undefined,
+} as const;
+
+const headingTags = {
+  '1': 'h1',
+  '2': 'h2',
+  '3': 'h3',
+} as const;
+
+const headingVariants = {
+  '1': 'display-1',
+  '2': 'header-2',
+  '3': 'subheader-3',
 } as const;
 
 export const {registry} = defineRegistry(catalog, {
   components: {
-    Page: ({props, children}) => {
-      const maxWidth =
-        props.width === 'normal'
-          ? 1200
-          : props.width === 'wide'
-            ? 1600
-            : undefined;
-
-      return (
-        <main
-          style={{
-            width: '100%',
-            maxWidth,
-            margin: '0 auto',
-            padding: 24,
-          }}
-        >
-          {children}
-        </main>
-      );
-    },
-
-    Stack: ({props, children}) => (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: gaps[props.gap],
-        }}
+    Page: ({props, children}) => (
+      <Box
+        as="main"
+        width="100%"
+        maxWidth={pageMaxWidths[props.width]}
+        spacing={{p: 6}}
+        style={{margin: '0 auto'}}
       >
         {children}
-      </div>
+      </Box>
+    ),
+
+    Stack: ({props, children}) => (
+      <Flex direction="column" gap={gaps[props.gap]}>
+        {children}
+      </Flex>
     ),
 
     Heading: ({props}) => (
       <Text
-        as={`h${props.level}`}
-        variant={
-          props.level === '1'
-            ? 'display-1'
-            : props.level === '2'
-              ? 'header-2'
-              : 'subheader-3'
-        }
+        as={headingTags[props.level]}
+        variant={headingVariants[props.level]}
       >
         {props.text}
       </Text>
     ),
 
-    Text: ({props}) => (
-      <Text
-        color={
-          props.tone === 'primary'
-            ? 'primary'
-            : props.tone === 'secondary'
-              ? 'secondary'
-              : props.tone
-        }
-      >
-        {props.text}
-      </Text>
-    ),
+    Text: ({props}) => <Text color={props.tone}>{props.text}</Text>,
 
     Card: ({props, children}) => (
-      <Card
-        type="container"
-        view="outlined"
-        size="l"
-        style={{padding: 20}}
-      >
+      <Card type="container" view="outlined" size="l" spacing={{p: 5}}>
         {props.title ? (
           <Text
-            as="h3"
+            as={headingTags[props.titleLevel]}
             variant="subheader-3"
-            style={{display: 'block', marginBottom: 16}}
+            className={spacing({mb: 4})}
           >
             {props.title}
           </Text>
@@ -117,20 +97,19 @@ export const {registry} = defineRegistry(catalog, {
       );
     },
 
-    Button: ({props, emit}) => (
+    Button: ({props}) => (
       <Button
         view={props.view}
         size="l"
         onClick={() => {
           if (props.toast) {
             toaster.add({
-              name: `button-${props.label}`,
+              name: props.toast.name,
               title: props.toast.title,
               content: props.toast.content,
-              theme: 'success',
+              theme: props.toast.theme,
             });
           }
-          emit('press');
         }}
       >
         {props.label}
