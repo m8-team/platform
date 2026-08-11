@@ -12,11 +12,7 @@ import {
   type unstable_ListTreeItemType as ListTreeItemType,
 } from '@gravity-ui/uikit/unstable';
 
-export type RouteTreeRoute = {
-  path: string;
-  title: string;
-  href?: string;
-};
+import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 
 type RouteTreeNodeKind = 'group' | 'route' | 'template';
 

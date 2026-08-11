@@ -1,6 +1,7 @@
 import type {NextAppSpec} from '@json-render/next';
 
 import {resourceManagerModule} from '@m8/resource-manager-module';
+import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 import {defineModules} from '@/platform/modules/define-modules';
 
 const moduleSpec = defineModules([resourceManagerModule]).buildNextAppSpec();
@@ -9,12 +10,6 @@ type AppRoutes = NextAppSpec['routes'];
 type AppRoute = AppRoutes[string];
 type AppPage = NonNullable<AppRoute['page']>;
 type AppElements = AppPage['elements'];
-
-type RouteDirectoryItem = {
-  path: string;
-  title: string;
-  href?: string;
-};
 
 const dynamicRoutePattern = /\[[^/]+\]/;
 
@@ -33,7 +28,7 @@ function compareRoutePaths(left: string, right: string): number {
   return left.localeCompare(right);
 }
 
-function createRouteDirectoryItems(routes: AppRoutes): RouteDirectoryItem[] {
+function createRouteDirectoryItems(routes: AppRoutes): RouteTreeRoute[] {
   return Object.entries(routes)
     .sort(([left], [right]) => compareRoutePaths(left, right))
     .map(([path, route]) => ({
@@ -43,7 +38,7 @@ function createRouteDirectoryItems(routes: AppRoutes): RouteDirectoryItem[] {
     }));
 }
 
-function createRouteDirectoryShell(routes: RouteDirectoryItem[]): AppElements {
+function createRouteDirectoryShell(routes: RouteTreeRoute[]): AppElements {
   return {
     homeRouteDirectory: {
       type: 'Card',
