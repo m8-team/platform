@@ -67,10 +67,13 @@ describe('ModuleRegistry', () => {
     expect(registry.getModules().map(item => item.id)).toEqual(['first', 'second']);
   });
 
-  it('returns immutable module contributions', () => {
-    const definition = module({queries: [{id: 'first.list'}]});
+  it('returns immutable module metadata', () => {
+    const definition = defineModule({
+      id: 'first', title: 'First', routes: {'/first': {page}},
+      dependencies: {required: ['base']},
+    });
     expect(Object.isFrozen(definition)).toBe(true);
-    expect(Object.isFrozen((definition as unknown as {queries: readonly unknown[]}).queries)).toBe(true);
+    expect(Object.isFrozen(definition.dependencies?.required)).toBe(true);
   });
 });
 

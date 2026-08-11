@@ -16,5 +16,5 @@ export function defineModule<const TModule extends ModuleDefinition>(
     queries: Object.freeze([...(module.queries ?? [])]),
     operations: Object.freeze([...(module.operations ?? [])]),
   };
-  return Object.freeze(frozen) as unknown as TModule;
+  return Object.freeze(frozen) as TModule;
 }

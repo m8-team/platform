@@ -2,8 +2,7 @@
 
 import {RouteTreeRenderer} from './route-tree';
 
-import {defineRegistry} from '@json-render/react';
-import {useBoundProp} from '@json-render/react';
+import {defineRegistry, useBoundProp} from '@json-render/react';
 import NextLink from 'next/link';
 import {
   Box,
@@ -49,9 +48,8 @@ const headingVariants = {
 
 export const {registry} = defineRegistry(catalog, {
   actions: {
-    executeOperation: async () => {
-      throw new Error('executeOperation must be provided by RuntimeProvider.');
-    },
+    // RuntimeProvider supplies this infrastructure handler to NextAppProvider.
+    executeOperation: async () => undefined,
   },
   components: {
     Page: ({props, children}) => (

@@ -1,11 +1,11 @@
-# M8 declarative UI packages
+# UI orchestration packages
 
 ```text
 packages/
-├── core/       contracts, modules, registry and NextAppSpec composition
+├── core/       module contracts, dependencies, routes and navigation
 ├── query/      declarative remote data and TanStack Query integration
 ├── operation/  safe registered mutation execution
-└── runtime/    React, Next, json-render and Gravity UI orchestration
+└── runtime/    thin json-render/query/operation wiring
 ```
 
 ```text
@@ -21,5 +21,5 @@ packages/
 Module packages normally depend on `@m8/core`, plus `@m8/query` and
 `@m8/operation` when they contribute remote data or mutations. They never
 depend on `@m8/runtime`. Native json-render `Spec` is the only component-tree
-language; `NextAppSpec` / `NextRouteSpec` remain responsible for Next routes,
-layouts, metadata, loaders and SSR.
+language and state engine. `@json-render/next` remains responsible for routes,
+layouts, metadata, matching, navigation and SSR.

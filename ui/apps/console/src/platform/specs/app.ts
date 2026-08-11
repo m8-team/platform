@@ -5,14 +5,14 @@ import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 
 const moduleSpec = buildNextAppSpec(moduleRegistry);
 
-type AppRoutes = NextAppSpec['routes'];
-type AppRoute = AppRoutes[string];
-type AppPage = NonNullable<AppRoute['page']>;
-type AppElements = AppPage['elements'];
+type SpecRoutes = NextAppSpec['routes'];
+type SpecRoute = SpecRoutes[string];
+type RoutePage = NonNullable<SpecRoute['page']>;
+type RouteElements = RoutePage['elements'];
 
 const dynamicRoutePattern = /\[[^/]+\]/;
 
-function getRouteTitle(route: AppRoute, path: string): string {
+function getRouteTitle(route: SpecRoute, path: string): string {
   const title = route.metadata?.title;
   return typeof title === 'string' ? title : path;
 }
@@ -27,7 +27,7 @@ function compareRoutePaths(left: string, right: string): number {
   return left.localeCompare(right);
 }
 
-function createRouteDirectoryItems(routes: AppRoutes): RouteTreeRoute[] {
+function createRouteDirectoryItems(routes: SpecRoutes): RouteTreeRoute[] {
   return Object.entries(routes)
     .sort(([left], [right]) => compareRoutePaths(left, right))
     .map(([path, route]) => ({
@@ -37,7 +37,7 @@ function createRouteDirectoryItems(routes: AppRoutes): RouteTreeRoute[] {
     }));
 }
 
-function createRouteDirectoryShell(routes: RouteTreeRoute[]): AppElements {
+function createRouteDirectoryShell(routes: RouteTreeRoute[]): RouteElements {
   return {
     homeRouteDirectory: {
       type: 'Card',
@@ -73,9 +73,9 @@ function createRouteDirectoryShell(routes: RouteTreeRoute[]): AppElements {
 }
 
 function addRouteDirectoryToPage(
-  homePage: AppPage,
-  routes: AppRoutes,
-): AppPage {
+  homePage: RoutePage,
+  routes: SpecRoutes,
+): RoutePage {
   const homeRoot = homePage.elements[homePage.root];
   if (!homeRoot) {
     return homePage;
@@ -99,7 +99,7 @@ function addRouteDirectoryToPage(
   };
 }
 
-function withHomeRouteDirectory(routes: AppRoutes): AppRoutes {
+function withHomeRouteDirectory(routes: SpecRoutes): SpecRoutes {
   const homeRoute = routes['/'];
   if (!homeRoute?.page) {
     return routes;
@@ -114,7 +114,7 @@ function withHomeRouteDirectory(routes: AppRoutes): AppRoutes {
   };
 }
 
-const platformSpec: NextAppSpec = {
+const baseSpec: NextAppSpec = {
   metadata: {
     title: {
       default: 'M8 Platform',
@@ -235,12 +235,12 @@ const platformSpec: NextAppSpec = {
   },
 };
 
-const mergedRoutes: AppRoutes = {
-  ...platformSpec.routes,
+const mergedRoutes: SpecRoutes = {
+  ...baseSpec.routes,
   ...moduleSpec.routes,
 };
 
 export const appSpec: NextAppSpec = {
-  ...platformSpec,
+  ...baseSpec,
   routes: withHomeRouteDirectory(mergedRoutes),
 };

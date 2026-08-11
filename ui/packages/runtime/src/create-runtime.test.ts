@@ -34,6 +34,23 @@ describe('runtime composition', () => {
     await expect(runtime.operations.execute(operation.id, {})).resolves.toEqual({ok: true});
     expect(buildNextAppSpec(modules).routes['/example']).toBeDefined();
   });
+
+  it('includes or excludes navigation after the route permission check', async () => {
+    const modules = defineModules([defineModule({
+      id: 'example', title: 'Example', routes: {'/example': {
+        access: {permission: 'example.read'},
+        navigation: {label: 'Example'},
+        page: {root: 'root', elements: {root: {type: 'Text', props: {}, children: []}}},
+      }},
+    })]);
+    const runtime = createRuntime({
+      modules,
+      adapters: {authorization: {can: ({context, permission}) =>
+        context.permissions?.includes(permission) ?? false}},
+    });
+    await expect(runtime.navigation.getItems({permissions: ['example.read']})).resolves.toHaveLength(1);
+    await expect(runtime.navigation.getItems({permissions: []})).resolves.toHaveLength(0);
+  });
 });
 
 describe('json-render integration', () => {
