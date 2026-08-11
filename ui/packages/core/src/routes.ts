@@ -12,21 +12,6 @@ export function normalizePath(path: string): string {
   return normalized || '/';
 }
 
-export function joinRoute(basePath: string, routePath: string): string {
-  const base = normalizePath(basePath);
-  const route = normalizePath(routePath);
-
-  if (route === '/') {
-    return base;
-  }
-
-  if (base === '/') {
-    return route;
-  }
-
-  return normalizePath(`${base}/${route.slice(1)}`);
-}
-
 export function canonicalizeRoute(path: string): string {
   return normalizePath(path).split('/').map(segment => {
     if (/^\[\[\.\.\.[^\]]+\]\]$/.test(segment)) return '[[...]]';

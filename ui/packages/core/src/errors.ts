@@ -8,8 +8,7 @@ export type ModuleRegistryErrorCode =
   | 'ROUTE_COLLISION'
   | 'QUERY_REFERENCE_UNKNOWN'
   | 'OPERATION_REFERENCE_UNKNOWN'
-  | 'MODULE_NAMESPACE_INVALID'
-  | 'MODULE_BASE_PATH_COLLISION';
+  | 'MODULE_NAMESPACE_INVALID';
 
 export class ModuleRegistryError extends Error {
   override readonly name: string = 'ModuleRegistryError';
@@ -117,21 +116,6 @@ export class RouteCollisionError extends ModuleRegistryError {
   ) {
     super(
       `Route collision: "${route}". Declared by modules "${firstModuleId}" and "${secondModuleId}".`,
-    );
-  }
-}
-
-export class BasePathCollisionError extends ModuleRegistryError {
-  override readonly name = 'BasePathCollisionError';
-  override readonly code = 'MODULE_BASE_PATH_COLLISION';
-
-  constructor(
-    readonly basePath: string,
-    readonly firstModuleId: string,
-    readonly secondModuleId: string,
-  ) {
-    super(
-      `Module basePath collision: "${basePath}". Used by modules "${firstModuleId}" and "${secondModuleId}".`,
     );
   }
 }

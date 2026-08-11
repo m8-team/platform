@@ -13,7 +13,6 @@ import {projectsRoute} from './routes/projects';
 export const resourceManagerModule = defineModule({
   id: 'resource-manager',
   title: 'Resource Manager',
-  basePath: '/resource-manager',
   icon: 'FolderTree',
   order: 10,
   dependencies: {
@@ -21,11 +20,11 @@ export const resourceManagerModule = defineModule({
     optional: ['audit'],
   },
   routes: {
-    '/': overviewRoute,
-    '/organizations': organizationsRoute,
-    '/organizations/[organizationId]': organizationDetailsRoute,
-    '/projects': projectsRoute,
-    '/projects/[projectId]': projectDetailsRoute,
+    '/resource-manager': overviewRoute,
+    '/resource-manager/organizations': organizationsRoute,
+    '/resource-manager/organizations/[organizationId]': organizationDetailsRoute,
+    '/resource-manager/projects': projectsRoute,
+    '/resource-manager/projects/[projectId]': projectDetailsRoute,
   },
   queries: [
     listOrganizationsQuery,

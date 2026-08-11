@@ -3,7 +3,6 @@ import {z} from 'zod';
 export const moduleManifestSchema = z.object({
   id: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/),
   title: z.string().min(1),
-  basePath: z.string().startsWith('/'),
   icon: z.string().optional(),
   order: z.number().int().optional(),
   dependencies: z

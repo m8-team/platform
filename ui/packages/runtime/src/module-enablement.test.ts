@@ -5,9 +5,9 @@ import {selectEnabledModules} from './module-enablement';
 
 const page = {root: 'root', elements: {root: {type: 'Text', props: {}, children: []}}};
 const modules: readonly ModuleDefinition[] = [
-  {id: 'base', title: 'Base', basePath: '/base', routes: {'/': {page}}},
+  {id: 'base', title: 'Base', routes: {'/base': {page}}},
   {
-    id: 'feature', title: 'Feature', basePath: '/feature', routes: {'/': {page}},
+    id: 'feature', title: 'Feature', routes: {'/feature': {page}},
     dependencies: {required: ['base']},
   },
 ];

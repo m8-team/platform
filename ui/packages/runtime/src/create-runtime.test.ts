@@ -18,9 +18,9 @@ describe('runtime composition', () => {
       execute: async () => ({ok: true}),
     });
     const module = defineModule({
-      id: 'example', title: 'Example', basePath: '/example',
+      id: 'example', title: 'Example',
       queries: [query], operations: [operation],
-      routes: {'/': {
+      routes: {'/example': {
         queries: {items: {query: query.id}},
         page: {root: 'root', elements: {root: {type: 'Text', props: {}, children: []}}},
       }},

@@ -12,4 +12,4 @@ DSL and has no React, Gravity UI or TanStack Query dependency.
 - `defineModule`, `defineModules`, `ModuleRegistry`
 - `ModuleDefinition`, `RouteSpec`, access and navigation contracts
 - M8 infrastructure binding expressions (`$state`, `$param`, `$context`)
-- `normalizePath`, `joinRoute`
+- `normalizePath` and dynamic route canonicalization

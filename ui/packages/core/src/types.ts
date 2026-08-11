@@ -65,7 +65,6 @@ export interface RuntimeContext {
 export interface ModuleDefinition {
   readonly id: string;
   readonly title: string;
-  readonly basePath: `/${string}`;
   readonly icon?: string;
   readonly order?: number;
   readonly dependencies?: ModuleDependencyDefinition;

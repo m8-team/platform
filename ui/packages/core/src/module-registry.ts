@@ -4,7 +4,6 @@ import type {
   QueryDefinitionRef,
 } from './types';
 import {
-  BasePathCollisionError,
   CircularModuleDependencyError,
   DuplicateModuleError,
   DuplicateOperationError,
@@ -15,7 +14,7 @@ import {
   UnknownRouteQueryError,
   InvalidModuleNamespaceError,
 } from './errors';
-import {canonicalizeRoute, joinRoute, normalizePath} from './routes';
+import {canonicalizeRoute, normalizePath} from './routes';
 
 export class ModuleRegistry<
   const TModules extends readonly ModuleDefinition[],
@@ -60,7 +59,7 @@ export class ModuleRegistry<
     return this.modules.flatMap(moduleDefinition =>
       Object.entries(moduleDefinition.routes ?? {}).map(([path, route]) => ({
         moduleId: moduleDefinition.id,
-        path: joinRoute(moduleDefinition.basePath, path),
+        path: normalizePath(path),
         route,
       })),
     );
@@ -81,27 +80,12 @@ export class ModuleRegistry<
   }
 
   private validateModules(): void {
-    const basePaths = new Map<string, string>();
-
     for (const moduleDefinition of this.modules) {
       if (this.modulesById.has(moduleDefinition.id)) {
         throw new DuplicateModuleError(moduleDefinition.id);
       }
 
       this.modulesById.set(moduleDefinition.id, moduleDefinition);
-
-      const normalizedBasePath = normalizePath(moduleDefinition.basePath);
-      const existingModuleId = basePaths.get(normalizedBasePath);
-
-      if (existingModuleId) {
-        throw new BasePathCollisionError(
-          normalizedBasePath,
-          existingModuleId,
-          moduleDefinition.id,
-        );
-      }
-
-      basePaths.set(normalizedBasePath, moduleDefinition.id);
     }
   }
 
@@ -202,7 +186,7 @@ export class ModuleRegistry<
 
     for (const moduleDefinition of this.modules) {
       for (const routePath of Object.keys(moduleDefinition.routes ?? {})) {
-        const fullPath = joinRoute(moduleDefinition.basePath, routePath);
+        const fullPath = normalizePath(routePath);
         const canonicalPath = canonicalizeRoute(fullPath);
         const existingModuleId = routes.get(canonicalPath);
 
