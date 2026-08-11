@@ -1,8 +1,9 @@
-import {ModuleDefinition} from "@/platform/modules/types";
-import {moduleSchema} from "@/platform/modules/module-schema";
+import type {ModuleDefinition} from './types';
+import {moduleSchema} from './module-schema';
 
-export function defineModule<const TModule extends ModuleDefinition>(module: TModule): TModule {
+export function defineModule<const TModule extends ModuleDefinition>(
+  module: TModule,
+): TModule {
   moduleSchema.parse(module);
-  
   return module;
 }

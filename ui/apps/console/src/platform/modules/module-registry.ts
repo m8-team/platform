@@ -1,7 +1,9 @@
 import type {NextAppSpec} from '@json-render/next';
-
-import type {ModuleDefinition, OperationDefinitionRef, QueryDefinitionRef,} from './types';
-
+import type {
+  ModuleDefinition,
+  M8OperationDefinitionRef,
+  M8QueryDefinitionRef,
+} from './types';
 import {
   BasePathCollisionError,
   CircularModuleDependencyError,
@@ -11,44 +13,31 @@ import {
   MissingModuleDependencyError,
   RouteCollisionError,
 } from './errors';
-
-import {joinRoute, normalizePath,} from './routes';
+import {joinRoute, normalizePath} from './routes';
+import {toNextRouteSpec} from './to-next-route';
 
 export interface BuildNextAppSpecOptions {
   metadata?: NextAppSpec['metadata'];
-
   layouts?: NextAppSpec['layouts'];
-
   state?: NextAppSpec['state'];
 }
 
 export class ModuleRegistry<
   const TModules extends readonly ModuleDefinition[],
 > {
-  private readonly modulesById =
-    new Map<string, ModuleDefinition>();
+  private readonly modulesById = new Map<string, ModuleDefinition>();
 
-  private readonly queriesById =
-    new Map<
-      string,
-      {
-        moduleId: string;
-        definition: QueryDefinitionRef;
-      }
-    >();
+  private readonly queriesById = new Map<
+    string,
+    {moduleId: string; definition: M8QueryDefinitionRef}
+  >();
 
-  private readonly operationsById =
-    new Map<
-      string,
-      {
-        moduleId: string;
-        definition: OperationDefinitionRef;
-      }
-    >();
+  private readonly operationsById = new Map<
+    string,
+    {moduleId: string; definition: M8OperationDefinitionRef}
+  >();
 
-  constructor(
-    private readonly modules: TModules,
-  ) {
+  constructor(private readonly modules: TModules) {
     this.validate();
   }
 
@@ -56,114 +45,64 @@ export class ModuleRegistry<
     return this.modules;
   }
 
-  getModule(
-    moduleId: string,
-  ): ModuleDefinition | undefined {
-    return this.modulesById.get(
-      moduleId,
-    );
+  getModule(moduleId: string): ModuleDefinition | undefined {
+    return this.modulesById.get(moduleId);
   }
 
-  getQuery(
-    queryId: string,
-  ): QueryDefinitionRef | undefined {
-    return this.queriesById
-      .get(queryId)
-      ?.definition;
+  getQuery(queryId: string): M8QueryDefinitionRef | undefined {
+    return this.queriesById.get(queryId)?.definition;
   }
 
-  getOperation(
-    operationId: string,
-  ): OperationDefinitionRef | undefined {
-    return this.operationsById
-      .get(operationId)
-      ?.definition;
+  getOperation(operationId: string): M8OperationDefinitionRef | undefined {
+    return this.operationsById.get(operationId)?.definition;
   }
 
-  buildNextAppSpec(
-    options: BuildNextAppSpecOptions = {},
-  ): NextAppSpec {
-    const routes:
-      NextAppSpec['routes'] = {};
+  buildNextAppSpec(options: BuildNextAppSpecOptions = {}): NextAppSpec {
+    const routes: NextAppSpec['routes'] = {};
 
     for (const module of this.modules) {
-      for (
-        const [
-          routePath,
-          route,
-        ] of Object.entries(
-        module.routes ?? {},
-      )
-        ) {
-        const fullPath = joinRoute(
-          module.basePath,
-          routePath,
-        );
-
-        routes[fullPath] = route;
+      for (const [routePath, route] of Object.entries(module.routes ?? {})) {
+        const fullPath = joinRoute(module.basePath, routePath);
+        routes[fullPath] = toNextRouteSpec(route);
       }
     }
 
-    return {
-      metadata:
-      options.metadata,
+    const spec: NextAppSpec = {routes};
 
-      layouts:
-      options.layouts,
+    if (options.metadata !== undefined) {
+      spec.metadata = options.metadata;
+    }
+    if (options.layouts !== undefined) {
+      spec.layouts = options.layouts;
+    }
+    if (options.state !== undefined) {
+      spec.state = options.state;
+    }
 
-      state:
-      options.state,
-
-      routes,
-    };
+    return spec;
   }
 
   private validate(): void {
     this.validateModules();
-
     this.validateDependencies();
-
     this.validateCircularDependencies();
-
     this.validateQueries();
-
     this.validateOperations();
-
     this.validateRoutes();
   }
 
   private validateModules(): void {
-    const basePaths =
-      new Map<
-        string,
-        string
-      >();
+    const basePaths = new Map<string, string>();
 
     for (const module of this.modules) {
-      if (
-        this.modulesById.has(
-          module.id,
-        )
-      ) {
-        throw new DuplicateModuleError(
-          module.id,
-        );
+      if (this.modulesById.has(module.id)) {
+        throw new DuplicateModuleError(module.id);
       }
 
-      this.modulesById.set(
-        module.id,
-        module,
-      );
+      this.modulesById.set(module.id, module);
 
-      const normalizedBasePath =
-        normalizePath(
-          module.basePath,
-        );
-
-      const existingModuleId =
-        basePaths.get(
-          normalizedBasePath,
-        );
+      const normalizedBasePath = normalizePath(module.basePath);
+      const existingModuleId = basePaths.get(normalizedBasePath);
 
       if (existingModuleId) {
         throw new BasePathCollisionError(
@@ -173,131 +112,58 @@ export class ModuleRegistry<
         );
       }
 
-      basePaths.set(
-        normalizedBasePath,
-        module.id,
-      );
+      basePaths.set(normalizedBasePath, module.id);
     }
   }
 
   private validateDependencies(): void {
     for (const module of this.modules) {
-      const required =
-        module.dependencies
-          ?.required ?? [];
-
-      for (
-        const dependencyId
-        of required
-        ) {
-        if (
-          !this.modulesById.has(
-            dependencyId,
-          )
-        ) {
-          throw new MissingModuleDependencyError(
-            module.id,
-            dependencyId,
-          );
+      for (const dependencyId of module.dependencies?.required ?? []) {
+        if (!this.modulesById.has(dependencyId)) {
+          throw new MissingModuleDependencyError(module.id, dependencyId);
         }
       }
     }
   }
 
   private validateCircularDependencies(): void {
-    const visited =
-      new Set<string>();
-
-    const visiting =
-      new Set<string>();
-
+    const visited = new Set<string>();
+    const visiting = new Set<string>();
     const stack: string[] = [];
 
-    const visit = (
-      moduleId: string,
-    ): void => {
-      if (
-        visiting.has(moduleId)
-      ) {
-        const startIndex =
-          stack.indexOf(
-            moduleId,
-          );
-
-        const cycle =
-          stack
-            .slice(startIndex)
-            .concat(moduleId);
-
-        throw new CircularModuleDependencyError(
-          cycle,
-        );
+    const visit = (moduleId: string): void => {
+      if (visiting.has(moduleId)) {
+        const startIndex = stack.indexOf(moduleId);
+        const cycle = stack.slice(startIndex).concat(moduleId);
+        throw new CircularModuleDependencyError(cycle);
       }
 
-      if (
-        visited.has(moduleId)
-      ) {
+      if (visited.has(moduleId)) {
         return;
       }
 
-      visiting.add(
-        moduleId,
-      );
+      visiting.add(moduleId);
+      stack.push(moduleId);
 
-      stack.push(
-        moduleId,
-      );
-
-      const module =
-        this.modulesById.get(
-          moduleId,
-        );
-
-      for (
-        const dependencyId
-        of module
-        ?.dependencies
-        ?.required ?? []
-        ) {
-        visit(
-          dependencyId,
-        );
+      const module = this.modulesById.get(moduleId);
+      for (const dependencyId of module?.dependencies?.required ?? []) {
+        visit(dependencyId);
       }
 
       stack.pop();
-
-      visiting.delete(
-        moduleId,
-      );
-
-      visited.add(
-        moduleId,
-      );
+      visiting.delete(moduleId);
+      visited.add(moduleId);
     };
 
-    for (
-      const module
-      of this.modules
-      ) {
-      visit(
-        module.id,
-      );
+    for (const module of this.modules) {
+      visit(module.id);
     }
   }
 
   private validateQueries(): void {
-    for (
-      const module
-      of this.modules
-      ) {
-      for (
-        const query
-        of module.queries ?? []
-        ) {
-        const existing =
-          this.queriesById.get(
-            query.id,
-          );
+    for (const module of this.modules) {
+      for (const query of module.queries ?? []) {
+        const existing = this.queriesById.get(query.id);
 
         if (existing) {
           throw new DuplicateQueryError(
@@ -307,33 +173,18 @@ export class ModuleRegistry<
           );
         }
 
-        this.queriesById.set(
-          query.id,
-          {
-            moduleId:
-            module.id,
-
-            definition:
-            query,
-          },
-        );
+        this.queriesById.set(query.id, {
+          moduleId: module.id,
+          definition: query,
+        });
       }
     }
   }
 
   private validateOperations(): void {
-    for (
-      const module
-      of this.modules
-      ) {
-      for (
-        const operation
-        of module.operations ?? []
-        ) {
-        const existing =
-          this.operationsById.get(
-            operation.id,
-          );
+    for (const module of this.modules) {
+      for (const operation of module.operations ?? []) {
+        const existing = this.operationsById.get(operation.id);
 
         if (existing) {
           throw new DuplicateOperationError(
@@ -343,51 +194,23 @@ export class ModuleRegistry<
           );
         }
 
-        this.operationsById.set(
-          operation.id,
-          {
-            moduleId:
-            module.id,
-
-            definition:
-            operation,
-          },
-        );
+        this.operationsById.set(operation.id, {
+          moduleId: module.id,
+          definition: operation,
+        });
       }
     }
   }
 
   private validateRoutes(): void {
-    const routes =
-      new Map<
-        string,
-        string
-      >();
+    const routes = new Map<string, string>();
 
-    for (
-      const module
-      of this.modules
-      ) {
-      for (
-        const routePath
-        of Object.keys(
-        module.routes ?? {},
-      )
-        ) {
-        const fullPath =
-          joinRoute(
-            module.basePath,
-            routePath,
-          );
+    for (const module of this.modules) {
+      for (const routePath of Object.keys(module.routes ?? {})) {
+        const fullPath = joinRoute(module.basePath, routePath);
+        const existingModuleId = routes.get(fullPath);
 
-        const existingModuleId =
-          routes.get(
-            fullPath,
-          );
-
-        if (
-          existingModuleId
-        ) {
+        if (existingModuleId) {
           throw new RouteCollisionError(
             fullPath,
             existingModuleId,
@@ -395,10 +218,7 @@ export class ModuleRegistry<
           );
         }
 
-        routes.set(
-          fullPath,
-          module.id,
-        );
+        routes.set(fullPath, module.id);
       }
     }
   }

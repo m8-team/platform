@@ -2,169 +2,70 @@ import type {NextAppSpec} from '@json-render/next';
 
 export type NextRouteSpec = NextAppSpec['routes'][string];
 
-export type InputValue =
+export type M8InputValue =
   | null
   | string
   | number
   | boolean
-  | InputValue[]
-  | {
-  [key: string]: InputValue;
-}
-  | {
-  $state: string;
-}
-  | {
-  $param: string;
-}
-  | {
-  $context: string;
-};
+  | M8InputValue[]
+  | {[key: string]: M8InputValue}
+  | {$state: string}
+  | {$param: string}
+  | {$context: string};
 
-export interface QueryBinding {
-  /**
-   * Query ID from Query Registry.
-   *
-   * Example:
-   * resource-manager.projects.list
-   */
+export interface M8QueryBinding {
+  /** Query ID from Query Registry. */
   query: string;
-
-  /**
-   * Declarative query input.
-   */
-  input?: Record<string, InputValue>;
-
-  /**
-   * Optional conditional execution.
-   */
-  enabled?: InputValue;
+  input?: Record<string, M8InputValue>;
+  enabled?: M8InputValue;
 }
 
-export interface RouteNavigation {
+export interface M8RouteNavigation {
   label: string;
-
   icon?: string;
-
   order?: number;
-
   hidden?: boolean;
 }
 
-export interface RouteAccess {
+export interface M8RouteAccess {
   permission?: string;
-
   feature?: string;
 }
 
-export type RouteSpec =
-  NextRouteSpec & {
-  /**
-   *  navigation metadata.
-   */
-  navigation?: RouteNavigation;
-
-  /**
-   * Route-level authorization.
-   */
-  access?: RouteAccess;
-
-  /**
-   * Reactive queries required by route.
-   */
-  queries?: Record<
-    string,
-    QueryBinding
-  >;
+export type M8RouteSpec = NextRouteSpec & {
+  navigation?: M8RouteNavigation;
+  access?: M8RouteAccess;
+  queries?: Record<string, M8QueryBinding>;
 };
 
-export interface ModuleDependencyDefinition {
+export interface M8ModuleDependencyDefinition {
   required?: readonly string[];
-
   optional?: readonly string[];
 }
 
-export interface ModuleAccess {
-  /**
-   * Module-level permission.
-   */
+export interface M8ModuleAccess {
   permission?: string;
-
-  /**
-   * Feature flag / installed capability.
-   */
   feature?: string;
-
-  /**
-   * Optional edition gating.
-   */
   editions?: readonly string[];
 }
 
-/**
- * Minimal contract required from registered
- * query definitions.
- */
-export interface QueryDefinitionRef {
+export interface M8QueryDefinitionRef {
   id: string;
 }
 
-/**
- * Minimal contract required from registered
- * operation definitions.
- */
-export interface OperationDefinitionRef {
+export interface M8OperationDefinitionRef {
   id: string;
 }
 
 export interface ModuleDefinition {
-  /**
-   * Stable module identifier.
-   *
-   * Examples:
-   * resource-manager
-   * iam
-   * gateway
-   */
   id: string;
-
-  /**
-   * Human readable module name.
-   */
   title: string;
-
-  /**
-   * URL prefix.
-   *
-   * Example:
-   * /resource-manager
-   */
   basePath: `/${string}`;
-
   icon?: string;
-
   order?: number;
-
-  access?: ModuleAccess;
-
-  dependencies?: ModuleDependencyDefinition;
-
-  /**
-   * Routes are relative to basePath.
-   *
-   * Examples:
-   * /
-   * /projects
-   * /projects/[projectId]
-   */
-  routes: Record<
-    `/${string}`,
-    RouteSpec
-  >;
-
-  queries?:
-    readonly QueryDefinitionRef[];
-
-  operations?:
-    readonly OperationDefinitionRef[];
+  access?: M8ModuleAccess;
+  dependencies?: M8ModuleDependencyDefinition;
+  routes?: Record<`/${string}`, M8RouteSpec>;
+  queries?: readonly M8QueryDefinitionRef[];
+  operations?: readonly M8OperationDefinitionRef[];
 }
