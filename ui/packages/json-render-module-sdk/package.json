@@ -1,0 +1,31 @@
+{
+  "name": "@m8/json-render-module-sdk",
+  "version": "0.1.0",
+  "description": "Contracts and definition helpers for M8 json-render UI modules.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@json-render/next": "^0.19.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@json-render/next": "^0.19.0",
+    "typescript": "^5",
+    "zod": "^4.4.3"
+  }
+}
