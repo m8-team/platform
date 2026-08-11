@@ -1,4 +1,4 @@
-import {defineModule} from '@m8/json-render-module-sdk';
+import {defineModule} from '@m8/module-sdk';
 
 import {createProjectOperation} from './operations/create-project';
 import {deleteProjectOperation} from './operations/delete-project';

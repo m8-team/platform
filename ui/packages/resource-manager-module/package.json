@@ -1,5 +1,5 @@
 {
-  "name": "@m8/resource-manager-module",
+  "name": "@m8/resource-manager",
   "version": "0.1.0",
   "description": "M8 Resource Manager UI module for the json-render Console.",
   "type": "module",
@@ -20,7 +20,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@m8/json-render-module-sdk": "workspace:*"
+    "@m8/module-sdk": "workspace:*"
   },
   "peerDependencies": {
     "zod": "^4.4.3"

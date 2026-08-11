@@ -23,8 +23,8 @@ pnpm check
 
 ```text
 apps/console
-  depends on @m8/json-render-module-sdk
-  depends on @m8/resource-manager-module
+  depends on @m8/module-sdk
+  depends on @m8/resource-manager
 
 packages/json-render-module-sdk
   owns shared json-render module, query and operation contracts
@@ -38,7 +38,7 @@ Console declares module packages in `package.json` using `workspace:*`. `src/pla
 To add a module:
 
 1. Create `ui/packages/<module-name>/package.json` with a unique package name and public `exports` entry.
-2. Depend on `@m8/json-render-module-sdk`; never import from `apps/console`.
+2. Depend on `@m8/module-sdk`; never import from `apps/console`.
 3. Export one `ModuleDefinition` from the package root.
 4. Add the package to Console dependencies using `workspace:*`.
 5. Register the exported module in `src/platform/specs/app.ts`.

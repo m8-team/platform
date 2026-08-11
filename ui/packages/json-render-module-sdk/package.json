@@ -1,5 +1,5 @@
 {
-  "name": "@m8/json-render-module-sdk",
+  "name": "@m8/module-sdk",
   "version": "0.1.0",
   "description": "Contracts and definition helpers for M8 json-render UI modules.",
   "type": "module",

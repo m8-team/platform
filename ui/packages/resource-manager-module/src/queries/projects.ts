@@ -1,4 +1,4 @@
-import {defineQuery} from '@m8/json-render-module-sdk';
+import {defineQuery} from '@m8/module-sdk';
 import {z} from 'zod';
 
 import {resourceManagerApi} from '../api/client';

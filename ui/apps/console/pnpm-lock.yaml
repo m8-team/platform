@@ -35,10 +35,10 @@ importers:
       '@json-render/react':
         specifier: ^0.19.0
         version: 0.19.0(react@19.2.8)(zod@4.4.3)
-      '@m8/json-render-module-sdk':
+      '@m8/module-sdk':
         specifier: workspace:*
         version: link:../../packages/json-render-module-sdk
-      '@m8/resource-manager-module':
+      '@m8/resource-manager':
         specifier: workspace:*
         version: link:../../packages/resource-manager-module
       '@tanstack/react-query':
@@ -96,7 +96,7 @@ importers:
 
   ../../packages/resource-manager-module:
     dependencies:
-      '@m8/json-render-module-sdk':
+      '@m8/module-sdk':
         specifier: workspace:*
         version: link:../json-render-module-sdk
     devDependencies:

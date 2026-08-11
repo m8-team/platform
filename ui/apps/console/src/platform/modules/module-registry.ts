@@ -3,7 +3,7 @@ import type {
   ModuleDefinition,
   M8OperationDefinitionRef,
   M8QueryDefinitionRef,
-} from './types';
+} from '@m8/module-sdk';
 import {
   BasePathCollisionError,
   CircularModuleDependencyError,

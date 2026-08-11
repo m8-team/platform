@@ -1,5 +1,5 @@
 import {defineModules} from './define-modules';
-import {resourceManagerModule} from '@m8/resource-manager-module';
+import {resourceManagerModule} from '@m8/resource-manager';
 
 export const moduleRegistry = defineModules([
   resourceManagerModule,

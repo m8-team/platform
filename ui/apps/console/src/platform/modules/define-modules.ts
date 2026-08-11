@@ -1,4 +1,4 @@
-import type {ModuleDefinition} from './types';
+import type {ModuleDefinition} from '@m8/module-sdk';
 import {ModuleRegistry} from './module-registry';
 
 export function defineModules<

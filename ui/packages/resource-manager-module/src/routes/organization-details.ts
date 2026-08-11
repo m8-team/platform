@@ -1,4 +1,4 @@
-import type {M8RouteSpec} from '@m8/json-render-module-sdk';
+import type {M8RouteSpec} from '@m8/module-sdk';
 
 export const organizationDetailsRoute = {
   metadata: {title: 'Organization'},
