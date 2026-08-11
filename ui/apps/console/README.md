@@ -29,7 +29,7 @@ apps/console
 packages/json-render-module-sdk
   owns shared json-render module, query and operation contracts
 
-packages/resource-manager-module
+packages/resource-manager
   owns Resource Manager routes, queries, operations and API adapter
 ```
 
@@ -43,4 +43,3 @@ To add a module:
 4. Add the package to Console dependencies using `workspace:*`.
 5. Register the exported module in `src/platform/specs/app.ts`.
 6. Run `pnpm install` and `pnpm check`.
-

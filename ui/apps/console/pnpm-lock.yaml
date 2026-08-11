@@ -40,7 +40,7 @@ importers:
         version: link:../../packages/json-render-module-sdk
       '@m8/resource-manager':
         specifier: workspace:*
-        version: link:../../packages/resource-manager-module
+        version: link:../../packages/resource-manager
       '@tanstack/react-query':
         specifier: ^5.101.4
         version: 5.101.4(react@19.2.8)
@@ -94,7 +94,7 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
 
-  ../../packages/resource-manager-module:
+  ../../packages/resource-manager:
     dependencies:
       '@m8/module-sdk':
         specifier: workspace:*
