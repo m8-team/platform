@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# M8 Console
 
-## Getting Started
+Next.js application shell for M8 Platform. Business UI modules are independent pnpm workspace packages and are composed by the Console at startup.
 
-First, run the development server:
+## Development
+
+Run commands from this directory:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Verification:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm check
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`check` type-checks every module package, type-checks and lints the Console, and runs the production build.
 
-## Learn More
+## Module architecture
 
-To learn more about Next.js, take a look at the following resources:
+```text
+apps/console
+  depends on @m8/json-render-module-sdk
+  depends on @m8/resource-manager-module
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+packages/json-render-module-sdk
+  owns shared json-render module, query and operation contracts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+packages/resource-manager-module
+  owns Resource Manager routes, queries, operations and API adapter
+```
 
-## Deploy on Vercel
+Console declares module packages in `package.json` using `workspace:*`. `src/platform/specs/app.ts` is the composition root: it imports package entry points, passes their module definitions to `defineModules`, and merges the generated routes into the application spec.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To add a module:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create `ui/packages/<module-name>/package.json` with a unique package name and public `exports` entry.
+2. Depend on `@m8/json-render-module-sdk`; never import from `apps/console`.
+3. Export one `ModuleDefinition` from the package root.
+4. Add the package to Console dependencies using `workspace:*`.
+5. Register the exported module in `src/platform/specs/app.ts`.
+6. Run `pnpm install` and `pnpm check`.
+

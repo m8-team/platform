@@ -6,12 +6,11 @@ import type {M8RouteSpec} from './types';
  * json-render/next receives only its native NextRouteSpec fields.
  */
 export function toNextRouteSpec(route: M8RouteSpec): NextRouteSpec {
-  const {
-    navigation: _navigation,
-    access: _access,
-    queries: _queries,
-    ...nextRoute
-  } = route;
+  const nextRoute = {...route};
+
+  delete nextRoute.navigation;
+  delete nextRoute.access;
+  delete nextRoute.queries;
 
   return nextRoute;
 }
