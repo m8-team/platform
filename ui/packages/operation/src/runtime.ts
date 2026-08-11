@@ -74,6 +74,7 @@ export class M8OperationRuntime {
     const signal = options.signal ?? new AbortController().signal;
     const context = options.context ?? {};
     signal.throwIfAborted();
+    const parsedInput = definition.input.parse(input);
 
     if (definition.requiredPermission) {
       const allowed = await this.adapters.authorization?.check({
@@ -98,7 +99,6 @@ export class M8OperationRuntime {
       if (!confirmed) throw new OperationConfirmationDeclinedError(operationId);
     }
 
-    const parsedInput = definition.input.parse(input);
     await this.adapters.audit?.record({operationId, phase: 'started', context});
 
     try {

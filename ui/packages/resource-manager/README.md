@@ -14,9 +14,12 @@ Owns the Resource Manager Console contribution: organizations and projects route
 ## Does Not Own
 
 - Console application composition
-- Shared json-render module contracts
+- Shared json-render module contracts and runtime orchestration
 - Component renderer implementations
 
 ## Integration
 
-Install the workspace package in Console and pass `resourceManagerModule` to the Console module registry.
+The module uses `defineModule` from `@m8/core`, query definitions from
+`@m8/query`, and operation definitions from `@m8/operation`. Install the
+workspace package in Console and pass `resourceManagerModule` to the module
+registry. It deliberately has no dependency on `@m8/runtime`.

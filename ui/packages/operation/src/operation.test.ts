@@ -87,5 +87,28 @@ describe('M8OperationRuntime', () => {
       confirmation: {confirm: async () => true},
     });
     await expect(runtime.execute('test.delete', {})).rejects.toThrow();
+
+    const invalidOutput = operation(vi.fn(async () => ({id: 1} as never)));
+    const outputRuntime = new M8OperationRuntime(new OperationRegistry([invalidOutput]), {
+      authorization: {check: async () => true},
+      confirmation: {confirm: async () => true},
+    });
+    await expect(outputRuntime.execute('test.delete', {id: '1'})).rejects.toThrow();
+  });
+
+  it('requires confirmation for destructive operations without custom copy', async () => {
+    const confirm = vi.fn(async () => true);
+    const destructive = defineOperation({
+      id: 'test.destroy',
+      input: z.object({}),
+      output: z.object({ok: z.boolean()}),
+      destructive: true,
+      execute: async () => ({ok: true}),
+    });
+    const runtime = new M8OperationRuntime(new OperationRegistry([destructive]), {
+      confirmation: {confirm},
+    });
+    await runtime.execute('test.destroy', {});
+    expect(confirm).toHaveBeenCalledOnce();
   });
 });

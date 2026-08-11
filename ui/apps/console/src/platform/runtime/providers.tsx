@@ -60,20 +60,20 @@ export function Providers({children}: {children: ReactNode}) {
 
   return (
     <ThemeContext.Provider value={{theme, setTheme}}>
-      <ToasterProvider toaster={toaster}>
-        <M8RuntimeProvider
-          modules={moduleRegistry}
-          registry={registry}
-          queryClient={queryClient}
-          queries={queryRuntime}
-          operations={operationRuntime}
-          context={runtimeContext}
-          theme={theme}
-        >
+      <M8RuntimeProvider
+        modules={moduleRegistry}
+        registry={registry}
+        queryClient={queryClient}
+        queries={queryRuntime}
+        operations={operationRuntime}
+        context={runtimeContext}
+        theme={theme}
+      >
+        <ToasterProvider toaster={toaster}>
             {children}
-        </M8RuntimeProvider>
-        <ToasterComponent />
-      </ToasterProvider>
+          <ToasterComponent />
+        </ToasterProvider>
+      </M8RuntimeProvider>
     </ThemeContext.Provider>
   );
 }

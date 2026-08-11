@@ -1,6 +1,7 @@
 # M8 Console
 
-Next.js application shell for M8 Platform. Business UI modules are independent pnpm workspace packages and are composed by the Console at startup.
+Next.js application shell for M8 Platform. Business UI modules are independent
+pnpm workspace packages and are composed by the Console at startup.
 
 ## Development
 
@@ -11,35 +12,38 @@ pnpm install
 pnpm dev
 ```
 
-Verification:
+Full verification:
 
 ```bash
 pnpm check
 ```
 
-`check` type-checks every module package, type-checks and lints the Console, and runs the production build.
-
 ## Module architecture
 
 ```text
-apps/console
-  depends on @m8/module-sdk
-  depends on @m8/resource-manager
-
-packages/module-sdk
-  owns shared json-render module, query and operation contracts
-
-packages/resource-manager
-  owns Resource Manager routes, queries, operations and API adapter
+              @m8/core
+             ▲        ▲
+            /          \
+     @m8/query      @m8/operation
+            \          /
+             \        /
+              @m8/runtime
+                   │
+                   ▼
+                Console
 ```
 
-Console declares module packages in `package.json` using `workspace:*`. `src/platform/specs/app.ts` is the composition root: it imports package entry points, passes their module definitions to `defineModules`, and merges the generated routes into the application spec.
+`@m8/resource-manager` depends on `@m8/core`, `@m8/query` and
+`@m8/operation`, never on `@m8/runtime`. Its route `page` values are native
+json-render `Spec` trees. `src/platform/specs/app.ts` is the composition root
+that registers modules and merges their native `NextRouteSpec` routes into the
+platform `NextAppSpec`.
 
 To add a module:
 
-1. Create `ui/packages/<module-name>/package.json` with a unique package name and public `exports` entry.
-2. Depend on `@m8/module-sdk`; never import from `apps/console`.
-3. Export one `ModuleDefinition` from the package root.
-4. Add the package to Console dependencies using `workspace:*`.
-5. Register the exported module in `src/platform/specs/app.ts`.
+1. Create `ui/packages/<module-name>/package.json` with explicit exports.
+2. Depend on `@m8/core` and optionally `@m8/query` / `@m8/operation`.
+3. Export one `M8ModuleDefinition` from the package root.
+4. Add the package to Console with `workspace:*`.
+5. Register it in `src/platform/specs/app.ts`.
 6. Run `pnpm install` and `pnpm check`.
