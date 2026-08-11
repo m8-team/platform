@@ -1,6 +1,11 @@
 import type {NextAppSpec} from '@json-render/next';
 
-export const appSpec: NextAppSpec = {
+import {resourceManagerModule} from '@/modules/resource-manager/module';
+import {defineModules} from '@/platform/modules/define-modules';
+
+const moduleSpec = defineModules([resourceManagerModule]).buildNextAppSpec();
+
+const platformSpec: NextAppSpec = {
   metadata: {
     title: {
       default: 'M8 Platform',
@@ -118,5 +123,13 @@ export const appSpec: NextAppSpec = {
         },
       },
     },
+  },
+};
+
+export const appSpec: NextAppSpec = {
+  ...platformSpec,
+  routes: {
+    ...platformSpec.routes,
+    ...moduleSpec.routes,
   },
 };
