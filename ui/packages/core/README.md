@@ -10,6 +10,6 @@ DSL and has no React, Gravity UI or TanStack Query dependency.
 ## Public API
 
 - `defineModule`, `defineModules`, `ModuleRegistry`
-- `M8ModuleDefinition`, `M8RouteSpec`, access and navigation contracts
+- `ModuleDefinition`, `RouteSpec`, access and navigation contracts
 - M8 infrastructure binding expressions (`$state`, `$param`, `$context`)
 - `normalizePath`, `joinRoute`

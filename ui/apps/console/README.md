@@ -43,7 +43,7 @@ To add a module:
 
 1. Create `ui/packages/<module-name>/package.json` with explicit exports.
 2. Depend on `@m8/core` and optionally `@m8/query` / `@m8/operation`.
-3. Export one `M8ModuleDefinition` from the package root.
+3. Export one `ModuleDefinition` from the package root.
 4. Add the package to Console with `workspace:*`.
 5. Register it in `src/platform/specs/app.ts`.
 6. Run `pnpm install` and `pnpm check`.

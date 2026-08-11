@@ -1,4 +1,4 @@
-import type {M8RouteSpec} from '@m8/core';
+import type {RouteSpec} from '@m8/core';
 
 export const overviewRoute = {
   metadata: {title: 'Resource Manager'},
@@ -51,4 +51,4 @@ export const overviewRoute = {
       },
     },
   },
-} satisfies M8RouteSpec;
+} satisfies RouteSpec;

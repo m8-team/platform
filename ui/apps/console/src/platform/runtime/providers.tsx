@@ -5,7 +5,7 @@ import {type ReactNode, useMemo, useState} from 'react';
 import {ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 import {QueryClient} from '@m8/query/react';
-import {createM8Runtime, M8RuntimeProvider} from '@m8/runtime';
+import {createRuntime, RuntimeProvider} from '@m8/runtime';
 
 import {moduleRegistry} from '@/platform/modules/registry';
 import {registry} from '@/platform/registry/registry';
@@ -21,7 +21,7 @@ export function Providers({children}: {children: ReactNode}) {
   const [theme, setTheme] = useState<Theme>('light');
   const [queryClient] = useState(() => new QueryClient());
   const runtime = useMemo(
-    () => createM8Runtime({modules: moduleRegistry, catalog: registry, adapters: {
+    () => createRuntime({modules: moduleRegistry, catalog: registry, adapters: {
       authorization: {
         can: async ({permission, context}) =>
           context.permissions?.includes(permission) ?? false,
@@ -45,7 +45,7 @@ export function Providers({children}: {children: ReactNode}) {
 
   return (
     <ThemeContext.Provider value={{theme, setTheme}}>
-      <M8RuntimeProvider
+      <RuntimeProvider
         modules={moduleRegistry}
         registry={registry}
         queryClient={queryClient}
@@ -59,7 +59,7 @@ export function Providers({children}: {children: ReactNode}) {
             {children}
           <ToasterComponent />
         </ToasterProvider>
-      </M8RuntimeProvider>
+      </RuntimeProvider>
     </ThemeContext.Provider>
   );
 }

@@ -1,4 +1,4 @@
-export type {M8RuntimeContext} from '@m8/core';
+export type {RuntimeContext} from '@m8/core';
 export * from './actions';
 export * from './create-runtime';
 export * from './module-enablement';

@@ -1,10 +1,10 @@
 import type {z} from 'zod';
-import type {M8RuntimeContext} from '@m8/core';
+import type {RuntimeContext} from '@m8/core';
 
-import type {M8QueryDefinition} from './definition';
+import type {QueryDefinition} from './definition';
 import {DuplicateQueryError, UnknownQueryError} from './errors';
 
-type QueryDefinition = M8QueryDefinition<z.ZodType, z.ZodType>;
+type RegisteredQueryDefinition = QueryDefinition<z.ZodType, z.ZodType>;
 
 function normalizeObjectInput(schema: z.ZodType, input: unknown): unknown {
   if (input === null || typeof input !== 'object' || Array.isArray(input)) return input;
@@ -23,13 +23,13 @@ export function normalizeQueryInput(schema: z.ZodType, input: unknown): unknown 
 }
 
 export class QueryRegistry {
-  private readonly definitions = new Map<string, QueryDefinition>();
+  private readonly definitions = new Map<string, RegisteredQueryDefinition>();
 
-  constructor(definitions: readonly QueryDefinition[] = []) {
+  constructor(definitions: readonly RegisteredQueryDefinition[] = []) {
     for (const definition of definitions) this.register(definition);
   }
 
-  register<const TDefinition extends QueryDefinition>(definition: TDefinition): TDefinition {
+  register<const TDefinition extends RegisteredQueryDefinition>(definition: TDefinition): TDefinition {
     if (this.definitions.has(definition.id)) throw new DuplicateQueryError(definition.id);
     this.definitions.set(definition.id, definition);
     return definition;
@@ -39,17 +39,17 @@ export class QueryRegistry {
     return this.definitions.has(queryId);
   }
 
-  get(queryId: string): QueryDefinition | undefined {
+  get(queryId: string): RegisteredQueryDefinition | undefined {
     return this.definitions.get(queryId);
   }
 
-  require(queryId: string): QueryDefinition {
+  require(queryId: string): RegisteredQueryDefinition {
     const definition = this.get(queryId);
     if (!definition) throw new UnknownQueryError(queryId);
     return definition;
   }
 
-  parseInput<TDefinition extends QueryDefinition>(
+  parseInput<TDefinition extends RegisteredQueryDefinition>(
     definition: TDefinition,
     input: unknown,
   ): z.output<TDefinition['input']> {
@@ -61,7 +61,7 @@ export class QueryRegistry {
     return [definition.id, ...definition.queryKey(this.parseInput(definition, input))];
   }
 
-  async execute(queryId: string, input: unknown, signal: AbortSignal, context: M8RuntimeContext = {}): Promise<unknown> {
+  async execute(queryId: string, input: unknown, signal: AbortSignal, context: RuntimeContext = {}): Promise<unknown> {
     const definition = this.require(queryId);
     const parsedInput = this.parseInput(definition, input);
     const output = await definition.execute({input: parsedInput, signal, context});
@@ -69,14 +69,14 @@ export class QueryRegistry {
   }
 }
 
-export class M8QueryRuntime {
+export class QueryRuntime {
   constructor(readonly registry: QueryRegistry) {}
 
   queryKey(queryId: string, input: unknown): readonly unknown[] {
     return this.registry.queryKey(queryId, input);
   }
 
-  execute(queryId: string, input: unknown, signal: AbortSignal, context: M8RuntimeContext = {}): Promise<unknown> {
+  execute(queryId: string, input: unknown, signal: AbortSignal, context: RuntimeContext = {}): Promise<unknown> {
     return this.registry.execute(queryId, input, signal, context);
   }
 }

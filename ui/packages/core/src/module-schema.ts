@@ -6,12 +6,6 @@ export const moduleManifestSchema = z.object({
   basePath: z.string().startsWith('/'),
   icon: z.string().optional(),
   order: z.number().int().optional(),
-  availability: z
-    .object({
-      feature: z.string().optional(),
-      editions: z.array(z.string()).optional(),
-    })
-    .optional(),
   dependencies: z
     .object({
       required: z.array(z.string()).optional(),

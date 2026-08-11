@@ -10,37 +10,37 @@ import {
 import {ThemeProvider} from '@gravity-ui/uikit';
 import {NextAppProvider} from '@json-render/next';
 import type {ComponentRegistry} from '@json-render/react';
-import type {ModuleRegistry, M8ModuleDefinition, M8RuntimeContext} from '@m8/core';
-import type {M8OperationRuntime} from '@m8/operation';
-import {M8QueryRuntime} from '@m8/query';
+import type {ModuleRegistry, ModuleDefinition, RuntimeContext} from '@m8/core';
+import type {OperationRuntime} from '@m8/operation';
+import {QueryRuntime} from '@m8/query';
 import {QueryProvider, type QueryClient} from '@m8/query/react';
 
-import {createM8ActionHandlers} from './actions';
+import {createActionHandlers} from './actions';
 import type {RuntimeAuthorizationAdapter} from './create-runtime';
 import {RouteRuntimeBoundary} from './route-runtime';
 
-interface M8RuntimeValue {
-  readonly modules: ModuleRegistry<readonly M8ModuleDefinition[]>;
-  readonly context: M8RuntimeContext;
+interface RuntimeValue {
+  readonly modules: ModuleRegistry<readonly ModuleDefinition[]>;
+  readonly context: RuntimeContext;
   readonly authorization?: RuntimeAuthorizationAdapter;
 }
 
-const RuntimeContext = createContext<M8RuntimeValue | null>(null);
+const RuntimeContext = createContext<RuntimeValue | null>(null);
 
-export interface M8RuntimeProviderProps {
-  readonly modules: ModuleRegistry<readonly M8ModuleDefinition[]>;
+export interface RuntimeProviderProps {
+  readonly modules: ModuleRegistry<readonly ModuleDefinition[]>;
   readonly registry: ComponentRegistry;
   readonly queryClient: QueryClient;
-  readonly queries: M8QueryRuntime;
-  readonly operations: M8OperationRuntime;
-  readonly context: M8RuntimeContext;
+  readonly queries: QueryRuntime;
+  readonly operations: OperationRuntime;
+  readonly context: RuntimeContext;
   readonly authorization?: RuntimeAuthorizationAdapter;
   readonly navigate?: (href: string) => void;
   readonly theme?: 'light' | 'dark' | 'light-hc' | 'dark-hc';
   readonly children: ReactNode;
 }
 
-export function M8RuntimeProvider({
+export function RuntimeProvider({
   modules,
   registry,
   queryClient,
@@ -51,11 +51,11 @@ export function M8RuntimeProvider({
   navigate,
   theme = 'light',
   children,
-}: M8RuntimeProviderProps) {
+}: RuntimeProviderProps) {
   const contextRef = useRef(context);
   contextRef.current = context;
   const handlers = useMemo(
-    () => createM8ActionHandlers({
+    () => createActionHandlers({
       operations,
       queryClient,
       getContext: () => contextRef.current,
@@ -66,7 +66,7 @@ export function M8RuntimeProvider({
 
   const runtimeRegistry = useMemo(() => ({
     ...registry,
-    __M8RouteRuntime: ({element, children}: {element: {props: Parameters<typeof RouteRuntimeBoundary>[0]}; children?: ReactNode}) =>
+    __RouteRuntime: ({element, children}: {element: {props: Parameters<typeof RouteRuntimeBoundary>[0]}; children?: ReactNode}) =>
       <RouteRuntimeBoundary {...element.props}>{children}</RouteRuntimeBoundary>,
   }), [registry]);
   return (
@@ -82,8 +82,8 @@ export function M8RuntimeProvider({
   );
 }
 
-export function useM8Runtime(): M8RuntimeValue {
+export function useRuntime(): RuntimeValue {
   const value = useContext(RuntimeContext);
-  if (!value) throw new Error('useM8Runtime must be used within M8RuntimeProvider.');
+  if (!value) throw new Error('useRuntime must be used within RuntimeProvider.');
   return value;
 }

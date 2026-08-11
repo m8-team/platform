@@ -16,10 +16,6 @@ export const resourceManagerModule = defineModule({
   basePath: '/resource-manager',
   icon: 'FolderTree',
   order: 10,
-  availability: {
-    feature: 'resource-manager',
-    editions: ['community', 'enterprise'],
-  },
   dependencies: {
     required: [],
     optional: ['audit'],

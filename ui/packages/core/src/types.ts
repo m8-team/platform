@@ -1,62 +1,56 @@
 import type {NextRouteSpec} from '@json-render/next';
 
-export type M8ExpressionValue =
+export type ExpressionValue =
   | null
   | string
   | number
   | boolean
-  | readonly M8ExpressionValue[]
-  | {readonly [key: string]: M8ExpressionValue}
+  | readonly ExpressionValue[]
+  | {readonly [key: string]: ExpressionValue}
   | {$state: string}
   | {$param: string}
   | {$query: string}
   | {$context: string}
-  | {$literal: M8ExpressionValue};
+  | {$literal: ExpressionValue};
 
-export interface M8QueryBinding {
+export interface QueryBinding {
   /** Query ID from Query Registry. */
   query: string;
-  input?: Readonly<Record<string, M8ExpressionValue>>;
-  enabled?: M8ExpressionValue;
+  input?: Readonly<Record<string, ExpressionValue>>;
+  enabled?: ExpressionValue;
 }
 
-export interface M8Navigation {
+export interface Navigation {
   label: string;
   icon?: string;
   order?: number;
   hidden?: boolean;
 }
 
-export interface M8RouteAccess {
+export interface RouteAccess {
   permission?: string;
 }
 
-export interface M8Availability {
-  feature?: string;
-  editions?: readonly string[];
-}
-
-export type M8RouteSpec = NextRouteSpec & {
-  navigation?: M8Navigation;
-  access?: M8RouteAccess;
-  availability?: M8Availability;
-  queries?: Readonly<Record<string, M8QueryBinding>>;
+export type RouteSpec = NextRouteSpec & {
+  navigation?: Navigation;
+  access?: RouteAccess;
+  queries?: Readonly<Record<string, QueryBinding>>;
 };
 
-export interface M8ModuleDependencyDefinition {
+export interface ModuleDependencyDefinition {
   required?: readonly string[];
   optional?: readonly string[];
 }
 
-export interface M8QueryDefinitionRef {
+export interface QueryDefinitionRef {
   readonly id: string;
 }
 
-export interface M8OperationDefinitionRef {
+export interface OperationDefinitionRef {
   readonly id: string;
 }
 
-export interface M8RuntimeContext {
+export interface RuntimeContext {
   actor?: Readonly<{id: string; displayName?: string}>;
   organization?: Readonly<{id: string}>;
   workspace?: Readonly<{id: string}>;
@@ -68,18 +62,14 @@ export interface M8RuntimeContext {
   readonly [key: string]: unknown;
 }
 
-export interface M8ModuleDefinition {
+export interface ModuleDefinition {
   readonly id: string;
   readonly title: string;
   readonly basePath: `/${string}`;
   readonly icon?: string;
   readonly order?: number;
-  readonly availability?: M8Availability;
-  readonly dependencies?: M8ModuleDependencyDefinition;
-  readonly routes?: Readonly<Record<`/${string}`, M8RouteSpec>>;
-  readonly queries?: readonly M8QueryDefinitionRef[];
-  readonly operations?: readonly M8OperationDefinitionRef[];
+  readonly dependencies?: ModuleDependencyDefinition;
+  readonly routes?: Readonly<Record<`/${string}`, RouteSpec>>;
+  readonly queries?: readonly QueryDefinitionRef[];
+  readonly operations?: readonly OperationDefinitionRef[];
 }
-
-/** @deprecated Use M8ModuleDefinition. */
-export type ModuleDefinition = M8ModuleDefinition;

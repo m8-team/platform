@@ -1,4 +1,4 @@
-import type {M8RouteSpec} from '@m8/core';
+import type {RouteSpec} from '@m8/core';
 
 export const organizationsRoute = {
   metadata: {title: 'Organizations'},
@@ -58,4 +58,4 @@ export const organizationsRoute = {
       },
     },
   },
-} satisfies M8RouteSpec;
+} satisfies RouteSpec;

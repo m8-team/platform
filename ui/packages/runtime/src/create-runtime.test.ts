@@ -4,7 +4,7 @@ import {defineModule, defineModules} from '@m8/core';
 import {defineQuery} from '@m8/query';
 import {defineOperation} from '@m8/operation';
 
-import {createM8Runtime} from './create-runtime';
+import {createRuntime} from './create-runtime';
 import {buildNextAppSpec} from './next';
 
 describe('runtime composition', () => {
@@ -26,7 +26,7 @@ describe('runtime composition', () => {
       }},
     });
     const modules = defineModules([module]);
-    const runtime = createM8Runtime({modules});
+    const runtime = createRuntime({modules});
 
     await expect(runtime.queries.execute(query.id, {}, new AbortController().signal)).resolves.toEqual(['one']);
     await expect(runtime.operations.execute(operation.id, {})).resolves.toEqual({ok: true});

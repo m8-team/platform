@@ -1,6 +1,6 @@
-import type {M8RuntimeContext} from '@m8/core';
+import type {RuntimeContext} from '@m8/core';
 
-import type {M8OperationConfirmation} from './definition';
+import type {OperationConfirmation} from './definition';
 import {
   MissingConfirmationAdapterError,
   MissingLongRunningOperationAdapterError,
@@ -15,7 +15,7 @@ export interface AuthorizationAdapter {
   check(input: {
     operationId: string;
     permission: string;
-    context: M8RuntimeContext;
+    context: RuntimeContext;
     signal: AbortSignal;
   }): Promise<boolean>;
 }
@@ -23,8 +23,8 @@ export interface AuthorizationAdapter {
 export interface ConfirmationAdapter {
   confirm(input: {
     operationId: string;
-    confirmation: M8OperationConfirmation;
-    context: M8RuntimeContext;
+    confirmation: OperationConfirmation;
+    context: RuntimeContext;
     signal: AbortSignal;
   }): Promise<boolean>;
 }
@@ -32,7 +32,7 @@ export interface ConfirmationAdapter {
 export interface OperationAuditEvent {
   readonly operationId: string;
   readonly phase: 'started' | 'succeeded' | 'failed' | 'cancelled';
-  readonly context: M8RuntimeContext;
+  readonly context: RuntimeContext;
   readonly error?: unknown;
 }
 
@@ -59,16 +59,16 @@ export interface OperationRuntimeAdapters {
 
 export interface ExecuteOperationOptions {
   readonly signal?: AbortSignal;
-  readonly context?: M8RuntimeContext;
+  readonly context?: RuntimeContext;
 }
 
-const defaultConfirmation: M8OperationConfirmation = {
+const defaultConfirmation: OperationConfirmation = {
   title: 'Confirm operation?',
   description: 'This action may be destructive.',
   confirmLabel: 'Confirm',
 };
 
-export class M8OperationRuntime {
+export class OperationRuntime {
   constructor(
     readonly registry: OperationRegistry,
     private readonly adapters: OperationRuntimeAdapters = {},

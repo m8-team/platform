@@ -1,7 +1,7 @@
 import type {
-  M8ModuleDefinition,
-  M8OperationDefinitionRef,
-  M8QueryDefinitionRef,
+  ModuleDefinition,
+  OperationDefinitionRef,
+  QueryDefinitionRef,
 } from './types';
 import {
   BasePathCollisionError,
@@ -18,18 +18,18 @@ import {
 import {canonicalizeRoute, joinRoute, normalizePath} from './routes';
 
 export class ModuleRegistry<
-  const TModules extends readonly M8ModuleDefinition[],
+  const TModules extends readonly ModuleDefinition[],
 > {
-  private readonly modulesById = new Map<string, M8ModuleDefinition>();
+  private readonly modulesById = new Map<string, ModuleDefinition>();
 
   private readonly queriesById = new Map<
     string,
-    {moduleId: string; definition: M8QueryDefinitionRef}
+    {moduleId: string; definition: QueryDefinitionRef}
   >();
 
   private readonly operationsById = new Map<
     string,
-    {moduleId: string; definition: M8OperationDefinitionRef}
+    {moduleId: string; definition: OperationDefinitionRef}
   >();
 
   constructor(private readonly modules: TModules) {
@@ -40,23 +40,23 @@ export class ModuleRegistry<
     return this.modules;
   }
 
-  getModule(moduleId: string): M8ModuleDefinition | undefined {
+  getModule(moduleId: string): ModuleDefinition | undefined {
     return this.modulesById.get(moduleId);
   }
 
-  getQuery(queryId: string): M8QueryDefinitionRef | undefined {
+  getQuery(queryId: string): QueryDefinitionRef | undefined {
     return this.queriesById.get(queryId)?.definition;
   }
 
-  getQueries(): readonly M8QueryDefinitionRef[] {
+  getQueries(): readonly QueryDefinitionRef[] {
     return [...this.queriesById.values()].map(value => value.definition);
   }
 
-  getOperations(): readonly M8OperationDefinitionRef[] {
+  getOperations(): readonly OperationDefinitionRef[] {
     return [...this.operationsById.values()].map(value => value.definition);
   }
 
-  getRoutes(): ReadonlyArray<Readonly<{moduleId: string; path: string; route: import('./types').M8RouteSpec}>> {
+  getRoutes(): ReadonlyArray<Readonly<{moduleId: string; path: string; route: import('./types').RouteSpec}>> {
     return this.modules.flatMap(moduleDefinition =>
       Object.entries(moduleDefinition.routes ?? {}).map(([path, route]) => ({
         moduleId: moduleDefinition.id,
@@ -66,7 +66,7 @@ export class ModuleRegistry<
     );
   }
 
-  getOperation(operationId: string): M8OperationDefinitionRef | undefined {
+  getOperation(operationId: string): OperationDefinitionRef | undefined {
     return this.operationsById.get(operationId)?.definition;
   }
 
@@ -242,7 +242,7 @@ export class ModuleRegistry<
 }
 
 export function defineModules<
-  const TModules extends readonly M8ModuleDefinition[],
+  const TModules extends readonly ModuleDefinition[],
 >(modules: TModules): ModuleRegistry<TModules> {
   return new ModuleRegistry(modules);
 }

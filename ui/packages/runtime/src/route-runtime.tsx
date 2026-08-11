@@ -2,12 +2,12 @@
 
 import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {useStateStore} from '@json-render/react';
-import {useM8Query} from '@m8/query/react';
-import {resolveInput, type M8InputResolutionContext} from '@m8/query';
-import type {M8QueryBinding, M8RouteAccess, M8RuntimeContext} from '@m8/core';
+import {useRegisteredQuery} from '@m8/query/react';
+import {resolveInput, type InputResolutionContext} from '@m8/query';
+import type {QueryBinding, RouteAccess, RuntimeContext} from '@m8/core';
 import {usePathname} from 'next/navigation';
 
-import {useM8Runtime} from './provider';
+import {useRuntime} from './provider';
 
 function errorValue(error: unknown): unknown {
   return error instanceof Error ? {name: error.name, message: error.message} : error;
@@ -15,14 +15,14 @@ function errorValue(error: unknown): unknown {
 
 function QueryBinding({name, binding, sources}: {
   name: string;
-  binding: M8QueryBinding;
-  sources: M8InputResolutionContext;
+  binding: QueryBinding;
+  sources: InputResolutionContext;
 }) {
-  const {context} = useM8Runtime();
+  const {context} = useRuntime();
   const store = useStateStore();
   const input = useMemo(() => resolveInput(binding.input ?? {}, sources), [binding.input, sources]);
   const enabled = binding.enabled === undefined ? true : Boolean(resolveInput(binding.enabled, sources));
-  const result = useM8Query(binding.query, input, enabled, context);
+  const result = useRegisteredQuery(binding.query, input, enabled, context);
   useEffect(() => {
     store.update({
       [`/queries/${name}/data`]: result.data,
@@ -49,12 +49,12 @@ function resolveRouteParams(pattern: string, pathname: string): Record<string, s
 }
 
 export function RouteRuntimeBoundary({bindings = {}, access, path = '/', children}: {
-  bindings?: Readonly<Record<string, M8QueryBinding>>;
-  access?: M8RouteAccess;
+  bindings?: Readonly<Record<string, QueryBinding>>;
+  access?: RouteAccess;
   path?: string;
   children?: ReactNode;
 }) {
-  const runtime = useM8Runtime();
+  const runtime = useRuntime();
   const store = useStateStore();
   const pathname = usePathname();
   const params = useMemo(() => resolveRouteParams(path, pathname), [path, pathname]);

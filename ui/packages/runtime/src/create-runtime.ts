@@ -1,19 +1,19 @@
-import type {M8ModuleDefinition, M8RuntimeContext, ModuleRegistry} from '@m8/core';
-import {OperationRegistry, M8OperationRuntime, type OperationRuntimeAdapters} from '@m8/operation';
-import {QueryRegistry, M8QueryRuntime} from '@m8/query';
+import type {ModuleDefinition, RuntimeContext, ModuleRegistry} from '@m8/core';
+import {OperationRegistry, OperationRuntime, type OperationRuntimeAdapters} from '@m8/operation';
+import {QueryRegistry, QueryRuntime} from '@m8/query';
 import {buildNextAppSpec} from './next';
 
 export interface RuntimeAuthorizationAdapter {
-  can(input: {permission: string; context: M8RuntimeContext; signal?: AbortSignal}): boolean | Promise<boolean>;
+  can(input: {permission: string; context: RuntimeContext; signal?: AbortSignal}): boolean | Promise<boolean>;
 }
 
-export interface CreateM8RuntimeOptions {
-  readonly modules: ModuleRegistry<readonly M8ModuleDefinition[]>;
+export interface CreateRuntimeOptions {
+  readonly modules: ModuleRegistry<readonly ModuleDefinition[]>;
   readonly catalog?: Readonly<Record<string, unknown>>;
   readonly adapters?: Omit<OperationRuntimeAdapters, 'authorization'> & {authorization?: RuntimeAuthorizationAdapter};
 }
 
-export function createM8Runtime(options: CreateM8RuntimeOptions) {
+export function createRuntime(options: CreateRuntimeOptions) {
   if (options.catalog) {
     for (const {path, route} of options.modules.getRoutes()) {
       for (const element of Object.values(route.page?.elements ?? {})) {
@@ -34,20 +34,15 @@ export function createM8Runtime(options: CreateM8RuntimeOptions) {
 
   return {
     modules: options.modules,
-    queries: new M8QueryRuntime(queryRegistry),
-    operations: new M8OperationRuntime(operationRegistry, operationAdapters),
+    queries: new QueryRuntime(queryRegistry),
+    operations: new OperationRuntime(operationRegistry, operationAdapters),
     appSpec: buildNextAppSpec(options.modules),
     authorization: options.adapters?.authorization,
     navigation: {
-      async getItems(context: M8RuntimeContext = {}) {
+      async getItems(context: RuntimeContext = {}) {
         const items = [];
         for (const {moduleId, path, route} of options.modules.getRoutes()) {
           if (!route.navigation || route.navigation.hidden) continue;
-          const moduleDefinition = options.modules.getModule(moduleId)!;
-          if (moduleDefinition.availability?.feature && !context.features?.includes(moduleDefinition.availability.feature)) continue;
-          if (route.availability?.feature && !context.features?.includes(route.availability.feature)) continue;
-          const editions = route.availability?.editions ?? moduleDefinition.availability?.editions;
-          if (editions?.length && (!context.edition || !editions.includes(context.edition))) continue;
           if (route.access?.permission && options.adapters?.authorization &&
               !await options.adapters.authorization.can({permission: route.access.permission, context})) continue;
           items.push({...route.navigation, moduleId, path});
@@ -58,4 +53,4 @@ export function createM8Runtime(options: CreateM8RuntimeOptions) {
   } as const;
 }
 
-export type M8Runtime = ReturnType<typeof createM8Runtime>;
+export type Runtime = ReturnType<typeof createRuntime>;

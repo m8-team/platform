@@ -8,7 +8,7 @@ import {
   OperationConfirmationDeclinedError,
 } from './errors';
 import {OperationRegistry} from './registry';
-import {M8OperationRuntime, type OperationAuditEvent} from './runtime';
+import {OperationRuntime, type OperationAuditEvent} from './runtime';
 
 function operation(execute = vi.fn(async ({input}: {input: {id: string}}) => ({id: input.id}))) {
   return defineOperation({
@@ -23,13 +23,13 @@ function operation(execute = vi.fn(async ({input}: {input: {id: string}}) => ({i
   });
 }
 
-describe('M8OperationRuntime', () => {
+describe('OperationRuntime', () => {
   it('rejects duplicate IDs', () => {
     expect(() => new OperationRegistry([operation(), operation()])).toThrow(DuplicateOperationError);
   });
 
   it('denies unauthorized execution', async () => {
-    const runtime = new M8OperationRuntime(new OperationRegistry([operation()]), {
+    const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => false},
     });
     await expect(runtime.execute('test.delete', {id: '1'})).rejects.toBeInstanceOf(OperationAuthorizationError);
@@ -37,7 +37,7 @@ describe('M8OperationRuntime', () => {
 
   it('stops when confirmation is declined', async () => {
     const execute = vi.fn(async () => ({id: '1'}));
-    const runtime = new M8OperationRuntime(new OperationRegistry([operation(execute)]), {
+    const runtime = new OperationRuntime(new OperationRegistry([operation(execute)]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => false},
     });
@@ -53,7 +53,7 @@ describe('M8OperationRuntime', () => {
       return input;
     });
     const controller = new AbortController();
-    const runtime = new M8OperationRuntime(new OperationRegistry([operation(execute)]), {
+    const runtime = new OperationRuntime(new OperationRegistry([operation(execute)]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => true},
       audit: {record: event => { events.push(event); }},
@@ -70,7 +70,7 @@ describe('M8OperationRuntime', () => {
     const invalidate = vi.fn();
     const events: OperationAuditEvent[] = [];
     const failing = operation(vi.fn(async () => { throw new Error('failed'); }));
-    const runtime = new M8OperationRuntime(new OperationRegistry([failing]), {
+    const runtime = new OperationRuntime(new OperationRegistry([failing]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => true},
       audit: {record: event => { events.push(event); }},
@@ -82,14 +82,14 @@ describe('M8OperationRuntime', () => {
   });
 
   it('validates input and output', async () => {
-    const runtime = new M8OperationRuntime(new OperationRegistry([operation()]), {
+    const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => true},
     });
     await expect(runtime.execute('test.delete', {})).rejects.toThrow();
 
     const invalidOutput = operation(vi.fn(async () => ({id: 1} as never)));
-    const outputRuntime = new M8OperationRuntime(new OperationRegistry([invalidOutput]), {
+    const outputRuntime = new OperationRuntime(new OperationRegistry([invalidOutput]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => true},
     });
@@ -105,7 +105,7 @@ describe('M8OperationRuntime', () => {
       destructive: true,
       execute: async () => ({ok: true}),
     });
-    const runtime = new M8OperationRuntime(new OperationRegistry([destructive]), {
+    const runtime = new OperationRuntime(new OperationRegistry([destructive]), {
       confirmation: {confirm},
     });
     await runtime.execute('test.destroy', {});
@@ -114,7 +114,7 @@ describe('M8OperationRuntime', () => {
 
   it.each(['invalidation', 'audit'] as const)('%s failure does not change successful mutation result', async kind => {
     const report = vi.fn();
-    const runtime = new M8OperationRuntime(new OperationRegistry([operation()]), {
+    const runtime = new OperationRuntime(new OperationRegistry([operation()]), {
       authorization: {check: async () => true},
       confirmation: {confirm: async () => true},
       queryInvalidation: {invalidate: async () => { if (kind === 'invalidation') throw new Error('cache'); }},
@@ -142,7 +142,7 @@ describe('M8OperationRuntime', () => {
       expect(options?.signal).toBe(controller.signal);
       return {id: 'op_1', status};
     });
-    const runtime = new M8OperationRuntime(new OperationRegistry([definition]), {
+    const runtime = new OperationRuntime(new OperationRegistry([definition]), {
       longRunningOperations: {wait}, queryInvalidation: {invalidate},
     });
     const result = runtime.execute('test.create', {}, {signal: controller.signal});

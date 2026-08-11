@@ -1,6 +1,6 @@
-import type {M8ExpressionValue} from '@m8/core';
+import type {ExpressionValue} from '@m8/core';
 
-export interface M8InputResolutionContext {
+export interface InputResolutionContext {
   readonly state?: unknown;
   readonly params?: unknown;
   readonly context?: unknown;
@@ -23,8 +23,8 @@ function isBinding(value: unknown, key: '$state' | '$param' | '$query' | '$conte
 }
 
 export function resolveInput(
-  value: M8ExpressionValue,
-  sources: M8InputResolutionContext,
+  value: ExpressionValue,
+  sources: InputResolutionContext,
 ): unknown {
   if (isBinding(value, '$state')) return readPath(sources.state, value.$state);
   if (isBinding(value, '$param')) return readPath(sources.params, value.$param);

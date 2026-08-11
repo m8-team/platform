@@ -1,5 +1,5 @@
-import type {M8RuntimeContext} from '@m8/core';
-import type {M8OperationRuntime} from '@m8/operation';
+import type {RuntimeContext} from '@m8/core';
+import type {OperationRuntime} from '@m8/operation';
 import type {QueryClient} from '@tanstack/react-query';
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -16,14 +16,14 @@ function requiredString(value: unknown, field: string): string {
   return value;
 }
 
-export interface CreateM8ActionHandlersOptions {
-  readonly operations: M8OperationRuntime;
+export interface CreateActionHandlersOptions {
+  readonly operations: OperationRuntime;
   readonly queryClient: QueryClient;
-  readonly getContext: () => M8RuntimeContext;
+  readonly getContext: () => RuntimeContext;
   readonly navigate?: (href: string) => void;
 }
 
-export function createM8ActionHandlers(options: CreateM8ActionHandlersOptions) {
+export function createActionHandlers(options: CreateActionHandlersOptions) {
   return {
     executeOperation: async (params: Record<string, unknown>) => {
       const values = asRecord(params);

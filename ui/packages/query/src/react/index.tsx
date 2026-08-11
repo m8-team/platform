@@ -8,17 +8,17 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
-import {M8QueryRuntime} from '../registry';
-import type {M8RuntimeContext} from '@m8/core';
+import {QueryRuntime} from '../registry';
+import type {RuntimeContext} from '@m8/core';
 
-const RuntimeContext = createContext<M8QueryRuntime | null>(null);
+const RuntimeContext = createContext<QueryRuntime | null>(null);
 
 export function QueryProvider({
   runtime,
   queryClient,
   children,
 }: {
-  runtime: M8QueryRuntime;
+  runtime: QueryRuntime;
   queryClient: QueryClient;
   children: ReactNode;
 }) {
@@ -29,9 +29,9 @@ export function QueryProvider({
   );
 }
 
-export function useM8Query(queryId: string, input: unknown, enabled = true, context: M8RuntimeContext = {}) {
+export function useRegisteredQuery(queryId: string, input: unknown, enabled = true, context: RuntimeContext = {}) {
   const runtime = useContext(RuntimeContext);
-  if (!runtime) throw new Error('useM8Query must be used within QueryProvider.');
+  if (!runtime) throw new Error('useRegisteredQuery must be used within QueryProvider.');
   return useQuery({
     queryKey: runtime.queryKey(queryId, input),
     queryFn: ({signal}) => runtime.execute(queryId, input, signal, context),
@@ -39,10 +39,10 @@ export function useM8Query(queryId: string, input: unknown, enabled = true, cont
   });
 }
 
-export function useInvalidateM8Query() {
+export function useInvalidateQuery() {
   const runtime = useContext(RuntimeContext);
   const queryClient = useQueryClient();
-  if (!runtime) throw new Error('useInvalidateM8Query must be used within QueryProvider.');
+  if (!runtime) throw new Error('useInvalidateQuery must be used within QueryProvider.');
   return (queryId: string) => {
     const definition = runtime.registry.require(queryId);
     return queryClient.invalidateQueries({queryKey: [definition.id]});
@@ -51,7 +51,7 @@ export function useInvalidateM8Query() {
 
 export function invalidateQuery(
   queryClient: QueryClient,
-  runtime: M8QueryRuntime,
+  runtime: QueryRuntime,
   queryId: string,
 ) {
   runtime.registry.require(queryId);

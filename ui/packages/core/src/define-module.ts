@@ -1,7 +1,7 @@
 import {moduleManifestSchema} from './module-schema';
-import type {M8ModuleDefinition} from './types';
+import type {ModuleDefinition} from './types';
 
-export function defineModule<const TModule extends M8ModuleDefinition>(
+export function defineModule<const TModule extends ModuleDefinition>(
   module: TModule,
 ): TModule {
   moduleManifestSchema.parse(module);
