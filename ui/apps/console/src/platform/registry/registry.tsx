@@ -5,8 +5,8 @@ import {Button, Card, Switch, Text,} from '@gravity-ui/uikit';
 import {Box, Flex, spacing} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
-import {catalog} from '@/ui/catalog/catalog';
-import {useTheme} from '@/ui/runtime/theme-context';
+import {catalog} from '@/platform/catalog/catalog';
+import {useTheme} from '@/platform/runtime/theme-context';
 
 const gaps = {
   xs: 1,

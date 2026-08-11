@@ -60,9 +60,9 @@ export class ModuleRegistry<
   buildNextAppSpec(options: BuildNextAppSpecOptions = {}): NextAppSpec {
     const routes: NextAppSpec['routes'] = {};
 
-    for (const module of this.modules) {
-      for (const [routePath, route] of Object.entries(module.routes ?? {})) {
-        const fullPath = joinRoute(module.basePath, routePath);
+    for (const moduleDefinition of this.modules) {
+      for (const [routePath, route] of Object.entries(moduleDefinition.routes ?? {})) {
+        const fullPath = joinRoute(moduleDefinition.basePath, routePath);
         routes[fullPath] = toNextRouteSpec(route);
       }
     }
@@ -94,33 +94,33 @@ export class ModuleRegistry<
   private validateModules(): void {
     const basePaths = new Map<string, string>();
 
-    for (const module of this.modules) {
-      if (this.modulesById.has(module.id)) {
-        throw new DuplicateModuleError(module.id);
+    for (const moduleDefinition of this.modules) {
+      if (this.modulesById.has(moduleDefinition.id)) {
+        throw new DuplicateModuleError(moduleDefinition.id);
       }
 
-      this.modulesById.set(module.id, module);
+      this.modulesById.set(moduleDefinition.id, moduleDefinition);
 
-      const normalizedBasePath = normalizePath(module.basePath);
+      const normalizedBasePath = normalizePath(moduleDefinition.basePath);
       const existingModuleId = basePaths.get(normalizedBasePath);
 
       if (existingModuleId) {
         throw new BasePathCollisionError(
           normalizedBasePath,
           existingModuleId,
-          module.id,
+          moduleDefinition.id,
         );
       }
 
-      basePaths.set(normalizedBasePath, module.id);
+      basePaths.set(normalizedBasePath, moduleDefinition.id);
     }
   }
 
   private validateDependencies(): void {
-    for (const module of this.modules) {
-      for (const dependencyId of module.dependencies?.required ?? []) {
+    for (const moduleDefinition of this.modules) {
+      for (const dependencyId of moduleDefinition.dependencies?.required ?? []) {
         if (!this.modulesById.has(dependencyId)) {
-          throw new MissingModuleDependencyError(module.id, dependencyId);
+          throw new MissingModuleDependencyError(moduleDefinition.id, dependencyId);
         }
       }
     }
@@ -145,8 +145,8 @@ export class ModuleRegistry<
       visiting.add(moduleId);
       stack.push(moduleId);
 
-      const module = this.modulesById.get(moduleId);
-      for (const dependencyId of module?.dependencies?.required ?? []) {
+      const moduleDefinition = this.modulesById.get(moduleId);
+      for (const dependencyId of moduleDefinition?.dependencies?.required ?? []) {
         visit(dependencyId);
       }
 
@@ -155,26 +155,26 @@ export class ModuleRegistry<
       visited.add(moduleId);
     };
 
-    for (const module of this.modules) {
-      visit(module.id);
+    for (const moduleDefinition of this.modules) {
+      visit(moduleDefinition.id);
     }
   }
 
   private validateQueries(): void {
-    for (const module of this.modules) {
-      for (const query of module.queries ?? []) {
+    for (const moduleDefinition of this.modules) {
+      for (const query of moduleDefinition.queries ?? []) {
         const existing = this.queriesById.get(query.id);
 
         if (existing) {
           throw new DuplicateQueryError(
             query.id,
             existing.moduleId,
-            module.id,
+            moduleDefinition.id,
           );
         }
 
         this.queriesById.set(query.id, {
-          moduleId: module.id,
+          moduleId: moduleDefinition.id,
           definition: query,
         });
       }
@@ -182,20 +182,20 @@ export class ModuleRegistry<
   }
 
   private validateOperations(): void {
-    for (const module of this.modules) {
-      for (const operation of module.operations ?? []) {
+    for (const moduleDefinition of this.modules) {
+      for (const operation of moduleDefinition.operations ?? []) {
         const existing = this.operationsById.get(operation.id);
 
         if (existing) {
           throw new DuplicateOperationError(
             operation.id,
             existing.moduleId,
-            module.id,
+            moduleDefinition.id,
           );
         }
 
         this.operationsById.set(operation.id, {
-          moduleId: module.id,
+          moduleId: moduleDefinition.id,
           definition: operation,
         });
       }
@@ -205,20 +205,20 @@ export class ModuleRegistry<
   private validateRoutes(): void {
     const routes = new Map<string, string>();
 
-    for (const module of this.modules) {
-      for (const routePath of Object.keys(module.routes ?? {})) {
-        const fullPath = joinRoute(module.basePath, routePath);
+    for (const moduleDefinition of this.modules) {
+      for (const routePath of Object.keys(moduleDefinition.routes ?? {})) {
+        const fullPath = joinRoute(moduleDefinition.basePath, routePath);
         const existingModuleId = routes.get(fullPath);
 
         if (existingModuleId) {
           throw new RouteCollisionError(
             fullPath,
             existingModuleId,
-            module.id,
+            moduleDefinition.id,
           );
         }
 
-        routes.set(fullPath, module.id);
+        routes.set(fullPath, moduleDefinition.id);
       }
     }
   }

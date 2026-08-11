@@ -1,7 +1,7 @@
 import {PageRenderer} from '@json-render/next';
 import {notFound} from 'next/navigation';
 
-import {generateMetadata, generateStaticParams, getPageData,} from '@/ui/app';
+import {generateMetadata, generateStaticParams, getPageData,} from '@/platform/app';
 
 export {generateMetadata, generateStaticParams};
 
