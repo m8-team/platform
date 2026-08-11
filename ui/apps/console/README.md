@@ -26,7 +26,7 @@ apps/console
   depends on @m8/module-sdk
   depends on @m8/resource-manager
 
-packages/json-render-module-sdk
+packages/module-sdk
   owns shared json-render module, query and operation contracts
 
 packages/resource-manager

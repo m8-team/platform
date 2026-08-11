@@ -37,7 +37,7 @@ importers:
         version: 0.19.0(react@19.2.8)(zod@4.4.3)
       '@m8/module-sdk':
         specifier: workspace:*
-        version: link:../../packages/json-render-module-sdk
+        version: link:../../packages/module-sdk
       '@m8/resource-manager':
         specifier: workspace:*
         version: link:../../packages/resource-manager
@@ -82,7 +82,7 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  ../../packages/json-render-module-sdk:
+  ../../packages/module-sdk:
     devDependencies:
       '@json-render/next':
         specifier: ^0.19.0
@@ -98,7 +98,7 @@ importers:
     dependencies:
       '@m8/module-sdk':
         specifier: workspace:*
-        version: link:../json-render-module-sdk
+        version: link:../module-sdk
     devDependencies:
       typescript:
         specifier: ^5
