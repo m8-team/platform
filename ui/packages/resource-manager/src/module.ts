@@ -1,4 +1,4 @@
-import {defineModule} from '@m8/module-sdk';
+import {defineModule} from '@m8/core';
 
 import {createProjectOperation} from './operations/create-project';
 import {deleteProjectOperation} from './operations/delete-project';

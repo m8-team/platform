@@ -1,4 +1,4 @@
-import type {M8RouteSpec} from '@m8/module-sdk';
+import type {M8RouteSpec} from '@m8/core';
 
 export const projectsRoute = {
   metadata: {title: 'Projects'},

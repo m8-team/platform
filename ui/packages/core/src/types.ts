@@ -1,14 +1,12 @@
-import type {NextAppSpec} from '@json-render/next';
+import type {NextRouteSpec} from '@json-render/next';
 
-export type NextRouteSpec = NextAppSpec['routes'][string];
-
-export type M8InputValue =
+export type M8ExpressionValue =
   | null
   | string
   | number
   | boolean
-  | M8InputValue[]
-  | {[key: string]: M8InputValue}
+  | readonly M8ExpressionValue[]
+  | {readonly [key: string]: M8ExpressionValue}
   | {$state: string}
   | {$param: string}
   | {$context: string};
@@ -16,11 +14,11 @@ export type M8InputValue =
 export interface M8QueryBinding {
   /** Query ID from Query Registry. */
   query: string;
-  input?: Record<string, M8InputValue>;
-  enabled?: M8InputValue;
+  input?: Readonly<Record<string, M8ExpressionValue>>;
+  enabled?: M8ExpressionValue;
 }
 
-export interface M8RouteNavigation {
+export interface M8Navigation {
   label: string;
   icon?: string;
   order?: number;
@@ -33,7 +31,7 @@ export interface M8RouteAccess {
 }
 
 export type M8RouteSpec = NextRouteSpec & {
-  navigation?: M8RouteNavigation;
+  navigation?: M8Navigation;
   access?: M8RouteAccess;
   queries?: Record<string, M8QueryBinding>;
 };
@@ -50,14 +48,26 @@ export interface M8ModuleAccess {
 }
 
 export interface M8QueryDefinitionRef {
-  id: string;
+  readonly id: string;
 }
 
 export interface M8OperationDefinitionRef {
-  id: string;
+  readonly id: string;
 }
 
-export interface ModuleDefinition {
+export interface M8RuntimeContext {
+  actor?: Readonly<{id: string; displayName?: string}>;
+  organization?: Readonly<{id: string}>;
+  workspace?: Readonly<{id: string}>;
+  project?: Readonly<{id: string}>;
+  module?: Readonly<{id: string}>;
+  permissions?: readonly string[];
+  features?: readonly string[];
+  edition?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface M8ModuleDefinition {
   id: string;
   title: string;
   basePath: `/${string}`;
@@ -69,3 +79,6 @@ export interface ModuleDefinition {
   queries?: readonly M8QueryDefinitionRef[];
   operations?: readonly M8OperationDefinitionRef[];
 }
+
+/** @deprecated Use M8ModuleDefinition. */
+export type ModuleDefinition = M8ModuleDefinition;

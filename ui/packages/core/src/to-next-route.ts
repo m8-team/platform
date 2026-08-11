@@ -1,5 +1,5 @@
 import type {NextRouteSpec} from '@json-render/next';
-import type {M8RouteSpec} from '@m8/module-sdk';
+import type {M8RouteSpec} from './types';
 
 /**
  * Remove M8 platform metadata before passing routes to @json-render/next.

@@ -20,7 +20,9 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@m8/module-sdk": "workspace:*"
+    "@m8/core": "workspace:*",
+    "@m8/operation": "workspace:*",
+    "@m8/query": "workspace:*"
   },
   "peerDependencies": {
     "zod": "^4.4.3"

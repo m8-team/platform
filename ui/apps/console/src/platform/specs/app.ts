@@ -1,8 +1,8 @@
 import type {NextAppSpec} from '@json-render/next';
+import {defineModules} from '@m8/core';
 
 import {resourceManagerModule} from '@m8/resource-manager';
 import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
-import {defineModules} from '@/platform/modules/define-modules';
 
 const moduleSpec = defineModules([resourceManagerModule]).buildNextAppSpec();
 

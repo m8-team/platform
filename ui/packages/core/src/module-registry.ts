@@ -1,9 +1,9 @@
 import type {NextAppSpec} from '@json-render/next';
 import type {
-  ModuleDefinition,
+  M8ModuleDefinition,
   M8OperationDefinitionRef,
   M8QueryDefinitionRef,
-} from '@m8/module-sdk';
+} from './types';
 import {
   BasePathCollisionError,
   CircularModuleDependencyError,
@@ -23,9 +23,9 @@ export interface BuildNextAppSpecOptions {
 }
 
 export class ModuleRegistry<
-  const TModules extends readonly ModuleDefinition[],
+  const TModules extends readonly M8ModuleDefinition[],
 > {
-  private readonly modulesById = new Map<string, ModuleDefinition>();
+  private readonly modulesById = new Map<string, M8ModuleDefinition>();
 
   private readonly queriesById = new Map<
     string,
@@ -45,7 +45,7 @@ export class ModuleRegistry<
     return this.modules;
   }
 
-  getModule(moduleId: string): ModuleDefinition | undefined {
+  getModule(moduleId: string): M8ModuleDefinition | undefined {
     return this.modulesById.get(moduleId);
   }
 
@@ -222,4 +222,10 @@ export class ModuleRegistry<
       }
     }
   }
+}
+
+export function defineModules<
+  const TModules extends readonly M8ModuleDefinition[],
+>(modules: TModules): ModuleRegistry<TModules> {
+  return new ModuleRegistry(modules);
 }

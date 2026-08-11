@@ -1,0 +1,37 @@
+{
+  "name": "@m8/query",
+  "version": "0.1.0",
+  "description": "Typed declarative remote-data definitions for M8 UI.",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": {"types": "./src/index.ts", "import": "./src/index.ts"},
+    "./react": {"types": "./src/react/index.tsx", "import": "./src/react/index.tsx"}
+  },
+  "files": ["src"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@m8/core": "workspace:*",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "react": "^19.2.8"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-query": {"optional": true},
+    "react": {"optional": true}
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "@types/react": "^19",
+    "react": "19.2.8",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }
+}

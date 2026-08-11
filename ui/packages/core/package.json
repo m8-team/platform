@@ -1,7 +1,7 @@
 {
-  "name": "@m8/module-sdk",
+  "name": "@m8/core",
   "version": "0.1.0",
-  "description": "Contracts and definition helpers for M8 json-render UI modules.",
+  "description": "Framework-free contracts and module registry for M8 declarative UI.",
   "type": "module",
   "license": "UNLICENSED",
   "private": true,
@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
   },
   "peerDependencies": {
     "@json-render/next": "^0.19.0",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@json-render/next": "^0.19.0",
     "typescript": "^5",
+    "vitest": "^3.2.4",
     "zod": "^4.4.3"
   }
 }
