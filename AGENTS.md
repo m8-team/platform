@@ -1614,32 +1614,3 @@ go test ./... passes unless repository state prevents it
 
 If tests or checks cannot be run, Codex must clearly state why.
 
-<!-- gortex:communities:start -->
-<!-- gortex:skills:start -->
-## Community Skills
-
-| Area | Description | Skill |
-|------|-------------|-------|
-| App Usecase 14 Dirs | 1079 symbols | `/gortex-app-usecase-14-dirs` |
-| Resourcemanager V1 9 Dirs Google Golang Org Grpc Status | 982 symbols | `/gortex-resourcemanager-v1-9-dirs-google-golang-org-grpc-status` |
-| Iam V1 6 Dirs | 686 symbols | `/gortex-iam-v1-6-dirs` |
-| Iam V1 8 Dirs | 605 symbols | `/gortex-iam-v1-8-dirs` |
-| App Usecase 17 Dirs | 594 symbols | `/gortex-app-usecase-17-dirs` |
-| Src Validation 20 Dirs | 353 symbols | `/gortex-src-validation-20-dirs` |
-| Adapter Grpc 6 Dirs | 291 symbols | `/gortex-adapter-grpc-6-dirs` |
-| V1 Resourcemanagerconnect 9 Dirs | 253 symbols | `/gortex-v1-resourcemanagerconnect-9-dirs` |
-| Adapter Grpc 5 Dirs | 240 symbols | `/gortex-adapter-grpc-5-dirs` |
-| Commerce Intelligence Pages 23 Dirs | 238 symbols | `/gortex-commerce-intelligence-pages-23-dirs` |
-| Resourcemanager V1 8 Dirs | 201 symbols | `/gortex-resourcemanager-v1-8-dirs` |
-| Platform Health 4 Dirs | 194 symbols | `/gortex-platform-health-4-dirs` |
-| Installer V1alpha1 6 Dirs | 192 symbols | `/gortex-installer-v1alpha1-6-dirs` |
-| Resource Manager 8 Dirs | 170 symbols | `/gortex-resource-manager-8-dirs` |
-| Iam V1 7 Dirs Byte | 158 symbols | `/gortex-iam-v1-7-dirs-byte` |
-| Domain Workspace 4 Dirs | 155 symbols | `/gortex-domain-workspace-4-dirs` |
-| Internal Application 5 Dirs Startreauthentication | 150 symbols | `/gortex-internal-application-5-dirs-startreauthentication` |
-| Iam V1 7 Dirs Slice | 133 symbols | `/gortex-iam-v1-7-dirs-slice` |
-| Resourcemanager V1 9 Dirs Github Com Grpc Ecosystem Grpc | 133 symbols | `/gortex-resourcemanager-v1-9-dirs-github-com-grpc-ecosystem-grpc` |
-| App Usecase 3 Dirs | 108 symbols | `/gortex-app-usecase-3-dirs` |
-<!-- gortex:skills:end -->
-
-<!-- gortex:communities:end -->
