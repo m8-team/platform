@@ -1,8 +1,16 @@
 'use client';
 
 import {defineRegistry} from '@json-render/react';
-import {Button, Card, Switch, Text,} from '@gravity-ui/uikit';
-import {Box, Flex, spacing} from '@gravity-ui/uikit';
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Link,
+  Switch,
+  Text,
+  spacing,
+} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {catalog} from '@/platform/catalog/catalog';
@@ -64,6 +72,11 @@ export const {registry} = defineRegistry(catalog, {
     ),
 
     Text: ({props}) => <Text color={props.tone}>{props.text}</Text>,
+    Link: ({props}) => (
+      <Link href={props.href} view={props.view}>
+        {props.label}
+      </Link>
+    ),
 
     Card: ({props, children}) => (
       <Card type="container" view="outlined" size="l" spacing={{p: 5}}>
