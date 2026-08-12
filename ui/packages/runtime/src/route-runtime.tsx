@@ -7,6 +7,7 @@ import {useRegisteredQuery} from '@m8/query/react';
 import type {QueryBinding, RouteAccess} from '@m8/core';
 
 import {useRuntime} from './provider';
+import {projectQueryResult} from './query-projection';
 
 function errorValue(error: unknown): unknown {
   return error instanceof Error ? {name: error.name, message: error.message} : error;
@@ -26,7 +27,7 @@ function RegisteredQueryBinding({name, binding}: {name: string; binding: QueryBi
   const result = useRegisteredQuery(binding.query, input, enabled, context);
 
   useEffect(() => {
-    store.set(`/__runtime/queries/${name}`, {
+    projectQueryResult(store, name, {
       status: result.status,
       data: result.data,
       error: result.error ? errorValue(result.error) : null,
