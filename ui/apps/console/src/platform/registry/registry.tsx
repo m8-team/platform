@@ -1,5 +1,6 @@
 'use client';
 
+import {useEffect, useState} from 'react';
 import {RouteTreeRenderer} from './route-tree';
 
 import {defineRegistry, useBoundProp} from '@json-render/react';
@@ -19,6 +20,7 @@ import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 
 import {catalog} from '@/platform/catalog/catalog';
 import {useTheme} from '@/platform/runtime/theme-context';
+import {useRuntime, type RuntimeNavigationItem} from '@m8/runtime';
 
 const gaps = {
   xs: 1,
@@ -80,6 +82,49 @@ export const {registry} = defineRegistry(catalog, {
     ),
 
     Text: ({props}) => <Text color={props.tone}>{props.text}</Text>,
+    ApplicationNavigation: ({props}) => {
+      const {runtime, context} = useRuntime();
+      const [items, setItems] = useState<readonly RuntimeNavigationItem[]>([]);
+
+      useEffect(() => {
+        let active = true;
+        void runtime.navigation.getItems(context).then(nextItems => {
+          if (active) setItems(nextItems);
+        });
+        return () => {
+          active = false;
+        };
+      }, [context, runtime.navigation]);
+
+      if (items.length === 0) return null;
+      const modules = new Map<string, RuntimeNavigationItem[]>();
+      for (const item of items) {
+        const moduleItems = modules.get(item.moduleId) ?? [];
+        moduleItems.push(item);
+        modules.set(item.moduleId, moduleItems);
+      }
+      return (
+        <Box
+          width="100%"
+          maxWidth={pageMaxWidths.wide}
+          spacing={{px: 6, pt: 6}}
+          style={{margin: '0 auto'}}
+        >
+          <Flex as="nav" aria-label={props.ariaLabel} direction="column" gap={2}>
+            {[...modules.entries()].map(([moduleId, moduleItems]) => (
+              <Flex key={moduleId} gap={3} wrap="wrap" alignItems="baseline">
+                <Text variant="subheader-3">{moduleItems[0]?.moduleTitle}</Text>
+                {moduleItems.map(item => (
+                  <NextLink key={item.path} href={item.path}>
+                    {item.label}
+                  </NextLink>
+                ))}
+              </Flex>
+            ))}
+          </Flex>
+        </Box>
+      );
+    },
     RouteTree: ({props}) => <RouteTreeRenderer routes={props.routes} />,
 
     Card: ({props, children}) => (
@@ -153,8 +198,11 @@ export const {registry} = defineRegistry(catalog, {
     },
     ResourceTable: ({props}) => props.loading ? <Text>Loading…</Text> : <div>{(props.rows ?? []).map((row, index) => {
       const content = <Card type="container" view="outlined" spacing={{p: 3}}>{props.columns.map(column => <Text key={column.field}>{column.title}: {String(row[column.field] ?? '')}</Text>)}</Card>;
-      return typeof row.href === 'string'
-        ? <NextLink key={String(row.id ?? index)} href={row.href}>{content}</NextLink>
+      const href = props.detailPath && typeof row.id === 'string'
+        ? props.detailPath.replace('{id}', encodeURIComponent(row.id))
+        : undefined;
+      return href
+        ? <NextLink key={String(row.id ?? index)} href={href}>{content}</NextLink>
         : <div key={String(row.id ?? index)}>{content}</div>;
     })}</div>,
     ResourceHeader: ({props}) => <Text variant="header-1">{String(props.resource?.name ?? props.resource?.id ?? props.resourceType)}</Text>,

@@ -7,79 +7,70 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
-import {ThemeProvider} from '@gravity-ui/uikit';
 import {NextAppProvider} from '@json-render/next';
 import type {ComponentRegistry} from '@json-render/react';
-import type {ModuleRegistry, ModuleDefinition, RuntimeContext} from '@m8/core';
-import type {OperationRuntime} from '@m8/operation';
-import {QueryRuntime} from '@m8/query';
+import type {RuntimeContext} from '@m8/core';
 import {QueryProvider, type QueryClient} from '@m8/query/react';
 
 import {createActionHandlers} from './actions';
-import type {RuntimeAuthorizationAdapter} from './create-runtime';
+import type {Runtime} from './create-runtime';
 import {RouteRuntimeBoundary} from './route-runtime';
 
-interface RuntimeValue {
-  readonly modules: ModuleRegistry<readonly ModuleDefinition[]>;
+export interface RuntimeValue {
+  readonly runtime: Runtime;
   readonly context: RuntimeContext;
-  readonly authorization?: RuntimeAuthorizationAdapter;
 }
 
-const RuntimeContext = createContext<RuntimeValue | null>(null);
+const RuntimeContextValue = createContext<RuntimeValue | null>(null);
 
 export interface RuntimeProviderProps {
-  readonly modules: ModuleRegistry<readonly ModuleDefinition[]>;
+  readonly runtime: Runtime;
   readonly registry: ComponentRegistry;
   readonly queryClient: QueryClient;
-  readonly queries: QueryRuntime;
-  readonly operations: OperationRuntime;
   readonly context: RuntimeContext;
-  readonly authorization?: RuntimeAuthorizationAdapter;
-  readonly theme?: 'light' | 'dark' | 'light-hc' | 'dark-hc';
   readonly children: ReactNode;
 }
 
 export function RuntimeProvider({
-  modules,
+  runtime,
   registry,
   queryClient,
-  queries,
-  operations,
   context,
-  authorization,
-  theme = 'light',
   children,
 }: RuntimeProviderProps) {
   const contextRef = useRef(context);
   contextRef.current = context;
   const handlers = useMemo(
     () => createActionHandlers({
-      operations,
+      operations: runtime.operations,
       getContext: () => contextRef.current,
     }),
-    [operations],
+    [runtime.operations],
   );
 
+  // __RouteRuntime is an internal integration renderer. The application-owned
+  // json-render registry remains the component registry and source of truth.
   const runtimeRegistry = useMemo(() => ({
     ...registry,
-    __RouteRuntime: ({element, children}: {element: {props: Parameters<typeof RouteRuntimeBoundary>[0]}; children?: ReactNode}) =>
-      <RouteRuntimeBoundary {...element.props}>{children}</RouteRuntimeBoundary>,
+    __RouteRuntime: ({element, children}: {
+      element: {props: Parameters<typeof RouteRuntimeBoundary>[0]};
+      children?: ReactNode;
+    }) => <RouteRuntimeBoundary {...element.props}>{children}</RouteRuntimeBoundary>,
   }), [registry]);
+
   return (
-    <RuntimeContext.Provider value={{modules, context, authorization}}>
-      <ThemeProvider theme={theme}>
-        <QueryProvider runtime={queries} queryClient={queryClient}>
-          <NextAppProvider registry={runtimeRegistry} handlers={handlers}>
-            {children}
-          </NextAppProvider>
-        </QueryProvider>
-      </ThemeProvider>
-    </RuntimeContext.Provider>
+    <RuntimeContextValue.Provider value={{runtime, context}}>
+      <QueryProvider runtime={runtime.queries} queryClient={queryClient}>
+        <NextAppProvider registry={runtimeRegistry} handlers={handlers}>
+          {children}
+        </NextAppProvider>
+      </QueryProvider>
+    </RuntimeContextValue.Provider>
   );
 }
 
 export function useRuntime(): RuntimeValue {
-  const value = useContext(RuntimeContext);
+  const value = useContext(RuntimeContextValue);
   if (!value) throw new Error('useRuntime must be used within RuntimeProvider.');
   return value;
 }

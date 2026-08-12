@@ -1,6 +1,6 @@
 import {z} from 'zod';
 
-export const moduleManifestSchema = z.object({
+export const moduleDefinitionSchema = z.object({
   id: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/),
   title: z.string().min(1),
   icon: z.string().optional(),

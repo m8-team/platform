@@ -4,7 +4,7 @@ import type {RuntimeContext} from '@m8/core';
 import type {QueryDefinition} from './definition';
 import {DuplicateQueryError, UnknownQueryError} from './errors';
 
-type RegisteredQueryDefinition = QueryDefinition<z.ZodType, z.ZodType>;
+export type RegisteredQueryDefinition = QueryDefinition<z.ZodType, z.ZodType>;
 
 function normalizeObjectInput(schema: z.ZodType, input: unknown): unknown {
   if (input === null || typeof input !== 'object' || Array.isArray(input)) return input;

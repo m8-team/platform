@@ -1,5 +1,7 @@
 import type {StateStore} from '@json-render/core';
 
+import {QUERY_RESULTS_STATE_PATH} from './state';
+
 export interface QueryProjection {
   readonly status: 'pending' | 'error' | 'success';
   readonly data: unknown;
@@ -29,7 +31,9 @@ export function projectQueryResult(
   name: string,
   projection: QueryProjection,
 ): void {
-  const path = `/__runtime/queries/${name}`;
+  // This is deliberately a one-way projection. Cache ownership, retries,
+  // invalidation and freshness stay in TanStack Query.
+  const path = `${QUERY_RESULTS_STATE_PATH}/${name}`;
   if (!sameProjection(store.get(path), projection)) {
     store.set(path, projection);
   }

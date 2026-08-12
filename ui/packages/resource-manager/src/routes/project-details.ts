@@ -21,14 +21,14 @@ export const projectDetailsRoute = {
         type: 'ResourceHeader',
         props: {
           resourceType: 'project',
-          resource: {$state: '/__runtime/queries/project/data'},
+          resource: {$state: '/__runtime/queryResults/project/data'},
         },
         children: [],
       },
       properties: {
         type: 'PropertyList',
         props: {
-          value: {$state: '/__runtime/queries/project/data'},
+          value: {$state: '/__runtime/queryResults/project/data'},
           fields: [
             {field: 'id', title: 'Project ID'},
             {field: 'organizationId', title: 'Organization'},
@@ -61,7 +61,10 @@ export const projectDetailsRoute = {
             },
             params: {
               operation: 'resource-manager.projects.delete',
-              input: {$state: '/__runtime/queries/project/data/deleteInput'},
+              input: {
+                projectId: {$state: '/__runtime/queryResults/project/data/id'},
+                version: {$state: '/__runtime/queryResults/project/data/version'},
+              },
             },
           },
         },

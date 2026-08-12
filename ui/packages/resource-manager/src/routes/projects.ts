@@ -112,8 +112,9 @@ export const projectsRoute = {
         type: 'ResourceTable',
         props: {
           resourceType: 'project',
-          rows: {$state: '/__runtime/queries/projects/data/items'},
-          loading: {$state: '/__runtime/queries/projects/fetching'},
+          rows: {$state: '/__runtime/queryResults/projects/data/items'},
+          loading: {$state: '/__runtime/queryResults/projects/fetching'},
+          detailPath: '/resource-manager/projects/{id}',
           columns: [
             {field: 'name', title: 'Project'},
             {field: 'organizationId', title: 'Organization'},

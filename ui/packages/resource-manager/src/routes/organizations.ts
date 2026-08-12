@@ -44,9 +44,10 @@ export const organizationsRoute = {
       table: {
         type: 'ResourceTable',
         props: {
-          loading: {$state: '/__runtime/queries/organizations/fetching'},
-          rows: {$state: '/__runtime/queries/organizations/data/items'},
+          loading: {$state: '/__runtime/queryResults/organizations/fetching'},
+          rows: {$state: '/__runtime/queryResults/organizations/data/items'},
           resourceType: 'organization',
+          detailPath: '/resource-manager/organizations/{id}',
           columns: [
             {field: 'name', title: 'Name'},
             {field: 'status', title: 'Status'},

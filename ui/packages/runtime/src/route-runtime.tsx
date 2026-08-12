@@ -56,7 +56,7 @@ export function RouteRuntimeBoundary({bindings = {}, access, children}: {
       return;
     }
     const controller = new AbortController();
-    void Promise.resolve(runtime.authorization?.can({
+    void Promise.resolve(runtime.runtime.authorization?.can({
       permission: access.permission,
       context: runtime.context,
       signal: controller.signal,
@@ -64,7 +64,7 @@ export function RouteRuntimeBoundary({bindings = {}, access, children}: {
       if (!controller.signal.aborted) setAllowed(value);
     });
     return () => controller.abort();
-  }, [access?.permission, runtime.authorization, runtime.context]);
+  }, [access?.permission, runtime.context, runtime.runtime.authorization]);
 
   if (allowed === null) return null;
   if (!allowed) return <div role="alert">Access denied</div>;

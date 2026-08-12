@@ -1,4 +1,4 @@
-import type {RuntimeContext} from '@m8/core';
+import type {ModuleContribution, RuntimeContext} from '@m8/core';
 import type {z} from 'zod';
 
 export interface OperationExecutionContext<TInput> {
@@ -10,8 +10,7 @@ export interface OperationExecutionContext<TInput> {
 export interface OperationDefinition<
   TInputSchema extends z.ZodType = z.ZodType,
   TOutputSchema extends z.ZodType = z.ZodType,
-> {
-  readonly id: string;
+> extends ModuleContribution {
   readonly mode?: 'immediate' | 'long-running';
   readonly input: TInputSchema;
   readonly output: TOutputSchema;

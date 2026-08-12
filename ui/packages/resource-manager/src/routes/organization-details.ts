@@ -28,14 +28,14 @@ export const organizationDetailsRoute = {
         type: 'ResourceHeader',
         props: {
           resourceType: 'organization',
-          resource: {$state: '/__runtime/queries/organization/data'},
+          resource: {$state: '/__runtime/queryResults/organization/data'},
         },
         children: [],
       },
       summary: {
         type: 'PropertyList',
         props: {
-          value: {$state: '/__runtime/queries/organization/data'},
+          value: {$state: '/__runtime/queryResults/organization/data'},
           fields: [
             {field: 'id', title: 'ID'},
             {field: 'status', title: 'Status'},
@@ -53,8 +53,9 @@ export const organizationDetailsRoute = {
         type: 'ResourceTable',
         props: {
           resourceType: 'project',
-          rows: {$state: '/__runtime/queries/projects/data/items'},
-          loading: {$state: '/__runtime/queries/projects/fetching'},
+          rows: {$state: '/__runtime/queryResults/projects/data/items'},
+          loading: {$state: '/__runtime/queryResults/projects/fetching'},
+          detailPath: '/resource-manager/projects/{id}',
           columns: [
             {field: 'name', title: 'Name'},
             {field: 'status', title: 'Status'},

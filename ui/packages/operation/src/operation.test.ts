@@ -22,6 +22,15 @@ function operation(execute = vi.fn(async ({input}: {input: {id: string}}) => ({i
 }
 
 describe('OperationRuntime', () => {
+  it('registers and looks up the original definition', () => {
+    const definition = operation();
+    const registry = new OperationRegistry();
+
+    expect(registry.register(definition)).toBe(definition);
+    expect(registry.get(definition.id)).toBe(definition);
+    expect(registry.require(definition.id)).toBe(definition);
+  });
+
   it('rejects duplicate IDs', () => {
     expect(() => new OperationRegistry([operation(), operation()])).toThrow(DuplicateOperationError);
   });

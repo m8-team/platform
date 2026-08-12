@@ -16,6 +16,15 @@ function query(execute = vi.fn(async ({input}: {input: {value: string}}) => ({va
 }
 
 describe('QueryRegistry', () => {
+  it('registers and looks up the original definition', () => {
+    const definition = query();
+    const registry = new QueryRegistry();
+
+    expect(registry.register(definition)).toBe(definition);
+    expect(registry.get(definition.id)).toBe(definition);
+    expect(registry.require(definition.id)).toBe(definition);
+  });
+
   it('rejects duplicate IDs', () => {
     expect(() => new QueryRegistry([query(), query()])).toThrow(DuplicateQueryError);
   });

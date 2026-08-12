@@ -13,6 +13,11 @@ turn an already successful mutation into a failed mutation.
 Confirmation, toast, navigation and UI lifecycle callbacks belong to native
 json-render action bindings.
 
+```text
+json-render action → executeOperation → OperationRegistry
+  → OperationDefinition.execute
+```
+
 ## Public API
 
 - `defineOperation`, `OperationDefinition`

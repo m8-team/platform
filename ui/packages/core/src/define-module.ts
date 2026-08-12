@@ -1,10 +1,10 @@
-import {moduleManifestSchema} from './module-schema';
+import {moduleDefinitionSchema} from './module-schema';
 import type {ModuleDefinition} from './types';
 
 export function defineModule<const TModule extends ModuleDefinition>(
   module: TModule,
 ): TModule {
-  moduleManifestSchema.parse(module);
+  moduleDefinitionSchema.parse(module);
   const frozen = {
     ...module,
     dependencies: module.dependencies ? Object.freeze({

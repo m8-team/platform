@@ -1,6 +1,10 @@
-import {defineModules} from '@m8/core';
+import {defineModules, selectEnabledModules} from '@m8/core';
 import {resourceManagerModule} from '@m8/resource-manager';
 
-export const moduleRegistry = defineModules([
+export const installedModules = [
   resourceManagerModule,
-] as const);
+] as const;
+
+export const enabledModules = selectEnabledModules(installedModules);
+
+export const moduleRegistry = defineModules(enabledModules);

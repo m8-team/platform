@@ -3,8 +3,11 @@ import type {RuntimeContext} from '@m8/core';
 export interface RuntimeSystemState {
   readonly params: Readonly<Record<string, string | string[]>>;
   readonly context: RuntimeContext;
-  readonly queries: Readonly<Record<string, unknown>>;
+  /** Read-only UI projections. TanStack Query remains the source of truth. */
+  readonly queryResults: Readonly<Record<string, unknown>>;
 }
+
+export const QUERY_RESULTS_STATE_PATH = '/__runtime/queryResults';
 
 export function createRuntimeState(options: {
   readonly params?: Readonly<Record<string, string | string[]>>;
@@ -14,7 +17,7 @@ export function createRuntimeState(options: {
     __runtime: {
       params: options.params ?? {},
       context: options.context ?? {},
-      queries: {},
+      queryResults: {},
     },
   };
 }

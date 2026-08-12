@@ -9,6 +9,15 @@ fields whose Zod schema explicitly accepts null. Cache keys are centrally
 prefixed with query ID and tenant/resource/actor scope through
 `runtimeScopeKey`.
 
+Runtime UI integration is one-way:
+
+```text
+QueryDefinition → QueryRegistry → TanStack Query
+  → /__runtime/queryResults/* projection → json-render
+```
+
+The projection is not a cache and cannot mutate TanStack Query data.
+
 ## Public API
 
 - `defineQuery`, `QueryDefinition`

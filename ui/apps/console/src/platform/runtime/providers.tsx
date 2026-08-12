@@ -2,7 +2,11 @@
 
 import {type ReactNode, useMemo, useState} from 'react';
 
-import {ToasterComponent, ToasterProvider} from '@gravity-ui/uikit';
+import {
+  ThemeProvider,
+  ToasterComponent,
+  ToasterProvider,
+} from '@gravity-ui/uikit';
 import {toaster} from '@gravity-ui/uikit/toaster-singleton';
 import {QueryClient} from '@m8/query/react';
 import {createRuntime, RuntimeProvider} from '@m8/runtime';
@@ -48,21 +52,19 @@ export function Providers({children}: {children: ReactNode}) {
 
   return (
     <ThemeContext.Provider value={{theme, setTheme}}>
-      <RuntimeProvider
-        modules={moduleRegistry}
-        registry={registry}
-        queryClient={queryClient}
-        queries={runtime.queries}
-        operations={runtime.operations}
-        authorization={runtime.authorization}
-        context={runtimeContext}
-        theme={theme}
-      >
-        <ToasterProvider toaster={toaster}>
+      <ThemeProvider theme={theme}>
+        <RuntimeProvider
+          runtime={runtime}
+          registry={registry}
+          queryClient={queryClient}
+          context={runtimeContext}
+        >
+          <ToasterProvider toaster={toaster}>
             {children}
-          <ToasterComponent />
-        </ToasterProvider>
-      </RuntimeProvider>
+            <ToasterComponent />
+          </ToasterProvider>
+        </RuntimeProvider>
+      </ThemeProvider>
     </ThemeContext.Provider>
   );
 }

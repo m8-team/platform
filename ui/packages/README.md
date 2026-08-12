@@ -2,7 +2,7 @@
 
 ```text
 packages/
-├── core/       module contracts, dependencies, routes and navigation
+├── core/       module identity, enablement, dependencies and ownership
 ├── query/      declarative remote data and TanStack Query integration
 ├── operation/  safe registered mutation execution
 └── runtime/    thin json-render/query/operation wiring

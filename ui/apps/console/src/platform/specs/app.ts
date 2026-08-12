@@ -3,7 +3,9 @@ import {buildNextAppSpec} from '@m8/runtime';
 import {moduleRegistry} from '@/platform/modules/registry';
 import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 
-const moduleSpec = buildNextAppSpec(moduleRegistry);
+const moduleSpec = buildNextAppSpec(moduleRegistry, {
+  defaultLayout: 'platform',
+});
 
 type SpecRoutes = NextAppSpec['routes'];
 type SpecRoute = SpecRoutes[string];
@@ -86,13 +88,19 @@ function addRouteDirectoryToPage(
     return homePage;
   }
 
+  const contentRootId = homeRoot.type === 'Page' && homeRoot.children?.length === 1
+    ? homeRoot.children[0]
+    : homePage.root;
+  const contentRoot = homePage.elements[contentRootId];
+  if (!contentRoot) return homePage;
+
   return {
     ...homePage,
     elements: {
       ...homePage.elements,
-      [homePage.root]: {
-        ...homeRoot,
-        children: [...(homeRoot.children ?? []), 'homeRouteDirectory'],
+      [contentRootId]: {
+        ...contentRoot,
+        children: [...(contentRoot.children ?? []), 'homeRouteDirectory'],
       },
       ...createRouteDirectoryShell(routeDirectory),
     },
@@ -129,11 +137,17 @@ const baseSpec: NextAppSpec = {
 
       elements: {
         layout: {
-          type: 'Page',
+          type: 'Stack',
+          props: {gap: 's'},
+          children: ['navigation', 'slot'],
+        },
+
+        navigation: {
+          type: 'ApplicationNavigation',
           props: {
-            width: 'wide',
+            ariaLabel: 'M8 Platform modules',
           },
-          children: ['slot'],
+          children: [],
         },
 
         slot: {
@@ -154,9 +168,15 @@ const baseSpec: NextAppSpec = {
       },
 
       page: {
-        root: 'root',
+        root: 'homePage',
 
         elements: {
+          homePage: {
+            type: 'Page',
+            props: {width: 'wide'},
+            children: ['root'],
+          },
+
           root: {
             type: 'Stack',
             props: {

@@ -27,3 +27,7 @@ registry. It deliberately has no dependency on `@m8/runtime`.
 `resourceManagerModule` is the only registration source for its routes,
 queries, operations and navigation metadata. Console must not
 repeat those contribution lists.
+
+Query results contain resource data only. Detail links are constructed by the
+Console table renderer through route configuration, and delete-operation input
+is assembled from json-render state bindings at the UI boundary.

@@ -2,9 +2,11 @@ export type ModuleRegistryErrorCode =
   | 'MODULE_REGISTRY_ERROR'
   | 'MODULE_DUPLICATE'
   | 'MODULE_DEPENDENCY_MISSING'
+  | 'MODULE_DEPENDENCY_SELF'
   | 'MODULE_DEPENDENCY_CYCLE'
   | 'ROUTE_COLLISION'
-  | 'MODULE_NAMESPACE_INVALID';
+  | 'QUERY_DUPLICATE'
+  | 'OPERATION_DUPLICATE';
 
 export class ModuleRegistryError extends Error {
   override readonly name: string = 'ModuleRegistryError';
@@ -15,20 +17,21 @@ export class ModuleRegistryError extends Error {
   }
 }
 
-export class InvalidModuleNamespaceError extends ModuleRegistryError {
-  override readonly name = 'InvalidModuleError';
-  override readonly code = 'MODULE_NAMESPACE_INVALID';
-  constructor(readonly moduleId: string, readonly contributionId: string) {
-    super(`Module "${moduleId}" cannot own contribution "${contributionId}".`);
-  }
-}
-
 export class DuplicateModuleError extends ModuleRegistryError {
   override readonly name = 'DuplicateModuleError';
   override readonly code = 'MODULE_DUPLICATE';
 
   constructor(readonly moduleId: string) {
-    super(`Duplicate module id: "${moduleId}"`);
+    super(`Duplicate module id "${moduleId}".`);
+  }
+}
+
+export class SelfModuleDependencyError extends ModuleRegistryError {
+  override readonly name = 'SelfModuleDependencyError';
+  override readonly code = 'MODULE_DEPENDENCY_SELF';
+
+  constructor(readonly moduleId: string) {
+    super(`Module "${moduleId}" cannot depend on itself.`);
   }
 }
 
@@ -50,8 +53,40 @@ export class CircularModuleDependencyError extends ModuleRegistryError {
   readonly path: readonly string[];
 
   constructor(path: readonly string[]) {
-    super(`Circular module dependency: ${path.join(' -> ')}`);
+    super(`Circular module dependency detected: ${path.join(' -> ')}`);
     this.path = Object.freeze([...path]);
+  }
+}
+
+abstract class DuplicateContributionError extends ModuleRegistryError {
+  constructor(
+    kind: 'query' | 'operation',
+    readonly contributionId: string,
+    readonly firstModuleId: string,
+    readonly secondModuleId: string,
+  ) {
+    super(
+      `Duplicate ${kind} id "${contributionId}" declared by modules ` +
+      `"${firstModuleId}" and "${secondModuleId}".`,
+    );
+  }
+}
+
+export class DuplicateModuleQueryError extends DuplicateContributionError {
+  override readonly name = 'DuplicateModuleQueryError';
+  override readonly code = 'QUERY_DUPLICATE';
+
+  constructor(queryId: string, firstModuleId: string, secondModuleId: string) {
+    super('query', queryId, firstModuleId, secondModuleId);
+  }
+}
+
+export class DuplicateModuleOperationError extends DuplicateContributionError {
+  override readonly name = 'DuplicateModuleOperationError';
+  override readonly code = 'OPERATION_DUPLICATE';
+
+  constructor(operationId: string, firstModuleId: string, secondModuleId: string) {
+    super('operation', operationId, firstModuleId, secondModuleId);
   }
 }
 

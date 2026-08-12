@@ -35,9 +35,14 @@ pnpm check
 
 `@m8/resource-manager` depends on `@m8/core`, `@m8/query` and
 `@m8/operation`, never on `@m8/runtime`. Its route `page` values are native
-json-render `Spec` trees. `src/platform/specs/app.ts` is the composition root
-that registers modules and merges their native `NextRouteSpec` routes into the
-platform `NextAppSpec`.
+json-render `Spec` trees. `src/platform/modules/registry.ts` is the single
+installed/enabled/registered module source. `src/platform/specs/app.ts` merges
+the registered native `NextRouteSpec` routes into the platform `NextAppSpec`.
+
+Gravity UI providers and theming live here, outside generic `@m8/runtime`.
+Application navigation consumes `runtime.navigation`; the home `RouteTree` is
+only a developer route directory. Production matching, metadata, static params
+and loaders use `createNextApp` from `@json-render/next/server`.
 
 To add a module:
 
@@ -45,5 +50,5 @@ To add a module:
 2. Depend on `@m8/core` and optionally `@m8/query` / `@m8/operation`.
 3. Export one `ModuleDefinition` from the package root.
 4. Add the package to Console with `workspace:*`.
-5. Register it in `src/platform/specs/app.ts`.
+5. Add it to `installedModules` in `src/platform/modules/registry.ts`.
 6. Run `pnpm install` and `pnpm check`.

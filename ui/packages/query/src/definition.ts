@@ -1,5 +1,5 @@
 import type {z} from 'zod';
-import type {RuntimeContext} from '@m8/core';
+import type {ModuleContribution, RuntimeContext} from '@m8/core';
 
 export interface QueryExecutionContext<TInput> {
   readonly input: TInput;
@@ -10,8 +10,7 @@ export interface QueryExecutionContext<TInput> {
 export interface QueryDefinition<
   TInputSchema extends z.ZodType = z.ZodType,
   TOutputSchema extends z.ZodType = z.ZodType,
-> {
-  readonly id: string;
+> extends ModuleContribution {
   readonly input: TInputSchema;
   readonly output: TOutputSchema;
   readonly queryKey?: (

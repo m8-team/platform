@@ -15,8 +15,6 @@ export const projectSchema = z.object({
   version: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  href: z.string().optional(),
-  deleteInput: z.object({projectId: z.string(), version: z.string()}).optional(),
 });
 
 export const listProjectsQuery = defineQuery({
@@ -35,13 +33,7 @@ export const listProjectsQuery = defineQuery({
   queryKey: input => ['resource-manager', 'projects', input],
   execute: async ({input, signal}) => {
     const result = await resourceManagerApi.projects.list(input, {signal});
-    return {
-      items: result.items.map(item => ({
-        ...item,
-        href: `/resource-manager/projects/${encodeURIComponent(item.id)}`,
-      })),
-      nextCursor: result.nextCursor,
-    };
+    return {items: result.items, nextCursor: result.nextCursor};
   },
 });
 
@@ -52,11 +44,6 @@ export const getProjectQuery = defineQuery({
   }),
   output: projectSchema,
   queryKey: input => ['resource-manager', 'projects', input.projectId],
-  execute: async ({input, signal}) => {
-    const project = await resourceManagerApi.projects.get(input.projectId, {signal});
-    return {
-      ...project,
-      deleteInput: {projectId: project.id, version: project.version},
-    };
-  },
+  execute: ({input, signal}) =>
+    resourceManagerApi.projects.get(input.projectId, {signal}),
 });
