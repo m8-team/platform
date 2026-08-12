@@ -1,13 +1,12 @@
 import {
-  CircularModuleDependencyError,
   DuplicateModuleError,
   DuplicateModuleOperationError,
   DuplicateModuleQueryError,
-  MissingModuleDependencyError,
+  InvalidRouteError,
   RouteCollisionError,
-  SelfModuleDependencyError,
+  UnknownModuleQueryReferenceError,
 } from './errors';
-import {canonicalizeRoute, normalizePath} from './routes';
+import {canonicalizeRoute, isValidRoute, normalizePath} from './routes';
 import type {
   ModuleContribution,
   ModuleDefinition,
@@ -21,38 +20,200 @@ export interface OwnedModuleRoute {
   readonly route: ModuleRouteSpec;
 }
 
-function compareModules(
-  left: ModuleDefinition,
-  right: ModuleDefinition,
-): number {
-  const order = (left.order ?? 0) - (right.order ?? 0);
-  return order || left.id.localeCompare(right.id);
+interface CollectedModuleRoute extends OwnedModuleRoute {
+  readonly canonicalPath: string;
+}
+
+interface CollectedContributions<
+  TQuery extends ModuleContribution,
+  TOperation extends ModuleContribution,
+> {
+  readonly routes: CollectedModuleRoute[];
+  readonly queries: OwnedModuleContribution<TQuery>[];
+  readonly operations: OwnedModuleContribution<TOperation>[];
+}
+
+interface ContributionOwnership {
+  readonly routeOwners: Map<string, string>;
+  readonly queryOwners: Map<string, string>;
+  readonly operationOwners: Map<string, string>;
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+function indexModules<
+  TQuery extends ModuleContribution,
+  TOperation extends ModuleContribution,
+>(
+  definitions: readonly ModuleDefinition<TQuery, TOperation>[],
+): readonly ModuleDefinition<TQuery, TOperation>[] {
+  const modulesById = new Map<
+    string,
+    ModuleDefinition<TQuery, TOperation>
+  >();
+
+  for (const moduleDefinition of definitions) {
+    if (modulesById.has(moduleDefinition.id)) {
+      throw new DuplicateModuleError(moduleDefinition.id);
+    }
+    modulesById.set(moduleDefinition.id, moduleDefinition);
+  }
+
+  return [...modulesById.values()].sort((left, right) =>
+    compareText(left.id, right.id));
+}
+
+function collectContributions<
+  TQuery extends ModuleContribution,
+  TOperation extends ModuleContribution,
+>(
+  modules: readonly ModuleDefinition<TQuery, TOperation>[],
+): CollectedContributions<TQuery, TOperation> {
+  const routes: CollectedModuleRoute[] = [];
+  const queries: OwnedModuleContribution<TQuery>[] = [];
+  const operations: OwnedModuleContribution<TOperation>[] = [];
+
+  for (const moduleDefinition of modules) {
+    for (const [routePath, route] of Object.entries(
+      moduleDefinition.routes ?? {},
+    )) {
+      if (!isValidRoute(routePath)) {
+        throw new InvalidRouteError(routePath, moduleDefinition.id);
+      }
+      const path = normalizePath(routePath);
+      routes.push({
+        moduleId: moduleDefinition.id,
+        path,
+        canonicalPath: canonicalizeRoute(path),
+        route,
+      });
+    }
+
+    for (const contribution of moduleDefinition.queries ?? []) {
+      queries.push({moduleId: moduleDefinition.id, contribution});
+    }
+
+    for (const contribution of moduleDefinition.operations ?? []) {
+      operations.push({moduleId: moduleDefinition.id, contribution});
+    }
+  }
+
+  routes.sort((left, right) =>
+    compareText(left.canonicalPath, right.canonicalPath) ||
+    compareText(left.moduleId, right.moduleId) ||
+    compareText(left.path, right.path));
+  queries.sort((left, right) =>
+    compareText(left.contribution.id, right.contribution.id) ||
+    compareText(left.moduleId, right.moduleId));
+  operations.sort((left, right) =>
+    compareText(left.contribution.id, right.contribution.id) ||
+    compareText(left.moduleId, right.moduleId));
+
+  return {routes, queries, operations};
+}
+
+function validateContributions<
+  TQuery extends ModuleContribution,
+  TOperation extends ModuleContribution,
+>(
+  contributions: CollectedContributions<TQuery, TOperation>,
+): ContributionOwnership {
+  const routeOwners = new Map<string, string>();
+  const queryOwners = new Map<string, string>();
+  const operationOwners = new Map<string, string>();
+
+  for (const route of contributions.routes) {
+    const existingModuleId = routeOwners.get(route.canonicalPath);
+    if (existingModuleId) {
+      throw new RouteCollisionError(
+        route.path,
+        existingModuleId,
+        route.moduleId,
+      );
+    }
+    routeOwners.set(route.canonicalPath, route.moduleId);
+  }
+
+  for (const {moduleId, contribution} of contributions.queries) {
+    const existingModuleId = queryOwners.get(contribution.id);
+    if (existingModuleId) {
+      throw new DuplicateModuleQueryError(
+        contribution.id,
+        existingModuleId,
+        moduleId,
+      );
+    }
+    queryOwners.set(contribution.id, moduleId);
+  }
+
+  for (const {moduleId, contribution} of contributions.operations) {
+    const existingModuleId = operationOwners.get(contribution.id);
+    if (existingModuleId) {
+      throw new DuplicateModuleOperationError(
+        contribution.id,
+        existingModuleId,
+        moduleId,
+      );
+    }
+    operationOwners.set(contribution.id, moduleId);
+  }
+
+  for (const {moduleId, path, route} of contributions.routes) {
+    for (const binding of Object.values(route.queries ?? {})) {
+      if (!queryOwners.has(binding.query)) {
+        throw new UnknownModuleQueryReferenceError(
+          moduleId,
+          path,
+          binding.query,
+        );
+      }
+    }
+  }
+
+  return {routeOwners, queryOwners, operationOwners};
 }
 
 export class ModuleRegistry<
   TQuery extends ModuleContribution = ModuleContribution,
   TOperation extends ModuleContribution = ModuleContribution,
 > {
-  private readonly modulesById = new Map<
+  private readonly modulesById: Map<
     string,
     ModuleDefinition<TQuery, TOperation>
-  >();
-  private readonly queryOwners = new Map<string, string>();
-  private readonly operationOwners = new Map<string, string>();
+  >;
+  private readonly routeOwners: Map<string, string>;
+  private readonly queryOwners: Map<string, string>;
+  private readonly operationOwners: Map<string, string>;
   private readonly modules: readonly ModuleDefinition<TQuery, TOperation>[];
   private readonly routes: readonly OwnedModuleRoute[];
   private readonly queries: readonly OwnedModuleContribution<TQuery>[];
   private readonly operations: readonly OwnedModuleContribution<TOperation>[];
 
-  constructor(modules: readonly ModuleDefinition<TQuery, TOperation>[]) {
-    this.indexModules(modules);
-    this.validateDependencies();
-    this.modules = Object.freeze(this.sortModules());
+  constructor(definitions: readonly ModuleDefinition<TQuery, TOperation>[]) {
+    const modules = indexModules(definitions);
+    const contributions = collectContributions(modules);
+    const ownership = validateContributions(contributions);
 
-    const ownership = this.indexOwnership();
-    this.routes = Object.freeze(ownership.routes);
-    this.queries = Object.freeze(ownership.queries);
-    this.operations = Object.freeze(ownership.operations);
+    this.modules = Object.freeze([...modules]);
+    this.modulesById = new Map(modules.map(moduleDefinition => [
+      moduleDefinition.id,
+      moduleDefinition,
+    ]));
+    this.routeOwners = ownership.routeOwners;
+    this.queryOwners = ownership.queryOwners;
+    this.operationOwners = ownership.operationOwners;
+    this.routes = Object.freeze(contributions.routes.map(({
+      canonicalPath: _canonicalPath,
+      ...route
+    }) => Object.freeze(route)));
+    this.queries = Object.freeze(contributions.queries.map(contribution =>
+      Object.freeze(contribution)));
+    this.operations = Object.freeze(contributions.operations.map(contribution =>
+      Object.freeze(contribution)));
   }
 
   getModules(): readonly ModuleDefinition<TQuery, TOperation>[] {
@@ -65,6 +226,10 @@ export class ModuleRegistry<
 
   getRoutes(): readonly OwnedModuleRoute[] {
     return this.routes;
+  }
+
+  getRouteOwner(routePath: string): string | undefined {
+    return this.routeOwners.get(canonicalizeRoute(routePath));
   }
 
   getQueryContributions(): readonly OwnedModuleContribution<TQuery>[] {
@@ -81,174 +246,6 @@ export class ModuleRegistry<
 
   getOperationOwner(operationId: string): string | undefined {
     return this.operationOwners.get(operationId);
-  }
-
-  private indexModules(
-    modules: readonly ModuleDefinition<TQuery, TOperation>[],
-  ): void {
-    for (const moduleDefinition of modules) {
-      if (this.modulesById.has(moduleDefinition.id)) {
-        throw new DuplicateModuleError(moduleDefinition.id);
-      }
-      this.modulesById.set(moduleDefinition.id, moduleDefinition);
-    }
-  }
-
-  private validateDependencies(): void {
-    for (const moduleDefinition of this.modulesById.values()) {
-      const dependencies = [
-        ...(moduleDefinition.dependencies?.required ?? []),
-        ...(moduleDefinition.dependencies?.optional ?? []),
-      ];
-      if (dependencies.includes(moduleDefinition.id)) {
-        throw new SelfModuleDependencyError(moduleDefinition.id);
-      }
-
-      for (const dependencyId of moduleDefinition.dependencies?.required ?? []) {
-        if (!this.modulesById.has(dependencyId)) {
-          throw new MissingModuleDependencyError(moduleDefinition.id, dependencyId);
-        }
-      }
-    }
-  }
-
-  private getPresentDependencies(
-    moduleDefinition: ModuleDefinition<TQuery, TOperation>,
-  ): readonly string[] {
-    const dependencies = new Set(moduleDefinition.dependencies?.required ?? []);
-    for (const dependencyId of moduleDefinition.dependencies?.optional ?? []) {
-      if (this.modulesById.has(dependencyId)) {
-        dependencies.add(dependencyId);
-      }
-    }
-    return [...dependencies];
-  }
-
-  private sortModules(): ModuleDefinition<TQuery, TOperation>[] {
-    const indegree = new Map<string, number>();
-    const dependants = new Map<string, Set<string>>();
-
-    for (const moduleDefinition of this.modulesById.values()) {
-      const dependencies = this.getPresentDependencies(moduleDefinition);
-      indegree.set(moduleDefinition.id, dependencies.length);
-      for (const dependencyId of dependencies) {
-        const dependencyDependants = dependants.get(dependencyId) ?? new Set<string>();
-        dependencyDependants.add(moduleDefinition.id);
-        dependants.set(dependencyId, dependencyDependants);
-      }
-    }
-
-    const ready = [...this.modulesById.values()]
-      .filter(moduleDefinition => indegree.get(moduleDefinition.id) === 0)
-      .sort(compareModules);
-    const sorted: ModuleDefinition<TQuery, TOperation>[] = [];
-
-    while (ready.length > 0) {
-      const moduleDefinition = ready.shift();
-      if (!moduleDefinition) break;
-      sorted.push(moduleDefinition);
-
-      for (const dependantId of dependants.get(moduleDefinition.id) ?? []) {
-        const nextIndegree = (indegree.get(dependantId) ?? 0) - 1;
-        indegree.set(dependantId, nextIndegree);
-        if (nextIndegree === 0) {
-          const dependant = this.modulesById.get(dependantId);
-          if (dependant) ready.push(dependant);
-        }
-      }
-      ready.sort(compareModules);
-    }
-
-    if (sorted.length !== this.modulesById.size) {
-      throw new CircularModuleDependencyError(this.findCircularDependency());
-    }
-    return sorted;
-  }
-
-  private findCircularDependency(): readonly string[] {
-    const visited = new Set<string>();
-    const visiting = new Set<string>();
-    const path: string[] = [];
-
-    const visit = (moduleId: string): readonly string[] | undefined => {
-      if (visiting.has(moduleId)) {
-        const cycleStart = path.indexOf(moduleId);
-        return path.slice(cycleStart).concat(moduleId);
-      }
-      if (visited.has(moduleId)) return undefined;
-
-      visiting.add(moduleId);
-      path.push(moduleId);
-      const moduleDefinition = this.modulesById.get(moduleId);
-      if (moduleDefinition) {
-        for (const dependencyId of [...this.getPresentDependencies(moduleDefinition)].sort()) {
-          const cycle = visit(dependencyId);
-          if (cycle) return cycle;
-        }
-      }
-      path.pop();
-      visiting.delete(moduleId);
-      visited.add(moduleId);
-      return undefined;
-    };
-
-    for (const moduleId of [...this.modulesById.keys()].sort()) {
-      const cycle = visit(moduleId);
-      if (cycle) return cycle;
-    }
-    return [];
-  }
-
-  private indexOwnership(): {
-    routes: OwnedModuleRoute[];
-    queries: OwnedModuleContribution<TQuery>[];
-    operations: OwnedModuleContribution<TOperation>[];
-  } {
-    const routeOwners = new Map<string, string>();
-    const routes: OwnedModuleRoute[] = [];
-    const queries: OwnedModuleContribution<TQuery>[] = [];
-    const operations: OwnedModuleContribution<TOperation>[] = [];
-
-    for (const moduleDefinition of this.modules) {
-      for (const [routePath, route] of Object.entries(moduleDefinition.routes ?? {})) {
-        const path = normalizePath(routePath);
-        const canonicalPath = canonicalizeRoute(path);
-        const existingModuleId = routeOwners.get(canonicalPath);
-        if (existingModuleId) {
-          throw new RouteCollisionError(path, existingModuleId, moduleDefinition.id);
-        }
-        routeOwners.set(canonicalPath, moduleDefinition.id);
-        routes.push(Object.freeze({moduleId: moduleDefinition.id, path, route}));
-      }
-
-      for (const contribution of moduleDefinition.queries ?? []) {
-        const existingModuleId = this.queryOwners.get(contribution.id);
-        if (existingModuleId) {
-          throw new DuplicateModuleQueryError(
-            contribution.id,
-            existingModuleId,
-            moduleDefinition.id,
-          );
-        }
-        this.queryOwners.set(contribution.id, moduleDefinition.id);
-        queries.push(Object.freeze({moduleId: moduleDefinition.id, contribution}));
-      }
-
-      for (const contribution of moduleDefinition.operations ?? []) {
-        const existingModuleId = this.operationOwners.get(contribution.id);
-        if (existingModuleId) {
-          throw new DuplicateModuleOperationError(
-            contribution.id,
-            existingModuleId,
-            moduleDefinition.id,
-          );
-        }
-        this.operationOwners.set(contribution.id, moduleDefinition.id);
-        operations.push(Object.freeze({moduleId: moduleDefinition.id, contribution}));
-      }
-    }
-
-    return {routes, queries, operations};
   }
 }
 

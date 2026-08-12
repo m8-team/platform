@@ -2,7 +2,7 @@
 
 ```text
 packages/
-├── core/       module identity, enablement, dependencies and ownership
+├── core/       unordered module definitions, contributions and ownership
 ├── query/      declarative remote data and TanStack Query integration
 ├── operation/  safe registered mutation execution
 └── runtime/    thin json-render/query/operation wiring

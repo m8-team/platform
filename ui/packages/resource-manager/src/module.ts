@@ -14,11 +14,6 @@ export const resourceManagerModule = defineModule({
   id: 'resource-manager',
   title: 'Resource Manager',
   icon: 'FolderTree',
-  order: 10,
-  dependencies: {
-    required: [],
-    optional: ['audit'],
-  },
   routes: {
     '/resource-manager': overviewRoute,
     '/resource-manager/organizations': organizationsRoute,

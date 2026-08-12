@@ -14,7 +14,7 @@ second UI framework.
 
 M8 owns:
 
-- module identity, dependencies, enablement and contribution ownership
+- module identity, contribution validation and ownership
 - typed server queries and TanStack Query integration
 - business operations, authorization, audit and long-running-operation hooks
 - the thin adapters between those platform concepts and `json-render`
@@ -42,16 +42,29 @@ The Console registration source is
 `apps/console/src/platform/modules/registry.ts`:
 
 ```text
-installed modules
-  → selectEnabledModules(...)
-  → dependency validation and topological sorting
+unordered module definitions
+  → collect routes, queries and operations
+  → validate IDs, references and route collisions globally
   → ModuleRegistry
   → buildNextAppSpec(...)
 ```
 
 A business package exports its module definition as its public registration
 root. Routes, queries and operations are not registered a second time in the
-Console.
+Console. Registration order has no semantic meaning; registries and the final
+`NextAppSpec` use deterministic ID/path ordering.
+
+```ts
+export const modules = defineModules([
+  resourceManagerModule,
+  identityModule,
+  auditModule,
+]);
+```
+
+Cross-module contracts are referenced by global query/operation IDs. Platform
+services such as authorization and audit are supplied through runtime execution
+context and adapters, not through module initialization.
 
 ## Query lifecycle
 
@@ -87,7 +100,9 @@ come from `createNextApp` in `@json-render/next/server`. Version `0.19.0`
 returns `getPageData`, `generateMetadata` and `generateStaticParams`; the
 catch-all page only handles Next.js `notFound()` and renders the returned data.
 Named route params are projected by a registered json-render server loader, so
-there is no second production route matcher in M8.
+there is no second production route matcher in M8. Custom route loaders are
+wrapped by `createRuntimeNextLoaders` so their business data and M8 params are
+composed rather than mutually exclusive.
 
 ## Validation
 

@@ -9,10 +9,10 @@ import {createNextApp} from '@json-render/next/server';
 import {
   defineModule,
   defineModules,
-  selectEnabledModules,
+  RouteCollisionError,
 } from '@m8/core';
-import {defineOperation, UnknownOperationError} from '@m8/operation';
-import {defineQuery, UnknownQueryError} from '@m8/query';
+import {defineOperation} from '@m8/operation';
+import {defineQuery} from '@m8/query';
 import {describe, expect, it, vi} from 'vitest';
 import {z} from 'zod';
 
@@ -20,6 +20,7 @@ import {createRuntime} from './create-runtime';
 import {createActionHandlers} from './actions';
 import {
   buildNextAppSpec,
+  createRuntimeNextLoaders,
   runtimeNextLoaders,
 } from './next';
 import {createRuntimeState, withRuntimeState} from './state';
@@ -95,101 +96,119 @@ describe('runtime composition', () => {
     expect(execute).toHaveBeenCalledWith(expect.objectContaining({context}));
   });
 
-  it('composes a dependency-sorted fixture into one final NextAppSpec', async () => {
-    const baseQuery = defineQuery({
-      id: 'base.items.get',
+  it('composes every module permutation into the same runtime and NextAppSpec', async () => {
+    const queryA = defineQuery({
+      id: 'a.items.get',
       input: z.object({}),
       output: z.string(),
-      execute: async () => 'base',
+      execute: async () => 'a',
     });
-    const featureQuery = defineQuery({
-      id: 'feature.items.get',
+    const queryB = defineQuery({
+      id: 'b.items.get',
       input: z.object({}),
       output: z.string(),
-      execute: async () => 'feature',
+      execute: async () => 'b',
     });
-    const baseOperation = defineOperation({
-      id: 'base.items.create',
+    const queryC = defineQuery({
+      id: 'c.items.get',
       input: z.object({}),
       output: z.string(),
-      execute: async () => 'created',
+      execute: async () => 'c',
     });
-    const featureOperation = defineOperation({
-      id: 'feature.items.delete',
+    const operationA = defineOperation({
+      id: 'a.items.create',
       input: z.object({}),
       output: z.string(),
-      execute: async () => 'deleted',
+      execute: async () => 'a',
     });
-    const baseModule = defineModule({
-      id: 'base',
-      title: 'Base',
-      queries: [baseQuery],
-      operations: [baseOperation],
-      routes: {'/base': {page}},
+    const operationB = defineOperation({
+      id: 'b.items.create',
+      input: z.object({}),
+      output: z.string(),
+      execute: async () => 'b',
     });
-    const featureModule = defineModule({
-      id: 'feature',
-      title: 'Feature',
-      dependencies: {required: ['base']},
-      queries: [featureQuery],
-      operations: [featureOperation],
-      routes: {'/feature': {page}},
+    const operationC = defineOperation({
+      id: 'c.items.create',
+      input: z.object({}),
+      output: z.string(),
+      execute: async () => 'c',
     });
-    const optionalModule = defineModule({
-      id: 'optional',
-      title: 'Optional',
-      dependencies: {optional: ['base']},
-      routes: {'/optional': {page}},
+    const a = defineModule({
+      id: 'a',
+      title: 'A',
+      queries: [queryA],
+      operations: [operationA],
+      routes: {
+        '/a': {navigation: {label: 'A'}, page},
+      },
     });
-    const modules = defineModules([
-      featureModule,
-      optionalModule,
-      baseModule,
-    ]);
-    const runtime = createRuntime({modules});
-    const spec = buildNextAppSpec(modules);
+    const b = defineModule({
+      id: 'b',
+      title: 'B',
+      queries: [queryB],
+      operations: [operationB],
+      routes: {
+        '/b/[itemId]': {
+          navigation: {label: 'B'},
+          queries: {items: {query: queryA.id}},
+          page,
+        },
+      },
+    });
+    const c = defineModule({
+      id: 'c',
+      title: 'C',
+      queries: [queryC],
+      operations: [operationC],
+      routes: {
+        '/c': {navigation: {label: 'C'}, page},
+      },
+    });
+    const permutations = [
+      [a, b, c],
+      [a, c, b],
+      [b, a, c],
+      [b, c, a],
+      [c, a, b],
+      [c, b, a],
+    ] as const;
+    const baseSpec = {
+      routes: {'/': {page}},
+    };
 
-    expect(modules.getModules().map(module => module.id))
-      .toEqual(['base', 'feature', 'optional']);
-    expect(Object.keys(spec.routes))
-      .toEqual(['/base', '/feature', '/optional']);
-    expect(runtime.queries.registry.has(baseQuery.id)).toBe(true);
-    expect(runtime.queries.registry.has(featureQuery.id)).toBe(true);
-    expect(runtime.operations.registry.get(baseOperation.id)).toBe(baseOperation);
-    expect(runtime.operations.registry.get(featureOperation.id))
-      .toBe(featureOperation);
-  });
+    const snapshots = await Promise.all(permutations.map(async permutation => {
+      const modules = defineModules(permutation);
+      const runtime = createRuntime({modules});
+      const spec = buildNextAppSpec(modules, {baseSpec});
+      const queryIds = modules.getQueryContributions()
+        .map(({contribution}) => contribution.id);
+      const operationIds = modules.getOperationContributions()
+        .map(({contribution}) => contribution.id);
 
-  it('does not register queries or operations from disabled modules', () => {
-    const featureQuery = defineQuery({
-      id: 'feature.items.get',
-      input: z.object({}),
-      output: z.string(),
-      execute: async () => 'feature',
-    });
-    const featureOperation = defineOperation({
-      id: 'feature.items.delete',
-      input: z.object({}),
-      output: z.string(),
-      execute: async () => 'deleted',
-    });
-    const baseModule = defineModule({id: 'base', title: 'Base'});
-    const featureModule = defineModule({
-      id: 'feature',
-      title: 'Feature',
-      dependencies: {required: ['base']},
-      queries: [featureQuery],
-      operations: [featureOperation],
-    });
-    const enabled = selectEnabledModules([baseModule, featureModule], {
-      enabledModuleIds: ['base'],
-    });
-    const runtime = createRuntime({modules: defineModules(enabled)});
+      return {
+        modules: modules.getModules().map(moduleDefinition => moduleDefinition.id),
+        routes: modules.getRoutes().map(({moduleId, path}) => ({moduleId, path})),
+        queries: queryIds.map(id => ({
+          id,
+          owner: modules.getQueryOwner(id),
+          registered: runtime.queries.registry.has(id),
+        })),
+        operations: operationIds.map(id => ({
+          id,
+          owner: modules.getOperationOwner(id),
+          registered: runtime.operations.registry.get(id)?.id,
+        })),
+        navigation: await runtime.navigation.getItems(),
+        spec,
+      };
+    }));
 
-    expect(() => runtime.queries.registry.require(featureQuery.id))
-      .toThrow(UnknownQueryError);
-    expect(() => runtime.operations.registry.require(featureOperation.id))
-      .toThrow(UnknownOperationError);
+    expect(snapshots[0]?.modules).toEqual(['a', 'b', 'c']);
+    expect(Object.keys(snapshots[0]?.spec.routes ?? {}))
+      .toEqual(['/', '/a', '/b/[itemId]', '/c']);
+    for (const snapshot of snapshots.slice(1)) {
+      expect(snapshot).toEqual(snapshots[0]);
+    }
   });
 
   it('includes or excludes application navigation after authorization', async () => {
@@ -239,6 +258,63 @@ describe('runtime composition', () => {
     expect(data?.initialState).toMatchObject({
       __runtime: {params: {exampleId: 'ex_1'}},
     });
+  });
+
+  it('composes route params with a custom json-render loader', async () => {
+    const loadExample = vi.fn(async (
+      params: Record<string, string | string[]>,
+    ) => ({example: {id: params.exampleId}}));
+    const modules = defineModules([defineModule({
+      id: 'example',
+      title: 'Example',
+      routes: {
+        '/examples/[exampleId]': {
+          loader: 'loadExample',
+          page,
+        },
+      },
+    })]);
+    const {getPageData} = createNextApp({
+      spec: buildNextAppSpec(modules),
+      loaders: createRuntimeNextLoaders({loadExample}),
+    });
+    const data = await getPageData({
+      params: Promise.resolve({slug: ['examples', 'ex_1']}),
+    });
+
+    expect(loadExample).toHaveBeenCalledWith({exampleId: 'ex_1'});
+    expect(data?.initialState).toMatchObject({
+      example: {id: 'ex_1'},
+      __runtime: {params: {exampleId: 'ex_1'}},
+    });
+  });
+
+  it('rejects platform and module route collisions', () => {
+    const modules = defineModules([defineModule({
+      id: 'projects',
+      title: 'Projects',
+      routes: {'/projects/[projectId]': {page}},
+    })]);
+
+    expect(() => buildNextAppSpec(modules, {
+      baseSpec: {
+        routes: {'/projects/[id]': {page}},
+      },
+    })).toThrow(RouteCollisionError);
+  });
+
+  it('rejects exact platform and module route collisions', () => {
+    const modules = defineModules([defineModule({
+      id: 'projects',
+      title: 'Projects',
+      routes: {'/projects/': {page}},
+    })]);
+
+    expect(() => buildNextAppSpec(modules, {
+      baseSpec: {
+        routes: {'/projects': {page}},
+      },
+    })).toThrow(RouteCollisionError);
   });
 });
 
@@ -299,6 +375,26 @@ describe('json-render integration', () => {
 
   it('protects the runtime namespace from route-owned initial state', () => {
     expect(() => withRuntimeState({__runtime: {}})).toThrow(/reserved/);
+  });
+
+  it('protects the runtime namespace from custom loader data', async () => {
+    const modules = defineModules([defineModule({
+      id: 'example',
+      title: 'Example',
+      routes: {
+        '/examples/[exampleId]': {loader: 'loadExample', page},
+      },
+    })]);
+    const {getPageData} = createNextApp({
+      spec: buildNextAppSpec(modules),
+      loaders: createRuntimeNextLoaders({
+        loadExample: async () => ({__runtime: {tampered: true}}),
+      }),
+    });
+
+    await expect(getPageData({
+      params: Promise.resolve({slug: ['examples', 'ex_1']}),
+    })).rejects.toThrow(/reserved/);
   });
 
   it.each([

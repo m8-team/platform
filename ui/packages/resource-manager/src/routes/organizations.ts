@@ -5,7 +5,6 @@ export const organizationsRoute = {
   navigation: {
     label: 'Organizations',
     icon: 'Buildings',
-    order: 20,
   },
   access: {permission: 'resource-manager.organizations.read'},
   queries: {

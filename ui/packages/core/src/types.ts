@@ -14,7 +14,6 @@ export interface QueryBinding {
 export interface Navigation {
   readonly label: string;
   readonly icon?: string;
-  readonly order?: number;
   readonly hidden?: boolean;
 }
 
@@ -27,11 +26,6 @@ export type ModuleRouteSpec = NextRouteSpec & {
   access?: RouteAccess;
   queries?: Readonly<Record<string, QueryBinding>>;
 };
-
-export interface ModuleDependencyDefinition {
-  required?: readonly string[];
-  optional?: readonly string[];
-}
 
 export interface RuntimeContext {
   actor?: Readonly<{id: string; displayName?: string}>;
@@ -53,8 +47,6 @@ export interface ModuleDefinition<
   readonly id: string;
   readonly title: string;
   readonly icon?: string;
-  readonly order?: number;
-  readonly dependencies?: ModuleDependencyDefinition;
   readonly routes?: Readonly<Record<`/${string}`, ModuleRouteSpec>>;
   readonly queries?: readonly TQuery[];
   readonly operations?: readonly TOperation[];

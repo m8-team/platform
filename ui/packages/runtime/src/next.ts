@@ -4,7 +4,16 @@ import type {
   NextRouteSpec,
 } from '@json-render/next';
 import type {ActionBinding, Spec} from '@json-render/core';
-import type {ModuleContribution, ModuleRegistry} from '@m8/core';
+import {
+  canonicalizeRoute,
+  InvalidRouteError,
+  isValidRoute,
+  normalizePath,
+  RouteCollisionError,
+  type ModuleContribution,
+  type ModuleRegistry,
+  type ModuleRouteSpec,
+} from '@m8/core';
 
 import {createRuntimeState, withRuntimeState} from './state';
 
@@ -13,12 +22,40 @@ export const RUNTIME_ROUTE_LOADER = '__m8RouteParams';
 export const runtimeRouteLoader: LoaderFn = params =>
   createRuntimeState({params});
 
-export const runtimeNextLoaders: Readonly<Record<string, LoaderFn>> =
-  Object.freeze({
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+export function createRuntimeNextLoaders(
+  loaders: Readonly<Record<string, LoaderFn>> = {},
+): Readonly<Record<string, LoaderFn>> {
+  if (Object.hasOwn(loaders, RUNTIME_ROUTE_LOADER)) {
+    throw new TypeError(`Loader id "${RUNTIME_ROUTE_LOADER}" is reserved.`);
+  }
+
+  const composedLoaders = Object.fromEntries(
+    Object.entries(loaders)
+      .sort(([left], [right]) => compareText(left, right))
+      .map(([loaderId, loader]) => [
+        loaderId,
+        async (params: Record<string, string | string[]>) => ({
+          ...withRuntimeState(await loader(params), {params}),
+        }),
+      ]),
+  );
+
+  return Object.freeze({
     [RUNTIME_ROUTE_LOADER]: runtimeRouteLoader,
+    ...composedLoaders,
   });
+}
+
+export const runtimeNextLoaders = createRuntimeNextLoaders();
 
 export interface BuildNextAppSpecOptions {
+  readonly baseSpec?: NextAppSpec;
   readonly metadata?: NextAppSpec['metadata'];
   readonly layouts?: NextAppSpec['layouts'];
   readonly state?: NextAppSpec['state'];
@@ -170,6 +207,101 @@ function validateRuntimeStateOwnership(spec: Spec, routePath: string): void {
   validateRepeatedStateWrites(spec, routePath, spec.root);
 }
 
+interface RouteInput {
+  readonly ownerId: string;
+  readonly path: string;
+  readonly canonicalPath: string;
+}
+
+interface BaseRouteInput extends RouteInput {
+  readonly route: NextRouteSpec;
+  readonly moduleRoute: false;
+}
+
+interface ModuleRouteInput extends RouteInput {
+  readonly route: ModuleRouteSpec;
+  readonly moduleRoute: true;
+}
+
+type ComposedRouteInput = BaseRouteInput | ModuleRouteInput;
+
+function collectBaseRoutes(
+  routes: NextAppSpec['routes'] | undefined,
+): BaseRouteInput[] {
+  return Object.entries(routes ?? {}).map(([routePath, route]) => {
+    if (!isValidRoute(routePath)) {
+      throw new InvalidRouteError(routePath, 'platform');
+    }
+    const path = normalizePath(routePath);
+    return {
+      ownerId: 'platform',
+      path,
+      canonicalPath: canonicalizeRoute(path),
+      route,
+      moduleRoute: false as const,
+    };
+  }).sort((left, right) =>
+    compareText(left.canonicalPath, right.canonicalPath) ||
+    compareText(left.path, right.path));
+}
+
+function validateRouteCollisions(routes: readonly ComposedRouteInput[]): void {
+  const owners = new Map<string, string>();
+  for (const route of routes) {
+    const existingOwnerId = owners.get(route.canonicalPath);
+    if (existingOwnerId) {
+      throw new RouteCollisionError(
+        route.path,
+        existingOwnerId,
+        route.ownerId,
+      );
+    }
+    owners.set(route.canonicalPath, route.ownerId);
+  }
+}
+
+function composeModuleRoute(
+  path: string,
+  route: ModuleRouteSpec,
+  defaultLayout: string | undefined,
+): NextRouteSpec {
+  const {
+    navigation: _navigation,
+    access,
+    queries,
+    ...nativeRoute
+  } = route;
+  validateRuntimeStateOwnership(nativeRoute.page, path);
+  const boundaryId = '__route_runtime';
+  if (Object.hasOwn(nativeRoute.page.elements, boundaryId)) {
+    throw new Error(
+      `Route "${path}" uses reserved element id "${boundaryId}".`,
+    );
+  }
+
+  return {
+    ...nativeRoute,
+    layout: nativeRoute.layout ?? defaultLayout,
+    // @json-render/next accepts one loader per route. Custom loaders are
+    // wrapped by createRuntimeNextLoaders so their data and M8 route params
+    // are merged into the same initial state.
+    loader: nativeRoute.loader ?? RUNTIME_ROUTE_LOADER,
+    page: {
+      ...nativeRoute.page,
+      state: withRuntimeState(nativeRoute.page.state),
+      root: boundaryId,
+      elements: {
+        ...nativeRoute.page.elements,
+        [boundaryId]: {
+          type: '__RouteRuntime',
+          props: {bindings: queries ?? {}, access},
+          children: [nativeRoute.page.root],
+        },
+      },
+    },
+  };
+}
+
 export function buildNextAppSpec<
   TQuery extends ModuleContribution,
   TOperation extends ModuleContribution,
@@ -177,51 +309,45 @@ export function buildNextAppSpec<
   modules: ModuleRegistry<TQuery, TOperation>,
   options: BuildNextAppSpecOptions = {},
 ): NextAppSpec {
-  const routes: NextAppSpec['routes'] = {};
+  const baseSpec = options.baseSpec;
+  const baseRoutes = collectBaseRoutes(baseSpec?.routes);
+  const moduleRoutes: ModuleRouteInput[] = modules.getRoutes().map(({
+    moduleId,
+    path,
+    route,
+  }) => ({
+    ownerId: moduleId,
+    path,
+    canonicalPath: canonicalizeRoute(path),
+    route,
+    moduleRoute: true,
+  }));
+  const collectedRoutes = [...baseRoutes, ...moduleRoutes];
 
-  for (const {path, route} of modules.getRoutes()) {
-    const {
-      navigation: _navigation,
-      access,
-      queries,
-      ...nativeRoute
-    } = route;
-    validateRuntimeStateOwnership(nativeRoute.page, path);
-    const boundaryId = '__route_runtime';
-    if (Object.hasOwn(nativeRoute.page.elements, boundaryId)) {
-      throw new Error(
-        `Route "${path}" uses reserved element id "${boundaryId}".`,
-      );
-    }
+  validateRouteCollisions(collectedRoutes);
 
-    const composedRoute: NextRouteSpec = {
-      ...nativeRoute,
-      layout: nativeRoute.layout ?? options.defaultLayout,
-      // Named route params come from json-render's matched-route loader. A
-      // route with its own loader remains fully owned by json-render and may
-      // project params itself when its UI bindings need them.
-      loader: nativeRoute.loader ?? RUNTIME_ROUTE_LOADER,
-      page: {
-        ...nativeRoute.page,
-        state: withRuntimeState(nativeRoute.page.state),
-        root: boundaryId,
-        elements: {
-          ...nativeRoute.page.elements,
-          [boundaryId]: {
-            type: '__RouteRuntime',
-            props: {bindings: queries ?? {}, access},
-            children: [nativeRoute.page.root],
-          },
-        },
-      },
-    };
-    routes[path] = composedRoute;
-  }
+  const routes = Object.fromEntries(collectedRoutes
+    .map(route => {
+      if (!route.moduleRoute) {
+        validateRuntimeStateOwnership(route.route.page, route.path);
+      }
+      return [
+        route.path,
+        route.moduleRoute
+          ? composeModuleRoute(
+              route.path,
+              route.route,
+              options.defaultLayout,
+            )
+          : route.route,
+      ] as const;
+    })
+    .sort(([left], [right]) => compareText(left, right)));
 
   return {
     routes,
-    metadata: options.metadata,
-    layouts: options.layouts,
-    state: options.state,
+    metadata: options.metadata ?? baseSpec?.metadata,
+    layouts: options.layouts ?? baseSpec?.layouts,
+    state: options.state ?? baseSpec?.state,
   };
 }

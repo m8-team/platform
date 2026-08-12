@@ -1,10 +1,9 @@
 export type ModuleRegistryErrorCode =
   | 'MODULE_REGISTRY_ERROR'
   | 'MODULE_DUPLICATE'
-  | 'MODULE_DEPENDENCY_MISSING'
-  | 'MODULE_DEPENDENCY_SELF'
-  | 'MODULE_DEPENDENCY_CYCLE'
+  | 'ROUTE_INVALID'
   | 'ROUTE_COLLISION'
+  | 'QUERY_REFERENCE_UNKNOWN'
   | 'QUERY_DUPLICATE'
   | 'OPERATION_DUPLICATE';
 
@@ -23,38 +22,6 @@ export class DuplicateModuleError extends ModuleRegistryError {
 
   constructor(readonly moduleId: string) {
     super(`Duplicate module id "${moduleId}".`);
-  }
-}
-
-export class SelfModuleDependencyError extends ModuleRegistryError {
-  override readonly name = 'SelfModuleDependencyError';
-  override readonly code = 'MODULE_DEPENDENCY_SELF';
-
-  constructor(readonly moduleId: string) {
-    super(`Module "${moduleId}" cannot depend on itself.`);
-  }
-}
-
-export class MissingModuleDependencyError extends ModuleRegistryError {
-  override readonly name = 'MissingModuleDependencyError';
-  override readonly code = 'MODULE_DEPENDENCY_MISSING';
-
-  constructor(
-    readonly moduleId: string,
-    readonly dependencyId: string,
-  ) {
-    super(`Module "${moduleId}" requires missing module "${dependencyId}".`);
-  }
-}
-
-export class CircularModuleDependencyError extends ModuleRegistryError {
-  override readonly name = 'CircularModuleDependencyError';
-  override readonly code = 'MODULE_DEPENDENCY_CYCLE';
-  readonly path: readonly string[];
-
-  constructor(path: readonly string[]) {
-    super(`Circular module dependency detected: ${path.join(' -> ')}`);
-    this.path = Object.freeze([...path]);
   }
 }
 
@@ -101,6 +68,34 @@ export class RouteCollisionError extends ModuleRegistryError {
   ) {
     super(
       `Route collision: "${route}". Declared by modules "${firstModuleId}" and "${secondModuleId}".`,
+    );
+  }
+}
+
+export class InvalidRouteError extends ModuleRegistryError {
+  override readonly name = 'InvalidRouteError';
+  override readonly code = 'ROUTE_INVALID';
+
+  constructor(
+    readonly route: string,
+    readonly ownerId: string,
+  ) {
+    super(`Invalid route "${route}" declared by "${ownerId}".`);
+  }
+}
+
+export class UnknownModuleQueryReferenceError extends ModuleRegistryError {
+  override readonly name = 'UnknownModuleQueryReferenceError';
+  override readonly code = 'QUERY_REFERENCE_UNKNOWN';
+
+  constructor(
+    readonly moduleId: string,
+    readonly route: string,
+    readonly queryId: string,
+  ) {
+    super(
+      `Route "${route}" of module "${moduleId}" references unknown query ` +
+      `"${queryId}".`,
     );
   }
 }

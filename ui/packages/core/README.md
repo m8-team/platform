@@ -1,30 +1,73 @@
 # @m8/core
 
-Module definitions, enablement, dependency ordering, contribution ownership and
-route validation.
+Framework-free contracts for unordered M8 business modules and contribution
+ownership.
 
-Page trees remain native `json-render` `Spec` values through
-`@json-render/next`'s `NextRouteSpec`. This package does not define a second UI
-DSL and has no React, Gravity UI, TanStack Query, query-execution or
-operation-execution dependency.
+## Module model
+
+A module is a plain immutable bundle of routes, queries and operations. It has
+no startup hook, lifecycle, priority or registration-order metadata.
+
+```ts
+import {defineModule} from '@m8/core';
+
+export const catalogModule = defineModule({
+  id: 'catalog',
+  title: 'Catalog',
+
+  routes: {
+    '/catalog': catalogRoute,
+  },
+
+  queries: [productsQuery],
+  operations: [updateProductOperation],
+});
+```
 
 `ModuleDefinition<TQuery, TOperation>` accepts generic contributions constrained
-only by `ModuleContribution { id }`. Concrete contracts remain owned by
-`@m8/query` and `@m8/operation`.
+only by `ModuleContribution { id }`. The concrete contracts remain owned by
+`@m8/query` and `@m8/operation`. Page trees remain native json-render `Spec`
+values through `@json-render/next`'s `NextRouteSpec`.
 
-`ModuleRegistry` validates required dependencies, includes optional dependency
-edges only when present, rejects self-dependencies and cycles, and returns a
-deterministic topological order. It also detects route/query/operation
-collisions and retains lightweight owner mappings.
+## Registration
+
+```ts
+export const modules = defineModules([
+  identityModule,
+  resourceManagerModule,
+  catalogModule,
+]);
+```
+
+That list is the only registration source for every contribution in a business
+module. Adding a module does not require separate route, query, operation or
+navigation calls.
+
+Registration order has no semantic meaning. `ModuleRegistry` uses the following
+composition pipeline:
+
+```text
+collect all definitions and contributions
+  → validate globally
+  → build ID-based registries and ownership
+```
+
+Modules, routes, queries and operations are exposed in deterministic technical
+order by ID or normalized path. Collisions are always errors; neither the first
+nor the last declaration wins.
+
+Routes may reference queries from any registered module by global query ID.
+Those references are checked only after all contributions have been collected,
+so the target module may appear anywhere in the input list.
 
 ## Public API
 
 - `defineModule`, `defineModules`, `ModuleRegistry`, `ModuleContribution`
-- `selectEnabledModules`, `ModuleEnablementOptions`
 - `ModuleDefinition`, `ModuleRouteSpec`, `QueryBinding`
+- route, query and operation ownership lookups
 - `RuntimeContext`, route access and navigation contracts
-- `normalizePath` and dynamic route canonicalization
+- route normalization, validation and dynamic-route canonicalization
 
 Expression, action, state and component semantics remain owned by json-render.
-`ModuleRegistry` indexes contribution IDs and owners only; it does not know
-query keys, schemas, execution functions, operation modes or HTTP/LRO details.
+The registry does not know query keys, schemas, execution functions, operation
+modes or HTTP/LRO details.

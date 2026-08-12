@@ -5,7 +5,6 @@ export const projectsRoute = {
   navigation: {
     label: 'Projects',
     icon: 'Folder',
-    order: 30,
   },
   access: {permission: 'resource-manager.projects.read'},
   queries: {

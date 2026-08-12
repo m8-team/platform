@@ -5,7 +5,6 @@ export const overviewRoute = {
   navigation: {
     label: 'Overview',
     icon: 'House',
-    order: 10,
   },
   access: {permission: 'resource-manager.overview.read'},
   page: {

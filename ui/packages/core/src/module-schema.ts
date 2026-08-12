@@ -1,14 +1,14 @@
 import {z} from 'zod';
 
-export const moduleDefinitionSchema = z.object({
+const contributionSchema = z.object({
+  id: z.string().min(1),
+}).passthrough();
+
+export const moduleDefinitionSchema = z.strictObject({
   id: z.string().min(1).regex(/^[a-z][a-z0-9-]*$/),
   title: z.string().min(1),
   icon: z.string().optional(),
-  order: z.number().int().optional(),
-  dependencies: z
-    .object({
-      required: z.array(z.string()).optional(),
-      optional: z.array(z.string()).optional(),
-    })
-    .optional(),
+  routes: z.record(z.string(), z.unknown()).optional(),
+  queries: z.array(contributionSchema).optional(),
+  operations: z.array(contributionSchema).optional(),
 });

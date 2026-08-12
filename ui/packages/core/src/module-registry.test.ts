@@ -2,16 +2,15 @@ import {describe, expect, it} from 'vitest';
 
 import {defineModule} from './define-module';
 import {
-  CircularModuleDependencyError,
   DuplicateModuleError,
   DuplicateModuleOperationError,
   DuplicateModuleQueryError,
-  MissingModuleDependencyError,
+  InvalidRouteError,
   RouteCollisionError,
-  SelfModuleDependencyError,
+  UnknownModuleQueryReferenceError,
 } from './errors';
-import {defineModules} from './module-registry';
-import {normalizePath} from './routes';
+import {defineModules, type ModuleRegistry} from './module-registry';
+import {isValidRoute, normalizePath} from './routes';
 import type {ModuleDefinition} from './types';
 
 const page = {
@@ -31,86 +30,49 @@ function module(
   });
 }
 
-describe('ModuleRegistry dependencies', () => {
+function snapshot(registry: ModuleRegistry) {
+  const routes = registry.getRoutes();
+  const queries = registry.getQueryContributions();
+  const operations = registry.getOperationContributions();
+
+  return {
+    modules: registry.getModules().map(definition => definition.id),
+    routes: routes.map(({moduleId, path}) => ({moduleId, path})),
+    queries: queries.map(({moduleId, contribution}) => ({
+      moduleId,
+      id: contribution.id,
+    })),
+    operations: operations.map(({moduleId, contribution}) => ({
+      moduleId,
+      id: contribution.id,
+    })),
+    ownership: {
+      routes: Object.fromEntries(routes.map(({path}) => [
+        path,
+        registry.getRouteOwner(path),
+      ])),
+      queries: Object.fromEntries(queries.map(({contribution}) => [
+        contribution.id,
+        registry.getQueryOwner(contribution.id),
+      ])),
+      operations: Object.fromEntries(operations.map(({contribution}) => [
+        contribution.id,
+        registry.getOperationOwner(contribution.id),
+      ])),
+    },
+  };
+}
+
+describe('ModuleRegistry validation', () => {
   it('rejects duplicate module IDs', () => {
     expect(() => defineModules([module('a'), module('a')]))
       .toThrow(DuplicateModuleError);
   });
 
-  it('rejects a missing required dependency', () => {
-    expect(() => defineModules([
-      module('a', {dependencies: {required: ['missing']}}),
-    ])).toThrowError('Module "a" requires missing module "missing".');
-  });
-
-  it.each(['required', 'optional'] as const)(
-    'rejects a self %s dependency',
-    dependencyKind => {
-      expect(() => defineModules([
-        module('a', {dependencies: {[dependencyKind]: ['a']}}),
-      ])).toThrow(SelfModuleDependencyError);
-    },
-  );
-
-  it('sorts a dependant before its input dependency', () => {
-    const registry = defineModules([
-      module('a', {dependencies: {required: ['b']}}),
-      module('b'),
-    ]);
-
-    expect(registry.getModules().map(item => item.id)).toEqual(['b', 'a']);
-  });
-
-  it('sorts a multi-level graph independently of registration order', () => {
-    const registry = defineModules([
-      module('c', {dependencies: {required: ['b']}}),
-      module('a'),
-      module('b', {dependencies: {required: ['a']}}),
-    ]);
-
-    expect(registry.getModules().map(item => item.id)).toEqual(['a', 'b', 'c']);
-  });
-
-  it('sorts independent branches deterministically after their dependency', () => {
-    const registry = defineModules([
-      module('c', {dependencies: {required: ['a']}}),
-      module('b', {dependencies: {required: ['a']}}),
-      module('a'),
-    ]);
-
-    expect(registry.getModules().map(item => item.id)).toEqual(['a', 'b', 'c']);
-  });
-
-  it('ignores an absent optional dependency', () => {
-    const registry = defineModules([
-      module('a', {dependencies: {optional: ['b']}}),
-    ]);
-
-    expect(registry.getModules().map(item => item.id)).toEqual(['a']);
-  });
-
-  it('orders a present optional dependency before its dependant', () => {
-    const registry = defineModules([
-      module('a', {dependencies: {optional: ['b']}}),
-      module('b'),
-    ]);
-
-    expect(registry.getModules().map(item => item.id)).toEqual(['b', 'a']);
-  });
-
-  it('reports a readable dependency cycle', () => {
-    expect(() => defineModules([
-      module('b', {dependencies: {required: ['a']}}),
-      module('a', {dependencies: {required: ['b']}}),
-    ])).toThrowError(new CircularModuleDependencyError(['a', 'b', 'a']));
-  });
-});
-
-describe('ModuleRegistry ownership', () => {
   it('rejects normalized route collisions and names both owners', () => {
     expect(() => defineModules([
-      module('a', {routes: {'/projects': {page}}}),
       module('b', {routes: {'/projects/': {page}}}),
+      module('a', {routes: {'/projects': {page}}}),
     ])).toThrowError(
       'Route collision: "/projects". Declared by modules "a" and "b".',
     );
@@ -127,50 +89,147 @@ describe('ModuleRegistry ownership', () => {
     ])).toThrow(RouteCollisionError);
   });
 
+  it('rejects invalid route syntax', () => {
+    const invalidModule = {
+      id: 'invalid',
+      title: 'Invalid',
+      routes: {'projects': {page}},
+    } as unknown as ModuleDefinition;
+
+    expect(() => defineModules([invalidModule])).toThrow(InvalidRouteError);
+  });
+
   it('rejects duplicate global query IDs', () => {
     expect(() => defineModules([
-      module('a', {queries: [{id: 'projects.list'}]}),
       module('b', {queries: [{id: 'projects.list'}]}),
+      module('a', {queries: [{id: 'projects.list'}]}),
     ])).toThrowError(new DuplicateModuleQueryError('projects.list', 'a', 'b'));
   });
 
   it('rejects duplicate global operation IDs', () => {
     expect(() => defineModules([
-      module('a', {operations: [{id: 'projects.delete'}]}),
       module('b', {operations: [{id: 'projects.delete'}]}),
+      module('a', {operations: [{id: 'projects.delete'}]}),
     ])).toThrowError(
       new DuplicateModuleOperationError('projects.delete', 'a', 'b'),
     );
   });
 
-  it('retains simple route, query and operation ownership metadata', () => {
+  it('resolves cross-module query references from the complete registry', () => {
+    const consumer = module('consumer', {
+      routes: {
+        '/consumer': {
+          queries: {users: {query: 'identity.users.list'}},
+          page,
+        },
+      },
+    });
+    const identity = module('identity', {
+      queries: [{id: 'identity.users.list'}],
+    });
+
+    expect(() => defineModules([consumer, identity])).not.toThrow();
+    expect(() => defineModules([identity, consumer])).not.toThrow();
+  });
+
+  it('reports an unknown query reference at its actual use site', () => {
+    expect(() => defineModules([module('admin', {
+      routes: {
+        '/admin': {
+          queries: {users: {query: 'identity.users.list'}},
+          page,
+        },
+      },
+    })])).toThrowError(new UnknownModuleQueryReferenceError(
+      'admin',
+      '/admin',
+      'identity.users.list',
+    ));
+  });
+});
+
+describe('ModuleRegistry ownership', () => {
+  it('retains route, query and operation owner mappings', () => {
     const query = {id: 'projects.list'};
     const operation = {id: 'projects.delete'};
     const registry = defineModules([
-      module('a', {queries: [query], operations: [operation]}),
+      module('projects', {queries: [query], operations: [operation]}),
     ]);
 
-    expect(registry.getRoutes()[0]).toMatchObject({moduleId: 'a', path: '/a'});
-    expect(registry.getQueryOwner(query.id)).toBe('a');
-    expect(registry.getOperationOwner(operation.id)).toBe('a');
+    expect(registry.getRoutes()[0]).toMatchObject({
+      moduleId: 'projects',
+      path: '/projects',
+    });
+    expect(registry.getRouteOwner('/projects/')).toBe('projects');
+    expect(registry.getQueryOwner(query.id)).toBe('projects');
+    expect(registry.getOperationOwner(operation.id)).toBe('projects');
     expect(registry.getQueryContributions()).toEqual([
-      {moduleId: 'a', contribution: query},
+      {moduleId: 'projects', contribution: query},
     ]);
     expect(registry.getOperationContributions()).toEqual([
-      {moduleId: 'a', contribution: operation},
+      {moduleId: 'projects', contribution: operation},
     ]);
   });
 
-  it('returns immutable module metadata', () => {
+  it('returns immutable module and contribution collections', () => {
     const definition = defineModule({
       id: 'a',
       title: 'A',
       routes: {'/a': {page}},
-      dependencies: {required: ['base']},
+      queries: [{id: 'a.query'}],
+      operations: [{id: 'a.operation'}],
     });
+    const registry = defineModules([definition]);
 
     expect(Object.isFrozen(definition)).toBe(true);
-    expect(Object.isFrozen(definition.dependencies?.required)).toBe(true);
+    expect(Object.isFrozen(definition.routes)).toBe(true);
+    expect(Object.isFrozen(definition.queries)).toBe(true);
+    expect(Object.isFrozen(definition.operations)).toBe(true);
+    expect(Object.isFrozen(registry.getModules())).toBe(true);
+    expect(Object.isFrozen(registry.getRoutes())).toBe(true);
+  });
+});
+
+describe('registration order independence', () => {
+  const queryA = {id: 'a.items.list'};
+  const queryB = {id: 'b.items.list'};
+  const queryC = {id: 'c.items.list'};
+  const operationA = {id: 'a.items.create'};
+  const operationB = {id: 'b.items.create'};
+  const operationC = {id: 'c.items.create'};
+  const a = module('a', {
+    queries: [queryA],
+    operations: [operationA],
+  });
+  const b = module('b', {
+    routes: {
+      '/b/[itemId]': {
+        queries: {items: {query: queryA.id}},
+        page,
+      },
+    },
+    queries: [queryB],
+    operations: [operationB],
+  });
+  const c = module('c', {
+    queries: [queryC],
+    operations: [operationC],
+  });
+  const permutations = [
+    [a, b, c],
+    [a, c, b],
+    [b, a, c],
+    [b, c, a],
+    [c, a, b],
+    [c, b, a],
+  ] as const;
+
+  it('builds the same modules, contributions and ownership for every permutation', () => {
+    const expected = snapshot(defineModules(permutations[0]));
+
+    for (const permutation of permutations) {
+      expect(snapshot(defineModules(permutation))).toEqual(expected);
+    }
   });
 });
 
@@ -181,4 +240,23 @@ describe('route helpers', () => {
     ['//a///b/', '/a/b'],
   ])('normalizes %s', (input, expected) =>
     expect(normalizePath(input)).toBe(expected));
+
+  it.each([
+    '/',
+    '/projects',
+    '/projects/[projectId]',
+    '/docs/[...path]',
+    '/settings/[[...path]]',
+  ])('accepts valid route %s', route => {
+    expect(isValidRoute(route)).toBe(true);
+  });
+
+  it.each([
+    'projects',
+    '/projects/[id',
+    '/docs/[...path]/edit',
+    '/projects?tab=all',
+  ])('rejects invalid route %s', route => {
+    expect(isValidRoute(route)).toBe(false);
+  });
 });

@@ -3,10 +3,6 @@ import {buildNextAppSpec} from '@m8/runtime';
 import {moduleRegistry} from '@/platform/modules/registry';
 import type {RouteTreeRoute} from '@/platform/catalog/components/navigation';
 
-const moduleSpec = buildNextAppSpec(moduleRegistry, {
-  defaultLayout: 'platform',
-});
-
 type SpecRoutes = NextAppSpec['routes'];
 type SpecRoute = SpecRoutes[string];
 type RoutePage = NonNullable<SpecRoute['page']>;
@@ -255,12 +251,12 @@ const baseSpec: NextAppSpec = {
   },
 };
 
-const mergedRoutes: SpecRoutes = {
-  ...baseSpec.routes,
-  ...moduleSpec.routes,
-};
+const composedSpec = buildNextAppSpec(moduleRegistry, {
+  baseSpec,
+  defaultLayout: 'platform',
+});
 
 export const appSpec: NextAppSpec = {
-  ...baseSpec,
-  routes: withHomeRouteDirectory(mergedRoutes),
+  ...composedSpec,
+  routes: withHomeRouteDirectory(composedSpec.routes),
 };

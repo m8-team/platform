@@ -21,8 +21,8 @@ Owns the Resource Manager Console contribution: organizations and projects route
 
 The module uses `defineModule` from `@m8/core`, query definitions from
 `@m8/query`, and operation definitions from `@m8/operation`. Install the
-workspace package in Console and pass `resourceManagerModule` to the module
-registry. It deliberately has no dependency on `@m8/runtime`.
+workspace package in Console and add `resourceManagerModule` to
+`defineModules([...])`. It deliberately does not import `@m8/runtime`.
 
 `resourceManagerModule` is the only registration source for its routes,
 queries, operations and navigation metadata. Console must not

@@ -22,11 +22,9 @@ export interface RuntimeAuthorizationAdapter {
 export interface RuntimeNavigationItem {
   readonly moduleId: string;
   readonly moduleTitle: string;
-  readonly moduleOrder?: number;
   readonly path: string;
   readonly label: string;
   readonly icon?: string;
-  readonly order?: number;
 }
 
 export interface RuntimeNavigation {
@@ -52,6 +50,12 @@ export interface CreateRuntimeOptions<
   readonly adapters?: Omit<OperationRuntimeAdapters, 'authorization'> & {
     authorization?: RuntimeAuthorizationAdapter;
   };
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 export function createRuntime<
@@ -96,18 +100,16 @@ export function createRuntime<
           items.push({
             moduleId,
             moduleTitle: moduleDefinition?.title ?? moduleId,
-            moduleOrder: moduleDefinition?.order,
             path,
             label: route.navigation.label,
             icon: route.navigation.icon,
-            order: route.navigation.order,
           });
         }
         return items.sort((left, right) =>
-          (left.moduleOrder ?? 0) - (right.moduleOrder ?? 0) ||
-          left.moduleId.localeCompare(right.moduleId) ||
-          (left.order ?? 0) - (right.order ?? 0) ||
-          left.path.localeCompare(right.path));
+          compareText(left.moduleTitle, right.moduleTitle) ||
+          compareText(left.moduleId, right.moduleId) ||
+          compareText(left.path, right.path) ||
+          compareText(left.label, right.label));
       },
     },
   };
