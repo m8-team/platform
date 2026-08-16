@@ -36,8 +36,8 @@ The root `ApplicationSet` emits the default platform application. Optional platf
 
 | Wave | Application |
 | ---: | --- |
-| -46 | `m8-flink-operator` optional Flink Kubernetes Operator |
-| -45 | `m8-flink` optional Flink session runtime |
+| -10 | `flink-operator` shared Flink Kubernetes Operator |
+| -5 | `flink-1c` independent Flink installation |
 | 0 | `m8-platform` default platform services and UI |
 
 ## Environment Overlays
@@ -60,30 +60,26 @@ The root `ApplicationSet` reconciles this tree through the `m8-platform` Argo CD
 
 Infrastructure operators, data clusters, identity, authorization, observability and gateway resources must stay in their earlier sync-wave components, not in the application services tree.
 
-## Optional System Components
+## Flink GitOps
 
-Optional platform dependencies live under:
+Flink has a dedicated multi-installation delivery model under `deploy/flink`:
 
-- `gitops/components/system/<component>`
+- shared runtime image: `deploy/flink/shared/image`;
+- single operator chart: `deploy/flink/shared/operator`;
+- installation runtime and SQL: `deploy/flink/installations/<name>`;
+- operator and per-installation Applications: `deploy/flink/argocd`.
 
-They are enabled by applying an Argo CD `Application` manifest from:
+The operator is installed once in `flink-operator` and watches installation
+namespaces. Each installation has a dedicated namespace, `FlinkDeployment`, SQL
+Gateway, Kafka configuration, object-storage prefix, Secrets, resources, SQL,
+image digest pin, and Argo CD lifecycle. Production CI builds and publishes the
+runtime image but never reconciles the cluster; Argo CD owns deployment,
+self-healing, and pruning.
 
-- `gitops/optional/<component>/application.yaml`
-
-Flink is the first optional system component:
-
-- Operator Application: `m8-flink-operator`
-- Runtime component: `gitops/components/system/flink`
-- Enabling Application: `gitops/optional/flink/application.yaml`
-- Target namespace: `m8-data`
-
-Enable it after bootstrap:
-
-```bash
-kubectl apply -f gitops/optional/flink/application.yaml
-```
-
-Flink is intentionally not installed by the default root `ApplicationSet`. Production deployments must mirror and digest-pin the operator and runtime images from the release catalog and replace local filesystem checkpoints with object storage. Runtime clusters are declared through `flink.apache.org/v1beta1` `FlinkDeployment`; jobs should be added separately as `FlinkSessionJob` manifests.
+Bootstrap the project and Applications in dependency order as documented in
+`deploy/flink/README.md`. Flink remains independent of the default root
+`ApplicationSet`, so enabling one installation does not install or modify any
+other installation.
 
 ## Health And Readiness
 
