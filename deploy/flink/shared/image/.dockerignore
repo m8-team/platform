@@ -1,0 +1,4 @@
+**
+!Dockerfile
+!certs/
+!certs/*.crt
