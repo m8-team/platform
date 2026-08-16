@@ -1,0 +1,44 @@
+flink-kubernetes-operator:
+  # The exact upstream value is watchNamespaces. An empty list means all
+  # namespaces and allows new installations without reinstalling the operator.
+  watchNamespaces: []
+
+  image:
+    repository: ghcr.io/apache/flink-kubernetes-operator
+    tag: 1.15.0
+    digest: sha256:5372e4461b433ee37391b0ee3fc3e4029980d14e9b64576b0cb78493d1cafe3a
+    pullPolicy: IfNotPresent
+
+  operatorServiceAccount:
+    create: true
+    name: flink-operator
+
+  # Runtime identities and namespace RBAC are installation-owned.
+  jobServiceAccount:
+    create: false
+  rbac:
+    create: true
+    nodesRule:
+      create: false
+    jobRole:
+      create: false
+    jobRoleBinding:
+      create: false
+
+  operatorPod:
+    resources:
+      requests:
+        cpu: 150m
+        memory: 512Mi
+      limits:
+        cpu: 400m
+        memory: 768Mi
+
+  jvmArgs:
+    operator: -Xms256m -Xmx512m
+    webhook: -Xms128m -Xmx256m
+
+  # Preserve the currently deployed mode. Enabling admission requires an
+  # explicitly managed certificate lifecycle and is a separate change.
+  webhook:
+    create: false
