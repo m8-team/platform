@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: flink-1c
+
+resources:
+  - rbac.yaml
+  - flink-deployment.yaml
+  - sql-gateway.yaml
+
+configurations:
+  - kustomizeconfig.yaml
+
+components:
+  - ../sql
+
+# Both runtime workloads use the symbolic image name in their manifests.
+# This is the installation's single image pin and can be promoted independently.
+images:
+  - name: flink-runtime
+    newName: cr.yandex/crpbq0asshi5u8nd7vks/docker/flink/flink-kafka
+    digest: sha256:9d7e0b45262b335c4e00f2f017c47a908717e4d663870ee0491ccb85a76167b8
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/managed-by: argocd
+      app.kubernetes.io/part-of: flink-1c
