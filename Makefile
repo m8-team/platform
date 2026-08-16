@@ -20,6 +20,7 @@ CLICKSTACK_OTLP_HTTP_PORT ?= 4318
 .PHONY: tools\:install-kind tools\:install-kubectl tools\:install-helm
 .PHONY: dev\:up dev\:down dev\:reset
 .PHONY: clickstack\:install clickstack\:uninstall clickstack\:reset clickstack\:status clickstack\:port-forward
+.PHONY: flink\:validate flink\:render flink\:image-build flink\:operator-dependency
 
 up:
 	$(COMPOSE) up -d
@@ -111,3 +112,15 @@ clickstack\:port-forward:
 	CLICKSTACK_OTLP_GRPC_PORT="$(CLICKSTACK_OTLP_GRPC_PORT)" \
 	CLICKSTACK_OTLP_HTTP_PORT="$(CLICKSTACK_OTLP_HTTP_PORT)" \
 	scripts/dev-clickstack.sh port-forward
+
+flink\:validate:
+	$(MAKE) -C deploy/flink validate
+
+flink\:render:
+	$(MAKE) -C deploy/flink render
+
+flink\:image-build:
+	$(MAKE) -C deploy/flink image-build
+
+flink\:operator-dependency:
+	$(MAKE) -C deploy/flink operator-dependency
