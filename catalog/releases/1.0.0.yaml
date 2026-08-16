@@ -196,12 +196,12 @@ spec:
         memory: 1024Mi
         storage: 0Gi
     flink:
-      version: "2.2.0"
+      version: "2.2.1"
       images:
         - name: flink
-          repository: docker.io/library/flink
-          version: "2.2.0"
-          digest: sha256:7ecfab9d5e8ec6987a248b32f6605b5fe9bcb7347aea0d7b1bc3976588408681
+          repository: cr.yandex/crpbq0asshi5u8nd7vks/docker/flink/flink-kafka
+          version: "2.2.1"
+          digest: sha256:9d7e0b45262b335c4e00f2f017c47a908717e4d663870ee0491ccb85a76167b8
       dependencies:
         - flink-kubernetes-operator
       rollbackSupport:
