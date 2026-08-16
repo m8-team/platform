@@ -1,0 +1,87 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: flink-1c
+  namespace: flink-1c
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  image: flink-runtime:2.2.1
+  imagePullPolicy: IfNotPresent
+  flinkVersion: v2_2
+  mode: native
+  serviceAccount: flink
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "1"
+    slotmanager.number-of-slots.min: "0"
+    slotmanager.number-of-slots.max: "1"
+    kubernetes.jobmanager.cpu.limit-factor: "2.5"
+    kubernetes.taskmanager.cpu.limit-factor: "2.0"
+    kubernetes.rest-service.exposed.type: ClusterIP
+    high-availability.type: kubernetes
+    high-availability.storageDir: s3://bucket-flink-production-k8s-zenden-cloud/flink-1c/ha
+    execution.checkpointing.storage: filesystem
+    execution.checkpointing.dir: s3://bucket-flink-production-k8s-zenden-cloud/flink-1c/checkpoints
+    execution.checkpointing.savepoint-dir: s3://bucket-flink-production-k8s-zenden-cloud/flink-1c/savepoints
+    execution.checkpointing.interval: 60s
+    s3.endpoint: https://storage.yandexcloud.net
+    s3.path.style.access: "true"
+    env.java.opts.jobmanager: >-
+      -Djava.security.auth.login.config=/etc/flink/secrets/kafka_client_jaas.conf
+    env.java.opts.taskmanager: >-
+      -Djava.security.auth.login.config=/etc/flink/secrets/kafka_client_jaas.conf
+  podTemplate:
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 9999
+        runAsGroup: 9999
+        fsGroup: 9999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: kafka-jaas
+          secret:
+            secretName: flink-kafka-credentials
+            items:
+              - key: kafka_client_jaas.conf
+                path: kafka_client_jaas.conf
+      containers:
+        - name: flink-main-container
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: flink-object-storage-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: flink-object-storage-credentials
+                  key: secret-access-key
+            - name: AWS_REGION
+              value: ru-central1
+            - name: AWS_DEFAULT_REGION
+              value: ru-central1
+          volumeMounts:
+            - name: kafka-jaas
+              mountPath: /etc/flink/secrets
+              readOnly: true
+  jobManager:
+    replicas: 1
+    resource:
+      cpu: 0.1
+      memory: 768m
+      ephemeralStorage: 512Mi
+  taskManager:
+    replicas: 1
+    resource:
+      cpu: 0.25
+      memory: 1024m
+      ephemeralStorage: 512Mi
