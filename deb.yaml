@@ -110,4 +110,11 @@ spec:
     signal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
     signal.consumer.ssl.truststore.type: PEM
     signal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
-    schema.history.internal.store.only.captured.tables.ddl: "false"
+    schema.history.internal.store.only.captured.tables.ddl: "true"
+    database.sqlserver.agent.status.query: >-
+      SELECT CASE WHEN EXISTS (
+        SELECT 1
+        FROM #db.sys.dm_server_services
+        WHERE LOWER([filename]) LIKE N'%sqlagent.exe%'
+          AND [status] = 4
+      ) THEN 1 ELSE 0 END
