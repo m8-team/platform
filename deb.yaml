@@ -1,0 +1,70 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnector
+metadata:
+  name: debezium-mssql-connector
+  namespace: debezium
+  labels:
+    strimzi.io/cluster: debezium-connect
+spec:
+  class: io.debezium.connector.sqlserver.SqlServerConnector
+  tasksMax: 1
+  config:
+    # ---- Подключение к MS SQL ----
+    connector.class: io.debezium.connector.sqlserver.SqlServerConnector
+    database.hostname: gagarin.alena.ru
+    database.port: "1433"
+    database.user: debezium_user
+    database.password:
+    database.names: CR_devcopy
+    database.encrypt: "false"
+    database.connectionTimeout: "120000"
+    database.socketTimeout: "3000000"
+    database.queryTimeout: "0"
+    topic.prefix: 1c.cr
+    # ---- Какие таблицы включаем в CDC ----
+    table.include.list: "dbo._AccumRgT4653,dbo._AccumRg4645,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
+    # ---- Сериализация ----
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    # ---- Трансформации сообщений (SMT) ----
+    transforms: unwrap
+    transforms.unwrap.type: io.debezium.transforms.ExtractNewRecordState
+    transforms.unwrap.drop.tombstones: false
+    transforms.unwrap.delete.handling.mode: rewrite
+    # ---- Хранение истории схем в Kafka (та же, что используется kafka-connect) ----
+    #     Для Debezium 3.6.1 producer/consumer настройки (TLS+SCRAM-SHA-512)
+    #     не наследуются от worker-level → задаём их явно.
+    schema.history.internal: io.debezium.storage.kafka.history.KafkaSchemaHistory
+    schema.history.internal.kafka.topic: 1c.cr.mssql.schema-history
+    schema.history.internal.kafka.bootstrap.servers: "rc1a-an3ivliisaqgs0nb.mdb.yandexcloud.net:9091,rc1d-93nrmjafghmd0gct.mdb.yandexcloud.net:9091,rc1e-vrheh76ndbah9ciu.mdb.yandexcloud.net:9091"
+    schema.history.internal.kafka.recovery.attempts: 10
+    schema.history.internal.kafka.recovery.poll.interval.ms: 5000
+    # Admin client (нужен для storageExists() — не наследует producer/consumer настройки)
+    schema.history.internal.kafka.security.protocol: SASL_SSL
+    schema.history.internal.kafka.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.kafka.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
+    schema.history.internal.kafka.ssl.truststore.type: PEM
+    schema.history.internal.kafka.ssl.truststore.location: /mnt/kafka-certs/ca.crt
+    # Producer (TLS + SCRAM-SHA-512)
+    schema.history.internal.producer.security.protocol: SASL_SSL
+    schema.history.internal.producer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.producer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
+    schema.history.internal.producer.ssl.truststore.type: PEM
+    schema.history.internal.producer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
+    # Consumer (TLS + SCRAM-SHA-512)
+    schema.history.internal.consumer.security.protocol: SASL_SSL
+    schema.history.internal.consumer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
+    schema.history.internal.consumer.ssl.truststore.type: PEM
+    schema.history.internal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
+    # ---- Снапшотинг ----
+    snapshot.mode: always
+    snapshot.fetch.size: 10000
+    # ---- Тюнинг производительности ----
+    poll.interval.ms: 500
+    max.batch.size: 2048
+    max.queue.size: 8192
+    heartbeat.interval.ms: 0
+    signal.data.collection: "dbo.debezium_signal" # Пока не работает. Если так и не стартинет, нужно удалить это, топик и таблицу в базе

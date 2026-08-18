@@ -1,0 +1,40 @@
+-- Source: Справочник.ТипыЦенНоменклатуры.
+-- EXCEPT_KEY makes _IDRRef authoritative from the Kafka key, including tombstones.
+CREATE TABLE price_types_source (
+  `_IDRRef` STRING,
+  `_Version` STRING,
+  `_Marked` STRING,
+  `_PredefinedID` STRING,
+  `_ParentIDRRef` STRING,
+  `_Folder` STRING,
+  `_Code` STRING,
+  `_Description` STRING,
+  `_Fld542RRef` STRING,
+  `_Fld543RRef` STRING,
+  `_Fld544` STRING,
+  `_Fld545` STRING,
+  `_Fld546` STRING,
+  `_Fld547RRef` STRING,
+  `_Fld548` STRING,
+  `_Fld549` STRING,
+  `_Fld5445RRef` STRING,
+  `_Fld5676` STRING,
+  `_Fld6571` STRING,
+  `_Fld8553RRef` STRING,
+  PRIMARY KEY (`_IDRRef`) NOT ENFORCED
+) WITH (
+  'connector' = 'upsert-kafka',
+  'topic' = '1c.cr.CR_devcopy.dbo._Reference50',
+  'properties.bootstrap.servers' = 'rc1a-an3ivliisaqgs0nb.mdb.yandexcloud.net:9091,rc1d-93nrmjafghmd0gct.mdb.yandexcloud.net:9091,rc1e-vrheh76ndbah9ciu.mdb.yandexcloud.net:9091',
+  'properties.security.protocol' = 'SASL_SSL',
+  'properties.sasl.mechanism' = 'SCRAM-SHA-512',
+  'properties.group.id' = 'flink-1c-price-types',
+  'properties.allow.auto.create.topics' = 'false',
+  'key.format' = 'json',
+  'key.json.fail-on-missing-field' = 'true',
+  'key.json.ignore-parse-errors' = 'false',
+  'value.format' = 'json',
+  'value.fields-include' = 'EXCEPT_KEY',
+  'value.json.fail-on-missing-field' = 'false',
+  'value.json.ignore-parse-errors' = 'false'
+);
