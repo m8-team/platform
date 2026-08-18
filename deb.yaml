@@ -90,6 +90,11 @@ spec:
     # выбранных таблиц.
     heartbeat.interval.ms: 10000
 
+    # Debezium 3.6+: явное полное имя heartbeat-топика.
+    # Топик должен быть создан в Yandex Managed Kafka, а Kafka user,
+    # которым Kafka Connect пишет source events, должен иметь роль producer.
+    topic.heartbeat.name: 1c.cr.heartbeat
+
     # Не позволяем retriable-ошибке крутить connector бесконечно.
     # 20 попыток с паузой 60 секунд: меньше риска немедленно повторять тяжелый запрос.
     errors.max.retries: 20
@@ -105,6 +110,4 @@ spec:
     signal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
     signal.consumer.ssl.truststore.type: PEM
     signal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
-    schema.history.internal.store.only.captured.tables.ddl: "true"
-
-
+    schema.history.internal.store.only.captured.tables.ddl: "false"
