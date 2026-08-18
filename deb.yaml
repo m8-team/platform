@@ -14,7 +14,7 @@ spec:
     database.hostname: gagarin.alena.ru
     database.port: "1433"
     database.user: debezium_user
-    database.password:
+    database.password: "coopha+o5Aphaes&i2oh"
     database.names: CR_devcopy
     database.encrypt: "false"
     database.connectionTimeout: "120000"
@@ -22,7 +22,7 @@ spec:
     database.queryTimeout: "0"
     topic.prefix: 1c.cr
     # ---- Какие таблицы включаем в CDC ----
-    table.include.list: "dbo._AccumRgT4653,dbo._AccumRg4645,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
+    table.include.list: "dbo._AccumRg4645,dbo._AccumRgT4653,dbo._InfoRg4139,dbo._Reference50,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
     # ---- Сериализация ----
     key.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
@@ -59,12 +59,52 @@ spec:
     schema.history.internal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
     schema.history.internal.consumer.ssl.truststore.type: PEM
     schema.history.internal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
-    # ---- Снапшотинг ----
-    snapshot.mode: always
-    snapshot.fetch.size: 10000
+    # ---- Snapshot / bootstrap ----
+    # Не выполнять повторный полный data snapshot автоматически после рестарта.
+    snapshot.mode: when_needed_no_data
+
+    # В CR_devcopy включены ALLOW_SNAPSHOT_ISOLATION и READ_COMMITTED_SNAPSHOT.
+    # SQL Server SNAPSHOT использует row versioning вместо длительного удержания
+    # row/page read-locks, что снижает риск SQL Server error 1204 при bootstrap.
+    snapshot.isolation.mode: snapshot
+
+    # Не брать дополнительные table locks во время snapshot.
+    # ВАЖНО: во время bootstrap не выполнять DDL/обновление структуры 1С.
+    snapshot.locking.mode: none
+
+    # Не выполнять тяжелые snapshot нескольких таблиц параллельно.
+    snapshot.max.threads: 1
+
+    # Консервативный fetch; соответствует default Debezium и снижает пиковую нагрузку.
+    snapshot.fetch.size: 2000
+
+    # Incremental snapshot намеренно не включаем для keyless 1C-регистров:
+    # их уникальность обеспечивается составными UNIQUE index, а surrogate-key
+    # Debezium принимает только как одну колонку. Историческую загрузку этих
+    # таблиц запускаем blocking snapshot-ами через Kafka signaling.
     # ---- Тюнинг производительности ----
     poll.interval.ms: 500
     max.batch.size: 2048
     max.queue.size: 8192
-    heartbeat.interval.ms: 0
-    signal.data.collection: "dbo.debezium_signal" # Пока не работает. Если так и не стартинет, нужно удалить это, топик и таблицу в базе
+    # Heartbeat помогает регулярно фиксировать прогресс offset даже при низкой активности
+    # выбранных таблиц.
+    heartbeat.interval.ms: 10000
+
+    # Не позволяем retriable-ошибке крутить connector бесконечно.
+    # 20 попыток с паузой 60 секунд: меньше риска немедленно повторять тяжелый запрос.
+    errors.max.retries: 20
+    retriable.restart.connector.wait.ms: 60000
+
+    # ---- Debezium signaling без изменений схемы MSSQL ----
+    # Kafka channel позволяет запускать blocking snapshots без dbo.debezium_signal.
+    signal.enabled.channels: kafka
+    signal.kafka.topic: 1c.cr-signal
+    signal.kafka.bootstrap.servers: "rc1a-an3ivliisaqgs0nb.mdb.yandexcloud.net:9091,rc1d-93nrmjafghmd0gct.mdb.yandexcloud.net:9091,rc1e-vrheh76ndbah9ciu.mdb.yandexcloud.net:9091"
+    signal.consumer.security.protocol: SASL_SSL
+    signal.consumer.sasl.mechanism: SCRAM-SHA-512
+    signal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
+    signal.consumer.ssl.truststore.type: PEM
+    signal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
+    schema.history.internal.store.only.captured.tables.ddl: "true"
+
+
