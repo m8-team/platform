@@ -22,7 +22,8 @@ spec:
     database.queryTimeout: "0"
     topic.prefix: 1c.cr
     # ---- Какие таблицы включаем в CDC ----
-    table.include.list: "dbo._AccumRg4645,dbo._AccumRgT4653,dbo._InfoRg4139,dbo._Reference50,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
+    #table.include.list: "dbo._AccumRg4645,dbo._AccumRgT4653,dbo._InfoRg4139,dbo._Reference50,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
+    table.include.list: "dbo._Reference50,dbo._Reference35"
     # ---- Сериализация ----
     key.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
@@ -61,7 +62,7 @@ spec:
     schema.history.internal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
     # ---- Snapshot / bootstrap ----
     # Не выполнять повторный полный data snapshot автоматически после рестарта.
-    snapshot.mode: when_needed_no_data
+    snapshot.mode: initial
 
     # В CR_devcopy включены ALLOW_SNAPSHOT_ISOLATION и READ_COMMITTED_SNAPSHOT.
     # SQL Server SNAPSHOT использует row versioning вместо длительного удержания
@@ -104,9 +105,12 @@ spec:
     # Kafka channel позволяет запускать blocking snapshots без dbo.debezium_signal.
     signal.enabled.channels: kafka
     signal.kafka.topic: 1c.cr-signal
+    signal.kafka.groupId: kafka-signal
+    signal.kafka.poll.timeout.ms: 5000
     signal.kafka.bootstrap.servers: "rc1a-an3ivliisaqgs0nb.mdb.yandexcloud.net:9091,rc1d-93nrmjafghmd0gct.mdb.yandexcloud.net:9091,rc1e-vrheh76ndbah9ciu.mdb.yandexcloud.net:9091"
     signal.consumer.security.protocol: SASL_SSL
     signal.consumer.sasl.mechanism: SCRAM-SHA-512
+    signal.consumer.auto.offset.reset: earliest
     signal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="1c-cr-cdc-producer" password="wurkek-jatfuz-kyJma4";
     signal.consumer.ssl.truststore.type: PEM
     signal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
@@ -118,3 +122,5 @@ spec:
         WHERE LOWER([filename]) LIKE N'%sqlagent.exe%'
           AND [status] = 4
       ) THEN 1 ELSE 0 END
+
+
