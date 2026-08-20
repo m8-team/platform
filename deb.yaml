@@ -22,8 +22,8 @@ spec:
     database.queryTimeout: "0"
     topic.prefix: 1c.cr
     # ---- Какие таблицы включаем в CDC ----
-    #table.include.list: "dbo._AccumRg4645,dbo._AccumRgT4653,dbo._InfoRg4139,dbo._Reference50,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
-    table.include.list: "dbo._Reference50,dbo._Reference35"
+    table.include.list: "dbo._AccumRg4645,dbo._AccumRgT4653,dbo._InfoRg4139,dbo._Reference50,dbo._InfoRg13998,dbo._Reference19,dbo._Reference4,dbo._Reference26,dbo._Reference33,dbo._Reference61,dbo._Reference35,dbo._Reference56,dbo._Reference44,dbo._Reference36,dbo._AccumRg4499,dbo._Document153,dbo._Document153_VT3478"
+    #table.include.list: "dbo._Reference50,dbo._Reference35"
     # ---- Сериализация ----
     key.converter: org.apache.kafka.connect.json.JsonConverter
     value.converter: org.apache.kafka.connect.json.JsonConverter
@@ -62,6 +62,7 @@ spec:
     schema.history.internal.consumer.ssl.truststore.location: /mnt/kafka-certs/ca.crt
     # ---- Snapshot / bootstrap ----
     # Не выполнять повторный полный data snapshot автоматически после рестарта.
+    #snapshot.mode: recovery
     snapshot.mode: initial
 
     # В CR_devcopy включены ALLOW_SNAPSHOT_ISOLATION и READ_COMMITTED_SNAPSHOT.
