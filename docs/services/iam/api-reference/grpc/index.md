@@ -8,4 +8,4 @@
 
 | Service | Description |
 | --- | --- |
-| [Authentication](./authentication/index.md) | Authentication Service gRPC API. |
+| [Authentication](./authentication/index.md) | Caller authentication is required for all RPCs, including Create and operation<br/>polling. Every call must authorize the caller for the owning client/resource.<br/>Non-Create RPCs additionally require the interaction token described by<br/>AuthenticationInteraction. IDs alone never authorize access.<br/>Mutation operations finish when the command is applied, not when the entire<br/>authentication finishes. Poll Get for subsequent provider-driven changes.<br/>Mutation request_id deduplication is scoped to caller, client, RPC and target.<br/>Retain keys at least 24 hours and through authentication expiry; identical<br/>retries return the original operation without repeating side effects, while<br/>reuse with a different payload returns ALREADY_EXISTS. Authorize before replay. |

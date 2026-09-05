@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AuthenticationService_Get_FullMethodName             = "/m8.platform.iam.v1.AuthenticationService/Get"
 	AuthenticationService_Create_FullMethodName          = "/m8.platform.iam.v1.AuthenticationService/Create"
 	AuthenticationService_Cancel_FullMethodName          = "/m8.platform.iam.v1.AuthenticationService/Cancel"
 	AuthenticationService_SelectChallenge_FullMethodName = "/m8.platform.iam.v1.AuthenticationService/SelectChallenge"
@@ -30,7 +31,20 @@ const (
 // AuthenticationServiceClient is the client API for AuthenticationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Caller authentication is required for all RPCs, including Create and operation
+// polling. Every call must authorize the caller for the owning client/resource.
+// Non-Create RPCs additionally require the interaction token described by
+// AuthenticationInteraction. IDs alone never authorize access.
+// Mutation operations finish when the command is applied, not when the entire
+// authentication finishes. Poll Get for subsequent provider-driven changes.
+// Mutation request_id deduplication is scoped to caller, client, RPC and target.
+// Retain keys at least 24 hours and through authentication expiry; identical
+// retries return the original operation without repeating side effects, while
+// reuse with a different payload returns ALREADY_EXISTS. Authorize before replay.
 type AuthenticationServiceClient interface {
+	// Returns the latest public snapshot, including asynchronous state changes.
+	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*Authentication, error)
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	Cancel(ctx context.Context, in *CancelRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
 	SelectChallenge(ctx context.Context, in *SelectChallengeRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error)
@@ -44,6 +58,16 @@ type authenticationServiceClient struct {
 
 func NewAuthenticationServiceClient(cc grpc.ClientConnInterface) AuthenticationServiceClient {
 	return &authenticationServiceClient{cc}
+}
+
+func (c *authenticationServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*Authentication, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Authentication)
+	err := c.cc.Invoke(ctx, AuthenticationService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *authenticationServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*longrunningpb.Operation, error) {
@@ -99,7 +123,20 @@ func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, in *V
 // AuthenticationServiceServer is the server API for AuthenticationService service.
 // All implementations must embed UnimplementedAuthenticationServiceServer
 // for forward compatibility.
+//
+// Caller authentication is required for all RPCs, including Create and operation
+// polling. Every call must authorize the caller for the owning client/resource.
+// Non-Create RPCs additionally require the interaction token described by
+// AuthenticationInteraction. IDs alone never authorize access.
+// Mutation operations finish when the command is applied, not when the entire
+// authentication finishes. Poll Get for subsequent provider-driven changes.
+// Mutation request_id deduplication is scoped to caller, client, RPC and target.
+// Retain keys at least 24 hours and through authentication expiry; identical
+// retries return the original operation without repeating side effects, while
+// reuse with a different payload returns ALREADY_EXISTS. Authorize before replay.
 type AuthenticationServiceServer interface {
+	// Returns the latest public snapshot, including asynchronous state changes.
+	Get(context.Context, *GetRequest) (*Authentication, error)
 	Create(context.Context, *CreateRequest) (*longrunningpb.Operation, error)
 	Cancel(context.Context, *CancelRequest) (*longrunningpb.Operation, error)
 	SelectChallenge(context.Context, *SelectChallengeRequest) (*longrunningpb.Operation, error)
@@ -115,6 +152,9 @@ type AuthenticationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthenticationServiceServer struct{}
 
+func (UnimplementedAuthenticationServiceServer) Get(context.Context, *GetRequest) (*Authentication, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
 func (UnimplementedAuthenticationServiceServer) Create(context.Context, *CreateRequest) (*longrunningpb.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
@@ -149,6 +189,24 @@ func RegisterAuthenticationServiceServer(s grpc.ServiceRegistrar, srv Authentica
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AuthenticationService_ServiceDesc, srv)
+}
+
+func _AuthenticationService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthenticationServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthenticationService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthenticationServiceServer).Get(ctx, req.(*GetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthenticationService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -248,6 +306,10 @@ var AuthenticationService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "m8.platform.iam.v1.AuthenticationService",
 	HandlerType: (*AuthenticationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Get",
+			Handler:    _AuthenticationService_Get_Handler,
+		},
 		{
 			MethodName: "Create",
 			Handler:    _AuthenticationService_Create_Handler,

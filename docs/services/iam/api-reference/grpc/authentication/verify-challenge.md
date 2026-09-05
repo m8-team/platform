@@ -41,7 +41,8 @@ The method starts a long-running operation.
       "proof": "string",
       "denial_reason": "string"
     }
-  }
+  },
+  "request_id": "string"
 }
 ```
 
@@ -50,6 +51,7 @@ The method starts a long-running operation.
 | authentication_id | string | No description. |
 | challenge_id | string | No description. |
 | response | AuthenticationChallengeResponse | No description. |
+| request_id | string | Idempotency key; retries must not consume additional verification attempts. |
 
 ## google.longrunning.Operation
 
@@ -171,7 +173,8 @@ Long-running operation returned by asynchronous API methods.
         "hints": {
           "key": "string"
         },
-        "recommended": true
+        "recommended": true,
+        "challenge_id": "string"
       }
     ],
     "error": {
@@ -309,7 +312,15 @@ Long-running operation returned by asynchronous API methods.
     "update_time": "string",
     "expire_time": "string",
     "requested_assurance_level": "AuthenticationAssuranceLevel",
-    "version": 0
+    "version": 0,
+    "public_subject": {
+      "masked_identifier": "string"
+    }
+  },
+  "interaction": {
+    "authentication_id": "string",
+    "interaction_token": "string",
+    "expire_time": "string"
   }
 }
 ```
@@ -317,6 +328,7 @@ Long-running operation returned by asynchronous API methods.
 | Field | Type | Description |
 | --- | --- | --- |
 | authentication | Authentication | No description. |
+| interaction | AuthenticationInteraction | Present only for a successful Create. Operation reads and retries require<br/>the original caller's authentication and authorization. Never publish this<br/>response as an event or log it. Other mutations omit this secret capability. |
 
 ## AuthenticationOperationMetadata
 
@@ -474,7 +486,8 @@ Long-running operation returned by asynchronous API methods.
       "hints": {
         "key": "string"
       },
-      "recommended": true
+      "recommended": true,
+      "challenge_id": "string"
     }
   ],
   "error": {
@@ -612,7 +625,10 @@ Long-running operation returned by asynchronous API methods.
   "update_time": "string",
   "expire_time": "string",
   "requested_assurance_level": "AuthenticationAssuranceLevel",
-  "version": 0
+  "version": 0,
+  "public_subject": {
+    "masked_identifier": "string"
+  }
 }
 ```
 
@@ -620,7 +636,7 @@ Long-running operation returned by asynchronous API methods.
 | --- | --- | --- |
 | id | string | No description. |
 | client_id | string | No description. |
-| subject | AuthenticationSubject | No description. |
+| subject | AuthenticationSubject | Deprecated. Servers must omit this request-only identifier from all snapshots.<br/>Use public_subject for a masked presentation of the claimant. |
 | purpose | enum AuthenticationPurpose | No description.<br/><br/>Available values: `AUTHENTICATION_PURPOSE_UNSPECIFIED`, `AUTHENTICATION_PURPOSE_PRIMARY_LOGIN`, `AUTHENTICATION_PURPOSE_REAUTHENTICATION`, `AUTHENTICATION_PURPOSE_STEP_UP`, `AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY`, `AUTHENTICATION_PURPOSE_IDENTITY_LINKING`, `AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION`. |
 | state | enum AuthenticationState | No description.<br/><br/>Available values: `AUTHENTICATION_STATE_UNSPECIFIED`, `AUTHENTICATION_STATE_STARTING`, `AUTHENTICATION_STATE_CHALLENGE_REQUIRED`, `AUTHENTICATION_STATE_CHALLENGE_SENT`, `AUTHENTICATION_STATE_VERIFYING`, `AUTHENTICATION_STATE_AUTHENTICATED`, `AUTHENTICATION_STATE_FAILED`, `AUTHENTICATION_STATE_CANCELLED`, `AUTHENTICATION_STATE_EXPIRED`. |
 | state_reason | enum AuthenticationStateReason | No description.<br/><br/>Available values: `AUTHENTICATION_STATE_REASON_UNSPECIFIED`, `AUTHENTICATION_STATE_REASON_START_ACCEPTED`, `AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED`, `AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND`, `AUTHENTICATION_STATE_REASON_RISK_ALLOWED`, `AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED`, `AUTHENTICATION_STATE_REASON_RISK_BLOCKED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_SENT`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID`, `AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED`, `AUTHENTICATION_STATE_REASON_USER_APPROVED`, `AUTHENTICATION_STATE_REASON_USER_DENIED`, `AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED`, `AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED`, `AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID`, `AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT`, `AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID`, `AUTHENTICATION_STATE_REASON_AUTHENTICATED`, `AUTHENTICATION_STATE_REASON_EXPIRED`, `AUTHENTICATION_STATE_REASON_CANCELLED`, `AUTHENTICATION_STATE_REASON_FAILED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED`, `AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE`, `AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED`, `AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED`. |
@@ -634,6 +650,28 @@ Long-running operation returned by asynchronous API methods.
 | expire_time | Timestamp | No description. |
 | requested_assurance_level | enum AuthenticationAssuranceLevel | No description.<br/><br/>Available values: `AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL0`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL1`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL2`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL3`. |
 | version | int64 | No description. |
+| public_subject | AuthenticationPublicSubject | No description. |
+
+## AuthenticationInteraction
+
+Secret capability returned only by Create, never in Authentication snapshots,
+events or logs. Bound to the creating caller, client_id and authentication_id.
+Send via x-m8-authentication-interaction-token metadata (HTTP header of the
+same name) on subsequent AuthenticationService calls, alongside caller auth.
+
+```json
+{
+  "authentication_id": "string",
+  "interaction_token": "string",
+  "expire_time": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| authentication_id | string | No description. |
+| interaction_token | string | No description. |
+| expire_time | Timestamp | No description. |
 
 ## OtpChallengeResponse
 
@@ -899,7 +937,8 @@ inputs and must not be returned raw in public Authentication snapshots.
   "hints": {
     "key": "string"
   },
-  "recommended": true
+  "recommended": true,
+  "challenge_id": "string"
 }
 ```
 
@@ -919,6 +958,7 @@ inputs and must not be returned raw in public Authentication snapshots.
 | custom_capabilities[] | string | No description. |
 | hints | map<string, string> | No description. |
 | recommended | bool | No description. |
+| challenge_id | string | Authentication-scoped candidate ID accepted by SelectChallenge.challenge_id.<br/>Selection activates this candidate; current_challenge.id has the same ID. |
 
 ## AuthenticationError
 
@@ -1107,6 +1147,21 @@ inputs and must not be returned raw in public Authentication snapshots.
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL1 | 2 | No description. |
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL2 | 3 | No description. |
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL3 | 4 | No description. |
+
+## AuthenticationPublicSubject
+
+Safe presentation of the caller-supplied identifier. Must not reveal whether
+an account exists. Never contains a raw email, phone, username or user ID.
+
+```json
+{
+  "masked_identifier": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| masked_identifier | string | No description. |
 
 ## PhoneNumber
 

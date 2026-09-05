@@ -16,6 +16,11 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
 
 message Authentication {
   option (m8.platform.common.extension.v1.topic) = "m8.platform.iam.authentications.v1";
+  option (buf.validate.message).cel = {
+    id: "authentication.subject_not_public"
+    message: "raw subject identifiers must not be returned in snapshots"
+    expression: "!has(this.subject)"
+  };
 
   string id = 1 [
     (google.api.field_behavior) = IDENTIFIER,
@@ -29,7 +34,12 @@ message Authentication {
     (buf.validate.field).string.uuid = true
   ];
 
-  AuthenticationSubject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Deprecated. Servers must omit this request-only identifier from all snapshots.
+  // Use public_subject for a masked presentation of the claimant.
+  AuthenticationSubject subject = 3 [
+    deprecated = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
 
   AuthenticationPurpose purpose = 4 [
     (google.api.field_behavior) = OUTPUT_ONLY,
@@ -80,8 +90,14 @@ message Authentication {
     (google.api.field_behavior) = OUTPUT_ONLY,
     (buf.validate.field).int64.gte = 0
   ];
+
+  AuthenticationPublicSubject public_subject = 17 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+// Secret capability returned only by Create, never in Authentication snapshots,
+// events or logs. Bound to the creating caller, client_id and authentication_id.
+// Send via x-m8-authentication-interaction-token metadata (HTTP header of the
+// same name) on subsequent AuthenticationService calls, alongside caller auth.
 message AuthenticationInteraction {
   string authentication_id = 1 [
     (google.api.field_behavior) = OUTPUT_ONLY,

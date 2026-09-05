@@ -100,7 +100,6 @@ enum AuthenticationChallengeCapability {
   AUTHENTICATION_CHALLENGE_CAPABILITY_SELECT_ANOTHER_METHOD = 5;
 }
 
-
 enum ApprovalChannel {
   APPROVAL_CHANNEL_UNSPECIFIED = 0;
 
@@ -233,6 +232,13 @@ message AuthenticationChallengeOption {
   ];
 
   bool recommended = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Authentication-scoped candidate ID accepted by SelectChallenge.challenge_id.
+  // Selection activates this candidate; current_challenge.id has the same ID.
+  string challenge_id = 15 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 message AuthenticationChallengeInfo {

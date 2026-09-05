@@ -132,7 +132,106 @@ The method starts a long-running operation.
   "options": {
     "method_id": "string",
     "provider_id": "string"
-  }
+  },
+  "start_context": {
+    "request": {
+      "request_id": "string",
+      "correlation_id": "string",
+      "trace_id": "string",
+      "source_service": "string",
+      "user_agent": "string",
+      "locale": "string",
+      "timezone": "string",
+      "accept_language": "string"
+    },
+    "session": {
+      "existing_session_id": "string",
+      "previous_authentication_id": "string",
+      "auth_time": "string",
+      "max_age": "string",
+      "requested_assurance_level": "AuthenticationAssuranceLevel"
+    },
+    "resource": {
+      "requested_resource": "string",
+      "requested_operation": "string",
+      "audience": [
+        "string"
+      ]
+    },
+    "interaction": {
+      "ui_mode": "UiMode",
+      "login_hint_source": "LoginHintSource",
+      "preferred_locale": "string",
+      "display": "DisplayMode",
+      "prompts": [
+        "string"
+      ],
+      "passkey_capable_client": true,
+      "user_verification_supported": true
+    },
+    "device": {
+      "device_id": "string",
+      "trusted_device_id": "string",
+      "device_fingerprint_id": "string",
+      "platform": "string",
+      "os": "string",
+      "os_version": "string",
+      "browser": "string",
+      "browser_version": "string",
+      "app_version": "string",
+      "sdk_name": "string",
+      "sdk_version": "string",
+      "webauthn_available": true,
+      "passkey_available_hint": true
+    },
+    "network": {
+      "ip": "string",
+      "forwarded_for": [
+        "string"
+      ]
+    },
+    "oidc": {
+      "scope": [
+        "string"
+      ],
+      "acr_values": [
+        "string"
+      ],
+      "prompt": [
+        "string"
+      ],
+      "max_age": "string",
+      "nonce": "string",
+      "state": "string",
+      "code_challenge": "string",
+      "code_challenge_method": "string",
+      "response_type": "string",
+      "response_mode": "string",
+      "login_hint": "string",
+      "resource": [
+        "string"
+      ],
+      "audience": [
+        "string"
+      ],
+      "redirect_uri": "string"
+    },
+    "ciba": {
+      "login_hint_token": "string",
+      "id_token_hint": "string",
+      "binding_message": "string",
+      "requested_expiry": "string"
+    },
+    "transaction": {
+      "transaction_id": "string",
+      "type": "string",
+      "amount": "string",
+      "currency": "string",
+      "counterparty": "string",
+      "binding_message": "string"
+    }
+  },
+  "request_id": "string"
 }
 ```
 
@@ -140,8 +239,10 @@ The method starts a long-running operation.
 | --- | --- | --- |
 | client_id | string | No description. |
 | subject | AuthenticationSubject | No description. |
-| context | AuthenticationContext | No description. |
+| context | AuthenticationContext | Deprecated output context. Servers reject a supplied value with<br/>INVALID_ARGUMENT; never trust caller-supplied resolved context. |
 | options | AuthenticationOptions | No description. |
+| start_context | AuthenticationStartContext | Untrusted input hints; the server resolves and verifies authoritative state. |
+| request_id | string | Optional for legacy clients. Supply a fresh UUID for each logical command<br/>and reuse it on retries. Omission provides no retry deduplication guarantee. |
 
 ## google.longrunning.Operation
 
@@ -263,7 +364,8 @@ Long-running operation returned by asynchronous API methods.
         "hints": {
           "key": "string"
         },
-        "recommended": true
+        "recommended": true,
+        "challenge_id": "string"
       }
     ],
     "error": {
@@ -401,7 +503,15 @@ Long-running operation returned by asynchronous API methods.
     "update_time": "string",
     "expire_time": "string",
     "requested_assurance_level": "AuthenticationAssuranceLevel",
-    "version": 0
+    "version": 0,
+    "public_subject": {
+      "masked_identifier": "string"
+    }
+  },
+  "interaction": {
+    "authentication_id": "string",
+    "interaction_token": "string",
+    "expire_time": "string"
   }
 }
 ```
@@ -409,6 +519,7 @@ Long-running operation returned by asynchronous API methods.
 | Field | Type | Description |
 | --- | --- | --- |
 | authentication | Authentication | No description. |
+| interaction | AuthenticationInteraction | Present only for a successful Create. Operation reads and retries require<br/>the original caller's authentication and authorization. Never publish this<br/>response as an event or log it. Other mutations omit this secret capability. |
 
 ## AuthenticationOperationMetadata
 
@@ -585,6 +696,121 @@ inputs and must not be returned raw in public Authentication snapshots.
 | method_id | string | No description. |
 | provider_id | string | No description. |
 
+## AuthenticationStartContext
+
+```json
+{
+  "request": {
+    "request_id": "string",
+    "correlation_id": "string",
+    "trace_id": "string",
+    "source_service": "string",
+    "user_agent": "string",
+    "locale": "string",
+    "timezone": "string",
+    "accept_language": "string"
+  },
+  "session": {
+    "existing_session_id": "string",
+    "previous_authentication_id": "string",
+    "auth_time": "string",
+    "max_age": "string",
+    "requested_assurance_level": "AuthenticationAssuranceLevel"
+  },
+  "resource": {
+    "requested_resource": "string",
+    "requested_operation": "string",
+    "audience": [
+      "string"
+    ]
+  },
+  "interaction": {
+    "ui_mode": "UiMode",
+    "login_hint_source": "LoginHintSource",
+    "preferred_locale": "string",
+    "display": "DisplayMode",
+    "prompts": [
+      "string"
+    ],
+    "passkey_capable_client": true,
+    "user_verification_supported": true
+  },
+  "device": {
+    "device_id": "string",
+    "trusted_device_id": "string",
+    "device_fingerprint_id": "string",
+    "platform": "string",
+    "os": "string",
+    "os_version": "string",
+    "browser": "string",
+    "browser_version": "string",
+    "app_version": "string",
+    "sdk_name": "string",
+    "sdk_version": "string",
+    "webauthn_available": true,
+    "passkey_available_hint": true
+  },
+  "network": {
+    "ip": "string",
+    "forwarded_for": [
+      "string"
+    ]
+  },
+  "oidc": {
+    "scope": [
+      "string"
+    ],
+    "acr_values": [
+      "string"
+    ],
+    "prompt": [
+      "string"
+    ],
+    "max_age": "string",
+    "nonce": "string",
+    "state": "string",
+    "code_challenge": "string",
+    "code_challenge_method": "string",
+    "response_type": "string",
+    "response_mode": "string",
+    "login_hint": "string",
+    "resource": [
+      "string"
+    ],
+    "audience": [
+      "string"
+    ],
+    "redirect_uri": "string"
+  },
+  "ciba": {
+    "login_hint_token": "string",
+    "id_token_hint": "string",
+    "binding_message": "string",
+    "requested_expiry": "string"
+  },
+  "transaction": {
+    "transaction_id": "string",
+    "type": "string",
+    "amount": "string",
+    "currency": "string",
+    "counterparty": "string",
+    "binding_message": "string"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| request | RequestHint | No description. |
+| session | SessionHint | No description. |
+| resource | ResourceHint | No description. |
+| interaction | InteractionHint | No description. |
+| device | DeviceHint | No description. |
+| network | NetworkHint | No description. |
+| oidc | OidcRequestHint | No description. |
+| ciba | CibaRequestHint | No description. |
+| transaction | TransactionHint | No description. |
+
 ## Authentication
 
 ```json
@@ -690,7 +916,8 @@ inputs and must not be returned raw in public Authentication snapshots.
       "hints": {
         "key": "string"
       },
-      "recommended": true
+      "recommended": true,
+      "challenge_id": "string"
     }
   ],
   "error": {
@@ -828,7 +1055,10 @@ inputs and must not be returned raw in public Authentication snapshots.
   "update_time": "string",
   "expire_time": "string",
   "requested_assurance_level": "AuthenticationAssuranceLevel",
-  "version": 0
+  "version": 0,
+  "public_subject": {
+    "masked_identifier": "string"
+  }
 }
 ```
 
@@ -836,7 +1066,7 @@ inputs and must not be returned raw in public Authentication snapshots.
 | --- | --- | --- |
 | id | string | No description. |
 | client_id | string | No description. |
-| subject | AuthenticationSubject | No description. |
+| subject | AuthenticationSubject | Deprecated. Servers must omit this request-only identifier from all snapshots.<br/>Use public_subject for a masked presentation of the claimant. |
 | purpose | enum AuthenticationPurpose | No description.<br/><br/>Available values: `AUTHENTICATION_PURPOSE_UNSPECIFIED`, `AUTHENTICATION_PURPOSE_PRIMARY_LOGIN`, `AUTHENTICATION_PURPOSE_REAUTHENTICATION`, `AUTHENTICATION_PURPOSE_STEP_UP`, `AUTHENTICATION_PURPOSE_ACCOUNT_RECOVERY`, `AUTHENTICATION_PURPOSE_IDENTITY_LINKING`, `AUTHENTICATION_PURPOSE_TRANSACTION_CONFIRMATION`. |
 | state | enum AuthenticationState | No description.<br/><br/>Available values: `AUTHENTICATION_STATE_UNSPECIFIED`, `AUTHENTICATION_STATE_STARTING`, `AUTHENTICATION_STATE_CHALLENGE_REQUIRED`, `AUTHENTICATION_STATE_CHALLENGE_SENT`, `AUTHENTICATION_STATE_VERIFYING`, `AUTHENTICATION_STATE_AUTHENTICATED`, `AUTHENTICATION_STATE_FAILED`, `AUTHENTICATION_STATE_CANCELLED`, `AUTHENTICATION_STATE_EXPIRED`. |
 | state_reason | enum AuthenticationStateReason | No description.<br/><br/>Available values: `AUTHENTICATION_STATE_REASON_UNSPECIFIED`, `AUTHENTICATION_STATE_REASON_START_ACCEPTED`, `AUTHENTICATION_STATE_REASON_SUBJECT_RESOLVED`, `AUTHENTICATION_STATE_REASON_SUBJECT_NOT_FOUND`, `AUTHENTICATION_STATE_REASON_RISK_ALLOWED`, `AUTHENTICATION_STATE_REASON_RISK_CHALLENGE_REQUIRED`, `AUTHENTICATION_STATE_REASON_RISK_BLOCKED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_SELECTED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_SENT`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESENT`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESPONSE_INVALID`, `AUTHENTICATION_STATE_REASON_ATTEMPTS_EXCEEDED`, `AUTHENTICATION_STATE_REASON_USER_APPROVED`, `AUTHENTICATION_STATE_REASON_USER_DENIED`, `AUTHENTICATION_STATE_REASON_PROVIDER_REDIRECT_REQUIRED`, `AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_RECEIVED`, `AUTHENTICATION_STATE_REASON_PROVIDER_CALLBACK_INVALID`, `AUTHENTICATION_STATE_REASON_PROVIDER_TIMEOUT`, `AUTHENTICATION_STATE_REASON_WEBAUTHN_ASSERTION_INVALID`, `AUTHENTICATION_STATE_REASON_AUTHENTICATED`, `AUTHENTICATION_STATE_REASON_EXPIRED`, `AUTHENTICATION_STATE_REASON_CANCELLED`, `AUTHENTICATION_STATE_REASON_FAILED`, `AUTHENTICATION_STATE_REASON_CHALLENGE_RESELECTED`, `AUTHENTICATION_STATE_REASON_RESEND_NOT_AVAILABLE`, `AUTHENTICATION_STATE_REASON_METHOD_NOT_ALLOWED`, `AUTHENTICATION_STATE_REASON_PROVIDER_NOT_ALLOWED`. |
@@ -850,6 +1080,28 @@ inputs and must not be returned raw in public Authentication snapshots.
 | expire_time | Timestamp | No description. |
 | requested_assurance_level | enum AuthenticationAssuranceLevel | No description.<br/><br/>Available values: `AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL0`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL1`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL2`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL3`. |
 | version | int64 | No description. |
+| public_subject | AuthenticationPublicSubject | No description. |
+
+## AuthenticationInteraction
+
+Secret capability returned only by Create, never in Authentication snapshots,
+events or logs. Bound to the creating caller, client_id and authentication_id.
+Send via x-m8-authentication-interaction-token metadata (HTTP header of the
+same name) on subsequent AuthenticationService calls, alongside caller auth.
+
+```json
+{
+  "authentication_id": "string",
+  "interaction_token": "string",
+  "expire_time": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| authentication_id | string | No description. |
+| interaction_token | string | No description. |
+| expire_time | Timestamp | No description. |
 
 ## PhoneNumber
 
@@ -1114,6 +1366,236 @@ Examples:
 | counterparty_masked | string | No description. |
 | binding_message | string | No description. |
 
+## RequestHint
+
+```json
+{
+  "request_id": "string",
+  "correlation_id": "string",
+  "trace_id": "string",
+  "source_service": "string",
+  "user_agent": "string",
+  "locale": "string",
+  "timezone": "string",
+  "accept_language": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| request_id | string | No description. |
+| correlation_id | string | No description. |
+| trace_id | string | No description. |
+| source_service | string | No description. |
+| user_agent | string | No description. |
+| locale | string | No description. |
+| timezone | string | No description. |
+| accept_language | string | No description. |
+
+## SessionHint
+
+```json
+{
+  "existing_session_id": "string",
+  "previous_authentication_id": "string",
+  "auth_time": "string",
+  "max_age": "string",
+  "requested_assurance_level": "AuthenticationAssuranceLevel"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| existing_session_id | string | No description. |
+| previous_authentication_id | string | No description. |
+| auth_time | Timestamp | No description. |
+| max_age | Duration | No description. |
+| requested_assurance_level | enum AuthenticationAssuranceLevel | No description.<br/><br/>Available values: `AUTHENTICATION_ASSURANCE_LEVEL_UNSPECIFIED`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL0`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL1`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL2`, `AUTHENTICATION_ASSURANCE_LEVEL_AAL3`. |
+
+## ResourceHint
+
+```json
+{
+  "requested_resource": "string",
+  "requested_operation": "string",
+  "audience": [
+    "string"
+  ]
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| requested_resource | string | No description. |
+| requested_operation | string | No description. |
+| audience[] | string | No description. |
+
+## InteractionHint
+
+```json
+{
+  "ui_mode": "UiMode",
+  "login_hint_source": "LoginHintSource",
+  "preferred_locale": "string",
+  "display": "DisplayMode",
+  "prompts": [
+    "string"
+  ],
+  "passkey_capable_client": true,
+  "user_verification_supported": true
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| ui_mode | enum UiMode | No description.<br/><br/>Available values: `UI_MODE_UNSPECIFIED`, `UI_MODE_REDIRECT`, `UI_MODE_EMBEDDED`, `UI_MODE_API`, `UI_MODE_DEVICE_CODE`, `UI_MODE_CIBA`. |
+| login_hint_source | enum LoginHintSource | No description.<br/><br/>Available values: `LOGIN_HINT_SOURCE_UNSPECIFIED`, `LOGIN_HINT_SOURCE_USER_INPUT`, `LOGIN_HINT_SOURCE_OIDC_LOGIN_HINT`, `LOGIN_HINT_SOURCE_SESSION`, `LOGIN_HINT_SOURCE_INVITATION`, `LOGIN_HINT_SOURCE_ADMIN_SELECTED`, `LOGIN_HINT_SOURCE_IDP_CALLBACK`. |
+| preferred_locale | string | No description. |
+| display | enum DisplayMode | No description.<br/><br/>Available values: `DISPLAY_MODE_UNSPECIFIED`, `DISPLAY_MODE_PAGE`, `DISPLAY_MODE_POPUP`, `DISPLAY_MODE_TOUCH`, `DISPLAY_MODE_WAP`. |
+| prompts[] | string | No description. |
+| passkey_capable_client | bool | No description. |
+| user_verification_supported | bool | No description. |
+
+## DeviceHint
+
+```json
+{
+  "device_id": "string",
+  "trusted_device_id": "string",
+  "device_fingerprint_id": "string",
+  "platform": "string",
+  "os": "string",
+  "os_version": "string",
+  "browser": "string",
+  "browser_version": "string",
+  "app_version": "string",
+  "sdk_name": "string",
+  "sdk_version": "string",
+  "webauthn_available": true,
+  "passkey_available_hint": true
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| device_id | string | No description. |
+| trusted_device_id | string | No description. |
+| device_fingerprint_id | string | No description. |
+| platform | string | No description. |
+| os | string | No description. |
+| os_version | string | No description. |
+| browser | string | No description. |
+| browser_version | string | No description. |
+| app_version | string | No description. |
+| sdk_name | string | No description. |
+| sdk_version | string | No description. |
+| webauthn_available | bool | No description. |
+| passkey_available_hint | bool | No description. |
+
+## NetworkHint
+
+```json
+{
+  "ip": "string",
+  "forwarded_for": [
+    "string"
+  ]
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| ip | string | No description. |
+| forwarded_for[] | string | No description. |
+
+## OidcRequestHint
+
+```json
+{
+  "scope": [
+    "string"
+  ],
+  "acr_values": [
+    "string"
+  ],
+  "prompt": [
+    "string"
+  ],
+  "max_age": "string",
+  "nonce": "string",
+  "state": "string",
+  "code_challenge": "string",
+  "code_challenge_method": "string",
+  "response_type": "string",
+  "response_mode": "string",
+  "login_hint": "string",
+  "resource": [
+    "string"
+  ],
+  "audience": [
+    "string"
+  ],
+  "redirect_uri": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| scope[] | string | No description. |
+| acr_values[] | string | No description. |
+| prompt[] | string | No description. |
+| max_age | Duration | No description. |
+| nonce | string | No description. |
+| state | string | No description. |
+| code_challenge | string | No description. |
+| code_challenge_method | string | No description. |
+| response_type | string | No description. |
+| response_mode | string | No description. |
+| login_hint | string | No description. |
+| resource[] | string | No description. |
+| audience[] | string | No description. |
+| redirect_uri | string | No description. |
+
+## CibaRequestHint
+
+```json
+{
+  "login_hint_token": "string",
+  "id_token_hint": "string",
+  "binding_message": "string",
+  "requested_expiry": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| login_hint_token | string | No description. |
+| id_token_hint | string | No description. |
+| binding_message | string | No description. |
+| requested_expiry | Duration | No description. |
+
+## TransactionHint
+
+```json
+{
+  "transaction_id": "string",
+  "type": "string",
+  "amount": "string",
+  "currency": "string",
+  "counterparty": "string",
+  "binding_message": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| transaction_id | string | No description. |
+| type | string | No description. |
+| amount | string | No description. |
+| currency | string | No description. |
+| counterparty | string | No description. |
+| binding_message | string | No description. |
+
 ## AuthenticationPurpose
 
 | Value | Number | Description |
@@ -1291,7 +1773,8 @@ Examples:
   "hints": {
     "key": "string"
   },
-  "recommended": true
+  "recommended": true,
+  "challenge_id": "string"
 }
 ```
 
@@ -1311,6 +1794,7 @@ Examples:
 | custom_capabilities[] | string | No description. |
 | hints | map<string, string> | No description. |
 | recommended | bool | No description. |
+| challenge_id | string | Authentication-scoped candidate ID accepted by SelectChallenge.challenge_id.<br/>Selection activates this candidate; current_challenge.id has the same ID. |
 
 ## AuthenticationError
 
@@ -1381,6 +1865,21 @@ Examples:
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL1 | 2 | No description. |
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL2 | 3 | No description. |
 | AUTHENTICATION_ASSURANCE_LEVEL_AAL3 | 4 | No description. |
+
+## AuthenticationPublicSubject
+
+Safe presentation of the caller-supplied identifier. Must not reveal whether
+an account exists. Never contains a raw email, phone, username or user ID.
+
+```json
+{
+  "masked_identifier": "string"
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| masked_identifier | string | No description. |
 
 ## StepUpReason
 

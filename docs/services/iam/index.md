@@ -8,6 +8,9 @@
 Материалы по модели доступа собраны на странице
 [Управление доступом](./access-management.md).
 
+Порядок вызовов, interaction token и миграция клиентов описаны в
+[Authentication: взаимодействие с API](./authentication-flow.md).
+
 ## api-reference
 
 Справочник API разделен на общие материалы и REST-документацию.

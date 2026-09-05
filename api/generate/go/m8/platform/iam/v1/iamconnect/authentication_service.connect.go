@@ -34,6 +34,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// AuthenticationServiceGetProcedure is the fully-qualified name of the AuthenticationService's Get
+	// RPC.
+	AuthenticationServiceGetProcedure = "/m8.platform.iam.v1.AuthenticationService/Get"
 	// AuthenticationServiceCreateProcedure is the fully-qualified name of the AuthenticationService's
 	// Create RPC.
 	AuthenticationServiceCreateProcedure = "/m8.platform.iam.v1.AuthenticationService/Create"
@@ -53,6 +56,8 @@ const (
 
 // AuthenticationServiceClient is a client for the m8.platform.iam.v1.AuthenticationService service.
 type AuthenticationServiceClient interface {
+	// Returns the latest public snapshot, including asynchronous state changes.
+	Get(context.Context, *connect.Request[v1.GetRequest]) (*connect.Response[v1.Authentication], error)
 	Create(context.Context, *connect.Request[v1.CreateRequest]) (*connect.Response[longrunningpb.Operation], error)
 	Cancel(context.Context, *connect.Request[v1.CancelRequest]) (*connect.Response[longrunningpb.Operation], error)
 	SelectChallenge(context.Context, *connect.Request[v1.SelectChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
@@ -71,6 +76,12 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 	baseURL = strings.TrimRight(baseURL, "/")
 	authenticationServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationService").Methods()
 	return &authenticationServiceClient{
+		get: connect.NewClient[v1.GetRequest, v1.Authentication](
+			httpClient,
+			baseURL+AuthenticationServiceGetProcedure,
+			connect.WithSchema(authenticationServiceMethods.ByName("Get")),
+			connect.WithClientOptions(opts...),
+		),
 		create: connect.NewClient[v1.CreateRequest, longrunningpb.Operation](
 			httpClient,
 			baseURL+AuthenticationServiceCreateProcedure,
@@ -106,11 +117,17 @@ func NewAuthenticationServiceClient(httpClient connect.HTTPClient, baseURL strin
 
 // authenticationServiceClient implements AuthenticationServiceClient.
 type authenticationServiceClient struct {
+	get             *connect.Client[v1.GetRequest, v1.Authentication]
 	create          *connect.Client[v1.CreateRequest, longrunningpb.Operation]
 	cancel          *connect.Client[v1.CancelRequest, longrunningpb.Operation]
 	selectChallenge *connect.Client[v1.SelectChallengeRequest, longrunningpb.Operation]
 	resendChallenge *connect.Client[v1.ResendChallengeRequest, longrunningpb.Operation]
 	verifyChallenge *connect.Client[v1.VerifyChallengeRequest, longrunningpb.Operation]
+}
+
+// Get calls m8.platform.iam.v1.AuthenticationService.Get.
+func (c *authenticationServiceClient) Get(ctx context.Context, req *connect.Request[v1.GetRequest]) (*connect.Response[v1.Authentication], error) {
+	return c.get.CallUnary(ctx, req)
 }
 
 // Create calls m8.platform.iam.v1.AuthenticationService.Create.
@@ -141,6 +158,8 @@ func (c *authenticationServiceClient) VerifyChallenge(ctx context.Context, req *
 // AuthenticationServiceHandler is an implementation of the m8.platform.iam.v1.AuthenticationService
 // service.
 type AuthenticationServiceHandler interface {
+	// Returns the latest public snapshot, including asynchronous state changes.
+	Get(context.Context, *connect.Request[v1.GetRequest]) (*connect.Response[v1.Authentication], error)
 	Create(context.Context, *connect.Request[v1.CreateRequest]) (*connect.Response[longrunningpb.Operation], error)
 	Cancel(context.Context, *connect.Request[v1.CancelRequest]) (*connect.Response[longrunningpb.Operation], error)
 	SelectChallenge(context.Context, *connect.Request[v1.SelectChallengeRequest]) (*connect.Response[longrunningpb.Operation], error)
@@ -155,6 +174,12 @@ type AuthenticationServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	authenticationServiceMethods := v1.File_m8_platform_iam_v1_authentication_service_proto.Services().ByName("AuthenticationService").Methods()
+	authenticationServiceGetHandler := connect.NewUnaryHandler(
+		AuthenticationServiceGetProcedure,
+		svc.Get,
+		connect.WithSchema(authenticationServiceMethods.ByName("Get")),
+		connect.WithHandlerOptions(opts...),
+	)
 	authenticationServiceCreateHandler := connect.NewUnaryHandler(
 		AuthenticationServiceCreateProcedure,
 		svc.Create,
@@ -187,6 +212,8 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 	)
 	return "/m8.platform.iam.v1.AuthenticationService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case AuthenticationServiceGetProcedure:
+			authenticationServiceGetHandler.ServeHTTP(w, r)
 		case AuthenticationServiceCreateProcedure:
 			authenticationServiceCreateHandler.ServeHTTP(w, r)
 		case AuthenticationServiceCancelProcedure:
@@ -205,6 +232,10 @@ func NewAuthenticationServiceHandler(svc AuthenticationServiceHandler, opts ...c
 
 // UnimplementedAuthenticationServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAuthenticationServiceHandler struct{}
+
+func (UnimplementedAuthenticationServiceHandler) Get(context.Context, *connect.Request[v1.GetRequest]) (*connect.Response[v1.Authentication], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.Get is not implemented"))
+}
 
 func (UnimplementedAuthenticationServiceHandler) Create(context.Context, *connect.Request[v1.CreateRequest]) (*connect.Response[longrunningpb.Operation], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.iam.v1.AuthenticationService.Create is not implemented"))

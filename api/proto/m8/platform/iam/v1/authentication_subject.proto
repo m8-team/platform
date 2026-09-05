@@ -3,9 +3,19 @@ syntax = "proto3";
 package m8.platform.iam.v1;
 
 import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
 import "m8/platform/common/type/v1/phone_number.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+
+// Safe presentation of the caller-supplied identifier. Must not reveal whether
+// an account exists. Never contains a raw email, phone, username or user ID.
+message AuthenticationPublicSubject {
+  string masked_identifier = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).string.max_len = 255
+  ];
+}
 
 // AuthenticationSubject identifies the claimant at the start of authentication.
 //

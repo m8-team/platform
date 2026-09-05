@@ -2,12 +2,13 @@
 
 # Authentication API: REST reference
 
-HTTP API specifications generated from protobuf contracts.
+Caller authentication is required for all RPCs, including Create and operation polling. Every call must authorize the caller for the owning client/resource. Non-Create RPCs additionally require the interaction token described by AuthenticationInteraction. IDs alone never authorize access. Mutation operations finish when the command is applied, not when the entire authentication finishes. Poll Get for subsequent provider-driven changes. Mutation request_id deduplication is scoped to caller, client, RPC and target. Retain keys at least 24 hours and through authentication expiry; identical retries return the original operation without repeating side effects, while reuse with a different payload returns ALREADY_EXISTS. Authorize before replay.
 
 ## Methods
 
 | Method | Description |
 | --- | --- |
+| [AuthenticationService_Get](./AuthenticationService_Get.md) | Returns the latest public snapshot, including asynchronous state changes. |
 | [AuthenticationService_ResendChallenge](./AuthenticationService_ResendChallenge.md) | No description. |
 | [AuthenticationService_SelectChallenge](./AuthenticationService_SelectChallenge.md) | No description. |
 | [AuthenticationService_VerifyChallenge](./AuthenticationService_VerifyChallenge.md) | No description. |
