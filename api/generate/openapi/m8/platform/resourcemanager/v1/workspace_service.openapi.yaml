@@ -89,7 +89,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Workspace'
+                            $ref: '#/components/schemas/WorkspaceInput'
                 required: true
             responses:
                 "200":
@@ -171,6 +171,11 @@ paths:
                     Required. Stable unique identifier of the workspace to restore.
                      The value must be a valid UUID string.
                   required: true
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  description: Optional concurrency precondition; zero means no client precondition.
                   schema:
                     type: string
             responses:
@@ -1063,6 +1068,18 @@ components:
                          Use namespaced keys such as "example.com/key" to avoid collisions between
                          independent producers of labels.
             description: Workspace stores canonical metadata for a workspace resource within an organization.
+        WorkspaceInput:
+            type: object
+            properties:
+                name:
+                    type: string
+                description:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+            description: Client-controlled fields; server state is not input.
         Xml:
             type: object
             properties:

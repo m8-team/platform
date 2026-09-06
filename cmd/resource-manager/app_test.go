@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
@@ -22,6 +24,22 @@ func TestNewAppBuilds(t *testing.T) {
 	})
 	if err := app.Err(); err != nil {
 		t.Fatalf("NewApp() error = %v", err)
+	}
+}
+
+func TestApplicationStartsAndJoinsServersOnShutdown(t *testing.T) {
+	app := NewApp(Config{
+		HTTP:       HTTPConfig{Address: "127.0.0.1:0"},
+		HealthHTTP: HealthHTTPConfig{Address: "127.0.0.1:0"},
+		GRPC:       grpcserver.Config{Address: "127.0.0.1:0"},
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := app.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err := app.Stop(ctx); err != nil {
+		t.Fatal(err)
 	}
 }
 

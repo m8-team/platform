@@ -28,7 +28,7 @@ Request to list organizations with pagination and optional filtering.
 | --- | --- | --- |
 | page_size | int32 | Optional. The maximum number of organizations to return.<br/>Valid values are in the range 0 to 1000.<br/>If omitted, the service returns up to 50 organizations.<br/>The service may return fewer results than requested. |
 | page_token | string | Optional. A page token returned by a previous `ListOrganizations` call.<br/>Use this field to retrieve the next page of results.<br/><br/>When paginating, all other parameters provided to `ListOrganizations`<br/>must match the call that produced the page token.<br/>The token must not exceed 1024 characters. |
-| filter | string | Optional. AIP-160 style filter expression.<br/>The expression must not exceed 1024 characters. |
+| filter | string | Optional. CEL filter expression. The supported subset includes equality<br/>predicates for `state`, `name`, and `labels`, conjunction with `&&`, and<br/>state membership such as `state in ["ACTIVE", "SUSPENDED"]`.<br/>The expression must not exceed 1024 characters. |
 | order_by | string | Optional. AIP-132 style ordering expression.<br/>The expression must not exceed 128 characters. |
 | show_deleted | bool | Optional. If true, soft-deleted organizations are included in the response. |
 

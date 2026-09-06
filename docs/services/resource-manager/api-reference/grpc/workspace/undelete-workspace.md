@@ -21,13 +21,15 @@ Request to restore an archived workspace.
 
 ```json
 {
-  "id": "string"
+  "id": "string",
+  "version": 0
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
 | id | string | Required. Stable unique identifier of the workspace to restore.<br/>The value must be a valid UUID string. |
+| version | int64 | Optional concurrency precondition; zero means no client precondition. |
 
 ## google.longrunning.Operation
 

@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
+	organizationapp "github.com/m8-team/platform/internal/resourcemanager/app/organization"
+
 	commonpb "github.com/m8-team/go-genproto/m8/platform/common/operation/v1"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/authz"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
-	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,7 +32,7 @@ func TestOrganizationServerLifecycleAndCompletedOperations(t *testing.T) {
 	ctx := context.Background()
 
 	createdOperation, err := server.CreateOrganization(ctx, &resourcemanagerpb.CreateOrganizationRequest{
-		Organization: &resourcemanagerpb.Organization{
+		Organization: &resourcemanagerpb.OrganizationInput{
 			Name:        "Acme",
 			Description: "first",
 			Labels:      map[string]string{"tier": "one"},
@@ -126,8 +127,12 @@ func TestOrganizationServerLifecycleAndCompletedOperations(t *testing.T) {
 		t.Fatalf("ListOrganizations(show_deleted) = %+v, %v", list, err)
 	}
 
+	if _, err := server.UndeleteOrganization(ctx, &resourcemanagerpb.UndeleteOrganizationRequest{OrganizationId: testOrganizationID, Version: 1}); status.Code(err) != codes.Aborted {
+		t.Fatalf("stale restore = %v", err)
+	}
 	undeleteOperation, err := server.UndeleteOrganization(ctx, &resourcemanagerpb.UndeleteOrganizationRequest{
 		OrganizationId: testOrganizationID,
+		Version:        deleted.GetVersion(),
 	})
 	if err != nil {
 		t.Fatalf("UndeleteOrganization() error = %v", err)
@@ -160,24 +165,8 @@ func TestOrganizationServerRequestValidation(t *testing.T) {
 			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{})
 			return err
 		}},
-		{name: "create id", run: func() error {
-			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: validOrganization()})
-			return err
-		}},
-		{name: "create state", run: func() error {
-			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: &resourcemanagerpb.Organization{State: resourcemanagerpb.Organization_ACTIVE}})
-			return err
-		}},
-		{name: "create timestamp", run: func() error {
-			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: &resourcemanagerpb.Organization{CreateTime: &timestamppb.Timestamp{}}})
-			return err
-		}},
-		{name: "create version", run: func() error {
-			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: &resourcemanagerpb.Organization{Version: 1}})
-			return err
-		}},
 		{name: "name unicode rune limit", run: func() error {
-			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: &resourcemanagerpb.Organization{Name: strings.Repeat("界", 257)}})
+			_, err := server.CreateOrganization(context.Background(), &resourcemanagerpb.CreateOrganizationRequest{Organization: &resourcemanagerpb.OrganizationInput{Name: strings.Repeat("界", 257)}})
 			return err
 		}},
 		{name: "nil update mask", run: func() error {
@@ -251,9 +240,9 @@ func TestOrganizationServerDeleteAllowMissingAndStatusMapping(t *testing.T) {
 		{err: ports.ErrOrganizationAlreadyExists, code: codes.AlreadyExists},
 		{err: organization.ErrVersionMismatch, code: codes.Aborted},
 		{err: ports.ErrOrganizationRepositoryUnavailable, code: codes.Unavailable},
-		{err: usecase.ErrOrganizationHasWorkspaces, code: codes.FailedPrecondition},
-		{err: usecase.ErrInvalidOrganizationFilter, code: codes.InvalidArgument},
-		{err: usecase.ErrGeneratedOrganizationID, code: codes.Internal},
+		{err: organizationapp.ErrOrganizationHasWorkspaces, code: codes.FailedPrecondition},
+		{err: organizationapp.ErrInvalidOrganizationFilter, code: codes.InvalidArgument},
+		{err: organizationapp.ErrGeneratedOrganizationID, code: codes.Internal},
 		{err: context.Canceled, code: codes.Canceled},
 		{err: context.DeadlineExceeded, code: codes.DeadlineExceeded},
 	}
@@ -334,13 +323,13 @@ func newTestOrganizationServer(
 ) *OrganizationServer {
 	t.Helper()
 	clock := &fixedClock{now: time.Date(2026, 7, 19, 12, 0, 0, 0, time.UTC)}
-	application, err := usecase.NewOrganizationService(
+	application, err := organizationapp.NewOrganizationService(
 		memory.NewOrganizationRepository(),
 		authorizer,
 		clock,
 		fixedOrganizationIDGenerator{id: organization.MustParseID(testOrganizationID)},
 		children,
-		usecase.OrganizationServiceConfig{
+		organizationapp.OrganizationServiceConfig{
 			SoftDeleteRetention: 24 * time.Hour,
 			PageTokenKey:        []byte("01234567890123456789012345678901"),
 		},

@@ -8,7 +8,7 @@ WorkspaceService manages workspaces inside organizations: it lets clients create
 
 | Method | Description |
 | --- | --- |
-| [List](./ListWorkspaces.md) | Returns a paginated list of workspaces under the specified organization UUID. |
+| [List](./ListWorkspaces.md) | Returns a paginated list of workspaces, optionally filtered by organization UUID. |
 | [Create](./CreateWorkspace.md) | Creates a new workspace under the specified organization UUID. |
 | [Get](./GetWorkspace.md) | Returns a single workspace by its UUID. |
 | [Delete](./DeleteWorkspace.md) | Soft-deletes a workspace by its UUID. |

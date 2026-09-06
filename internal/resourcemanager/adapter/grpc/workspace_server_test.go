@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
+	workspaceapp "github.com/m8-team/platform/internal/resourcemanager/app/workspace"
+
 	commonpb "github.com/m8-team/go-genproto/m8/platform/common/operation/v1"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/authz"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
-	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 	"google.golang.org/grpc/codes"
@@ -29,7 +30,7 @@ func TestWorkspaceServerLifecycleAndCompletedOperations(t *testing.T) {
 
 	createdOperation, err := server.CreateWorkspace(ctx, &resourcemanagerpb.CreateWorkspaceRequest{
 		OrganizationId: testOrganizationID,
-		Workspace: &resourcemanagerpb.Workspace{
+		Workspace: &resourcemanagerpb.WorkspaceInput{
 			Name:        "Production",
 			Description: "Primary workspace",
 			Labels:      map[string]string{"tier": "one"},
@@ -71,7 +72,10 @@ func TestWorkspaceServerLifecycleAndCompletedOperations(t *testing.T) {
 		t.Fatalf("delete resource = %+v", deleteResponse.GetResource())
 	}
 
-	undeleteOperation, err := server.UndeleteWorkspace(ctx, &resourcemanagerpb.UndeleteWorkspaceRequest{Id: testWorkspaceID})
+	if _, err := server.UndeleteWorkspace(ctx, &resourcemanagerpb.UndeleteWorkspaceRequest{Id: testWorkspaceID, Version: 1}); status.Code(err) != codes.Aborted {
+		t.Fatalf("stale restore = %v", err)
+	}
+	undeleteOperation, err := server.UndeleteWorkspace(ctx, &resourcemanagerpb.UndeleteWorkspaceRequest{Id: testWorkspaceID, Version: 3})
 	if err != nil {
 		t.Fatalf("UndeleteWorkspace() error = %v", err)
 	}
@@ -129,7 +133,7 @@ func TestWorkspaceServerRejectsInvalidGeneratedOperationID(t *testing.T) {
 	server := newTestWorkspaceServer(t, authz.AllowAll(), fixedOperationIDGenerator("invalid"))
 	_, err := server.CreateWorkspace(context.Background(), &resourcemanagerpb.CreateWorkspaceRequest{
 		OrganizationId: testOrganizationID,
-		Workspace:      &resourcemanagerpb.Workspace{Name: "test"},
+		Workspace:      &resourcemanagerpb.WorkspaceInput{Name: "test"},
 	})
 	if code := status.Code(err); code != codes.Internal {
 		t.Fatalf("status code = %s, want %s; error = %v", code, codes.Internal, err)
@@ -169,13 +173,13 @@ func newTestWorkspaceServer(t *testing.T, authorizer ports.Authorizer, operation
 	if err := organizations.Create(context.Background(), parent); err != nil {
 		t.Fatal(err)
 	}
-	application, err := usecase.NewWorkspaceService(
+	application, err := workspaceapp.NewWorkspaceService(
 		memory.NewWorkspaceRepository(),
 		organizations,
 		authorizer,
 		clock,
 		fixedWorkspaceIDGenerator{id: workspace.MustParseID(testWorkspaceID)},
-		usecase.WorkspaceServiceConfig{SoftDeleteRetention: 24 * time.Hour, PageTokenKey: []byte("01234567890123456789012345678901")},
+		workspaceapp.WorkspaceServiceConfig{SoftDeleteRetention: 24 * time.Hour, PageTokenKey: []byte("01234567890123456789012345678901")},
 	)
 	if err != nil {
 		t.Fatalf("NewWorkspaceService() error = %v", err)

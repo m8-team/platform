@@ -32,6 +32,7 @@ const (
 var ErrInvalidConfigValue = errors.New("invalid config value")
 
 type Config struct {
+	TraceEndpoint        string
 	Debug                bool
 	HTTP                 HTTPConfig
 	HealthHTTP           HealthHTTPConfig
@@ -72,6 +73,7 @@ func loadConfig(lookup func(string) (string, bool)) (Config, error) {
 	}
 
 	return Config{
+		TraceEndpoint:        stringEnv(lookup, "M8_OTLP_HTTP_ENDPOINT", ""),
 		Debug:                debug,
 		HTTP:                 HTTPConfig{Address: httpAddress},
 		AllowUnauthenticated: allowUnauthenticated,

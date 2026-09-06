@@ -3,6 +3,8 @@ package grpcserver
 import (
 	"context"
 
+	"github.com/m8-team/platform/internal/platform/bootstrap"
+
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 )
@@ -24,10 +26,24 @@ func Module(config Config, options ...grpc.ServerOption) fx.Option {
 	)
 }
 
-func registerLifecycle(lifecycle fx.Lifecycle, server *Server) {
+type lifecycleParams struct {
+	fx.In
+	Lifecycle  fx.Lifecycle
+	Server     *Server
+	Supervisor *bootstrap.Supervisor `optional:"true"`
+}
+
+func registerLifecycle(params lifecycleParams) {
+	lifecycle, server := params.Lifecycle, params.Server
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			return server.Start(ctx)
+			if err := server.Start(ctx); err != nil {
+				return err
+			}
+			if params.Supervisor != nil {
+				params.Supervisor.Go("grpc", func(context.Context) error { return server.Wait() })
+			}
+			return nil
 		},
 		OnStop: func(ctx context.Context) error {
 			return server.Stop(ctx)

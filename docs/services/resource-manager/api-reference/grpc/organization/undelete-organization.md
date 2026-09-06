@@ -21,13 +21,15 @@ Request to restore an archived organization.
 
 ```json
 {
-  "organization_id": "string"
+  "organization_id": "string",
+  "version": 0
 }
 ```
 
 | Field | Type | Description |
 | --- | --- | --- |
 | organization_id | string | Required. Stable unique identifier of the organization to restore.<br/>The value must be a valid UUID string. |
+| version | int64 | Optional concurrency precondition; zero means no client precondition. |
 
 ## google.longrunning.Operation
 

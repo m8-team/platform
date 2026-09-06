@@ -23,16 +23,8 @@ Request to create a new workspace in an organization.
 {
   "organization_id": "string",
   "workspace": {
-    "id": "string",
-    "organization_id": "string",
-    "state": "State",
     "name": "string",
     "description": "string",
-    "create_time": "string",
-    "update_time": "string",
-    "delete_time": "string",
-    "purge_time": "string",
-    "version": 0,
     "labels": {
       "key": "string"
     }
@@ -43,7 +35,7 @@ Request to create a new workspace in an organization.
 | Field | Type | Description |
 | --- | --- | --- |
 | organization_id | string | Required. Stable unique identifier of the parent organization.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
-| workspace | Workspace | Required. The workspace to create.<br/>Client-specified values in `workspace.id`, `workspace.organization_id`,<br/>`workspace.state`, `workspace.create_time`, `workspace.update_time`,<br/>`workspace.delete_time`, `workspace.purge_time`, and `workspace.version`<br/>must not be set by the client. The server assigns those fields. |
+| workspace | WorkspaceInput | Required. Client-controlled fields only. |
 
 ## google.longrunning.Operation
 
@@ -117,6 +109,26 @@ across M8 Platform services.
 | start_time | Timestamp | Output only. Time when the operation started execution. |
 | update_time | Timestamp | Output only. Time when the operation was most recently updated. |
 | end_time | Timestamp | Output only. Time when the operation finished. |
+
+## WorkspaceInput
+
+Client-controlled fields; server state is not input.
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "labels": {
+    "key": "string"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| name | string | No description. |
+| description | string | No description. |
+| labels | map<string, string> | No description. |
 
 ## Workspace
 

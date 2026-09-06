@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -143,7 +144,7 @@ func (r *OrganizationRepository) List(
 	values := make([]*organization.Organization, 0, len(r.organizations))
 	for _, value := range r.organizations {
 		if matchesOrganization(value, options.Filter) {
-			values = append(values, value.Clone())
+			values = append(values, value)
 		}
 	}
 	r.mu.RUnlock()
@@ -152,9 +153,7 @@ func (r *OrganizationRepository) List(
 		return ports.ListOrganizationsResult{}, err
 	}
 
-	sort.Slice(values, func(i, j int) bool {
-		return compareOrganizations(values[i], values[j], options.Order) < 0
-	})
+	slices.SortFunc(values, func(a, b *organization.Organization) int { return compareOrganizations(a, b, options.Order) })
 
 	totalSize := len(values)
 	start := 0
@@ -165,7 +164,11 @@ func (r *OrganizationRepository) List(
 	}
 
 	end := min(start+options.PageSize, len(values))
-	page := values[start:end]
+	// Stored aggregates are immutable after insertion; only clone the returned page.
+	page := make([]*organization.Organization, end-start)
+	for i, value := range values[start:end] {
+		page[i] = value.Clone()
+	}
 
 	var next *ports.OrganizationListCursor
 	if end < len(values) && len(page) > 0 {
@@ -201,9 +204,8 @@ func matchesOrganization(value *organization.Organization, filter ports.Organiza
 		return false
 	}
 
-	labels := value.Labels()
 	for key, expected := range filter.LabelsEqual {
-		if actual, exists := labels[key]; !exists || actual != expected {
+		if actual, exists := value.Label(key); !exists || actual != expected {
 			return false
 		}
 	}
@@ -293,13 +295,13 @@ func compareOrganizationValues(
 	case ports.OrganizationOrderFieldUpdateTime:
 		result = leftUpdateTime.Compare(rightUpdateTime)
 	case ports.OrganizationOrderFieldID:
-		return strings.Compare(leftID.String(), rightID.String())
+		return leftID.Compare(rightID)
 	}
 
 	if result != 0 {
 		return result
 	}
-	return strings.Compare(leftID.String(), rightID.String())
+	return leftID.Compare(rightID)
 }
 
 func newOrganizationCursor(value *organization.Organization) ports.OrganizationListCursor {

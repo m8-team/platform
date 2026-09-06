@@ -34,7 +34,9 @@ paths:
         - name: filter
           in: query
           description: |-
-            Optional. AIP-160 style filter expression.
+            Optional. CEL filter expression. The supported subset includes equality
+             predicates for `state`, `name`, and `labels`, conjunction with `&&`, and
+             state membership such as `state in ["ACTIVE", "SUSPENDED"]`.
              The expression must not exceed 1024 characters.
           schema:
             type: string
@@ -65,7 +67,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Organization'
+              $ref: '#/components/schemas/OrganizationInput'
         required: true
       responses:
         '200':
@@ -173,6 +175,11 @@ paths:
             Required. Stable unique identifier of the organization to restore.
              The value must be a valid UUID string.
           required: true
+          schema:
+            type: string
+        - name: version
+          in: query
+          description: Optional concurrency precondition; zero means no client precondition.
           schema:
             type: string
       responses:
@@ -713,6 +720,18 @@ components:
              Use namespaced keys such as "example.com/key" to avoid collisions between
              independent producers of labels.
       description: Organization stores canonical metadata for a top-level organization resource.
+    OrganizationInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        labels:
+          type: object
+          additionalProperties:
+            type: string
+      description: Client-controlled fields; server state is not input.
     Parameter:
       type: object
       properties:

@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 
+	organizationapp "github.com/m8-team/platform/internal/resourcemanager/app/organization"
+	workspaceapp "github.com/m8-team/platform/internal/resourcemanager/app/workspace"
+
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
-	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 	"google.golang.org/grpc/codes"
@@ -52,10 +54,10 @@ func mapError(err error) error {
 	case errors.Is(err, ports.ErrOrganizationRepositoryUnavailable),
 		errors.Is(err, ports.ErrWorkspaceRepositoryUnavailable):
 		return status.Error(codes.Unavailable, "resource repository is unavailable")
-	case errors.Is(err, usecase.ErrInvalidOrganizationPageSize),
-		errors.Is(err, usecase.ErrInvalidOrganizationPageToken),
-		errors.Is(err, usecase.ErrInvalidOrganizationFilter),
-		errors.Is(err, usecase.ErrInvalidOrganizationOrderBy),
+	case errors.Is(err, organizationapp.ErrInvalidOrganizationPageSize),
+		errors.Is(err, organizationapp.ErrInvalidOrganizationPageToken),
+		errors.Is(err, organizationapp.ErrInvalidOrganizationFilter),
+		errors.Is(err, organizationapp.ErrInvalidOrganizationOrderBy),
 		errors.Is(err, ports.ErrInvalidListOrganizationsOptions),
 		errors.Is(err, organization.ErrInvalidOrganizationName),
 		errors.Is(err, organization.ErrOrganizationNameTooLong),
@@ -63,10 +65,10 @@ func mapError(err error) error {
 		errors.Is(err, organization.ErrOrganizationDescriptionTooLong),
 		errors.Is(err, organization.ErrInvalidOrganizationLabel),
 		errors.Is(err, organization.ErrNoOrganizationUpdates),
-		errors.Is(err, usecase.ErrInvalidWorkspacePageSize),
-		errors.Is(err, usecase.ErrInvalidWorkspacePageToken),
-		errors.Is(err, usecase.ErrInvalidWorkspaceFilter),
-		errors.Is(err, usecase.ErrInvalidWorkspaceOrderBy),
+		errors.Is(err, workspaceapp.ErrInvalidWorkspacePageSize),
+		errors.Is(err, workspaceapp.ErrInvalidWorkspacePageToken),
+		errors.Is(err, workspaceapp.ErrInvalidWorkspaceFilter),
+		errors.Is(err, workspaceapp.ErrInvalidWorkspaceOrderBy),
 		errors.Is(err, ports.ErrInvalidListWorkspacesOptions),
 		errors.Is(err, workspace.ErrEmptyWorkspaceID),
 		errors.Is(err, workspace.ErrInvalidWorkspaceID),
@@ -78,7 +80,7 @@ func mapError(err error) error {
 		errors.Is(err, workspace.ErrInvalidWorkspaceVersion),
 		errors.Is(err, workspace.ErrNoWorkspaceUpdates):
 		return status.Error(codes.InvalidArgument, err.Error())
-	case errors.Is(err, usecase.ErrOrganizationHasWorkspaces),
+	case errors.Is(err, organizationapp.ErrOrganizationHasWorkspaces),
 		errors.Is(err, organization.ErrOrganizationDeleted),
 		errors.Is(err, organization.ErrOrganizationNotDeleted),
 		errors.Is(err, organization.ErrOrganizationNotActive),

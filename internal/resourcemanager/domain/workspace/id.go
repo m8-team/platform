@@ -60,3 +60,7 @@ func (id ID) Validate() error {
 func (id ID) Equal(other ID) bool {
 	return id.value.Equal(other.value)
 }
+
+func (id ID) MarshalText() ([]byte, error) { return id.value.MarshalText() }
+
+func (id ID) Compare(other ID) int { return id.value.Compare(other.value) }

@@ -98,5 +98,37 @@ message Workspace {
   // Optional. Client-provided labels for tooling and integrations.
   // Use namespaced keys such as "example.com/key" to avoid collisions between
   // independent producers of labels.
-  map<string, string> labels = 11 [(google.api.field_behavior) = OPTIONAL];
+  map<string, string> labels = 11 [
+    (google.api.field_behavior) = OPTIONAL,
+    (buf.validate.field).map = {
+      max_pairs: 64
+      keys: {
+        string: {
+          min_len: 1
+          max_len: 128
+        }
+      }
+      values: {
+        string: {max_len: 256}
+      }
+    }
+  ];
+}
+
+// Client-controlled fields; server state is not input.
+message WorkspaceInput {
+  string name = 1 [(buf.validate.field).string.max_len = 256];
+  string description = 2 [(buf.validate.field).string.max_len = 1024];
+  map<string, string> labels = 3 [(buf.validate.field).map = {
+    max_pairs: 64
+    keys: {
+      string: {
+        min_len: 1
+        max_len: 128
+      }
+    }
+    values: {
+      string: {max_len: 256}
+    }
+  }];
 }

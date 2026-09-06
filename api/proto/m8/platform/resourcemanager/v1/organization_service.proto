@@ -177,13 +177,8 @@ message ListOrganizationsResponse {
 
 // Request to create a new organization.
 message CreateOrganizationRequest {
-  // Required. The organization to create.
-  // Client-specified values in `organization.id`,
-  // `organization.state`, `organization.create_time`, `organization.update_time`,
-  // `organization.delete_time`, `organization.purge_time`, and
-  // `organization.version` must not be set by the client. The server assigns
-  // those fields.
-  Organization organization = 1 [
+  // Required. Client-controlled fields only.
+  OrganizationInput organization = 1 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
@@ -239,6 +234,8 @@ message UndeleteOrganizationRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
+  // Optional concurrency precondition; zero means no client precondition.
+  int64 version = 2 [(buf.validate.field).int64.gte = 0];
 }
 
 // Response returned by completed organization long-running operations.

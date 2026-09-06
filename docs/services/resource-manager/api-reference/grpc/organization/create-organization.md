@@ -22,15 +22,8 @@ Request to create a new organization.
 ```json
 {
   "organization": {
-    "id": "string",
-    "state": "State",
     "name": "string",
     "description": "string",
-    "create_time": "string",
-    "update_time": "string",
-    "delete_time": "string",
-    "purge_time": "string",
-    "version": 0,
     "labels": {
       "key": "string"
     }
@@ -40,7 +33,7 @@ Request to create a new organization.
 
 | Field | Type | Description |
 | --- | --- | --- |
-| organization | Organization | Required. The organization to create.<br/>Client-specified values in `organization.id`,<br/>`organization.state`, `organization.create_time`, `organization.update_time`,<br/>`organization.delete_time`, `organization.purge_time`, and<br/>`organization.version` must not be set by the client. The server assigns<br/>those fields. |
+| organization | OrganizationInput | Required. Client-controlled fields only. |
 
 ## google.longrunning.Operation
 
@@ -113,6 +106,26 @@ across M8 Platform services.
 | start_time | Timestamp | Output only. Time when the operation started execution. |
 | update_time | Timestamp | Output only. Time when the operation was most recently updated. |
 | end_time | Timestamp | Output only. Time when the operation finished. |
+
+## OrganizationInput
+
+Client-controlled fields; server state is not input.
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "labels": {
+    "key": "string"
+  }
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| name | string | No description. |
+| description | string | No description. |
+| labels | map<string, string> | No description. |
 
 ## Organization
 

@@ -157,3 +157,18 @@ func (s *Server) serve(listener net.Listener, done chan struct{}) {
 
 	close(done)
 }
+
+// Wait joins the serving goroutine and reports unexpected listener failures.
+// The owner must call Stop to terminate a healthy server.
+func (s *Server) Wait() error {
+	s.mu.RLock()
+	done := s.serveDone
+	s.mu.RUnlock()
+	if done == nil {
+		return nil
+	}
+	<-done
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.serveErr
+}

@@ -7,8 +7,8 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/client.proto";
 import "google/api/field_behavior.proto";
-import "google/protobuf/field_mask.proto";
 import "google/longrunning/operations.proto";
+import "google/protobuf/field_mask.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/workspace.proto";
 
@@ -193,12 +193,8 @@ message CreateWorkspaceRequest {
     (buf.validate.field).string.uuid = true
   ];
 
-  // Required. The workspace to create.
-  // Client-specified values in `workspace.id`, `workspace.organization_id`,
-  // `workspace.state`, `workspace.create_time`, `workspace.update_time`,
-  // `workspace.delete_time`, `workspace.purge_time`, and `workspace.version`
-  // must not be set by the client. The server assigns those fields.
-  Workspace workspace = 2 [
+  // Required. Client-controlled fields only.
+  WorkspaceInput workspace = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
@@ -254,6 +250,8 @@ message UndeleteWorkspaceRequest {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).string.uuid = true
   ];
+  // Optional concurrency precondition; zero means no client precondition.
+  int64 version = 2 [(buf.validate.field).int64.gte = 0];
 }
 
 // Response returned by completed workspace long-running operations.

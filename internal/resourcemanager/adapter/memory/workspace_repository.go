@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -21,6 +22,7 @@ var _ ports.WorkspaceRepository = (*WorkspaceRepository)(nil)
 // reads and atomic compare-and-swap updates, but it is not durable storage.
 type WorkspaceRepository struct {
 	hierarchyMu sync.Mutex
+	hierarchy   map[organization.ID]*organizationLock
 	mu          sync.RWMutex
 	workspaces  map[workspace.ID]*workspace.Workspace
 }
@@ -145,7 +147,7 @@ func (r *WorkspaceRepository) List(
 	values := make([]*workspace.Workspace, 0, len(r.workspaces))
 	for _, value := range r.workspaces {
 		if (options.OrganizationID.IsZero() || value.OrganizationID().Equal(options.OrganizationID)) && matchesWorkspace(value, options.Filter) {
-			values = append(values, value.Clone())
+			values = append(values, value)
 		}
 	}
 	r.mu.RUnlock()
@@ -154,9 +156,7 @@ func (r *WorkspaceRepository) List(
 		return ports.ListWorkspacesResult{}, err
 	}
 
-	sort.Slice(values, func(i, j int) bool {
-		return compareWorkspaces(values[i], values[j], options.Order) < 0
-	})
+	slices.SortFunc(values, func(a, b *workspace.Workspace) int { return compareWorkspaces(a, b, options.Order) })
 
 	totalSize := len(values)
 	start := 0
@@ -167,7 +167,11 @@ func (r *WorkspaceRepository) List(
 	}
 
 	end := min(start+options.PageSize, len(values))
-	page := values[start:end]
+	// Stored aggregates are immutable after insertion; only clone the returned page.
+	page := make([]*workspace.Workspace, end-start)
+	for i, value := range values[start:end] {
+		page[i] = value.Clone()
+	}
 
 	var next *ports.WorkspaceListCursor
 	if end < len(values) && len(page) > 0 {
@@ -193,9 +197,8 @@ func matchesWorkspace(value *workspace.Workspace, filter ports.WorkspaceFilter) 
 		return false
 	}
 
-	labels := value.Labels()
 	for key, expected := range filter.LabelsEqual {
-		if actual, exists := labels[key]; !exists || actual != expected {
+		if actual, exists := value.Label(key); !exists || actual != expected {
 			return false
 		}
 	}
@@ -276,13 +279,13 @@ func compareWorkspaceValues(
 	case ports.WorkspaceOrderFieldUpdateTime:
 		result = leftUpdateTime.Compare(rightUpdateTime)
 	case ports.WorkspaceOrderFieldID:
-		return strings.Compare(leftID.String(), rightID.String())
+		return leftID.Compare(rightID)
 	}
 
 	if result != 0 {
 		return result
 	}
-	return strings.Compare(leftID.String(), rightID.String())
+	return leftID.Compare(rightID)
 }
 
 func newWorkspaceCursor(value *workspace.Workspace) ports.WorkspaceListCursor {
@@ -331,9 +334,39 @@ func (r *WorkspaceRepository) WithOrganizationLock(
 	}
 
 	r.hierarchyMu.Lock()
-	defer r.hierarchyMu.Unlock()
-	if err := contextError(ctx); err != nil {
+	if r.hierarchy == nil {
+		r.hierarchy = make(map[organization.ID]*organizationLock)
+	}
+	lock := r.hierarchy[organizationID]
+	if lock == nil {
+		lock = &organizationLock{permit: make(chan struct{}, 1)}
+		lock.permit <- struct{}{}
+		r.hierarchy[organizationID] = lock
+	}
+	lock.references++
+	r.hierarchyMu.Unlock()
+	defer func() {
+		r.hierarchyMu.Lock()
+		defer r.hierarchyMu.Unlock()
+		lock.references--
+		if lock.references == 0 {
+			delete(r.hierarchy, organizationID)
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-lock.permit:
+	}
+	defer func() { lock.permit <- struct{}{} }()
+	if err := ctx.Err(); err != nil {
 		return err
 	}
 	return fn(ctx)
+}
+
+// Reference counting removes idle locks while preserving waiter identity.
+type organizationLock struct {
+	permit     chan struct{}
+	references int
 }

@@ -1,5 +1,8 @@
 FROM mcr.microsoft.com/devcontainers/go:1-bookworm
 
+ENV GOTOOLCHAIN=go1.27.1
+RUN go version
+
 RUN apt-get update && apt-get install -y \
     make \
     git \

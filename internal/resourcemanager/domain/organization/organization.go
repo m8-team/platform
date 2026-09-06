@@ -2,6 +2,7 @@ package organization
 
 import (
 	"fmt"
+	"maps"
 	"time"
 	"unicode/utf8"
 
@@ -372,7 +373,13 @@ func validateMutableFields(name, description string, labels map[string]string) e
 	if utf8.RuneCountInString(description) > MaxDescriptionRunes {
 		return ErrOrganizationDescriptionTooLong
 	}
+	if len(labels) > 64 {
+		return fmt.Errorf("%w: at most 64 labels", ErrInvalidOrganizationLabel)
+	}
 	for key, value := range labels {
+		if utf8.RuneCountInString(key) < 1 || utf8.RuneCountInString(key) > 128 || utf8.RuneCountInString(value) > 256 {
+			return ErrInvalidOrganizationLabel
+		}
 		if !utf8.ValidString(key) || !utf8.ValidString(value) {
 			return fmt.Errorf("%w: key %q", ErrInvalidOrganizationLabel, key)
 		}
@@ -431,16 +438,7 @@ func canDelete(state State) bool {
 	}
 }
 
-func cloneLabels(input map[string]string) map[string]string {
-	if input == nil {
-		return nil
-	}
-	result := make(map[string]string, len(input))
-	for key, value := range input {
-		result[key] = value
-	}
-	return result
-}
+func cloneLabels(input map[string]string) map[string]string { return maps.Clone(input) }
 
 func cloneTime(input *time.Time) *time.Time {
 	if input == nil {
@@ -449,3 +447,6 @@ func cloneTime(input *time.Time) *time.Time {
 	value := input.UTC()
 	return &value
 }
+
+// Label reads one label without exposing or copying the aggregate's map.
+func (o *Organization) Label(key string) (string, bool) { value, ok := o.labels[key]; return value, ok }

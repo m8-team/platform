@@ -8,13 +8,12 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	organizationapp "github.com/m8-team/platform/internal/resourcemanager/app/organization"
+
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/platform/types"
-	"github.com/m8-team/platform/internal/resourcemanager/app/command"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
-	"github.com/m8-team/platform/internal/resourcemanager/app/query"
-	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,13 +33,13 @@ type OperationIDGenerator interface {
 type OrganizationServer struct {
 	resourcemanagerpb.UnimplementedOrganizationServiceServer
 
-	application  *usecase.OrganizationService
+	application  *organizationapp.OrganizationService
 	clock        ports.Clock
 	operationIDs OperationIDGenerator
 }
 
 func NewOrganizationServer(
-	application *usecase.OrganizationService,
+	application *organizationapp.OrganizationService,
 	clock ports.Clock,
 	operationIDs OperationIDGenerator,
 ) (*OrganizationServer, error) {
@@ -73,7 +72,7 @@ func (s *OrganizationServer) GetOrganization(
 		return nil, invalidArgument("organization_id must be a canonical non-zero UUID")
 	}
 
-	value, err := s.application.Get(ctx, query.GetOrganization{ID: id})
+	value, err := s.application.Get(ctx, organizationapp.GetOrganization{ID: id})
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -104,7 +103,7 @@ func (s *OrganizationServer) ListOrganizations(
 		return nil, invalidArgument("order_by exceeds 128 characters")
 	}
 
-	result, err := s.application.List(ctx, query.ListOrganizations{
+	result, err := s.application.List(ctx, organizationapp.ListOrganizations{
 		PageSize:    int(request.GetPageSize()),
 		PageToken:   request.GetPageToken(),
 		Filter:      request.GetFilter(),
@@ -143,7 +142,7 @@ func (s *OrganizationServer) CreateOrganization(
 		return nil, err
 	}
 
-	value, err := s.application.Create(ctx, command.CreateOrganization{
+	value, err := s.application.Create(ctx, organizationapp.CreateOrganization{
 		Name:        input.GetName(),
 		Description: input.GetDescription(),
 		Labels:      input.GetLabels(),
@@ -207,7 +206,7 @@ func (s *OrganizationServer) DeleteOrganization(
 		return nil, invalidArgument("version must be non-negative")
 	}
 
-	_, err = s.application.Delete(ctx, command.DeleteOrganization{
+	_, err = s.application.Delete(ctx, organizationapp.DeleteOrganization{
 		ID:              id,
 		ExpectedVersion: types.Version(request.GetVersion()),
 		AllowMissing:    request.GetAllowMissing(),
@@ -234,7 +233,10 @@ func (s *OrganizationServer) UndeleteOrganization(
 		return nil, invalidArgument("organization_id must be a canonical non-zero UUID")
 	}
 
-	value, err := s.application.Undelete(ctx, command.UndeleteOrganization{ID: id})
+	if request.GetVersion() < 0 {
+		return nil, invalidArgument("version must be non-negative")
+	}
+	value, err := s.application.Undelete(ctx, organizationapp.UndeleteOrganization{ID: id, ExpectedVersion: types.Version(request.GetVersion())})
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -254,7 +256,7 @@ func (s *OrganizationServer) UndeleteOrganization(
 
 func validateCreateRequest(
 	request *resourcemanagerpb.CreateOrganizationRequest,
-) (*resourcemanagerpb.Organization, error) {
+) (*resourcemanagerpb.OrganizationInput, error) {
 	if request == nil {
 		return nil, invalidArgument("request is required")
 	}
@@ -262,35 +264,30 @@ func validateCreateRequest(
 	if value == nil {
 		return nil, invalidArgument("organization is required")
 	}
-	if value.GetId() != "" || value.GetState() != resourcemanagerpb.Organization_STATE_UNSPECIFIED ||
-		value.GetCreateTime() != nil || value.GetUpdateTime() != nil || value.GetDeleteTime() != nil ||
-		value.GetPurgeTime() != nil || value.GetVersion() != 0 {
-		return nil, invalidArgument("organization contains server-assigned fields")
-	}
 	return value, nil
 }
 
-func updateCommand(request *resourcemanagerpb.UpdateOrganizationRequest) (command.UpdateOrganization, error) {
+func updateCommand(request *resourcemanagerpb.UpdateOrganizationRequest) (organizationapp.UpdateOrganization, error) {
 	if request == nil {
-		return command.UpdateOrganization{}, invalidArgument("request is required")
+		return organizationapp.UpdateOrganization{}, invalidArgument("request is required")
 	}
 	value := request.GetOrganization()
 	if value == nil {
-		return command.UpdateOrganization{}, invalidArgument("organization is required")
+		return organizationapp.UpdateOrganization{}, invalidArgument("organization is required")
 	}
 	id, err := parseCanonicalOrganizationID(value.GetId())
 	if err != nil {
-		return command.UpdateOrganization{}, invalidArgument("organization.id must be a canonical non-zero UUID")
+		return organizationapp.UpdateOrganization{}, invalidArgument("organization.id must be a canonical non-zero UUID")
 	}
 	if value.GetVersion() < 0 {
-		return command.UpdateOrganization{}, invalidArgument("organization.version must be non-negative")
+		return organizationapp.UpdateOrganization{}, invalidArgument("organization.version must be non-negative")
 	}
 	paths, err := mutableUpdatePaths(request.GetUpdateMask())
 	if err != nil {
-		return command.UpdateOrganization{}, err
+		return organizationapp.UpdateOrganization{}, err
 	}
 
-	cmd := command.UpdateOrganization{
+	cmd := organizationapp.UpdateOrganization{
 		ID:              id,
 		ExpectedVersion: types.Version(value.GetVersion()),
 	}

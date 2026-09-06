@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strings"
@@ -95,6 +96,9 @@ func (id ID) Validate() error {
 func (id ID) Equal(other ID) bool {
 	return id.value == other.value
 }
+
+// Compare orders canonical UUIDs without allocating their string representations.
+func (id ID) Compare(other ID) int { return bytes.Compare(id.value[:], other.value[:]) }
 
 // MarshalText implements encoding.TextMarshaler using the canonical UUID.
 func (id ID) MarshalText() ([]byte, error) {

@@ -7,13 +7,12 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	workspaceapp "github.com/m8-team/platform/internal/resourcemanager/app/workspace"
+
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/platform/types"
-	"github.com/m8-team/platform/internal/resourcemanager/app/command"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
-	"github.com/m8-team/platform/internal/resourcemanager/app/query"
-	"github.com/m8-team/platform/internal/resourcemanager/app/usecase"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/organization"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/workspace"
 	"google.golang.org/grpc/codes"
@@ -23,13 +22,13 @@ import (
 type WorkspaceServer struct {
 	resourcemanagerpb.UnimplementedWorkspaceServiceServer
 
-	application  *usecase.WorkspaceService
+	application  *workspaceapp.WorkspaceService
 	clock        ports.Clock
 	operationIDs OperationIDGenerator
 }
 
 func NewWorkspaceServer(
-	application *usecase.WorkspaceService,
+	application *workspaceapp.WorkspaceService,
 	clock ports.Clock,
 	operationIDs OperationIDGenerator,
 ) (*WorkspaceServer, error) {
@@ -62,7 +61,7 @@ func (s *WorkspaceServer) GetWorkspace(
 		return nil, invalidArgument("id must be a canonical non-zero UUID")
 	}
 
-	value, err := s.application.Get(ctx, query.GetWorkspace{ID: id})
+	value, err := s.application.Get(ctx, workspaceapp.GetWorkspace{ID: id})
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -101,7 +100,7 @@ func (s *WorkspaceServer) ListWorkspaces(
 		}
 	}
 
-	result, err := s.application.List(ctx, query.ListWorkspaces{
+	result, err := s.application.List(ctx, workspaceapp.ListWorkspaces{
 		OrganizationID: organizationID,
 		PageSize:       int(request.GetPageSize()),
 		PageToken:      request.GetPageToken(),
@@ -145,7 +144,7 @@ func (s *WorkspaceServer) CreateWorkspace(
 		return nil, status.Error(codes.Internal, "prepare workspace operation")
 	}
 
-	value, err := s.application.Create(ctx, command.CreateWorkspace{
+	value, err := s.application.Create(ctx, workspaceapp.CreateWorkspace{
 		OrganizationID: organizationID,
 		Name:           input.GetName(),
 		Description:    input.GetDescription(),
@@ -204,7 +203,7 @@ func (s *WorkspaceServer) DeleteWorkspace(
 		return nil, status.Error(codes.Internal, "prepare workspace delete operation")
 	}
 
-	_, err = s.application.Delete(ctx, command.DeleteWorkspace{
+	_, err = s.application.Delete(ctx, workspaceapp.DeleteWorkspace{
 		ID:              id,
 		ExpectedVersion: types.Version(request.GetVersion()),
 		AllowMissing:    request.GetAllowMissing(),
@@ -235,7 +234,10 @@ func (s *WorkspaceServer) UndeleteWorkspace(
 		return nil, status.Error(codes.Internal, "prepare workspace operation")
 	}
 
-	value, err := s.application.Undelete(ctx, command.UndeleteWorkspace{ID: id})
+	if request.GetVersion() < 0 {
+		return nil, invalidArgument("version must be non-negative")
+	}
+	value, err := s.application.Undelete(ctx, workspaceapp.UndeleteWorkspace{ID: id, ExpectedVersion: types.Version(request.GetVersion())})
 	if err != nil {
 		return nil, mapError(err)
 	}
@@ -248,20 +250,13 @@ func (s *WorkspaceServer) UndeleteWorkspace(
 
 func validateCreateWorkspaceRequest(
 	request *resourcemanagerpb.CreateWorkspaceRequest,
-) (organization.ID, *resourcemanagerpb.Workspace, error) {
+) (organization.ID, *resourcemanagerpb.WorkspaceInput, error) {
 	if request == nil {
 		return organization.ID{}, nil, invalidArgument("request is required")
 	}
 	value := request.GetWorkspace()
 	if value == nil {
 		return organization.ID{}, nil, invalidArgument("workspace is required")
-	}
-	if value.GetId() != "" || value.GetOrganizationId() != "" ||
-		value.GetState() != resourcemanagerpb.Workspace_STATE_UNSPECIFIED ||
-		value.GetCreateTime() != nil || value.GetUpdateTime() != nil ||
-		value.GetDeleteTime() != nil || value.GetPurgeTime() != nil ||
-		value.GetVersion() != 0 {
-		return organization.ID{}, nil, invalidArgument("workspace contains server-assigned fields")
 	}
 	organizationID, err := parseCanonicalOrganizationID(request.GetOrganizationId())
 	if err != nil {
@@ -272,27 +267,27 @@ func validateCreateWorkspaceRequest(
 
 func workspaceUpdateCommand(
 	request *resourcemanagerpb.UpdateWorkspaceRequest,
-) (command.UpdateWorkspace, error) {
+) (workspaceapp.UpdateWorkspace, error) {
 	if request == nil {
-		return command.UpdateWorkspace{}, invalidArgument("request is required")
+		return workspaceapp.UpdateWorkspace{}, invalidArgument("request is required")
 	}
 	value := request.GetWorkspace()
 	if value == nil {
-		return command.UpdateWorkspace{}, invalidArgument("workspace is required")
+		return workspaceapp.UpdateWorkspace{}, invalidArgument("workspace is required")
 	}
 	id, err := parseCanonicalWorkspaceID(value.GetId())
 	if err != nil {
-		return command.UpdateWorkspace{}, invalidArgument("workspace.id must be a canonical non-zero UUID")
+		return workspaceapp.UpdateWorkspace{}, invalidArgument("workspace.id must be a canonical non-zero UUID")
 	}
 	if value.GetVersion() < 0 {
-		return command.UpdateWorkspace{}, invalidArgument("workspace.version must be non-negative")
+		return workspaceapp.UpdateWorkspace{}, invalidArgument("workspace.version must be non-negative")
 	}
 	paths, err := mutableUpdatePaths(request.GetUpdateMask())
 	if err != nil {
-		return command.UpdateWorkspace{}, err
+		return workspaceapp.UpdateWorkspace{}, err
 	}
 
-	cmd := command.UpdateWorkspace{ID: id, ExpectedVersion: types.Version(value.GetVersion())}
+	cmd := workspaceapp.UpdateWorkspace{ID: id, ExpectedVersion: types.Version(value.GetVersion())}
 	if paths["name"] {
 		name := value.GetName()
 		cmd.Name = &name

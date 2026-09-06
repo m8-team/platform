@@ -2,7 +2,7 @@
 
 # Resource Manager API, gRPC: WorkspaceService.ListWorkspaces
 
-Returns a paginated list of workspaces under the specified organization UUID.
+Returns a paginated list of workspaces, optionally filtered by organization UUID.
 
 ## gRPC request
 
@@ -27,10 +27,10 @@ Request to list workspaces in an organization with pagination and optional filte
 
 | Field | Type | Description |
 | --- | --- | --- |
-| organization_id | string | Required. Stable unique identifier of the parent organization.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
+| organization_id | string | Optional. Stable unique identifier of the parent organization.<br/>The value must be a valid UUID string.<br/>In the HTTP API, pass this field in the query string. |
 | page_size | int32 | Optional. The maximum number of workspaces to return.<br/>Valid values are in the range 0 to 1000.<br/>If omitted, the service returns up to 50 workspaces.<br/>The service may return fewer results than requested. |
 | page_token | string | Optional. A page token returned by a previous `ListWorkspaces` call.<br/>Use this field to retrieve the next page of results.<br/><br/>When paginating, all other parameters provided to `ListWorkspaces`<br/>must match the call that produced the page token.<br/>The token must not exceed 1024 characters. |
-| filter | string | Optional. AIP-160 compatible filter expression.<br/>The expression must not exceed 1024 characters. |
+| filter | string | Optional. CEL filter expression.<br/>The expression must not exceed 1024 characters. |
 | order_by | string | Optional. AIP-132 compatible ordering expression.<br/>The expression must not exceed 128 characters. |
 | show_deleted | bool | Optional. If true, soft-deleted workspaces are included in the response. |
 

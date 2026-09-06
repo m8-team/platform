@@ -1,6 +1,8 @@
 module github.com/m8-team/go-genproto
 
-go 1.26.1
+go 1.27.0
+
+toolchain go1.27.1
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260709200747-435963d16310.1

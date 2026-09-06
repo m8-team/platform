@@ -1,5 +1,42 @@
 # M8 Resource Manager
 
+## Architecture and development
+
+Requires Go 1.27; the repository selects toolchain Go 1.27.1. Run
+`go run ./cmd/resource-manager`, `go test ./...`, and
+`go test -race ./internal/resourcemanager/... ./cmd/resource-manager/...`.
+
+The module can be hosted in a modular monolith or an independently deployed API.
+`resourcemanager.New(config, dependencies)` is the explicit composition boundary;
+it does not import Fx or choose storage/authorization adapters. The executable
+chooses local adapters in `cmd/resource-manager/module.go` and uses Fx only to
+connect process lifecycle and transports.
+
+Application slices are organized by resource:
+
+```text
+internal/resourcemanager/
+  domain/organization/       aggregate, lifecycle, typed ID, persistence snapshot
+  domain/workspace/          workspace aggregate and immutable parent relationship
+  app/organization/         create/get/list/update/delete/undelete, commands, queries
+  app/workspace/            corresponding workspace slices
+  app/ports/                persistence, hierarchy and authorization contracts
+  app/integration/          cross-resource use-case and hierarchy tests
+  adapter/                  gRPC, memory, authorization and system implementations
+  module.go                 explicit constructor
+```
+
+Each use case has its own file. Filter parsers belong to service instances;
+there is no package-level initialized CEL parser. Domain behavior remains free
+of transport, logging and tracing. Observability is attached to application
+boundaries, so both REST and gRPC calls produce the same operation signals.
+
+The local repository stores immutable copies and clones only the returned List
+page. UUID ordering compares bytes without allocating formatted strings. Label
+filtering reads individual values without copying maps. Hierarchy locks are keyed
+by organization, honor context cancellation and are removed when no callers wait.
+These optimizations preserve atomic version checks and detached return values.
+
 ## Responsibility
 
 Owns organizations, workspaces, services, service environment assignment, resource catalog metadata and platform-level resource intent.
@@ -55,8 +92,11 @@ semantics as Organization mutations.
 
 - IDs are server-generated canonical UUIDs.
 - New organizations start in `ACTIVE` with version `1`.
-- `name`, `description`, and `labels` are the only mutable fields.
-- Update and delete use optimistic compare-and-swap; API version `0` means no
+- `name`, `description`, and `labels` are the only mutable fields. Create accepts
+  `OrganizationInput` / `WorkspaceInput`, not the response resource message.
+  Labels are limited to 64 entries, nonempty keys up to 128 characters and values
+  up to 256 characters, enforced by both the domain and protobuf contracts.
+- Update, delete and undelete use optimistic compare-and-swap; API version `0` means no
   client precondition.
 - Delete retains a tombstone for the configured retention period. Get can read
   that tombstone, while List excludes it unless `show_deleted=true`.
@@ -114,7 +154,8 @@ outbox described under Current Adapter Scope.
 
 ## Module Configuration
 
-The Resource Manager module is composed through `resourcemanager.Module(config)` and validates its module-level configuration during Fx application construction.
+The Resource Manager module is composed through `resourcemanager.New(config, dependencies)`
+and validates configuration and required dependencies before serving requests.
 
 The `resource-manager` process also accepts:
 
@@ -124,6 +165,24 @@ The `resource-manager` process also accepts:
 - `M8_RM_ALLOW_UNAUTHENTICATED` (default `false`);
 - `M8_RM_SOFT_DELETE_RETENTION` (default `720h`);
 - `M8_RM_PAGE_TOKEN_KEY` (optional, at least 32 bytes).
+- `M8_OTLP_HTTP_ENDPOINT` (optional OTLP HTTP trace endpoint, for example
+  `http://localhost:4318/v1/traces`). Without it, traces have no external exporter.
+
+## Observability and process lifetime
+
+Application operations emit structured JSON logs to stderr with operation,
+outcome, duration, request ID and trace ID. Payloads, credentials and raw error
+strings are not logged. W3C trace context is accepted over HTTP and gRPC; new
+traces use a parent-based 10% sampler. The management listener exposes JSON
+operation counters (`calls`, `failures`, cumulative `duration_seconds`) at
+`/metrics`, separate from public resource routes. These are local counters,
+not a Prometheus/OpenMetrics endpoint. Production should restrict management access.
+
+HTTP listeners set header/read/write/idle timeouts. HTTP and gRPC serving tasks
+are supervised: unexpected listener errors request process shutdown with a
+nonzero exit code. Shutdown drains servers, force-closes timed-out HTTP servers,
+joins background work and flushes telemetry. Health no longer probes `ya.ru`;
+only actual dependencies should contribute readiness checks.
 
 Authorization is deny-by-default. `M8_RM_ALLOW_UNAUTHENTICATED=true` selects an
 explicit local-development adapter and must not be enabled in production.
@@ -140,7 +199,20 @@ suitable for local development and contract tests, not durable production
 storage. A production composition must replace these with module-owned durable
 storage and one transaction/coordinator spanning parent state checks and child
 mutations. It must also implement a transactional outbox and persistent
-idempotency, and connect authorization to M8 Access. Audit publication, request
-telemetry, and the deployment's rate-limit policy are not wired yet. Returned
+idempotency, and connect authorization to M8 Access. Audit publication and the
+deployment's rate-limit policy are not wired yet. Returned
 LROs are completed synchronously; an Operations polling backend is not
 registered yet.
+
+## Contract migration
+
+Compatibility is intentionally not preserved for create payload protobuf types:
+clients must regenerate against `OrganizationInput` / `WorkspaceInput`. The
+HTTP create body still contains `name`, `description` and `labels`; server-owned
+fields are rejected as unknown input. Undelete now accepts `version` just like
+delete. Existing label sets exceeding the new limits need normalization before
+rehydration. Page tokens issued for ID filters should be discarded and lists
+restarted because identifiers now participate in the canonical request hash.
+
+Service APIs remain contract-only. The unused `doman/service` stubs were removed;
+no service persistence or handlers are implied by the existence of protobufs.
