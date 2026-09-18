@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "gravity-ui": {
+      "source": "gravity-ui/skills",
+      "sourceType": "github",
+      "skillPath": "skills/gravity-ui/SKILL.md",
+      "computedHash": "e2ecf858568e39c22fd2bb35b7b34721e79a61ac47b45134d11db2ce937d8115"
+    },
+    "temporal-developer": {
+      "source": "temporalio/skill-temporal-developer",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "496e7e5d8a8e930eaa969db747b7682542841a3fa0c4574b81c758a40f912d9c"
+    },
+    "temporal-ops": {
+      "source": "temporalio/skill-temporal-ops",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "ec86a8959408ae19d80e36ac67f8f8b04a1d72961ad7988a59fed9679cf3cccc"
+    },
+    "temporal-workertuning": {
+      "source": "temporalio/skill-temporal-workertuning",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7163167bdba41dbc321f72f1c848b5927c2bee650579133baa834228fe9a5bbf"
+    },
+    "temporal-workflow-design-critic": {
+      "source": "temporalio/skill-temporal-design",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "64cabe0cc683d296bf8c0debd85e68c02a0215fa06e6dddc2a5989768b9f24ab"
+    }
+  }
+}
