@@ -1,1 +1,0 @@
-export {resourceManagerModule} from './module';
