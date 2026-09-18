@@ -1,0 +1,34 @@
+# Локальные файлы ОС и редакторов
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Локальные настройки и секреты
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+*.pem
+*.key
+
+# Результаты сборки и проверок
+/bin/
+/dist/
+/build/
+/coverage/
+*.test
+coverage.out
+
+# Будущая веб-консоль
+node_modules/
+.next/
+web/**/dist/
+web/**/build/
+
+# Локальное состояние инфраструктуры
+.terraform/
+*.tfstate
+*.tfstate.*
