@@ -43,4 +43,4 @@ ADR фиксирует значимое решение: границы отве�
 
 | ADR | Статус | Решение |
 | --- | --- | --- |
-| [ADR-0004](messaging/0004-data-event-bus.md) | 🟡 **Proposed** | Шина данных и событий: YDB Topics |
+| [ADR-0004](messaging/0004-data-event-bus.md) | 🟢 **Accepted** | Шина данных и событий: YDB Topics |
