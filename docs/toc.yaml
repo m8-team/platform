@@ -22,34 +22,34 @@ items:
       - name: Архитектурные решения (ADR)
         href: docs/adr/README.md
       - name: "ADR-0001: основная база данных"
-        href: docs/adr/data/0001-primary-database.md
+        href: docs/adr/0001-primary-database.md
         hidden: true
       - name: "ADR-0002: миграции базы данных"
-        href: docs/adr/data/0002-database-migrations.md
+        href: docs/adr/0002-database-migrations.md
         hidden: true
       - name: "ADR-0003: система оркестрации"
-        href: docs/adr/orchestration/0003-workflow-orchestration.md
+        href: docs/adr/0003-workflow-orchestration.md
         hidden: true
       - name: "ADR-0004: шина данных и событий"
-        href: docs/adr/messaging/0004-data-event-bus.md
+        href: docs/adr/0004-data-event-bus.md
         hidden: true
       - name: "ADR-0005: API и межсервисные контракты"
-        href: docs/adr/api/0005-api-contracts.md
+        href: docs/adr/0005-api-contracts.md
         hidden: true
       - name: "ADR-0006: идентификаторы ресурсов"
-        href: docs/adr/resources/0006-resource-identifiers.md
+        href: docs/adr/0006-resource-identifiers.md
         hidden: true
       - name: "ADR-0007: идемпотентность и доставка"
-        href: docs/adr/reliability/0007-idempotency-and-delivery.md
+        href: docs/adr/0007-idempotency-and-delivery.md
         hidden: true
       - name: "ADR-0008: аутентификация Keycloak"
-        href: docs/adr/identity/0008-authentication-keycloak.md
+        href: docs/adr/0008-authentication-keycloak.md
         hidden: true
       - name: "ADR-0009: авторизация SpiceDB"
-        href: docs/adr/access/0009-authorization-spicedb.md
+        href: docs/adr/0009-authorization-spicedb.md
         hidden: true
       - name: "ADR-0010: наблюдаемость"
-        href: docs/adr/observability/0010-observability.md
+        href: docs/adr/0010-observability.md
         hidden: true
   - name: Разработка
     items:

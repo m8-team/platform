@@ -6,21 +6,9 @@ ADR фиксирует значимое решение: границы отве�
 
 ## Создание и изменение
 
-Используйте [шаблон](../specs/_templates/adr.md). Путь записи — `docs/adr/{category}/{number}-{short-name}.md`, идентификатор — `ADR-{number}`.
+Используйте [шаблон](../specs/_templates/adr.md). Путь записи — `docs/adr/{number}-{short-name}.md`, идентификатор — `ADR-{number}`.
 
-Нумерация ADR глобальная для всего проекта и не начинается заново внутри категории. Выберите следующий свободный номер и не переиспользуйте его.
-
-Категория отражает архитектурную область решения. Создавайте новую категорию только когда для неё появляется реальный ADR; пустые категории заранее не создаются. Текущие категории:
-
-- `data/` — хранение данных, базы данных, схема и миграции;
-- `orchestration/` — оркестрация и устойчивое выполнение длительных процессов;
-- `messaging/` — асинхронный обмен сообщениями, события и потоковая передача данных;
-- `api/` — API, RPC и межсервисные контракты;
-- `resources/` — общая модель ресурсов и идентификаторов;
-- `reliability/` — идемпотентность, повторы и надёжная доставка;
-- `identity/` — аутентификация и управление идентичностью;
-- `access/` — авторизация и отношения доступа;
-- `observability/` — трассировки, метрики, логи и эксплуатационная диагностика.
+Нумерация ADR единая для всего проекта. Выберите следующий свободный номер и не переиспользуйте его.
 
 Новый ADR начинается со статуса Proposed. Accepted присваивается после явного согласования командой, со ссылкой на его подтверждение. Rejected означает отклонённое предложение; Deprecated — решение, выведенное из применения; Superseded — заменённое новым ADR.
 
@@ -28,61 +16,19 @@ ADR фиксирует значимое решение: границы отве�
 
 Указывайте фактическую дату записи или решения и связи со спецификациями, запросами на слияние и другими ADR. Не добавляйте вымышленные подтверждения согласования.
 
-Отдельные ADR не добавляются в основное меню документации. Навигация выполняется через этот реестр и связи между ADR.
+Отдельные ADR не добавляются в основное меню документации. Они регистрируются в `toc.yaml` с `hidden: true`, чтобы Diplodoc собирал страницы и проверял ссылки, но не показывал их в навигации.
 
 ## Реестр
 
-### Данные и хранение
-
 | ADR | Статус | Решение |
 | --- | --- | --- |
-| [ADR-0001](data/0001-primary-database.md) | 🟢 **Accepted** | Основная операционная СУБД: YDB |
-| [ADR-0002](data/0002-database-migrations.md) | 🟢 **Accepted** | Система миграций базы данных: `pressly/goose/v3` |
-
-### Оркестрация
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0003](orchestration/0003-workflow-orchestration.md) | 🟢 **Accepted** | Система оркестрации длительных процессов: Temporal |
-
-### Обмен сообщениями и события
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0004](messaging/0004-data-event-bus.md) | 🟢 **Accepted** | Шина данных и событий: YDB Topics |
-
-### API и контракты
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0005](api/0005-api-contracts.md) | 🟡 **Proposed** | Protocol Buffers + Connect/gRPC |
-
-### Ресурсы
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0006](resources/0006-resource-identifiers.md) | 🟡 **Proposed** | UUIDv7 и канонические имена ресурсов |
-
-### Надёжность
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0007](reliability/0007-idempotency-and-delivery.md) | 🟡 **Proposed** | Идемпотентность, Inbox/Outbox и повторные попытки |
-
-### Идентичность и аутентификация
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0008](identity/0008-authentication-keycloak.md) | 🟡 **Proposed** | Keycloak как IdP, M8 Identity/Authentication как предметные границы |
-
-### Авторизация
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0009](access/0009-authorization-spicedb.md) | 🟡 **Proposed** | M8 Access + SpiceDB |
-
-### Наблюдаемость
-
-| ADR | Статус | Решение |
-| --- | --- | --- |
-| [ADR-0010](observability/0010-observability.md) | 🟡 **Proposed** | OpenTelemetry + slog + Collector → Mimir/Loki/Tempo |
+| [ADR-0001](0001-primary-database.md) | 🟢 **Accepted** | Основная операционная СУБД: YDB |
+| [ADR-0002](0002-database-migrations.md) | 🟢 **Accepted** | Система миграций базы данных: `pressly/goose/v3` |
+| [ADR-0003](0003-workflow-orchestration.md) | 🟢 **Accepted** | Система оркестрации длительных процессов: Temporal |
+| [ADR-0004](0004-data-event-bus.md) | 🟢 **Accepted** | Шина данных и событий: YDB Topics |
+| [ADR-0005](0005-api-contracts.md) | 🟡 **Proposed** | Protocol Buffers + Connect/gRPC |
+| [ADR-0006](0006-resource-identifiers.md) | 🟡 **Proposed** | UUIDv7 и канонические имена ресурсов |
+| [ADR-0007](0007-idempotency-and-delivery.md) | 🟡 **Proposed** | Идемпотентность, Inbox/Outbox и повторные попытки |
+| [ADR-0008](0008-authentication-keycloak.md) | 🟡 **Proposed** | Keycloak как IdP, M8 Identity/Authentication как предметные границы |
+| [ADR-0009](0009-authorization-spicedb.md) | 🟡 **Proposed** | M8 Access + SpiceDB |
+| [ADR-0010](0010-observability.md) | 🟡 **Proposed** | OpenTelemetry + slog + Collector → Mimir/Loki/Tempo |
