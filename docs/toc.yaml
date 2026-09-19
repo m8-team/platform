@@ -21,6 +21,8 @@ items:
         href: docs/architecture/module-boundaries.md
       - name: Архитектурные решения (ADR)
         href: docs/adr/README.md
+      - name: "ADR-0001: миграции базы данных"
+        href: docs/adr/0001-database-migrations.md
   - name: Разработка
     items:
       - name: Цикл SDD
