@@ -4,7 +4,6 @@ on:
   pull_request:
     paths:
       - 'docs/**'
-      - 'specs/**'
       - 'README.md'
       - 'AGENTS.md'
       - '.yfm'
@@ -17,7 +16,6 @@ on:
     branches: [new]
     paths:
       - 'docs/**'
-      - 'specs/**'
       - 'README.md'
       - 'AGENTS.md'
       - '.yfm'

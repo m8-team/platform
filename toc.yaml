@@ -38,24 +38,24 @@ items:
   - name: Спецификации
     items:
       - name: Организация спецификаций
-        href: specs/README.md
+        href: docs/specs/README.md
       - name: Resource Manager
-        href: specs/resource-manager/module.md
+        href: docs/specs/resource-manager/module.md
       - name: Identity
-        href: specs/identity/module.md
+        href: docs/specs/identity/module.md
       - name: Authentication
-        href: specs/authentication/module.md
+        href: docs/specs/authentication/module.md
       - name: Access
-        href: specs/access/module.md
+        href: docs/specs/access/module.md
   - name: Шаблоны
     items:
       - name: Спецификация
-        href: specs/_templates/spec.md
+        href: docs/specs/_templates/spec.md
       - name: Технический план
-        href: specs/_templates/plan.md
+        href: docs/specs/_templates/plan.md
       - name: Задачи
-        href: specs/_templates/tasks.md
+        href: docs/specs/_templates/tasks.md
       - name: Архитектурное решение
-        href: specs/_templates/adr.md
+        href: docs/specs/_templates/adr.md
       - name: Описание модуля
-        href: specs/_templates/module.md
+        href: docs/specs/_templates/module.md

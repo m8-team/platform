@@ -11,7 +11,7 @@ const github = 'https://github.com/m8-team/platform';
 rmSync(input, {recursive: true, force: true});
 rmSync(join(root, 'build/docs'), {recursive: true, force: true});
 mkdirSync(input, {recursive: true});
-for (const entry of ['docs', 'specs', 'README.md', 'AGENTS.md', 'toc.yaml']) {
+for (const entry of ['docs', 'README.md', 'AGENTS.md', 'toc.yaml']) {
   cpSync(join(root, entry), join(input, entry), {
     recursive: true,
     filter: (path) => !path.split('/').some((part) => part.startsWith('.') && part !== '.'),

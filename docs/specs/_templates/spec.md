@@ -6,7 +6,7 @@
 - Статус: `<Draft | Accepted | Implemented | Deprecated>` (новая спецификация начинается с Draft).
 - Модуль: `<ссылка на module.md>`.
 - Issue: `<ссылка на запись в трекере>`.
-- Общие правила: [принципы](../../docs/principles.md), [термины](../../docs/glossary.md), [версионирование](../../docs/development/versioning.md).
+- Общие правила: [принципы](../../principles.md), [термины](../../glossary.md), [версионирование](../../development/versioning.md).
 
 При копировании пересчитайте относительные ссылки от каталога функции. Статус Accepted требует подтверждения согласования; Implemented — реализации и проверок.
 

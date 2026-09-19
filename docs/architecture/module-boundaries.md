@@ -4,10 +4,10 @@
 
 | Модуль | Предлагаемая ответственность | Описание |
 | --- | --- | --- |
-| Resource Manager | Организации, workspace и проекты, их жизненный цикл | [module.md](../../specs/resource-manager/module.md) |
-| Identity | Идентичности и связанные профили | [module.md](../../specs/identity/module.md) |
-| Authentication | Подтверждение личности, authentication challenges и процессы аутентификации | [module.md](../../specs/authentication/module.md) |
-| Access | Роли, назначения, отношения доступа и проверка разрешений | [module.md](../../specs/access/module.md) |
+| Resource Manager | Организации, workspace и проекты, их жизненный цикл | [module.md](../specs/resource-manager/module.md) |
+| Identity | Идентичности и связанные профили | [module.md](../specs/identity/module.md) |
+| Authentication | Подтверждение личности, authentication challenges и процессы аутентификации | [module.md](../specs/authentication/module.md) |
+| Access | Роли, назначения, отношения доступа и проверка разрешений | [module.md](../specs/access/module.md) |
 
 ## Имена в репозитории
 
