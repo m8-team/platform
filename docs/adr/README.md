@@ -20,4 +20,4 @@ ADR фиксирует значимое решение: границы отве�
 | --- | --- | --- |
 | [ADR-0001](0001-database-migrations.md) | Accepted | Система миграций базы данных: `pressly/goose/v3` |
 | [ADR-0002](0002-primary-database.md) | Accepted | Основная операционная СУБД: YDB |
-| [ADR-0003](0003-workflow-orchestration.md) | Proposed | Система оркестрации длительных процессов: предлагается Temporal |
+| [ADR-0003](0003-workflow-orchestration.md) | Accepted | Система оркестрации длительных процессов: Temporal |

@@ -2,8 +2,8 @@
 
 - Идентификатор: `ADR-0003`.
 - Дата: `2026-09-19`.
-- Статус: `Proposed`.
-- Подтверждение согласования: отсутствует; выбор Temporal предлагается к утверждению.
+- Статус: `Accepted`.
+- Подтверждение согласования: решение владельца проекта от `2026-09-19` — выбрать Temporal как стандартную систему durable orchestration; ссылка на фиксирующий commit будет добавлена после записи решения.
 
 ## Контекст
 
@@ -59,7 +59,7 @@ Kubernetes controller/operator остаётся предпочтительным
 
 ## Решение и обоснование
 
-Предлагается использовать **Temporal** как стандартную систему durable orchestration M8 Platform.
+Используется **Temporal** как стандартная система durable orchestration M8 Platform.
 
 Причины:
 
@@ -75,7 +75,7 @@ Kubernetes controller/operator остаётся предпочтительным
 
 ## Правила использования
 
-Если ADR будет принят:
+Для принятого решения действуют следующие правила:
 
 - Temporal является default orchestration engine для новых long-running и multi-step процессов, когда durability процесса является требованием;
 - workflow definitions содержат только deterministic orchestration logic;
@@ -127,7 +127,7 @@ Advanced Visibility должна проектироваться по возмо�
 
 ## Критерии принятия
 
-До перевода ADR в `Accepted` желательно выполнить минимальный PoC:
+Перед первым production rollout необходимо выполнить минимальный PoC:
 
 1. поднять Temporal development server или test deployment;
 2. реализовать Go Workflow минимум из двух Activities;
