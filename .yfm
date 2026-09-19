@@ -1,0 +1,12 @@
+lang: ru
+strict: true
+allowHtml: false
+staticContent: true
+supportGithubAnchors: true
+search:
+  provider: local
+interface:
+  feedback: false
+docs-viewer:
+  logo-options:
+    title: M8 Platform

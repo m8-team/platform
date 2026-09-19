@@ -1,0 +1,53 @@
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'specs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - '.yfm'
+      - 'toc.yaml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/prepare-docs.mjs'
+      - '.github/workflows/documentation.yml'
+  push:
+    branches: [new]
+    paths:
+      - 'docs/**'
+      - 'specs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - '.yfm'
+      - 'toc.yaml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/prepare-docs.mjs'
+      - '.github/workflows/documentation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run docs:build
+        env:
+          DOCS_SOURCE_REF: ${{ github.sha }}
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: diplodoc-site
+          path: build/docs/
+          if-no-files-found: error
+          retention-days: 7

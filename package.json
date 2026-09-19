@@ -1,0 +1,16 @@
+{
+  "name": "m8-platform-docs",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11.5.1"
+  },
+  "scripts": {
+    "docs:build": "node scripts/prepare-docs.mjs && yfm build -c ./.yfm -i build/docs-input -o build/docs",
+    "docs:preview": "python3 -m http.server 8000 --bind 127.0.0.1 --directory build/docs"
+  },
+  "devDependencies": {
+    "@diplodoc/cli": "5.61.0"
+  }
+}
