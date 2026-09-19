@@ -1,0 +1,61 @@
+title: M8 Platform
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: О платформе
+    href: index.md
+  - name: Документация
+    href: docs/README.md
+  - name: Общие принципы
+    href: docs/principles.md
+  - name: Глоссарий
+    href: docs/glossary.md
+  - name: Архитектура
+    items:
+      - name: Обзор
+        href: docs/architecture/overview.md
+      - name: Границы модулей
+        href: docs/architecture/module-boundaries.md
+      - name: Архитектурные решения (ADR)
+        href: docs/adr/README.md
+  - name: Разработка
+    items:
+      - name: Цикл SDD
+        href: docs/development/sdd-workflow.md
+      - name: Правила документации
+        href: docs/development/documentation-rules.md
+      - name: Сборка Diplodoc
+        href: docs/development/diplodoc.md
+      - name: Версионирование
+        href: docs/development/versioning.md
+      - name: Definition of Done
+        href: docs/development/definition-of-done.md
+      - name: Инструкции для ИИ и skills
+        href: AGENTS.md
+  - name: Спецификации
+    items:
+      - name: Организация спецификаций
+        href: specs/README.md
+      - name: Resource Manager
+        href: specs/resource-manager/module.md
+      - name: Identity
+        href: specs/identity/module.md
+      - name: Authentication
+        href: specs/authentication/module.md
+      - name: Access
+        href: specs/access/module.md
+  - name: Шаблоны
+    items:
+      - name: Спецификация
+        href: specs/_templates/spec.md
+      - name: Технический план
+        href: specs/_templates/plan.md
+      - name: Задачи
+        href: specs/_templates/tasks.md
+      - name: Архитектурное решение
+        href: specs/_templates/adr.md
+      - name: Описание модуля
+        href: specs/_templates/module.md
