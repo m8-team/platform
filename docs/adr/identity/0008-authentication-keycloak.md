@@ -27,7 +27,7 @@ M8 Platform нужны интерактивная и машинная аутен
 
 Keycloak отвечает за:
 
-- [OIDC](*oidc)/[OAuth 2.x](*oauth) endpoints;
+- протокольные точки [OIDC](*oidc)/[OAuth 2.x](*oauth);
 - учётные данные и стандартные механизмы входа;
 - пользовательские и клиентские сессии;
 - [MFA](*mfa) и [WebAuthn](*webauthn);
