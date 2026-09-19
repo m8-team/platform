@@ -19,4 +19,4 @@ ADR фиксирует значимое решение: границы отве�
 | ADR | Статус | Решение |
 | --- | --- | --- |
 | [ADR-0001](0001-database-migrations.md) | Accepted | Система миграций базы данных: `pressly/goose/v3` |
-| [ADR-0002](0002-primary-database.md) | Proposed | Основная операционная СУБД: предлагается YDB |
+| [ADR-0002](0002-primary-database.md) | Accepted | Основная операционная СУБД: YDB |
