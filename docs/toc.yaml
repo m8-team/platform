@@ -30,6 +30,9 @@ items:
       - name: "ADR-0003: система оркестрации"
         href: docs/adr/orchestration/0003-workflow-orchestration.md
         hidden: true
+      - name: "ADR-0004: шина данных и событий"
+        href: docs/adr/messaging/0004-data-event-bus.md
+        hidden: true
   - name: Разработка
     items:
       - name: Цикл SDD
