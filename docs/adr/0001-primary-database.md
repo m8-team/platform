@@ -4,7 +4,7 @@
 | --- | --- |
 | Идентификатор | `ADR-0001` |
 | Дата | `2026-09-19` |
-| Статус | <span class="g-label g-label_theme_success g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Accepted</span></span></span> |
+| Статус | 🟢 **Accepted** |
 | Подтверждение согласования | Решение владельца проекта от `2026-09-19` — выбрать YDB как основную операционную СУБД; зафиксировано в коммите [`617ca4b`](https://github.com/m8-team/platform/commit/617ca4b38a7dbd6f75e6df2b871c4beda8461af3). |
 
 ## Контекст

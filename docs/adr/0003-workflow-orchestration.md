@@ -4,7 +4,7 @@
 | --- | --- |
 | Идентификатор | `ADR-0003` |
 | Дата | `2026-09-19` |
-| Статус | <span class="g-label g-label_theme_success g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Accepted</span></span></span> |
+| Статус | 🟢 **Accepted** |
 | Подтверждение согласования | Решение владельца проекта от `2026-09-19` — выбрать Temporal как стандартную систему оркестрации длительных процессов; зафиксировано в коммите [`fac20e4`](https://github.com/m8-team/platform/commit/fac20e4bc8aced15c385148cb1574800366dcd01). |
 
 ## Контекст

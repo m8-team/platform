@@ -4,7 +4,7 @@
 | --- | --- |
 | Идентификатор | `ADR-0002` |
 | Дата | `2026-09-19` |
-| Статус | <span class="g-label g-label_theme_success g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Accepted</span></span></span> |
+| Статус | 🟢 **Accepted** |
 | Подтверждение согласования | Решение владельца проекта от `2026-09-19` — выбрать `pressly/goose/v3`; зафиксировано в коммите [`4c256b0`](https://github.com/m8-team/platform/commit/4c256b024f719d4e4196af3b42b9eab74bf20259). |
 
 ## Контекст
