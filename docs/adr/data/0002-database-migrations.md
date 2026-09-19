@@ -94,8 +94,8 @@ M8 Platform требуется единый механизм версионир�
 ## Связи
 
 - [ADR-0001: основная операционная база данных](0001-primary-database.md) — выбрана YDB.
-- [Обзор архитектуры](../architecture/overview.md).
-- [Критерии завершения](../development/definition-of-done.md).
+- [Обзор архитектуры](../../architecture/overview.md).
+- [Критерии завершения](../../development/definition-of-done.md).
 - Каталоги миграций: `migrations/resource-manager/`, `migrations/identity/`.
 - YDB: [официальная документация по goose](https://ydb.tech/docs/en/integrations/migration/goose).
 - Goose: [pressly/goose](https://github.com/pressly/goose).

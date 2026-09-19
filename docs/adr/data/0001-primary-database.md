@@ -106,8 +106,8 @@
 ## Связи
 
 - [ADR-0002: система миграций базы данных](0002-database-migrations.md) — выбран `pressly/goose/v3`.
-- [Обзор архитектуры](../architecture/overview.md).
-- [Границы модулей](../architecture/module-boundaries.md).
+- [Обзор архитектуры](../../architecture/overview.md).
+- [Границы модулей](../../architecture/module-boundaries.md).
 - YDB: [архитектура](https://ydb.tech/docs/en/concepts/architecture), [транзакции](https://ydb.tech/docs/en/concepts/transactions), [SDK](https://ydb.tech/docs/en/reference/ydb-sdk/), [открытая версия и лицензия](https://ydb.tech/docs/en/downloads/ydb-open-source-database).
 - PostgreSQL: [высокая доступность, балансировка нагрузки и репликация](https://www.postgresql.org/docs/current/high-availability.html).
 - CockroachDB: [лицензирование](https://www.cockroachlabs.com/docs/stable/licensing-faqs).
