@@ -3,7 +3,7 @@
 - Идентификатор: `ADR-0003`.
 - Дата: `2026-09-19`.
 - Статус: `Accepted`.
-- Подтверждение согласования: решение владельца проекта от `2026-09-19` — выбрать Temporal как стандартную систему durable orchestration; ссылка на фиксирующий commit будет добавлена после записи решения.
+- Подтверждение согласования: решение владельца проекта от `2026-09-19` — выбрать Temporal как стандартную систему durable orchestration; зафиксировано в commit [`fac20e4`](https://github.com/m8-team/platform/commit/fac20e4bc8aced15c385148cb1574800366dcd01).
 
 ## Контекст
 
@@ -91,6 +91,26 @@ Kubernetes controller/operator остаётся предпочтительным
 - для обычной фоновой задачи без orchestration предпочтительна более простая модель; Temporal Workflow не создаётся только ради обёртки одного короткого вызова;
 - для continuous reconciliation Kubernetes/custom resources используется controller/reconciler pattern; Temporal может запускать или координировать конечную операцию, но не заменяет бесконечный reconciliation loop;
 - production deployment Temporal Service, persistence backend, namespaces, security, worker topology, observability и disaster recovery определяются отдельным operational design.
+
+## Установленные Temporal skills
+
+В проекте зафиксированы следующие skills для работы с Temporal:
+
+| Skill | Назначение | Когда применять |
+| --- | --- | --- |
+| [`temporal-developer`](../../.agents/skills/temporal-developer/SKILL.md) | Разработка и отладка Workflows, Activities, Workers и SDK-интеграций; determinism, retries, signals, queries, updates, versioning, replay. | При проектировании реализации, написании и изменении Temporal-кода, тестировании и отладке. Для Go необходимо использовать предусмотренные skill Go references. |
+| [`temporal-workflow-design-critic`](../../.agents/skills/temporal-workflow-design-critic/SKILL.md) | Независимое ревью Temporal design на correctness, operability и production readiness. | До реализации существенного workflow, после значимого изменения design и перед завершением работы. Дополняет, а не заменяет `temporal-developer`. |
+| [`temporal-workertuning`](../../.agents/skills/temporal-workertuning/SKILL.md) | Настройка производительности и масштабирования Workers: slots, pollers, cache, latency, ресурсы и метрики. | Когда задача затрагивает throughput, worker capacity, scaling или performance tuning. |
+| [`temporal-ops`](../../.agents/skills/temporal-ops/SKILL.md) | Эксплуатация и диагностика Temporal Server / Cloud через CLI: namespaces, доступ, Task Queues и incidents. | Для operational/diagnostic задач. Skill имеет ограничение `disable-model-invocation: true`; в поддерживающих это средах требуется явный вызов пользователем. |
+
+Правила выбора и применения skills определяются [`AGENTS.md`](../../AGENTS.md). Фактические `SKILL.md` являются источником инструкций и могут обновляться независимо от этого ADR; изменение версии skill не требует нового ADR, пока не меняется принятое архитектурное решение.
+
+Для обычного изменения Temporal workflow минимальный процесс проекта:
+
+1. использовать `temporal-developer` при проектировании и реализации;
+2. выполнить ревью через `temporal-workflow-design-critic`;
+3. подключать `temporal-workertuning` при требованиях к производительности и масштабированию;
+4. использовать `temporal-ops` для эксплуатации и диагностики с учётом его invocation restrictions.
 
 ## Self-hosted persistence
 
