@@ -18,7 +18,8 @@
 /bin/
 /dist/
 /build/
-/coverage/
+/docs/build/
+coverage/
 *.test
 coverage.out
 

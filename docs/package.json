@@ -8,8 +8,8 @@
     "npm": ">=11.19.0"
   },
   "scripts": {
-    "docs:build": "node scripts/prepare-docs.mjs && yfm build -c ./.yfm -i build/docs-input -o build/docs",
-    "docs:preview": "python3 -m http.server 8000 --bind 127.0.0.1 --directory build/docs"
+    "build": "node scripts/prepare-docs.mjs && yfm build -c ./.yfm -i build/docs-input -o build/site",
+    "preview": "python3 -m http.server 8000 --bind 127.0.0.1 --directory build/site"
   },
   "devDependencies": {
     "@diplodoc/cli": "5.61.0"

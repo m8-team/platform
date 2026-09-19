@@ -2,21 +2,28 @@ import {cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSy
 import {join, posix} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
-const input = join(root, 'build/docs-input');
+const docsRoot = fileURLToPath(new URL('../', import.meta.url));
+const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
+const input = join(docsRoot, 'build/docs-input');
+const output = join(docsRoot, 'build/site');
 const ref = process.env.DOCS_SOURCE_REF || 'new';
 const github = 'https://github.com/m8-team/platform';
 
 // Build from an allowlist, never from the whole repository or installed skills.
 rmSync(input, {recursive: true, force: true});
-rmSync(join(root, 'build/docs'), {recursive: true, force: true});
-mkdirSync(input, {recursive: true});
-for (const entry of ['docs', 'README.md', 'AGENTS.md', 'toc.yaml']) {
-  cpSync(join(root, entry), join(input, entry), {
+rmSync(output, {recursive: true, force: true});
+mkdirSync(join(input, 'docs'), {recursive: true});
+
+for (const entry of ['README.md', 'principles.md', 'glossary.md', 'architecture', 'adr', 'development', 'specs']) {
+  cpSync(join(docsRoot, entry), join(input, 'docs', entry), {
     recursive: true,
     filter: (path) => !path.split('/').some((part) => part.startsWith('.') && part !== '.'),
   });
 }
+
+cpSync(join(docsRoot, 'toc.yaml'), join(input, 'toc.yaml'));
+cpSync(join(repoRoot, 'README.md'), join(input, 'README.md'));
+cpSync(join(repoRoot, 'AGENTS.md'), join(input, 'AGENTS.md'));
 
 const published = (path) => path === 'README.md' ? 'index.md' : path;
 let sourceLinks = 0;
@@ -41,7 +48,7 @@ function resolveLink(source, href) {
       return (posix.relative(posix.dirname(published(source)), published(document)) || '.') + suffix;
     }
   }
-  const original = join(root, target);
+  const original = join(repoRoot, target);
   if (!existsSync(original)) throw new Error(`${source}: missing link target: ${href}`);
   sourceLinks++;
   const kind = statSync(original).isDirectory() ? 'tree' : 'blob';
@@ -63,7 +70,6 @@ function visit(directory) {
         return line;
       }
       if (fence) return line;
-      // Protect inline code while rewriting Markdown links and reference definitions.
       return line.split(/(`+[^`]*`+)/g).map((part) => {
         if (part.startsWith('`')) return part;
         return part.replace(/(!?\[[^\]\n]*\]\()([^\s)]+)([^)\n]*\))/g,

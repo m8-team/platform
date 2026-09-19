@@ -6,11 +6,6 @@ on:
       - 'docs/**'
       - 'README.md'
       - 'AGENTS.md'
-      - '.yfm'
-      - 'toc.yaml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'scripts/prepare-docs.mjs'
       - '.github/workflows/documentation.yml'
   push:
     branches: [new]
@@ -18,11 +13,6 @@ on:
       - 'docs/**'
       - 'README.md'
       - 'AGENTS.md'
-      - '.yfm'
-      - 'toc.yaml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'scripts/prepare-docs.mjs'
       - '.github/workflows/documentation.yml'
   workflow_dispatch:
 
@@ -39,13 +29,14 @@ jobs:
         with:
           node-version: '24.21.0'
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run docs:build
+          cache-dependency-path: docs/package-lock.json
+      - run: npm ci --prefix docs --no-audit --no-fund
+      - run: npm --prefix docs run build
         env:
           DOCS_SOURCE_REF: ${{ github.sha }}
       - uses: actions/upload-artifact@v7.0.1
         with:
           name: diplodoc-site
-          path: build/docs/
+          path: docs/build/site/
           if-no-files-found: error
           retention-days: 7
