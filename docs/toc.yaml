@@ -25,6 +25,8 @@ items:
         href: docs/adr/0001-database-migrations.md
       - name: "ADR-0002: основная база данных"
         href: docs/adr/0002-primary-database.md
+      - name: "ADR-0003: система оркестрации"
+        href: docs/adr/0003-workflow-orchestration.md
   - name: Разработка
     items:
       - name: Цикл SDD
