@@ -29,9 +29,9 @@ Unit-тесты Go размещаются рядом с исходниками, 
 
 ## Документация Diplodoc
 
-Из корня репозитория: `npm --prefix docs ci`, затем `npm --prefix docs run build`. Для локального просмотра: `npm --prefix docs run preview` (нужен Python 3), адрес — http://localhost:8000. Сборка требует Node.js 24.21.0+ и npm 11.19.0+.
+Из корня репозитория: `pnpm --dir docs install --frozen-lockfile`, затем `pnpm --dir docs run build`. Для локального просмотра: `pnpm --dir docs run preview` (нужен Python 3), адрес — http://localhost:8000. Сборка требует Node.js 24.21.0+ и pnpm 12.4.2.
 
-Весь toolchain документации находится в `docs/`: настройки — `docs/.yfm`, навигация — `docs/toc.yaml`, npm-окружение — `docs/package.json`, результат — `docs/build/site/`. Подробнее: [ведение и сборка документации](docs/development/diplodoc.md).
+Весь toolchain документации находится в `docs/`: настройки — `docs/.yfm`, навигация — `docs/toc.yaml`, pnpm-окружение — `docs/package.json`, результат — `docs/build/site/`. Подробнее: [ведение и сборка документации](docs/development/diplodoc.md).
 
 ## Отложенные решения
 

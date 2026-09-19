@@ -6,32 +6,32 @@
 
 Редактируйте исходные документы в `docs/`, корневых `README.md` и `AGENTS.md`. SDD-артефакты находятся в `docs/specs/`. Не создавайте вручную вторую копию спецификаций для сайта.
 
-Навигацию задаёт [docs/toc.yaml](../toc.yaml), параметры Diplodoc — [docs/.yfm](../.yfm). npm-окружение документации изолировано в [docs/package.json](../package.json) и [docs/package-lock.json](../package-lock.json). Корневой `package.json` для документации не используется.
+Навигацию задаёт [docs/toc.yaml](../toc.yaml), параметры Diplodoc — [docs/.yfm](../.yfm). pnpm-окружение документации изолировано в [docs/package.json](../package.json) и [docs/pnpm-lock.yaml](../pnpm-lock.yaml). Корневой `package.json` для документации не используется.
 
 ## Сборка и просмотр
 
-Нужны Node.js 24.21.0+ и npm 11.19.0+. Из корня репозитория выполните:
+Нужны Node.js 24.21.0+ и pnpm 12.4.2. Из корня репозитория выполните:
 
 ```bash
-npm --prefix docs ci
-npm --prefix docs run build
+pnpm --dir docs install --frozen-lockfile
+pnpm --dir docs run build
 ```
 
 Результат — `docs/build/site/`. Для локального просмотра требуется Python 3:
 
 ```bash
-npm --prefix docs run preview
+pnpm --dir docs run preview
 ```
 
 Откройте [localhost:8000](http://localhost:8000). Сервер доступен только на локальной машине. После изменения исходников повторите сборку.
 
-Из каталога `docs/` эквивалентны обычные команды `npm ci`, `npm run build` и `npm run preview`.
+Из каталога `docs/` эквивалентны команды `pnpm install --frozen-lockfile`, `pnpm run build` и `pnpm run preview`.
 
 ## Как устроена сборка
 
 [docs/scripts/prepare-docs.mjs](../scripts/prepare-docs.mjs) создаёт временный каталог `docs/build/docs-input/`. В него копируется содержимое документации с сохранением префикса `docs/`, а корневые `README.md` и `AGENTS.md` добавляются как входные страницы сайта. Затем Diplodoc создаёт сайт в `docs/build/site/`.
 
-Оба build-каталога исключены из Git. Исходные Markdown-файлы, конфигурация, npm-зависимости и скрипт сборки остаются внутри `docs/`.
+Оба build-каталога исключены из Git. Исходные Markdown-файлы, конфигурация, pnpm lock-файл, зависимости и скрипт сборки остаются внутри `docs/`.
 
 Относительные ссылки между страницами остаются внутренними. Ссылки на код, API-контракты, конфигурацию репозитория и установленные skills при подготовке преобразуются в ссылки GitHub. Сами skills и код в сайт не копируются.
 
@@ -42,12 +42,12 @@ npm --prefix docs run preview
 1. Создайте документ в соответствующем разделе `docs/`; SDD-артефакты размещайте в `docs/specs/` согласно [правилам документации](documentation-rules.md).
 2. Добавьте страницу в `docs/toc.yaml`; путь указывается относительно подготовленного корня сайта, например `docs/specs/resource-manager/create-organization/spec.md`.
 3. Используйте относительные ссылки на существующие `.md` и ресурсы. Названия будущих путей записывайте как inline code.
-4. Запустите `npm --prefix docs run build` и проверьте новую страницу, меню и переходы через локальный HTTP-сервер.
+4. Запустите `pnpm --dir docs run build` и проверьте новую страницу, меню и переходы через локальный HTTP-сервер.
 
 Фрагменты для YFM include и изображения храните рядом с документацией. Их не нужно добавлять в меню как самостоятельные страницы. Не используйте корневые URL вида `/docs/...`: они мешают размещению сайта под префиксом.
 
 ## CI и публикация
 
-Workflow [documentation.yml](../../.github/workflows/documentation.yml) устанавливает зависимости из `docs/package-lock.json`, запускает сборку из `docs/` и сохраняет `docs/build/site/` как artifact `diplodoc-site` на 7 дней.
+Workflow [documentation.yml](../../.github/workflows/documentation.yml) устанавливает зависимости из `docs/pnpm-lock.yaml`, запускает сборку из `docs/` и сохраняет `docs/build/site/` как artifact `diplodoc-site` на 7 дней.
 
 Сборка не публикует сайт. Хостинг, адрес и доступ выбираются отдельно; наличие CI artifact не означает публичную публикацию документации.

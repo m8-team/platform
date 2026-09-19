@@ -25,13 +25,21 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+          run_install: false
       - uses: actions/setup-node@v7.0.0
         with:
           node-version: '24.21.0'
-          cache: npm
-          cache-dependency-path: docs/package-lock.json
-      - run: npm ci --prefix docs --no-audit --no-fund
-      - run: npm --prefix docs run build
+          cache: pnpm
+          cache-dependency-path: docs/pnpm-lock.yaml
+      - name: Install dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+      - name: Build documentation
+        working-directory: docs
+        run: pnpm run build
         env:
           DOCS_SOURCE_REF: ${{ github.sha }}
       - uses: actions/upload-artifact@v7.0.1
