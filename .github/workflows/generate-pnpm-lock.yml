@@ -1,0 +1,33 @@
+name: Generate pnpm lock
+
+on:
+  push:
+    branches: [new]
+    paths:
+      - 'docs/package.json'
+      - '.github/workflows/generate-pnpm-lock.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+          run_install: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24.21.0'
+      - name: Generate lockfile
+        working-directory: docs
+        run: |
+          pnpm import
+          echo '---PNPM_LOCK_BEGIN---'
+          base64 -w 0 pnpm-lock.yaml
+          echo
+          echo '---PNPM_LOCK_END---'
