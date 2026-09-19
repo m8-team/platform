@@ -30,6 +30,8 @@ let sourceLinks = 0;
 let pages = 0;
 
 function resolveLink(source, href) {
+  // YFM term references use (*term) and are resolved by Diplodoc, not as files.
+  if (href.startsWith('*')) return href;
   if (/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(href)) return href;
   const [, pathname, suffix = ''] = href.match(/^([^?#]*)(.*)$/);
   if (!pathname) return href;
@@ -74,7 +76,7 @@ function visit(directory) {
         if (part.startsWith('`')) return part;
         return part.replace(/(!?\[[^\]\n]*\]\()([^\s)]+)([^)\n]*\))/g,
           (_, start, href, end) => start + resolveLink(source, href) + end)
-          .replace(/^(\s{0,3}\[[^\]]+\]:\s*)(\S+)(.*)$/,
+          .replace(/^(\s{0,3}\[(?!\*)[^\]]+\]:\s*)(\S+)(.*)$/,
             (_, start, href, end) => start + resolveLink(source, href) + end);
       }).join('');
     }).join('\n');
