@@ -21,6 +21,15 @@ items:
         href: docs/architecture/module-boundaries.md
       - name: Архитектурные решения (ADR)
         href: docs/adr/README.md
+      - name: "ADR-0001: основная база данных"
+        href: docs/adr/data/0001-primary-database.md
+        hidden: true
+      - name: "ADR-0002: миграции базы данных"
+        href: docs/adr/data/0002-database-migrations.md
+        hidden: true
+      - name: "ADR-0003: система оркестрации"
+        href: docs/adr/orchestration/0003-workflow-orchestration.md
+        hidden: true
   - name: Разработка
     items:
       - name: Цикл SDD
