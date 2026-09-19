@@ -7,6 +7,12 @@
       "skillPath": "skills/gravity-ui/SKILL.md",
       "computedHash": "e2ecf858568e39c22fd2bb35b7b34721e79a61ac47b45134d11db2ce937d8115"
     },
+    "protobuf": {
+      "source": "bufbuild/claude-plugins",
+      "sourceType": "github",
+      "skillPath": "plugins/protobuf/skills/protobuf/SKILL.md",
+      "computedHash": "ab81fda811287aef352fe7e507f2008b76d879e3a5bc153cee0ca30bd5bbef6e"
+    },
     "temporal-developer": {
       "source": "temporalio/skill-temporal-developer",
       "sourceType": "github",
@@ -30,6 +36,18 @@
       "sourceType": "github",
       "skillPath": "SKILL.md",
       "computedHash": "64cabe0cc683d296bf8c0debd85e68c02a0215fa06e6dddc2a5989768b9f24ab"
+    },
+    "ydb-core": {
+      "source": "ydb-platform/ydb-ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ydb-core/SKILL.md",
+      "computedHash": "ac63fe528a9bd7ef788113ab9c0ba67cdd074f82f14cfad3f1c7e99ee534e727"
+    },
+    "ydb-table": {
+      "source": "ydb-platform/ydb-ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ydb-table/SKILL.md",
+      "computedHash": "8a8bfc162bce3ddb79bbe2d4282fbdb6405c56f26b3728ebe5c00119e72afb67"
     }
   }
 }
