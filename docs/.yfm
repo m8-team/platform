@@ -1,6 +1,6 @@
 lang: ru
 strict: true
-allowHtml: false
+allowHtml: true
 staticContent: true
 supportGithubAnchors: true
 search:

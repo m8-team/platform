@@ -4,20 +4,22 @@
 | --- | --- |
 | Идентификатор | `ADR-<number>` |
 | Дата | `<YYYY-MM-DD: фактическая дата записи или решения>` |
-| Статус | 🟡 **Proposed** |
+| Статус | <span class="g-label g-label_theme_warning g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Proposed</span></span></span> |
 | Подтверждение согласования | — |
 
-Новый ADR всегда начинается со статуса 🟡 **Proposed**. Шаблон не утверждает решение. Используйте [правила ADR](../../adr/README.md); после переноса в `docs/adr/` пересчитайте ссылку.
+Новый ADR всегда начинается со статуса <span class="g-label g-label_theme_warning g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Proposed</span></span></span>. Шаблон не утверждает решение. Используйте [правила ADR](../../adr/README.md); после переноса в `docs/adr/` пересчитайте ссылку.
 
-Для единообразного отображения используйте следующие статусы:
+Для статусов используется визуальное оформление Gravity UI `Label`:
 
-| Статус | Отображение | Когда использовать |
-| --- | --- | --- |
-| Proposed | 🟡 **Proposed** | Решение предложено и ещё не согласовано. |
-| Accepted | 🟢 **Accepted** | Решение явно согласовано; в поле «Подтверждение согласования» укажите ссылку на фактическое подтверждение. |
-| Rejected | 🔴 **Rejected** | Предложение рассмотрено и отклонено. |
-| Deprecated | ⚫ **Deprecated** | Решение больше не рекомендуется к использованию, но не обязательно заменено другим ADR. |
-| Superseded | 🟣 **Superseded** | Решение заменено новым ADR; укажите ссылку на заменяющее решение. |
+| Статус | Gravity UI theme | Отображение | Когда использовать |
+| --- | --- | --- | --- |
+| Proposed | `warning` | <span class="g-label g-label_theme_warning g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Proposed</span></span></span> | Решение предложено и ещё не согласовано. |
+| Accepted | `success` | <span class="g-label g-label_theme_success g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Accepted</span></span></span> | Решение явно согласовано; в поле «Подтверждение согласования» укажите ссылку на фактическое подтверждение. |
+| Rejected | `danger` | <span class="g-label g-label_theme_danger g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Rejected</span></span></span> | Предложение рассмотрено и отклонено. |
+| Deprecated | `unknown` | <span class="g-label g-label_theme_unknown g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Deprecated</span></span></span> | Решение больше не рекомендуется к использованию, но не обязательно заменено другим ADR. |
+| Superseded | `utility` | <span class="g-label g-label_theme_utility g-label_size_xs"><span class="g-label__text"><span class="g-label__content">Superseded</span></span></span> | Решение заменено новым ADR; укажите ссылку на заменяющее решение. |
+
+Разметка статусов повторяет DOM/CSS-классы компонента Gravity UI `Label`, поэтому не требует отдельной React-гидрации и остаётся читаемой как обычный текст при отсутствии стилей.
 
 ## Контекст
 
