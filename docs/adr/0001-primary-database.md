@@ -21,7 +21,7 @@
 - достаточную наблюдаемость и эксплуатационные инструменты;
 - явные правила проектирования ключей, транзакционных границ и retries.
 
-Этот ADR выбирает **основную operational system of record (OSR)**. Он не означает, что выбранная СУБД должна использоваться для всех типов данных. Search, telemetry, object/blob storage, authorization graph, event streaming и аналитические workloads могут использовать специализированные системы, если это будет обосновано отдельными требованиями или ADR.
+Этот ADR выбирает основную **[operational system of record (OSR)](*osr)**. Он не означает, что выбранная СУБД должна использоваться для всех типов данных. Search, telemetry, object/blob storage, authorization graph, event streaming и аналитические workloads могут использовать специализированные системы, если это будет обосновано отдельными требованиями или ADR.
 
 При подготовке решения использованы установленные skills `ydb-core` и `ydb-table`.
 
@@ -29,7 +29,7 @@
 
 | Вариант | Преимущества | Ограничения и последствия |
 | --- | --- | --- |
-| [YDB](https://ydb.tech/docs/en/) | Distributed SQL; automatic sharding и rebalancing; strong consistency и ACID distributed transactions; Serializable по умолчанию; официальный Go SDK; self-hosted open-source edition под Apache 2.0; поддержка goose; единое пространство schema objects. | YQL не является PostgreSQL; схема и primary key должны проектироваться с учётом распределения нагрузки; монотонный первый компонент PK создаёт hotspot; отсутствует PostgreSQL-совместимость как цель; distributed transactions дороже локальных; команда должна освоить YDB-specific tooling и semantics. |
+| [YDB](https://ydb.tech/docs/en/) | Распределённая SQL-СУБД; автоматическое шардирование и перебалансировка; строгая консистентность и распределённые ACID-транзакции; уровень изоляции `Serializable` по умолчанию; официальный Go SDK; возможность развёртывания в собственной инфраструктуре; открытый исходный код под Apache 2.0; поддержка goose; единое пространство объектов схемы. | YQL не является PostgreSQL; схема и primary key должны проектироваться с учётом распределения нагрузки; монотонный первый компонент PK создаёт hotspot; отсутствует PostgreSQL-совместимость как цель; distributed transactions дороже локальных; команда должна освоить YDB-specific tooling и semantics. |
 | [PostgreSQL](https://www.postgresql.org/docs/) | Очень зрелая экосистема; знакомый SQL; широкий выбор драйверов, инструментов, операторов и managed services; простой старт для небольших нагрузок. | Основной сервер не предоставляет прозрачную native-модель горизонтального масштабирования записи как distributed SQL; HA, failover и scale-out требуют дополнительной topology, replication, extensions или внешних решений; переход к sharding позднее может стать отдельным архитектурным проектом. |
 | [CockroachDB](https://www.cockroachlabs.com/docs/) | Distributed SQL; automatic distribution; Serializable transactions; PostgreSQL-compatible wire ecosystem; встроенная отказоустойчивость. | Self-hosted licensing с ветки 24.3 требует лицензионной модели CockroachDB и в ряде сценариев telemetry/license key; это добавляет коммерческие и эксплуатационные ограничения; PostgreSQL compatibility не устраняет distributed-SQL особенности. |
 | [YugabyteDB](https://docs.yugabyte.com/) | Distributed SQL; strong ACID transactions; Apache 2.0; YSQL использует PostgreSQL-compatible wire protocol и большой объём PostgreSQL ecosystem; горизонтальное масштабирование. | PostgreSQL compatibility не полная и имеет документированные различия; отдельный distributed runtime повышает эксплуатационную сложность; приложение всё равно должно проектироваться с учётом распределённой архитектуры. |
@@ -113,3 +113,5 @@ PoC подтверждает применимость инструмента, н
 - Связанные ADR: [ADR-0002](0002-database-migrations.md).
 - Заменяет: нет.
 - Заменено: нет.
+
+[*osr]: **Operational system of record (OSR)** — основная авторитетная система хранения актуального операционного состояния и транзакционных данных. Для M8 Platform это хранилище, данные которого считаются источником истины при определении текущего состояния сущностей; поисковые индексы, аналитические витрины, telemetry и другие производные хранилища не являются OSR.
