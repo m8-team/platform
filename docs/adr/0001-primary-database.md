@@ -1,9 +1,9 @@
-# `ADR-0002`: Основная операционная база данных
+# `ADR-0001`: Основная операционная база данных
 
-- Идентификатор: `ADR-0002`.
+- Идентификатор: `ADR-0001`.
 - Дата: `2026-09-19`.
 - Статус: `Accepted`.
-- Подтверждение согласования: решение владельца проекта от `2026-09-19` — выбрать YDB как основную операционную СУБД; зафиксировано в commit [`617ca4b`](https://github.com/m8-team/platform/commit/617ca4b38a7dbd6f75e6df2b871c4beda8461af3).
+- Подтверждение согласования: решение владельца проекта от `2026-09-19` — выбрать YDB как основную операционную СУБД; зафиксировано в commit [`617ca4b`](https://github.com/m8-team/platform/commit/617ca4b38a7dbd6f75e6df2b871c4beda8461af3). ADR редакционно перенумерован из `ADR-0002` в `ADR-0001`, чтобы выбор СУБД предшествовал выбору системы миграций.
 
 ## Контекст
 
@@ -17,7 +17,7 @@ M8 Platform требуется основная транзакционная С�
 - официальный Go SDK и пригодность для сервисов на Go;
 - возможность локальной разработки и self-hosted эксплуатации;
 - предсказуемую модель лицензирования;
-- совместимость с принятой системой миграций [ADR-0001](0001-database-migrations.md);
+- наличие поддерживаемого и воспроизводимого механизма миграций схемы;
 - достаточную наблюдаемость и эксплуатационные инструменты;
 - явные правила проектирования ключей, транзакционных границ и retries.
 
@@ -44,7 +44,7 @@ M8 Platform требуется основная транзакционная С�
 2. **Сильные transactional guarantees.** По умолчанию транзакции выполняются в Serializable mode; поддерживаются distributed transactions между несколькими shards.
 3. **Соответствие Go-стеку.** Для Go существует официальный `github.com/ydb-platform/ydb-go-sdk/v3`; новые интеграции должны использовать Query Service.
 4. **Предсказуемая self-hosted лицензия.** Open-source YDB распространяется под Apache 2.0.
-5. **Совместимость с ADR-0001.** Принятый `pressly/goose/v3` имеет upstream YDB driver, поэтому выбор YDB не требует менять механизм миграций.
+5. **Поддерживаемая миграция схемы.** YDB поддерживается `pressly/goose/v3`; после выбора YDB стандарт миграций зафиксирован отдельно в [ADR-0002](0002-database-migrations.md).
 6. **Подходит для control-plane workloads.** Организации, проекты, конфигурация, состояния provisioning и другие operational entities требуют строгой консистентности и могут расти по количеству tenants и ресурсов.
 7. **Не требует PostgreSQL compatibility как архитектурной цели.** Проект новый и не имеет legacy PostgreSQL schema или SQL-кода, который нужно сохранять без изменений.
 
@@ -61,7 +61,7 @@ M8 Platform требуется основная транзакционная С�
 - приложение не должно рассчитывать на PostgreSQL-specific функции или на `SERIAL` / `AUTO_INCREMENT`;
 - транзакции проектируются как можно более локальными; distributed transaction применяется только когда атомарность действительно требуется;
 - retries выполняются только с учётом idempotency и общего deadline/cancellation budget;
-- schema changes выполняются через goose согласно [ADR-0001](0001-database-migrations.md);
+- schema changes выполняются через goose согласно [ADR-0002](0002-database-migrations.md);
 - конкретные topology, replication policy, backup/restore, capacity planning и production deployment YDB должны быть определены отдельно до production rollout;
 - выбор YDB Tables не означает автоматического выбора YDB Topics или Coordination для messaging/locking — такие решения принимаются по собственным требованиям.
 
@@ -103,13 +103,13 @@ PoC подтверждает применимость инструмента, н
 
 ## Связи
 
-- [ADR-0001: система миграций базы данных](0001-database-migrations.md) — выбран `pressly/goose/v3`.
+- [ADR-0002: система миграций базы данных](0002-database-migrations.md) — выбран `pressly/goose/v3` после выбора YDB.
 - [Обзор архитектуры](../architecture/overview.md).
 - [Границы модулей](../architecture/module-boundaries.md).
 - YDB: [Architecture](https://ydb.tech/docs/en/concepts/architecture), [Transactions](https://ydb.tech/docs/en/concepts/transactions), [Go SDK](https://ydb.tech/docs/en/reference/ydb-sdk/), [Open-source downloads and license](https://ydb.tech/docs/en/downloads/ydb-open-source-database).
 - PostgreSQL: [High Availability, Load Balancing, and Replication](https://www.postgresql.org/docs/current/high-availability.html).
 - CockroachDB: [Licensing FAQs](https://www.cockroachlabs.com/docs/stable/licensing-faqs).
 - YugabyteDB: [PostgreSQL compatibility](https://docs.yugabyte.com/stable/develop/postgresql-compatibility/).
-- Связанные ADR: [ADR-0001](0001-database-migrations.md).
+- Связанные ADR: [ADR-0002](0002-database-migrations.md).
 - Заменяет: нет.
 - Заменено: нет.

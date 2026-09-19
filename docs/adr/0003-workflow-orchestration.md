@@ -114,7 +114,7 @@ Kubernetes controller/operator остаётся предпочтительным
 
 ## Self-hosted persistence
 
-Выбор YDB в [ADR-0002](0002-primary-database.md) относится к application system of record и **не означает**, что YDB используется как persistence backend Temporal Service.
+Выбор YDB в [ADR-0001](0001-primary-database.md) относится к application system of record и **не означает**, что YDB используется как persistence backend Temporal Service.
 
 Штатно Temporal поддерживает persistence через Cassandra, PostgreSQL и MySQL; SQLite предназначен для development/testing. Поэтому self-hosted Temporal создаёт отдельную инфраструктурную зависимость.
 
@@ -162,12 +162,12 @@ Advanced Visibility должна проектироваться по возмо�
 
 ## Связи
 
-- [ADR-0002: основная операционная база данных](0002-primary-database.md) — application data хранится в YDB.
+- [ADR-0001: основная операционная база данных](0001-primary-database.md) — application data хранится в YDB.
 - [Обзор архитектуры](../architecture/overview.md).
 - Temporal: [Documentation](https://docs.temporal.io/), [Open-source platform](https://temporal.io/), [Server persistence](https://docs.temporal.io/self-hosted-guide/defaults).
 - Cadence: [Open-source workflow engine](https://cadenceworkflow.io/docs/concepts/open-source-workflow-engine).
 - Argo Workflows: [Documentation](https://argoproj.github.io/argo-workflows/).
 - AWS Step Functions: [Workflow types](https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html).
-- Связанные ADR: [ADR-0002](0002-primary-database.md).
+- Связанные ADR: [ADR-0001](0001-primary-database.md).
 - Заменяет: нет.
 - Заменено: нет.
