@@ -33,6 +33,24 @@ items:
       - name: "ADR-0004: шина данных и событий"
         href: docs/adr/messaging/0004-data-event-bus.md
         hidden: true
+      - name: "ADR-0005: API и межсервисные контракты"
+        href: docs/adr/api/0005-api-contracts.md
+        hidden: true
+      - name: "ADR-0006: идентификаторы ресурсов"
+        href: docs/adr/resources/0006-resource-identifiers.md
+        hidden: true
+      - name: "ADR-0007: идемпотентность и доставка"
+        href: docs/adr/reliability/0007-idempotency-and-delivery.md
+        hidden: true
+      - name: "ADR-0008: аутентификация Keycloak"
+        href: docs/adr/identity/0008-authentication-keycloak.md
+        hidden: true
+      - name: "ADR-0009: авторизация SpiceDB"
+        href: docs/adr/access/0009-authorization-spicedb.md
+        hidden: true
+      - name: "ADR-0010: наблюдаемость"
+        href: docs/adr/observability/0010-observability.md
+        hidden: true
   - name: Разработка
     items:
       - name: Цикл SDD
