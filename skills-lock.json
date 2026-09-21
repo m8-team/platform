@@ -17,13 +17,13 @@
       "source": "temporalio/skill-temporal-developer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "496e7e5d8a8e930eaa969db747b7682542841a3fa0c4574b81c758a40f912d9c"
+      "computedHash": "03c2c8356f6f1c4dd01cbe45497e56743ba71b7d417bc877944e657b17793f4a"
     },
     "temporal-ops": {
       "source": "temporalio/skill-temporal-ops",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "ec86a8959408ae19d80e36ac67f8f8b04a1d72961ad7988a59fed9679cf3cccc"
+      "computedHash": "19af86e17c4adabd6c15044429bd03dcd0bf8ec30a73bc9a03bea11049131dfd"
     },
     "temporal-workertuning": {
       "source": "temporalio/skill-temporal-workertuning",
