@@ -17,7 +17,7 @@
       "source": "temporalio/skill-temporal-developer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "03c2c8356f6f1c4dd01cbe45497e56743ba71b7d417bc877944e657b17793f4a"
+      "computedHash": "abb96bcf4937134ed0e4e686f276519dee5361171174e1218fd700a631452b48"
     },
     "temporal-ops": {
       "source": "temporalio/skill-temporal-ops",
@@ -41,7 +41,7 @@
       "source": "ydb-platform/ydb-ai-skills",
       "sourceType": "github",
       "skillPath": "skills/ydb-core/SKILL.md",
-      "computedHash": "ac63fe528a9bd7ef788113ab9c0ba67cdd074f82f14cfad3f1c7e99ee534e727"
+      "computedHash": "adce419945b36222759a3997f28e39fd07bc7d9876dac7bfcd2612164cd700e7"
     },
     "ydb-table": {
       "source": "ydb-platform/ydb-ai-skills",
