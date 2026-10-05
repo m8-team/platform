@@ -17,13 +17,13 @@
       "source": "temporalio/skill-temporal-developer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "496e7e5d8a8e930eaa969db747b7682542841a3fa0c4574b81c758a40f912d9c"
+      "computedHash": "8eb6cb01d1ea4640b695c7be6a65801356d5df4cc25722d11dd2ed5bbaaacf14"
     },
     "temporal-ops": {
       "source": "temporalio/skill-temporal-ops",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "ec86a8959408ae19d80e36ac67f8f8b04a1d72961ad7988a59fed9679cf3cccc"
+      "computedHash": "19af86e17c4adabd6c15044429bd03dcd0bf8ec30a73bc9a03bea11049131dfd"
     },
     "temporal-workertuning": {
       "source": "temporalio/skill-temporal-workertuning",
@@ -41,13 +41,13 @@
       "source": "ydb-platform/ydb-ai-skills",
       "sourceType": "github",
       "skillPath": "skills/ydb-core/SKILL.md",
-      "computedHash": "ac63fe528a9bd7ef788113ab9c0ba67cdd074f82f14cfad3f1c7e99ee534e727"
+      "computedHash": "adce419945b36222759a3997f28e39fd07bc7d9876dac7bfcd2612164cd700e7"
     },
     "ydb-table": {
       "source": "ydb-platform/ydb-ai-skills",
       "sourceType": "github",
       "skillPath": "skills/ydb-table/SKILL.md",
-      "computedHash": "8a8bfc162bce3ddb79bbe2d4282fbdb6405c56f26b3728ebe5c00119e72afb67"
+      "computedHash": "559a060629f102e3178e3df90e56b275ed6104253ade77e912dc9e032be6c7b8"
     }
   }
 }

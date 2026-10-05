@@ -27,29 +27,21 @@ If you prefer to install the skill directly without the plugin wrapper:
 
 #### Via manually cloning the skill repo
 
-1. `mkdir -p ~/.claude/skills && git clone https://github.com/temporalio/skill-temporal-developer ~/.claude/skills/temporal-developer`
+Claude:
 
-Appropriately adjust the installation directory based on your coding agent.
-
-## Development
-
-Install the Markdown formatter and its pinned dependencies:
-
-```shell
-uv sync
+```
+mkdir -p ~/.claude/skills && git clone https://github.com/temporalio/skill-temporal-developer ~/.claude/skills/temporal-developer
 ```
 
-Format all Markdown files:
+Codex:
 
-```shell
-uv run mdformat .
+```
+mkdir -p ~/.agents/skills && git clone https://github.com/temporalio/skill-temporal-developer ~/.agents/skills/temporal-developer
 ```
 
-Check formatting without changing files:
+## Contributing
 
-```shell
-uv run mdformat --check .
-```
+See the [contribution guide](CONTRIBUTING.md) for development setup and validation instructions.
 
 ## Currently Supported Temporal SDK Languages
 
