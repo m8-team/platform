@@ -9,6 +9,14 @@ description: Develop, debug, and manage Temporal applications across Python, Typ
 
 Temporal is a durable execution platform that makes workflows survive failures automatically. This skill provides guidance for building Temporal applications in Python, TypeScript, Go, Java, .NET, Ruby, and Rust.
 
+## Out of Scope
+
+- **Operational CLI commands** such as batch operations, health queries, Cloud administration, `tcld`, and scripting → use the [temporal-ops skill](https://github.com/temporalio/skill-temporal-ops).
+- **Serverless Worker deployment and troubleshooting** → use the [temporal-serverless skill](https://github.com/temporalio/skill-temporal-serverless).
+- **First-time Temporal Cloud setup** including a Namespace, API key, sample app, and first Workflow → use the [temporal-cloud-setup skill](https://github.com/temporalio/skill-temporal-cloud-setup).
+
+If a task shifts into one of these areas, follow the relevant skill. Local development and developer-facing Workflow CLI commands remain covered here.
+
 ## Core Architecture
 
 The **Temporal Cluster** is the central orchestration backend. It maintains three key subsystems: the **Event History** (a durable log of all workflow state), **Task Queues** (which route work to the right workers), and a **Visibility** store (for searching and listing workflows). There are three ways to run a Cluster:
@@ -35,36 +43,30 @@ Temporal achieves durability through **history replay**:
 
 **If Commands don't match Events = Non-determinism Error = Workflow blocked**
 
-| Workflow Code | Command | Event |
-| -- | -- | -- |
-| Execute activity | `ScheduleActivityTask` | `ActivityTaskScheduled` |
-| Sleep/timer | `StartTimer` | `TimerStarted` |
-| Child workflow | `StartChildWorkflowExecution` | `ChildWorkflowExecutionStarted` |
+See [Commands and Events](references/core/determinism.md#commands-and-events) for a table showing how Workflow actions are recorded in Event History.
 
-See [Temporal determinism rules](references/core/determinism.md) for detailed explanation.
+## Choose References for the Task
 
-## Getting Started
+Identify the SDK language and the developer's task. Read the relevant core reference in the section below and its language-specific counterpart when available. Load additional references only as the task requires.
 
-### Ensure Temporal CLI is installed
+For a new project, a first implementation, or broad SDK guidance, read the appropriate SDK guide:
 
-Check if `temporal` CLI is installed. If not, follow the instructions at [Temporal CLI installation guide](references/core/install_cli.md) to install it for your platform.
+- Python -> [Python SDK guide](references/python/python.md)
+- TypeScript -> [TypeScript SDK guide](references/typescript/typescript.md)
+- Go -> [Go SDK guide](references/go/go.md)
+- Java -> [Java SDK guide](references/java/java.md)
+- .NET (C#) -> [.NET SDK guide](references/dotnet/dotnet.md)
+- Ruby -> [Ruby SDK guide](references/ruby/ruby.md)
+- Rust -> [Rust SDK guide](references/rust/rust.md) (in Public Preview)
 
-### Read All Relevant References
-
-1. First, read the getting started guide for the language you are working in:
-   - Python -> read [Python SDK guide](references/python/python.md)
-   - TypeScript -> read [TypeScript SDK guide](references/typescript/typescript.md)
-   - Go -> read [Go SDK guide](references/go/go.md)
-   - Java -> read [Java SDK guide](references/java/java.md)
-   - .NET (C#) -> read [.NET SDK guide](references/dotnet/dotnet.md)
-   - Ruby -> read [Ruby SDK guide](references/ruby/ruby.md)
-   - Rust -> read [Rust SDK guide](references/rust/rust.md) (in Public Preview)
-2. Second, read appropriate `core` and language-specific references for the task at hand.
+For tasks that use Temporal CLI or start a local dev server, check whether `temporal` is installed before using it. If it is missing, follow the [Temporal CLI installation guide](references/core/install_cli.md).
 
 ## Primary References
 
 - **[Temporal determinism rules](references/core/determinism.md)** - Why determinism matters, replay mechanics, basic concepts of activities
   - Language-specific info at `references/{your_language}/determinism.md`
+- **Temporal workflow determinism protection** - SDK safeguards, analyzers, runtime checks, and their limits
+  - Language-specific info at `references/{your_language}/determinism-protection.md`
 - **[Temporal workflow patterns](references/core/patterns.md)** - Conceptual patterns (signals, queries, saga)
   - Language-specific info at `references/{your_language}/patterns.md`
 - **[Temporal common pitfalls](references/core/gotchas.md)** - Anti-patterns and common mistakes
@@ -75,11 +77,13 @@ Check if `temporal` CLI is installed. If not, follow the instructions at [Tempor
   - Language-specific info at `references/{your_language}/standalone-activities.md`
 - **[Temporal Task Queue priority and fairness guide](references/core/priority-fairness.md)** - Task Queue Priority and Fairness concepts, configuration, and limitations
   - Language-specific info at `references/{your_language}/priority-fairness.md`
+- **[Temporal Workflow random streams guide](references/core/random-streams.md)** - SDK-provided named deterministic random streams for Workflow code, plugins, and interceptors
+  - Language-specific info at `references/{your_language}/random-streams.md` (Go and TypeScript)
 - **[Temporal troubleshooting guide](references/core/troubleshooting.md)** - Decision trees, recovery procedures
 - **[Temporal error reference](references/core/error-reference.md)** - Common error types, workflow status reference
 - **[Temporal interactive workflow guide](references/core/interactive-workflows.md)** - Testing signals, updates, queries
 - **[Temporal development management guide](references/core/dev-management.md)** - Dev cycle & management of server and workers
-- **[Temporal CLI workflow command guide](references/core/cli-workflow-commands.md)** - Developer-facing CLI commands for workflow interaction (start, execute, signal, query, update)
+- **[Temporal CLI workflow command guide](references/core/cli-workflow-commands.md)** - Developer-facing CLI commands for workflow interaction (start, execute, signal, query, update, cancel)
 - **[Temporal AI integration patterns](references/core/ai-patterns.md)** - AI/LLM pattern concepts
   - Language-specific info at `references/{your_language}/ai-patterns.md`, if available. Currently Python only.
 
