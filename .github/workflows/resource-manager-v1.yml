@@ -27,6 +27,8 @@ jobs:
         with:
           go-version: '1.26.1'
       - uses: bufbuild/buf-setup-action@v1
+        with:
+          version: '1.50.0'
       - name: Check protobuf lint
         run: buf lint
       - name: Generate canonical protobuf bindings
