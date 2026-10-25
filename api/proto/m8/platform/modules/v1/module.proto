@@ -1,0 +1,62 @@
+syntax = "proto3";
+package m8.platform.modules.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/modules/v1;modules";
+
+// A Module is a published product capability, not a deployment unit.
+enum ModuleState {
+  MODULE_STATE_UNSPECIFIED = 0;
+  MODULE_STATE_DRAFT = 1;
+  MODULE_STATE_PUBLISHED = 2;
+  MODULE_STATE_RETIRED = 3;
+}
+message ModuleDefinition {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string code = 2 [(google.api.field_behavior) = REQUIRED];
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  string owner_team_ref = 4;
+  repeated string exported_resource_kinds = 5;
+  ModuleState state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+message ModuleVersion {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string module_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string version = 3 [(google.api.field_behavior) = REQUIRED]; // immutable version string
+  string artifact_ref = 4; // optional, no embedded binaries or secrets
+  ModuleState state = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+enum EntitlementState {
+  ENTITLEMENT_STATE_UNSPECIFIED = 0;
+  ENTITLEMENT_STATE_ACTIVE = 1;
+  ENTITLEMENT_STATE_SUSPENDED = 2;
+  ENTITLEMENT_STATE_EXPIRED = 3;
+}
+message ModuleEntitlement {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string module_id = 3 [(google.api.field_behavior) = REQUIRED];
+  EntitlementState state = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp valid_until = 5; // optional subscription end
+  string billing_policy_ref = 6;
+}
+enum InstallationState {
+  INSTALLATION_STATE_UNSPECIFIED = 0;
+  INSTALLATION_STATE_PENDING = 1;
+  INSTALLATION_STATE_ACTIVE = 2;
+  INSTALLATION_STATE_SUSPENDED = 3;
+  INSTALLATION_STATE_FAILED = 4;
+  INSTALLATION_STATE_REMOVED = 5;
+}
+// Installation may target Organization / Workspace / Project.
+// No default Workspace or Project is fabricated.
+message ModuleInstallation {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string module_version_id = 2 [(google.api.field_behavior) = REQUIRED];
+  m8.platform.resourcemanager.v1.OwnerScope owner = 3 [(google.api.field_behavior) = REQUIRED];
+  string owning_organization_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string configuration_ref = 5; // opaque configuration (no secrets)
+  InstallationState state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 revision = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
