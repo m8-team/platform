@@ -1,0 +1,42 @@
+syntax = "proto3";
+package m8.platform.modules.v1;
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/modules/v1/module.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/modules/v1;modules";
+
+service ModuleRegistryService {
+  rpc PublishModuleVersion(PublishModuleVersionRequest) returns (ModuleVersion) {
+    option (google.api.http) = {post: "/modules/v1/versions" body: "version"};
+  }
+  rpc GrantModuleEntitlement(GrantModuleEntitlementRequest) returns (ModuleEntitlement) {
+    option (google.api.http) = {post: "/modules/v1/entitlements" body: "entitlement"};
+  }
+  rpc InstallModule(InstallModuleRequest) returns (ModuleInstallation) {
+    option (google.api.http) = {post: "/modules/v1/installations" body: "installation"};
+  }
+  rpc GetModuleInstallation(GetModuleInstallationRequest) returns (ModuleInstallation) {
+    option (google.api.http) = {get: "/modules/v1/installations/{id}"};
+  }
+  rpc RemoveModuleInstallation(RemoveModuleInstallationRequest) returns (ModuleInstallation) {
+    option (google.api.http) = {post: "/modules/v1/installations/{id}:remove" body: "*"};
+  }
+}
+message PublishModuleVersionRequest {
+  ModuleVersion version = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GrantModuleEntitlementRequest {
+  ModuleEntitlement entitlement = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message InstallModuleRequest {
+  ModuleInstallation installation = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetModuleInstallationRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message RemoveModuleInstallationRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
