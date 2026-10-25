@@ -41,6 +41,8 @@ installed version and API.
    (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.
       If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.
       This is the *exact* installed version — always preferred for version-sensitive questions.
+      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;
+      older installs have no local docs at all, and that is expected, not an error. Go to (b).
    (b) **ONLINE** — per-package llms.txt at the **major line**:
       `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`
       (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the
@@ -94,6 +96,12 @@ installed version and API.
      sketch it", "quick prototype", "no need to check"), you may skip the
      typecheck — but state this plainly in your reply: *"typecheck skipped by
      user request — code is not verified"*. Do not skip silently.
+   - **Know what typecheck does not cover.** A green `tsc` proves the API is
+     real; it says nothing about layout or contrast. Before reporting done,
+     say so, and either check or list for the user to check by hand: the
+     screen in both `light` and `dark` themes (text and controls on colored
+     fills especially), narrow (~375px) and wide (~1400px) viewports for
+     horizontal overflow, and empty / loading / error states.
 
 ## Hard rules
 
@@ -117,7 +125,7 @@ installed version and API.
 - **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,
   `blue-500`); never hand-write `dark:` overrides. Full token tables live in
   `references/theming.md`; the cross-cutting traps (partial brand overrides,
-  scoped vs nested `ThemeProvider`, controls on a brand background) live in
+  a `ThemeProvider` that themes the whole page, controls on a brand background) live in
   `rules/hallucination-traps.md`.
 - **Required setup is package-specific** (style imports, `ThemeProvider`,
   peer-deps). It lives in each package's root README under "Required setup" —
@@ -170,6 +178,6 @@ These files live alongside this SKILL.md and load only when relevant:
 - `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most
   commonly invented APIs: typography variants (`header-3..6` don't exist, no
   `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps
-  (partial brand overrides, scoped vs nested `ThemeProvider`, customization
+  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization
   ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component
   traps live in each package's `dist/docs`, not here.

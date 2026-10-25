@@ -40,12 +40,12 @@ The base React component and design-token library for Gravity UI apps — contro
 #### When to use
 
 - Standard application UI: buttons, form controls, modals and popups, menus, tabs, labels, typography, and layout primitives.
-- The theming foundation of a Gravity UI app: `ThemeProvider`, design tokens, and CSS variables the rest of the `@gravity-ui/*` ecosystem expects to be present.
-- Simple tabular data via the built-in `Table` component (selection, sorting, row actions).
+- Selectable, navigable lists (`List`) and select controls (`Select`).
+- The theming foundation of a Gravity UI app: `Provider`, design tokens, and CSS variables the rest of the `@gravity-ui/*` ecosystem expects to be present.
 
 #### When not to use
 
-- Feature-rich data grids (virtualization, column resizing, grouping, reordering) — use [`@gravity-ui/table`](https://github.com/gravity-ui/table), a separate headless package. It is **not** the same as uikit's `Table` component.
+- Tables and data grids (selection, sorting, virtualization, column resizing, grouping, reordering) — use [`@gravity-ui/table`](https://github.com/gravity-ui/table), a separate headless package. The `Table` component of uikit lives in `@gravity-ui/uikit/legacy` since v8 and is kept only for existing code.
 - Charts and data visualization — use [`@gravity-ui/charts`](https://github.com/gravity-ui/charts) (`@gravity-ui/chartkit` is the legacy wrapper).
 - Application navigation shells (aside header, footer, logo) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).
 - Date pickers, calendars, and range controls — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).
@@ -142,6 +142,28 @@ A declarative React charting library for Gravity UI apps — render line, area, 
 - Plain tabular data — use [`@gravity-ui/table`](https://github.com/gravity-ui/table).
 - Non-React or server-only rendering — `Chart` renders React SVG and needs the DOM.
 
+## Components — `@gravity-ui/components`
+
+> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/components/llms.txt)
+> GitHub: [gravity-ui/components](https://github.com/gravity-ui/components)
+
+The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.
+
+#### When to use
+
+- Form layout: `FormRow` (label + field + description) instead of a hand-made label/input wrapper.
+- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.
+- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.
+- Data helpers: `InfiniteScroll`, `ItemSelector`, `DelayedTextInput`, `TokenizedInput`, `Gallery`.
+
+#### When not to use
+
+- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.
+- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.
+- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).
+- Application navigation shells (aside header, footer) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).
+- Schema-driven forms — use [`@gravity-ui/dynamic-forms`](https://github.com/gravity-ui/dynamic-forms); `FormRow` is only a layout row.
+
 ## DashKit — `@gravity-ui/dashkit`
 
 > If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dashkit/llms.txt)
@@ -233,12 +255,30 @@ ESLint configuration preset for Gravity UI projects.
 
 Lightweight express.js wrapper that integrates with NodeKit.
 
+## Farm — `@gravity-ui/farm`
+
+> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/farm/llms.txt)
+> GitHub: [gravity-ui/farm](https://github.com/gravity-ui/farm)
+
+A self-hosted service for deploying application previews from pull requests.
+
 ## Graph — `@gravity-ui/graph`
 
 > If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/graph/llms.txt)
 > GitHub: [gravity-ui/graph](https://github.com/gravity-ui/graph)
 
-High-performance graph renderer with dynamic scale-aware detailization
+A hybrid Canvas/React graph editor for node-based diagrams — reach for it to build flowcharts, node editors, or large interactive diagrams where Canvas gives performance at low zoom and React components give rich interactivity when zoomed in.
+
+#### When to use
+
+- Node-based editors (flowcharts, pipelines, visual builders) with hundreds/thousands of nodes and connections.
+- Mixed rendering: Canvas for the full-graph overview, React components for the blocks visible in the viewport at high zoom.
+- Vanilla JS or React consumers — the core `Graph` class is framework-agnostic; `@gravity-ui/graph/react` provides the React bindings.
+
+#### When not to use
+
+- To plot numeric data series (line/bar/scatter charts), use [`@gravity-ui/charts`](https://gravity-ui.com/charts) or [`@gravity-ui/yagr`](https://github.com/gravity-ui/yagr) — graph is a node/edge diagram editor, not a data chart.
+- For a static, non-editable diagram with few nodes, an SVG or a simpler diagram lib may suffice without the Canvas/React viewport machinery.
 
 ## I18n — `@gravity-ui/i18n`
 
@@ -270,7 +310,18 @@ The official SVG icon set for Gravity UI, shipped as both React components and r
 > If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/illustrations/llms.txt)
 > GitHub: [gravity-ui/illustrations](https://github.com/gravity-ui/illustrations)
 
-A set of illustrations for displaying data statuses.
+A themed set of flat SVG illustrations (empty states, errors, not-found, etc.) for Gravity UI apps — reach for it when you need ready-made, theme-aware placeholder/empty-state artwork instead of drawing your own or using bare icons.
+
+#### When to use
+
+- Empty states, 404/error pages, or onboarding placeholders that need a consistent illustration, not a functional UI control.
+- Themeable artwork — the SVGs respond to Gravity theme tokens (light/dark, high-contrast) via SCSS mixins or CSS variables.
+- Importing artwork as React components (default) or as raw `.svg` files.
+
+#### When not to use
+
+- For functional UI iconography (chevrons, checks, buttons), use [`@gravity-ui/icons`](https://gravity-ui.com/icons) — illustrations are decorative artwork, not UI glyphs.
+- For a single one-off illustration you already have as an asset, import that asset directly rather than pulling in this package.
 
 ## Markdown editor — `@gravity-ui/markdown-editor`
 
