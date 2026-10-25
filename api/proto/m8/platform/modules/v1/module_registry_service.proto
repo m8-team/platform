@@ -6,6 +6,18 @@ import "m8/platform/modules/v1/module.proto";
 option go_package = "github.com/m8-team/go-genproto/m8/platform/modules/v1;modules";
 
 service ModuleRegistryService {
+  rpc RegisterModule(RegisterModuleRequest) returns (ModuleDefinition) {
+    option (google.api.http) = {post: "/modules/v1/definitions" body: "module"};
+  }
+  rpc GetModule(GetModuleRequest) returns (ModuleDefinition) {
+    option (google.api.http) = {get: "/modules/v1/definitions/{id}"};
+  }
+  rpc ListModules(ListModulesRequest) returns (ListModulesResponse) {
+    option (google.api.http) = {get: "/modules/v1/definitions"};
+  }
+  rpc ListModuleInstallations(ListModuleInstallationsRequest) returns (ListModuleInstallationsResponse) {
+    option (google.api.http) = {get: "/modules/v1/installations"};
+  }
   rpc PublishModuleVersion(PublishModuleVersionRequest) returns (ModuleVersion) {
     option (google.api.http) = {post: "/modules/v1/versions" body: "version"};
   }
@@ -39,4 +51,28 @@ message RemoveModuleInstallationRequest {
   string id = 1 [(google.api.field_behavior) = REQUIRED];
   int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+
+message RegisterModuleRequest {
+  ModuleDefinition module = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetModuleRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ListModulesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+message ListModulesResponse {
+  repeated ModuleDefinition modules = 1;
+  string next_page_token = 2;
+}
+message ListModuleInstallationsRequest {
+  string owning_organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string module_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListModuleInstallationsResponse {
+  repeated ModuleInstallation installations = 1;
+  string next_page_token = 2;
 }
