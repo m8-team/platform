@@ -1,0 +1,21 @@
+syntax = "proto3";
+package m8.platform.access.v1;
+import "google/protobuf/timestamp.proto";
+import "m8/platform/access/v1/access_grant.proto";
+import "m8/platform/common/extension/v1/extension.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+
+message AccessGrantChangedEvent {
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.access.grants.v1";
+  string event_id = 1;
+  string grant_id = 2;
+  string organization_id = 3;
+  GrantState state = 4;
+  int64 revision = 5;
+  google.protobuf.Timestamp occurred_at = 6;
+  string actor_principal_id = 7;
+  string correlation_id = 8;
+  string reason_reference = 9;
+  string event_type = 10; // requested/approved/activated/rejected/revoked/expired
+  // Deliberately no secret, credential or full case payload.
+}

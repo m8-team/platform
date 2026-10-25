@@ -1,0 +1,45 @@
+syntax = "proto3";
+package m8.platform.identity.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/identity/v1;identity";
+
+// A Principal may exist without an Organization membership. People can work
+// for multiple independent tenants under separately verified identities.
+enum PrincipalKind {
+  PRINCIPAL_KIND_UNSPECIFIED = 0;
+  PRINCIPAL_KIND_USER = 1;
+  PRINCIPAL_KIND_SERVICE_ACCOUNT = 2;
+  PRINCIPAL_KIND_AGENT = 3;
+  PRINCIPAL_KIND_WORKFLOW = 4;
+  PRINCIPAL_KIND_EXTERNAL_AGENT = 5;
+}
+enum PrincipalState {
+  PRINCIPAL_STATE_UNSPECIFIED = 0;
+  PRINCIPAL_STATE_ACTIVE = 1;
+  PRINCIPAL_STATE_SUSPENDED = 2;
+  PRINCIPAL_STATE_DISABLED = 3;
+}
+message Principal {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  PrincipalKind kind = 2 [(google.api.field_behavior) = REQUIRED];
+  PrincipalState state = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string display_name = 4;
+  int64 revision = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+message ExternalIdentity {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string principal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string issuer = 3 [(google.api.field_behavior) = REQUIRED];
+  string subject = 4 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp verified_at = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+// Membership expresses participation, not employment or unconditional rights.
+message OrganizationMembership {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string principal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_from = 4;
+  google.protobuf.Timestamp valid_until = 5;
+  string status = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

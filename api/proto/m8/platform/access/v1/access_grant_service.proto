@@ -1,0 +1,62 @@
+syntax = "proto3";
+package m8.platform.access.v1;
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/access/v1/access_grant.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+
+// Request/approval/revocation lifecycle, separate from the PDP.
+service AccessGrantService {
+  rpc RequestGrant(RequestGrantRequest) returns (AccessGrant) {
+    option (google.api.http) = {post: "/access/v1/grants" body: "grant"};
+  }
+  rpc GetGrant(GetGrantRequest) returns (AccessGrant) {
+    option (google.api.http) = {get: "/access/v1/grants/{id}"};
+  }
+  rpc ListGrants(ListGrantsRequest) returns (ListGrantsResponse) {
+    option (google.api.http) = {get: "/access/v1/grants"};
+  }
+  rpc ApproveGrant(ApproveGrantRequest) returns (AccessGrant) {
+    option (google.api.http) = {post: "/access/v1/grants/{id}:approve" body: "*"};
+  }
+  rpc RejectGrant(RejectGrantRequest) returns (AccessGrant) {
+    option (google.api.http) = {post: "/access/v1/grants/{id}:reject" body: "*"};
+  }
+  rpc RevokeGrant(RevokeGrantRequest) returns (AccessGrant) {
+    option (google.api.http) = {post: "/access/v1/grants/{id}:revoke" body: "*"};
+  }
+}
+message RequestGrantRequest {
+  AccessGrant grant = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetGrantRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ListGrantsRequest {
+  string principal_id = 1;
+  string organization_id = 2;
+  string resource_id = 3;
+  GrantState state = 4;
+  int32 page_size = 5;
+  string page_token = 6;
+}
+message ListGrantsResponse {
+  repeated AccessGrant grants = 1;
+  string next_page_token = 2;
+}
+message ApproveGrantRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+message RejectGrantRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string reason = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+}
+message RevokeGrantRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string reason = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+}

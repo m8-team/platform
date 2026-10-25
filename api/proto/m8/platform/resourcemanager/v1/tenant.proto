@@ -1,0 +1,12 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+import "google/api/field_behavior.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Tenant is a platform customer/account and billing boundary.
+// It is NOT an automatic cross-Organization permission grant.
+message Tenant {
+  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string billing_account_ref = 2; // opaque external reference; billing owns the record.
+}

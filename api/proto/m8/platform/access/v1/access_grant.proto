@@ -1,0 +1,59 @@
+syntax = "proto3";
+package m8.platform.access.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+
+enum GrantState {
+  GRANT_STATE_UNSPECIFIED = 0;
+  GRANT_STATE_REQUESTED = 1;
+  GRANT_STATE_PENDING_APPROVAL = 2;
+  GRANT_STATE_ACTIVE = 3;
+  GRANT_STATE_REJECTED = 4;
+  GRANT_STATE_REVOKED = 5;
+  GRANT_STATE_EXPIRED = 6;
+}
+enum GrantReason {
+  GRANT_REASON_UNSPECIFIED = 0;
+  GRANT_REASON_PROJECT_ASSIGNMENT = 1;
+  GRANT_REASON_SUPPORT_CASE = 2;
+  GRANT_REASON_EXTERNAL_CONTRACT = 3;
+  GRANT_REASON_EMERGENCY = 4;
+  GRANT_REASON_ONE_TIME_TASK = 5;
+}
+message GrantSubject {
+  string principal_kind = 1 [(google.api.field_behavior) = REQUIRED];
+  string principal_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GrantTarget {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string resource_kind = 2 [(google.api.field_behavior) = REQUIRED];
+  string resource_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string environment_id = 4; // optional, explicit binding to one environment
+}
+message GrantConstraints {
+  bool require_mfa = 1;
+  bool require_active_case = 2;
+  bool require_active_assignment = 3;
+  string source_service_agreement_id = 4;
+  string condition_policy_ref = 5; // evaluated server-side, not free-form LLM expression
+}
+message AccessGrant {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  GrantSubject subject = 2 [(google.api.field_behavior) = REQUIRED];
+  GrantTarget target = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated string permissions = 4 [(google.api.field_behavior) = REQUIRED];
+  GrantReason reason = 5 [(google.api.field_behavior) = REQUIRED];
+  string reason_reference = 6; // case, contract or assignment
+  google.protobuf.Timestamp valid_from = 7 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp expires_at = 8 [(google.api.field_behavior) = REQUIRED]; // required for temporary grants
+  GrantConstraints constraints = 9;
+  GrantState state = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string requested_by_principal_id = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string approved_by_principal_id = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string revoked_by_principal_id = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp revoked_at = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 revision = 15 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+// AuthZEN Evaluation remains the authoritative decision interface.
+// Possession of this record does not skip authorization.

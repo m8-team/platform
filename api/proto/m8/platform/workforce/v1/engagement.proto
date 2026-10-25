@@ -1,0 +1,39 @@
+syntax = "proto3";
+package m8.platform.workforce.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/workforce/v1;workforce";
+
+// Workforce relationships do not grant permissions by themselves.
+// Employment and contractual engagement are independent from membership.
+enum EngagementKind {
+  ENGAGEMENT_KIND_UNSPECIFIED = 0;
+  ENGAGEMENT_KIND_PERMANENT_EMPLOYEE = 1;
+  ENGAGEMENT_KIND_TEMPORARY_EMPLOYEE = 2;
+  ENGAGEMENT_KIND_CONTRACTOR = 3;
+  ENGAGEMENT_KIND_FREELANCER = 4;
+  ENGAGEMENT_KIND_CONSULTANT = 5;
+  ENGAGEMENT_KIND_AUDITOR = 6;
+  ENGAGEMENT_KIND_SUPPORT_PROVIDER = 7;
+}
+enum EngagementState {
+  ENGAGEMENT_STATE_UNSPECIFIED = 0;
+  ENGAGEMENT_STATE_PENDING = 1;
+  ENGAGEMENT_STATE_ACTIVE = 2;
+  ENGAGEMENT_STATE_ENDED = 3;
+  ENGAGEMENT_STATE_TERMINATED = 4;
+}
+message Engagement {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string principal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 3 [(google.api.field_behavior) = REQUIRED]; // client organization
+  string employer_organization_id = 4; // optional third-party provider
+  EngagementKind kind = 5 [(google.api.field_behavior) = REQUIRED];
+  EngagementState state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp valid_from = 7;
+  google.protobuf.Timestamp valid_until = 8;
+  string department_ref = 9;
+  string position_ref = 10;
+  string sponsor_principal_id = 11;
+  int64 revision = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

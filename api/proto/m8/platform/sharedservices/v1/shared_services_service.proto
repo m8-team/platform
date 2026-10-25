@@ -1,0 +1,51 @@
+syntax = "proto3";
+package m8.platform.sharedservices.v1;
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/sharedservices/v1/shared_services.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/sharedservices/v1;sharedservices";
+
+service SharedServicesService {
+  rpc PublishOffering(PublishOfferingRequest) returns (ServiceOffering) {
+    option (google.api.http) = {post: "/shared-services/v1/offerings" body: "offering"};
+  }
+  rpc CreateAgreement(CreateAgreementRequest) returns (ServiceAgreement) {
+    option (google.api.http) = {post: "/shared-services/v1/agreements" body: "agreement"};
+  }
+  rpc GetAgreement(GetAgreementRequest) returns (ServiceAgreement) {
+    option (google.api.http) = {get: "/shared-services/v1/agreements/{id}"};
+  }
+  rpc CreateCase(CreateCaseRequest) returns (ServiceCase) {
+    option (google.api.http) = {post: "/shared-services/v1/cases" body: "support_case"};
+  }
+  rpc AssignCase(AssignCaseRequest) returns (ServiceCase) {
+    option (google.api.http) = {post: "/shared-services/v1/cases/{id}:assign" body: "*"};
+  }
+  rpc CloseCase(CloseCaseRequest) returns (ServiceCase) {
+    option (google.api.http) = {post: "/shared-services/v1/cases/{id}:close" body: "*"};
+  }
+}
+message PublishOfferingRequest {
+  ServiceOffering offering = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message CreateAgreementRequest {
+  ServiceAgreement agreement = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetAgreementRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message CreateCaseRequest {
+  ServiceCase support_case = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message AssignCaseRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string assignee_principal_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+}
+message CloseCaseRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}

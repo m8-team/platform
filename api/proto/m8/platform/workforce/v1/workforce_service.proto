@@ -1,0 +1,42 @@
+syntax = "proto3";
+package m8.platform.workforce.v1;
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/workforce/v1/engagement.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/workforce/v1;workforce";
+
+// Workforce owns engagements; grants are created/removed by M8 Access.
+service WorkforceService {
+  rpc RegisterEngagement(RegisterEngagementRequest) returns (Engagement) {
+    option (google.api.http) = {post: "/workforce/v1/engagements" body: "engagement"};
+  }
+  rpc GetEngagement(GetEngagementRequest) returns (Engagement) {
+    option (google.api.http) = {get: "/workforce/v1/engagements/{id}"};
+  }
+  rpc ListEngagements(ListEngagementsRequest) returns (ListEngagementsResponse) {
+    option (google.api.http) = {get: "/workforce/v1/engagements"};
+  }
+  rpc EndEngagement(EndEngagementRequest) returns (Engagement) {
+    option (google.api.http) = {post: "/workforce/v1/engagements/{id}:end" body: "*"};
+  }
+}
+message RegisterEngagementRequest {
+  Engagement engagement = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetEngagementRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message ListEngagementsRequest {
+  string principal_id = 1;
+  string organization_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListEngagementsResponse {
+  repeated Engagement engagements = 1;
+  string next_page_token = 2;
+}
+message EndEngagementRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
