@@ -139,13 +139,41 @@ func (s *ResourceServer) SetGroupOrganizationLink(ctx context.Context,req *pb.Se
  if err:=s.store.SetGroupLink(req.GetGroupId(),req.GetOrganizationId());err!=nil{return nil,asErr(err)}
  return &pb.GroupOrganizationLink{GroupId:req.GetGroupId(),OrganizationId:req.GetOrganizationId(),CreateTime:timestamppb.Now()},nil
 }
-func (s *ResourceServer) RemoveGroupOrganizationLink(context.Context,*pb.RemoveGroupOrganizationLinkRequest)(*pb.EmptyResponse,error){return nil,status.Error(codes.Unimplemented,"not yet implemented")}
-func (s *ResourceServer) ListGroupOrganizations(context.Context,*pb.ListGroupOrganizationsRequest)(*pb.ListGroupOrganizationsResponse,error){return nil,status.Error(codes.Unimplemented,"not yet implemented")}
+func (s *ResourceServer) RemoveGroupOrganizationLink(ctx context.Context,req *pb.RemoveGroupOrganizationLinkRequest)(*pb.EmptyResponse,error){
+ if err:=s.guard();err!=nil{return nil,err}
+ if req==nil||req.GetIdempotencyKey()==""{return nil,status.Error(codes.InvalidArgument,"idempotency_key required")}
+ if err:=s.store.RemoveGroupLink(req.GetGroupId(),req.GetOrganizationId());err!=nil{return nil,asErr(err)}
+ return &pb.EmptyResponse{},nil
+}
+func (s *ResourceServer) ListGroupOrganizations(ctx context.Context,req *pb.ListGroupOrganizationsRequest)(*pb.ListGroupOrganizationsResponse,error){
+ if err:=s.guard();err!=nil{return nil,err}
+ if req==nil||req.GetPageToken()!=""{return nil,status.Error(codes.InvalidArgument,"invalid request/page token")}
+ ids,err:=s.store.ListGroupOrganizations(req.GetGroupId());if err!=nil{return nil,asErr(err)}
+ out:=&pb.ListGroupOrganizationsResponse{Links:make([]*pb.GroupOrganizationLink,0,len(ids))}
+ for _,id:=range ids{out.Links=append(out.Links,&pb.GroupOrganizationLink{GroupId:req.GetGroupId(),OrganizationId:id})}
+ return out,nil
+}
 func (s *ResourceServer) SetEnvironmentBinding(ctx context.Context,req *pb.SetEnvironmentBindingRequest)(*pb.EnvironmentBinding,error){
  if e:=s.guard();e!=nil{return nil,e};if req==nil||req.GetBinding()==nil||req.GetBinding().GetResource()==nil{return nil,status.Error(codes.InvalidArgument,"binding and resource required")}
  b:=req.GetBinding();out,e:=s.store.SetBinding(v1engine.Owner{Kind:kind(b.GetResource().GetKind()),ID:b.GetResource().GetId()},b.GetEnvironmentId(),b.GetVersionRef(),b.GetConfigurationRef());if e!=nil{return nil,asErr(e)}
  return &pb.EnvironmentBinding{Id:out.ID,Resource:b.GetResource(),EnvironmentId:out.EnvironmentID,VersionRef:out.Version,ConfigurationRef:out.ConfigRef,Revision:out.Revision},nil
 }
-func (s *ResourceServer) RemoveEnvironmentBinding(context.Context,*pb.RemoveEnvironmentBindingRequest)(*pb.EmptyResponse,error){return nil,status.Error(codes.Unimplemented,"not yet implemented")}
-func (s *ResourceServer) ListEnvironmentBindings(context.Context,*pb.ListEnvironmentBindingsRequest)(*pb.ListEnvironmentBindingsResponse,error){return nil,status.Error(codes.Unimplemented,"not yet implemented")}
+func (s *ResourceServer) RemoveEnvironmentBinding(ctx context.Context,req *pb.RemoveEnvironmentBindingRequest)(*pb.EmptyResponse,error){
+ if err:=s.guard();err!=nil{return nil,err}
+ if req==nil||req.GetIdempotencyKey()==""{return nil,status.Error(codes.InvalidArgument,"idempotency_key required")}
+ if err:=s.store.RemoveBinding(req.GetId(),req.GetExpectedRevision());err!=nil{return nil,asErr(err)}
+ return &pb.EmptyResponse{},nil
+}
+func (s *ResourceServer) ListEnvironmentBindings(ctx context.Context,req *pb.ListEnvironmentBindingsRequest)(*pb.ListEnvironmentBindingsResponse,error){
+ if err:=s.guard();err!=nil{return nil,err}
+ if req==nil||req.GetPageToken()!=""{return nil,status.Error(codes.InvalidArgument,"invalid request/page token")}
+ var subject v1engine.Owner
+ if req.GetResource()!=nil{subject=v1engine.Owner{Kind:kind(req.GetResource().GetKind()),ID:req.GetResource().GetId()}}
+ bindings,err:=s.store.ListBindings(subject,req.GetEnvironmentId());if err!=nil{return nil,asErr(err)}
+ out:=&pb.ListEnvironmentBindingsResponse{Bindings:make([]*pb.EnvironmentBinding,0,len(bindings))}
+ for _,b:=range bindings{out.Bindings=append(out.Bindings,&pb.EnvironmentBinding{
+  Id:b.ID,Resource:&pb.ResourceRef{Kind:string(b.Resource.Kind),Id:b.Resource.ID},
+  EnvironmentId:b.EnvironmentID,VersionRef:b.Version,ConfigurationRef:b.ConfigRef,Revision:b.Revision})}
+ return out,nil
+}
 func (s *ResourceServer) RegisterResourceKind(context.Context,*pb.RegisterResourceKindRequest)(*pb.ResourceKindPolicy,error){return nil,status.Error(codes.Unimplemented,"not yet implemented")}
