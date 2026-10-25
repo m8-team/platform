@@ -1,0 +1,43 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Environments do not participate in the containment tree.
+enum EnvironmentKind {
+  ENVIRONMENT_KIND_UNSPECIFIED = 0;
+  ENVIRONMENT_KIND_PRODUCTION = 1;
+  ENVIRONMENT_KIND_STAGING = 2;
+  ENVIRONMENT_KIND_DEVELOPMENT = 3;
+  ENVIRONMENT_KIND_TESTING = 4;
+  ENVIRONMENT_KIND_PREVIEW = 5;
+  ENVIRONMENT_KIND_CUSTOM = 6;
+}
+enum IsolationProfile {
+  ISOLATION_PROFILE_UNSPECIFIED = 0;
+  ISOLATION_PROFILE_LOGICAL = 1;
+  ISOLATION_PROFILE_DEDICATED_RUNTIME = 2;
+  ISOLATION_PROFILE_DEDICATED_DATA = 3;
+  ISOLATION_PROFILE_FULL = 4;
+}
+message Environment {
+  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string key = 3 [(google.api.field_behavior) = REQUIRED]; // immutable slug, unique per Organization
+  EnvironmentKind kind = 4 [(google.api.field_behavior) = REQUIRED];
+  IsolationProfile isolation = 5 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp expires_at = 6; // optional preview TTL
+}
+
+// Non-owning association of a logical resource to an Organization environment.
+// Consumer module owns actual deployment and secrets; never embed credentials.
+message EnvironmentBinding {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  ResourceRef resource = 2 [(google.api.field_behavior) = REQUIRED];
+  string environment_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string version_ref = 4 [(google.api.field_behavior) = REQUIRED];
+  string configuration_ref = 5; // opaque reference, never plaintext secrets
+  int64 revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
