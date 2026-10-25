@@ -1,24 +1,26 @@
 # Resource Manager
 
-Раздел `Resource Manager` описывает управление иерархией ресурсов платформы:
-`Organization -> Workspace -> Service`.
+> **Contract replacement in progress (2026-10-25):** the earlier Organization → Workspace → per-environment Service API has been removed from protobuf source. The new **canonical v1** is defined in [Resource Manager Specification](../../architecture/resource-manager-spec.md). Regenerated gRPC/REST/OpenAPI reference pages are pending and the legacy API-reference pages below are **not** applicable to the new v1.
 
-Здесь собраны материалы по моделям ресурсов, доступу и API для чтения и изменения
-метаданных организаций, рабочих пространств и сервисов. Каждый `Service`
-относится к одному неизменяемому окружению, например `dev`, `stage` или `prod`.
+## Canonical ownership model
 
-Материалы по модели доступа собраны на странице
-[Управление доступом](./access-management.md).
+```text
+Tenant / Account
+  ├── Organization (mandatory ownership and tenant isolation root)
+  │     ├── Workspace (optional)
+  │     │     └── Project (optional)
+  │     ├── Project (optional, direct organization ownership)
+  │     ├── Environment (production/testing/staging/etc; not a parent scope)
+  │     └── ResourceDescriptors (Agents, Workflows, etc by owner policy)
+  └── Group (optional; affiliation to organizations, not permission inheritance)
+```
 
-## api-reference
+`WorkloadService` is a logical service owned by Workspace or Project and is deployed/bound to Environments separately. `EnvironmentBinding` records approved target versions/configuration references; runtime rollout belongs to Delivery.
 
-Справочник API разделен на общие материалы и REST-документацию.
+Resource Manager is the source of truth for ownership and lifecycle metadata, not for employee records, authorizations, secrets or cross-company Service Agreements.
 
-- Общие материалы:
-  - `Аутентификация в API`
-- REST:
-  - `Organization`
-  - `Workspace`
-  - `Service`
+## New v1 protobuf contract
 
-Материалы доступны в подразделе `Справочник API`.
+[ResourceManagerService](https://github.com/m8-team/platform/blob/main/api/proto/m8/platform/resourcemanager/v1/resource_manager_service.proto) (link resolves after merge), plus `tenant.proto`, `organization.proto`, `group.proto`, `workspace.proto`, `project.proto`, `environment.proto`, `service.proto`, `resource.proto`.
+
+The existing legacy RPC/REST reference pages are retained solely as historical material until replacement documentation is generated. Do not use them for new client development.
