@@ -1,0 +1,53 @@
+syntax = "proto3";
+package m8.platform.sharedservices.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/sharedservices/v1;sharedservices";
+
+enum AgreementState {
+  AGREEMENT_STATE_UNSPECIFIED = 0;
+  AGREEMENT_STATE_DRAFT = 1;
+  AGREEMENT_STATE_ACTIVE = 2;
+  AGREEMENT_STATE_SUSPENDED = 3;
+  AGREEMENT_STATE_EXPIRED = 4;
+  AGREEMENT_STATE_TERMINATED = 5;
+}
+// Service offerings are BUSINESS services; unrelated to WorkloadService.
+message ServiceOffering {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string provider_organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string code = 3 [(google.api.field_behavior) = REQUIRED];
+  string display_name = 4;
+}
+message ServiceAgreement {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string provider_organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string consumer_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated string service_offering_ids = 4;
+  AgreementState state = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp valid_from = 6 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_until = 7;
+  string policy_ref = 8; // policy evaluated by Access; not a blanket delegation
+  int64 revision = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+enum CaseState {
+  CASE_STATE_UNSPECIFIED = 0;
+  CASE_STATE_OPEN = 1;
+  CASE_STATE_IN_PROGRESS = 2;
+  CASE_STATE_WAITING_APPROVAL = 3;
+  CASE_STATE_RESOLVED = 4;
+  CASE_STATE_CLOSED = 5;
+}
+message ServiceCase {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string consumer_organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string provider_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string service_agreement_id = 4 [(google.api.field_behavior) = REQUIRED];
+  string service_offering_id = 5 [(google.api.field_behavior) = REQUIRED];
+  string requester_principal_id = 6 [(google.api.field_behavior) = REQUIRED];
+  string assignee_principal_id = 7;
+  string external_ticket_ref = 8;
+  CaseState state = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string environment_id = 10; // optional, belongs to consumer organization
+  int64 revision = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
