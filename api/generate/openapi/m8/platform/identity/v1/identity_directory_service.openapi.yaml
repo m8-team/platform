@@ -1,0 +1,252 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /identity/v1/external-identities:
+        post:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_LinkExternalIdentity
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LinkExternalIdentityRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExternalIdentity'
+    /identity/v1/memberships:
+        get:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_ListMemberships
+            parameters:
+                - name: principalId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListMembershipsResponse'
+        post:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_CreateMembership
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OrganizationMembership'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMembership'
+    /identity/v1/memberships/{id}:revoke:
+        post:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_RevokeMembership
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RevokeMembershipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationMembership'
+    /identity/v1/principals:
+        post:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_RegisterPrincipal
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Principal'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Principal'
+    /identity/v1/principals/{id}:
+        get:
+            tags:
+                - IdentityDirectoryService
+            operationId: IdentityDirectoryService_GetPrincipal
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Principal'
+components:
+    schemas:
+        ExternalIdentity:
+            required:
+                - principalId
+                - issuer
+                - subject
+            type: object
+            properties:
+                id:
+                    type: string
+                principalId:
+                    type: string
+                issuer:
+                    type: string
+                subject:
+                    type: string
+                verifiedAt:
+                    readOnly: true
+                    type: string
+                    format: date-time
+        LinkExternalIdentityRequest:
+            required:
+                - identity
+                - idempotencyKey
+            type: object
+            properties:
+                identity:
+                    $ref: '#/components/schemas/ExternalIdentity'
+                idempotencyKey:
+                    type: string
+        ListMembershipsResponse:
+            type: object
+            properties:
+                memberships:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizationMembership'
+                nextPageToken:
+                    type: string
+        OrganizationMembership:
+            required:
+                - principalId
+                - organizationId
+            type: object
+            properties:
+                id:
+                    type: string
+                principalId:
+                    type: string
+                organizationId:
+                    type: string
+                validFrom:
+                    type: string
+                    format: date-time
+                validUntil:
+                    type: string
+                    format: date-time
+                status:
+                    readOnly: true
+                    type: string
+            description: Membership expresses participation, not employment or unconditional rights.
+        Principal:
+            required:
+                - kind
+            type: object
+            properties:
+                id:
+                    type: string
+                kind:
+                    enum:
+                        - PRINCIPAL_KIND_UNSPECIFIED
+                        - PRINCIPAL_KIND_USER
+                        - PRINCIPAL_KIND_SERVICE_ACCOUNT
+                        - PRINCIPAL_KIND_AGENT
+                        - PRINCIPAL_KIND_WORKFLOW
+                        - PRINCIPAL_KIND_EXTERNAL_AGENT
+                    type: string
+                    format: enum
+                state:
+                    readOnly: true
+                    enum:
+                        - PRINCIPAL_STATE_UNSPECIFIED
+                        - PRINCIPAL_STATE_ACTIVE
+                        - PRINCIPAL_STATE_SUSPENDED
+                        - PRINCIPAL_STATE_DISABLED
+                    type: string
+                    format: enum
+                displayName:
+                    type: string
+                revision:
+                    readOnly: true
+                    type: string
+        RevokeMembershipRequest:
+            required:
+                - id
+                - reason
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                reason:
+                    type: string
+                idempotencyKey:
+                    type: string
+tags:
+    - name: IdentityDirectoryService

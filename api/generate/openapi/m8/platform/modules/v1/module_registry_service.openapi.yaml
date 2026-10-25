@@ -1,0 +1,386 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /modules/v1/definitions:
+        get:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_ListModules
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListModulesResponse'
+        post:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_RegisterModule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterModuleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleDefinition'
+    /modules/v1/definitions/{id}:
+        get:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_GetModule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleDefinition'
+    /modules/v1/entitlements:
+        post:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_GrantModuleEntitlement
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GrantModuleEntitlementRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleEntitlement'
+    /modules/v1/installations:
+        get:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_ListModuleInstallations
+            parameters:
+                - name: owningOrganizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: moduleId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListModuleInstallationsResponse'
+        post:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_InstallModule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/InstallModuleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleInstallation'
+    /modules/v1/installations/{id}:
+        get:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_GetModuleInstallation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleInstallation'
+    /modules/v1/installations/{id}:remove:
+        post:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_RemoveModuleInstallation
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RemoveModuleInstallationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleInstallation'
+    /modules/v1/versions:
+        post:
+            tags:
+                - ModuleRegistryService
+            operationId: ModuleRegistryService_PublishModuleVersion
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PublishModuleVersionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ModuleVersion'
+components:
+    schemas:
+        GrantModuleEntitlementRequest:
+            required:
+                - entitlement
+                - idempotencyKey
+            type: object
+            properties:
+                entitlement:
+                    $ref: '#/components/schemas/ModuleEntitlement'
+                idempotencyKey:
+                    type: string
+        InstallModuleRequest:
+            required:
+                - installation
+                - idempotencyKey
+            type: object
+            properties:
+                installation:
+                    $ref: '#/components/schemas/ModuleInstallation'
+                idempotencyKey:
+                    type: string
+        ListModuleInstallationsResponse:
+            type: object
+            properties:
+                installations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ModuleInstallation'
+                nextPageToken:
+                    type: string
+        ListModulesResponse:
+            type: object
+            properties:
+                modules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ModuleDefinition'
+                nextPageToken:
+                    type: string
+        ModuleDefinition:
+            required:
+                - code
+                - name
+            type: object
+            properties:
+                id:
+                    type: string
+                code:
+                    type: string
+                name:
+                    type: string
+                ownerTeamRef:
+                    type: string
+                exportedResourceKinds:
+                    type: array
+                    items:
+                        type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - MODULE_STATE_UNSPECIFIED
+                        - MODULE_STATE_DRAFT
+                        - MODULE_STATE_PUBLISHED
+                        - MODULE_STATE_RETIRED
+                    type: string
+                    format: enum
+        ModuleEntitlement:
+            required:
+                - tenantId
+                - moduleId
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                moduleId:
+                    type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - ENTITLEMENT_STATE_UNSPECIFIED
+                        - ENTITLEMENT_STATE_ACTIVE
+                        - ENTITLEMENT_STATE_SUSPENDED
+                        - ENTITLEMENT_STATE_EXPIRED
+                    type: string
+                    format: enum
+                validUntil:
+                    type: string
+                    format: date-time
+                billingPolicyRef:
+                    type: string
+        ModuleInstallation:
+            required:
+                - moduleVersionId
+                - owner
+            type: object
+            properties:
+                id:
+                    type: string
+                moduleVersionId:
+                    type: string
+                owner:
+                    $ref: '#/components/schemas/OwnerScope'
+                owningOrganizationId:
+                    readOnly: true
+                    type: string
+                configurationRef:
+                    type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - INSTALLATION_STATE_UNSPECIFIED
+                        - INSTALLATION_STATE_PENDING
+                        - INSTALLATION_STATE_ACTIVE
+                        - INSTALLATION_STATE_SUSPENDED
+                        - INSTALLATION_STATE_FAILED
+                        - INSTALLATION_STATE_REMOVED
+                    type: string
+                    format: enum
+                revision:
+                    readOnly: true
+                    type: string
+            description: |-
+                Installation may target Organization / Workspace / Project.
+                 No default Workspace or Project is fabricated.
+        ModuleVersion:
+            required:
+                - moduleId
+                - version
+            type: object
+            properties:
+                id:
+                    type: string
+                moduleId:
+                    type: string
+                version:
+                    type: string
+                artifactRef:
+                    type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - MODULE_STATE_UNSPECIFIED
+                        - MODULE_STATE_DRAFT
+                        - MODULE_STATE_PUBLISHED
+                        - MODULE_STATE_RETIRED
+                    type: string
+                    format: enum
+        OwnerScope:
+            type: object
+            properties:
+                organizationId:
+                    type: string
+                workspaceId:
+                    type: string
+                projectId:
+                    type: string
+            description: Exactly one immediate owner. The owning Organization is derived on the server.
+        PublishModuleVersionRequest:
+            required:
+                - version
+                - idempotencyKey
+            type: object
+            properties:
+                version:
+                    $ref: '#/components/schemas/ModuleVersion'
+                idempotencyKey:
+                    type: string
+        RegisterModuleRequest:
+            required:
+                - module
+                - idempotencyKey
+            type: object
+            properties:
+                module:
+                    $ref: '#/components/schemas/ModuleDefinition'
+                idempotencyKey:
+                    type: string
+        RemoveModuleInstallationRequest:
+            required:
+                - id
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+tags:
+    - name: ModuleRegistryService
