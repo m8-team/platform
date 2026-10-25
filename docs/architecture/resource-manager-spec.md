@@ -1,5 +1,7 @@
 # Resource Manager Specification for M8 Platform
 
+> **Scope notice (2026-10-25):** This document describes the implemented/proposed **v1** Organization → Workspace → Service API. The proposed **v2** multi-company model with optional Workspace/Project and typed resource ownership is specified in [Resource Manager Flexible Scopes RFC](resource-manager-flexible-scopes-rfc.md). The RFC is not yet implemented in production. Avoid treating these two models as a single shipped contract.
+
 Status: Draft for implementation  
 Document path: `docs/architecture/resource-manager-spec.md`  
 Target domain: `M8 Platform / Control Plane / Resource Manager`
