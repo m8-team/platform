@@ -1,0 +1,28 @@
+syntax = "proto3";
+package m8.platform.delivery.v1;
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/delivery/v1;delivery";
+
+enum DeploymentState {
+  DEPLOYMENT_STATE_UNSPECIFIED = 0;
+  DEPLOYMENT_STATE_PENDING = 1;
+  DEPLOYMENT_STATE_DEPLOYING = 2;
+  DEPLOYMENT_STATE_HEALTHY = 3;
+  DEPLOYMENT_STATE_DEGRADED = 4;
+  DEPLOYMENT_STATE_FAILED = 5;
+  DEPLOYMENT_STATE_STOPPED = 6;
+}
+// Delivery owns runtime rollout state. RM only knows EnvironmentBinding.
+message Deployment {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  m8.platform.resourcemanager.v1.ResourceRef resource = 2 [(google.api.field_behavior) = REQUIRED];
+  string environment_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string artifact_version_ref = 4 [(google.api.field_behavior) = REQUIRED];
+  DeploymentState state = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string runtime_ref = 6;
+  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 revision = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
