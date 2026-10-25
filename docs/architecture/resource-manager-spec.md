@@ -1,199 +1,109 @@
-# Resource Manager Specification for M8 Platform
+# M8 Resource Manager — canonical v1 resource and ownership model
 
-Status: Draft for implementation  
-Document path: `docs/architecture/resource-manager-spec.md`  
-Target domain: `M8 Platform / Control Plane / Resource Manager`
+**Status:** Canonical contract design (breaking replacement of the previous protobuf v1).  
+**Source of truth:** `api/proto/m8/platform/resourcemanager/v1`.  
+**Implementation status:** Proto contract sources added; generated code, service implementation, persistence and migration are **not yet updated**. Do not deploy before those are complete.
 
-## Overview
+## 1. Design decisions
 
-Resource Manager is the canonical system domain in the M8 Platform control plane responsible for the platform resource catalog and its hierarchical ownership model.
+M8 operates for independent companies, optional groups/holdings, external providers and users with temporary grants. The five independent axes are:
 
-In the current contract set, Resource Manager owns exactly three resource types:
+1. **Tenancy:** Tenant/Account is the customer/subscription and billing boundary.
+2. **Ownership:** Organization is the mandatory security and ownership root; optional Workspace/Project organize work and manage resources.
+3. **Execution:** Environment is an Organization-owned registry entity and **NOT** a containment parent. Preview environments may expire.
+4. **Deployment:** ResourceManager EnvironmentBinding associates logical resources/versions with environments. Delivery owns rollout/status, module implementations own configurations and secrets.
+5. **Authorization:** Identity and Workforce own principals/relationships. Access owns all permissions, grants, risk, delegation and real-time access decisions.
 
-- `Organization`
-- `Workspace`
-- `Service`
+## 2. Ownership and placement matrix
 
-The canonical hierarchy is fixed as:
+| Resource type | Immediate owner | Notes |
+| --- | --- | --- |
+| Tenant | platform | root/account; no parent Organization |
+| Group | Tenant | optional, not tenant security inheritance |
+| Organization | Tenant | Group membership is separate association |
+| Workspace | Organization | optional |
+| Project | Organization OR Workspace | optional |
+| Environment | Organization | not a parent of arbitrary business resources |
+| WorkloadService | Workspace OR Project | logical workload independent of environment |
+| ResourceDescriptor (Agent/Workflow/Collection/Connection/etc) | Organization, Workspace OR Project **subject to registered policy** | module owns actual data |
+| EnvironmentBinding | ResourceRef + Environment | relation only; server verifies matching owning Organization |
+| Deployment | ResourceRef + Environment | Delivery owns actual deployment / runtime state |
 
-```text
-Organization
-  -> Workspace
-       -> Service
-```
+A Group affiliation does not imply any capability to access member Organizations. An independent Organization has no Group. A user may access a resource without OrganizationMembership through an explicit and authorized grant.
 
-This document is intentionally grounded in the existing protobuf contracts and service APIs:
+A logical resource has exactly one immediate owner and exactly one derived owning Organization. External relations are not containment edges. All paths are derived from immutable identifiers rather than display names.
 
-- `organization.proto`
-- `organization_service.proto`
-- `workspace.proto`
-- `workspace_service.proto`
-- `service.proto`
-- `service_service.proto`
+## 3. Environment behavior
 
-The goal of this specification is not to invent a new model, but to define how the current contracts should be implemented as a coherent domain, application layer, persistence model, and event source for adjacent platform services.
+Organization environments are registered independently of Workspaces/Projects. Examples: production, staging, testing, development, preview. Each has an identity, classification, isolation profile, lifecycle and optional TTL. Their names need only be unique within the owning Organization.
 
-## Implementation Status
+Resource Definitions/Versions are not cloned just to switch environments. Installations / EnvironmentBindings point to explicit immutable version references, separate configurations and credentials. Access to Testing must not imply access to Production. A resource is bound to an Environment only if its derived owning Organization matches the Environment's owning Organization.
 
-`OrganizationService` now has a clean-architecture vertical slice covering its
-six protobuf RPCs. It includes lifecycle domain behavior, optimistic
-concurrency, authorization and hierarchy ports, signed keyset pagination,
-manual RPC-aware validation, gRPC status mapping, and completed LRO responses.
+A single deployed M8 Platform control plane can host customer Production and Testing environments, **without** promising physical isolation. ResourceManager records the requested isolation profile; Provisioning / Runtime enforce the actual runtime and data isolation. This is verified against actual topology at promotion time.
 
-The executable currently composes process-local persistence and a placeholder
-Workspace-child projection. These adapters are for local development and
-contract testing only. Durable storage, transactional outbox/idempotency,
-Access integration, and a pollable `google.longrunning.Operations` backend
-remain production follow-up work.
+## 4. Multi-company and workforce
 
-## Scope
+Identity registers global principals (user, service account, agent, workflow, external agent) with separately verified external identities. Do NOT auto-merge identities by email. An identity can be independently linked to multiple Organizations, and may have **no membership** in an Organization that grants case-specific access.
 
-Resource Manager is in scope for the following responsibilities:
+Workforce/HR owns Employment and Engagement records (permanent employee, temporary employee, contractor, freelancer, consultant, auditor, provider). These are not permissions. Engagement validity is independent of AccessGrant validity.
 
-- canonical storage of `Organization`, `Workspace`, and `Service`
-- canonical parent-child hierarchy between these resources
-- immutable environment assignment for each `Service`
-- lifecycle management for these resources
-- soft-delete and undelete semantics
-- optimistic concurrency through `version`
-- emission of resource domain events for downstream consumers
-- list/get query semantics for control plane and read models
+SharedServices owns service providers/consumers, offerings, agreements and cases. Agreements authorize a business relationship but do not automatically grant access. Access grants are separately approved and limited to subject, target resource, organization, environment, actions, purpose and expiry.
 
-Resource Manager is explicitly out of scope for:
+## 5. AccessGrant lifecycle
 
-- IAM roles, permissions, memberships, group assignments
-- provisioning of infrastructure or tenant runtime resources
-- billing calculations, invoices, charging, or quota enforcement logic
-- audit storage and retention of audit records
-- search indexing implementation details and UI read model ownership
+A temporary grant requires start and expiry timestamps. State transitions are Requested -> PendingApproval -> Active or Rejected; Active -> Revoked or Expired. `expires_at` is evaluated **at authorization time**, not only by a scheduled worker. Revocation invalidates newly issued access decisions and external credentials. High-risk actions must reauthorize with strong consistency and recheck all dynamic conditions (case is open, assignment active, agreement valid, MFA, owner approval).
 
-In practical terms, Resource Manager is the source of truth for **resource existence, identity, parent linkage, and lifecycle state**, but not the source of truth for access control, deployment state, financial state, or audit evidence.
+Requester/approver/revoker are server-authenticated, not client-authored values. Enforcement at Tool Gateway and target service may deny independently. AccessGrant does not bypass AuthZEN/PDP.
 
-## Aggregate Model
+## 6. Resource Manager API
 
-The domain naturally fits three aggregates, each mapped directly to an existing proto message.
+The new `ResourceManagerService` has typed Create/Get/List/Update/ChangeState plus MoveProject, ResolveResourceScope, Group link operations, Environment bindings and resource-kind registration.
 
-### Aggregate: Organization
+**Invariants:**
+- IDs are server-generated and immutable.
+- Create mutators are idempotent; expected revisions guard updates and deletes.
+- Changing Project owner requires a dedicated MoveProject with source/destination checks.
+- KindPolicy constrains where module-owned resource descriptors can live.
+- No hierarchy cycles, orphaned resources, hidden default Workspaces or Projects.
+- Child creation only under active parents.
+- Suspended/deleted parent blocks descendant writes; cleanup requires explicit policy and workflow.
+- Server computes owning_organization_id and validates same-Organization EnvironmentBindings.
+- List queries MUST scope authorization server-side before pagination.
+- Audit/event outbox and idempotency commit atomically with resource changes.
+- Group affiliation and SharedServices agreements never create implicit ReBAC inheritance.
 
-- identity field: `id`
-- type: UUID string
-- assigned by server
-- immutable after creation
-- mutable fields: `name`, `description`, `labels`
-- server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
-- delete is soft-delete only
-- delete is blocked while there are non-deleted workspaces
+The wire-format protobuf contracts are not themselves a full enforcement mechanism. Application handlers must implement all of these invariants.
 
-### Aggregate: Workspace
+## 7. Contract files
 
-- identity field: `id`
-- parent field: `organization_id`
-- type: UUID string
-- parent link is immutable after creation
-- mutable fields: `name`, `description`, `labels`
-- server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
-- delete is soft-delete only
-- delete is blocked while there are non-deleted services
-- undelete requires existing non-deleted parent organization
+- Resource Manager: `resource.proto`, `tenant.proto`, `group.proto`, `organization.proto`, `workspace.proto`, `project.proto`, `environment.proto`, `service.proto`, `resource_manager_service.proto`.
+- Identity: `identity/v1/principal.proto`, `identity_directory_service.proto`.
+- Workforce: `workforce/v1/engagement.proto`, `workforce_service.proto`.
+- Access: `access/v1/access_grant.proto`, `access_grant_service.proto` (existing AuthZEN decision API remains).
+- Shared Services: `sharedservices/v1/shared_services.proto`, `shared_services_service.proto`.
+- Delivery: `delivery/v1/deployment.proto`.
 
-### Aggregate: Service
+The old `OrganizationService`, `WorkspaceService`, `ServiceService` and immutable `Service.environment` API have been removed from source without a compatibility layer by explicit product decision.
 
-- identity field: `id`
-- parent field: `workspace_id`
-- environment field: `environment`
-- type: UUID string
-- parent link is immutable after creation
-- environment is a required immutable lowercase slug such as `dev`, `stage`, or `prod`
-- the same logical application in different environments is represented by separate services
-- mutable fields: `name`, `description`, `labels`
-- server-controlled fields: `state`, `create_time`, `update_time`, `delete_time`, `purge_time`
-- delete is soft-delete only
-- undelete requires existing non-deleted parent workspace
-- enum contains `ARCHIVED`, but public API has no archive RPC yet
+## 8. Required follow-up to make new v1 executable
 
-## Invariants
+1. Run `buf lint` and `buf generate` in a connected CI/build environment. Review generated gateway and OpenAPI output; add validation to all newly introduced request fields.
+2. Regenerate/replace the separate `github.com/m8-team/go-genproto` module and update M8 Platform imports. Remove stale `api/generate/go` outputs from deleted service RPCs.
+3. Replace the current OrganizationService Go implementation with the new ResourceManagerService handlers and implement Workspace/Project/Environment/Tenant/Group/ResourceCatalog.
+4. Implement YDB schema changes, lifecycle, parent indexes, server-side tenant/scope filtering, transactions, outbox/idempotency, and Access/Audit adapters.
+5. Implement Identity/Workforce/AccessGrant/SharedServices handlers in their own bounded contexts.
+6. Execute an explicit **breaking** migration (schema, generated SDKs, clients, docs, events, CI baseline). There is **no promise of old client compatibility**.
+7. Add contract/integration/security tests, then enable strict break checks against this new v1 baseline.
 
-- `Organization` has no parent.
-- `Workspace` always belongs to exactly one `Organization`.
-- `Service` always belongs to exactly one `Workspace`.
-- `Service` always belongs to exactly one environment.
-- `environment` is immutable and must match the API slug validation rules.
-- Parent link is immutable after creation.
-- Child creation requires an existing, non-deleted parent.
-- Undelete of a child requires an existing, non-deleted parent.
-- `version` changes on every successful mutating write.
-- `show_deleted=false` excludes soft-deleted resources from list responses.
-- There is no hidden recursive delete in v1.
+## 9. Acceptance criteria
 
-## Commands and Queries
-
-Commands:
-
-- `CreateOrganization`
-- `UpdateOrganization`
-- `DeleteOrganization`
-- `UndeleteOrganization`
-- `CreateWorkspace`
-- `UpdateWorkspace`
-- `DeleteWorkspace`
-- `UndeleteWorkspace`
-- `CreateService`
-- `UpdateService`
-- `DeleteService`
-- `UndeleteService`
-
-Queries:
-
-- `GetOrganization`
-- `ListOrganizations`
-- `GetWorkspace`
-- `ListWorkspaces`
-- `GetService`
-- `ListServices`
-
-## Domain Events
-
-Organization events:
-
-- `organization.created`
-- `organization.updated`
-- `organization.state_changed`
-- `organization.deleted`
-- `organization.undeleted`
-- `organization.purged`
-
-Workspace events:
-
-- `workspace.created`
-- `workspace.updated`
-- `workspace.state_changed`
-- `workspace.deleted`
-- `workspace.undeleted`
-- `workspace.purged`
-
-Service events:
-
-- `service.created`
-- `service.updated`
-- `service.state_changed`
-- `service.archived`
-- `service.unarchived`
-- `service.deleted`
-- `service.undeleted`
-- `service.purged`
-
-Envelope fields:
-
-- `event_id`
-- `event_type`
-- `event_version`
-- `aggregate_type`
-- `aggregate_id`
-- `parent_aggregate_id`
-- `occurred_at`
-- `actor`
-- `correlation_id`
-- `causation_id`
-- `idempotency_key`
-- `etag_or_revision`
-- `payload`
+- A single-company Tenant has one Organization and no Group, Workspace or Project.
+- Holding Tenant has multiple Organizations; Group is optional; affiliation grants no data access.
+- AgentDefinition/Workflow directly owned by Organization requires no dummy Workspace/Project.
+- Engineering Organization can create Workspace -> Project -> logical WorkloadService.
+- Testing & Production are distinct Environments with separate bindings, credentials and approval.
+- Contractor with NO OrganizationMembership can temporarily access one project via approved AccessGrant.
+- Support operator employed by Provider can access Consumer resource only for an active case with an unexpired grant, not its sibling resources.
+- Revocation or expiry blocks the next access check even if the workflow continues.
+- Cross-tenant service agreements are references, never parent-child scope edges.
+- All API responses are authorization scoped; no information leaks via enumeration/pagination.
