@@ -1,0 +1,813 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /resource-manager/v1/environment-bindings:
+        get:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_ListEnvironmentBindings
+            parameters:
+                - name: resource.kind
+                  in: query
+                  schema:
+                    type: string
+                - name: resource.id
+                  in: query
+                  schema:
+                    type: string
+                - name: environmentId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEnvironmentBindingsResponse'
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_SetEnvironmentBinding
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetEnvironmentBindingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EnvironmentBinding'
+    /resource-manager/v1/environment-bindings/{id}:
+        delete:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_RemoveEnvironmentBinding
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: expectedRevision
+                  in: query
+                  schema:
+                    type: string
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EmptyResponse'
+    /resource-manager/v1/group-affiliations:
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_SetGroupOrganizationLink
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetGroupOrganizationLinkRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupOrganizationLink'
+    /resource-manager/v1/groups/{groupId}/organizations:
+        get:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_ListGroupOrganizations
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGroupOrganizationsResponse'
+    /resource-manager/v1/groups/{groupId}/organizations/{organizationId}:
+        delete:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_RemoveGroupOrganizationLink
+            parameters:
+                - name: groupId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EmptyResponse'
+    /resource-manager/v1/projects/{projectId}:move:
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_MoveProject
+            parameters:
+                - name: projectId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MoveProjectRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Project'
+    /resource-manager/v1/resource-kinds:
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_RegisterResourceKind
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterResourceKindRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceKindPolicy'
+    /resource-manager/v1/resources:
+        get:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_ListResources
+            parameters:
+                - name: kind
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: owner.organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: owner.workspaceId
+                  in: query
+                  schema:
+                    type: string
+                - name: owner.projectId
+                  in: query
+                  schema:
+                    type: string
+                - name: includeDescendants
+                  in: query
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+                - name: showDeleted
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListResourcesResponse'
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_CreateResource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateResourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceRecord'
+    /resource-manager/v1/resources/{id}:
+        patch:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_UpdateResource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateResourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceRecord'
+    /resource-manager/v1/resources/{id}:changeState:
+        post:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_ChangeResourceState
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangeResourceStateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceRecord'
+    /resource-manager/v1/resources/{kind}/{id}:
+        get:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_GetResource
+            parameters:
+                - name: kind
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceRecord'
+    /resource-manager/v1/resources/{kind}/{id}:resolveScope:
+        get:
+            tags:
+                - ResourceManagerService
+            operationId: ResourceManagerService_ResolveResourceScope
+            parameters:
+                - name: kind
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResolveResourceScopeResponse'
+components:
+    schemas:
+        ChangeResourceStateRequest:
+            required:
+                - id
+                - kind
+                - targetState
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                kind:
+                    type: string
+                targetState:
+                    enum:
+                        - RESOURCE_STATE_UNSPECIFIED
+                        - RESOURCE_STATE_ACTIVE
+                        - RESOURCE_STATE_SUSPENDED
+                        - RESOURCE_STATE_ARCHIVED
+                        - RESOURCE_STATE_DELETED
+                    type: string
+                    format: enum
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        CreateResourceRequest:
+            required:
+                - resource
+                - idempotencyKey
+            type: object
+            properties:
+                resource:
+                    $ref: '#/components/schemas/ResourceRecord'
+                idempotencyKey:
+                    type: string
+        EmptyResponse:
+            type: object
+            properties: {}
+        Environment:
+            required:
+                - metadata
+                - organizationId
+                - key
+                - kind
+                - isolation
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                organizationId:
+                    type: string
+                key:
+                    type: string
+                kind:
+                    enum:
+                        - ENVIRONMENT_KIND_UNSPECIFIED
+                        - ENVIRONMENT_KIND_PRODUCTION
+                        - ENVIRONMENT_KIND_STAGING
+                        - ENVIRONMENT_KIND_DEVELOPMENT
+                        - ENVIRONMENT_KIND_TESTING
+                        - ENVIRONMENT_KIND_PREVIEW
+                        - ENVIRONMENT_KIND_CUSTOM
+                    type: string
+                    format: enum
+                isolation:
+                    enum:
+                        - ISOLATION_PROFILE_UNSPECIFIED
+                        - ISOLATION_PROFILE_LOGICAL
+                        - ISOLATION_PROFILE_DEDICATED_RUNTIME
+                        - ISOLATION_PROFILE_DEDICATED_DATA
+                        - ISOLATION_PROFILE_FULL
+                    type: string
+                    format: enum
+                expiresAt:
+                    type: string
+                    format: date-time
+        EnvironmentBinding:
+            required:
+                - resource
+                - environmentId
+                - versionRef
+            type: object
+            properties:
+                id:
+                    type: string
+                resource:
+                    $ref: '#/components/schemas/ResourceRef'
+                environmentId:
+                    type: string
+                versionRef:
+                    type: string
+                configurationRef:
+                    type: string
+                revision:
+                    readOnly: true
+                    type: string
+            description: |-
+                Non-owning association of a logical resource to an Organization environment.
+                 Consumer module owns actual deployment and secrets; never embed credentials.
+        Group:
+            required:
+                - metadata
+                - tenantId
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                tenantId:
+                    type: string
+            description: Optional business grouping. Independent Organizations require no Group.
+        GroupOrganizationLink:
+            required:
+                - groupId
+                - organizationId
+            type: object
+            properties:
+                groupId:
+                    type: string
+                organizationId:
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+            description: Non-owning business relation between a Group and an Organization.
+        ListEnvironmentBindingsResponse:
+            type: object
+            properties:
+                bindings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EnvironmentBinding'
+                nextPageToken:
+                    type: string
+        ListGroupOrganizationsResponse:
+            type: object
+            properties:
+                links:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupOrganizationLink'
+                nextPageToken:
+                    type: string
+        ListResourcesResponse:
+            type: object
+            properties:
+                resources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResourceRecord'
+                nextPageToken:
+                    type: string
+        MoveProjectRequest:
+            required:
+                - projectId
+                - newOwner
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                projectId:
+                    type: string
+                newOwner:
+                    $ref: '#/components/schemas/OwnerScope'
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        Organization:
+            required:
+                - metadata
+                - tenantId
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                tenantId:
+                    type: string
+                companyProfileRef:
+                    type: string
+            description: |-
+                Organization is the mandatory ownership/security root within a Tenant.
+                 No Group is required; legal entity profile is separately owned.
+        OwnerScope:
+            type: object
+            properties:
+                organizationId:
+                    type: string
+                workspaceId:
+                    type: string
+                projectId:
+                    type: string
+            description: Exactly one immediate owner. The owning Organization is derived on the server.
+        Project:
+            required:
+                - metadata
+                - owner
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                owner:
+                    $ref: '#/components/schemas/OwnerScope'
+                owningOrganizationId:
+                    readOnly: true
+                    type: string
+            description: |-
+                Project may belong directly to an Organization or to a Workspace.
+                 A move is an explicit authorized transaction (never an ordinary update).
+        RegisterResourceKindRequest:
+            required:
+                - policy
+                - idempotencyKey
+            type: object
+            properties:
+                policy:
+                    $ref: '#/components/schemas/ResourceKindPolicy'
+                idempotencyKey:
+                    type: string
+        ResolveResourceScopeResponse:
+            type: object
+            properties:
+                owningOrganizationId:
+                    type: string
+                ancestry:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResourceRef'
+        ResourceDescriptor:
+            required:
+                - resource
+                - owner
+                - metadata
+                - module
+            type: object
+            properties:
+                resource:
+                    $ref: '#/components/schemas/ResourceRef'
+                owner:
+                    $ref: '#/components/schemas/OwnerScope'
+                owningOrganizationId:
+                    readOnly: true
+                    type: string
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                module:
+                    type: string
+            description: |-
+                Module-owned resources remain canonically stored in their module.
+                 Resource Manager stores only searchable ownership metadata.
+        ResourceKindPolicy:
+            required:
+                - kind
+                - responsibleModule
+            type: object
+            properties:
+                kind:
+                    type: string
+                allowedOwnerKinds:
+                    type: array
+                    items:
+                        type: string
+                responsibleModule:
+                    type: string
+                environmentBindingAllowed:
+                    type: boolean
+            description: A resource kind registry prevents arbitrary use of containment.
+        ResourceMetadata:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - RESOURCE_STATE_UNSPECIFIED
+                        - RESOURCE_STATE_ACTIVE
+                        - RESOURCE_STATE_SUSPENDED
+                        - RESOURCE_STATE_ARCHIVED
+                        - RESOURCE_STATE_DELETED
+                    type: string
+                    format: enum
+                revision:
+                    readOnly: true
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                deleteTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+        ResourceRecord:
+            type: object
+            properties:
+                tenant:
+                    $ref: '#/components/schemas/Tenant'
+                group:
+                    $ref: '#/components/schemas/Group'
+                organization:
+                    $ref: '#/components/schemas/Organization'
+                workspace:
+                    $ref: '#/components/schemas/Workspace'
+                project:
+                    $ref: '#/components/schemas/Project'
+                environment:
+                    $ref: '#/components/schemas/Environment'
+                workloadService:
+                    $ref: '#/components/schemas/WorkloadService'
+                descriptor:
+                    $ref: '#/components/schemas/ResourceDescriptor'
+        ResourceRef:
+            required:
+                - type
+                - id
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: |-
+                        Required. Resource type.
+
+                         Recommended format:
+                           {service}.{resource}
+
+                         Examples:
+                           resourcemanager.organization
+                           resourcemanager.workspace
+                           resourcemanager.service
+                           provisioning.kafka_topic
+                           provisioning.database
+                           identity.user
+                           access.permission_schema
+                id:
+                    type: string
+                    description: |-
+                        Required. Stable resource identifier.
+
+                         For Resource Manager resources this is usually UUID.
+                         For external/provider resources this may be provider-specific.
+                name:
+                    type: string
+                    description: |-
+                        Optional. Full resource name.
+
+                         Examples:
+                           organizations/{organization_id}
+            description: ResourceRef is a generic reference to any M8 Platform resource.
+        SetEnvironmentBindingRequest:
+            required:
+                - binding
+                - idempotencyKey
+            type: object
+            properties:
+                binding:
+                    $ref: '#/components/schemas/EnvironmentBinding'
+                idempotencyKey:
+                    type: string
+                expectedRevision:
+                    type: string
+        SetGroupOrganizationLinkRequest:
+            required:
+                - groupId
+                - organizationId
+                - idempotencyKey
+            type: object
+            properties:
+                groupId:
+                    type: string
+                organizationId:
+                    type: string
+                idempotencyKey:
+                    type: string
+        Tenant:
+            required:
+                - metadata
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                billingAccountRef:
+                    type: string
+            description: |-
+                Tenant is a platform customer/account and billing boundary.
+                 It is NOT an automatic cross-Organization permission grant.
+        UpdateResourceRequest:
+            required:
+                - id
+                - resource
+                - updateMask
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                resource:
+                    $ref: '#/components/schemas/ResourceRecord'
+                updateMask:
+                    type: string
+                    format: field-mask
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        WorkloadService:
+            required:
+                - metadata
+                - owner
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                owner:
+                    $ref: '#/components/schemas/OwnerScope'
+                owningOrganizationId:
+                    readOnly: true
+                    type: string
+                runtimeProfileRef:
+                    type: string
+            description: |-
+                Logical technical workload. Unlike the old v1 Service it does NOT own
+                 an immutable dev/stage/prod field. Deployment is handled by Delivery.
+        Workspace:
+            required:
+                - metadata
+                - organizationId
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                organizationId:
+                    type: string
+            description: Optional collaboration/security scope within an Organization.
+tags:
+    - name: ResourceManagerService

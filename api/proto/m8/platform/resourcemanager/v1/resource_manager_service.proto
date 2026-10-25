@@ -17,7 +17,7 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/
 // NOT identity/membership, access grants, business cases or deployments.
 service ResourceManagerService {
   rpc CreateResource(CreateResourceRequest) returns (ResourceRecord) {
-    option (google.api.http) = {post: "/resource-manager/v1/resources" body: "resource"};
+    option (google.api.http) = {post: "/resource-manager/v1/resources" body: "*"};
   }
   rpc GetResource(GetResourceRequest) returns (ResourceRecord) {
     option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}"};
@@ -26,7 +26,7 @@ service ResourceManagerService {
     option (google.api.http) = {get: "/resource-manager/v1/resources"};
   }
   rpc UpdateResource(UpdateResourceRequest) returns (ResourceRecord) {
-    option (google.api.http) = {patch: "/resource-manager/v1/resources/{id}" body: "resource"};
+    option (google.api.http) = {patch: "/resource-manager/v1/resources/{id}" body: "*"};
   }
   rpc ChangeResourceState(ChangeResourceStateRequest) returns (ResourceRecord) {
     option (google.api.http) = {post: "/resource-manager/v1/resources/{id}:changeState" body: "*"};

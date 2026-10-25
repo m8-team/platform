@@ -1,0 +1,272 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /shared-services/v1/agreements:
+        post:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_CreateAgreement
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceAgreement'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAgreement'
+    /shared-services/v1/agreements/{id}:
+        get:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_GetAgreement
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceAgreement'
+    /shared-services/v1/cases:
+        post:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_CreateCase
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceCase'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceCase'
+    /shared-services/v1/cases/{id}:assign:
+        post:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_AssignCase
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AssignCaseRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceCase'
+    /shared-services/v1/cases/{id}:close:
+        post:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_CloseCase
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloseCaseRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceCase'
+    /shared-services/v1/offerings:
+        post:
+            tags:
+                - SharedServicesService
+            operationId: SharedServicesService_PublishOffering
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ServiceOffering'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ServiceOffering'
+components:
+    schemas:
+        AssignCaseRequest:
+            required:
+                - id
+                - assigneePrincipalId
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                assigneePrincipalId:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        CloseCaseRequest:
+            required:
+                - id
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        ServiceAgreement:
+            required:
+                - providerOrganizationId
+                - consumerOrganizationId
+                - validFrom
+            type: object
+            properties:
+                id:
+                    type: string
+                providerOrganizationId:
+                    type: string
+                consumerOrganizationId:
+                    type: string
+                serviceOfferingIds:
+                    type: array
+                    items:
+                        type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - AGREEMENT_STATE_UNSPECIFIED
+                        - AGREEMENT_STATE_DRAFT
+                        - AGREEMENT_STATE_ACTIVE
+                        - AGREEMENT_STATE_SUSPENDED
+                        - AGREEMENT_STATE_EXPIRED
+                        - AGREEMENT_STATE_TERMINATED
+                    type: string
+                    format: enum
+                validFrom:
+                    type: string
+                    format: date-time
+                validUntil:
+                    type: string
+                    format: date-time
+                policyRef:
+                    type: string
+                revision:
+                    readOnly: true
+                    type: string
+        ServiceCase:
+            required:
+                - consumerOrganizationId
+                - providerOrganizationId
+                - serviceAgreementId
+                - serviceOfferingId
+                - requesterPrincipalId
+            type: object
+            properties:
+                id:
+                    type: string
+                consumerOrganizationId:
+                    type: string
+                providerOrganizationId:
+                    type: string
+                serviceAgreementId:
+                    type: string
+                serviceOfferingId:
+                    type: string
+                requesterPrincipalId:
+                    type: string
+                assigneePrincipalId:
+                    type: string
+                externalTicketRef:
+                    type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - CASE_STATE_UNSPECIFIED
+                        - CASE_STATE_OPEN
+                        - CASE_STATE_IN_PROGRESS
+                        - CASE_STATE_WAITING_APPROVAL
+                        - CASE_STATE_RESOLVED
+                        - CASE_STATE_CLOSED
+                    type: string
+                    format: enum
+                environmentId:
+                    type: string
+                revision:
+                    readOnly: true
+                    type: string
+        ServiceOffering:
+            required:
+                - providerOrganizationId
+                - code
+            type: object
+            properties:
+                id:
+                    type: string
+                providerOrganizationId:
+                    type: string
+                code:
+                    type: string
+                displayName:
+                    type: string
+            description: Service offerings are BUSINESS services; unrelated to WorkloadService.
+tags:
+    - name: SharedServicesService

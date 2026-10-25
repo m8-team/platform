@@ -1,0 +1,337 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /access/v1/grants:
+        get:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_ListGrants
+            parameters:
+                - name: principalId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: resourceId
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    enum:
+                        - GRANT_STATE_UNSPECIFIED
+                        - GRANT_STATE_REQUESTED
+                        - GRANT_STATE_PENDING_APPROVAL
+                        - GRANT_STATE_ACTIVE
+                        - GRANT_STATE_REJECTED
+                        - GRANT_STATE_REVOKED
+                        - GRANT_STATE_EXPIRED
+                    type: string
+                    format: enum
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGrantsResponse'
+        post:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_RequestGrant
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RequestGrantRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessGrant'
+    /access/v1/grants/{id}:
+        get:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_GetGrant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessGrant'
+    /access/v1/grants/{id}:approve:
+        post:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_ApproveGrant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ApproveGrantRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessGrant'
+    /access/v1/grants/{id}:reject:
+        post:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_RejectGrant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RejectGrantRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessGrant'
+    /access/v1/grants/{id}:revoke:
+        post:
+            tags:
+                - AccessGrantService
+            operationId: AccessGrantService_RevokeGrant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RevokeGrantRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessGrant'
+components:
+    schemas:
+        AccessGrant:
+            required:
+                - subject
+                - target
+                - permissions
+                - reason
+                - validFrom
+                - expiresAt
+            type: object
+            properties:
+                id:
+                    type: string
+                subject:
+                    $ref: '#/components/schemas/GrantSubject'
+                target:
+                    $ref: '#/components/schemas/GrantTarget'
+                permissions:
+                    type: array
+                    items:
+                        type: string
+                reason:
+                    enum:
+                        - GRANT_REASON_UNSPECIFIED
+                        - GRANT_REASON_PROJECT_ASSIGNMENT
+                        - GRANT_REASON_SUPPORT_CASE
+                        - GRANT_REASON_EXTERNAL_CONTRACT
+                        - GRANT_REASON_EMERGENCY
+                        - GRANT_REASON_ONE_TIME_TASK
+                    type: string
+                    format: enum
+                reasonReference:
+                    type: string
+                validFrom:
+                    type: string
+                    format: date-time
+                expiresAt:
+                    type: string
+                    format: date-time
+                constraints:
+                    $ref: '#/components/schemas/GrantConstraints'
+                state:
+                    readOnly: true
+                    enum:
+                        - GRANT_STATE_UNSPECIFIED
+                        - GRANT_STATE_REQUESTED
+                        - GRANT_STATE_PENDING_APPROVAL
+                        - GRANT_STATE_ACTIVE
+                        - GRANT_STATE_REJECTED
+                        - GRANT_STATE_REVOKED
+                        - GRANT_STATE_EXPIRED
+                    type: string
+                    format: enum
+                requestedByPrincipalId:
+                    readOnly: true
+                    type: string
+                approvedByPrincipalId:
+                    readOnly: true
+                    type: string
+                revokedByPrincipalId:
+                    readOnly: true
+                    type: string
+                revokedAt:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                revision:
+                    readOnly: true
+                    type: string
+        ApproveGrantRequest:
+            required:
+                - id
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        GrantConstraints:
+            type: object
+            properties:
+                requireMfa:
+                    type: boolean
+                requireActiveCase:
+                    type: boolean
+                requireActiveAssignment:
+                    type: boolean
+                sourceServiceAgreementId:
+                    type: string
+                conditionPolicyRef:
+                    type: string
+        GrantSubject:
+            required:
+                - principalKind
+                - principalId
+            type: object
+            properties:
+                principalKind:
+                    type: string
+                principalId:
+                    type: string
+        GrantTarget:
+            required:
+                - organizationId
+                - resourceKind
+                - resourceId
+            type: object
+            properties:
+                organizationId:
+                    type: string
+                resourceKind:
+                    type: string
+                resourceId:
+                    type: string
+                environmentId:
+                    type: string
+        ListGrantsResponse:
+            type: object
+            properties:
+                grants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AccessGrant'
+                nextPageToken:
+                    type: string
+        RejectGrantRequest:
+            required:
+                - id
+                - reason
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                reason:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        RequestGrantRequest:
+            required:
+                - grant
+                - idempotencyKey
+            type: object
+            properties:
+                grant:
+                    $ref: '#/components/schemas/AccessGrant'
+                idempotencyKey:
+                    type: string
+        RevokeGrantRequest:
+            required:
+                - id
+                - reason
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                reason:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+tags:
+    - name: AccessGrantService

@@ -1,0 +1,181 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /workforce/v1/engagements:
+        get:
+            tags:
+                - WorkforceService
+            operationId: WorkforceService_ListEngagements
+            parameters:
+                - name: principalId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListEngagementsResponse'
+        post:
+            tags:
+                - WorkforceService
+            operationId: WorkforceService_RegisterEngagement
+            parameters:
+                - name: idempotencyKey
+                  in: query
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Engagement'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Engagement'
+    /workforce/v1/engagements/{id}:
+        get:
+            tags:
+                - WorkforceService
+            operationId: WorkforceService_GetEngagement
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Engagement'
+    /workforce/v1/engagements/{id}:end:
+        post:
+            tags:
+                - WorkforceService
+            operationId: WorkforceService_EndEngagement
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EndEngagementRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Engagement'
+components:
+    schemas:
+        EndEngagementRequest:
+            required:
+                - id
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+        Engagement:
+            required:
+                - principalId
+                - organizationId
+                - kind
+            type: object
+            properties:
+                id:
+                    type: string
+                principalId:
+                    type: string
+                organizationId:
+                    type: string
+                employerOrganizationId:
+                    type: string
+                kind:
+                    enum:
+                        - ENGAGEMENT_KIND_UNSPECIFIED
+                        - ENGAGEMENT_KIND_PERMANENT_EMPLOYEE
+                        - ENGAGEMENT_KIND_TEMPORARY_EMPLOYEE
+                        - ENGAGEMENT_KIND_CONTRACTOR
+                        - ENGAGEMENT_KIND_FREELANCER
+                        - ENGAGEMENT_KIND_CONSULTANT
+                        - ENGAGEMENT_KIND_AUDITOR
+                        - ENGAGEMENT_KIND_SUPPORT_PROVIDER
+                    type: string
+                    format: enum
+                state:
+                    readOnly: true
+                    enum:
+                        - ENGAGEMENT_STATE_UNSPECIFIED
+                        - ENGAGEMENT_STATE_PENDING
+                        - ENGAGEMENT_STATE_ACTIVE
+                        - ENGAGEMENT_STATE_ENDED
+                        - ENGAGEMENT_STATE_TERMINATED
+                    type: string
+                    format: enum
+                validFrom:
+                    type: string
+                    format: date-time
+                validUntil:
+                    type: string
+                    format: date-time
+                departmentRef:
+                    type: string
+                positionRef:
+                    type: string
+                sponsorPrincipalId:
+                    type: string
+                revision:
+                    readOnly: true
+                    type: string
+        ListEngagementsResponse:
+            type: object
+            properties:
+                engagements:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Engagement'
+                nextPageToken:
+                    type: string
+tags:
+    - name: WorkforceService

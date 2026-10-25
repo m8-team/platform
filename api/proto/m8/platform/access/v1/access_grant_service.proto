@@ -8,7 +8,7 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access
 // Request/approval/revocation lifecycle, separate from the PDP.
 service AccessGrantService {
   rpc RequestGrant(RequestGrantRequest) returns (AccessGrant) {
-    option (google.api.http) = {post: "/access/v1/grants" body: "grant"};
+    option (google.api.http) = {post: "/access/v1/grants" body: "*"};
   }
   rpc GetGrant(GetGrantRequest) returns (AccessGrant) {
     option (google.api.http) = {get: "/access/v1/grants/{id}"};

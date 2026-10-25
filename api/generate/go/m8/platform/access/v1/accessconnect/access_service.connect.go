@@ -5,262 +5,291 @@
 package accessconnect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/m8-team/go-genproto/m8/platform/access/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AccessServiceName is the fully-qualified name of the AccessService service.
 	AccessServiceName = "m8.platform.access.v1.AccessService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AccessServiceEvaluateAccessProcedure is the fully-qualified name of the AccessService's
-	// EvaluateAccess RPC.
+	// AccessServiceEvaluateAccessProcedure is the procedure name of the AccessService's EvaluateAccess
+	// RPC.
 	AccessServiceEvaluateAccessProcedure = "/m8.platform.access.v1.AccessService/EvaluateAccess"
-	// AccessServiceEvaluateAccessBatchProcedure is the fully-qualified name of the AccessService's
+	// AccessServiceEvaluateAccessBatchProcedure is the procedure name of the AccessService's
 	// EvaluateAccessBatch RPC.
 	AccessServiceEvaluateAccessBatchProcedure = "/m8.platform.access.v1.AccessService/EvaluateAccessBatch"
-	// AccessServiceSearchResourcesProcedure is the fully-qualified name of the AccessService's
+	// AccessServiceSearchResourcesProcedure is the procedure name of the AccessService's
 	// SearchResources RPC.
 	AccessServiceSearchResourcesProcedure = "/m8.platform.access.v1.AccessService/SearchResources"
-	// AccessServiceSearchSubjectsProcedure is the fully-qualified name of the AccessService's
-	// SearchSubjects RPC.
+	// AccessServiceSearchSubjectsProcedure is the procedure name of the AccessService's SearchSubjects
+	// RPC.
 	AccessServiceSearchSubjectsProcedure = "/m8.platform.access.v1.AccessService/SearchSubjects"
-	// AccessServiceSearchActionsProcedure is the fully-qualified name of the AccessService's
-	// SearchActions RPC.
+	// AccessServiceSearchActionsProcedure is the procedure name of the AccessService's SearchActions
+	// RPC.
 	AccessServiceSearchActionsProcedure = "/m8.platform.access.v1.AccessService/SearchActions"
-	// AccessServiceGetConfigurationProcedure is the fully-qualified name of the AccessService's
+	// AccessServiceGetConfigurationProcedure is the procedure name of the AccessService's
 	// GetConfiguration RPC.
 	AccessServiceGetConfigurationProcedure = "/m8.platform.access.v1.AccessService/GetConfiguration"
+)
+
+var (
+	accessServiceEvaluateAccessSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("EvaluateAccess"),
+			Procedure:  AccessServiceEvaluateAccessProcedure,
+		}
+	})
+	accessServiceEvaluateAccessBatchSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("EvaluateAccessBatch"),
+			Procedure:  AccessServiceEvaluateAccessBatchProcedure,
+		}
+	})
+	accessServiceSearchResourcesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("SearchResources"),
+			Procedure:  AccessServiceSearchResourcesProcedure,
+		}
+	})
+	accessServiceSearchSubjectsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("SearchSubjects"),
+			Procedure:  AccessServiceSearchSubjectsProcedure,
+		}
+	})
+	accessServiceSearchActionsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("SearchActions"),
+			Procedure:  AccessServiceSearchActionsProcedure,
+		}
+	})
+	accessServiceGetConfigurationSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods().ByName("GetConfiguration"),
+			Procedure:  AccessServiceGetConfigurationProcedure,
+		}
+	})
 )
 
 // AccessServiceClient is a client for the m8.platform.access.v1.AccessService service.
 type AccessServiceClient interface {
 	// Evaluates a single AuthZEN-compatible access decision.
-	EvaluateAccess(context.Context, *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error)
+	EvaluateAccess(context.Context, *v1.EvaluateAccessRequest) (*v1.EvaluateAccessResponse, error)
 	// Evaluates multiple AuthZEN-compatible access decisions in request order.
-	EvaluateAccessBatch(context.Context, *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error)
+	EvaluateAccessBatch(context.Context, *v1.EvaluateAccessBatchRequest) (*v1.EvaluateAccessBatchResponse, error)
 	// Searches resources the subject can access for the requested action.
-	SearchResources(context.Context, *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error)
+	SearchResources(context.Context, *v1.SearchResourcesRequest) (*v1.SearchResourcesResponse, error)
 	// Searches subjects that can perform the requested action on the resource.
-	SearchSubjects(context.Context, *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error)
+	SearchSubjects(context.Context, *v1.SearchSubjectsRequest) (*v1.SearchSubjectsResponse, error)
 	// Searches actions the subject can perform on the resource.
-	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
+	SearchActions(context.Context, *v1.SearchActionsRequest) (*v1.SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
+	GetConfiguration(context.Context, *v1.GetConfigurationRequest) (*v1.ConfigurationResponse, error)
 }
 
 // NewAccessServiceClient constructs a client for the m8.platform.access.v1.AccessService service.
-// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
-// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAccessServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AccessServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	accessServiceMethods := v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods()
-	return &accessServiceClient{
-		evaluateAccess: connect.NewClient[v1.EvaluateAccessRequest, v1.EvaluateAccessResponse](
-			httpClient,
-			baseURL+AccessServiceEvaluateAccessProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("EvaluateAccess")),
-			connect.WithClientOptions(opts...),
-		),
-		evaluateAccessBatch: connect.NewClient[v1.EvaluateAccessBatchRequest, v1.EvaluateAccessBatchResponse](
-			httpClient,
-			baseURL+AccessServiceEvaluateAccessBatchProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("EvaluateAccessBatch")),
-			connect.WithClientOptions(opts...),
-		),
-		searchResources: connect.NewClient[v1.SearchResourcesRequest, v1.SearchResourcesResponse](
-			httpClient,
-			baseURL+AccessServiceSearchResourcesProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("SearchResources")),
-			connect.WithClientOptions(opts...),
-		),
-		searchSubjects: connect.NewClient[v1.SearchSubjectsRequest, v1.SearchSubjectsResponse](
-			httpClient,
-			baseURL+AccessServiceSearchSubjectsProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("SearchSubjects")),
-			connect.WithClientOptions(opts...),
-		),
-		searchActions: connect.NewClient[v1.SearchActionsRequest, v1.SearchActionsResponse](
-			httpClient,
-			baseURL+AccessServiceSearchActionsProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("SearchActions")),
-			connect.WithClientOptions(opts...),
-		),
-		getConfiguration: connect.NewClient[v1.GetConfigurationRequest, v1.ConfigurationResponse](
-			httpClient,
-			baseURL+AccessServiceGetConfigurationProcedure,
-			connect.WithSchema(accessServiceMethods.ByName("GetConfiguration")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// accessServiceClient implements AccessServiceClient.
-type accessServiceClient struct {
-	evaluateAccess      *connect.Client[v1.EvaluateAccessRequest, v1.EvaluateAccessResponse]
-	evaluateAccessBatch *connect.Client[v1.EvaluateAccessBatchRequest, v1.EvaluateAccessBatchResponse]
-	searchResources     *connect.Client[v1.SearchResourcesRequest, v1.SearchResourcesResponse]
-	searchSubjects      *connect.Client[v1.SearchSubjectsRequest, v1.SearchSubjectsResponse]
-	searchActions       *connect.Client[v1.SearchActionsRequest, v1.SearchActionsResponse]
-	getConfiguration    *connect.Client[v1.GetConfigurationRequest, v1.ConfigurationResponse]
-}
-
-// EvaluateAccess calls m8.platform.access.v1.AccessService.EvaluateAccess.
-func (c *accessServiceClient) EvaluateAccess(ctx context.Context, req *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error) {
-	return c.evaluateAccess.CallUnary(ctx, req)
-}
-
-// EvaluateAccessBatch calls m8.platform.access.v1.AccessService.EvaluateAccessBatch.
-func (c *accessServiceClient) EvaluateAccessBatch(ctx context.Context, req *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error) {
-	return c.evaluateAccessBatch.CallUnary(ctx, req)
-}
-
-// SearchResources calls m8.platform.access.v1.AccessService.SearchResources.
-func (c *accessServiceClient) SearchResources(ctx context.Context, req *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error) {
-	return c.searchResources.CallUnary(ctx, req)
-}
-
-// SearchSubjects calls m8.platform.access.v1.AccessService.SearchSubjects.
-func (c *accessServiceClient) SearchSubjects(ctx context.Context, req *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error) {
-	return c.searchSubjects.CallUnary(ctx, req)
-}
-
-// SearchActions calls m8.platform.access.v1.AccessService.SearchActions.
-func (c *accessServiceClient) SearchActions(ctx context.Context, req *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error) {
-	return c.searchActions.CallUnary(ctx, req)
-}
-
-// GetConfiguration calls m8.platform.access.v1.AccessService.GetConfiguration.
-func (c *accessServiceClient) GetConfiguration(ctx context.Context, req *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error) {
-	return c.getConfiguration.CallUnary(ctx, req)
+// Multiple service clients may share a single connect.Client.
+func NewAccessServiceClient(client *connect.Client) AccessServiceClient {
+	return &accessServiceClient{client: client}
 }
 
 // AccessServiceHandler is an implementation of the m8.platform.access.v1.AccessService service.
 type AccessServiceHandler interface {
 	// Evaluates a single AuthZEN-compatible access decision.
-	EvaluateAccess(context.Context, *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error)
+	EvaluateAccess(context.Context, *v1.EvaluateAccessRequest) (*v1.EvaluateAccessResponse, error)
 	// Evaluates multiple AuthZEN-compatible access decisions in request order.
-	EvaluateAccessBatch(context.Context, *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error)
+	EvaluateAccessBatch(context.Context, *v1.EvaluateAccessBatchRequest) (*v1.EvaluateAccessBatchResponse, error)
 	// Searches resources the subject can access for the requested action.
-	SearchResources(context.Context, *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error)
+	SearchResources(context.Context, *v1.SearchResourcesRequest) (*v1.SearchResourcesResponse, error)
 	// Searches subjects that can perform the requested action on the resource.
-	SearchSubjects(context.Context, *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error)
+	SearchSubjects(context.Context, *v1.SearchSubjectsRequest) (*v1.SearchSubjectsResponse, error)
 	// Searches actions the subject can perform on the resource.
-	SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error)
+	SearchActions(context.Context, *v1.SearchActionsRequest) (*v1.SearchActionsResponse, error)
 	// Returns the AuthZEN discovery configuration for this Policy Decision Point.
-	GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error)
+	GetConfiguration(context.Context, *v1.GetConfigurationRequest) (*v1.ConfigurationResponse, error)
 }
 
-// NewAccessServiceHandler builds an HTTP handler from the service implementation. It returns the
-// path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAccessServiceHandler(svc AccessServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	accessServiceMethods := v1.File_m8_platform_access_v1_access_service_proto.Services().ByName("AccessService").Methods()
-	accessServiceEvaluateAccessHandler := connect.NewUnaryHandler(
-		AccessServiceEvaluateAccessProcedure,
-		svc.EvaluateAccess,
-		connect.WithSchema(accessServiceMethods.ByName("EvaluateAccess")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAccessServiceHandler registers svc as the m8.platform.access.v1.AccessService
+// implementation on server.
+func RegisterAccessServiceHandler(server *connect.Server, svc AccessServiceHandler) {
+	adapter := accessServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: accessServiceEvaluateAccessSpec(), Handler: adapter.evaluateAccess},
+		connect.Method{Spec: accessServiceEvaluateAccessBatchSpec(), Handler: adapter.evaluateAccessBatch},
+		connect.Method{Spec: accessServiceSearchResourcesSpec(), Handler: adapter.searchResources},
+		connect.Method{Spec: accessServiceSearchSubjectsSpec(), Handler: adapter.searchSubjects},
+		connect.Method{Spec: accessServiceSearchActionsSpec(), Handler: adapter.searchActions},
+		connect.Method{Spec: accessServiceGetConfigurationSpec(), Handler: adapter.getConfiguration},
 	)
-	accessServiceEvaluateAccessBatchHandler := connect.NewUnaryHandler(
-		AccessServiceEvaluateAccessBatchProcedure,
-		svc.EvaluateAccessBatch,
-		connect.WithSchema(accessServiceMethods.ByName("EvaluateAccessBatch")),
-		connect.WithHandlerOptions(opts...),
-	)
-	accessServiceSearchResourcesHandler := connect.NewUnaryHandler(
-		AccessServiceSearchResourcesProcedure,
-		svc.SearchResources,
-		connect.WithSchema(accessServiceMethods.ByName("SearchResources")),
-		connect.WithHandlerOptions(opts...),
-	)
-	accessServiceSearchSubjectsHandler := connect.NewUnaryHandler(
-		AccessServiceSearchSubjectsProcedure,
-		svc.SearchSubjects,
-		connect.WithSchema(accessServiceMethods.ByName("SearchSubjects")),
-		connect.WithHandlerOptions(opts...),
-	)
-	accessServiceSearchActionsHandler := connect.NewUnaryHandler(
-		AccessServiceSearchActionsProcedure,
-		svc.SearchActions,
-		connect.WithSchema(accessServiceMethods.ByName("SearchActions")),
-		connect.WithHandlerOptions(opts...),
-	)
-	accessServiceGetConfigurationHandler := connect.NewUnaryHandler(
-		AccessServiceGetConfigurationProcedure,
-		svc.GetConfiguration,
-		connect.WithSchema(accessServiceMethods.ByName("GetConfiguration")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/m8.platform.access.v1.AccessService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AccessServiceEvaluateAccessProcedure:
-			accessServiceEvaluateAccessHandler.ServeHTTP(w, r)
-		case AccessServiceEvaluateAccessBatchProcedure:
-			accessServiceEvaluateAccessBatchHandler.ServeHTTP(w, r)
-		case AccessServiceSearchResourcesProcedure:
-			accessServiceSearchResourcesHandler.ServeHTTP(w, r)
-		case AccessServiceSearchSubjectsProcedure:
-			accessServiceSearchSubjectsHandler.ServeHTTP(w, r)
-		case AccessServiceSearchActionsProcedure:
-			accessServiceSearchActionsHandler.ServeHTTP(w, r)
-		case AccessServiceGetConfigurationProcedure:
-			accessServiceGetConfigurationHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedAccessServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAccessServiceHandler struct{}
 
-func (UnimplementedAccessServiceHandler) EvaluateAccess(context.Context, *connect.Request[v1.EvaluateAccessRequest]) (*connect.Response[v1.EvaluateAccessResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.EvaluateAccess is not implemented"))
+func (UnimplementedAccessServiceHandler) EvaluateAccess(context.Context, *v1.EvaluateAccessRequest) (*v1.EvaluateAccessResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.EvaluateAccess is not implemented")
 }
 
-func (UnimplementedAccessServiceHandler) EvaluateAccessBatch(context.Context, *connect.Request[v1.EvaluateAccessBatchRequest]) (*connect.Response[v1.EvaluateAccessBatchResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.EvaluateAccessBatch is not implemented"))
+func (UnimplementedAccessServiceHandler) EvaluateAccessBatch(context.Context, *v1.EvaluateAccessBatchRequest) (*v1.EvaluateAccessBatchResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.EvaluateAccessBatch is not implemented")
 }
 
-func (UnimplementedAccessServiceHandler) SearchResources(context.Context, *connect.Request[v1.SearchResourcesRequest]) (*connect.Response[v1.SearchResourcesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.SearchResources is not implemented"))
+func (UnimplementedAccessServiceHandler) SearchResources(context.Context, *v1.SearchResourcesRequest) (*v1.SearchResourcesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.SearchResources is not implemented")
 }
 
-func (UnimplementedAccessServiceHandler) SearchSubjects(context.Context, *connect.Request[v1.SearchSubjectsRequest]) (*connect.Response[v1.SearchSubjectsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.SearchSubjects is not implemented"))
+func (UnimplementedAccessServiceHandler) SearchSubjects(context.Context, *v1.SearchSubjectsRequest) (*v1.SearchSubjectsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.SearchSubjects is not implemented")
 }
 
-func (UnimplementedAccessServiceHandler) SearchActions(context.Context, *connect.Request[v1.SearchActionsRequest]) (*connect.Response[v1.SearchActionsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.SearchActions is not implemented"))
+func (UnimplementedAccessServiceHandler) SearchActions(context.Context, *v1.SearchActionsRequest) (*v1.SearchActionsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.SearchActions is not implemented")
 }
 
-func (UnimplementedAccessServiceHandler) GetConfiguration(context.Context, *connect.Request[v1.GetConfigurationRequest]) (*connect.Response[v1.ConfigurationResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("m8.platform.access.v1.AccessService.GetConfiguration is not implemented"))
+func (UnimplementedAccessServiceHandler) GetConfiguration(context.Context, *v1.GetConfigurationRequest) (*v1.ConfigurationResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.access.v1.AccessService.GetConfiguration is not implemented")
+}
+
+type accessServiceClient struct {
+	client *connect.Client
+}
+
+func (c *accessServiceClient) EvaluateAccess(ctx context.Context, req *v1.EvaluateAccessRequest) (*v1.EvaluateAccessResponse, error) {
+	var res v1.EvaluateAccessResponse
+	if err := c.client.CallUnary(ctx, accessServiceEvaluateAccessSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accessServiceClient) EvaluateAccessBatch(ctx context.Context, req *v1.EvaluateAccessBatchRequest) (*v1.EvaluateAccessBatchResponse, error) {
+	var res v1.EvaluateAccessBatchResponse
+	if err := c.client.CallUnary(ctx, accessServiceEvaluateAccessBatchSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accessServiceClient) SearchResources(ctx context.Context, req *v1.SearchResourcesRequest) (*v1.SearchResourcesResponse, error) {
+	var res v1.SearchResourcesResponse
+	if err := c.client.CallUnary(ctx, accessServiceSearchResourcesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accessServiceClient) SearchSubjects(ctx context.Context, req *v1.SearchSubjectsRequest) (*v1.SearchSubjectsResponse, error) {
+	var res v1.SearchSubjectsResponse
+	if err := c.client.CallUnary(ctx, accessServiceSearchSubjectsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accessServiceClient) SearchActions(ctx context.Context, req *v1.SearchActionsRequest) (*v1.SearchActionsResponse, error) {
+	var res v1.SearchActionsResponse
+	if err := c.client.CallUnary(ctx, accessServiceSearchActionsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *accessServiceClient) GetConfiguration(ctx context.Context, req *v1.GetConfigurationRequest) (*v1.ConfigurationResponse, error) {
+	var res v1.ConfigurationResponse
+	if err := c.client.CallUnary(ctx, accessServiceGetConfigurationSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type accessServiceHandler struct{ svc AccessServiceHandler }
+
+func (h accessServiceHandler) evaluateAccess(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.EvaluateAccessRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.EvaluateAccess(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accessServiceHandler) evaluateAccessBatch(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.EvaluateAccessBatchRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.EvaluateAccessBatch(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accessServiceHandler) searchResources(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SearchResourcesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SearchResources(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accessServiceHandler) searchSubjects(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SearchSubjectsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SearchSubjects(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accessServiceHandler) searchActions(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SearchActionsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SearchActions(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h accessServiceHandler) getConfiguration(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetConfigurationRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetConfiguration(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

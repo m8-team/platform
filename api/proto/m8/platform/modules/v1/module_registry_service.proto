@@ -7,7 +7,7 @@ option go_package = "github.com/m8-team/go-genproto/m8/platform/modules/v1;modul
 
 service ModuleRegistryService {
   rpc RegisterModule(RegisterModuleRequest) returns (ModuleDefinition) {
-    option (google.api.http) = {post: "/modules/v1/definitions" body: "module"};
+    option (google.api.http) = {post: "/modules/v1/definitions" body: "*"};
   }
   rpc GetModule(GetModuleRequest) returns (ModuleDefinition) {
     option (google.api.http) = {get: "/modules/v1/definitions/{id}"};
@@ -19,13 +19,13 @@ service ModuleRegistryService {
     option (google.api.http) = {get: "/modules/v1/installations"};
   }
   rpc PublishModuleVersion(PublishModuleVersionRequest) returns (ModuleVersion) {
-    option (google.api.http) = {post: "/modules/v1/versions" body: "version"};
+    option (google.api.http) = {post: "/modules/v1/versions" body: "*"};
   }
   rpc GrantModuleEntitlement(GrantModuleEntitlementRequest) returns (ModuleEntitlement) {
-    option (google.api.http) = {post: "/modules/v1/entitlements" body: "entitlement"};
+    option (google.api.http) = {post: "/modules/v1/entitlements" body: "*"};
   }
   rpc InstallModule(InstallModuleRequest) returns (ModuleInstallation) {
-    option (google.api.http) = {post: "/modules/v1/installations" body: "installation"};
+    option (google.api.http) = {post: "/modules/v1/installations" body: "*"};
   }
   rpc GetModuleInstallation(GetModuleInstallationRequest) returns (ModuleInstallation) {
     option (google.api.http) = {get: "/modules/v1/installations/{id}"};
