@@ -128,3 +128,41 @@ func (s *Store) SetBinding(resource Owner,environmentID,version,config string)(B
  for _,b:=range s.bindings{if b.Resource==resource&&b.EnvironmentID==environmentID{b.Version=version;b.ConfigRef=config;b.Revision++;s.bindings[b.ID]=b;return b,nil}}
  bid,err:=newID();if err!=nil{return Binding{},err};b:=Binding{ID:bid,Resource:resource,EnvironmentID:environmentID,Version:version,ConfigRef:config,Revision:1};s.bindings[bid]=b;return b,nil
 }
+
+func (s *Store) RemoveGroupLink(groupID,orgID string)error{
+ s.mu.Lock();defer s.mu.Unlock()
+ k:=groupID+":"+orgID
+ if !s.links[k]{return ErrNotFound}
+ delete(s.links,k)
+ return nil
+}
+func (s *Store) ListGroupOrganizations(groupID string)([]string,error){
+ s.mu.RLock();defer s.mu.RUnlock()
+ if _,ok:=s.objects[key(Group,groupID)];!ok{return nil,ErrNotFound}
+ out:=[]string{}
+ prefix:=groupID+":"
+ for k:=range s.links{if strings.HasPrefix(k,prefix){out=append(out,strings.TrimPrefix(k,prefix))}}
+ sort.Strings(out)
+ return out,nil
+}
+func (s *Store) RemoveBinding(id string,revision int64)error{
+ s.mu.Lock();defer s.mu.Unlock()
+ b,ok:=s.bindings[id]
+ if !ok{return ErrNotFound}
+ if revision<=0{return ErrInvalid}
+ if b.Revision!=revision{return ErrConflict}
+ delete(s.bindings,id)
+ return nil
+}
+func (s *Store) ListBindings(resource Owner,environmentID string)([]Binding,error){
+ s.mu.RLock();defer s.mu.RUnlock()
+ if resource.ID=="" && environmentID=="" {return nil,fmt.Errorf("%w: require resource or environment scope",ErrInvalid)}
+ out:=[]Binding{}
+ for _,b:=range s.bindings{
+  if resource.ID!="" && b.Resource!=resource{continue}
+  if environmentID!="" && b.EnvironmentID!=environmentID{continue}
+  out=append(out,b)
+ }
+ sort.Slice(out,func(i,j int)bool{return out[i].ID<out[j].ID})
+ return out,nil
+}
