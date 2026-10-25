@@ -1,43 +1,26 @@
 package grpcadapter
 
 import (
-	"github.com/google/uuid"
-	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
-	"go.uber.org/fx"
-	"google.golang.org/grpc"
+ pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+ "github.com/m8-team/platform/internal/resourcemanager/v1engine"
+ grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
+ "go.uber.org/fx"
+ "google.golang.org/grpc"
 )
 
-func Module() fx.Option {
-	return fx.Module(
-		"resource-manager-organization-grpc",
-		fx.Provide(newOperationIDGenerator),
-		fx.Provide(NewOrganizationServer),
-		fx.Provide(asOrganizationServiceServer),
-		fx.Provide(fx.Annotate(
-			newRegistration,
-			fx.ResultTags(grpcserver.RegistrationResultTag),
-		)),
-	)
+// Register the new canonical v1 service, not the retired OrganizationService.
+func Module()fx.Option{
+ return fx.Module("resource-manager-v1-grpc",
+  fx.Provide(v1engine.NewStore),
+  fx.Provide(NewResourceServer),
+  fx.Provide(asV1ServiceServer),
+  fx.Provide(fx.Annotate(newRegistration,fx.ResultTags(grpcserver.RegistrationResultTag))),
+ )
 }
-
-func asOrganizationServiceServer(server *OrganizationServer) resourcemanagerpb.OrganizationServiceServer {
-	return server
-}
-
-type uuidOperationIDGenerator struct{}
-
-func newOperationIDGenerator() OperationIDGenerator {
-	return uuidOperationIDGenerator{}
-}
-
-func (uuidOperationIDGenerator) NewOperationID() string {
-	return uuid.NewString()
-}
-
-func newRegistration(server *OrganizationServer) grpcserver.Registration {
-	return func(registrar grpc.ServiceRegistrar) error {
-		resourcemanagerpb.RegisterOrganizationServiceServer(registrar, server)
-		return nil
-	}
+func asV1ServiceServer(server *ResourceServer)pb.ResourceManagerServiceServer{return server}
+func newRegistration(server *ResourceServer)grpcserver.Registration{
+ return func(registrar grpc.ServiceRegistrar)error{
+  pb.RegisterResourceManagerServiceServer(registrar,server)
+  return nil
+ }
 }
