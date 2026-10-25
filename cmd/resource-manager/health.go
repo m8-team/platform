@@ -56,10 +56,10 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 }
 
 func newResourceManagerHTTPHandler(
-	organizationServer resourcemanagerpb.OrganizationServiceServer,
+	resourceServer resourcemanagerpb.ResourceManagerServiceServer,
 ) (resourceManagerHTTPHandler, error) {
-	if organizationServer == nil {
-		return resourceManagerHTTPHandler{}, errors.New("organization HTTP service is required")
+	if resourceServer == nil {
+		return resourceManagerHTTPHandler{}, errors.New("resource manager HTTP service is required")
 	}
 
 	gateway := runtime.NewServeMux(
@@ -72,12 +72,12 @@ func newResourceManagerHTTPHandler(
 			},
 		}),
 	)
-	if err := resourcemanagerpb.RegisterOrganizationServiceHandlerServer(
+	if err := resourcemanagerpb.RegisterResourceManagerServiceHandlerServer(
 		context.Background(),
 		gateway,
-		organizationServer,
+		resourceServer,
 	); err != nil {
-		return resourceManagerHTTPHandler{}, fmt.Errorf("register organization HTTP gateway: %w", err)
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register resource manager HTTP gateway: %w", err)
 	}
 
 	return resourceManagerHTTPHandler{Handler: gateway}, nil
