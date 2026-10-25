@@ -1,0 +1,13 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+import "google/api/field_behavior.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Project may belong directly to an Organization or to a Workspace.
+// A move is an explicit authorized transaction (never an ordinary update).
+message Project {
+  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  OwnerScope owner = 2 [(google.api.field_behavior) = REQUIRED];
+  string owning_organization_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
