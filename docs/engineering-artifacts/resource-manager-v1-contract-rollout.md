@@ -68,3 +68,11 @@ The old version is deliberately discarded. `v1` now means **Tenant + Organizatio
 ## Known limitations of this contract PR
 
 The branch provides protobuf source contracts and a domain placement skeleton; **none of the new RPCs are yet registered as a running gRPC server**. Full regeneration and full Go repository tests require a connected build environment. This branch should remain draft until the gates above pass.
+
+## Additional canonical contracts
+
+- `api/proto/m8/platform/modules/v1/module.proto` / `module_registry_service.proto`: tenant entitlements and scope-aware module installation.
+- `api/proto/m8/platform/resourcemanager/v1/resource_events.proto`: Resource, Group affiliation and EnvironmentBinding events.
+- `api/proto/m8/platform/access/v1/access_grant_events.proto`: grant lifecycle events.
+
+Before merging, align Module Registry implementation and Kafka event catalogs with these new sources.
