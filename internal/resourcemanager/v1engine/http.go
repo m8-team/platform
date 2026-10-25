@@ -46,13 +46,40 @@ func parseRecord(raw json.RawMessage)(Record,error){
  default:}
  return r,nil
 }
-func payload(r Record) any{m:=map[string]any{"id":r.ID,"name":r.Name,"description":r.Description,"state":r.State,"revision":r.Revision,"createTime":r.CreatedAt,"updateTime":r.UpdatedAt};owner:=map[string]string{};if r.Owner.Kind!=""{owner[string(r.Owner.Kind)+"Id"]=r.Owner.ID};return map[string]any{"kind":r.Kind,"metadata":m,"owner":owner,"tenantId":r.TenantID,"owningOrganizationId":r.OrganizationID,"key":r.EnvironmentKey}}
+func payload(r Record) any{
+ m:=map[string]any{"id":r.ID,"name":r.Name,"description":r.Description,"state":"RESOURCE_STATE_"+r.State,"revision":r.Revision,"createTime":r.CreatedAt,"updateTime":r.UpdatedAt}
+ v:=map[string]any{"metadata":m}
+ owner:=map[string]string{}
+ switch r.Owner.Kind {
+ case Tenant:owner["tenantId"]=r.Owner.ID
+ case Organization:owner["organizationId"]=r.Owner.ID
+ case Workspace:owner["workspaceId"]=r.Owner.ID
+ case Project:owner["projectId"]=r.Owner.ID
+ }
+ var variant string
+ switch r.Kind{
+ case Tenant:variant="tenant"
+ case Group:variant="group";v["tenantId"]=r.TenantID
+ case Organization:variant="organization";v["tenantId"]=r.TenantID
+ case Workspace:variant="workspace";v["organizationId"]=r.OrganizationID
+ case Project:variant="project";v["owner"]=owner;v["owningOrganizationId"]=r.OrganizationID
+ case Environment:
+  variant="environment";v["organizationId"]=r.OrganizationID;v["key"]=r.EnvironmentKey
+  label:=strings.ToUpper(r.EnvironmentKey);switch label{case "PROD":label="PRODUCTION";case "DEV":label="DEVELOPMENT";case "TEST":label="TESTING"}
+  switch label{case "PRODUCTION","STAGING","DEVELOPMENT","TESTING","PREVIEW":v["kind"]="ENVIRONMENT_KIND_"+label;default:v["kind"]="ENVIRONMENT_KIND_CUSTOM"}
+  v["isolation"]="ISOLATION_PROFILE_LOGICAL"
+ case WorkloadService:variant="workloadService";v["owner"]=owner;v["owningOrganizationId"]=r.OrganizationID
+ case Descriptor:variant="descriptor";v["owner"]=owner;v["owningOrganizationId"]=r.OrganizationID
+ default:return nil
+ }
+ return map[string]any{variant:v}
+}
 func (h *Handler) create(w http.ResponseWriter,r *http.Request){var req createRequest;if e:=decode(r,&req);e!=nil{failure(w,ErrInvalid);return};rec,e:=parseRecord(req.Resource);if e!=nil{failure(w,e);return};created,e:=h.Store.Create(rec,req.IdempotencyKey);if e!=nil{failure(w,e);return};respond(w,201,payload(created))}
 func (h *Handler) list(w http.ResponseWriter,r *http.Request){items,e:=h.Store.List(Kind(r.URL.Query().Get("kind")),r.URL.Query().Get("organizationId"));if e!=nil{failure(w,e);return};out:=[]any{};for _,it:=range items{out=append(out,payload(it))};respond(w,200,map[string]any{"resources":out})}
 func splitRef(v string)(Kind,string,bool){p:=strings.Split(v,"/");if len(p)!=2||p[0]==""||p[1]==""{return "","",false};return Kind(p[0]),p[1],true}
 func (h *Handler) get(w http.ResponseWriter,r *http.Request,part string){if strings.HasSuffix(part,":resolveScope"){k,id,ok:=splitRef(strings.TrimSuffix(part,":resolveScope"));if !ok{failure(w,ErrInvalid);return};anc,e:=h.Store.Resolve(k,id);if e!=nil{failure(w,e);return};respond(w,200,map[string]any{"ancestry":anc});return};k,id,ok:=splitRef(part);if !ok{failure(w,ErrInvalid);return};o,e:=h.Store.Get(k,id);if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
-func (h *Handler) update(w http.ResponseWriter,r *http.Request,part string){var req struct{Kind Kind `json:"kind"`;Metadata metadataInput `json:"metadata"`;ExpectedRevision int64 `json:"expectedRevision"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};o,e:=h.Store.Update(req.Kind,part,req.ExpectedRevision,req.Metadata.Name,req.Metadata.Description);if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
-func (h *Handler) state(w http.ResponseWriter,r *http.Request,id string){var req struct{Kind Kind `json:"kind"`;TargetState string `json:"targetState"`;ExpectedRevision int64 `json:"expectedRevision"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};o,e:=h.Store.ChangeState(req.Kind,id,req.ExpectedRevision,req.TargetState);if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
+func (h *Handler) update(w http.ResponseWriter,r *http.Request,part string){var req struct{Resource json.RawMessage `json:"resource"`;ExpectedRevision int64 `json:"expectedRevision"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};rec,e:=parseRecord(req.Resource);if e!=nil{failure(w,e);return};o,e:=h.Store.Update(rec.Kind,part,req.ExpectedRevision,rec.Name,rec.Description);if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
+func (h *Handler) state(w http.ResponseWriter,r *http.Request,id string){var req struct{Kind Kind `json:"kind"`;TargetState string `json:"targetState"`;ExpectedRevision int64 `json:"expectedRevision"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};o,e:=h.Store.ChangeState(req.Kind,id,req.ExpectedRevision,strings.TrimPrefix(req.TargetState,"RESOURCE_STATE_"));if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
 func (h *Handler) move(w http.ResponseWriter,r *http.Request,id string){var req struct{NewOwner map[string]string `json:"newOwner"`;ExpectedRevision int64 `json:"expectedRevision"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};var owner Owner;for k,v:=range req.NewOwner{switch k{case "organizationId":owner=Owner{Organization,v};case "workspaceId":owner=Owner{Workspace,v};default:failure(w,ErrInvalid);return}};o,e:=h.Store.MoveProject(id,owner,req.ExpectedRevision);if e!=nil{failure(w,e);return};respond(w,200,payload(o))}
 func (h *Handler) group(w http.ResponseWriter,r *http.Request){var req struct{GroupID string `json:"groupId"`;OrganizationID string `json:"organizationId"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};if err:=h.Store.SetGroupLink(req.GroupID,req.OrganizationID);err!=nil{failure(w,err);return};respond(w,200,map[string]any{"groupId":req.GroupID,"organizationId":req.OrganizationID})}
 func (h *Handler) binding(w http.ResponseWriter,r *http.Request){var req struct{Resource map[string]string `json:"resource"`;EnvironmentID string `json:"environmentId"`;VersionRef string `json:"versionRef"`;ConfigurationRef string `json:"configurationRef"`};if decode(r,&req)!=nil{failure(w,ErrInvalid);return};k,id:=Kind(req.Resource["kind"]),req.Resource["id"];b,e:=h.Store.SetBinding(Owner{k,id},req.EnvironmentID,req.VersionRef,req.ConfigurationRef);if e!=nil{failure(w,e);return};respond(w,200,b)}
