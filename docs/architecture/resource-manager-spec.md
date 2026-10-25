@@ -107,3 +107,13 @@ The old `OrganizationService`, `WorkspaceService`, `ServiceService` and immutabl
 - Revocation or expiry blocks the next access check even if the workflow continues.
 - Cross-tenant service agreements are references, never parent-child scope edges.
 - All API responses are authorization scoped; no information leaks via enumeration/pagination.
+
+## 10. Module catalog and installation
+
+`ModuleRegistry` owns `ModuleDefinition`, immutable `ModuleVersion`, Tenant-scoped `ModuleEntitlement`, and `ModuleInstallation` at an Organization/Workspace/Project scope. The module remains the owner of its business objects. An entitlement means the tenant may install the module, **not** that all users gain rights. Installations require an active entitlement, kind-aware placement and Access permissions. Per-environment rollout is handled through the declared EnvironmentBinding and Delivery workflows, not by duplicating ModuleDefinitions.
+
+Contract: `api/proto/m8/platform/modules/v1/module.proto` and `module_registry_service.proto`.
+
+## 11. Domain events
+
+Resource Manager emits `ResourceChangedEvent`, `GroupAffiliationChangedEvent` and `EnvironmentBindingChangedEvent`; Access emits `AccessGrantChangedEvent`. Event envelopes carry actor, source resource/organization, revision, correlation and idempotency metadata. Events contain no credentials or PII beyond minimal audited identifiers. Outbox, publication and consumer idempotency must be implemented with the corresponding running services.
