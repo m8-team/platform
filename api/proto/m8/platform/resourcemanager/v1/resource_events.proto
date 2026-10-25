@@ -1,0 +1,54 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+import "google/protobuf/timestamp.proto";
+import "m8/platform/common/extension/v1/extension.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+import "m8/platform/resourcemanager/v1/resource_manager_service.proto";
+import "m8/platform/resourcemanager/v1/group.proto";
+import "m8/platform/resourcemanager/v1/environment.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Published transactionally with mutations via Resource Manager outbox.
+// Consumers use event_id + revision for idempotency and ordering.
+message ResourceEventMetadata {
+  string event_id = 1;
+  string event_type = 2; // stable name e.g. m8.resource_manager.resource_changed
+  uint32 event_version = 3;
+  string tenant_id = 4;
+  string organization_id = 5; // server-derived when applicable
+  ResourceRef resource = 6;
+  int64 aggregate_revision = 7;
+  google.protobuf.Timestamp occurred_at = 8;
+  string actor_principal_id = 9;
+  string correlation_id = 10;
+  string causation_id = 11;
+  string idempotency_key = 12;
+}
+enum ResourceChangeKind {
+  RESOURCE_CHANGE_KIND_UNSPECIFIED = 0;
+  RESOURCE_CHANGE_KIND_CREATED = 1;
+  RESOURCE_CHANGE_KIND_UPDATED = 2;
+  RESOURCE_CHANGE_KIND_SUSPENDED = 3;
+  RESOURCE_CHANGE_KIND_RESTORED = 4;
+  RESOURCE_CHANGE_KIND_ARCHIVED = 5;
+  RESOURCE_CHANGE_KIND_DELETED = 6;
+  RESOURCE_CHANGE_KIND_MOVED = 7;
+}
+message ResourceChangedEvent {
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.resource-manager.resources.v1";
+  ResourceEventMetadata metadata = 1;
+  ResourceChangeKind change = 2;
+  ResourceRecord resource_after = 3; // optional on delete; omit sensitive fields
+}
+message GroupAffiliationChangedEvent {
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.resource-manager.affiliations.v1";
+  ResourceEventMetadata metadata = 1;
+  GroupOrganizationLink link = 2;
+  bool affiliated = 3;
+}
+message EnvironmentBindingChangedEvent {
+  option (m8.platform.common.extension.v1.topic) = "m8.platform.resource-manager.environment-bindings.v1";
+  ResourceEventMetadata metadata = 1;
+  EnvironmentBinding binding = 2;
+  bool removed = 3;
+}
