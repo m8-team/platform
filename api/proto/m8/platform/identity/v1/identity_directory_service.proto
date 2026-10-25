@@ -1,0 +1,56 @@
+syntax = "proto3";
+package m8.platform.identity.v1;
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/identity/v1/principal.proto";
+option go_package = "github.com/m8-team/go-genproto/m8/platform/identity/v1;identity";
+
+// Membership is optional for access; external principals may use AccessGrant.
+service IdentityDirectoryService {
+  rpc RegisterPrincipal(RegisterPrincipalRequest) returns (Principal) {
+    option (google.api.http) = {post: "/identity/v1/principals" body: "principal"};
+  }
+  rpc GetPrincipal(GetPrincipalRequest) returns (Principal) {
+    option (google.api.http) = {get: "/identity/v1/principals/{id}"};
+  }
+  rpc LinkExternalIdentity(LinkExternalIdentityRequest) returns (ExternalIdentity) {
+    option (google.api.http) = {post: "/identity/v1/external-identities" body: "*"};
+  }
+  rpc CreateMembership(CreateMembershipRequest) returns (OrganizationMembership) {
+    option (google.api.http) = {post: "/identity/v1/memberships" body: "membership"};
+  }
+  rpc RevokeMembership(RevokeMembershipRequest) returns (OrganizationMembership) {
+    option (google.api.http) = {post: "/identity/v1/memberships/{id}:revoke" body: "*"};
+  }
+  rpc ListMemberships(ListMembershipsRequest) returns (ListMembershipsResponse) {
+    option (google.api.http) = {get: "/identity/v1/memberships"};
+  }
+}
+message RegisterPrincipalRequest {
+  Principal principal = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetPrincipalRequest { string id = 1 [(google.api.field_behavior) = REQUIRED]; }
+message LinkExternalIdentityRequest {
+  ExternalIdentity identity = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message CreateMembershipRequest {
+  OrganizationMembership membership = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message RevokeMembershipRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string reason = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+message ListMembershipsRequest {
+  string principal_id = 1;
+  string organization_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListMembershipsResponse {
+  repeated OrganizationMembership memberships = 1;
+  string next_page_token = 2;
+}
