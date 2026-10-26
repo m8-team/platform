@@ -1,0 +1,76 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/org_unit.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Read-only org hierarchy API. Mutations require approved ChangeSets (later slice).
+service OrgStructureService {
+  rpc GetOrgUnit(GetOrgUnitRequest) returns (OrgUnit) {
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}"};
+  }
+  rpc ListOrgUnits(ListOrgUnitsRequest) returns (ListOrgUnitsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units"};
+  }
+  rpc ListOrgUnitAncestors(ListOrgUnitAncestorsRequest) returns (ListOrgUnitAncestorsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:ancestors"};
+  }
+  rpc ListOrgUnitDescendants(ListOrgUnitDescendantsRequest) returns (ListOrgUnitDescendantsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants"};
+  }
+  rpc ListOrgUnitVersions(ListOrgUnitVersionsRequest) returns (ListOrgUnitVersionsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:history"};
+  }
+}
+
+message GetOrgUnitRequest {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListOrgUnitsRequest {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+message ListOrgUnitsResponse {
+  repeated OrgUnit org_units = 1;
+  string next_page_token = 2;
+  int64 structure_revision = 3;
+}
+message ListOrgUnitAncestorsRequest {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 structure_revision = 3;
+}
+message ListOrgUnitAncestorsResponse {
+  repeated OrgUnitAncestor ancestors = 1;
+  int64 structure_revision = 2;
+}
+message ListOrgUnitDescendantsRequest {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 structure_revision = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+message ListOrgUnitDescendantsResponse {
+  repeated OrgUnitAncestor descendants = 1;
+  string next_page_token = 2;
+  int64 structure_revision = 3;
+}
+message ListOrgUnitVersionsRequest {
+  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_at = 3;
+  google.protobuf.Timestamp known_at = 4;
+  int32 page_size = 5;
+  string page_token = 6;
+}
+message ListOrgUnitVersionsResponse {
+  repeated OrgUnitVersion versions = 1;
+  string next_page_token = 2;
+}

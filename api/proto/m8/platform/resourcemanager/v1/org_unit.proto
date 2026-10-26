@@ -1,0 +1,64 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// OrgUnit has stable identity independent of its parent or display name.
+// Person, OrganizationMembership and OrgUnitAssignment belong to Identity.
+message OrgUnit {
+  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string organization_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string parent_org_unit_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string code = 5;
+  string kind = 6;
+  OrgUnitState lifecycle_state = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  OrgUnitManagementMode management_mode = 8;
+  string authoritative_source_id = 9;
+  int64 structure_revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+enum OrgUnitState {
+  ORG_UNIT_STATE_UNSPECIFIED = 0;
+  ORG_UNIT_STATE_PLANNED = 1;
+  ORG_UNIT_STATE_ACTIVE = 2;
+  ORG_UNIT_STATE_CLOSED = 3;
+}
+
+enum OrgUnitManagementMode {
+  ORG_UNIT_MANAGEMENT_MODE_UNSPECIFIED = 0;
+  ORG_UNIT_MANAGEMENT_MODE_MANUAL = 1;
+  ORG_UNIT_MANAGEMENT_MODE_EXTERNAL = 2;
+}
+
+// [valid_from, valid_to) is effective time.
+// [recorded_from, recorded_to) is knowledge time.
+message OrgUnitVersion {
+  string org_unit_id = 1;
+  string organization_id = 2;
+  string display_name = 3;
+  string parent_org_unit_id = 4;
+  OrgUnitState lifecycle_state = 5;
+  google.protobuf.Timestamp valid_from = 6;
+  google.protobuf.Timestamp valid_to = 7;
+  google.protobuf.Timestamp recorded_from = 8;
+  google.protobuf.Timestamp recorded_to = 9;
+  string source_revision = 10;
+}
+
+// Read-only closure edge. Never expose closure writes.
+message OrgUnitAncestor {
+  string org_unit_id = 1;
+  int32 depth = 2;
+}
+
+message OrgStructureRevision {
+  string organization_id = 1;
+  int64 revision = 2;
+  google.protobuf.Timestamp published_at = 3;
+}
