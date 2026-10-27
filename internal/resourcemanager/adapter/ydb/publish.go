@@ -149,7 +149,7 @@ func (s *Store) Commit(ctx context.Context, r orgstructure.CommitRequest) (orgst
  staged_snapshot_id,request_hash,status,effective_at,recorded_at,changes,created_at,updated_at)
  VALUES ($tenant,$org,$id,IF($source != '', $source),$base,$next,$snap,$hash,'APPLIED',
  $effective,$recorded,Unwrap(CAST($changes AS JsonDocument)),$recorded,$recorded);`),
-		sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", r.Plan.ID), sql.Named("source", r.Plan.SourceID), sql.Named("base", r.Plan.ExpectedRevision), sql.Named("next", after.Revision), sql.Named("snap", nextSnapshot), sql.Named("hash", r.RequestHash), sql.Named("effective", r.Plan.EffectiveAt), sql.Named("recorded", r.Plan.RecordedAt), sql.Named("changes", string(changes)))
+		sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", r.Plan.ID), sql.Named("source", r.Plan.SourceID), sql.Named("base", r.Plan.ExpectedRevision), sql.Named("next", after.Revision), sql.Named("snap", nextSnapshot), sql.Named("hash", []byte(r.RequestHash)), sql.Named("effective", r.Plan.EffectiveAt), sql.Named("recorded", r.Plan.RecordedAt), sql.Named("changes", string(changes)))
 	if e != nil {
 		return orgstructure.Result{}, e
 	}
