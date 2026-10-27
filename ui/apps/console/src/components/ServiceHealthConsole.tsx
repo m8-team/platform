@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {ArrowRotateRight, Xmark} from '@gravity-ui/icons'
-import {Accordion, Button, DefinitionList, Icon, Label, Text} from '@gravity-ui/uikit'
+import {Button, DefinitionList, Icon, Label, Text} from '@gravity-ui/uikit'
 
 import {JsonPreview} from './JsonPreview'
 import type {Translate, TranslationKey} from '../i18n'
@@ -48,7 +48,7 @@ function formatTime(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
 }
 
-/** Services use API Debug's compact summary/detail presentation. */
+/** Services retain API Debug's compact expandable summary. Probes are a DefinitionList. */
 function ServiceHealthItem({service, probes, t}: {
   service: MonitoredService
   probes?: ServiceProbeResults
@@ -64,126 +64,128 @@ function ServiceHealthItem({service, probes, t}: {
       open={expanded}
       onToggle={(event) => setExpanded(event.currentTarget.open)}
     >
-      <summary className="m8-request-console__summary">
-        <span className="m8-mono">{service.id}</span>
+      <summary className="m8-request-console__summary m8-health-service__summary">
         <Text ellipsis>{service.name}</Text>
         <StatusLabel status={status} t={t} />
       </summary>
       {expanded ? (
         <div className="m8-health-service__details">
-          <Text variant="caption-2" color="secondary">
-            {t('health.overallReadiness')}
-            {readiness?.snapshot
-              ? ' · ' + t('health.lastChecked') + ': ' + formatTime(readiness.snapshot.checked_at)
-              : ''}
-          </Text>
           <Text variant="caption-2" color="secondary" className="m8-health-service__url">
-            {service.baseUrl}
+            {service.id} · {service.baseUrl}
           </Text>
-          <Accordion className="m8-health-service__probes" size="m" view="solid" multiple>
+          <DefinitionList
+            className="m8-health-service__probes"
+            direction="horizontal"
+            nameMaxWidth={210}
+          >
             {healthProbes.map((probe) => {
               const result = probes?.[probe.path]
               const probeStatus: HealthDisplayStatus = result?.status ?? 'CHECKING'
+              const checkedAt = result?.snapshot?.checked_at ?? result?.checkedAt
 
               return (
-                <Accordion.Item
+                <DefinitionList.Item
                   key={probe.path}
-                  value={probe.path}
-                  className="m8-health-probe"
-                  summary={
-                    <div className="m8-health-probe__heading">
-                      <div className="m8-health-probe__title">
-                        <Text variant="body-2">{t(probe.titleKey)}</Text>
-                        <Text variant="caption-2" color="secondary">{probe.path}</Text>
-                      </div>
+                  name={
+                    <div className="m8-health-probe__term">
+                      <Text variant="body-2">{t(probe.titleKey)}</Text>
                       <StatusLabel status={probeStatus} t={t} />
                     </div>
                   }
                 >
-                  <ProbeDetails probe={probe} result={result} t={t} />
-                </Accordion.Item>
+                  <div className="m8-health-probe__value">
+                    <Text variant="caption-2" color="secondary" className="m8-health-probe__time">
+                      {checkedAt ? formatTime(checkedAt) : '—'}
+                    </Text>
+                    <ProbeDetails result={result} t={t} />
+                  </div>
+                </DefinitionList.Item>
               )
             })}
-          </Accordion>
+          </DefinitionList>
         </div>
       ) : null}
     </details>
   )
 }
 
-function ProbeDetails({probe, result, t}: {
-  probe: (typeof healthProbes)[number]
+/** Diagnostic metadata follows the same DefinitionList pattern as API Debug. */
+function ProbeDetails({result, t}: {
   result?: HealthProbeResult
   t: Translate
 }) {
   return (
-      <DefinitionList
-        className="m8-request-console__definitions m8-health-probe__definitions"
-        direction="horizontal"
-        nameMaxWidth={145}
-        aria-label={t(probe.titleKey)}
-      >
-        <DefinitionList.Item name={t('health.responseStatus')}>
-          {result?.httpStatus === undefined ? '—' : 'HTTP ' + result.httpStatus}
+    <DefinitionList
+      className="m8-request-console__definitions m8-health-probe__definitions"
+      direction="horizontal"
+      nameMaxWidth={135}
+    >
+      <DefinitionList.Item name={t('requestConsole.responseStatus')}>
+        <ResponseStatusLabel result={result} t={t} />
+      </DefinitionList.Item>
+      <DefinitionList.Item name={t('requestConsole.duration')}>
+        {result ? result.durationMs + ' ' + t('health.milliseconds') : '—'}
+      </DefinitionList.Item>
+      {result?.error ? (
+        <DefinitionList.Item name={t('health.transportError')}>
+          <Text color="danger" className="m8-health-probe__error">{result.error}</Text>
         </DefinitionList.Item>
-        <DefinitionList.Item name={t('health.duration')}>
-          {result ? result.durationMs + ' ' + t('health.milliseconds') : '—'}
-        </DefinitionList.Item>
-        <DefinitionList.Item name={t('health.lastChecked')}>
-          {result ? formatTime(result.snapshot?.checked_at ?? result.checkedAt) : '—'}
-        </DefinitionList.Item>
-        {result?.error ? (
-          <DefinitionList.Item name={t('health.transportError')}>
-            <Text color="danger" className="m8-health-probe__error">{result.error}</Text>
-          </DefinitionList.Item>
-        ) : null}
-        <DefinitionList.Item name={t('health.checks')}>
-          {result?.snapshot?.results?.length ? (
-            <div className="m8-health-probe__checks">
-              {result.snapshot.results.map((check, index) => (
-                <div className="m8-health-probe__check" key={check.name + '-' + index}>
-                  <div className="m8-health-probe__check-heading">
-                    <Text variant="body-2">{check.name}</Text>
-                    <StatusLabel status={check.status} t={t} />
-                  </div>
-                  {check.target ? (
-                    <Text variant="caption-2" color="secondary">
-                      {[check.target.module, check.target.kind, check.target.name].filter(Boolean).join(' · ')}
-                    </Text>
-                  ) : null}
-                  <Text variant="caption-2" color="secondary">
-                    {check.criticality === 'REQUIRED'
-                      ? t('health.required')
-                      : check.criticality === 'OPTIONAL'
-                        ? t('health.optional')
-                        : ''}
-                    {typeof check.latency === 'number'
-                      ? ' · ' + (check.latency / 1_000_000).toFixed(1) + ' ' + t('health.milliseconds')
-                      : ''}
-                  </Text>
-                  {check.message ? <Text variant="caption-2">{check.message}</Text> : null}
-                  {check.error ? <Text variant="caption-2" color="danger">{check.error}</Text> : null}
+      ) : null}
+      <DefinitionList.Item name={t('health.checks')}>
+        {result?.snapshot?.results?.length ? (
+          <div className="m8-health-probe__checks">
+            {result.snapshot.results.map((check, index) => (
+              <div className="m8-health-probe__check" key={check.name + '-' + index}>
+                <div className="m8-health-probe__check-heading">
+                  <Text variant="body-2">{check.name}</Text>
+                  <StatusLabel status={check.status} t={t} />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <Text variant="caption-2" color="secondary">{t('health.noChecks')}</Text>
-          )}
+                {check.target ? (
+                  <Text variant="caption-2" color="secondary">
+                    {[check.target.module, check.target.kind, check.target.name].filter(Boolean).join(' · ')}
+                  </Text>
+                ) : null}
+                <Text variant="caption-2" color="secondary">
+                  {check.criticality === 'REQUIRED'
+                    ? t('health.required')
+                    : check.criticality === 'OPTIONAL'
+                      ? t('health.optional')
+                      : ''}
+                  {typeof check.latency === 'number'
+                    ? ' · ' + (check.latency / 1_000_000).toFixed(1) + ' ' + t('health.milliseconds')
+                    : ''}
+                </Text>
+                {check.message ? <Text variant="caption-2">{check.message}</Text> : null}
+                {check.error ? <Text variant="caption-2" color="danger">{check.error}</Text> : null}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Text variant="caption-2" color="secondary">{t('health.noChecks')}</Text>
+        )}
+      </DefinitionList.Item>
+      {result?.snapshot ? (
+        <DefinitionList.Item name={t('health.rawResponse')}>
+          <JsonPreview
+            value={result.snapshot}
+            copyText={t('resource.copy')}
+            copiedText={t('resource.copied')}
+            openText={t('requestConsole.openJson')}
+            overlayTitle={t('requestConsole.jsonPreview')}
+            closeText={t('requestConsole.closeJson')}
+          />
         </DefinitionList.Item>
-        {result?.snapshot ? (
-          <DefinitionList.Item name={t('health.rawResponse')}>
-            <JsonPreview
-              value={result.snapshot}
-              copyText={t('resource.copy')}
-              copiedText={t('resource.copied')}
-              openText={t('requestConsole.openJson')}
-              overlayTitle={t('requestConsole.jsonPreview')}
-              closeText={t('requestConsole.closeJson')}
-            />
-          </DefinitionList.Item>
-        ) : null}
-      </DefinitionList>
+      ) : null}
+    </DefinitionList>
   )
+}
+
+function ResponseStatusLabel({result, t}: {result?: HealthProbeResult; t: Translate}) {
+  if (!result) return <Label theme="info" loading>{t('requestConsole.pending')}</Label>
+  if (result.httpStatus !== undefined) {
+    return <Label theme={result.httpStatus < 400 ? 'success' : 'danger'}>{result.httpStatus}</Label>
+  }
+  return <Label theme="danger">ERR</Label>
 }
 
 export function ServiceHealthConsole({open, t, onClose}: {
@@ -234,10 +236,7 @@ export function ServiceHealthConsole({open, t, onClose}: {
   return (
     <div className="m8-request-console m8-health-console">
       <div className="m8-request-console__header">
-        <div>
-          <Text as="h2" variant="header-1">{t('health.title')}</Text>
-          <Text variant="body-2" color="secondary">{t('health.description')}</Text>
-        </div>
+        <Text as="h2" variant="header-1">{t('health.title')}</Text>
         <div className="m8-request-console__header-actions">
           <Button
             view="flat"
@@ -254,9 +253,6 @@ export function ServiceHealthConsole({open, t, onClose}: {
           </Button>
         </div>
       </div>
-      <Text variant="caption-2" color="secondary">
-        {t('health.autoRefresh')}
-      </Text>
       <div className="m8-request-console__records m8-health-services">
         {monitoredServices.map((service) => (
           <ServiceHealthItem
