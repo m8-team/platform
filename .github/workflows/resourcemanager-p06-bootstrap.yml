@@ -1,36 +1,39 @@
-name: P0.6 one-time source formatting and tests
+name: Resource Manager P0.6 YDB and Access checks
 
 on:
   push:
-    branches: [feat/resourcemanager-ydb-access-p06]
+    branches: [main]
     paths:
+      - 'internal/resourcemanager/**'
+      - 'cmd/resource-manager/**'
+      - 'go.mod'
+      - 'go.sum'
       - '.github/workflows/resourcemanager-p06-bootstrap.yml'
+  pull_request:
+    paths:
+      - 'internal/resourcemanager/**'
+      - 'cmd/resource-manager/**'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/resourcemanager-p06-bootstrap.yml'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  bootstrap:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feat/resourcemanager-ydb-access-p06
-          persist-credentials: true
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26.1'
-      - name: Format Resource Manager
-        run: find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
-      - name: Commit dependency and gofmt updates
+      - name: Verify gofmt
         run: |
-          git add go.mod go.sum
-          git add -u -- internal/resourcemanager cmd/resource-manager
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'chore(resourcemanager): add YDB Go SDK and format code'
-            git push origin HEAD:feat/resourcemanager-ydb-access-p06
-          fi
-      - name: Test Resource Manager
+          violations="$(find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -l)"
+          if [ -n "$violations" ]; then printf 'Unformatted:\n%s\n' "$violations"; exit 1; fi
+      - name: Verify Go tests
         run: go test ./internal/resourcemanager/... ./cmd/resource-manager/...
+      - name: Verify Go race detection
+        run: go test -race ./internal/resourcemanager/app/orgstructure ./internal/resourcemanager/adapter/orgaccess ./internal/resourcemanager/adapter/memory
