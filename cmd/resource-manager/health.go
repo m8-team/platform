@@ -11,11 +11,11 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	"github.com/m8-team/platform/internal/resourcemanager"
-	grpcadapter "github.com/m8-team/platform/internal/resourcemanager/adapter/grpc"
 	"github.com/m8-team/platform/internal/platform/health"
 	healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
 	"github.com/m8-team/platform/internal/platform/health/checks"
+	"github.com/m8-team/platform/internal/resourcemanager"
+	grpcadapter "github.com/m8-team/platform/internal/resourcemanager/adapter/grpc"
 	"go.uber.org/fx"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -93,7 +93,7 @@ func newResourceManagerHTTPHandler(
 		development := &localOrgStructureHTTPServer{
 			OrgStructureServiceServer:     orgStructureServer,
 			OrgUnitChangeSetServiceServer: orgStructureServer,
-			resources:                      resourceServer,
+			resources:                     resourceServer,
 		}
 		structureAPI, changesAPI = development, development
 	}
