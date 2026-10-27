@@ -1,0 +1,27 @@
+name: One-time gofmt for P0.6 integration suite
+on:
+  push:
+    branches: [feat/resourcemanager-ydb-access-p06]
+    paths: ['.github/workflows/resourcemanager-p06-gofmt-once.yml']
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/resourcemanager-ydb-access-p06
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - run: find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+      - name: Persist formatting and remove temporary action
+        run: |
+          git rm .github/workflows/resourcemanager-p06-gofmt-once.yml
+          git add -u -- internal/resourcemanager cmd/resource-manager
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m 'style(resourcemanager): format live-YDB test files'
+          git push origin HEAD:feat/resourcemanager-ydb-access-p06
+      - run: go test ./internal/resourcemanager/... ./cmd/resource-manager/...
