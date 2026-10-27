@@ -9,6 +9,7 @@ import (
     "encoding/json"
     "errors"
     "fmt"
+    "time"
 
     "github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 )
@@ -54,7 +55,17 @@ func (s *Service) Apply(ctx context.Context, actor Actor, plan orgunit.ChangeSet
     return s.store.Commit(ctx,CommitRequest{Actor:actor,Plan:plan,RequestHash:digest,Snapshot:next})
 }
 func requestHash(plan orgunit.ChangeSet) (string,error) {
-    payload,err:=json.Marshal(plan);if err!=nil{return "",fmt.Errorf("marshal changeset: %w",err)}
+    // recorded_at comes from the trusted server clock and is deliberately not
+    // part of the logical idempotency fingerprint; retries need not share it.
+    payload,err:=json.Marshal(struct{
+        ID string
+        OrganizationID string
+        ExpectedRevision uint64
+        EffectiveAt time.Time
+        SourceID string
+        Changes []orgunit.Change
+    }{plan.ID,plan.OrganizationID,plan.ExpectedRevision,plan.EffectiveAt,plan.SourceID,plan.Changes})
+    if err!=nil{return "",fmt.Errorf("marshal changeset: %w",err)}
     digest:=sha256.Sum256(payload)
     return hex.EncodeToString(digest[:]),nil
 }
