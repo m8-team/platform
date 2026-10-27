@@ -59,6 +59,20 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// A syntactically valid Tenant UUID does not provision a Tenant.
+	// This is the source of the observed gRPC code 5 / HTTP 404 response.
+	missingTenant, err := newID()
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = cat.Create(ctx, v1engine.Record{
+		Kind: v1engine.Organization,
+		Owner: v1engine.Owner{Kind: v1engine.Tenant, ID: missingTenant},
+		Name: "Must not be created",
+	}, seed+"-missing-parent")
+	if !errors.Is(err, v1engine.ErrNotFound) {
+		t.Fatalf("missing Tenant must return NotFound, got: %v", err)
+	}
 	tenant, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Tenant, Name: "Parent tenant"}, seed+"-tenant")
 	if err != nil {
 		t.Fatalf("create tenant: %v", err)
