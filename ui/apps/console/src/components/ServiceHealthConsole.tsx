@@ -81,9 +81,29 @@ function ServiceHealthItem({service, probes, t}: {
             {service.baseUrl}
           </Text>
           <Accordion className="m8-health-service__probes" size="m" view="solid" multiple>
-            {healthProbes.map((probe) => (
-              <ProbeAccordionItem key={probe.path} probe={probe} result={probes?.[probe.path]} t={t} />
-            ))}
+            {healthProbes.map((probe) => {
+              const result = probes?.[probe.path]
+              const probeStatus: HealthDisplayStatus = result?.status ?? 'CHECKING'
+
+              return (
+                <Accordion.Item
+                  key={probe.path}
+                  value={probe.path}
+                  className="m8-health-probe"
+                  summary={
+                    <div className="m8-health-probe__heading">
+                      <div className="m8-health-probe__title">
+                        <Text variant="body-2">{t(probe.titleKey)}</Text>
+                        <Text variant="caption-2" color="secondary">{probe.path}</Text>
+                      </div>
+                      <StatusLabel status={probeStatus} t={t} />
+                    </div>
+                  }
+                >
+                  <ProbeDetails probe={probe} result={result} t={t} />
+                </Accordion.Item>
+              )
+            })}
           </Accordion>
         </div>
       ) : null}
@@ -91,27 +111,12 @@ function ServiceHealthItem({service, probes, t}: {
   )
 }
 
-function ProbeAccordionItem({probe, result, t}: {
+function ProbeDetails({probe, result, t}: {
   probe: (typeof healthProbes)[number]
   result?: HealthProbeResult
   t: Translate
 }) {
-  const status = result?.status ?? 'CHECKING'
-
   return (
-    <Accordion.Item
-      value={probe.path}
-      className="m8-health-probe"
-      summary={
-        <div className="m8-health-probe__heading">
-          <div className="m8-health-probe__title">
-            <Text variant="body-2">{t(probe.titleKey)}</Text>
-            <Text variant="caption-2" color="secondary">{probe.path}</Text>
-          </div>
-          <StatusLabel status={status} t={t} />
-        </div>
-      }
-    >
       <DefinitionList
         className="m8-request-console__definitions m8-health-probe__definitions"
         direction="horizontal"
@@ -178,7 +183,6 @@ function ProbeAccordionItem({probe, result, t}: {
           </DefinitionList.Item>
         ) : null}
       </DefinitionList>
-    </Accordion.Item>
   )
 }
 
