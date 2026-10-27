@@ -177,5 +177,41 @@ func (s *OrganizationRelationshipServer) CloseOrganizationRelationship(ctx conte
 	return protoRelationship(r),nil
 }
 
+
+func (s *OrganizationRelationshipServer) ListOrganizationRelationshipVersions(ctx context.Context,
+	req *pb.ListOrganizationRelationshipVersionsRequest) (*pb.ListOrganizationRelationshipVersionsResponse,error) {
+	if err:=s.guard();err!=nil{return nil,err}
+	if req==nil || req.GetTenantId()=="" || req.GetId()=="" {
+		return nil,status.Error(codes.InvalidArgument,"tenant_id and id required")
+	}
+	if req.GetPageSize()<0 || req.GetPageSize()>500 {
+		return nil,status.Error(codes.InvalidArgument,"page_size must be 1..500")
+	}
+	rows,err:=s.resources.store.ListRelationshipVersions(ctx,req.GetTenantId(),req.GetId())
+	if err!=nil{return nil,asErr(err)}
+	offset:=0
+	if req.GetPageToken()!="" {
+		raw,err:=base64.RawURLEncoding.DecodeString(req.GetPageToken())
+		if err!=nil || len(raw)>2048{return nil,status.Error(codes.InvalidArgument,"invalid history token")}
+		var token struct{Tenant,ID string;Offset int}
+		if err:=json.Unmarshal(raw,&token);err!=nil || token.Tenant!=req.GetTenantId() || token.ID!=req.GetId() ||
+			token.Offset<0 || token.Offset>len(rows) {
+			return nil,status.Error(codes.InvalidArgument,"history token does not match scope")
+		}
+		offset=token.Offset
+	}
+	result:=&pb.ListOrganizationRelationshipVersionsResponse{}
+	limit:=int(req.GetPageSize())
+	if limit==0{limit=100}
+	end:=offset+limit
+	if end>len(rows){end=len(rows)}
+	for _,r:=range rows[offset:end] {result.Versions=append(result.Versions,protoRelationship(r))}
+	if end<len(rows){
+		raw,_:=json.Marshal(struct{Tenant,ID string;Offset int}{req.GetTenantId(),req.GetId(),end})
+		result.NextPageToken=base64.RawURLEncoding.EncodeToString(raw)
+	}
+	return result,nil
+}
+
 // Verify the generated contract is implemented at compile time.
 var _ pb.OrganizationRelationshipServiceServer = (*OrganizationRelationshipServer)(nil)
