@@ -38,7 +38,7 @@ type Gate struct {
 
 func (g *Gate) check(ctx context.Context, actor orgstructure.Actor, permission, resourceType, id string) error {
 	if g == nil || g.Checker == nil || g.ModelRevision == "" {
-		return ErrAccessConfigurationRequired
+		return fmt.Errorf("%w: %v", ports.ErrPermissionDenied, ErrAccessConfigurationRequired)
 	}
 	if ctx == nil || actor.TenantID == "" || actor.PrincipalID == "" || id == "" {
 		return ports.ErrUnauthenticated
