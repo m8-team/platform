@@ -121,6 +121,6 @@ fmt-resourcemanager:
 fmt-check-resourcemanager:
 	@unformatted="$$(find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -l)"; \
 	if [ -n "$$unformatted" ]; then \
-		printf 'Go files need gofmt:\\n%s\\n' "$$unformatted"; \
+		printf 'Go files need gofmt:\n%s\n' "$$unformatted"; \
 		exit 1; \
 	fi
