@@ -56,6 +56,7 @@ import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {ServiceHealthConsole} from './components/ServiceHealthConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {OrganizationGroupsPage} from './modules/resource-manager/pages/OrganizationGroupsPage'
 import {ResourceCatalogPage} from './modules/resource-manager/pages/ResourceCatalogPage'
 import {OrganizationDetailsPage, OrganizationStructurePage} from './modules/resource-manager/pages/OrganizationDetailsPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
@@ -111,6 +112,7 @@ const resourceManagerRoutes = {
     list: '/resource-manager/organizations',
     detail: '/resource-manager/organizations/:organizationId',
   },
+  groups: {list: '/resource-manager/groups'},
   catalog: {list: '/resource-manager/catalog'},
   workspaces: {
     list: '/resource-manager/workspaces',
@@ -282,6 +284,13 @@ const menuItemConfigs: MenuItemConfig[] = [
     groupId: 'resources',
   },
   {
+    id: 'resources-groups',
+    titleKey: 'menu.resources.groups',
+    icon: Persons,
+    href: resourceManagerRoutes.groups.list,
+    groupId: 'resources',
+  },
+  {
     id: 'resources-catalog',
     titleKey: 'menu.resources.catalog',
     icon: Layers,
@@ -408,6 +417,10 @@ function getCurrentMenuItemId(pathname: string) {
 
   if (pathname === resourceManagerRoutes.organizations.list) {
     return 'resources-organizations'
+  }
+
+  if (pathname === resourceManagerRoutes.groups.list || pathname.startsWith(resourceManagerRoutes.groups.list + '/')) {
+    return 'resources-groups'
   }
 
   if (pathname === resourceManagerRoutes.catalog.list || pathname.startsWith(resourceManagerRoutes.catalog.list + '/')) {
@@ -1125,6 +1138,11 @@ export function ResourceOrganizationDetailsPage() {
 export function ResourceOrganizationStructurePage() {
   const {language, t} = useConsoleI18n()
   return <OrganizationStructurePage language={language} t={t} />
+}
+
+export function ResourceOrganizationGroupsPage() {
+  const {t} = useConsoleI18n()
+  return <OrganizationGroupsPage t={t}/>
 }
 
 export function ResourceCatalogRoutePage() {
