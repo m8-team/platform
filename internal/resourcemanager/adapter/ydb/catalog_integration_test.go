@@ -96,27 +96,42 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	// Concurrent identical commands must converge on one Organization identity.
 	concurrentKey := seed + "-concurrent-org"
 	concurrentRequest := v1engine.Record{Kind: v1engine.Organization, Owner: owner, Name: "Concurrent"}
-	type result struct { value v1engine.Record; err error }
-	results := make(chan result,2)
+	type result struct {
+		value v1engine.Record
+		err   error
+	}
+	results := make(chan result, 2)
 	var wg sync.WaitGroup
-	for i:=0;i<2;i++ {
+	for i := 0; i < 2; i++ {
 		wg.Add(1)
-		go func(){ defer wg.Done(); value,err:=cat.Create(ctx,concurrentRequest,concurrentKey);results<-result{value,err} }()
+		go func() {
+			defer wg.Done()
+			value, err := cat.Create(ctx, concurrentRequest, concurrentKey)
+			results <- result{value, err}
+		}()
 	}
 	wg.Wait()
 	close(results)
 	var winner string
-	for outcome:=range results {
-		if outcome.err==nil {
-			if winner!=""&&winner!=outcome.value.ID { t.Fatal("concurrent create produced two identities") }
-			winner=outcome.value.ID
+	for outcome := range results {
+		if outcome.err == nil {
+			if winner != "" && winner != outcome.value.ID {
+				t.Fatal("concurrent create produced two identities")
+			}
+			winner = outcome.value.ID
 		}
 	}
-	if winner=="" { t.Fatal("no concurrent create succeeded") }
-	final,err:=cat.Create(ctx,concurrentRequest,concurrentKey)
-	if err!=nil||final.ID!=winner { t.Fatalf("concurrent retry: %#v %v",final,err) }
-	secondGraph,err:=graphStore.Load(ctx,tenant.ID,winner)
-	if err!=nil||secondGraph.Revision!=1 {t.Fatalf("missing concurrent initial graph: %#v %v",secondGraph,err)}
+	if winner == "" {
+		t.Fatal("no concurrent create succeeded")
+	}
+	final, err := cat.Create(ctx, concurrentRequest, concurrentKey)
+	if err != nil || final.ID != winner {
+		t.Fatalf("concurrent retry: %#v %v", final, err)
+	}
+	secondGraph, err := graphStore.Load(ctx, tenant.ID, winner)
+	if err != nil || secondGraph.Revision != 1 {
+		t.Fatalf("missing concurrent initial graph: %#v %v", secondGraph, err)
+	}
 	// Resource hierarchy, ownership and environments must survive repository recreation.
 	group, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Group, Owner: owner, Name: "Holding"}, seed+"-group")
 	if err != nil {
@@ -177,18 +192,34 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if _, err = cat.ChangeState(ctx, v1engine.Organization, org.ID, 1, "DELETED"); !errors.Is(err, v1engine.ErrConflict) {
 		t.Fatalf("delete with descendants must fail: %v", err)
 	}
-	secondWorkspace,err:=cat.Create(ctx,v1engine.Record{Kind:v1engine.Workspace,Owner:v1engine.Owner{Kind:v1engine.Organization,ID:org.ID},Name:"Other Workspace"},seed+"-ws2")
-	if err!=nil {t.Fatal(err)}
-	moved,err:=cat.MoveProject(ctx,project.ID,v1engine.Owner{Kind:v1engine.Workspace,ID:secondWorkspace.ID},2)
-	if err!=nil||moved.Revision!=3||moved.Owner.ID!=secondWorkspace.ID {t.Fatalf("move: %#v %v",moved,err)}
-	if _,err=cat.MoveProject(ctx,project.ID,v1engine.Owner{Kind:v1engine.Workspace,ID:ws.ID},2);!errors.Is(err,v1engine.ErrConflict) {t.Fatalf("stale move: %v",err)}
-	if err=cat.RemoveBinding(ctx,binding.ID,1);err!=nil{t.Fatalf("delete binding: %v",err)}
-	remaining,err:=cat.ListBindings(ctx,v1engine.Owner{Kind:v1engine.WorkloadService,ID:service.ID},env.ID)
-	if err!=nil||len(remaining)!=0 {t.Fatalf("remaining bindings: %#v %v",remaining,err)}
-	if err=cat.RemoveGroupLink(ctx,group.ID,org.ID);err!=nil{t.Fatal(err)}
-	links,err=cat.ListGroupOrganizations(ctx,group.ID)
-	if err!=nil||len(links)!=0 {t.Fatalf("remove group link: %#v %v",links,err)}
-	if _,err=cat.ChangeState(ctx,v1engine.WorkloadService,service.ID,1,"SUSPENDED");err!=nil{t.Fatalf("state change: %v",err)}
+	secondWorkspace, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Workspace, Owner: v1engine.Owner{Kind: v1engine.Organization, ID: org.ID}, Name: "Other Workspace"}, seed+"-ws2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	moved, err := cat.MoveProject(ctx, project.ID, v1engine.Owner{Kind: v1engine.Workspace, ID: secondWorkspace.ID}, 2)
+	if err != nil || moved.Revision != 3 || moved.Owner.ID != secondWorkspace.ID {
+		t.Fatalf("move: %#v %v", moved, err)
+	}
+	if _, err = cat.MoveProject(ctx, project.ID, v1engine.Owner{Kind: v1engine.Workspace, ID: ws.ID}, 2); !errors.Is(err, v1engine.ErrConflict) {
+		t.Fatalf("stale move: %v", err)
+	}
+	if err = cat.RemoveBinding(ctx, binding.ID, 1); err != nil {
+		t.Fatalf("delete binding: %v", err)
+	}
+	remaining, err := cat.ListBindings(ctx, v1engine.Owner{Kind: v1engine.WorkloadService, ID: service.ID}, env.ID)
+	if err != nil || len(remaining) != 0 {
+		t.Fatalf("remaining bindings: %#v %v", remaining, err)
+	}
+	if err = cat.RemoveGroupLink(ctx, group.ID, org.ID); err != nil {
+		t.Fatal(err)
+	}
+	links, err = cat.ListGroupOrganizations(ctx, group.ID)
+	if err != nil || len(links) != 0 {
+		t.Fatalf("remove group link: %#v %v", links, err)
+	}
+	if _, err = cat.ChangeState(ctx, v1engine.WorkloadService, service.ID, 1, "SUSPENDED"); err != nil {
+		t.Fatalf("state change: %v", err)
+	}
 	// Publication and bootstrap are in ONE transaction; no second initial-head event.
 	var resourceEvents uint64
 	err = db.QueryRowContext(ctx, graphStore.q("DECLARE $org AS Utf8;SELECT COUNT(*) FROM `m8-resource-manager/outbox` WHERE aggregate_id=$org;"), sql.Named("org", org.ID)).Scan(&resourceEvents)
