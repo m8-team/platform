@@ -1,0 +1,29 @@
+name: One-time ResourceManager v1 protobuf regeneration
+on:
+  push:
+    branches: [fix/resourcemanager-tenant-scoped-organizations-list]
+    paths: ['.github/workflows/resourcemanager-list-codegen-once.yml']
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/resourcemanager-tenant-scoped-organizations-list
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ github.token }}
+      - name: Generate ResourceManager service contract
+        run: buf generate --path api/proto/m8/platform/resourcemanager/v1/resource_manager_service.proto
+      - name: Format Go code
+        run: find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+      - name: Commit generated API, format sources and remove action
+        run: |
+          git rm .github/workflows/resourcemanager-list-codegen-once.yml
+          git add -u -- api/generate/go/m8/platform/resourcemanager/v1 api/generate/openapi/m8/platform/resourcemanager/v1 internal/resourcemanager
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git commit -m 'chore(resourcemanager): generate tenant-scoped ListResources contract'
+          git push origin HEAD:fix/resourcemanager-tenant-scoped-organizations-list
