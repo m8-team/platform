@@ -1,0 +1,61 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// All mutations apply to stable OrgUnit IDs inside one Organization.
+enum OrgUnitMutationKind {
+  ORG_UNIT_MUTATION_KIND_UNSPECIFIED = 0;
+  ORG_UNIT_MUTATION_KIND_CREATE = 1;
+  ORG_UNIT_MUTATION_KIND_MOVE = 2;
+  ORG_UNIT_MUTATION_KIND_RENAME = 3;
+  ORG_UNIT_MUTATION_KIND_CLOSE = 4;
+}
+message OrgUnitMutation {
+  OrgUnitMutationKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string parent_org_unit_id = 3;
+  string display_name = 4;
+  string authoritative_source_id = 5;
+}
+message OrgUnitChangeSet {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_structure_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  // Immediate cutover only for this slice. The server derives recorded_at.
+  // Deferred or backdated effective_at requires the temporal workflow.
+  google.protobuf.Timestamp effective_at = 4;
+  repeated OrgUnitMutation mutations = 5 [(google.api.field_behavior) = REQUIRED];
+  string source_id = 6;
+  string change_set_status = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 resulting_structure_revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+message ValidateOrgUnitChangeSetRequest {
+  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
+}
+message ValidateOrgUnitChangeSetResponse {
+  bool valid = 1;
+  repeated string blockers = 2;
+  int64 proposed_structure_revision = 3;
+}
+message ApplyOrgUnitChangeSetRequest {
+  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ApplyOrgUnitChangeSetResponse {
+  int64 structure_revision = 1;
+  bool replayed = 2;
+}
+// These are contract sources only: no handler is registered by this PR.
+service OrgUnitChangeSetService {
+  rpc ValidateOrgUnitChangeSet(ValidateOrgUnitChangeSetRequest) returns (ValidateOrgUnitChangeSetResponse) {
+    option (google.api.http) = {post: "/resource-manager/v1/org-unit-change-sets:validate" body: "*"};
+  }
+  rpc ApplyOrgUnitChangeSet(ApplyOrgUnitChangeSetRequest) returns (ApplyOrgUnitChangeSetResponse) {
+    option (google.api.http) = {post: "/resource-manager/v1/org-unit-change-sets:apply" body: "*"};
+  }
+}
