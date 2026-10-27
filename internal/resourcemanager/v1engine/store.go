@@ -64,10 +64,12 @@ type Store struct {
 	requestIDs map[string]string
 	links      map[string]bool
 	bindings   map[string]Binding
+	relationships map[string]OrganizationRelationship
+	relationshipRequests map[string]relationshipReceipt
 }
 
 func NewStore() *Store {
-	return &Store{objects: make(map[string]Record), requestIDs: make(map[string]string), links: make(map[string]bool), bindings: make(map[string]Binding)}
+	return &Store{objects: make(map[string]Record), requestIDs: make(map[string]string), links: make(map[string]bool), bindings: make(map[string]Binding), relationships: make(map[string]OrganizationRelationship), relationshipRequests: make(map[string]relationshipReceipt)}
 }
 func newID() (string, error) {
 	var b [16]byte
