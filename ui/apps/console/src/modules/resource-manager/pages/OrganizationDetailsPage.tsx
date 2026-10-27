@@ -12,12 +12,16 @@ import {
   fetchOrganizationStructure,
 } from '../api/organizationDetail'
 import type {OrganizationDetail, OrganizationResource, OrganizationStructure, OrgUnit} from '../api/organizationDetail'
+import {OrganizationSettings} from '../components/OrganizationSettings'
+import {OrgUnitChangeSetEditor} from '../components/OrgUnitChangeSetEditor'
+import {ResourceOwnershipCards} from '../components/ResourceOwnershipCards'
 import './organization-details.css'
+import './organization-editor.css'
 
-type Section = 'overview' | 'units' | 'resources' | 'ownership' | 'sync' | 'history'
+type Section = 'overview' | 'units' | 'changes' | 'resources' | 'ownership' | 'settings' | 'sync' | 'history'
 interface Props {language: AppLanguage; t: Translate}
 type DictionaryKey =
-  | 'overview' | 'units' | 'resources' | 'ownership' | 'sync' | 'history'
+  | 'overview' | 'units' | 'changes' | 'resources' | 'ownership' | 'settings' | 'sync' | 'history'
   | 'refresh' | 'loading' | 'retry' | 'notAvailable' | 'empty' | 'unavailable'
   | 'structureRevision' | 'tenant' | 'organization' | 'resourceCount' | 'orgUnitCount'
   | 'searchUnits' | 'unitDetails' | 'state' | 'type' | 'source' | 'parent'
@@ -29,7 +33,7 @@ type DictionaryKey =
 
 const dictionary: Record<AppLanguage, Record<DictionaryKey, string>> = {
   ru: {
-    overview: 'Обзор', units: 'Подразделения', resources: 'Ресурсы',
+    overview: 'Обзор', units: 'Подразделения', changes: 'Изменения структуры', settings: 'Настройки', resources: 'Ресурсы',
     ownership: 'Ответственность', sync: 'Источники данных', history: 'История',
     refresh: 'Обновить', loading: 'Загрузка…', retry: 'Повторить',
     notAvailable: 'Недоступно', empty: 'Нет данных', unavailable: 'Информация пока недоступна',
@@ -54,7 +58,7 @@ const dictionary: Record<AppLanguage, Record<DictionaryKey, string>> = {
     loadError: 'Ошибка загрузки данных',
   },
   en: {
-    overview: 'Overview', units: 'Org units', resources: 'Resources',
+    overview: 'Overview', units: 'Org units', changes: 'ChangeSets', settings: 'Settings', resources: 'Resources',
     ownership: 'Ownership', sync: 'Data sources', history: 'History',
     refresh: 'Refresh', loading: 'Loading…', retry: 'Retry',
     notAvailable: 'Unavailable', empty: 'No data', unavailable: 'Data is not available yet',
@@ -286,15 +290,15 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
     queryKey: ['resource-manager', 'organization', organizationId, 'structure'],
     queryFn: ({signal}) => fetchOrganizationStructure(organizationId, signal),
     staleTime: 30_000,
-    enabled: section === 'units' || section === 'overview',
+    enabled: section === 'units' || section === 'changes' || section === 'overview',
   })
   const resources = useQuery({
     queryKey: ['resource-manager', 'organization', organizationId, 'resources'],
     queryFn: ({signal}) => fetchOrganizationResources(organizationId, signal),
     staleTime: 30_000,
-    enabled: section === 'resources' || section === 'overview',
+    enabled: section === 'resources' || section === 'ownership' || section === 'overview',
   })
-  const tabs: Section[] = ['overview', 'units', 'resources', 'ownership', 'sync', 'history']
+  const tabs: Section[] = ['overview', 'units', 'changes', 'resources', 'ownership', 'settings', 'sync', 'history']
   const current: OrganizationDetail | undefined = organization.data
   const refresh = () => {
     void organization.refetch()
@@ -387,7 +391,21 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
                       onRetry={() => void resources.refetch()}/> :
                       resources.data ? <ResourceInventory resources={resources.data} language={language}/> : null
                 ) : null}
-                {section === 'ownership' ? <UnsupportedFeature language={language} message={d.ownershipMessage}/> : null}
+                {section === 'changes' ? (
+                  structure.isPending ? <Text color="secondary">{d.loading}</Text> :
+                    structure.isError ? <RequestState label={d.loadError} error={structure.error}
+                      onRetry={() => void structure.refetch()}/> :
+                      structure.data ? <OrgUnitChangeSetEditor key={structure.data.revision}
+                        structure={structure.data} organizationId={organizationId} language={language}/> : null
+                ) : null}
+                {section === 'ownership' ? (
+                  resources.isPending ? <Text color="secondary">{d.loading}</Text> :
+                    resources.isError ? <RequestState label={d.loadError} error={resources.error}
+                      onRetry={() => void resources.refetch()}/> :
+                      resources.data ? <ResourceOwnershipCards resources={resources.data}
+                        organizationId={organizationId} language={language}/> : null
+                ) : null}
+                {section === 'settings' ? <OrganizationSettings key={`${current.id}:${current.revision ?? 0}`} organization={current} language={language}/> : null}
                 {section === 'sync' ? <UnsupportedFeature language={language} message={d.syncMessage}/> : null}
                 {section === 'history' ? <UnsupportedFeature language={language} message={d.historyMessage}/> : null}
               </div>
