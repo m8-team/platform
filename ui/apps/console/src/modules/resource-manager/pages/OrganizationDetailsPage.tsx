@@ -2,7 +2,7 @@ import {useMemo, useState} from 'react'
 import {ArrowRotateRight, ChevronDown, ChevronRight, Magnifier} from '@gravity-ui/icons'
 import {Button, Card, ClipboardButton, Icon, Label, Text, TextInput} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import {useParams} from '@tanstack/react-router'
+import {Link, useParams} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
 import type {AppLanguage, Translate} from '../../../i18n'
@@ -12,6 +12,7 @@ import {
   fetchOrganizationStructure,
 } from '../api/organizationDetail'
 import type {OrganizationDetail, OrganizationResource, OrganizationStructure, OrgUnit} from '../api/organizationDetail'
+import type {MutationKind} from '../api/organizationMutations'
 import {OrganizationSettings} from '../components/OrganizationSettings'
 import {OrgUnitChangeSetEditor} from '../components/OrgUnitChangeSetEditor'
 import {ResourceOwnershipCards} from '../components/ResourceOwnershipCards'
@@ -30,6 +31,7 @@ type DictionaryKey =
   | 'name' | 'id' | 'apiMissing' | 'ownershipMessage' | 'syncMessage'
   | 'historyMessage' | 'overviewHint' | 'resourceScopeHint' | 'accessDenied'
   | 'code' | 'noSource' | 'all' | 'initialRoot' | 'loadError'
+  | 'createUnit' | 'createChild' | 'renameUnit' | 'moveUnit' | 'readOnlyUnit' | 'openStructure'
 
 const dictionary: Record<AppLanguage, Record<DictionaryKey, string>> = {
   ru: {
@@ -56,6 +58,10 @@ const dictionary: Record<AppLanguage, Record<DictionaryKey, string>> = {
     code: 'Код', noSource: 'Не указан', all: 'Все подразделения',
     initialRoot: 'У организации нет обязательного искусственного корневого подразделения.',
     loadError: 'Ошибка загрузки данных',
+    createUnit: 'Создать подразделение', createChild: 'Создать дочернее',
+    renameUnit: 'Переименовать', moveUnit: 'Переместить',
+    readOnlyUnit: 'Подразделение управляется внешним источником или не активно.',
+    openStructure: 'Открыть оргструктуру',
   },
   en: {
     overview: 'Overview', units: 'Org units', changes: 'ChangeSets', settings: 'Settings', resources: 'Resources',
@@ -81,6 +87,10 @@ const dictionary: Record<AppLanguage, Record<DictionaryKey, string>> = {
     code: 'Code', noSource: 'Not specified', all: 'All org units',
     initialRoot: 'No artificial root OrgUnit is required for an Organization.',
     loadError: 'Could not load data',
+    createUnit: 'Create org unit', createChild: 'Add child',
+    renameUnit: 'Rename', moveUnit: 'Move',
+    readOnlyUnit: 'This org unit is inactive or managed by an external system.',
+    openStructure: 'Open org structure',
   },
 }
 
@@ -168,12 +178,34 @@ function TreeRow({
   )
 }
 
-function OrgUnitExplorer({data, language}: {data: OrganizationStructure; language: AppLanguage}) {
+interface OrgUnitAction {
+  kind: MutationKind
+  orgUnitId: string
+  parentOrgUnitId: string
+  displayName: string
+}
+
+function OrgUnitExplorer({
+  data, language, onStage,
+}: {
+  data: OrganizationStructure
+  language: AppLanguage
+  onStage: (action: OrgUnitAction) => void
+}) {
   const d = dictionary[language]
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState('')
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set())
   const selected = data.units.find((unit) => unit.id === selectedId)
+  const writable = selected?.state === 'ACTIVE' && selected.managementMode !== 'EXTERNAL'
+  const stage = (kind: MutationKind, unit?: OrgUnit) => {
+    onStage({
+      kind,
+      orgUnitId: kind === 'CREATE' ? '' : unit?.id ?? '',
+      parentOrgUnitId: kind === 'CREATE' ? unit?.id ?? '' : unit?.parentId ?? '',
+      displayName: kind === 'RENAME' ? unit?.name ?? '' : '',
+    })
+  }
   const tree = useMemo(() => makeTree(data.units), [data.units])
   const filter = search.trim().toLocaleLowerCase()
   const matched = useMemo(() => {
@@ -205,6 +237,7 @@ function OrgUnitExplorer({data, language}: {data: OrganizationStructure; languag
           <TextInput size="m" placeholder={d.searchUnits} aria-label={d.searchUnits} value={search}
             startContent={<Icon data={Magnifier} size={15}/>} onUpdate={setSearch}/>
           <div className="m8-org-explorer__controls">
+            <Button view="action" size="s" onClick={() => stage('CREATE')}>{d.createUnit}</Button>
             <Button view="flat" size="s" onClick={() => setExpanded(new Set(data.units.map((u) => u.id)))}>
               {d.expandAll}
             </Button>
@@ -240,6 +273,13 @@ function OrgUnitExplorer({data, language}: {data: OrganizationStructure; languag
               <dt>{d.source}</dt><dd>{selected.authoritativeSourceId ?? d.noSource}</dd>
               <dt>{d.structureRevision}</dt><dd>{selected.structureRevision}</dd>
             </dl>
+            {writable ? (
+              <div className="m8-org-explorer__actions">
+                <Button view="action" size="m" onClick={() => stage('CREATE', selected)}>{d.createChild}</Button>
+                <Button view="outlined" size="m" onClick={() => stage('RENAME', selected)}>{d.renameUnit}</Button>
+                <Button view="outlined" size="m" onClick={() => stage('MOVE', selected)}>{d.moveUnit}</Button>
+              </div>
+            ) : <Text variant="caption-2" color="secondary">{d.readOnlyUnit}</Text>}
           </>
         ) : <Text color="secondary">{d.selectedUnit}</Text>}
         <Text variant="caption-2" color="secondary">{d.initialRoot}</Text>
@@ -278,9 +318,16 @@ function UnsupportedFeature({message, language}: {message: string; language: App
   </div>
 }
 
-function OrganizationDetailContent({organizationId, language, t}: Props & {organizationId: string}) {
+function OrganizationDetailContent({organizationId, language, t, initialSection = 'overview'}: Props & {organizationId: string; initialSection?: Section}) {
   const d = dictionary[language]
-  const [section, setSection] = useState<Section>('overview')
+  const [section, setSection] = useState<Section>(initialSection)
+  const [stagedAction, setStagedAction] = useState<OrgUnitAction | null>(null)
+  const [stagedActionVersion, setStagedActionVersion] = useState(0)
+  const stageAction = (action: OrgUnitAction) => {
+    setStagedAction(action)
+    setStagedActionVersion((version) => version + 1)
+    setSection('changes')
+  }
   const organization = useQuery({
     queryKey: ['resource-manager', 'organization', organizationId],
     queryFn: ({signal}) => fetchOrganizationDetail(organizationId, signal),
@@ -321,6 +368,10 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
               {current ? <Lifecycle value={current.state}/> : null}
               <span className="m8-mono">{organizationId}</span>
               <ClipboardButton text={organizationId} size="s"/>
+              {initialSection !== 'units' ? <Link className="m8-org-detail__structure-link"
+                to="/resource-manager/organizations/$organizationId/structure" params={{organizationId}}>
+                {d.openStructure}
+              </Link> : null}
             </div>
           </div>
           <Button view="outlined" loading={organization.isFetching || structure.isFetching || resources.isFetching}
@@ -383,7 +434,7 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
                   structure.isPending ? <Text color="secondary">{d.loading}</Text> :
                     structure.isError ? <RequestState label={d.loadError} error={structure.error}
                       onRetry={() => void structure.refetch()}/> :
-                      structure.data ? <OrgUnitExplorer data={structure.data} language={language}/> : null
+                      structure.data ? <OrgUnitExplorer data={structure.data} language={language} onStage={stageAction}/> : null
                 ) : null}
                 {section === 'resources' ? (
                   resources.isPending ? <Text color="secondary">{d.loading}</Text> :
@@ -395,8 +446,9 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
                   structure.isPending ? <Text color="secondary">{d.loading}</Text> :
                     structure.isError ? <RequestState label={d.loadError} error={structure.error}
                       onRetry={() => void structure.refetch()}/> :
-                      structure.data ? <OrgUnitChangeSetEditor key={structure.data.revision}
-                        structure={structure.data} organizationId={organizationId} language={language}/> : null
+                      structure.data ? <OrgUnitChangeSetEditor key={`${structure.data.revision}:${stagedActionVersion}`}
+                        structure={structure.data} organizationId={organizationId} language={language}
+                        initialAction={stagedAction ?? undefined}/> : null
                 ) : null}
                 {section === 'ownership' ? (
                   resources.isPending ? <Text color="secondary">{d.loading}</Text> :
@@ -421,4 +473,10 @@ export function OrganizationDetailsPage({language, t}: Props) {
   const {organizationId} = useParams({from: '/resource-manager/organizations/$organizationId'})
   return <OrganizationDetailContent key={organizationId} organizationId={organizationId}
     language={language} t={t}/>
+}
+
+export function OrganizationStructurePage({language, t}: Props) {
+  const {organizationId} = useParams({from: '/resource-manager/organizations/$organizationId/structure'})
+  return <OrganizationDetailContent key={organizationId} organizationId={organizationId}
+    language={language} t={t} initialSection="units"/>
 }

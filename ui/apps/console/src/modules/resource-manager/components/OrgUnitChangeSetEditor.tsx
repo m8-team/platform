@@ -1,5 +1,5 @@
 import {useMemo, useState} from 'react'
-import {Button, Label, Text, TextInput} from '@gravity-ui/uikit'
+import {Button, Checkbox, Label, Select, Text, TextInput} from '@gravity-ui/uikit'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import type {AppLanguage} from '../../../i18n'
 import type {OrganizationStructure, OrgUnit} from '../api/organizationDetail'
@@ -8,7 +8,12 @@ import {
 } from '../api/organizationMutations'
 import type {ChangeSetDraft, MutationKind, UnitMutation} from '../api/organizationMutations'
 
-type Props = {organizationId: string; structure: OrganizationStructure; language: AppLanguage}
+type Props = {
+  organizationId: string
+  structure: OrganizationStructure
+  language: AppLanguage
+  initialAction?: Pick<UnitMutation, 'kind' | 'orgUnitId' | 'parentOrgUnitId' | 'displayName'>
+}
 const kinds: MutationKind[] = ['CREATE', 'RENAME', 'MOVE', 'CLOSE']
 const labels: Record<AppLanguage, Record<MutationKind, string>> = {
   ru: {CREATE: 'Создать', RENAME: 'Переименовать', MOVE: 'Переместить', CLOSE: 'Закрыть'},
@@ -18,11 +23,13 @@ const empty = (kind: MutationKind): UnitMutation => ({
   kind, orgUnitId: '', parentOrgUnitId: '', displayName: '', authoritativeSourceId: '',
 })
 
-export function OrgUnitChangeSetEditor({organizationId, structure, language}: Props) {
+export function OrgUnitChangeSetEditor({organizationId, structure, language, initialAction}: Props) {
   const ru = language === 'ru'
   const client = useQueryClient()
-  const [kind, setKind] = useState<MutationKind>('CREATE')
-  const [value, setValue] = useState<UnitMutation>(() => empty('CREATE'))
+  const [kind, setKind] = useState<MutationKind>(initialAction?.kind ?? 'CREATE')
+  const [value, setValue] = useState<UnitMutation>(
+    () => ({...empty(initialAction?.kind ?? 'CREATE'), ...initialAction}),
+  )
   const [changes, setChanges] = useState<UnitMutation[]>([])
   const [draftId, setDraftId] = useState(() => crypto.randomUUID())
   const [validatedFingerprint, setValidatedFingerprint] = useState('')
@@ -125,21 +132,22 @@ export function OrgUnitChangeSetEditor({organizationId, structure, language}: Pr
       <div className="m8-changeset__editor">
         <label className="m8-org-editor__field">
           <Text variant="caption-2">{ru ? 'Операция' : 'Operation'}</Text>
-          <select className="m8-org-editor__select" value={kind} disabled={busy}
-            onChange={(e) => {const next=e.target.value as MutationKind;setKind(next);setValue(empty(next))}}>
-            {kinds.map((item) => <option key={item} value={item}>{labels[language][item]}</option>)}
-          </select>
+          <Select width="max" value={[kind]} disabled={busy}
+            options={kinds.map((item) => ({value: item, content: labels[language][item]}))}
+            onUpdate={(values) => {
+              const next = values[0] as MutationKind | undefined
+              if (next) {setKind(next);setValue(empty(next))}
+            }}/>
         </label>
         {kind !== 'CREATE' ? (
           <label className="m8-org-editor__field">
             <Text variant="caption-2">{ru ? 'Подразделение' : 'Org unit'}</Text>
-            <select className="m8-org-editor__select" value={value.orgUnitId} disabled={busy}
-              onChange={(e) => setValue((m) => ({...m, orgUnitId: e.target.value}))}>
-              <option value="">{ru ? 'Выбрать подразделение' : 'Select an org unit'}</option>
-              {structure.units.filter((u) => u.state === 'ACTIVE').map((u) => (
-                <option value={u.id} key={u.id}>{u.name}{u.managementMode === 'EXTERNAL' ? ' · external' : ''}</option>
-              ))}
-            </select>
+            <Select width="max" disabled={busy} value={value.orgUnitId ? [value.orgUnitId] : []}
+              placeholder={ru ? 'Выбрать подразделение' : 'Select an org unit'}
+              options={structure.units.filter((u) => u.state === 'ACTIVE').map((u) => ({
+                value: u.id, content: `${u.name}${u.managementMode === 'EXTERNAL' ? ' · external' : ''}`,
+              }))}
+              onUpdate={(values) => setValue((m) => ({...m, orgUnitId: values[0] ?? ''}))}/>
           </label>
         ) : null}
         {(kind === 'CREATE' || kind === 'RENAME') ? (
@@ -152,13 +160,12 @@ export function OrgUnitChangeSetEditor({organizationId, structure, language}: Pr
         {(kind === 'CREATE' || kind === 'MOVE') ? (
           <label className="m8-org-editor__field">
             <Text variant="caption-2">{ru ? 'Родительское подразделение' : 'Parent org unit'}</Text>
-            <select className="m8-org-editor__select" value={targetParent} disabled={busy}
-              onChange={(e) => setValue((m) => ({...m, parentOrgUnitId: e.target.value}))}>
-              <option value="">{ru ? 'Корневой уровень' : 'Root level'}</option>
-              {available.map((u) => (
-                <option key={u.id} value={u.id}>{u.name}</option>
-              ))}
-            </select>
+            <Select width="max" disabled={busy} value={[targetParent]}
+              options={[
+                {value: '', content: ru ? 'Корневой уровень' : 'Root level'},
+                ...available.map((u) => ({value: u.id, content: u.name})),
+              ]}
+              onUpdate={(values) => setValue((m) => ({...m, parentOrgUnitId: values[0] ?? ''}))}/>
           </label>
         ) : null}
         {serverOwned ? <Text color="warning" variant="body-2">
@@ -228,12 +235,12 @@ export function OrgUnitChangeSetEditor({organizationId, structure, language}: Pr
           ) : null}
           {isValidated ? (
             <>
-              <label className="m8-changeset__confirm">
-                <input type="checkbox" checked={confirmed} disabled={busy} onChange={(e) => setConfirmed(e.target.checked)}/>
-                <Text variant="body-2">{ru
-                  ? 'Подтверждаю применение к текущей структуре и понимаю, что возврат потребует нового ChangeSet.'
-                  : 'I confirm applying these changes; reversal requires another ChangeSet.'}</Text>
-              </label>
+              <div className="m8-changeset__confirm">
+                <Checkbox checked={confirmed} disabled={busy} onUpdate={setConfirmed}
+                  content={ru
+                    ? 'Подтверждаю применение к текущей структуре. Возврат потребует нового ChangeSet.'
+                    : 'I confirm applying the changes. Reversal requires another ChangeSet.'}/>
+              </div>
               <Button view="action" loading={apply.isPending} disabled={!confirmed || busy}
                 onClick={() => apply.mutate()}>{ru ? 'Применить ChangeSet' : 'Apply ChangeSet'}</Button>
             </>
