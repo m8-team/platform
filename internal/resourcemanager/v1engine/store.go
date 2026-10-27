@@ -179,9 +179,14 @@ func (s *Store) List(kind Kind, orgID string) ([]Record, error) {
 	return out, nil
 }
 
-// ListTenantOrganizations returns only Organizations owned by a known Tenant.
-// It must not scan all tenants: the caller's tenant scope is mandatory.
+// Tenant-scoped discovery never scans or returns records from other Tenants.
 func (s *Store) ListTenantOrganizations(tenantID string) ([]Record, error) {
+	return s.listTenantKind(tenantID, Organization)
+}
+func (s *Store) ListTenantGroups(tenantID string) ([]Record, error) {
+	return s.listTenantKind(tenantID, Group)
+}
+func (s *Store) listTenantKind(tenantID string, kind Kind) ([]Record, error) {
 	if tenantID == "" {
 		return nil, ErrInvalid
 	}
@@ -192,7 +197,7 @@ func (s *Store) ListTenantOrganizations(tenantID string) ([]Record, error) {
 	}
 	out := make([]Record, 0)
 	for _, record := range s.objects {
-		if record.Kind == Organization && record.TenantID == tenantID && record.State != "DELETED" {
+		if record.Kind == kind && record.TenantID == tenantID && record.State != "DELETED" {
 			out = append(out, record)
 		}
 	}
