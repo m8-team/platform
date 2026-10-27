@@ -17,6 +17,17 @@ function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
 }
 
+// grpc-gateway protojson serializes int64/uint64 values as decimal strings.
+// Keep revision handling safe for optimistic-concurrency operations.
+function revisionNumber(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 1) return value
+  if (typeof value === 'string' && /^[1-9]\\d*$/.test(value)) {
+    const parsed = Number(value)
+    if (Number.isSafeInteger(parsed)) return parsed
+  }
+  return undefined
+}
+
 function metadata(value: unknown): RecordValue {
   if (!isRecord(value)) throw new Error('Resource Manager returned missing resource metadata')
   return value
@@ -59,7 +70,7 @@ export async function fetchOrganizationDetail(id: string, signal?: AbortSignal):
     tenantId: requiredString(organization.tenantId, 'tenant ID'),
     description: optionalString(meta.description),
     state: optionalString(meta.state)?.replace(/^RESOURCE_STATE_/, '') ?? 'UNSPECIFIED',
-    revision: typeof meta.revision === 'number' ? meta.revision : undefined,
+    revision: revisionNumber(meta.revision),
     createdAt: optionalString(meta.createTime),
     updatedAt: optionalString(meta.updateTime),
     companyProfileRef: optionalString(organization.companyProfileRef),
@@ -101,8 +112,7 @@ function parseOrgUnit(value: unknown, organizationId: string, revision: number):
     managementMode:
       optionalString(value.managementMode)?.replace(/^ORG_UNIT_MANAGEMENT_MODE_/, '') ?? 'UNSPECIFIED',
     authoritativeSourceId: optionalString(value.authoritativeSourceId),
-    structureRevision:
-      typeof value.structureRevision === 'number' ? value.structureRevision : revision,
+    structureRevision: revisionNumber(value.structureRevision) ?? revision,
   }
 }
 
@@ -125,17 +135,19 @@ export async function fetchOrganizationStructure(
       `/resource-manager/v1/organizations/${encodeURIComponent(organizationId)}/org-units?${parameters}`,
       signal,
     )
-    if (!isRecord(result) || !Array.isArray(result.orgUnits)) {
+    if (!isRecord(result) || (result.orgUnits !== undefined && !Array.isArray(result.orgUnits))) {
       throw new Error('Invalid OrgUnit list response')
     }
-    if (typeof result.structureRevision !== 'number' || result.structureRevision < 1) {
-      throw new Error('OrgUnit revision is missing')
+    const pageRevision = revisionNumber(result.structureRevision)
+    if (pageRevision === undefined) {
+      throw new Error('OrgUnit revision is missing or unsafe')
     }
-    if (revision !== undefined && revision !== result.structureRevision) {
+    if (revision !== undefined && revision !== pageRevision) {
       throw new Error('Organization structure changed during pagination. Refresh to reload.')
     }
-    revision = result.structureRevision
-    for (const rawUnit of result.orgUnits) {
+    revision = pageRevision
+    // grpc-gateway omits an empty repeated field by default.
+    for (const rawUnit of result.orgUnits ?? []) {
       const unit = parseOrgUnit(rawUnit, organizationId, revision)
       if (seenUnits.has(unit.id)) throw new Error('Duplicate OrgUnit in API response')
       if (unit.structureRevision !== revision) throw new Error('OrgUnit revision mismatch')
@@ -197,7 +209,7 @@ export async function fetchOrganizationResources(
       structuralOwner,
       name: requiredString(meta.name, 'resource name'),
       state: optionalString(meta.state)?.replace(/^RESOURCE_STATE_/, '') ?? 'UNSPECIFIED',
-      revision: typeof meta.revision === 'number' ? meta.revision : undefined,
+      revision: revisionNumber(meta.revision),
     }
   })
 }
