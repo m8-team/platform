@@ -1,0 +1,39 @@
+name: M8 Console Resource Manager UI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ui/apps/console/**'
+      - '.github/workflows/console-resource-manager-ui.yml'
+  pull_request:
+    paths:
+      - 'ui/apps/console/**'
+      - '.github/workflows/console-resource-manager-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  console:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui/apps/console
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: ui/apps/console/pnpm-lock.yaml
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: ESLint
+        run: pnpm lint
+      - name: TypeScript and Vite production build
+        run: pnpm build
