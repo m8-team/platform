@@ -684,16 +684,21 @@
 
 .m8-health-services {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   margin-top: 16px;
 }
 
 .m8-health-service {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--g-color-line-generic);
   border-radius: 10px;
+}
+
+.m8-health-service__body {
+  display: grid;
+  gap: 10px;
+  padding: 8px 14px 14px;
 }
 
 .m8-health-service__heading,
@@ -703,6 +708,15 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.m8-health-service__heading {
+  width: 100%;
+  min-width: 0;
+}
+
+.m8-health-service__heading .g-label {
+  flex-shrink: 0;
 }
 
 .m8-health-service__title {
