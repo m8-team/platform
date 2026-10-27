@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 )
 
@@ -153,10 +154,9 @@ func (c *Catalog) Create(ctx context.Context, r v1engine.Record, idem string) (v
 			return v1engine.Record{}, err
 		}
 	}
-	id, err := newID()
-	if err != nil {
-		return v1engine.Record{}, err
-	}
+	// Resource IDs must be RFC 4122 UUIDs: all canonical v1 UI routes and
+	// Protobuf resource contracts validate UUID identifiers.
+	id := uuid.NewString()
 	now := time.Now().UTC()
 	r.ID = id
 	r.State = "ACTIVE"
