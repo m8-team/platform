@@ -8,10 +8,11 @@ import (
 
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
-	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
+	"github.com/m8-team/platform/internal/resourcemanager/adapter/orgaccess"
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"github.com/m8-team/platform/internal/resourcemanager/app/ports"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
+	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -39,6 +40,8 @@ func authenticatedOrgActor(ctx context.Context) (orgstructure.Actor, error) {
 // running in its existing *development-only* AllowUnauthenticated mode.
 // Production must replace it with a policy/impact adapter to M8 Access.
 type orgStructureGate struct{ allowDevelopment bool }
+
+type orgStructurePolicy interface { orgstructure.HierarchyReadGate; orgstructure.DecisionGate }
 
 func (g *orgStructureGate) AuthorizeOrganization(context.Context, orgstructure.Actor, string) error {
 	if g == nil || !g.allowDevelopment {
@@ -74,8 +77,13 @@ type OrgStructureServer struct {
 	changes *orgstructure.Service
 }
 
-func NewOrgStructureServer(store *memory.OrgStructureStore, cfg resourcemanager.Config) (*OrgStructureServer, error) {
-	gate := &orgStructureGate{allowDevelopment: cfg.AllowUnauthenticated}
+func NewOrgStructureServer(store orgstructure.Store, cfg resourcemanager.Config, checker ...*accessusecase.CheckPermissionHandler) (*OrgStructureServer, error) {
+	var gate orgStructurePolicy = &orgStructureGate{allowDevelopment: cfg.AllowUnauthenticated}
+	if !cfg.AllowUnauthenticated {
+		var provider orgaccess.PermissionChecker
+		if len(checker) > 0 && checker[0] != nil { provider = checker[0] }
+		gate = &orgaccess.Gate{Checker:provider, ModelRevision:cfg.AccessModelRevision}
+	}
 	key := append([]byte(nil), cfg.PageTokenKey...)
 	if len(key) == 0 {
 		key = make([]byte, 32)

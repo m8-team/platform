@@ -31,6 +31,9 @@ func appOptions(cfg Config) []fx.Option {
 			AllowUnauthenticated: cfg.AllowUnauthenticated,
 			SoftDeleteRetention:  cfg.SoftDeleteRetention,
 			PageTokenKey:         cfg.PageTokenKey,
+			YDBDSN: cfg.YDBDSN,
+			YDBTablePrefix: cfg.YDBTablePrefix,
+			AccessModelRevision: cfg.AccessModelRevision,
 		}),
 		grpcadapter.Module(),
 	}

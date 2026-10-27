@@ -25,6 +25,9 @@ type Config struct {
 	AllowUnauthenticated bool
 	SoftDeleteRetention  time.Duration
 	PageTokenKey         []byte
+	YDBDSN string
+	YDBTablePrefix string
+	AccessModelRevision string
 }
 
 func Module(cfg Config) fx.Option {
