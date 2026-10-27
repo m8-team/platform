@@ -66,9 +66,9 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err = cat.Create(ctx, v1engine.Record{
-		Kind: v1engine.Organization,
+		Kind:  v1engine.Organization,
 		Owner: v1engine.Owner{Kind: v1engine.Tenant, ID: missingTenant},
-		Name: "Must not be created",
+		Name:  "Must not be created",
 	}, seed+"-missing-parent")
 	if !errors.Is(err, v1engine.ErrNotFound) {
 		t.Fatalf("missing Tenant must return NotFound, got: %v", err)
