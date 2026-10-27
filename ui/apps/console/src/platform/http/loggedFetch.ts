@@ -49,6 +49,7 @@ function tryStartRequestLog(
       service,
       method: request.method,
       url: request.url,
+      origin: request.origin,
       parameters: request.parameters,
       requestHeaders: request.headers,
       requestBody: request.body,

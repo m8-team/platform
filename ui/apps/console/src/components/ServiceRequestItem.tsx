@@ -1,9 +1,10 @@
-import {memo} from 'react'
-import {DefinitionList, Label, Text} from '@gravity-ui/uikit'
+import {memo, useState} from 'react'
+import {Button, DefinitionList, Label, Text} from '@gravity-ui/uikit'
 
 import {JsonPreview} from './JsonPreview'
 import type {Translate} from '../i18n'
 import type {ServiceRequestRecord} from '../platform/http/serviceRequestLog'
+import {formatServiceRequestForCopy} from '../platform/http/serviceRequestExport'
 
 interface ServiceRequestItemProps {
   record: ServiceRequestRecord
@@ -35,8 +36,38 @@ export const ServiceRequestItem = memo(function ServiceRequestItem({
 })
 
 function ServiceRequestDetails({record, t}: {record: ServiceRequestRecord; t: Translate}) {
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formatServiceRequestForCopy(record))
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('error')
+    }
+  }
+
   return (
-    <DefinitionList
+    <>
+      <div className="m8-request-console__copy-row">
+        <Text variant="caption-2" color="secondary">{t('requestConsole.copyNotice')}</Text>
+        <Button
+          view="outlined"
+          size="m"
+          disabled={record.pending || Boolean(record.responseBodyPending)}
+          onClick={() => void handleCopy()}
+          title={record.pending || record.responseBodyPending
+            ? t('requestConsole.copyPending') : t('requestConsole.copyFull')}
+        >
+          {copyStatus === 'copied' ? t('requestConsole.copyFullDone') : t('requestConsole.copyFull')}
+        </Button>
+      </div>
+      {copyStatus === 'error' ? (
+        <Text role="alert" color="danger" variant="caption-2" className="m8-request-console__copy-error">
+          {t('requestConsole.copyFailed')}
+        </Text>
+      ) : null}
+      <DefinitionList
       className="m8-request-console__definitions"
       direction="horizontal"
       nameMaxWidth={145}
@@ -75,7 +106,8 @@ function ServiceRequestDetails({record, t}: {record: ServiceRequestRecord; t: Tr
       {record.error ? (
         <DefinitionList.Item name={t('requestConsole.error')}>{record.error}</DefinitionList.Item>
       ) : null}
-    </DefinitionList>
+      </DefinitionList>
+    </>
   )
 }
 

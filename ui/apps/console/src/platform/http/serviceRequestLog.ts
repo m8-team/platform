@@ -7,6 +7,7 @@ export interface ServiceRequestRecord {
   readonly service: string
   readonly method: string
   readonly url: string
+  readonly origin?: string
   readonly parameters: ServiceRequestValues
   readonly requestHeaders: ServiceRequestValues
   readonly requestBody?: unknown
