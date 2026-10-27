@@ -9,9 +9,16 @@ import (
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 )
 
-// ListTenantOrganizations loads only direct child Organizations of a known
-// Tenant. Never interpret an empty tenant ID as permission to list globally.
+// ListTenantOrganizations loads only Organizations of a known Tenant.
 func (c *Catalog) ListTenantOrganizations(ctx context.Context, tenantID string) ([]v1engine.Record, error) {
+	return c.listTenantKind(ctx, tenantID, v1engine.Organization)
+}
+// ListTenantGroups loads only Groups of a known Tenant.
+func (c *Catalog) ListTenantGroups(ctx context.Context, tenantID string) ([]v1engine.Record, error) {
+	return c.listTenantKind(ctx, tenantID, v1engine.Group)
+}
+// A missing Tenant never falls back to a global listing.
+func (c *Catalog) listTenantKind(ctx context.Context, tenantID string, kind v1engine.Kind) ([]v1engine.Record, error) {
 	if tenantID == "" {
 		return nil, v1engine.ErrInvalid
 	}
@@ -23,9 +30,9 @@ func (c *Catalog) ListTenantOrganizations(ctx context.Context, tenantID string) 
 			"SELECT kind,id,tenant_id,owner_kind,owner_id,organization_id,display_name,description,state,revision,environment_key,created_at,updated_at "+
 			"FROM %s WHERE tenant_id=$tenant AND kind=$kind AND state!='DELETED';",
 		resourceTable(),
-	)), sql.Named("tenant", tenantID), sql.Named("kind", string(v1engine.Organization)))
+	)), sql.Named("tenant", tenantID), sql.Named("kind", string(kind)))
 	if err != nil {
-		return nil, fmt.Errorf("list tenant organizations: %w", err)
+		return nil, fmt.Errorf("list tenant resources: %w", err)
 	}
 	defer rows.Close()
 
