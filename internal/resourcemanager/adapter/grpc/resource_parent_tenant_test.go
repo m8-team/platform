@@ -25,7 +25,7 @@ func TestCreateOrganizationRequiresAnExistingTenant(t *testing.T) {
 	organization := &pb.CreateResourceRequest{
 		Resource: &pb.ResourceRecord{Resource: &pb.ResourceRecord_Organization{
 			Organization: &pb.Organization{
-				TenantId: "c6c8dc67-f749-42d6-b7c8-4e0000000000",
+				TenantId: "00000000-0000-4000-8000-000000000001",
 				Metadata: &pb.ResourceMetadata{Name: "Retail"},
 			},
 		}},
