@@ -11,6 +11,7 @@ type MutableServiceRequestValues = Record<string, string[]>
 export interface RequestPreview {
   method: string
   url: string
+  origin: string
   parameters: ServiceRequestValues
   headers: ServiceRequestValues
   body?: unknown
@@ -27,6 +28,7 @@ export function createRequestPreview(input: RequestInfo | URL, init: RequestInit
   return {
     method: resolveMethod(input, init),
     url: url.pathname,
+    origin: url.origin,
     parameters: collectParameters(url.searchParams),
     headers: collectRequestHeaders(input, init),
     body: sanitizeRequestBody(init.body),
