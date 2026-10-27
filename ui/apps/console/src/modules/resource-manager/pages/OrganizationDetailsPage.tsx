@@ -1,5 +1,5 @@
 import {useMemo, useState} from 'react'
-import {ArrowRotateRight, BranchesDown, ChevronDown, ChevronRight, Database, Magnifier} from '@gravity-ui/icons'
+import {ArrowRotateRight, ChevronDown, ChevronRight, Magnifier} from '@gravity-ui/icons'
 import {Button, Card, ClipboardButton, Icon, Label, Text, TextInput} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
 import {useParams} from '@tanstack/react-router'
