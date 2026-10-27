@@ -167,3 +167,14 @@ Group is a non-owning business association. Membership does **not** imply a lega
 Current limitations: the v1 list endpoints return unpaginated lists; membership timestamps are not persisted by the existing service; Access/approval integration is not complete. The UI fails closed on an unexpected pagination token rather than silently omitting data.
 
 Validation: `go test ./internal/resourcemanager/...`; `cd ui/apps/console && pnpm install --frozen-lockfile && pnpm lint && pnpm build`.
+
+## P1 — Corporate relationships (parent, subsidiary, affiliate, partner, provider)
+
+- `/resource-manager/relationships` is a separate Tenant-scoped inventory independent of optional Group affiliation.
+- Group inspector embeds the typed relationship editor filtered to companies in the selected Group.
+- A relationship is a dated, directed and revisioned fact, **not** an OrgUnit parent, resource OwnerScope, or access grant.
+- The UI uses the real `OrganizationRelationshipService` REST gateway with 401/403/409 conflict handling, idempotency keys, optimistic revisions and controlled close confirmation.
+- View stored revision history; no fabricated organizational graph or employees.
+- The YDB deployment must apply `004_organization_relationships.sql` after `003_unified_resources.sql`.
+- Production remains deny-by-default until M8 Access authorization is integrated; development mode is localhost-only.
+- `pnpm lint && pnpm build`, `go test ./internal/resourcemanager/...`, and real disposable YDB integration checks are the release gates.
