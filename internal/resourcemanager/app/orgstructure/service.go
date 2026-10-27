@@ -54,6 +54,17 @@ func (s *Service) Apply(ctx context.Context, actor Actor, plan orgunit.ChangeSet
     if err:=s.gate.CheckImpact(ctx,actor,before,next,plan);err!=nil{return Result{},err}
     return s.store.Commit(ctx,CommitRequest{Actor:actor,Plan:plan,RequestHash:digest,Snapshot:next})
 }
+// ApplyImmediate derives audit and effective timestamps from trusted server time.
+// Scheduling and retroactive HR corrections require the temporal workflow.
+func (s *Service) ApplyImmediate(ctx context.Context, actor Actor, plan orgunit.ChangeSet) (Result, error) {
+    if !plan.EffectiveAt.IsZero() {
+        return Result{}, orgunit.ErrDeferredEffectiveTime
+    }
+    now := time.Now().UTC()
+    plan.EffectiveAt, plan.RecordedAt = now, now
+    return s.Apply(ctx,actor,plan)
+}
+
 func requestHash(plan orgunit.ChangeSet) (string,error) {
     // recorded_at comes from the trusted server clock and is deliberately not
     // part of the logical idempotency fingerprint; retries need not share it.
@@ -61,10 +72,9 @@ func requestHash(plan orgunit.ChangeSet) (string,error) {
         ID string
         OrganizationID string
         ExpectedRevision uint64
-        EffectiveAt time.Time
-        SourceID string
+                SourceID string
         Changes []orgunit.Change
-    }{plan.ID,plan.OrganizationID,plan.ExpectedRevision,plan.EffectiveAt,plan.SourceID,plan.Changes})
+    }{plan.ID,plan.OrganizationID,plan.ExpectedRevision,plan.SourceID,plan.Changes})
     if err!=nil{return "",fmt.Errorf("marshal changeset: %w",err)}
     digest:=sha256.Sum256(payload)
     return hex.EncodeToString(digest[:]),nil
