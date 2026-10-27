@@ -173,7 +173,10 @@ export async function fetchOrganizationResources(
   }
   return result.resources.map((record) => {
     if (!isRecord(record)) throw new Error('Invalid resource record')
-    const kind = Object.keys(record).find((key) => isRecord(record[key]) && isRecord(record[key].metadata))
+    const kind = Object.keys(record).find((key) => {
+      const candidate = record[key]
+      return isRecord(candidate) && isRecord(candidate.metadata)
+    })
     if (!kind) throw new Error('Unknown resource record')
     const value = record[kind] as RecordValue
     const meta = metadata(value.metadata)
