@@ -9,12 +9,6 @@ on:
       - 'api/generate/go/m8/platform/resourcemanager/v1/**'
       - 'internal/resourcemanager/**'
       - '.github/workflows/resourcemanager-orgunit-proto.yml'
-  pull_request:
-    paths:
-      - 'api/proto/m8/platform/resourcemanager/v1/org_*.proto'
-      - 'api/generate/go/m8/platform/resourcemanager/v1/**'
-      - 'internal/resourcemanager/**'
-      - '.github/workflows/resourcemanager-orgunit-proto.yml'
   workflow_dispatch:
 
 permissions:

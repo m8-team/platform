@@ -1,9 +1,7 @@
 name: Canonical v1 protobuf and Resource Manager
 on:
   push:
-    branches:
-      - feat/resource-manager-v1-runtime-20261025
-  pull_request:
+    branches: [main]
     paths:
       - 'api/proto/**'
       - 'buf.yaml'
@@ -14,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   protobuf:
@@ -31,19 +29,12 @@ jobs:
           version: '1.50.0'
       - name: Check protobuf lint
         run: buf lint
-      - name: Generate canonical protobuf bindings
-        run: buf generate
+      - name: Verify canonical protobuf bindings match committed output
+        run: |
+          buf generate
+          git diff --exit-code -- api/generate
+          test -z "$(git ls-files --others --exclude-standard api/generate)"
       - name: Test isolated Resource Manager v1 core
         run: go test ./internal/resourcemanager/v1engine
-      - name: Commit generated bindings on integration branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/resource-manager-v1-runtime-20261025'
-        run: |
-          if [ -n "$(git status --porcelain -- api/generate)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add api/generate
-            git commit -m "chore(proto): regenerate canonical v1 bindings [skip ci]"
-            git push
-          fi
       - name: Verify full module build
         run: go test ./...

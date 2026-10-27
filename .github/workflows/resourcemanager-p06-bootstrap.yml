@@ -9,13 +9,6 @@ on:
       - 'go.mod'
       - 'go.sum'
       - '.github/workflows/resourcemanager-p06-bootstrap.yml'
-  pull_request:
-    paths:
-      - 'internal/resourcemanager/**'
-      - 'cmd/resource-manager/**'
-      - 'go.mod'
-      - 'go.sum'
-      - '.github/workflows/resourcemanager-p06-bootstrap.yml'
   workflow_dispatch:
 
 permissions:

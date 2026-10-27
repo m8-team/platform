@@ -8,11 +8,6 @@ on:
       - 'internal/resourcemanager/**'
       - 'Makefile'
       - '.github/workflows/resource-manager-gofmt.yml'
-  pull_request:
-    paths:
-      - 'internal/resourcemanager/**'
-      - 'Makefile'
-      - '.github/workflows/resource-manager-gofmt.yml'
   workflow_dispatch:
 
 permissions:
