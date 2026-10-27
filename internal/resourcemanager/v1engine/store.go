@@ -178,6 +178,7 @@ func (s *Store) List(kind Kind, orgID string) ([]Record, error) {
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
 }
+
 // ListTenantOrganizations returns only Organizations owned by a known Tenant.
 // It must not scan all tenants: the caller's tenant scope is mandatory.
 func (s *Store) ListTenantOrganizations(tenantID string) ([]Record, error) {
