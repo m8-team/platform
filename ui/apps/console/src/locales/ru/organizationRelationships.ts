@@ -29,6 +29,7 @@ export const relationshipsRu: Record<keyof typeof import('../en/organizationRela
   'relations.loading': 'Загрузка связей…',
   'relations.error': 'Не удалось выполнить операцию с корпоративной связью.',
   'relations.retry': 'Повторить',
+  'relations.history': 'История версий',
   'relations.revision': 'Ревизия',
   'relations.refresh': 'Обновить',
   'relations.scope': 'Область Tenant',
