@@ -1,4 +1,6 @@
 import {I18N} from '@gravity-ui/i18n'
+import {organizationGroupsEn} from './locales/en/organizationGroups'
+import {organizationGroupsRu} from './locales/ru/organizationGroups'
 import {healthMessagesEn} from './locales/en/health'
 import {healthMessagesRu} from './locales/ru/health'
 import {resourceCatalogEn} from './locales/en/resourceCatalog'
@@ -29,6 +31,7 @@ const consoleMessages = {
   'menu.settings': 'Settings',
   'menu.resources.overview': 'Overview',
   'menu.resources.organizations': 'Organizations',
+  'menu.resources.groups': 'Organization Groups',
   'menu.resources.workspaces': 'Workspaces',
   'menu.resources.projects': 'Projects',
   'menu.operations.longRunning': 'Long-running Operations',
@@ -132,6 +135,7 @@ const consoleMessages = {
   'page.resourceManager.description': 'Tenant hierarchy, project ownership, and resource lifecycle entry point.',
   ...healthMessagesEn,
   ...organizationMessagesEn,
+  ...organizationGroupsEn,
   ...resourceCatalogEn,
   'page.organizationDetails.title': 'Organization details',
   'page.organizationDetails.description': 'Organization metadata, workspace membership, and lifecycle state.',
@@ -232,6 +236,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   'menu.settings': 'Настройки',
   'menu.resources.overview': 'Обзор',
   'menu.resources.organizations': 'Организации',
+  'menu.resources.groups': 'Группы компаний',
   'menu.resources.workspaces': 'Рабочие области',
   'menu.resources.projects': 'Проекты',
   'menu.operations.longRunning': 'Длительные операции',
@@ -335,6 +340,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   'page.resourceManager.description': 'Иерархия тенантов, владение проектами и точка входа в жизненный цикл ресурсов.',
   ...healthMessagesRu,
   ...organizationMessagesRu,
+  ...organizationGroupsRu,
   ...resourceCatalogRu,
   'page.organizationDetails.title': 'Детали организации',
   'page.organizationDetails.description': 'Метаданные организации, рабочие области и состояние жизненного цикла.',
