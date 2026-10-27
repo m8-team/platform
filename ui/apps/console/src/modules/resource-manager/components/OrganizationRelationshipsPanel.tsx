@@ -37,6 +37,7 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
   const [evidence, setEvidence] = useState('')
   const [editing, setEditing] = useState<string | null>(null)
   const [confirmClose, setConfirmClose] = useState<string | null>(null)
+  const [canClose, setCanClose] = useState(false)
   const [historyId, setHistoryId] = useState<string | null>(null)
   const [editStake, setEditStake] = useState('0')
   const [editTo, setEditTo] = useState('')
@@ -216,7 +217,10 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
       </dl>
       {rel.state === 'ACTIVE' && <div className="m8-relations__buttons">
         <Button onClick={() => startEditing(rel)}>{t('relations.edit')}</Button>
-        <Button view="outlined-danger" onClick={() => setConfirmClose(rel.id)}>{t('relations.close')}</Button>
+        <Button view="outlined-danger" onClick={() => {
+          setConfirmClose(rel.id)
+          setCanClose(Date.parse(rel.validFrom) < Date.now())
+        }}>{t('relations.close')}</Button>
       </div>}
       <div className="m8-relations__buttons">
         <Button view="flat" onClick={() => setHistoryId(historyId === rel.id ? null : rel.id)}>
@@ -261,10 +265,10 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
       </div>}
       {confirmClose === rel.id && <div className="m8-relations__close">
         <Text variant="body-2">{t('relations.closeNotice')}</Text>
-        {Date.parse(rel.validFrom) >= Date.now() && <Text color="danger">{t('relations.cannotClose')}</Text>}
+        {!canClose && <Text color="danger">{t('relations.cannotClose')}</Text>}
         <div className="m8-relations__buttons">
           <Button onClick={() => setConfirmClose(null)}>{t('relations.cancel')}</Button>
-          <Button view="outlined-danger" disabled={close.isPending || Date.parse(rel.validFrom) >= Date.now()}
+          <Button view="outlined-danger" disabled={close.isPending || !canClose}
             loading={close.isPending} onClick={() => close.mutate(rel)}>{t('relations.confirmClose')}</Button>
         </div>
       </div>}
