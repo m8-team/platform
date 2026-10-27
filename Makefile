@@ -111,3 +111,16 @@ clickstack\:port-forward:
 	CLICKSTACK_OTLP_GRPC_PORT="$(CLICKSTACK_OTLP_GRPC_PORT)" \
 	CLICKSTACK_OTLP_HTTP_PORT="$(CLICKSTACK_OTLP_HTTP_PORT)" \
 	scripts/dev-clickstack.sh port-forward
+
+# Resource Manager code formatting (same check as GitHub Actions).
+.PHONY: fmt-resourcemanager fmt-check-resourcemanager
+
+fmt-resourcemanager:
+	find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+
+fmt-check-resourcemanager:
+	@unformatted="$$(find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -l)"; \
+	if [ -n "$$unformatted" ]; then \
+		printf 'Go files need gofmt:\\n%s\\n' "$$unformatted"; \
+		exit 1; \
+	fi

@@ -4,9 +4,9 @@ import "testing"
 
 func TestPlacementMatrix(t *testing.T) {
 	cases := []struct {
-		name string
-		child Kind
-		parent Parent
+		name    string
+		child   Kind
+		parent  Parent
 		allowed bool
 	}{
 		{"tenant root", KindTenant, Parent{}, true},
