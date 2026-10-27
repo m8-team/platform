@@ -81,9 +81,11 @@ type OrgStructureServer struct {
 }
 
 func NewOrgStructureServer(store orgstructure.Store, cfg resourcemanager.Config, checker ...*accessusecase.CheckPermissionHandler) (*OrgStructureServer, error) {
-    var access *accessusecase.CheckPermissionHandler
-    if len(checker)>0 {access=checker[0]}
-    return newOrgStructureServerWithImpact(store,cfg,access,nil)
+	var access *accessusecase.CheckPermissionHandler
+	if len(checker) > 0 {
+		access = checker[0]
+	}
+	return newOrgStructureServerWithImpact(store, cfg, access, nil)
 }
 
 func newOrgStructureServerWithImpact(store orgstructure.Store, cfg resourcemanager.Config, access *accessusecase.CheckPermissionHandler, impact orgaccess.ImpactReviewer) (*OrgStructureServer, error) {
@@ -91,8 +93,8 @@ func newOrgStructureServerWithImpact(store orgstructure.Store, cfg resourcemanag
 	if !cfg.AllowUnauthenticated {
 		var provider orgaccess.PermissionChecker
 		if access != nil {
-            provider = access
-        }
+			provider = access
+		}
 		gate = &orgaccess.Gate{Checker: provider, ModelRevision: cfg.AccessModelRevision, Impact: impact}
 	}
 	key := append([]byte(nil), cfg.PageTokenKey...)

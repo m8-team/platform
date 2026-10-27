@@ -9,8 +9,8 @@ import (
 	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
 	"github.com/m8-team/platform/internal/resourcemanager"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
-	"github.com/m8-team/platform/internal/resourcemanager/adapter/ydb"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/orgaccess"
+	"github.com/m8-team/platform/internal/resourcemanager/adapter/ydb"
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 	_ "github.com/ydb-platform/ydb-go-sdk/v3"
@@ -54,7 +54,7 @@ type orgStructureGRPCParams struct {
 	Store  orgstructure.Store
 	Config resourcemanager.Config
 	Access *accessusecase.CheckPermissionHandler `optional:"true"`
-	Impact orgaccess.ImpactReviewer `optional:"true"`
+	Impact orgaccess.ImpactReviewer              `optional:"true"`
 }
 
 func newConfiguredOrgStructureServer(p orgStructureGRPCParams) (*OrgStructureServer, error) {
