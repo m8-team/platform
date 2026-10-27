@@ -35,3 +35,37 @@
 .m8-ownership__role{display:grid;align-content:start;justify-items:start;gap:8px;min-width:0;border:1px solid var(--g-color-line-generic);border-radius:7px;padding:14px;overflow-wrap:anywhere}
 @media(max-width:950px){.m8-ownership__workspace{grid-template-columns:1fr}.m8-ownership__list{border-right:0;border-bottom:1px solid var(--g-color-line-generic);padding:0 0 12px;max-height:300px}}
 @media(max-width:620px){.m8-changeset__editor,.m8-ownership__summary{grid-template-columns:1fr}.m8-org-editor__readonly{grid-template-columns:1fr}.m8-org-editor__readonly>:nth-child(even){margin-bottom:10px}}
+
+
+.m8-org-editor__tenant-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 12px;
+  margin: 0;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 8px;
+}
+.m8-org-editor__tenant-mode legend {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+.m8-org-editor__tenant-mode label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.m8-org-editor__tenant-mode input {
+  accent-color: var(--g-color-base-brand);
+}
+.m8-org-editor__error, .m8-org-editor__created-tenant {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
