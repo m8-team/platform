@@ -37,6 +37,8 @@ type Unit struct {
 	OrganizationID string
 	ParentID       string // empty for an organizational root
 	State          State
+	DisplayName    string
+	AuthoritativeSourceID string
 }
 
 // ClosureRow is an immutable materialized hierarchy read model. Self edges
