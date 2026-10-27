@@ -109,3 +109,11 @@ Content-Type: application/json
 REST gateway, CORS and active environment must point to the same RM service
 for both operations. Verify with
 `GET /resource-manager/v1/resources/tenant/<id>`.
+
+### Diagnosing an older Tenant ID
+
+If `M8_RM_YDB_DSN` is unset, the current Resource Manager falls back to a
+development-only in-memory backend. Restarting that backend discards its
+Tenant records, so previously issued IDs are no longer valid. Production
+requires migrated YDB storage and M8 Access. Never respond to a missing
+Tenant by implicitly creating a different one under the caller's authority.
