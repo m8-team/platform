@@ -1,4 +1,4 @@
-name: P0.6 bootstrap YDB SDK and code formatting
+name: P0.6 one-time source formatting and tests
 
 on:
   push:
@@ -20,10 +20,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26.1'
-      - name: Install official YDB Go SDK
-        run: go get github.com/ydb-platform/ydb-go-sdk/v3@latest
-      - name: Resolve Go modules
-        run: go mod tidy
       - name: Format Resource Manager
         run: find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
       - name: Commit dependency and gofmt updates
