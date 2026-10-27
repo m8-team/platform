@@ -22,7 +22,9 @@ func TestListResourcesOrganizationsRequiresTenantScope(t *testing.T) {
 				Metadata: &pb.ResourceMetadata{Name: name},
 			}}},
 		})
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+			t.Fatal(err)
+		}
 		return r.GetTenant().GetMetadata().GetId()
 	}
 	first, second := newTenant("First"), newTenant("Second")
@@ -34,7 +36,9 @@ func TestListResourcesOrganizationsRequiresTenantScope(t *testing.T) {
 				TenantId: parent, Metadata: &pb.ResourceMetadata{Name: name},
 			}}},
 		})
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+			t.Fatal(err)
+		}
 		return r.GetOrganization().GetMetadata().GetId()
 	}
 	one, two := newOrg(first, "Alpha"), newOrg(second, "Beta")
@@ -45,7 +49,7 @@ func TestListResourcesOrganizationsRequiresTenantScope(t *testing.T) {
 	if result.GetResources()[0].GetOrganization().GetMetadata().GetId() != one {
 		t.Fatal("organization from another tenant was returned")
 	}
-	result, err = svc.ListResources(ctx, &pb.ListResourcesRequest{Kind:"organization", TenantId: second})
+	result, err = svc.ListResources(ctx, &pb.ListResourcesRequest{Kind: "organization", TenantId: second})
 	if err != nil || len(result.GetResources()) != 1 ||
 		result.GetResources()[0].GetOrganization().GetMetadata().GetId() != two {
 		t.Fatalf("second tenant was not isolated: %#v err=%v", result, err)
@@ -60,6 +64,8 @@ func TestListResourcesOrganizationsRequiresTenantScope(t *testing.T) {
 			t.Fatalf("invalid tenant query %#v: got %v", request, err)
 		}
 	}
-	_, err = svc.ListResources(ctx, &pb.ListResourcesRequest{Kind:"organization",TenantId:"00000000-0000-4000-8000-000000000001"})
-	if status.Code(err) != codes.NotFound { t.Fatalf("missing Tenant should not return global list: %v", err) }
+	_, err = svc.ListResources(ctx, &pb.ListResourcesRequest{Kind: "organization", TenantId: "00000000-0000-4000-8000-000000000001"})
+	if status.Code(err) != codes.NotFound {
+		t.Fatalf("missing Tenant should not return global list: %v", err)
+	}
 }

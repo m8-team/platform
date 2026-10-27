@@ -85,12 +85,16 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	}
 	// Tenant discovery never mixes organizations across tenants.
 	otherTenant, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Tenant, Name: "Second holding"}, seed+"-second-tenant")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	otherOrg, err := cat.Create(ctx, v1engine.Record{
 		Kind: v1engine.Organization, Name: "Beta Retail",
 		Owner: v1engine.Owner{Kind: v1engine.Tenant, ID: otherTenant.ID},
 	}, seed+"-second-organization")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	firstList, err := cat.ListTenantOrganizations(ctx, tenant.ID)
 	if err != nil || len(firstList) != 1 || firstList[0].ID != org.ID {
 		t.Fatalf("first Tenant organizations: %#v err=%v", firstList, err)
