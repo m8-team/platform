@@ -57,8 +57,8 @@ export function OrganizationsTable({
         mode: 'server',
         value: nameFilter,
         onUpdate: onFilterUpdate,
-        searchPlaceholder: language === 'ru' ? 'Поиск по названию, ID или описанию' : 'Search by name, ID or description',
-        ariaLabel: language === 'ru' ? 'Поиск организаций' : 'Search organizations',
+        searchPlaceholder: t('organizations.filters.searchPlaceholder'),
+        ariaLabel: t('organizations.filters.searchAriaLabel'),
       }}
       pagination={{
         mode: 'server',

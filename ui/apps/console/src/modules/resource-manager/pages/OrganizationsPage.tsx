@@ -140,7 +140,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
           </div>
           <div className="m8-org-editor__actions">
             <Button view="action" onClick={() => setCreating((value) => !value)}>
-              {language === 'ru' ? 'Создать организацию' : 'Create organization'}
+              {t('organizations.create.title')}
             </Button>
             <Button
               view="outlined"
@@ -156,7 +156,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
         {creating ? (
           <OrganizationCreatePanel
             key={tenantId || 'unselected-tenant'}
-            language={language}
+            t={t}
             initialTenantId={tenantId}
             onCancel={() => setCreating(false)}
           />
@@ -165,20 +165,18 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
         <Card view="outlined" className="m8-org-editor">
           <form className="m8-org-editor__form" onSubmit={(e) => {e.preventDefault();selectTenant()}}>
             <Text variant="body-2">
-              {language === 'ru' ? 'Выберите Tenant для списка организаций' : 'Choose the Tenant to list organizations'}
+              {t('organizations.tenant.selectTitle')}
             </Text>
             <Text variant="caption-2" color="secondary">
-              {language === 'ru'
-                ? 'Список теперь использует ResourceManagerService v1 и показывает только организации выбранного Tenant. Глобальный список не поддерживается.'
-                : 'The canonical v1 Resource Manager lists organizations only within an explicitly selected Tenant.'}
+              {t('organizations.tenant.selectDescription')}
             </Text>
             <div className="m8-org-editor__actions">
               <div style={{flex: 1, minWidth: '220px'}}>
                 <TextInput value={tenantInput} onUpdate={setTenantInput} size="m"
-                  placeholder="Tenant ID (UUID)" aria-label="Tenant ID (UUID)"/>
+                  placeholder={t('organizations.tenant.inputPlaceholder')} aria-label={t('organizations.tenant.inputLabel')}/>
               </div>
               <Button type="submit" view="action" disabled={!validTenant}>
-                {language === 'ru' ? 'Показать организации' : 'Load organizations'}
+                {t('organizations.tenant.load')}
               </Button>
             </div>
           </form>
@@ -198,29 +196,29 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
 
           <div className="m8-organizations-toolbar">
             <label className="m8-organizations-toolbar__status">
-              <Text variant="caption-2">{language === 'ru' ? 'Статус' : 'Status'}</Text>
+              <Text variant="caption-2">{t('organizations.filters.status')}</Text>
               <select
                 className="m8-org-editor__select"
                 value={statusFilter}
                 onChange={(event) => handleStatusUpdate(event.target.value as Organization['state'] | '')}
-                aria-label={language === 'ru' ? 'Фильтр по статусу организации' : 'Filter organizations by status'}
+                aria-label={t('organizations.filters.statusAriaLabel')}
               >
-                <option value="">{language === 'ru' ? 'Все статусы' : 'All statuses'}</option>
-                <option value="ACTIVE">{language === 'ru' ? 'Активна' : 'Active'}</option>
-                <option value="SUSPENDED">{language === 'ru' ? 'Приостановлена' : 'Suspended'}</option>
-                <option value="ARCHIVED">{language === 'ru' ? 'В архиве' : 'Archived'}</option>
+                <option value="">{t('organizations.filters.allStatuses')}</option>
+                <option value="ACTIVE">{t('organizations.state.ACTIVE')}</option>
+                <option value="SUSPENDED">{t('organizations.state.SUSPENDED')}</option>
+                <option value="ARCHIVED">{t('organizations.state.ARCHIVED')}</option>
               </select>
             </label>
             {statusFilter || nameFilter ? (
               <Button view="flat-secondary" onClick={clearFilters}>
-                {language === 'ru' ? 'Сбросить фильтры' : 'Clear filters'}
+                {t('organizations.filters.clear')}
               </Button>
             ) : null}
           </div>
 
           {!tenantId ? (
             <div className="m8-organizations-message">
-              <Text variant="body-2" color="secondary">{language === 'ru' ? 'Укажите Tenant ID для загрузки списка.' : 'Enter a Tenant ID to load organizations.'}</Text>
+              <Text variant="body-2" color="secondary">{t('organizations.tenant.required')}</Text>
             </div>
           ) : organizationsQuery.isError ? (
             <div className="m8-organizations-message" role="alert">
