@@ -14,3 +14,5 @@
 .m8-relations__relation{display:grid;gap:5px;overflow-wrap:anywhere}
 .m8-relations__close{display:grid;gap:11px;padding:14px;border:1px solid var(--g-color-line-danger);border-radius:8px}
 @media(max-width:640px){.m8-relations__form-grid,.m8-relations__info{grid-template-columns:1fr}.m8-relations__wide{grid-column:auto}}
+
+.m8-relations__revision{display:grid;gap:5px;padding:10px 0;border-bottom:1px solid var(--g-color-line-generic)}
