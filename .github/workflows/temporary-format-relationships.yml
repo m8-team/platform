@@ -1,0 +1,28 @@
+name: TEMP Format corporate relation Go files
+on:
+  push:
+    branches:
+      - feat/resource-manager-organization-groups-p1-20261027
+    paths:
+      - '.github/workflows/temporary-format-relationships.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  format:
+    if: github.ref == 'refs/heads/feat/resource-manager-organization-groups-p1-20261027'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Apply Go formatter
+        run: |
+          find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add internal/resourcemanager cmd/resource-manager
+          git diff --cached --quiet || (git commit -m "style(resource-manager): gofmt corporate relations" && git push)
