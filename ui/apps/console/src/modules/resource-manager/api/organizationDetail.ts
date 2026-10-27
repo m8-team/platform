@@ -21,7 +21,7 @@ function optionalString(value: unknown): string | undefined {
 // Keep revision handling safe for optimistic-concurrency operations.
 function revisionNumber(value: unknown): number | undefined {
   if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 1) return value
-  if (typeof value === 'string' && /^[1-9]\\d*$/.test(value)) {
+  if (typeof value === 'string' && /^[1-9]\d*$/.test(value)) {
     const parsed = Number(value)
     if (Number.isSafeInteger(parsed)) return parsed
   }
