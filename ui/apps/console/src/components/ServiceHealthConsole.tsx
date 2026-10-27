@@ -145,9 +145,11 @@ export function ServiceHealthConsole({open, t, onClose}: {
 
   useEffect(() => {
     if (!open) return
-    void refresh()
+    // Schedule the initial poll outside the effect's synchronous render phase.
+    const initialPoll = window.setTimeout(() => { void refresh() }, 0)
     const timer = window.setInterval(() => { void refresh() }, pollingIntervalMs)
     return () => {
+      window.clearTimeout(initialPoll)
       window.clearInterval(timer)
       activeRequest.current?.abort()
     }
