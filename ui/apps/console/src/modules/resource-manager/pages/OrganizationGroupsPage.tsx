@@ -12,6 +12,7 @@ import {
   addGroupOrganization, createGroup, getGroup, listGroupLinks,
   listGroups, removeGroupOrganization, verifyOrganizationInTenant,
 } from '../api/organizationGroups'
+import {OrganizationRelationshipsPanel} from '../components/OrganizationRelationshipsPanel'
 import './organization-groups.css'
 
 const uuid = /^[a-f\d]{8}-[a-f\d]{4}-[1-8][a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i
@@ -284,6 +285,8 @@ export function OrganizationGroupsPage({t}: {t: Translate}) {
               <Card view="outlined" className="m8-groups__notice">
                 <Text variant="body-2">{t('groups.noAccessInheritance')}</Text>
               </Card>
+              {links.isSuccess && <OrganizationRelationshipsPanel
+                t={t} tenantId={tenantId} memberIds={links.data.map((link) => link.organizationId)}/>}
               <div className="m8-groups__relations">
                 <div className="m8-groups__heading">
                   <Text as="h3" variant="header-1">{t('groups.relationships')}</Text>
