@@ -99,6 +99,9 @@ func ValidateRelationshipGraph(existing []OrganizationRelationship, candidate Or
 	if candidate.Type != RelationshipParentSubsidiary {
 		return nil
 	}
+	if err := validateDirectStakes(existing, candidate); err != nil {
+		return err
+	}
 	adjacency := make(map[string][]OrganizationRelationship)
 	for _, existingEdge := range existing {
 		if existingEdge.ID == candidate.ID && candidate.ID != "" {
