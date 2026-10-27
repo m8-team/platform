@@ -6,16 +6,26 @@ import {useRouter} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
 import type {AppLanguage, Translate} from '../../../i18n'
+import type {Organization} from '../api/organizations'
 import {OrganizationsTable} from '../components/OrganizationsTable'
 import {OrganizationCreatePanel} from '../components/OrganizationCreatePanel'
 import {useOrganizationsQuery} from '../queries/organizations'
 
 const defaultSorting: SortingState = [{id: 'name', desc: false}]
-const tenantIDPattern = /^[a-f\\d]{8}-[a-f\\d]{4}-[1-8][a-f\\d]{3}-[89ab][a-f\\d]{3}-[a-f\\d]{12}$/i
+const tenantIDPattern = /^[a-f\d]{8}-[a-f\d]{4}-[1-8][a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i
 const tenantScopeKey = 'm8.resource-manager.organizations.tenant-id'
 function defaultTenantID(): string {
-  const candidate = (import.meta.env.VITE_RESOURCE_MANAGER_TENANT_ID ?? sessionStorage.getItem(tenantScopeKey) ?? '').trim()
-  return tenantIDPattern.test(candidate) ? candidate : ''
+  // Preserve the explicitly selected Tenant across reloads. The env value is
+  // only a fallback for development, never an override of the user's scope.
+  let saved = ''
+  try {
+    saved = (sessionStorage.getItem(tenantScopeKey) ?? '').trim()
+  } catch {
+    // Session storage can be unavailable in locked-down browsers.
+  }
+  const configured = (import.meta.env.VITE_RESOURCE_MANAGER_TENANT_ID ?? '').trim()
+  if (tenantIDPattern.test(saved)) return saved
+  return tenantIDPattern.test(configured) ? configured : ''
 }
 
 export interface OrganizationsPageProps {
@@ -32,6 +42,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const [pageSize, setPageSize] = useState(20)
   const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
   const [nameFilter, setNameFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<Organization['state'] | ''>('')
   const [sorting, setSorting] = useState<SortingState>(defaultSorting)
   const filter = useMemo(() => buildNameFilter(nameFilter), [nameFilter])
   const orderBy = useMemo(() => buildOrderBy(sorting), [sorting])
@@ -40,6 +51,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
     pageSize,
     pageToken: pageTokens[page],
     filter,
+    stateFilter: statusFilter || undefined,
     orderBy,
   })
 
@@ -55,6 +67,18 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
     },
     [resetPagination],
   )
+  const handleStatusUpdate = useCallback(
+    (value: Organization['state'] | '') => {
+      setStatusFilter(value)
+      resetPagination()
+    },
+    [resetPagination],
+  )
+  const clearFilters = useCallback(() => {
+    setNameFilter('')
+    setStatusFilter('')
+    resetPagination()
+  }, [resetPagination])
   const handleSortingUpdate = useCallback(
     (value: SortingState) => {
       setSorting(value.length > 0 ? [value[0]] : defaultSorting)
@@ -86,7 +110,11 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const selectTenant = () => {
     const selected = tenantInput.trim()
     if (!tenantIDPattern.test(selected)) return
-    sessionStorage.setItem(tenantScopeKey, selected)
+    try {
+      sessionStorage.setItem(tenantScopeKey, selected)
+    } catch {
+      // The selected Tenant remains usable even without session storage.
+    }
     setTenantId(selected)
     resetPagination()
   }
@@ -125,7 +153,14 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
           </div>
         </div>
 
-        {creating ? <OrganizationCreatePanel language={language} onCancel={() => setCreating(false)}/> : null}
+        {creating ? (
+          <OrganizationCreatePanel
+            key={tenantId || 'unselected-tenant'}
+            language={language}
+            initialTenantId={tenantId}
+            onCancel={() => setCreating(false)}
+          />
+        ) : null}
 
         <Card view="outlined" className="m8-org-editor">
           <form className="m8-org-editor__form" onSubmit={(e) => {e.preventDefault();selectTenant()}}>
@@ -161,6 +196,28 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
             </div>
           </div>
 
+          <div className="m8-organizations-toolbar">
+            <label className="m8-organizations-toolbar__status">
+              <Text variant="caption-2">{language === 'ru' ? 'Статус' : 'Status'}</Text>
+              <select
+                className="m8-org-editor__select"
+                value={statusFilter}
+                onChange={(event) => handleStatusUpdate(event.target.value as Organization['state'] | '')}
+                aria-label={language === 'ru' ? 'Фильтр по статусу организации' : 'Filter organizations by status'}
+              >
+                <option value="">{language === 'ru' ? 'Все статусы' : 'All statuses'}</option>
+                <option value="ACTIVE">{language === 'ru' ? 'Активна' : 'Active'}</option>
+                <option value="SUSPENDED">{language === 'ru' ? 'Приостановлена' : 'Suspended'}</option>
+                <option value="ARCHIVED">{language === 'ru' ? 'В архиве' : 'Archived'}</option>
+              </select>
+            </label>
+            {statusFilter || nameFilter ? (
+              <Button view="flat-secondary" onClick={clearFilters}>
+                {language === 'ru' ? 'Сбросить фильтры' : 'Clear filters'}
+              </Button>
+            ) : null}
+          </div>
+
           {!tenantId ? (
             <div className="m8-organizations-message">
               <Text variant="body-2" color="secondary">{language === 'ru' ? 'Укажите Tenant ID для загрузки списка.' : 'Enter a Tenant ID to load organizations.'}</Text>
@@ -174,7 +231,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
             </div>
           ) : (
             <OrganizationsTable
-              key={`${page}:${pageSize}:${filter}:${orderBy}`}
+              key={`${tenantId}:${page}:${pageSize}:${filter}:${statusFilter}:${orderBy}`}
               organizations={organizations}
               language={language}
               loading={organizationsQuery.isFetching}

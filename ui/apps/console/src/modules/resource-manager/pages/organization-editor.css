@@ -69,3 +69,8 @@
   border-radius: 8px;
   overflow-wrap: anywhere;
 }
+
+/* Organizations P0 list: compact status filtering beside searchable table */
+.m8-organizations-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 16px}
+.m8-organizations-toolbar__status{display:grid;gap:6px;min-width:190px}
+@media(max-width:620px){.m8-organizations-toolbar__status{width:100%}}

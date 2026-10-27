@@ -12,6 +12,7 @@ export interface OrganizationsQueryParameters {
   pageSize: number
   pageToken?: string
   filter?: string
+  stateFilter?: import('../api/organizations').Organization['state']
   orderBy: string
 }
 
