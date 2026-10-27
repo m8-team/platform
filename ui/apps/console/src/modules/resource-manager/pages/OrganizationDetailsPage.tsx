@@ -405,7 +405,7 @@ function OrganizationDetailContent({organizationId, language, t}: Props & {organ
                       resources.data ? <ResourceOwnershipCards resources={resources.data}
                         organizationId={organizationId} language={language}/> : null
                 ) : null}
-                {section === 'settings' ? <OrganizationSettings organization={current} language={language}/> : null}
+                {section === 'settings' ? <OrganizationSettings key={`${current.id}:${current.revision ?? 0}`} organization={current} language={language}/> : null}
                 {section === 'sync' ? <UnsupportedFeature language={language} message={d.syncMessage}/> : null}
                 {section === 'history' ? <UnsupportedFeature language={language} message={d.historyMessage}/> : null}
               </div>
