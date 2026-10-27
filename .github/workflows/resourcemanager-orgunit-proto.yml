@@ -1,0 +1,36 @@
+name: Generate OrgUnit gRPC bindings (bootstrap)
+
+on:
+  push:
+    branches:
+      - feat/resourcemanager-orgstructure-grpc-p05
+    paths:
+      - '.github/workflows/resourcemanager-orgunit-proto.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/resourcemanager-orgstructure-grpc-p05
+          persist-credentials: true
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          version: '1.50.0'
+      - name: Validate protobuf
+        run: buf lint
+      - name: Generate bindings
+        run: buf generate
+      - name: Commit regenerated canonical OrgUnit bindings
+        run: |
+          git add api/generate/go/m8/platform/resourcemanager/v1
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'chore(proto): generate OrgUnit v1 bindings'
+            git push origin HEAD:feat/resourcemanager-orgstructure-grpc-p05
+          fi
