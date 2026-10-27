@@ -10,14 +10,14 @@ import '../pages/organization-editor.css'
 
 const uuidPattern = /^[a-f\d]{8}-[a-f\d]{4}-[1-8][a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/i
 type TenantMode = 'existing' | 'new'
-interface Props {language: AppLanguage; onCancel: () => void}
+interface Props {language: AppLanguage; initialTenantId?: string; onCancel: () => void}
 
-export function OrganizationCreatePanel({language, onCancel}: Props) {
+export function OrganizationCreatePanel({language, initialTenantId, onCancel}: Props) {
   const ru = language === 'ru'
   const router = useRouter()
   const queryClient = useQueryClient()
   const [tenantMode, setTenantMode] = useState<TenantMode>('existing')
-  const [tenantId, setTenantId] = useState('')
+  const [tenantId, setTenantId] = useState(initialTenantId ?? '')
   const [tenantName, setTenantName] = useState('')
   const [createdTenantId, setCreatedTenantId] = useState('')
   const [name, setName] = useState('')

@@ -27,6 +27,7 @@ export interface FetchOrganizationsOptions {
   pageSize: number
   pageToken?: string
   filter?: string
+  stateFilter?: Organization['state']
   orderBy?: string
   signal?: AbortSignal
 }
@@ -42,6 +43,7 @@ export async function fetchOrganizations({
   pageSize,
   pageToken,
   filter,
+  stateFilter,
   orderBy = 'name asc',
   signal,
 }: FetchOrganizationsOptions): Promise<ListOrganizationsResponse> {
@@ -68,7 +70,11 @@ export async function fetchOrganizations({
   }
   const organizations = value.resources.map((item, index) => parseOrganizationResource(item, index, tenantId))
   const substring = (filter ?? '').trim().toLocaleLowerCase()
-  const filtered = organizations.filter((org) => (org.name ?? '').toLocaleLowerCase().includes(substring))
+  const filtered = organizations.filter((org) => {
+    const matchesSearch = !substring || [org.name, org.id, org.description]
+      .some((value) => value?.toLocaleLowerCase().includes(substring))
+    return matchesSearch && (!stateFilter || org.state === stateFilter)
+  })
 
   // The existing table accepts name/id/create_time/update_time ordering.
   const [field, direction] = orderBy.split(' ')

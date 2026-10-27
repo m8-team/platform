@@ -123,3 +123,10 @@ Tenant by implicitly creating a different one under the caller's authority.
 The old `GET /resource-manager/v1/organizations` returns **HTTP 404** because it is not part of the canonical v1 ResourceManagerService. The new list uses `GET /resource-manager/v1/resources?kind=organization&tenantId=<id>`. The Protobuf `ListResourcesRequest.tenant_id` field is additive and only valid with `kind=organization`, empty `organization_id`, and no additional owner scope. An unknown Tenant returns 404; no Tenant scope never results in a global list.
 
 The UI requires an explicit Tenant UUID and stores the last selected Tenant only in `sessionStorage`; `VITE_RESOURCE_MANAGER_TENANT_ID` can supply a development default. Sorting, filtering and paging run client-side over the returned Tenant list in this phase. This is not a security boundary and is not suitable for very large Tenant inventories until indexed, signed server cursors are implemented. M8 Access authorization must be enforced on the server before enabling production read access; the current service guard remains fail-closed.
+
+## Organizations P0 inventory refinement
+
+- The Tenant UUID input accepts valid canonical UUIDs (including digits); session-selected scope takes precedence over the optional development default.
+- The inventory supports case-insensitive name, resource ID and description search; ACTIVE/SUSPENDED/ARCHIVED status filtering; clearing filters; existing sorting/pagination; and loading, empty and permission-denied states.
+- Creating a new Organization defaults to the selected Tenant, while privileged explicit Tenant creation remains a separate option. The form keeps stable idempotency keys for retry.
+- Both search and status filters are currently client-side **inside the selected Tenant** because v1 tenant listing does not provide server-side query/pagination cursors. All resource reads and mutations remain subject to the backend M8 Access guard.
