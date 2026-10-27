@@ -1,0 +1,100 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Directed business/legal relationship. Independent from Group affiliation,
+// OrgUnit closure and resource containment. No implicit Access grants.
+enum OrganizationRelationshipType {
+  ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED = 0;
+  ORGANIZATION_RELATIONSHIP_TYPE_PARENT_SUBSIDIARY = 1;
+  ORGANIZATION_RELATIONSHIP_TYPE_AFFILIATE = 2;
+  ORGANIZATION_RELATIONSHIP_TYPE_PARTNER = 3;
+  ORGANIZATION_RELATIONSHIP_TYPE_SERVICE_PROVIDER = 4;
+}
+
+enum OrganizationRelationshipState {
+  ORGANIZATION_RELATIONSHIP_STATE_UNSPECIFIED = 0;
+  ORGANIZATION_RELATIONSHIP_STATE_ACTIVE = 1;
+  ORGANIZATION_RELATIONSHIP_STATE_CLOSED = 2;
+}
+
+message OrganizationRelationship {
+  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // Directed from -> to. For PARENT_SUBSIDIARY, from is the parent.
+  // For SERVICE_PROVIDER, from provides services to the receiving "to".
+  string from_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string to_organization_id = 4 [(google.api.field_behavior) = REQUIRED];
+  OrganizationRelationshipType type = 5 [(google.api.field_behavior) = REQUIRED];
+  // 0 = unknown; 1..10000 = percent * 100; only PARENT_SUBSIDIARY.
+  int32 ownership_basis_points = 6;
+  google.protobuf.Timestamp valid_from = 7 [(google.api.field_behavior) = REQUIRED];
+  // Optional exclusive end; unset means unbounded.
+  google.protobuf.Timestamp valid_to = 8;
+  OrganizationRelationshipState state = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int64 revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+  google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string evidence_ref = 13;
+}
+
+service OrganizationRelationshipService {
+  rpc CreateOrganizationRelationship(CreateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {post: "/resource-manager/v1/organization-relationships" body: "*"};
+  }
+  rpc GetOrganizationRelationship(GetOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}"};
+  }
+  rpc ListOrganizationRelationships(ListOrganizationRelationshipsRequest) returns (ListOrganizationRelationshipsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships"};
+  }
+  rpc UpdateOrganizationRelationship(UpdateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {patch: "/resource-manager/v1/organization-relationships/{id}" body: "*"};
+  }
+  rpc CloseOrganizationRelationship(CloseOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {post: "/resource-manager/v1/organization-relationships/{id}:close" body: "*"};
+  }
+}
+
+message CreateOrganizationRelationshipRequest {
+  OrganizationRelationship relationship = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetOrganizationRelationshipRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListOrganizationRelationshipsRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2; // optional: either endpoint
+  bool include_closed = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+message ListOrganizationRelationshipsResponse {
+  repeated OrganizationRelationship relationships = 1;
+  string next_page_token = 2;
+}
+message UpdateOrganizationRelationshipRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+  // Only these mutable fields can change. Endpoints/type and validity start
+  // are immutable. To change them, close and create a new relation.
+  int32 ownership_basis_points = 5;
+  google.protobuf.Timestamp valid_to = 6;
+  string evidence_ref = 7;
+}
+message CloseOrganizationRelationshipRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp closed_at = 5 [(google.api.field_behavior) = REQUIRED];
+}
