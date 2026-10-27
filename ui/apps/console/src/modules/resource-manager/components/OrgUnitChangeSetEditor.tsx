@@ -4,7 +4,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query'
 import type {AppLanguage} from '../../../i18n'
 import type {OrganizationStructure, OrgUnit} from '../api/organizationDetail'
 import {
-  applyChangeSet, createDraft, diffStructure, validateChangeSet,
+  applyChangeSet, diffStructure, validateChangeSet,
 } from '../api/organizationMutations'
 import type {ChangeSetDraft, MutationKind, UnitMutation} from '../api/organizationMutations'
 
