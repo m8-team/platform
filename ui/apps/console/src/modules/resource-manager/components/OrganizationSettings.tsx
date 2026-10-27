@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react'
+import {useRef, useState} from 'react'
 import {Button, Label, Text, TextInput} from '@gravity-ui/uikit'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import type {AppLanguage} from '../../../i18n'
@@ -15,11 +15,6 @@ export function OrganizationSettings({
   const [confirmSuspend, setConfirmSuspend] = useState(false)
   const saveKey = useRef(crypto.randomUUID())
   const stateKey = useRef(crypto.randomUUID())
-  useEffect(() => {
-    setName(organization.name)
-    setDescription(organization.description ?? '')
-    setConfirmSuspend(false)
-  }, [organization.id, organization.name, organization.description])
   const refresh = async () => {
     await queryClient.invalidateQueries({queryKey: ['resource-manager', 'organization', organization.id]})
     await queryClient.invalidateQueries({queryKey: ['resource-manager', 'organizations']})
