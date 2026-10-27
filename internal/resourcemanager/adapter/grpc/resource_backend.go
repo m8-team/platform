@@ -18,6 +18,7 @@ type ResourceBackend interface {
 	ListTenantGroups(context.Context, string) ([]v1engine.Record, error)
 	CreateRelationship(context.Context, v1engine.OrganizationRelationship, string) (v1engine.OrganizationRelationship, error)
 	GetRelationship(context.Context, string, string) (v1engine.OrganizationRelationship, error)
+	ListRelationshipVersions(context.Context, string, string) ([]v1engine.OrganizationRelationship, error)
 	ListRelationships(context.Context, string, string, bool) ([]v1engine.OrganizationRelationship, error)
 	UpdateRelationship(context.Context, v1engine.RelationshipUpdate, string) (v1engine.OrganizationRelationship, error)
 	CloseRelationship(context.Context, string, string, int64, int64, string) (v1engine.OrganizationRelationship, error)
@@ -85,6 +86,9 @@ func (b memoryResourceBackend) CreateRelationship(_ context.Context, r v1engine.
 }
 func (b memoryResourceBackend) GetRelationship(_ context.Context, tenant,id string) (v1engine.OrganizationRelationship,error) {
 	return b.store.GetRelationship(tenant,id)
+}
+func (b memoryResourceBackend) ListRelationshipVersions(_ context.Context, tenant,id string) ([]v1engine.OrganizationRelationship,error) {
+	return b.store.ListRelationshipVersions(tenant,id)
 }
 func (b memoryResourceBackend) ListRelationships(_ context.Context, tenant,org string, closed bool) ([]v1engine.OrganizationRelationship,error) {
 	return b.store.ListRelationships(tenant,org,closed)
