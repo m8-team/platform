@@ -35,9 +35,16 @@ func TestIntegrationYDBOrgStructure(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
-	if err = db.PingContext(ctx); err != nil {
-		t.Fatalf("YDB connection unavailable: %v", err)
-	}
+	var pingErr error
+    for attempt := 0; attempt < 30; attempt++ {
+        pingErr = db.PingContext(ctx)
+        if pingErr == nil {break}
+        select {
+        case <-ctx.Done(): t.Fatalf("YDB startup: %v",pingErr)
+        case <-time.After(2*time.Second):
+        }
+    }
+    if pingErr != nil {t.Fatalf("YDB connection unavailable: %v",pingErr)}
 	if err := prepareIntegrationSchema(ctx, db, dsn, prefix); err != nil {
         t.Fatalf("YDB test schema: %v", err)
     }
