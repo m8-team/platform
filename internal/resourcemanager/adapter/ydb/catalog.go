@@ -23,6 +23,10 @@ func NewCatalog(db *sql.DB, prefix string) (*Catalog,error) {
  return &Catalog{store:s},nil
 }
 
+func NewCatalogFromStore(s *Store) (*Catalog,error){
+ if s==nil||s.db==nil{return nil,ErrInvalidStore}
+ return &Catalog{store:s},nil
+}
 func (c *Catalog) stmt(query string) string{return c.store.q(query)}
 func resourceTable()string{return "`m8-resource-manager/resource_records`"}
 func createTable()string{return "`m8-resource-manager/resource_create_requests`"}
