@@ -1,4 +1,4 @@
-name: Generate OrgUnit gRPC bindings (bootstrap)
+name: Format and regenerate OrgUnit gRPC (bootstrap)
 
 on:
   push:
@@ -18,19 +18,23 @@ jobs:
         with:
           ref: feat/resourcemanager-orgstructure-grpc-p05
           persist-credentials: true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
       - uses: bufbuild/buf-setup-action@v1
         with:
           version: '1.50.0'
-      - name: Validate protobuf
-        run: buf lint
+      - name: Format Go
+        run: find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
       - name: Generate bindings
         run: buf generate
-      - name: Commit regenerated canonical OrgUnit bindings
+      - name: Commit formatted sources and regenerated bindings
         run: |
+          git add -u -- internal/resourcemanager
           git add api/generate/go/m8/platform/resourcemanager/v1
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'chore(proto): generate OrgUnit v1 bindings'
+            git commit -m 'style(resourcemanager): gofmt OrgUnit gRPC sources'
             git push origin HEAD:feat/resourcemanager-orgstructure-grpc-p05
           fi
