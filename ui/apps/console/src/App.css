@@ -669,3 +669,109 @@
     flex-direction: column;
   }
 }
+
+/* Health is a diagnostics panel, alongside the API request console. */
+.m8-health-console {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  padding: 20px;
+}
+
+.m8-health-console .m8-request-console__header > div:first-child {
+  min-width: 0;
+}
+
+.m8-health-services {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.m8-health-service {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 10px;
+}
+
+.m8-health-service__heading,
+.m8-health-probe__heading,
+.m8-health-probe__check-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.m8-health-service__title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.m8-health-service__url {
+  overflow-wrap: anywhere;
+  font-family: var(--g-text-code-font-family);
+}
+
+.m8-health-service__probes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.m8-health-probe {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  background: var(--g-color-base-generic-ultralight);
+  border: 1px solid var(--g-color-line-generic);
+  border-radius: 8px;
+}
+
+.m8-health-probe__heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.m8-health-probe__title {
+  font-weight: 600;
+}
+
+.m8-health-probe__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.m8-health-probe__error {
+  overflow-wrap: anywhere;
+}
+
+.m8-health-probe__checks {
+  display: grid;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.m8-health-probe__check {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 650px) {
+  .m8-health-service__probes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

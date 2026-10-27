@@ -54,6 +54,7 @@ import {ConsoleActionBar} from './components/ConsoleActionBar'
 import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
+import {ServiceHealthConsole} from './components/ServiceHealthConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
 import {ResourceCatalogPage} from './modules/resource-manager/pages/ResourceCatalogPage'
 import {OrganizationDetailsPage, OrganizationStructurePage} from './modules/resource-manager/pages/OrganizationDetailsPage'
@@ -68,7 +69,7 @@ import type {AppLanguage, Translate, TranslationKey} from './i18n'
 import './App.css'
 
 type ProjectStatus = 'Active' | 'Suspended' | 'Failed' | 'Provisioning' | 'Deleting'
-type FooterPanel = 'notifications' | 'support' | 'request-console' | 'account'
+type FooterPanel = 'notifications' | 'support' | 'request-console' | 'service-health' | 'account'
 
 interface Project {
   name: string
@@ -643,6 +644,21 @@ function App() {
           />
         ),
       },
+      {
+        id: 'service-health',
+        open: activeFooterPanel === 'service-health',
+        size: 620,
+        className: 'm8-health-panel',
+        contentOverflow: 'auto' as const,
+        hideVeil: false,
+        children: (
+          <ServiceHealthConsole
+            open={activeFooterPanel === 'service-health'}
+            t={t}
+            onClose={() => setActiveFooterPanel(null)}
+          />
+        ),
+      },
       ...(isServiceRequestLoggingEnabled
         ? [
             {
@@ -804,6 +820,17 @@ function App() {
                 current={activeFooterPanel === 'support'}
                 onItemClick={() => {
                   setActiveFooterPanel(activeFooterPanel === 'support' ? null : 'support')
+                }}
+                compact={footerCompact}
+              />
+              <FooterItem
+                id="service-health"
+                icon={Signal}
+                title={t('footer.serviceHealth')}
+                tooltipText={t('footer.serviceHealth')}
+                current={activeFooterPanel === 'service-health'}
+                onItemClick={() => {
+                  setActiveFooterPanel(activeFooterPanel === 'service-health' ? null : 'service-health')
                 }}
                 compact={footerCompact}
               />
