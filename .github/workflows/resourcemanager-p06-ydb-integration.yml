@@ -1,0 +1,35 @@
+name: Resource Manager real YDB integration
+
+on:
+  pull_request:
+    paths:
+      - 'internal/resourcemanager/adapter/ydb/**'
+      - '.github/workflows/resourcemanager-p06-ydb-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-ydb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      ydb:
+        image: ydbplatform/local-ydb:latest
+        ports:
+          - 2136:2136
+        env:
+          YDB_GRPC_ENABLE_TLS: "false"
+          GRPC_PORT: "2136"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Exercise actual YDB transactions
+        env:
+          M8_RM_TEST_YDB_DSN: grpc://127.0.0.1:2136/local
+          M8_RM_TEST_YDB_PREFIX: /local/m8
+          M8_RM_TEST_YDB_BOOTSTRAP: "1"
+        run: go test -v -count=1 -timeout=150s ./internal/resourcemanager/adapter/ydb -run '^TestIntegrationYDBOrgStructure$'
