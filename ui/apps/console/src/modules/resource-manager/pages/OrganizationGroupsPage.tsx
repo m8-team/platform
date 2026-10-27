@@ -24,9 +24,15 @@ function initialTenantId() {
   return uuid.test(saved) ? saved : uuid.test(configured) ? configured : ''
 }
 
-function Status({state}: {state: string}) {
+function Status({state, t}: {state: string; t: Translate}) {
   const theme = state === 'ACTIVE' ? 'success' : state === 'SUSPENDED' ? 'warning' : 'normal'
-  return <Label theme={theme}>{state}</Label>
+  const labels: Record<string, 'organizations.state.ACTIVE' | 'organizations.state.SUSPENDED' |
+    'organizations.state.ARCHIVED' | 'organizations.state.DELETED' | 'organizations.state.FAILED'> = {
+    ACTIVE: 'organizations.state.ACTIVE', SUSPENDED: 'organizations.state.SUSPENDED',
+    ARCHIVED: 'organizations.state.ARCHIVED', DELETED: 'organizations.state.DELETED',
+    FAILED: 'organizations.state.FAILED',
+  }
+  return <Label theme={theme}>{labels[state] ? t(labels[state]) : state}</Label>
 }
 
 function ErrorPanel({t, error, retry}: {t: Translate; error: Error | null; retry?: () => void}) {
@@ -212,7 +218,7 @@ export function OrganizationGroupsPage({t}: {t: Translate}) {
               <Text variant="subheader-2">{group.name}</Text>
               <Text variant="caption-2" color="secondary" className="m8-groups__uuid">{group.id}</Text>
             </span>
-            <Status state={group.state}/>
+            <Status state={group.state} t={t}/>
           </button>)}
         </Card>
 
@@ -224,7 +230,7 @@ export function OrganizationGroupsPage({t}: {t: Translate}) {
               <div className="m8-groups__heading">
                 <div><Text color="secondary" variant="caption-2">{t('groups.details')}</Text>
                   <Text as="h2" variant="header-2">{selected.data.name}</Text></div>
-                <Status state={selected.data.state}/>
+                <Status state={selected.data.state} t={t}/>
               </div>
               <Text variant="body-2">{selected.data.description}</Text>
               <dl className="m8-groups__meta">
