@@ -116,4 +116,17 @@ func TestIntegrationYDBOrgStructure(t *testing.T) {
 	if _, err = store.Commit(ctx, req); !errors.Is(err, orgunit.ErrRevisionConflict) {
 		t.Fatalf("stale revision must fail: %v", err)
 	}
+
+	// The transaction publishes the revision and exactly one outbox event.
+	// Retrying a rejected/stale command must not produce a second event.
+	var eventCount uint64
+	err = db.QueryRowContext(ctx, store.q(`DECLARE $org AS Utf8;
+		SELECT COUNT(*) FROM \`m8-resource-manager/outbox\`
+		WHERE aggregate_id=$org;`), sql.Named("org", orgID)).Scan(&eventCount)
+	if err != nil {
+		t.Fatalf("read transactional outbox: %v", err)
+	}
+	if eventCount != 1 {
+		t.Fatalf("outbox events = %d, want exactly 1", eventCount)
+	}
 }
