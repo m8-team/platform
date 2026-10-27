@@ -35,5 +35,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: ESLint
         run: pnpm lint
+      - name: API Debug complete-call clipboard export tests
+        run: node --experimental-strip-types --test src/platform/http/serviceRequestExport.test.mjs
       - name: TypeScript and Vite production build
         run: pnpm build
