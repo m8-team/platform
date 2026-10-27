@@ -153,3 +153,17 @@ The UI requires an explicit Tenant UUID and stores the last selected Tenant only
 - Translations are defined in `src/locales/en/resourceCatalog.ts` and `src/locales/ru/resourceCatalog.ts`, and composed through `src/i18n.ts`; no inline locale conditionals appear in the new section.
 
 Verification: `cd ui/apps/console && pnpm install --frozen-lockfile && pnpm lint && pnpm build`.
+
+## P1 — Organization Groups
+
+New routes:
+- `/resource-manager/groups` — Tenant-scoped live Group list, search, and Group creation.
+- `/resource-manager/groups/:groupId` — Group inspector, affiliations, explicit add/remove workflows and links to Organizations.
+
+Backend `ListResources` now supports `kind=group&tenantId=<tenant UUID>` using the same Tenant isolation as Organizations. The v1 engine and YDB catalog never return a global group listing; existing `kind=organization&tenantId` behavior remains unchanged. The REST client also verifies returned Group Tenant, prevents duplicate IDs, validates an Organization's Tenant before linking, and preserves idempotency keys for network retries. Writes remain subject to the Resource Manager's server-side M8 Access guard (deny when authorization is unavailable).
+
+Group is a non-owning business association. Membership does **not** imply a legal subsidiary relationship, a hierarchical owner, employee membership or delegated permissions. For this reason, the UI does **not** synthesize a hierarchy, equity percentages or access graph. A dedicated versioned `OrganizationRelationship` API, with explicit relationship type, direction, temporal validity and audit trail, is required before enabling parent/subsidiary, partner and service-provider editing.
+
+Current limitations: the v1 list endpoints return unpaginated lists; membership timestamps are not persisted by the existing service; Access/approval integration is not complete. The UI fails closed on an unexpected pagination token rather than silently omitting data.
+
+Validation: `go test ./internal/resourcemanager/...`; `cd ui/apps/console && pnpm install --frozen-lockfile && pnpm lint && pnpm build`.
