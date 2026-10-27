@@ -1,0 +1,40 @@
+name: P0.6 bootstrap YDB SDK and code formatting
+
+on:
+  push:
+    branches: [feat/resourcemanager-ydb-access-p06]
+    paths:
+      - '.github/workflows/resourcemanager-p06-bootstrap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/resourcemanager-ydb-access-p06
+          persist-credentials: true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Install official YDB Go SDK
+        run: go get github.com/ydb-platform/ydb-go-sdk/v3@latest
+      - name: Resolve Go modules
+        run: go mod tidy
+      - name: Format Resource Manager
+        run: find internal/resourcemanager cmd/resource-manager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+      - name: Commit dependency and gofmt updates
+        run: |
+          git add go.mod go.sum
+          git add -u -- internal/resourcemanager cmd/resource-manager
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'chore(resourcemanager): add YDB Go SDK and format code'
+            git push origin HEAD:feat/resourcemanager-ydb-access-p06
+          fi
+      - name: Test Resource Manager
+        run: go test ./internal/resourcemanager/... ./cmd/resource-manager/...
