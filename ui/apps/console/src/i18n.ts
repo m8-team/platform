@@ -1,6 +1,8 @@
 import {I18N} from '@gravity-ui/i18n'
 import {organizationGroupsEn} from './locales/en/organizationGroups'
 import {organizationGroupsRu} from './locales/ru/organizationGroups'
+import {relationshipsEn} from './locales/en/organizationRelationships'
+import {relationshipsRu} from './locales/ru/organizationRelationships'
 import {healthMessagesEn} from './locales/en/health'
 import {healthMessagesRu} from './locales/ru/health'
 import {resourceCatalogEn} from './locales/en/resourceCatalog'
@@ -136,6 +138,7 @@ const consoleMessages = {
   ...healthMessagesEn,
   ...organizationMessagesEn,
   ...organizationGroupsEn,
+  ...relationshipsEn,
   ...resourceCatalogEn,
   'page.organizationDetails.title': 'Organization details',
   'page.organizationDetails.description': 'Organization metadata, workspace membership, and lifecycle state.',
@@ -341,6 +344,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   ...healthMessagesRu,
   ...organizationMessagesRu,
   ...organizationGroupsRu,
+  ...relationshipsRu,
   ...resourceCatalogRu,
   'page.organizationDetails.title': 'Детали организации',
   'page.organizationDetails.description': 'Метаданные организации, рабочие области и состояние жизненного цикла.',
