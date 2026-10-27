@@ -7,6 +7,7 @@ import {useRouter} from '@tanstack/react-router'
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
 import type {AppLanguage, Translate} from '../../../i18n'
 import {OrganizationsTable} from '../components/OrganizationsTable'
+import {OrganizationCreatePanel} from '../components/OrganizationCreatePanel'
 import {useOrganizationsQuery} from '../queries/organizations'
 
 const defaultSorting: SortingState = [{id: 'name', desc: false}]
@@ -18,6 +19,7 @@ export interface OrganizationsPageProps {
 
 export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const router = useRouter()
+  const [creating, setCreating] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
@@ -90,15 +92,22 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
               {t('page.organizations.description')}
             </Text>
           </div>
-          <Button
-            view="outlined"
-            loading={organizationsQuery.isFetching}
-            onClick={() => void organizationsQuery.refetch()}
-          >
-            <Icon data={ArrowRotateRight} size={16} />
-            {t('organizations.refresh')}
-          </Button>
+          <div className="m8-org-editor__actions">
+            <Button view="action" onClick={() => setCreating((value) => !value)}>
+              {language === 'ru' ? 'Создать организацию' : 'Create organization'}
+            </Button>
+            <Button
+              view="outlined"
+              loading={organizationsQuery.isFetching}
+              onClick={() => void organizationsQuery.refetch()}
+            >
+              <Icon data={ArrowRotateRight} size={16} />
+              {t('organizations.refresh')}
+            </Button>
+          </div>
         </div>
+
+        {creating ? <OrganizationCreatePanel language={language} onCancel={() => setCreating(false)}/> : null}
 
         <Card view="outlined" type="container" className="m8-table-card">
           <div className="m8-card-header">
