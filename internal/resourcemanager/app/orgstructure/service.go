@@ -21,7 +21,7 @@ var ErrStoreNotFound = errors.New("org structure not found")
 // Actor must be derived from the authenticated server request context.
 type Actor struct { TenantID string; PrincipalID string }
 type DecisionGate interface {
-    Authorize(ctx context.Context, actor Actor, organizationID string) error
+    Authorize(ctx context.Context, actor Actor, plan orgunit.ChangeSet) error
     CheckImpact(ctx context.Context, actor Actor, before, after orgunit.Structure, plan orgunit.ChangeSet) error
 }
 type CommitRequest struct {
@@ -46,7 +46,7 @@ func New(store Store, gate DecisionGate) (*Service, error) {
 func (s *Service) Apply(ctx context.Context, actor Actor, plan orgunit.ChangeSet) (Result,error) {
     if s==nil || s.gate==nil || s.store==nil {return Result{},ErrPolicyNotConfigured}
     if actor.TenantID=="" || actor.PrincipalID=="" || plan.ID=="" || plan.OrganizationID=="" {return Result{},orgunit.ErrInvalidChangeSet}
-    if err:=s.gate.Authorize(ctx,actor,plan.OrganizationID);err!=nil{return Result{},err}
+    if err:=s.gate.Authorize(ctx,actor,plan);err!=nil{return Result{},err}
     digest,err:=requestHash(plan);if err!=nil{return Result{},err}
     if r,found,err:=s.store.FindIdempotent(ctx,actor.TenantID,plan.OrganizationID,plan.ID,digest);err!=nil{return Result{},err}else if found {r.Replayed=true;return r,nil}
     before,err:=s.store.Load(ctx,actor.TenantID,plan.OrganizationID);if err!=nil{return Result{},err}
