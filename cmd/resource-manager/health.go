@@ -14,6 +14,8 @@ import (
 	"github.com/m8-team/platform/internal/platform/health"
 	healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
 	"github.com/m8-team/platform/internal/platform/health/checks"
+	"github.com/m8-team/platform/internal/resourcemanager"
+	grpcadapter "github.com/m8-team/platform/internal/resourcemanager/adapter/grpc"
 	"go.uber.org/fx"
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -57,9 +59,11 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 
 func newResourceManagerHTTPHandler(
 	resourceServer resourcemanagerpb.ResourceManagerServiceServer,
+	orgStructureServer *grpcadapter.OrgStructureServer,
+	cfg resourcemanager.Config,
 ) (resourceManagerHTTPHandler, error) {
-	if resourceServer == nil {
-		return resourceManagerHTTPHandler{}, errors.New("resource manager HTTP service is required")
+	if resourceServer == nil || orgStructureServer == nil {
+		return resourceManagerHTTPHandler{}, errors.New("resource manager and org structure HTTP services are required")
 	}
 
 	gateway := runtime.NewServeMux(
@@ -78,6 +82,30 @@ func newResourceManagerHTTPHandler(
 		resourceServer,
 	); err != nil {
 		return resourceManagerHTTPHandler{}, fmt.Errorf("register resource manager HTTP gateway: %w", err)
+	}
+
+	var structureAPI resourcemanagerpb.OrgStructureServiceServer = orgStructureServer
+	var changesAPI resourcemanagerpb.OrgUnitChangeSetServiceServer = orgStructureServer
+	if cfg.AllowUnauthenticated {
+		// Only available when appOptions has already enforced loopback-only
+		// HTTP and gRPC listeners. The Tenant is resolved from a trusted
+		// Resource Manager Organization, never from request headers.
+		development := &localOrgStructureHTTPServer{
+			OrgStructureServiceServer:     orgStructureServer,
+			OrgUnitChangeSetServiceServer: orgStructureServer,
+			resources:                     resourceServer,
+		}
+		structureAPI, changesAPI = development, development
+	}
+	if err := resourcemanagerpb.RegisterOrgStructureServiceHandlerServer(
+		context.Background(), gateway, structureAPI,
+	); err != nil {
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register org structure HTTP gateway: %w", err)
+	}
+	if err := resourcemanagerpb.RegisterOrgUnitChangeSetServiceHandlerServer(
+		context.Background(), gateway, changesAPI,
+	); err != nil {
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register org unit change set HTTP gateway: %w", err)
 	}
 
 	return resourceManagerHTTPHandler{Handler: gateway}, nil
