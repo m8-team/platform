@@ -9,7 +9,7 @@ Implemented in the canonical console under `/resource-manager/organizations/$org
 - **Resources**: actual organization-scoped `ResourceManagerService.ListResources` response.
 - **Ownership, Directory Sync, History**: visible product navigation with an explicit *API not connected* message, never synthetic access, employees or synced providers.
 
-The Organizations list page remains the preexisting list implementation and its `/resource-manager/v1/organizations` route. The detail page uses the new resource and OrgUnit routes from their canonical proto HTTP annotations.
+The Organizations list now uses canonical `GET /resource-manager/v1/resources?kind=organization&tenantId=<UUID>`, with an explicitly selected Tenant (or `VITE_RESOURCE_MANAGER_TENANT_ID` in development). The retired `/resource-manager/v1/organizations` route is not registered by ResourceManagerService v1. Details use the resource and OrgUnit routes from canonical proto HTTP annotations.
 
 ## Data integrity and security
 
@@ -117,3 +117,9 @@ development-only in-memory backend. Restarting that backend discards its
 Tenant records, so previously issued IDs are no longer valid. Production
 requires migrated YDB storage and M8 Access. Never respond to a missing
 Tenant by implicitly creating a different one under the caller's authority.
+
+## Tenant-scoped Organization inventory (route 404 repair)
+
+The old `GET /resource-manager/v1/organizations` returns **HTTP 404** because it is not part of the canonical v1 ResourceManagerService. The new list uses `GET /resource-manager/v1/resources?kind=organization&tenantId=<id>`. The Protobuf `ListResourcesRequest.tenant_id` field is additive and only valid with `kind=organization`, empty `organization_id`, and no additional owner scope. An unknown Tenant returns 404; no Tenant scope never results in a global list.
+
+The UI requires an explicit Tenant UUID and stores the last selected Tenant only in `sessionStorage`; `VITE_RESOURCE_MANAGER_TENANT_ID` can supply a development default. Sorting, filtering and paging run client-side over the returned Tenant list in this phase. This is not a security boundary and is not suitable for very large Tenant inventories until indexed, signed server cursors are implemented. M8 Access authorization must be enforced on the server before enabling production read access; the current service guard remains fail-closed.
