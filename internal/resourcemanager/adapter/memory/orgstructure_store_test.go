@@ -70,3 +70,22 @@ func TestOrgStoreSnapshotIsolation(t *testing.T){
     v2,_:=s.Load(context.Background(),"tenant","org")
     if v2.Units[0].DisplayName=="mutated"{t.Fatal("aliased")}
 }
+
+
+func TestOrgStoreReplayIgnoresServerRecordingTime(t *testing.T) {
+    _, svc := setupOrgStructure(t)
+    actor := orgstructure.Actor{TenantID: "tenant", PrincipalID: "admin"}
+    first := renamePlan("cs1", "New A")
+    if _, err := svc.Apply(context.Background(), actor, first); err != nil { t.Fatal(err) }
+    retry := renamePlan("cs1", "New A")
+    retry.RecordedAt = retry.RecordedAt.Add(time.Minute)
+    result, err := svc.Apply(context.Background(), actor, retry)
+    if err != nil || !result.Replayed {t.Fatalf("retry: %#v %v", result, err)}
+}
+func TestOrgStoreTenantIsolation(t *testing.T) {
+    s, svc := setupOrgStructure(t)
+    actor := orgstructure.Actor{TenantID: "different-tenant", PrincipalID: "admin"}
+    _, err := svc.Apply(context.Background(), actor, renamePlan("cs1", "New A"))
+    if !errors.Is(err, orgstructure.ErrStoreNotFound) {t.Fatalf("tenant isolation: %v", err)}
+    if len(s.Events("tenant", "org"))!=0 {t.Fatal("unexpected event")}
+}
