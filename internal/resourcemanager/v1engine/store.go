@@ -59,13 +59,13 @@ type Binding struct {
 	Revision      int64  `json:"revision"`
 }
 type Store struct {
-	mu         sync.RWMutex
-	objects    map[string]Record
-	requestIDs map[string]string
-	links      map[string]bool
-	bindings   map[string]Binding
-	relationships map[string]OrganizationRelationship
-	relationshipHistory map[string][]OrganizationRelationship
+	mu                   sync.RWMutex
+	objects              map[string]Record
+	requestIDs           map[string]string
+	links                map[string]bool
+	bindings             map[string]Binding
+	relationships        map[string]OrganizationRelationship
+	relationshipHistory  map[string][]OrganizationRelationship
 	relationshipRequests map[string]relationshipReceipt
 }
 

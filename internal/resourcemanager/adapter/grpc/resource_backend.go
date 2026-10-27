@@ -81,23 +81,23 @@ func (b memoryResourceBackend) ListBindings(_ context.Context, r v1engine.Owner,
 	return b.store.ListBindings(r, e)
 }
 
-func (b memoryResourceBackend) CreateRelationship(_ context.Context, r v1engine.OrganizationRelationship, k string) (v1engine.OrganizationRelationship,error) {
-	return b.store.CreateRelationship(r,k)
+func (b memoryResourceBackend) CreateRelationship(_ context.Context, r v1engine.OrganizationRelationship, k string) (v1engine.OrganizationRelationship, error) {
+	return b.store.CreateRelationship(r, k)
 }
-func (b memoryResourceBackend) GetRelationship(_ context.Context, tenant,id string) (v1engine.OrganizationRelationship,error) {
-	return b.store.GetRelationship(tenant,id)
+func (b memoryResourceBackend) GetRelationship(_ context.Context, tenant, id string) (v1engine.OrganizationRelationship, error) {
+	return b.store.GetRelationship(tenant, id)
 }
-func (b memoryResourceBackend) ListRelationshipVersions(_ context.Context, tenant,id string) ([]v1engine.OrganizationRelationship,error) {
-	return b.store.ListRelationshipVersions(tenant,id)
+func (b memoryResourceBackend) ListRelationshipVersions(_ context.Context, tenant, id string) ([]v1engine.OrganizationRelationship, error) {
+	return b.store.ListRelationshipVersions(tenant, id)
 }
-func (b memoryResourceBackend) ListRelationships(_ context.Context, tenant,org string, closed bool) ([]v1engine.OrganizationRelationship,error) {
-	return b.store.ListRelationships(tenant,org,closed)
+func (b memoryResourceBackend) ListRelationships(_ context.Context, tenant, org string, closed bool) ([]v1engine.OrganizationRelationship, error) {
+	return b.store.ListRelationships(tenant, org, closed)
 }
-func (b memoryResourceBackend) UpdateRelationship(_ context.Context, u v1engine.RelationshipUpdate, k string) (v1engine.OrganizationRelationship,error) {
-	return b.store.UpdateRelationship(u,k)
+func (b memoryResourceBackend) UpdateRelationship(_ context.Context, u v1engine.RelationshipUpdate, k string) (v1engine.OrganizationRelationship, error) {
+	return b.store.UpdateRelationship(u, k)
 }
-func (b memoryResourceBackend) CloseRelationship(_ context.Context, tenant,id string, rev,at int64, k string) (v1engine.OrganizationRelationship,error) {
-	return b.store.CloseRelationship(tenant,id,rev,at,k)
+func (b memoryResourceBackend) CloseRelationship(_ context.Context, tenant, id string, rev, at int64, k string) (v1engine.OrganizationRelationship, error) {
+	return b.store.CloseRelationship(tenant, id, rev, at, k)
 }
 
 var _ ResourceBackend = (*ydb.Catalog)(nil)

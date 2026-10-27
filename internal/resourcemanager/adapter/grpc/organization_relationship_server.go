@@ -23,7 +23,9 @@ func NewOrganizationRelationshipServer(resources *ResourceServer) *OrganizationR
 }
 
 func (s *OrganizationRelationshipServer) guard() error {
-	if s.resources == nil { return status.Error(codes.Unavailable, "Resource Manager unavailable") }
+	if s.resources == nil {
+		return status.Error(codes.Unavailable, "Resource Manager unavailable")
+	}
 	return s.resources.guard()
 }
 
@@ -55,162 +57,232 @@ func protoRelationshipType(t v1engine.RelationshipType) pb.OrganizationRelations
 	return pb.OrganizationRelationshipType_ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED
 }
 func protoRelationship(r v1engine.OrganizationRelationship) *pb.OrganizationRelationship {
-	out:=&pb.OrganizationRelationship{
-		Id:r.ID,TenantId:r.TenantID,
-		FromOrganizationId:r.FromOrganizationID,ToOrganizationId:r.ToOrganizationID,
-		Type:protoRelationshipType(r.Type),OwnershipBasisPoints:r.OwnershipBasisPoints,
-		ValidFrom:timestamppb.New(time.Unix(r.ValidFrom,0).UTC()),
-		EvidenceRef:r.EvidenceRef,Revision:r.Revision,
-		State:pb.OrganizationRelationshipState_ORGANIZATION_RELATIONSHIP_STATE_ACTIVE,
-		CreateTime:timestamppb.New(r.CreatedAt), UpdateTime:timestamppb.New(r.UpdatedAt),
+	out := &pb.OrganizationRelationship{
+		Id: r.ID, TenantId: r.TenantID,
+		FromOrganizationId: r.FromOrganizationID, ToOrganizationId: r.ToOrganizationID,
+		Type: protoRelationshipType(r.Type), OwnershipBasisPoints: r.OwnershipBasisPoints,
+		ValidFrom:   timestamppb.New(time.Unix(r.ValidFrom, 0).UTC()),
+		EvidenceRef: r.EvidenceRef, Revision: r.Revision,
+		State:      pb.OrganizationRelationshipState_ORGANIZATION_RELATIONSHIP_STATE_ACTIVE,
+		CreateTime: timestamppb.New(r.CreatedAt), UpdateTime: timestamppb.New(r.UpdatedAt),
 	}
-	if r.ValidTo!=0 { out.ValidTo=timestamppb.New(time.Unix(r.ValidTo,0).UTC()) }
-	if r.State=="CLOSED" { out.State=pb.OrganizationRelationshipState_ORGANIZATION_RELATIONSHIP_STATE_CLOSED }
+	if r.ValidTo != 0 {
+		out.ValidTo = timestamppb.New(time.Unix(r.ValidTo, 0).UTC())
+	}
+	if r.State == "CLOSED" {
+		out.State = pb.OrganizationRelationshipState_ORGANIZATION_RELATIONSHIP_STATE_CLOSED
+	}
 	return out
 }
 func validTimestamp(t *timestamppb.Timestamp) bool {
-	return t != nil && t.CheckValid()==nil
+	return t != nil && t.CheckValid() == nil
 }
-func (s *OrganizationRelationshipServer) CreateOrganizationRelationship(ctx context.Context,req *pb.CreateOrganizationRelationshipRequest) (*pb.OrganizationRelationship,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetRelationship()==nil || req.GetIdempotencyKey()=="" {
-		return nil,status.Error(codes.InvalidArgument,"relationship and idempotency_key required")
+func (s *OrganizationRelationshipServer) CreateOrganizationRelationship(ctx context.Context, req *pb.CreateOrganizationRelationshipRequest) (*pb.OrganizationRelationship, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
 	}
-	in:=req.GetRelationship()
-	if !validTimestamp(in.GetValidFrom()) || (in.GetValidTo()!=nil && !validTimestamp(in.GetValidTo())) {
-		return nil,status.Error(codes.InvalidArgument,"invalid temporal validity")
+	if req == nil || req.GetRelationship() == nil || req.GetIdempotencyKey() == "" {
+		return nil, status.Error(codes.InvalidArgument, "relationship and idempotency_key required")
 	}
-	if in.GetId()!="" || in.GetRevision()!=0 || in.GetState()!=0 || in.GetCreateTime()!=nil || in.GetUpdateTime()!=nil {
-		return nil,status.Error(codes.InvalidArgument,"server-assigned fields cannot be specified")
+	in := req.GetRelationship()
+	if !validTimestamp(in.GetValidFrom()) || (in.GetValidTo() != nil && !validTimestamp(in.GetValidTo())) {
+		return nil, status.Error(codes.InvalidArgument, "invalid temporal validity")
 	}
-	r:=v1engine.OrganizationRelationship{
-		TenantID:in.GetTenantId(),FromOrganizationID:in.GetFromOrganizationId(),
-		ToOrganizationID:in.GetToOrganizationId(), Type:relationshipType(in.GetType()),
-		OwnershipBasisPoints:in.GetOwnershipBasisPoints(),
-		ValidFrom:in.GetValidFrom().AsTime().Unix(),EvidenceRef:in.GetEvidenceRef(),
+	if in.GetId() != "" || in.GetRevision() != 0 || in.GetState() != 0 || in.GetCreateTime() != nil || in.GetUpdateTime() != nil {
+		return nil, status.Error(codes.InvalidArgument, "server-assigned fields cannot be specified")
 	}
-	if in.GetValidTo()!=nil {r.ValidTo=in.GetValidTo().AsTime().Unix()}
-	if err:=r.Validate();err!=nil{return nil,asErr(err)}
-	out,err:=s.resources.store.CreateRelationship(ctx,r,req.GetIdempotencyKey())
-	if err!=nil{return nil,asErr(err)}
-	return protoRelationship(out),nil
+	r := v1engine.OrganizationRelationship{
+		TenantID: in.GetTenantId(), FromOrganizationID: in.GetFromOrganizationId(),
+		ToOrganizationID: in.GetToOrganizationId(), Type: relationshipType(in.GetType()),
+		OwnershipBasisPoints: in.GetOwnershipBasisPoints(),
+		ValidFrom:            in.GetValidFrom().AsTime().Unix(), EvidenceRef: in.GetEvidenceRef(),
+	}
+	if in.GetValidTo() != nil {
+		r.ValidTo = in.GetValidTo().AsTime().Unix()
+	}
+	if err := r.Validate(); err != nil {
+		return nil, asErr(err)
+	}
+	out, err := s.resources.store.CreateRelationship(ctx, r, req.GetIdempotencyKey())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	return protoRelationship(out), nil
 }
-func (s *OrganizationRelationshipServer) GetOrganizationRelationship(ctx context.Context,req *pb.GetOrganizationRelationshipRequest) (*pb.OrganizationRelationship,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetTenantId()=="" || req.GetId()=="" {return nil,status.Error(codes.InvalidArgument,"tenant_id and id required")}
-	out,err:=s.resources.store.GetRelationship(ctx,req.GetTenantId(),req.GetId())
-	if err!=nil{return nil,asErr(err)}
-	return protoRelationship(out),nil
+func (s *OrganizationRelationshipServer) GetOrganizationRelationship(ctx context.Context, req *pb.GetOrganizationRelationshipRequest) (*pb.OrganizationRelationship, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
+	}
+	if req == nil || req.GetTenantId() == "" || req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "tenant_id and id required")
+	}
+	out, err := s.resources.store.GetRelationship(ctx, req.GetTenantId(), req.GetId())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	return protoRelationship(out), nil
 }
 
 type relationshipPage struct {
-	TenantID string `json:"tenant"`
+	TenantID       string `json:"tenant"`
 	OrganizationID string `json:"org"`
-	IncludeClosed bool `json:"closed"`
-	Offset int `json:"offset"`
+	IncludeClosed  bool   `json:"closed"`
+	Offset         int    `json:"offset"`
 }
-func parseRelationshipPage(req *pb.ListOrganizationRelationshipsRequest) (int,error) {
-	if req.GetPageToken()=="" {return 0,nil}
-	data,err:=base64.RawURLEncoding.DecodeString(req.GetPageToken())
-	if err!=nil || len(data)>4096 {return 0,status.Error(codes.InvalidArgument,"invalid relationship page token")}
-	var page relationshipPage
-	if err=json.Unmarshal(data,&page);err!=nil ||
-		page.TenantID!=req.GetTenantId() || page.OrganizationID!=req.GetOrganizationId() ||
-		page.IncludeClosed!=req.GetIncludeClosed() || page.Offset<0 || page.Offset>10000000 {
-		return 0,status.Error(codes.InvalidArgument,"page token does not match query scope")
+
+func parseRelationshipPage(req *pb.ListOrganizationRelationshipsRequest) (int, error) {
+	if req.GetPageToken() == "" {
+		return 0, nil
 	}
-	return page.Offset,nil
+	data, err := base64.RawURLEncoding.DecodeString(req.GetPageToken())
+	if err != nil || len(data) > 4096 {
+		return 0, status.Error(codes.InvalidArgument, "invalid relationship page token")
+	}
+	var page relationshipPage
+	if err = json.Unmarshal(data, &page); err != nil ||
+		page.TenantID != req.GetTenantId() || page.OrganizationID != req.GetOrganizationId() ||
+		page.IncludeClosed != req.GetIncludeClosed() || page.Offset < 0 || page.Offset > 10000000 {
+		return 0, status.Error(codes.InvalidArgument, "page token does not match query scope")
+	}
+	return page.Offset, nil
 }
-func encodeRelationshipPage(req *pb.ListOrganizationRelationshipsRequest,offset int) string {
-	data,_:=json.Marshal(relationshipPage{req.GetTenantId(),req.GetOrganizationId(),req.GetIncludeClosed(),offset})
+func encodeRelationshipPage(req *pb.ListOrganizationRelationshipsRequest, offset int) string {
+	data, _ := json.Marshal(relationshipPage{req.GetTenantId(), req.GetOrganizationId(), req.GetIncludeClosed(), offset})
 	return base64.RawURLEncoding.EncodeToString(data)
 }
 
-func (s *OrganizationRelationshipServer) ListOrganizationRelationships(ctx context.Context,req *pb.ListOrganizationRelationshipsRequest) (*pb.ListOrganizationRelationshipsResponse,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetTenantId()=="" {return nil,status.Error(codes.InvalidArgument,"tenant_id required")}
-	if req.GetPageSize()<0 || req.GetPageSize()>500 {return nil,status.Error(codes.InvalidArgument,"page_size must be 1..500")}
-	offset,err:=parseRelationshipPage(req)
-	if err!=nil{return nil,err}
-	rows,err:=s.resources.store.ListRelationships(ctx,req.GetTenantId(),req.GetOrganizationId(),req.GetIncludeClosed())
-	if err!=nil{return nil,asErr(err)}
-	limit:=int(req.GetPageSize())
-	if limit==0 {limit=100}
-	out:=&pb.ListOrganizationRelationshipsResponse{}
-	if offset>=len(rows) {
-		if offset>0 && offset>len(rows) {return nil,status.Error(codes.Aborted,"relationship page is stale")}
-		return out,nil
+func (s *OrganizationRelationshipServer) ListOrganizationRelationships(ctx context.Context, req *pb.ListOrganizationRelationshipsRequest) (*pb.ListOrganizationRelationshipsResponse, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
 	}
-	end:=offset+limit
-	if end>len(rows){end=len(rows)}
-	for _,r:=range rows[offset:end] {out.Relationships=append(out.Relationships,protoRelationship(r))}
-	if end<len(rows){out.NextPageToken=encodeRelationshipPage(req,end)}
-	return out,nil
+	if req == nil || req.GetTenantId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "tenant_id required")
+	}
+	if req.GetPageSize() < 0 || req.GetPageSize() > 500 {
+		return nil, status.Error(codes.InvalidArgument, "page_size must be 1..500")
+	}
+	offset, err := parseRelationshipPage(req)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := s.resources.store.ListRelationships(ctx, req.GetTenantId(), req.GetOrganizationId(), req.GetIncludeClosed())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	limit := int(req.GetPageSize())
+	if limit == 0 {
+		limit = 100
+	}
+	out := &pb.ListOrganizationRelationshipsResponse{}
+	if offset >= len(rows) {
+		if offset > 0 && offset > len(rows) {
+			return nil, status.Error(codes.Aborted, "relationship page is stale")
+		}
+		return out, nil
+	}
+	end := offset + limit
+	if end > len(rows) {
+		end = len(rows)
+	}
+	for _, r := range rows[offset:end] {
+		out.Relationships = append(out.Relationships, protoRelationship(r))
+	}
+	if end < len(rows) {
+		out.NextPageToken = encodeRelationshipPage(req, end)
+	}
+	return out, nil
 }
-func (s *OrganizationRelationshipServer) UpdateOrganizationRelationship(ctx context.Context,req *pb.UpdateOrganizationRelationshipRequest) (*pb.OrganizationRelationship,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetTenantId()=="" || req.GetId()=="" ||
-		req.GetExpectedRevision()<=0 || req.GetIdempotencyKey()=="" {
-		return nil,status.Error(codes.InvalidArgument,"id, tenant_id, revision and idempotency_key required")
+func (s *OrganizationRelationshipServer) UpdateOrganizationRelationship(ctx context.Context, req *pb.UpdateOrganizationRelationshipRequest) (*pb.OrganizationRelationship, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
 	}
-	if req.GetValidTo()!=nil && !validTimestamp(req.GetValidTo()) {
-		return nil,status.Error(codes.InvalidArgument,"invalid valid_to")
+	if req == nil || req.GetTenantId() == "" || req.GetId() == "" ||
+		req.GetExpectedRevision() <= 0 || req.GetIdempotencyKey() == "" {
+		return nil, status.Error(codes.InvalidArgument, "id, tenant_id, revision and idempotency_key required")
 	}
-	u:=v1engine.RelationshipUpdate{
-		TenantID:req.GetTenantId(),ID:req.GetId(),ExpectedRevision:req.GetExpectedRevision(),
-		OwnershipBasisPoints:req.GetOwnershipBasisPoints(),EvidenceRef:req.GetEvidenceRef(),
+	if req.GetValidTo() != nil && !validTimestamp(req.GetValidTo()) {
+		return nil, status.Error(codes.InvalidArgument, "invalid valid_to")
 	}
-	if req.GetValidTo()!=nil {u.ValidTo=req.GetValidTo().AsTime().Unix()}
-	r,err:=s.resources.store.UpdateRelationship(ctx,u,req.GetIdempotencyKey())
-	if err!=nil{return nil,asErr(err)}
-	return protoRelationship(r),nil
+	u := v1engine.RelationshipUpdate{
+		TenantID: req.GetTenantId(), ID: req.GetId(), ExpectedRevision: req.GetExpectedRevision(),
+		OwnershipBasisPoints: req.GetOwnershipBasisPoints(), EvidenceRef: req.GetEvidenceRef(),
+	}
+	if req.GetValidTo() != nil {
+		u.ValidTo = req.GetValidTo().AsTime().Unix()
+	}
+	r, err := s.resources.store.UpdateRelationship(ctx, u, req.GetIdempotencyKey())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	return protoRelationship(r), nil
 }
-func (s *OrganizationRelationshipServer) CloseOrganizationRelationship(ctx context.Context,req *pb.CloseOrganizationRelationshipRequest) (*pb.OrganizationRelationship,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetTenantId()=="" || req.GetId()=="" ||
-		req.GetExpectedRevision()<=0 || req.GetIdempotencyKey()=="" || !validTimestamp(req.GetClosedAt()) {
-		return nil,status.Error(codes.InvalidArgument,"id, tenant_id, revision, key, closed_at required")
+func (s *OrganizationRelationshipServer) CloseOrganizationRelationship(ctx context.Context, req *pb.CloseOrganizationRelationshipRequest) (*pb.OrganizationRelationship, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
 	}
-	r,err:=s.resources.store.CloseRelationship(ctx,req.GetTenantId(),req.GetId(),
-		req.GetExpectedRevision(),req.GetClosedAt().AsTime().Unix(),req.GetIdempotencyKey())
-	if err!=nil{return nil,asErr(err)}
-	return protoRelationship(r),nil
+	if req == nil || req.GetTenantId() == "" || req.GetId() == "" ||
+		req.GetExpectedRevision() <= 0 || req.GetIdempotencyKey() == "" || !validTimestamp(req.GetClosedAt()) {
+		return nil, status.Error(codes.InvalidArgument, "id, tenant_id, revision, key, closed_at required")
+	}
+	r, err := s.resources.store.CloseRelationship(ctx, req.GetTenantId(), req.GetId(),
+		req.GetExpectedRevision(), req.GetClosedAt().AsTime().Unix(), req.GetIdempotencyKey())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	return protoRelationship(r), nil
 }
-
 
 func (s *OrganizationRelationshipServer) ListOrganizationRelationshipVersions(ctx context.Context,
-	req *pb.ListOrganizationRelationshipVersionsRequest) (*pb.ListOrganizationRelationshipVersionsResponse,error) {
-	if err:=s.guard();err!=nil{return nil,err}
-	if req==nil || req.GetTenantId()=="" || req.GetId()=="" {
-		return nil,status.Error(codes.InvalidArgument,"tenant_id and id required")
+	req *pb.ListOrganizationRelationshipVersionsRequest) (*pb.ListOrganizationRelationshipVersionsResponse, error) {
+	if err := s.guard(); err != nil {
+		return nil, err
 	}
-	if req.GetPageSize()<0 || req.GetPageSize()>500 {
-		return nil,status.Error(codes.InvalidArgument,"page_size must be 1..500")
+	if req == nil || req.GetTenantId() == "" || req.GetId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "tenant_id and id required")
 	}
-	rows,err:=s.resources.store.ListRelationshipVersions(ctx,req.GetTenantId(),req.GetId())
-	if err!=nil{return nil,asErr(err)}
-	offset:=0
-	if req.GetPageToken()!="" {
-		raw,err:=base64.RawURLEncoding.DecodeString(req.GetPageToken())
-		if err!=nil || len(raw)>2048{return nil,status.Error(codes.InvalidArgument,"invalid history token")}
-		var token struct{Tenant,ID string;Offset int}
-		if err:=json.Unmarshal(raw,&token);err!=nil || token.Tenant!=req.GetTenantId() || token.ID!=req.GetId() ||
-			token.Offset<0 || token.Offset>len(rows) {
-			return nil,status.Error(codes.InvalidArgument,"history token does not match scope")
+	if req.GetPageSize() < 0 || req.GetPageSize() > 500 {
+		return nil, status.Error(codes.InvalidArgument, "page_size must be 1..500")
+	}
+	rows, err := s.resources.store.ListRelationshipVersions(ctx, req.GetTenantId(), req.GetId())
+	if err != nil {
+		return nil, asErr(err)
+	}
+	offset := 0
+	if req.GetPageToken() != "" {
+		raw, err := base64.RawURLEncoding.DecodeString(req.GetPageToken())
+		if err != nil || len(raw) > 2048 {
+			return nil, status.Error(codes.InvalidArgument, "invalid history token")
 		}
-		offset=token.Offset
+		var token struct {
+			Tenant, ID string
+			Offset     int
+		}
+		if err := json.Unmarshal(raw, &token); err != nil || token.Tenant != req.GetTenantId() || token.ID != req.GetId() ||
+			token.Offset < 0 || token.Offset > len(rows) {
+			return nil, status.Error(codes.InvalidArgument, "history token does not match scope")
+		}
+		offset = token.Offset
 	}
-	result:=&pb.ListOrganizationRelationshipVersionsResponse{}
-	limit:=int(req.GetPageSize())
-	if limit==0{limit=100}
-	end:=offset+limit
-	if end>len(rows){end=len(rows)}
-	for _,r:=range rows[offset:end] {result.Versions=append(result.Versions,protoRelationship(r))}
-	if end<len(rows){
-		raw,_:=json.Marshal(struct{Tenant,ID string;Offset int}{req.GetTenantId(),req.GetId(),end})
-		result.NextPageToken=base64.RawURLEncoding.EncodeToString(raw)
+	result := &pb.ListOrganizationRelationshipVersionsResponse{}
+	limit := int(req.GetPageSize())
+	if limit == 0 {
+		limit = 100
 	}
-	return result,nil
+	end := offset + limit
+	if end > len(rows) {
+		end = len(rows)
+	}
+	for _, r := range rows[offset:end] {
+		result.Versions = append(result.Versions, protoRelationship(r))
+	}
+	if end < len(rows) {
+		raw, _ := json.Marshal(struct {
+			Tenant, ID string
+			Offset     int
+		}{req.GetTenantId(), req.GetId(), end})
+		result.NextPageToken = base64.RawURLEncoding.EncodeToString(raw)
+	}
+	return result, nil
 }
 
 // Verify the generated contract is implemented at compile time.

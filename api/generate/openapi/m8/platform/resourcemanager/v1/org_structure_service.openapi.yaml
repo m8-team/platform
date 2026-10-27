@@ -1,0 +1,335 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /resource-manager/v1/organizations/{organizationId}/org-units:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_ListOrgUnits
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitsResponse'
+    /resource-manager/v1/organizations/{organizationId}/org-units/{orgUnitId}:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_GetOrgUnit
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnit'
+    /resource-manager/v1/organizations/{organizationId}/org-units/{orgUnitId}:ancestors:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_ListOrgUnitAncestors
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: structureRevision
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitAncestorsResponse'
+    /resource-manager/v1/organizations/{organizationId}/org-units/{orgUnitId}:descendants:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_ListOrgUnitDescendants
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: structureRevision
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitDescendantsResponse'
+    /resource-manager/v1/organizations/{organizationId}/org-units/{orgUnitId}:history:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_ListOrgUnitVersions
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: validAt
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: knownAt
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitVersionsResponse'
+components:
+    schemas:
+        ListOrgUnitAncestorsResponse:
+            type: object
+            properties:
+                ancestors:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitAncestor'
+                structureRevision:
+                    type: string
+        ListOrgUnitDescendantsResponse:
+            type: object
+            properties:
+                descendants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitAncestor'
+                nextPageToken:
+                    type: string
+                structureRevision:
+                    type: string
+        ListOrgUnitVersionsResponse:
+            type: object
+            properties:
+                versions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitVersion'
+                nextPageToken:
+                    type: string
+        ListOrgUnitsResponse:
+            type: object
+            properties:
+                orgUnits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnit'
+                nextPageToken:
+                    type: string
+                structureRevision:
+                    type: string
+        OrgUnit:
+            required:
+                - metadata
+                - tenantId
+                - organizationId
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                tenantId:
+                    type: string
+                organizationId:
+                    type: string
+                parentOrgUnitId:
+                    readOnly: true
+                    type: string
+                code:
+                    type: string
+                kind:
+                    type: string
+                lifecycleState:
+                    readOnly: true
+                    enum:
+                        - ORG_UNIT_STATE_UNSPECIFIED
+                        - ORG_UNIT_STATE_PLANNED
+                        - ORG_UNIT_STATE_ACTIVE
+                        - ORG_UNIT_STATE_CLOSED
+                    type: string
+                    format: enum
+                managementMode:
+                    enum:
+                        - ORG_UNIT_MANAGEMENT_MODE_UNSPECIFIED
+                        - ORG_UNIT_MANAGEMENT_MODE_MANUAL
+                        - ORG_UNIT_MANAGEMENT_MODE_EXTERNAL
+                    type: string
+                    format: enum
+                authoritativeSourceId:
+                    type: string
+                structureRevision:
+                    readOnly: true
+                    type: string
+            description: |-
+                OrgUnit has stable identity independent of its parent or display name.
+                 Person, OrganizationMembership and OrgUnitAssignment belong to Identity.
+        OrgUnitAncestor:
+            type: object
+            properties:
+                orgUnitId:
+                    type: string
+                depth:
+                    type: integer
+                    format: int32
+            description: Read-only closure edge. Never expose closure writes.
+        OrgUnitVersion:
+            type: object
+            properties:
+                orgUnitId:
+                    type: string
+                organizationId:
+                    type: string
+                displayName:
+                    type: string
+                parentOrgUnitId:
+                    type: string
+                lifecycleState:
+                    enum:
+                        - ORG_UNIT_STATE_UNSPECIFIED
+                        - ORG_UNIT_STATE_PLANNED
+                        - ORG_UNIT_STATE_ACTIVE
+                        - ORG_UNIT_STATE_CLOSED
+                    type: string
+                    format: enum
+                validFrom:
+                    type: string
+                    format: date-time
+                validTo:
+                    type: string
+                    format: date-time
+                recordedFrom:
+                    type: string
+                    format: date-time
+                recordedTo:
+                    type: string
+                    format: date-time
+                sourceRevision:
+                    type: string
+            description: |-
+                [valid_from, valid_to) is effective time.
+                 [recorded_from, recorded_to) is knowledge time.
+        ResourceMetadata:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - RESOURCE_STATE_UNSPECIFIED
+                        - RESOURCE_STATE_ACTIVE
+                        - RESOURCE_STATE_SUSPENDED
+                        - RESOURCE_STATE_ARCHIVED
+                        - RESOURCE_STATE_DELETED
+                    type: string
+                    format: enum
+                revision:
+                    readOnly: true
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                deleteTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+tags:
+    - name: OrgStructureService
