@@ -34,6 +34,29 @@ func TestTemporalOwnershipGraph(t *testing.T) {
 	}
 }
 
+func TestRelationshipKnownDirectStakesCannotExceed100Percent(t *testing.T) {
+	parent := OrganizationRelationship{TenantID:"tenant-a",FromOrganizationID:"p1",
+		ToOrganizationID:"subsidiary",Type:RelationshipParentSubsidiary,ValidFrom:100,
+		OwnershipBasisPoints:6000}
+	other := OrganizationRelationship{TenantID:"tenant-a",FromOrganizationID:"p2",
+		ToOrganizationID:"subsidiary",Type:RelationshipParentSubsidiary,ValidFrom:100,
+		OwnershipBasisPoints:5000}
+	if err:=ValidateRelationshipGraph([]OrganizationRelationship{parent},other);
+		!errors.Is(err,ErrRelationshipStakeExceeded) {
+		t.Fatalf("overcommitted known stakes: %v",err)
+	}
+	other.OwnershipBasisPoints=4000
+	if err:=ValidateRelationshipGraph([]OrganizationRelationship{parent},other);err!=nil {
+		t.Fatalf("multiple valid parent companies: %v",err)
+	}
+	other.OwnershipBasisPoints=5000
+	other.ValidFrom=200
+	parent.ValidTo=200
+	if err:=ValidateRelationshipGraph([]OrganizationRelationship{parent},other);err!=nil {
+		t.Fatalf("non-overlapping historical stakes: %v",err)
+	}
+}
+
 func TestRelationshipOwnershipRules(t *testing.T) {
 	r := OrganizationRelationship{
 		TenantID: "tenant", FromOrganizationID: "a", ToOrganizationID: "b",
