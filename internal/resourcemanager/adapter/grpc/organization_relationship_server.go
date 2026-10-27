@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"time"
 
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
@@ -180,4 +179,3 @@ func (s *OrganizationRelationshipServer) CloseOrganizationRelationship(ctx conte
 
 // Verify the generated contract is implemented at compile time.
 var _ pb.OrganizationRelationshipServiceServer = (*OrganizationRelationshipServer)(nil)
-var _ = errors.Is
