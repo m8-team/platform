@@ -148,7 +148,7 @@ func (s *Store) Commit(ctx context.Context, r orgstructure.CommitRequest) (orgst
  (tenant_id,organization_id,change_set_id,source_id,base_revision,target_revision,
  staged_snapshot_id,request_hash,status,effective_at,recorded_at,changes,created_at,updated_at)
  VALUES ($tenant,$org,$id,IF($source != '', $source),$base,$next,$snap,$hash,'APPLIED',
- $effective,$recorded,CAST($changes AS JsonDocument),$recorded,$recorded);`),
+ $effective,$recorded,Unwrap(CAST($changes AS JsonDocument)),$recorded,$recorded);`),
 		sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", r.Plan.ID), sql.Named("source", r.Plan.SourceID), sql.Named("base", r.Plan.ExpectedRevision), sql.Named("next", after.Revision), sql.Named("snap", nextSnapshot), sql.Named("hash", r.RequestHash), sql.Named("effective", r.Plan.EffectiveAt), sql.Named("recorded", r.Plan.RecordedAt), sql.Named("changes", string(changes)))
 	if e != nil {
 		return orgstructure.Result{}, e
@@ -207,6 +207,6 @@ func (s *Store) writeOutbox(ctx context.Context, tx *sql.Tx, r orgstructure.Comm
  payload,status,attempt_count,created_at)
  VALUES ($event,'org_structure',$org,$revision,'m8.resourcemanager.org_structure.changed.v1',
  'm8.platform.resource-manager.org-structure.v1',$partition,
- CAST($payload AS JsonDocument),'PENDING',0u,$at);`), sql.Named("event", eventID), sql.Named("org", r.Plan.OrganizationID), sql.Named("revision", revision), sql.Named("partition", r.Actor.TenantID+"/"+r.Plan.OrganizationID), sql.Named("payload", string(event)), sql.Named("at", r.Plan.RecordedAt))
+ Unwrap(CAST($payload AS JsonDocument)),'PENDING',0u,$at);`), sql.Named("event", eventID), sql.Named("org", r.Plan.OrganizationID), sql.Named("revision", revision), sql.Named("partition", r.Actor.TenantID+"/"+r.Plan.OrganizationID), sql.Named("payload", string(event)), sql.Named("at", r.Plan.RecordedAt))
 	return e
 }
