@@ -1,0 +1,64 @@
+name: Resource Manager Go formatting
+
+on:
+  push:
+    branches:
+      - feat/resourcemanager-orgunit-query-p04
+  pull_request:
+    paths:
+      - 'internal/resourcemanager/**'
+      - '.github/workflows/resource-manager-gofmt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  format-current-branch:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feat/resourcemanager-orgunit-query-p04'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: feat/resourcemanager-orgunit-query-p04
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Apply gofmt to Resource Manager Go files
+        run: |
+          find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -w
+      - name: Commit formatted Go sources
+        run: |
+          git add -u -- internal/resourcemanager
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'style(resourcemanager): apply gofmt'
+            git push origin HEAD:feat/resourcemanager-orgunit-query-p04
+          fi
+      - name: Assert gofmt is clean
+        run: |
+          unformatted="$(find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -l)"
+          if [ -n "$unformatted" ]; then
+            printf 'Go files need gofmt:\n%s\n' "$unformatted"
+            exit 1
+          fi
+
+  check-formatting:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Verify gofmt for entire Resource Manager
+        run: |
+          unformatted="$(find internal/resourcemanager -type f -name '*.go' -print0 | xargs -0 -r gofmt -l)"
+          if [ -n "$unformatted" ]; then
+            printf 'Go files need gofmt:\n%s\n' "$unformatted"
+            exit 1
+          fi
