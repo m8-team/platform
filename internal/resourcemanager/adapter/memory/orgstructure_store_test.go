@@ -10,10 +10,10 @@ import (
     "github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 )
 type allowOrgGate struct{}
-func(allowOrgGate)Authorize(context.Context,orgstructure.Actor,string)error{return nil}
+func(allowOrgGate)Authorize(context.Context,orgstructure.Actor,orgunit.ChangeSet)error{return nil}
 func(allowOrgGate)CheckImpact(context.Context,orgstructure.Actor,orgunit.Structure,orgunit.Structure,orgunit.ChangeSet)error{return nil}
 type denyOrgGate struct{}
-func(denyOrgGate)Authorize(context.Context,orgstructure.Actor,string)error{return errors.New("denied")}
+func(denyOrgGate)Authorize(context.Context,orgstructure.Actor,orgunit.ChangeSet)error{return errors.New("denied")}
 func(denyOrgGate)CheckImpact(context.Context,orgstructure.Actor,orgunit.Structure,orgunit.Structure,orgunit.ChangeSet)error{return nil}
 func setupOrgStructure(t *testing.T)(*OrgStructureStore,*orgstructure.Service){
     t.Helper();s:=NewOrgStructureStore()
