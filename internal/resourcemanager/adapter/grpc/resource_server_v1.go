@@ -48,7 +48,9 @@ func asErr(err error) error {
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, v1engine.ErrNotFound):
 		return status.Error(codes.NotFound, err.Error())
-	case errors.Is(err, v1engine.ErrRelationshipCycle), errors.Is(err, v1engine.ErrRelationshipOverlap):
+	case errors.Is(err, v1engine.ErrRelationshipCycle),
+		errors.Is(err, v1engine.ErrRelationshipOverlap),
+		errors.Is(err, v1engine.ErrRelationshipStakeExceeded):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	case errors.Is(err, v1engine.ErrConflict):
 		return status.Error(codes.Aborted, err.Error())
