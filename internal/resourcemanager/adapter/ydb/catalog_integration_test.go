@@ -169,6 +169,54 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil || secondGraph.Revision != 1 {
 		t.Fatalf("missing concurrent initial graph: %#v %v", secondGraph, err)
 	}
+	// Corporate relations are separate from Group affiliations and durable.
+	relInput := v1engine.OrganizationRelationship{
+		TenantID: tenant.ID, FromOrganizationID: org.ID, ToOrganizationID: winner,
+		Type: v1engine.RelationshipParentSubsidiary, OwnershipBasisPoints: 5100,
+		ValidFrom: time.Now().Add(-time.Hour).Unix(), EvidenceRef: "contract/123",
+	}
+	rel, err := cat.CreateRelationship(ctx, relInput, seed+"-corporate-relation")
+	if err != nil || rel.Revision != 1 || rel.ID == "" {
+		t.Fatalf("create durable relation: %#v %v", rel, err)
+	}
+	replayedRel, err := cat.CreateRelationship(ctx, relInput, seed+"-corporate-relation")
+	if err != nil || replayedRel.ID != rel.ID {
+		t.Fatalf("corporate idempotency: %#v %v", replayedRel, err)
+	}
+	if _, err = cat.CreateRelationship(ctx, v1engine.OrganizationRelationship{
+		TenantID: tenant.ID, FromOrganizationID: org.ID, ToOrganizationID: otherOrg.ID,
+		Type: v1engine.RelationshipPartner, ValidFrom: relInput.ValidFrom,
+	}, seed+"-cross-tenant"); !errors.Is(err, v1engine.ErrInvalid) {
+		t.Fatalf("cross-tenant corporate relation accepted: %v", err)
+	}
+	if _, err = cat.CreateRelationship(ctx, v1engine.OrganizationRelationship{
+		TenantID: tenant.ID, FromOrganizationID: winner, ToOrganizationID: org.ID,
+		Type: v1engine.RelationshipParentSubsidiary, ValidFrom: relInput.ValidFrom,
+	}, seed+"-cycle"); !errors.Is(err, v1engine.ErrRelationshipCycle) {
+		t.Fatalf("corporate ownership cycle accepted: %v", err)
+	}
+	if rows, err := cat.ListRelationships(ctx, otherTenant.ID, "", true); err != nil || len(rows) != 0 {
+		t.Fatalf("corporate tenant isolation: %#v %v", rows, err)
+	}
+	if _, err = another.GetRelationship(ctx, otherTenant.ID, rel.ID); !errors.Is(err, v1engine.ErrNotFound) {
+		t.Fatalf("cross-tenant relationship read: %v", err)
+	}
+	relUpdated, err := cat.UpdateRelationship(ctx, v1engine.RelationshipUpdate{
+		TenantID: tenant.ID, ID: rel.ID, ExpectedRevision: 1, OwnershipBasisPoints: 5200,
+		EvidenceRef: "contract/124",
+	}, seed+"-update-relation")
+	if err != nil || relUpdated.Revision != 2 {
+		t.Fatalf("relationship optimistic update: %#v %v", relUpdated, err)
+	}
+	relClosed, err := cat.CloseRelationship(ctx, tenant.ID, rel.ID, 2, time.Now().Unix(), seed+"-close-relation")
+	if err != nil || relClosed.State != "CLOSED" || relClosed.Revision != 3 {
+		t.Fatalf("relationship close: %#v %v", relClosed, err)
+	}
+	versions, err := another.ListRelationshipVersions(ctx, tenant.ID, rel.ID)
+	if err != nil || len(versions) != 3 || versions[0].Revision != 1 || versions[2].Revision != 3 {
+		t.Fatalf("corporate audit revisions: %#v %v", versions, err)
+	}
+
 	// Resource hierarchy, ownership and environments must survive repository recreation.
 	group, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Group, Owner: owner, Name: "Holding"}, seed+"-group")
 	if err != nil {
