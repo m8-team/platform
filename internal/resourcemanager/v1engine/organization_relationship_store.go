@@ -41,6 +41,7 @@ func (s *Store) CreateRelationship(r OrganizationRelationship, idempotencyKey st
 	now := time.Now().UTC()
 	r.ID, r.State, r.Revision, r.CreatedAt, r.UpdatedAt = id, "ACTIVE", 1, now, now
 	s.relationships[id] = r
+	s.relationshipHistory[id] = append(s.relationshipHistory[id], r)
 	s.relationshipRequests[scope+":"+idempotencyKey] = relationshipReceipt{hash: hash, id: id}
 	return r, nil
 }
@@ -97,6 +98,7 @@ func (s *Store) UpdateRelationship(u RelationshipUpdate, idempotencyKey string) 
 	r.Revision++
 	r.UpdatedAt = time.Now().UTC()
 	s.relationships[r.ID] = r
+	s.relationshipHistory[r.ID] = append(s.relationshipHistory[r.ID], r)
 	s.relationshipRequests[u.TenantID+":"+idempotencyKey] = relationshipReceipt{hash:hash,id:r.ID}
 	return r,nil
 }
@@ -115,7 +117,17 @@ func (s *Store) CloseRelationship(tenantID, id string, expectedRevision, closedA
 		closedAt > time.Now().Unix()+60 {return OrganizationRelationship{},ErrInvalid}
 	r.ValidTo,r.State,r.Revision,r.UpdatedAt=closedAt,"CLOSED",r.Revision+1,time.Now().UTC()
 	s.relationships[id]=r
+	s.relationshipHistory[id]=append(s.relationshipHistory[id],r)
 	s.relationshipRequests[tenantID+":"+idempotencyKey]=relationshipReceipt{hash:hash,id:id}
 	return r,nil
 }
 
+
+func (s *Store) ListRelationshipVersions(tenantID,id string) ([]OrganizationRelationship,error) {
+	if tenantID=="" || id=="" {return nil,ErrInvalid}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	r,exists:=s.relationships[id]
+	if !exists || r.TenantID!=tenantID {return nil,ErrNotFound}
+	return append([]OrganizationRelationship(nil),s.relationshipHistory[id]...),nil
+}
