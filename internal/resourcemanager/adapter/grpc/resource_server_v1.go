@@ -216,7 +216,19 @@ func (s *ResourceServer) ListResources(ctx context.Context, req *pb.ListResource
 	if req.GetPageToken() != "" || req.GetIncludeDescendants() || req.GetShowDeleted() {
 		return nil, status.Error(codes.Unimplemented, "advanced listing requires durable projection")
 	}
-	rr, e := s.store.List(ctx, kind(req.GetKind()), req.GetOrganizationId())
+	var rr []v1engine.Record
+	var e error
+	if req.GetTenantId() != "" {
+		// Tenant-scoped discovery is an explicit, separate query shape.
+		// Never infer permission to list across tenants from an empty org ID.
+		if req.GetKind() != string(v1engine.Organization) ||
+			req.GetOrganizationId() != "" || req.GetOwner() != nil {
+			return nil, status.Error(codes.InvalidArgument, "tenant_id requires kind=organization and no other scope")
+		}
+		rr, e = s.store.ListTenantOrganizations(ctx, req.GetTenantId())
+	} else {
+		rr, e = s.store.List(ctx, kind(req.GetKind()), req.GetOrganizationId())
+	}
 	if e != nil {
 		return nil, asErr(e)
 	}

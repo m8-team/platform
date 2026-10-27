@@ -35,9 +35,11 @@ export function OrganizationCreatePanel({language, onCancel}: Props) {
         parentId = tenantId.trim()
         await verifyTenant(parentId)
       }
-      return createOrganization({tenantId: parentId, name, description}, keys.current.organization)
+      const id = await createOrganization({tenantId: parentId, name, description}, keys.current.organization)
+      return {id, parentId}
     },
-    onSuccess: async (id) => {
+    onSuccess: async ({id, parentId}) => {
+      sessionStorage.setItem('m8.resource-manager.organizations.tenant-id', parentId)
       await queryClient.invalidateQueries({queryKey: ['resource-manager', 'organizations']})
       await router.navigate({to: '/resource-manager/organizations/$organizationId', params: {organizationId: id}})
     },

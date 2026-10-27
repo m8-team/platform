@@ -178,6 +178,33 @@ func (s *Store) List(kind Kind, orgID string) ([]Record, error) {
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
 }
+
+// ListTenantOrganizations returns only Organizations owned by a known Tenant.
+// It must not scan all tenants: the caller's tenant scope is mandatory.
+func (s *Store) ListTenantOrganizations(tenantID string) ([]Record, error) {
+	if tenantID == "" {
+		return nil, ErrInvalid
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if _, ok := s.objects[key(Tenant, tenantID)]; !ok {
+		return nil, ErrNotFound
+	}
+	out := make([]Record, 0)
+	for _, record := range s.objects {
+		if record.Kind == Organization && record.TenantID == tenantID && record.State != "DELETED" {
+			out = append(out, record)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Name != out[j].Name {
+			return out[i].Name < out[j].Name
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out, nil
+}
+
 func (s *Store) Update(kind Kind, id string, rev int64, name, description string) (Record, error) {
 	if rev <= 0 || strings.TrimSpace(name) == "" {
 		return Record{}, ErrInvalid

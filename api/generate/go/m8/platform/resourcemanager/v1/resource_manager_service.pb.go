@@ -350,8 +350,11 @@ type ListResourcesRequest struct {
 	PageSize           int32                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken          string                 `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // bound to authorization scope, filters and revision
 	ShowDeleted        bool                   `protobuf:"varint,7,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// List organizations inside exactly one Tenant. Only valid with
+	// kind = "organization" and an empty organization_id. Never global list.
+	TenantId      string `protobuf:"bytes,8,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListResourcesRequest) Reset() {
@@ -431,6 +434,13 @@ func (x *ListResourcesRequest) GetShowDeleted() bool {
 		return x.ShowDeleted
 	}
 	return false
+}
+
+func (x *ListResourcesRequest) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
 }
 
 type ListResourcesResponse struct {
@@ -1357,7 +1367,7 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"B\n" +
 	"\x12GetResourceRequest\x12\x17\n" +
 	"\x04kind\x18\x01 \x01(\tB\x03\xe0A\x02R\x04kind\x12\x13\n" +
-	"\x02id\x18\x02 \x01(\tB\x03\xe0A\x02R\x02id\"\xa5\x02\n" +
+	"\x02id\x18\x02 \x01(\tB\x03\xe0A\x02R\x02id\"\xc2\x02\n" +
 	"\x14ListResourcesRequest\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12@\n" +
@@ -1366,7 +1376,8 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x06 \x01(\tR\tpageToken\x12!\n" +
-	"\fshow_deleted\x18\a \x01(\bR\vshowDeleted\"\x8d\x01\n" +
+	"\fshow_deleted\x18\a \x01(\bR\vshowDeleted\x12\x1b\n" +
+	"\ttenant_id\x18\b \x01(\tR\btenantId\"\x8d\x01\n" +
 	"\x15ListResourcesResponse\x12L\n" +
 	"\tresources\x18\x01 \x03(\v2..m8.platform.resourcemanager.v1.ResourceRecordR\tresources\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x9f\x02\n" +

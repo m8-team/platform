@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useState} from 'react'
 import {ArrowRotateRight} from '@gravity-ui/icons'
 import type {SortingState} from '@gravity-ui/table/tanstack'
-import {Button, Card, Icon, Text} from '@gravity-ui/uikit'
+import {Button, Card, Icon, Text, TextInput} from '@gravity-ui/uikit'
 import {useRouter} from '@tanstack/react-router'
 
 import {ConsoleBreadcrumbs} from '../../../components/ConsoleBreadcrumbs'
@@ -11,6 +11,12 @@ import {OrganizationCreatePanel} from '../components/OrganizationCreatePanel'
 import {useOrganizationsQuery} from '../queries/organizations'
 
 const defaultSorting: SortingState = [{id: 'name', desc: false}]
+const tenantIDPattern = /^[a-f\\d]{8}-[a-f\\d]{4}-[1-8][a-f\\d]{3}-[89ab][a-f\\d]{3}-[a-f\\d]{12}$/i
+const tenantScopeKey = 'm8.resource-manager.organizations.tenant-id'
+function defaultTenantID(): string {
+  const candidate = (import.meta.env.VITE_RESOURCE_MANAGER_TENANT_ID ?? sessionStorage.getItem(tenantScopeKey) ?? '').trim()
+  return tenantIDPattern.test(candidate) ? candidate : ''
+}
 
 export interface OrganizationsPageProps {
   language: AppLanguage
@@ -20,6 +26,8 @@ export interface OrganizationsPageProps {
 export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const router = useRouter()
   const [creating, setCreating] = useState(false)
+  const [tenantId, setTenantId] = useState(defaultTenantID)
+  const [tenantInput, setTenantInput] = useState(defaultTenantID)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const [pageTokens, setPageTokens] = useState<Record<number, string>>({1: ''})
@@ -28,6 +36,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
   const filter = useMemo(() => buildNameFilter(nameFilter), [nameFilter])
   const orderBy = useMemo(() => buildOrderBy(sorting), [sorting])
   const organizationsQuery = useOrganizationsQuery({
+    tenantId,
     pageSize,
     pageToken: pageTokens[page],
     filter,
@@ -74,6 +83,15 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
     [organizationsQuery.data?.nextPageToken, organizationsQuery.isFetching, page, pageSize, pageTokens, resetPagination],
   )
 
+  const selectTenant = () => {
+    const selected = tenantInput.trim()
+    if (!tenantIDPattern.test(selected)) return
+    sessionStorage.setItem(tenantScopeKey, selected)
+    setTenantId(selected)
+    resetPagination()
+  }
+  const validTenant = tenantIDPattern.test(tenantInput.trim())
+
   return (
     <main className="m8-page__body">
       <section className="m8-page__content">
@@ -109,6 +127,28 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
 
         {creating ? <OrganizationCreatePanel language={language} onCancel={() => setCreating(false)}/> : null}
 
+        <Card view="outlined" className="m8-org-editor">
+          <form className="m8-org-editor__form" onSubmit={(e) => {e.preventDefault();selectTenant()}}>
+            <Text variant="body-2">
+              {language === 'ru' ? 'Выберите Tenant для списка организаций' : 'Choose the Tenant to list organizations'}
+            </Text>
+            <Text variant="caption-2" color="secondary">
+              {language === 'ru'
+                ? 'Список теперь использует ResourceManagerService v1 и показывает только организации выбранного Tenant. Глобальный список не поддерживается.'
+                : 'The canonical v1 Resource Manager lists organizations only within an explicitly selected Tenant.'}
+            </Text>
+            <div className="m8-org-editor__actions">
+              <div style={{flex: 1, minWidth: '220px'}}>
+                <TextInput value={tenantInput} onUpdate={setTenantInput} size="m"
+                  placeholder="Tenant ID (UUID)" aria-label="Tenant ID (UUID)"/>
+              </div>
+              <Button type="submit" view="action" disabled={!validTenant}>
+                {language === 'ru' ? 'Показать организации' : 'Load organizations'}
+              </Button>
+            </div>
+          </form>
+        </Card>
+
         <Card view="outlined" type="container" className="m8-table-card">
           <div className="m8-card-header">
             <div>
@@ -121,7 +161,11 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
             </div>
           </div>
 
-          {organizationsQuery.isError ? (
+          {!tenantId ? (
+            <div className="m8-organizations-message">
+              <Text variant="body-2" color="secondary">{language === 'ru' ? 'Укажите Tenant ID для загрузки списка.' : 'Enter a Tenant ID to load organizations.'}</Text>
+            </div>
+          ) : organizationsQuery.isError ? (
             <div className="m8-organizations-message" role="alert">
               <Text variant="body-2">{t('organizations.error')}</Text>
               <Text variant="caption-2" color="secondary">
@@ -160,7 +204,7 @@ export function OrganizationsPage({language, t}: OrganizationsPageProps) {
 
 function buildNameFilter(value: string) {
   const name = value.trim()
-  return name ? `name = ${JSON.stringify(name)}` : undefined
+  return name || undefined
 }
 
 function buildOrderBy(sorting: SortingState) {

@@ -241,6 +241,13 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: tenantId
+                  in: query
+                  description: |-
+                    List organizations inside exactly one Tenant. Only valid with
+                     kind = "organization" and an empty organization_id. Never global list.
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -688,41 +695,15 @@ components:
                     $ref: '#/components/schemas/ResourceDescriptor'
         ResourceRef:
             required:
-                - type
+                - kind
                 - id
             type: object
             properties:
-                type:
+                kind:
                     type: string
-                    description: |-
-                        Required. Resource type.
-
-                         Recommended format:
-                           {service}.{resource}
-
-                         Examples:
-                           resourcemanager.organization
-                           resourcemanager.workspace
-                           resourcemanager.service
-                           provisioning.kafka_topic
-                           provisioning.database
-                           identity.user
-                           access.permission_schema
                 id:
                     type: string
-                    description: |-
-                        Required. Stable resource identifier.
-
-                         For Resource Manager resources this is usually UUID.
-                         For external/provider resources this may be provider-specific.
-                name:
-                    type: string
-                    description: |-
-                        Optional. Full resource name.
-
-                         Examples:
-                           organizations/{organization_id}
-            description: ResourceRef is a generic reference to any M8 Platform resource.
+            description: Resource identity is global within a tenant; the kind is a stable namespaced string.
         SetEnvironmentBindingRequest:
             required:
                 - binding

@@ -89,6 +89,9 @@ message ListResourcesRequest {
   int32 page_size = 5;
   string page_token = 6; // bound to authorization scope, filters and revision
   bool show_deleted = 7;
+  // List organizations inside exactly one Tenant. Only valid with
+  // kind = "organization" and an empty organization_id. Never global list.
+  string tenant_id = 8;
 }
 message ListResourcesResponse {
   repeated ResourceRecord resources = 1;
