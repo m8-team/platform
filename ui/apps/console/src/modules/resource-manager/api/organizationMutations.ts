@@ -14,7 +14,9 @@ async function send<T>(path: string, body: unknown, method: 'POST' | 'PATCH' = '
     const reason = response.status === 401 ? 'Authentication required'
       : response.status === 403 ? 'Permission denied by M8 Access'
         : response.status === 409 || response.status === 412 ? 'Resource revision conflict. Reload before retry.'
-          : response.status === 501 ? 'Operation is not implemented by the server' : 'Request rejected'
+          : response.status === 404 && path === '/resource-manager/v1/resources'
+            ? 'Parent Tenant does not exist in this Resource Manager store'
+            : response.status === 501 ? 'Operation is not implemented by the server' : 'Request rejected'
     throw new Error(`${reason} (HTTP ${response.status})`)
   }
   return await response.json() as T
@@ -25,6 +27,60 @@ export interface OrganizationDraft {
   tenantId: string
   name: string
   description: string
+}
+
+/** HTTP 404 on CreateOrganization means its parent Tenant is missing in the
+ * Resource Manager store serving this request, NOT that POST /resources is absent.
+ * Do not expose Tenant existence to an unauthenticated caller: the GET uses
+ * the same authenticated session and server-side M8 Access policy.
+ */
+export class TenantNotFoundError extends Error {
+  readonly tenantId: string
+
+  constructor(tenantId: string) {
+    super('Tenant not found in the current Resource Manager deployment')
+    this.name = 'TenantNotFoundError'
+    this.tenantId = tenantId
+  }
+}
+
+/** Checks the actual Tenant resource, never the unrelated legacy organizations list. */
+export async function verifyTenant(tenantId: string): Promise<void> {
+  const id = tenantId.trim()
+  const response = await loggedFetch('resource-manager',
+    `${root}/resource-manager/v1/resources/tenant/${encodeURIComponent(id)}`, {
+      credentials: 'same-origin',
+      headers: {Accept: 'application/json'},
+    })
+  if (response.status === 404) throw new TenantNotFoundError(id)
+  if (response.status === 401 || response.status === 403) {
+    throw new Error(`Tenant verification is not permitted (HTTP ${response.status}). Check your M8 Access permissions.`)
+  }
+  if (!response.ok) throw new Error(`Tenant lookup failed (HTTP ${response.status})`)
+  const result: unknown = await response.json()
+  if (typeof result !== 'object' || result === null || !('tenant' in result)) {
+    throw new Error('Unexpected Tenant lookup response')
+  }
+  const tenant = (result as {tenant?: {metadata?: {id?: string; state?: string}}}).tenant
+  if (!tenant?.metadata || tenant.metadata.id !== id) {
+    throw new Error('Tenant lookup returned a different resource')
+  }
+  if (tenant.metadata.state !== 'RESOURCE_STATE_ACTIVE') {
+    throw new Error('The selected Tenant is not active')
+  }
+}
+
+/** Tenant provisioning is a separate, privileged and explicitly requested action.
+ * It must never run automatically in response to a missing parent Tenant.
+ */
+export async function createTenant(name: string, key: string): Promise<string> {
+  const result = await send<{tenant?: {metadata?: {id?: string}}}>('/resource-manager/v1/resources', {
+    resource: {tenant: {metadata: {name: name.trim()}}},
+    idempotencyKey: key,
+  })
+  const id = result.tenant?.metadata?.id
+  if (!id) throw new Error('Tenant provisioning was not confirmed. Retry with the same operation key.')
+  return id
 }
 
 export async function createOrganization(draft: OrganizationDraft, key: string): Promise<string> {

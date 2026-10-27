@@ -60,3 +60,60 @@ pnpm install --frozen-lockfile
 pnpm lint
 pnpm build
 ```
+
+## Organization creation: HTTP 404 / gRPC code 5
+
+The `POST /resource-manager/v1/resources` route is registered and reached. If
+the parent `tenantId` does not refer to a Tenant resource in this *same*
+Resource Manager backend, `CreateResource(Organization)` returns gRPC
+`NOT_FOUND` (code 5), translated by the REST gateway to HTTP 404
+`resource not found`. A syntactically valid UUID does **not** imply that a
+Tenant exists. An ID displayed by a different legacy `/organizations`
+service may not be backed by a Tenant record in the canonical v1 store.
+
+The Create Organization form supports two explicit flows:
+
+1. **Existing Tenant:** enter the actual Tenant ID. The form first calls
+   `GET /resource-manager/v1/resources/tenant/{id}` and requires a matching,
+   ACTIVE Tenant record; 404 becomes a clear validation error.
+2. **New Tenant (platform administration only):** first create a Tenant with
+   `POST /resource-manager/v1/resources` and a `tenant` resource payload,
+   then create the Organization using the server-issued Tenant ID. These are
+   two separate requests with independent, stable idempotency keys. The UI
+   displays the created Tenant ID even if Organization creation fails.
+
+This does **not** weaken server-side authorization. Production M8 Access may
+forbid Tenant creation or even reading tenants; 401/403 are not treated as
+evidence of non-existence. Provisioning a Tenant must be authorized and should
+not happen silently if a parent lookup fails.
+
+Development smoke test (against a configured, authorized Resource Manager
+gateway; never use a production bypass):
+
+```http
+POST /resource-manager/v1/resources
+Content-Type: application/json
+
+{"resource":{"tenant":{"metadata":{"name":"Test Holding"}}},"idempotencyKey":"tenant-test-001"}
+```
+
+Copy `tenant.metadata.id` from the response and use it for the Organization:
+
+```http
+POST /resource-manager/v1/resources
+Content-Type: application/json
+
+{"resource":{"organization":{"tenantId":"<id returned above>","metadata":{"name":"Test Retail"}}},"idempotencyKey":"organization-test-001"}
+```
+
+REST gateway, CORS and active environment must point to the same RM service
+for both operations. Verify with
+`GET /resource-manager/v1/resources/tenant/<id>`.
+
+### Diagnosing an older Tenant ID
+
+If `M8_RM_YDB_DSN` is unset, the current Resource Manager falls back to a
+development-only in-memory backend. Restarting that backend discards its
+Tenant records, so previously issued IDs are no longer valid. Production
+requires migrated YDB storage and M8 Access. Never respond to a missing
+Tenant by implicitly creating a different one under the caller's authority.
