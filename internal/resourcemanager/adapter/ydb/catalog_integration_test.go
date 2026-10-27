@@ -83,6 +83,25 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil {
 		t.Fatalf("atomic organization creation: %v", err)
 	}
+	// Tenant discovery never mixes organizations across tenants.
+	otherTenant, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Tenant, Name: "Second holding"}, seed+"-second-tenant")
+	if err != nil { t.Fatal(err) }
+	otherOrg, err := cat.Create(ctx, v1engine.Record{
+		Kind: v1engine.Organization, Name: "Beta Retail",
+		Owner: v1engine.Owner{Kind: v1engine.Tenant, ID: otherTenant.ID},
+	}, seed+"-second-organization")
+	if err != nil { t.Fatal(err) }
+	firstList, err := cat.ListTenantOrganizations(ctx, tenant.ID)
+	if err != nil || len(firstList) != 1 || firstList[0].ID != org.ID {
+		t.Fatalf("first Tenant organizations: %#v err=%v", firstList, err)
+	}
+	secondList, err := cat.ListTenantOrganizations(ctx, otherTenant.ID)
+	if err != nil || len(secondList) != 1 || secondList[0].ID != otherOrg.ID {
+		t.Fatalf("second Tenant organizations: %#v err=%v", secondList, err)
+	}
+	if _, err = cat.ListTenantOrganizations(ctx, "00000000-0000-4000-8000-000000000001"); !errors.Is(err, v1engine.ErrNotFound) {
+		t.Fatalf("missing tenant must return NotFound, got %v", err)
+	}
 	// Check canonical Resource and active OrgUnit head after reopening the repositories.
 	another, err := NewCatalog(db, prefix)
 	if err != nil {
