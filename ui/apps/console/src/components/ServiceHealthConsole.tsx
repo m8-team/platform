@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {ArrowRotateRight, Xmark} from '@gravity-ui/icons'
-import {Accordion, Button, Icon, Label, Text} from '@gravity-ui/uikit'
+import {Accordion, Button, DefinitionList, Icon, Label, Text} from '@gravity-ui/uikit'
 
+import {JsonPreview} from './JsonPreview'
 import type {Translate, TranslationKey} from '../i18n'
 import {
   fetchHealthProbe,
@@ -16,6 +17,7 @@ import type {
 
 type ServiceProbeResults = Partial<Record<HealthProbePath, HealthProbeResult>>
 type ServiceHealthResults = Record<string, ServiceProbeResults>
+type MonitoredService = (typeof monitoredServices)[number]
 
 const pollingIntervalMs = 15_000
 
@@ -46,39 +48,95 @@ function formatTime(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
 }
 
-function ProbeCard({probe, result, t}: {
+/** Services use API Debug's compact summary/detail presentation. */
+function ServiceHealthItem({service, probes, t}: {
+  service: MonitoredService
+  probes?: ServiceProbeResults
+  t: Translate
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const readiness = probes?.['/readyz']
+  const status: HealthDisplayStatus = readiness?.status ?? 'CHECKING'
+
+  return (
+    <details
+      className="m8-request-console__record m8-health-service"
+      open={expanded}
+      onToggle={(event) => setExpanded(event.currentTarget.open)}
+    >
+      <summary className="m8-request-console__summary">
+        <span className="m8-mono">{service.id}</span>
+        <Text ellipsis>{service.name}</Text>
+        <StatusLabel status={status} t={t} />
+      </summary>
+      {expanded ? (
+        <div className="m8-health-service__details">
+          <Text variant="caption-2" color="secondary">
+            {t('health.overallReadiness')}
+            {readiness?.snapshot
+              ? ' · ' + t('health.lastChecked') + ': ' + formatTime(readiness.snapshot.checked_at)
+              : ''}
+          </Text>
+          <Text variant="caption-2" color="secondary" className="m8-health-service__url">
+            {service.baseUrl}
+          </Text>
+          <Accordion className="m8-health-service__probes" size="m" view="solid" multiple>
+            {healthProbes.map((probe) => (
+              <ProbeAccordionItem key={probe.path} probe={probe} result={probes?.[probe.path]} t={t} />
+            ))}
+          </Accordion>
+        </div>
+      ) : null}
+    </details>
+  )
+}
+
+function ProbeAccordionItem({probe, result, t}: {
   probe: (typeof healthProbes)[number]
   result?: HealthProbeResult
   t: Translate
 }) {
   const status = result?.status ?? 'CHECKING'
+
   return (
-    <section className="m8-health-probe">
-      <div className="m8-health-probe__heading">
-        <div>
-          <Text variant="body-2" className="m8-health-probe__title">{t(probe.titleKey)}</Text>
-          <Text variant="caption-2" color="secondary">{probe.path}</Text>
-        </div>
-        <StatusLabel status={status} t={t} />
-      </div>
-      {result ? (
-        <>
-          <div className="m8-health-probe__meta">
-            {result.httpStatus !== undefined ? <Text variant="caption-2">HTTP {result.httpStatus}</Text> : null}
-            <Text variant="caption-2" color="secondary">
-              {result.durationMs} {t('health.milliseconds')}
-            </Text>
+    <Accordion.Item
+      value={probe.path}
+      className="m8-health-probe"
+      summary={
+        <div className="m8-health-probe__heading">
+          <div className="m8-health-probe__title">
+            <Text variant="body-2">{t(probe.titleKey)}</Text>
+            <Text variant="caption-2" color="secondary">{probe.path}</Text>
           </div>
-          {result.error ? (
-            <Text variant="caption-2" color="danger" className="m8-health-probe__error">
-              {t('health.transportError')}: {result.error}
-            </Text>
-          ) : null}
-          {result.snapshot?.results?.length ? (
+          <StatusLabel status={status} t={t} />
+        </div>
+      }
+    >
+      <DefinitionList
+        className="m8-request-console__definitions m8-health-probe__definitions"
+        direction="horizontal"
+        nameMaxWidth={145}
+        aria-label={t(probe.titleKey)}
+      >
+        <DefinitionList.Item name={t('health.responseStatus')}>
+          {result?.httpStatus === undefined ? '—' : 'HTTP ' + result.httpStatus}
+        </DefinitionList.Item>
+        <DefinitionList.Item name={t('health.duration')}>
+          {result ? result.durationMs + ' ' + t('health.milliseconds') : '—'}
+        </DefinitionList.Item>
+        <DefinitionList.Item name={t('health.lastChecked')}>
+          {result ? formatTime(result.snapshot?.checked_at ?? result.checkedAt) : '—'}
+        </DefinitionList.Item>
+        {result?.error ? (
+          <DefinitionList.Item name={t('health.transportError')}>
+            <Text color="danger" className="m8-health-probe__error">{result.error}</Text>
+          </DefinitionList.Item>
+        ) : null}
+        <DefinitionList.Item name={t('health.checks')}>
+          {result?.snapshot?.results?.length ? (
             <div className="m8-health-probe__checks">
-              <Text variant="caption-2" color="secondary">{t('health.checks')}</Text>
               {result.snapshot.results.map((check, index) => (
-                <div key={`${check.name}-${index}`} className="m8-health-probe__check">
+                <div className="m8-health-probe__check" key={check.name + '-' + index}>
                   <div className="m8-health-probe__check-heading">
                     <Text variant="body-2">{check.name}</Text>
                     <StatusLabel status={check.status} t={t} />
@@ -95,7 +153,7 @@ function ProbeCard({probe, result, t}: {
                         ? t('health.optional')
                         : ''}
                     {typeof check.latency === 'number'
-                      ? ` · ${(check.latency / 1_000_000).toFixed(1)} ${t('health.milliseconds')}`
+                      ? ' · ' + (check.latency / 1_000_000).toFixed(1) + ' ' + t('health.milliseconds')
                       : ''}
                   </Text>
                   {check.message ? <Text variant="caption-2">{check.message}</Text> : null}
@@ -103,10 +161,24 @@ function ProbeCard({probe, result, t}: {
                 </div>
               ))}
             </div>
-          ) : null}
-        </>
-      ) : null}
-    </section>
+          ) : (
+            <Text variant="caption-2" color="secondary">{t('health.noChecks')}</Text>
+          )}
+        </DefinitionList.Item>
+        {result?.snapshot ? (
+          <DefinitionList.Item name={t('health.rawResponse')}>
+            <JsonPreview
+              value={result.snapshot}
+              copyText={t('resource.copy')}
+              copiedText={t('resource.copied')}
+              openText={t('requestConsole.openJson')}
+              overlayTitle={t('requestConsole.jsonPreview')}
+              closeText={t('requestConsole.closeJson')}
+            />
+          </DefinitionList.Item>
+        ) : null}
+      </DefinitionList>
+    </Accordion.Item>
   )
 }
 
@@ -156,7 +228,7 @@ export function ServiceHealthConsole({open, t, onClose}: {
   }, [open, refresh])
 
   return (
-    <div className="m8-health-console">
+    <div className="m8-request-console m8-health-console">
       <div className="m8-request-console__header">
         <div>
           <Text as="h2" variant="header-1">{t('health.title')}</Text>
@@ -181,51 +253,16 @@ export function ServiceHealthConsole({open, t, onClose}: {
       <Text variant="caption-2" color="secondary">
         {t('health.autoRefresh')}
       </Text>
-      <Accordion
-        className="m8-health-services"
-        size="m"
-        view="solid"
-        multiple
-        defaultValue={monitoredServices.slice(0, 1).map((service) => service.id)}
-      >
-        {monitoredServices.map((service) => {
-          const probes = results[service.id]
-          const readiness = probes?.['/readyz']
-          const status: HealthDisplayStatus = readiness?.status ?? 'CHECKING'
-
-          return (
-            <Accordion.Item
-              key={service.id}
-              value={service.id}
-              className="m8-health-service"
-              summary={
-                <div className="m8-health-service__heading">
-                  <div className="m8-health-service__title">
-                    <Text as="span" variant="subheader-2">{service.name}</Text>
-                    <Text variant="caption-2" color="secondary">{service.id}</Text>
-                  </div>
-                  <StatusLabel status={status} t={t} />
-                </div>
-              }
-            >
-              <div className="m8-health-service__body">
-                <Text variant="caption-2" color="secondary">
-                  {t('health.overallReadiness')}
-                  {readiness?.snapshot ? ` · ${t('health.lastChecked')}: ${formatTime(readiness.snapshot.checked_at)}` : ''}
-                </Text>
-                <Text variant="caption-2" color="secondary" className="m8-health-service__url">
-                  {service.baseUrl}
-                </Text>
-                <div className="m8-health-service__probes">
-                  {healthProbes.map((probe) => (
-                    <ProbeCard key={probe.path} probe={probe} result={probes?.[probe.path]} t={t} />
-                  ))}
-                </div>
-              </div>
-            </Accordion.Item>
-          )
-        })}
-      </Accordion>
+      <div className="m8-request-console__records m8-health-services">
+        {monitoredServices.map((service) => (
+          <ServiceHealthItem
+            key={service.id}
+            service={service}
+            probes={results[service.id]}
+            t={t}
+          />
+        ))}
+      </div>
     </div>
   )
 }
