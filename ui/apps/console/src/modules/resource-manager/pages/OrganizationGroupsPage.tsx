@@ -287,13 +287,7 @@ export function OrganizationGroupsPage({t}: {t: Translate}) {
               </Card>
               {links.isSuccess && <OrganizationRelationshipsPanel
                 t={t} tenantId={tenantId} memberIds={links.data.map((link) => link.organizationId)}/>}
-              <div className="m8-groups__relations">
-                <div className="m8-groups__heading">
-                  <Text as="h3" variant="header-1">{t('groups.relationships')}</Text>
-                  <Label theme="normal">{t('groups.unsupported')}</Label>
-                </div>
-                <Text variant="body-2" color="secondary">{t('groups.relationshipsUnavailable')}</Text>
-              </div>
+
             </>}
           </>}
         </Card>
