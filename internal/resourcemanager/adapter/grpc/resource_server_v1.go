@@ -18,7 +18,8 @@ import (
 // process-local development store. Do not enable anonymous access in production.
 type ResourceServer struct {
 	pb.UnimplementedResourceManagerServiceServer
-	store     *v1engine.Store
+	store     ResourceBackend
+	durable   bool
 	devMode   bool
 	bootstrap orgstructure.BootstrapRepository
 }
@@ -28,7 +29,10 @@ func NewResourceServer(store *v1engine.Store, cfg resourcemanager.Config, bootst
 	if len(bootstrap) > 0 {
 		init = bootstrap[0]
 	}
-	return &ResourceServer{store: store, devMode: cfg.AllowUnauthenticated, bootstrap: init}
+	return &ResourceServer{store: memoryResourceBackend{store:store}, devMode: cfg.AllowUnauthenticated, bootstrap: init}
+}
+func NewDurableResourceServer(store ResourceBackend, cfg resourcemanager.Config) *ResourceServer {
+	return &ResourceServer{store:store,devMode:cfg.AllowUnauthenticated,durable:true}
 }
 func (s *ResourceServer) guard() error {
 	if !s.devMode {
@@ -172,11 +176,11 @@ func (s *ResourceServer) CreateResource(ctx context.Context, req *pb.CreateResou
 	if e != nil {
 		return nil, asErr(e)
 	}
-	created, e := s.store.Create(r, req.GetIdempotencyKey())
+	created, e := s.store.Create(ctx, r, req.GetIdempotencyKey())
 	if e != nil {
 		return nil, asErr(e)
 	}
-	if created.Kind == v1engine.Organization {
+	if created.Kind == v1engine.Organization && !s.durable {
 		if s.bootstrap == nil {
 			return nil, status.Error(codes.FailedPrecondition, "org structure initializer unavailable")
 		}
@@ -196,7 +200,7 @@ func (s *ResourceServer) GetResource(ctx context.Context, req *pb.GetResourceReq
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is required")
 	}
-	r, e := s.store.Get(kind(req.GetKind()), req.GetId())
+	r, e := s.store.Get(ctx, kind(req.GetKind()), req.GetId())
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -212,7 +216,7 @@ func (s *ResourceServer) ListResources(ctx context.Context, req *pb.ListResource
 	if req.GetPageToken() != "" || req.GetIncludeDescendants() || req.GetShowDeleted() {
 		return nil, status.Error(codes.Unimplemented, "advanced listing requires durable projection")
 	}
-	rr, e := s.store.List(kind(req.GetKind()), req.GetOrganizationId())
+	rr, e := s.store.List(ctx, kind(req.GetKind()), req.GetOrganizationId())
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -238,7 +242,7 @@ func (s *ResourceServer) UpdateResource(ctx context.Context, req *pb.UpdateResou
 			return nil, status.Error(codes.InvalidArgument, "unsupported update_mask path")
 		}
 	}
-	v, e := s.store.Update(r.Kind, req.GetId(), req.GetExpectedRevision(), r.Name, r.Description)
+	v, e := s.store.Update(ctx, r.Kind, req.GetId(), req.GetExpectedRevision(), r.Name, r.Description)
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -252,7 +256,7 @@ func (s *ResourceServer) ChangeResourceState(ctx context.Context, req *pb.Change
 		return nil, status.Error(codes.InvalidArgument, "request is required")
 	}
 	target := strings.TrimPrefix(req.GetTargetState().String(), "RESOURCE_STATE_")
-	v, e := s.store.ChangeState(kind(req.GetKind()), req.GetId(), req.GetExpectedRevision(), target)
+	v, e := s.store.ChangeState(ctx, kind(req.GetKind()), req.GetId(), req.GetExpectedRevision(), target)
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -265,7 +269,7 @@ func (s *ResourceServer) MoveProject(ctx context.Context, req *pb.MoveProjectReq
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is required")
 	}
-	v, e := s.store.MoveProject(req.GetProjectId(), owner(req.GetNewOwner()), req.GetExpectedRevision())
+	v, e := s.store.MoveProject(ctx, req.GetProjectId(), owner(req.GetNewOwner()), req.GetExpectedRevision())
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -278,7 +282,7 @@ func (s *ResourceServer) ResolveResourceScope(ctx context.Context, req *pb.Resol
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is required")
 	}
-	path, e := s.store.Resolve(kind(req.GetKind()), req.GetId())
+	path, e := s.store.Resolve(ctx, kind(req.GetKind()), req.GetId())
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -301,7 +305,7 @@ func (s *ResourceServer) SetGroupOrganizationLink(ctx context.Context, req *pb.S
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request is required")
 	}
-	if err := s.store.SetGroupLink(req.GetGroupId(), req.GetOrganizationId()); err != nil {
+	if err := s.store.SetGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
 		return nil, asErr(err)
 	}
 	return &pb.GroupOrganizationLink{GroupId: req.GetGroupId(), OrganizationId: req.GetOrganizationId(), CreateTime: timestamppb.Now()}, nil
@@ -313,7 +317,7 @@ func (s *ResourceServer) RemoveGroupOrganizationLink(ctx context.Context, req *p
 	if req == nil || req.GetIdempotencyKey() == "" {
 		return nil, status.Error(codes.InvalidArgument, "idempotency_key required")
 	}
-	if err := s.store.RemoveGroupLink(req.GetGroupId(), req.GetOrganizationId()); err != nil {
+	if err := s.store.RemoveGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
 		return nil, asErr(err)
 	}
 	return &pb.EmptyResponse{}, nil
@@ -325,7 +329,7 @@ func (s *ResourceServer) ListGroupOrganizations(ctx context.Context, req *pb.Lis
 	if req == nil || req.GetPageToken() != "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid request/page token")
 	}
-	ids, err := s.store.ListGroupOrganizations(req.GetGroupId())
+	ids, err := s.store.ListGroupOrganizations(ctx, req.GetGroupId())
 	if err != nil {
 		return nil, asErr(err)
 	}
@@ -343,7 +347,7 @@ func (s *ResourceServer) SetEnvironmentBinding(ctx context.Context, req *pb.SetE
 		return nil, status.Error(codes.InvalidArgument, "binding and resource required")
 	}
 	b := req.GetBinding()
-	out, e := s.store.SetBinding(v1engine.Owner{Kind: kind(b.GetResource().GetKind()), ID: b.GetResource().GetId()}, b.GetEnvironmentId(), b.GetVersionRef(), b.GetConfigurationRef())
+	out, e := s.store.SetBinding(ctx, v1engine.Owner{Kind: kind(b.GetResource().GetKind()), ID: b.GetResource().GetId()}, b.GetEnvironmentId(), b.GetVersionRef(), b.GetConfigurationRef())
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -356,7 +360,7 @@ func (s *ResourceServer) RemoveEnvironmentBinding(ctx context.Context, req *pb.R
 	if req == nil || req.GetIdempotencyKey() == "" {
 		return nil, status.Error(codes.InvalidArgument, "idempotency_key required")
 	}
-	if err := s.store.RemoveBinding(req.GetId(), req.GetExpectedRevision()); err != nil {
+	if err := s.store.RemoveBinding(ctx, req.GetId(), req.GetExpectedRevision()); err != nil {
 		return nil, asErr(err)
 	}
 	return &pb.EmptyResponse{}, nil
@@ -372,7 +376,7 @@ func (s *ResourceServer) ListEnvironmentBindings(ctx context.Context, req *pb.Li
 	if req.GetResource() != nil {
 		subject = v1engine.Owner{Kind: kind(req.GetResource().GetKind()), ID: req.GetResource().GetId()}
 	}
-	bindings, err := s.store.ListBindings(subject, req.GetEnvironmentId())
+	bindings, err := s.store.ListBindings(ctx, subject, req.GetEnvironmentId())
 	if err != nil {
 		return nil, asErr(err)
 	}
