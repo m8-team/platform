@@ -6,6 +6,7 @@ import (
 
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
+	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,7 +14,7 @@ import (
 
 func TestListResourcesOrganizationsRequiresTenantScope(t *testing.T) {
 	ctx := context.Background()
-	svc := NewResourceServer(v1engine.NewStore(), resourcemanager.Config{AllowUnauthenticated: true})
+	svc := NewResourceServer(v1engine.NewStore(), resourcemanager.Config{AllowUnauthenticated: true}, memory.NewOrgStructureStore())
 	newTenant := func(name string) string {
 		t.Helper()
 		r, err := svc.CreateResource(ctx, &pb.CreateResourceRequest{
