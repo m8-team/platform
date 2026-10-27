@@ -447,6 +447,26 @@
   cursor: pointer;
 }
 
+.m8-request-console__copy-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px;
+  border-top: 1px solid var(--g-color-line-generic);
+}
+
+.m8-request-console__copy-row > :first-child {
+  min-width: 0;
+  flex: 1 1 230px;
+}
+
+.m8-request-console__copy-error {
+  display: block;
+  padding: 0 12px 8px;
+}
+
 .m8-request-console__definitions {
   width: 100%;
   box-sizing: border-box;
