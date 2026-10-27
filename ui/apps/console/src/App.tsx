@@ -55,6 +55,7 @@ import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {OrganizationDetailsPage} from './modules/resource-manager/pages/OrganizationDetailsPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {
   createTranslator,
@@ -1077,15 +1078,8 @@ export function ResourceOrganizationsPage() {
 }
 
 export function ResourceOrganizationDetailsPage() {
-  const {t} = useConsoleI18n()
-
-  return (
-    <ResourcePlaceholderPage
-      current={t('menu.resources.organizations')}
-      title={t('page.organizationDetails.title')}
-      description={t('page.organizationDetails.description')}
-    />
-  )
+  const {language, t} = useConsoleI18n()
+  return <OrganizationDetailsPage language={language} t={t} />
 }
 
 export function ResourceWorkspacesPage() {
