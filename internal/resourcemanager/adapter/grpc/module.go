@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
 	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
@@ -72,7 +73,9 @@ func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle
 	if err != nil {
 		return nil, fmt.Errorf("open YDB: %w", err)
 	}
-	if err = db.PingContext(context.Background()); err != nil {
+	pingCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err = db.PingContext(pingCtx); err != nil {
 		_ = db.Close()
 		return nil, fmt.Errorf("connect YDB: %w", err)
 	}
