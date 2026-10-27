@@ -14,6 +14,7 @@ type ResourceBackend interface {
 	Create(context.Context, v1engine.Record, string) (v1engine.Record, error)
 	Get(context.Context, v1engine.Kind, string) (v1engine.Record, error)
 	List(context.Context, v1engine.Kind, string) ([]v1engine.Record, error)
+	ListTenantOrganizations(context.Context, string) ([]v1engine.Record, error)
 	Update(context.Context, v1engine.Kind, string, int64, string, string) (v1engine.Record, error)
 	ChangeState(context.Context, v1engine.Kind, string, int64, string) (v1engine.Record, error)
 	MoveProject(context.Context, string, v1engine.Owner, int64) (v1engine.Record, error)
@@ -35,6 +36,9 @@ func (b memoryResourceBackend) Get(_ context.Context, k v1engine.Kind, id string
 }
 func (b memoryResourceBackend) List(_ context.Context, k v1engine.Kind, org string) ([]v1engine.Record, error) {
 	return b.store.List(k, org)
+}
+func (b memoryResourceBackend) ListTenantOrganizations(_ context.Context, tenantID string) ([]v1engine.Record, error) {
+	return b.store.ListTenantOrganizations(tenantID)
 }
 func (b memoryResourceBackend) Update(_ context.Context, k v1engine.Kind, id string, rev int64, name, description string) (v1engine.Record, error) {
 	return b.store.Update(k, id, rev, name, description)
