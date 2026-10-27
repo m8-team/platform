@@ -29,6 +29,7 @@ export const relationshipsEn = {
   'relations.loading': 'Loading relationships…',
   'relations.error': 'Corporate relationship request failed.',
   'relations.retry': 'Retry',
+  'relations.history': 'History',
   'relations.revision': 'Revision',
   'relations.refresh': 'Refresh',
   'relations.scope': 'Tenant scope',
