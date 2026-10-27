@@ -1,4 +1,6 @@
 import {I18N} from '@gravity-ui/i18n'
+import {resourceCatalogEn} from './locales/en/resourceCatalog'
+import {resourceCatalogRu} from './locales/ru/resourceCatalog'
 import {organizationMessages as organizationMessagesEn} from './locales/en/organizations'
 import {organizationMessages as organizationMessagesRu} from './locales/ru/organizations'
 
@@ -127,6 +129,7 @@ const consoleMessages = {
   'page.resourceManager.title': 'Resource Manager',
   'page.resourceManager.description': 'Tenant hierarchy, project ownership, and resource lifecycle entry point.',
   ...organizationMessagesEn,
+  ...resourceCatalogEn,
   'page.organizationDetails.title': 'Organization details',
   'page.organizationDetails.description': 'Organization metadata, workspace membership, and lifecycle state.',
   'page.workspaces.title': 'Workspaces',
@@ -328,6 +331,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   'page.resourceManager.title': 'Resource Manager',
   'page.resourceManager.description': 'Иерархия тенантов, владение проектами и точка входа в жизненный цикл ресурсов.',
   ...organizationMessagesRu,
+  ...resourceCatalogRu,
   'page.organizationDetails.title': 'Детали организации',
   'page.organizationDetails.description': 'Метаданные организации, рабочие области и состояние жизненного цикла.',
   'page.workspaces.title': 'Рабочие области',

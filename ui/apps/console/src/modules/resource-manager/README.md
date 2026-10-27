@@ -143,3 +143,13 @@ The UI requires an explicit Tenant UUID and stores the last selected Tenant only
   have no edit actions, and invalid parent/descendant moves are blocked.
 - The same revision-scoped pagination, M8 Access checks and HTTP error handling
   apply to the focused view.
+
+## Resource Catalog & Ownership (02)
+
+- Open `/resource-manager/catalog`, select an explicit Organization UUID, then filter and inspect live `ListResources` results. Only the current page is filtered/countable, and next-page cursor navigation is supported when supplied by the server.
+- Open `/resource-manager/catalog/:kind/:resourceId` for the universal resource inspector. The inspector uses canonical `GetResource` and `ResolveResourceScope`. Descriptor kinds preserve their actual `ResourceRef.kind` rather than treating all descriptors as one kind.
+- Structural owner and containment ancestry are shown distinctly from functional dependencies; structural containment never confers permission.
+- Business/technical/operations owner assignments and dependency mutations are **disabled** until matching backend contracts, M8 Identity/Directory resolution, Access enforcement and audit/impact review exist. The console never fabricates assignments or dependencies.
+- Translations are defined in `src/locales/en/resourceCatalog.ts` and `src/locales/ru/resourceCatalog.ts`, and composed through `src/i18n.ts`; no inline locale conditionals appear in the new section.
+
+Verification: `cd ui/apps/console && pnpm install --frozen-lockfile && pnpm lint && pnpm build`.

@@ -1,0 +1,32 @@
+.m8-catalog__scope{padding:18px;display:grid;gap:9px}
+.m8-catalog__scope-form{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.m8-catalog__scope-input{display:grid;gap:8px;flex:1;max-width:520px;min-width:240px}
+.m8-catalog__stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.m8-catalog__stat{padding:16px;display:grid;gap:8px}
+.m8-catalog__grid{display:grid;grid-template-columns:minmax(440px,1.35fr) minmax(360px,1fr);gap:12px;align-items:start}
+.m8-catalog__inventory,.m8-catalog__detail{padding:18px;min-width:0;min-height:440px;display:grid;align-content:start;gap:16px}
+.m8-catalog__toolbar{display:grid;grid-template-columns:minmax(0,1fr) 165px 145px;gap:10px;align-items:center}
+.m8-catalog__toolbar h2{grid-column:1/-1}
+.m8-catalog__table-wrap{overflow-x:auto}
+.m8-catalog__table{border-collapse:collapse;width:100%;min-width:480px}
+.m8-catalog__table th,.m8-catalog__table td{padding:11px 9px;text-align:left;border-bottom:1px solid var(--g-color-line-generic);vertical-align:middle}
+.m8-catalog__table th{font-size:12px;color:var(--g-color-text-secondary)}
+.m8-catalog__table td{font-size:13px}
+.m8-catalog__resource-name{text-align:left;max-width:220px}
+.m8-catalog__sub-id{color:var(--g-color-text-secondary);font-family:monospace;font-size:11px;overflow-wrap:anywhere}
+.m8-catalog__pagination,.m8-catalog__pagination-actions{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.m8-catalog__message{padding:18px;display:grid;gap:12px;justify-items:start}
+.m8-catalog__empty-detail{display:grid;align-content:center;gap:12px;min-height:240px}
+.m8-catalog__inspector,.m8-catalog__section{display:grid;gap:16px;align-content:start}
+.m8-catalog__title{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.m8-catalog__title>div{display:grid;gap:8px;min-width:0}
+.m8-catalog__identity{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.m8-catalog__tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--g-color-line-generic);gap:5px;padding-bottom:8px}
+.m8-catalog__properties{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.m8-catalog__field{display:grid;gap:5px}
+.m8-catalog__break{overflow-wrap:anywhere;word-break:break-word}
+.m8-catalog__labels{display:flex;flex-wrap:wrap;gap:6px}
+.m8-catalog__ancestry{margin:0;padding:0 0 0 24px;display:grid;gap:10px}
+.m8-catalog__ancestry li{padding-left:4px;display:grid;gap:3px}
+@media(max-width:1050px){.m8-catalog__grid{grid-template-columns:1fr}}
+@media(max-width:630px){.m8-catalog__stats{grid-template-columns:1fr 1fr 1fr}.m8-catalog__toolbar{grid-template-columns:1fr}.m8-catalog__properties{grid-template-columns:1fr}}
