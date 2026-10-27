@@ -7,7 +7,7 @@ import (
 	"errors"
 	"reflect"
 	"sync"
-    "time"
+	"time"
 
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
@@ -136,7 +136,11 @@ func (s *OrgStructureStore) Events(tenant, org string) []OrgStructureEvent {
 // Initialize implements the same bootstrap port as the YDB Store. The
 // in-memory adapter is only used by local development and contract tests.
 func (s *OrgStructureStore) Initialize(ctx context.Context, tenant string, structure orgunit.Structure, now time.Time) error {
-    if err:=ctx.Err();err!=nil{return err}
-    if now.IsZero(){return orgunit.ErrInvalidUnit}
-    return s.Seed(tenant,structure)
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if now.IsZero() {
+		return orgunit.ErrInvalidUnit
+	}
+	return s.Seed(tenant, structure)
 }

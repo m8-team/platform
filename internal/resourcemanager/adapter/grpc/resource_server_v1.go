@@ -7,8 +7,8 @@ import (
 
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
+	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
-    "github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -18,15 +18,17 @@ import (
 // process-local development store. Do not enable anonymous access in production.
 type ResourceServer struct {
 	pb.UnimplementedResourceManagerServiceServer
-	store   *v1engine.Store
-	devMode bool
-    bootstrap orgstructure.BootstrapRepository
+	store     *v1engine.Store
+	devMode   bool
+	bootstrap orgstructure.BootstrapRepository
 }
 
 func NewResourceServer(store *v1engine.Store, cfg resourcemanager.Config, bootstrap ...orgstructure.BootstrapRepository) *ResourceServer {
-    var init orgstructure.BootstrapRepository
-    if len(bootstrap)>0 {init=bootstrap[0]}
-    return &ResourceServer{store: store, devMode: cfg.AllowUnauthenticated, bootstrap: init}
+	var init orgstructure.BootstrapRepository
+	if len(bootstrap) > 0 {
+		init = bootstrap[0]
+	}
+	return &ResourceServer{store: store, devMode: cfg.AllowUnauthenticated, bootstrap: init}
 }
 func (s *ResourceServer) guard() error {
 	if !s.devMode {
@@ -171,17 +173,21 @@ func (s *ResourceServer) CreateResource(ctx context.Context, req *pb.CreateResou
 		return nil, asErr(e)
 	}
 	created, e := s.store.Create(r, req.GetIdempotencyKey())
-    if e != nil {return nil, asErr(e)}
-    if created.Kind == v1engine.Organization {
-        if s.bootstrap == nil {return nil,status.Error(codes.FailedPrecondition,"org structure initializer unavailable")}
-        if err := orgstructure.EnsureOrganizationInitialized(ctx,s.bootstrap,created.TenantID,created.ID,created.CreatedAt); err != nil {
-            // A retry with the same idempotency key can repair the initial graph.
-            // This memory-backed Organization path is NOT an atomic production
-            // creation transaction with YDB; a durable Organization store is required.
-            return nil,status.Error(codes.Unavailable,"org structure initialization incomplete; retry same key")
-        }
-    }
-    return toRecord(created), nil
+	if e != nil {
+		return nil, asErr(e)
+	}
+	if created.Kind == v1engine.Organization {
+		if s.bootstrap == nil {
+			return nil, status.Error(codes.FailedPrecondition, "org structure initializer unavailable")
+		}
+		if err := orgstructure.EnsureOrganizationInitialized(ctx, s.bootstrap, created.TenantID, created.ID, created.CreatedAt); err != nil {
+			// A retry with the same idempotency key can repair the initial graph.
+			// This memory-backed Organization path is NOT an atomic production
+			// creation transaction with YDB; a durable Organization store is required.
+			return nil, status.Error(codes.Unavailable, "org structure initialization incomplete; retry same key")
+		}
+	}
+	return toRecord(created), nil
 }
 func (s *ResourceServer) GetResource(ctx context.Context, req *pb.GetResourceRequest) (*pb.ResourceRecord, error) {
 	if e := s.guard(); e != nil {

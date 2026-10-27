@@ -86,7 +86,9 @@ func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle
 }
 
 func newConfiguredResourceServer(store *v1engine.Store, cfg resourcemanager.Config, orgStore orgstructure.Store) *ResourceServer {
-    bootstrap,ok:=orgStore.(orgstructure.BootstrapRepository)
-    if !ok{return NewResourceServer(store,cfg)}
-    return NewResourceServer(store,cfg,bootstrap)
+	bootstrap, ok := orgStore.(orgstructure.BootstrapRepository)
+	if !ok {
+		return NewResourceServer(store, cfg)
+	}
+	return NewResourceServer(store, cfg, bootstrap)
 }
