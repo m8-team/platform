@@ -6,10 +6,6 @@ on:
     paths:
       - 'ui/apps/console/**'
       - '.github/workflows/console-resource-manager-ui.yml'
-  pull_request:
-    paths:
-      - 'ui/apps/console/**'
-      - '.github/workflows/console-resource-manager-ui.yml'
   workflow_dispatch:
 
 permissions:

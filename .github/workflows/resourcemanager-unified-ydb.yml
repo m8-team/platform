@@ -8,12 +8,6 @@ on:
       - 'cmd/resource-manager/**'
       - 'docs/executable-baseline/data/ydb/m8-resource-manager/**'
       - '.github/workflows/resourcemanager-unified-ydb.yml'
-  pull_request:
-    paths:
-      - 'internal/resourcemanager/**'
-      - 'cmd/resource-manager/**'
-      - 'docs/executable-baseline/data/ydb/m8-resource-manager/**'
-      - '.github/workflows/resourcemanager-unified-ydb.yml'
   workflow_dispatch:
 
 permissions:

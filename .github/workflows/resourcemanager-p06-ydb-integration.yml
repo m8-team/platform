@@ -1,9 +1,11 @@
 name: Resource Manager real YDB integration
 
 on:
-  pull_request:
+  push:
+    branches: [main]
     paths:
       - 'internal/resourcemanager/adapter/ydb/**'
+      - 'docs/executable-baseline/data/ydb/m8-resource-manager/**'
       - '.github/workflows/resourcemanager-p06-ydb-integration.yml'
   workflow_dispatch:
 
