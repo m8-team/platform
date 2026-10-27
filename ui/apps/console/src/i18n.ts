@@ -1,4 +1,6 @@
 import {I18N} from '@gravity-ui/i18n'
+import {healthMessagesEn} from './locales/en/health'
+import {healthMessagesRu} from './locales/ru/health'
 import {resourceCatalogEn} from './locales/en/resourceCatalog'
 import {resourceCatalogRu} from './locales/ru/resourceCatalog'
 import {organizationMessages as organizationMessagesEn} from './locales/en/organizations'
@@ -128,6 +130,7 @@ const consoleMessages = {
   'breadcrumb.resourceManager': 'Resource manager',
   'page.resourceManager.title': 'Resource Manager',
   'page.resourceManager.description': 'Tenant hierarchy, project ownership, and resource lifecycle entry point.',
+  ...healthMessagesEn,
   ...organizationMessagesEn,
   ...resourceCatalogEn,
   'page.organizationDetails.title': 'Organization details',
@@ -330,6 +333,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   'breadcrumb.resourceManager': 'Resource manager',
   'page.resourceManager.title': 'Resource Manager',
   'page.resourceManager.description': 'Иерархия тенантов, владение проектами и точка входа в жизненный цикл ресурсов.',
+  ...healthMessagesRu,
   ...organizationMessagesRu,
   ...resourceCatalogRu,
   'page.organizationDetails.title': 'Детали организации',
