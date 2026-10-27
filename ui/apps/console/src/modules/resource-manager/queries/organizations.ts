@@ -8,6 +8,7 @@ export const organizationQueryKeys = {
 }
 
 export interface OrganizationsQueryParameters {
+  tenantId: string
   pageSize: number
   pageToken?: string
   filter?: string
@@ -19,6 +20,7 @@ export function organizationsQueryOptions(parameters: OrganizationsQueryParamete
     queryKey: organizationQueryKeys.list(parameters),
     queryFn: ({signal}) => fetchOrganizations({...parameters, signal}),
     staleTime: 30_000,
+    enabled: parameters.tenantId.length > 0,
   })
 }
 
