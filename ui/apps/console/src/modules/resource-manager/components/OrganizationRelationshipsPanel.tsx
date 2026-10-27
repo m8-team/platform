@@ -4,7 +4,7 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import type {Translate} from '../../../i18n'
 import {fetchOrganizations} from '../api/organizations'
 import {
-  closeRelationship, createRelationship, fetchRelationships, updateRelationship,
+  closeRelationship, createRelationship, fetchRelationships, fetchRelationshipHistory, updateRelationship,
 } from '../api/organizationRelationships'
 import type {OrganizationRelationship, RelationshipDraft, RelationshipType} from '../api/organizationRelationships'
 import './organization-relationships.css'
@@ -37,12 +37,13 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
   const [evidence, setEvidence] = useState('')
   const [editing, setEditing] = useState<string | null>(null)
   const [confirmClose, setConfirmClose] = useState<string | null>(null)
+  const [historyId, setHistoryId] = useState<string | null>(null)
   const [editStake, setEditStake] = useState('0')
   const [editTo, setEditTo] = useState('')
   const [editEvidence, setEditEvidence] = useState('')
   const createKey = useRef(crypto.randomUUID())
   const updateKey = useRef(crypto.randomUUID())
-  const closeKeys = useRef<Record<string, string>>({})
+  const closeKeys = useRef<Record<string, {key: string; timestamp: string}>>({})
   const queryKey = ['resource-manager', 'organization-relationships', tenantId]
   const all = useQuery({
     queryKey, queryFn: ({signal}) => fetchRelationships(tenantId, signal),
@@ -52,6 +53,11 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
     queryKey: ['resource-manager', 'organization-relationships', 'organizations', tenantId],
     queryFn: ({signal}) => fetchOrganizations({tenantId, pageSize: 10000, signal}),
     enabled: uuid.test(tenantId), retry: false,
+  })
+  const history = useQuery({
+    queryKey: ['resource-manager', 'organization-relationships', 'history', tenantId, historyId],
+    queryFn: ({signal}) => fetchRelationshipHistory(tenantId, historyId!, signal),
+    enabled: uuid.test(tenantId) && Boolean(historyId), retry: false,
   })
   const orgs = useMemo(() => organizations.data?.organizations ?? [], [organizations.data])
   const orgNames = useMemo(() => new Map(orgs.map((o) => [o.id, o.name || o.id])), [orgs])
@@ -93,13 +99,15 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
   })
   const close = useMutation({
     mutationFn: async (rel: OrganizationRelationship) => {
-      const key = closeKeys.current[rel.id] || (closeKeys.current[rel.id] = crypto.randomUUID())
-      return closeRelationship(tenantId, rel.id, rel.revision, key)
+      const command = closeKeys.current[rel.id] ||
+        (closeKeys.current[rel.id] = {key: crypto.randomUUID(), timestamp: new Date().toISOString()})
+      return closeRelationship(tenantId, rel.id, rel.revision, command.key, command.timestamp)
     },
     onSuccess: async (rel) => {
       delete closeKeys.current[rel.id]
       setConfirmClose(null)
       await queryClient.invalidateQueries({queryKey})
+      await queryClient.invalidateQueries({queryKey: ['resource-manager', 'organization-relationships', 'history', tenantId]})
     },
   })
   const startEditing = (rel: OrganizationRelationship) => {
@@ -209,6 +217,24 @@ export function OrganizationRelationshipsPanel({t, tenantId, memberIds}: Props) 
       {rel.state === 'ACTIVE' && <div className="m8-relations__buttons">
         <Button onClick={() => startEditing(rel)}>{t('relations.edit')}</Button>
         <Button view="outlined-danger" onClick={() => setConfirmClose(rel.id)}>{t('relations.close')}</Button>
+      </div>}
+      <div className="m8-relations__buttons">
+        <Button view="flat" onClick={() => setHistoryId(historyId === rel.id ? null : rel.id)}>
+          {t('relations.history')}
+        </Button>
+      </div>
+      {historyId === rel.id && <div className="m8-relations__form">
+        <Text as="h4" variant="subheader-2">{t('relations.history')}</Text>
+        {history.isPending && <Text color="secondary">{t('relations.loading')}</Text>}
+        {history.isError && <Text color="danger">{history.error.message}</Text>}
+        {history.data?.map((version) => <div className="m8-relations__revision" key={version.revision}>
+          <Text variant="subheader-2">{t('relations.revision')} {version.revision}</Text>
+          <Text color="secondary" variant="caption-2">{version.updateTime || '—'}</Text>
+          <Text variant="body-2">{t(version.state === 'CLOSED' ? 'relations.state.CLOSED' : 'relations.state.ACTIVE')}</Text>
+          <Text variant="body-2">{version.type === 'PARENT_SUBSIDIARY' ?
+            pct(version.ownershipBasisPoints) + '%' : label(version.type)}</Text>
+          <Text variant="caption-2" color="secondary">{version.evidenceRef || '—'}</Text>
+        </div>)}
       </div>}
       {editing === rel.id && <div className="m8-relations__form">
         {rel.type === 'PARENT_SUBSIDIARY' && <label>
