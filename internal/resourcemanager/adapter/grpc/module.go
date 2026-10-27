@@ -1,18 +1,18 @@
 package grpcadapter
 
 import (
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
-	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
-	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
-	"github.com/m8-team/platform/internal/resourcemanager/adapter/ydb"
-	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
-	"github.com/m8-team/platform/internal/resourcemanager"
-	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
 	"context"
 	"database/sql"
 	"fmt"
-	_ "github.com/ydb-platform/ydb-go-sdk/v3"
+	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
+	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
+	"github.com/m8-team/platform/internal/resourcemanager"
+	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
+	"github.com/m8-team/platform/internal/resourcemanager/adapter/ydb"
+	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
+	_ "github.com/ydb-platform/ydb-go-sdk/v3"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 )
@@ -48,33 +48,39 @@ func newOrgStructureRegistration(s *OrgStructureServer) grpcserver.Registration 
 }
 
 type orgStructureGRPCParams struct {
-    fx.In
-    Store orgstructure.Store
-    Config resourcemanager.Config
-    Access *accessusecase.CheckPermissionHandler `optional:"true"`
+	fx.In
+	Store  orgstructure.Store
+	Config resourcemanager.Config
+	Access *accessusecase.CheckPermissionHandler `optional:"true"`
 }
-func newConfiguredOrgStructureServer(p orgStructureGRPCParams) (*OrgStructureServer,error){
-    return NewOrgStructureServer(p.Store,p.Config,p.Access)
+
+func newConfiguredOrgStructureServer(p orgStructureGRPCParams) (*OrgStructureServer, error) {
+	return NewOrgStructureServer(p.Store, p.Config, p.Access)
 }
 
 // Selects YDB when configured; the memory store is never used as a silent
 // substitute for a failed YDB connection. Production must configure YDB.
-func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle) (orgstructure.Store,error){
-    if cfg.YDBDSN == "" {
-        // With no DSN production authorization still fails closed.
-        return memory.NewOrgStructureStore(),nil
-    }
-    if cfg.AllowUnauthenticated {
-        return nil,fmt.Errorf("YDB mode cannot enable unauthenticated development access")
-    }
-    db,err:=sql.Open("ydb",cfg.YDBDSN)
-    if err!=nil{return nil,fmt.Errorf("open YDB: %w",err)}
-    if err=db.PingContext(context.Background());err!=nil {
-        _=db.Close()
-        return nil,fmt.Errorf("connect YDB: %w",err)
-    }
-    store,err:=ydb.NewStore(db,cfg.YDBTablePrefix)
-    if err!=nil{_ = db.Close();return nil,err}
-    lifecycle.Append(fx.Hook{OnStop:func(context.Context)error{return db.Close()}})
-    return store,nil
+func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle) (orgstructure.Store, error) {
+	if cfg.YDBDSN == "" {
+		// With no DSN production authorization still fails closed.
+		return memory.NewOrgStructureStore(), nil
+	}
+	if cfg.AllowUnauthenticated {
+		return nil, fmt.Errorf("YDB mode cannot enable unauthenticated development access")
+	}
+	db, err := sql.Open("ydb", cfg.YDBDSN)
+	if err != nil {
+		return nil, fmt.Errorf("open YDB: %w", err)
+	}
+	if err = db.PingContext(context.Background()); err != nil {
+		_ = db.Close()
+		return nil, fmt.Errorf("connect YDB: %w", err)
+	}
+	store, err := ydb.NewStore(db, cfg.YDBTablePrefix)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	lifecycle.Append(fx.Hook{OnStop: func(context.Context) error { return db.Close() }})
+	return store, nil
 }

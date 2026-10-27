@@ -19,9 +19,9 @@ const (
 	envAllowUnauthenticated = "M8_RM_ALLOW_UNAUTHENTICATED"
 	envSoftDeleteRetention  = "M8_RM_SOFT_DELETE_RETENTION"
 	envPageTokenKey         = "M8_RM_PAGE_TOKEN_KEY"
-	envYDBDSN = "M8_RM_YDB_DSN"
-	envYDBPrefix = "M8_RM_YDB_TABLE_PREFIX"
-	envAccessRevision = "M8_RM_ACCESS_MODEL_REVISION"
+	envYDBDSN               = "M8_RM_YDB_DSN"
+	envYDBPrefix            = "M8_RM_YDB_TABLE_PREFIX"
+	envAccessRevision       = "M8_RM_ACCESS_MODEL_REVISION"
 )
 
 const (
@@ -42,9 +42,9 @@ type Config struct {
 	AllowUnauthenticated bool
 	SoftDeleteRetention  time.Duration
 	PageTokenKey         []byte
-	YDBDSN string
-	YDBTablePrefix string
-	AccessModelRevision string
+	YDBDSN               string
+	YDBTablePrefix       string
+	AccessModelRevision  string
 }
 
 func LoadConfig() (Config, error) {
@@ -83,9 +83,9 @@ func loadConfig(lookup func(string) (string, bool)) (Config, error) {
 		AllowUnauthenticated: allowUnauthenticated,
 		SoftDeleteRetention:  softDeleteRetention,
 		PageTokenKey:         pageTokenKey,
-		YDBDSN: stringEnv(lookup,envYDBDSN,""),
-		YDBTablePrefix: stringEnv(lookup,envYDBPrefix,"/local/m8"),
-		AccessModelRevision: stringEnv(lookup,envAccessRevision,""),
+		YDBDSN:               stringEnv(lookup, envYDBDSN, ""),
+		YDBTablePrefix:       stringEnv(lookup, envYDBPrefix, "/local/m8"),
+		AccessModelRevision:  stringEnv(lookup, envAccessRevision, ""),
 		HealthHTTP: HealthHTTPConfig{
 			Address: healthHTTPAddress,
 		},
