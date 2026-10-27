@@ -29,10 +29,10 @@ func NewResourceServer(store *v1engine.Store, cfg resourcemanager.Config, bootst
 	if len(bootstrap) > 0 {
 		init = bootstrap[0]
 	}
-	return &ResourceServer{store: memoryResourceBackend{store:store}, devMode: cfg.AllowUnauthenticated, bootstrap: init}
+	return &ResourceServer{store: memoryResourceBackend{store: store}, devMode: cfg.AllowUnauthenticated, bootstrap: init}
 }
 func NewDurableResourceServer(store ResourceBackend, cfg resourcemanager.Config) *ResourceServer {
-	return &ResourceServer{store:store,devMode:cfg.AllowUnauthenticated,durable:true}
+	return &ResourceServer{store: store, devMode: cfg.AllowUnauthenticated, durable: true}
 }
 func (s *ResourceServer) guard() error {
 	if !s.devMode {

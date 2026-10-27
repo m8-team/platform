@@ -90,15 +90,21 @@ func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle
 	return store, nil
 }
 
-func newConfiguredResourceServer(store *v1engine.Store, cfg resourcemanager.Config, orgStore orgstructure.Store) (*ResourceServer,error) {
-    if cfg.YDBDSN != "" {
-        ydbStore,ok:=orgStore.(*ydb.Store)
-        if !ok{return nil,fmt.Errorf("YDB is configured but OrgUnit store is not YDB")}
-        catalog,err:=ydb.NewCatalogFromStore(ydbStore)
-        if err!=nil{return nil,err}
-        return NewDurableResourceServer(catalog,cfg),nil
-    }
-    bootstrap,ok:=orgStore.(orgstructure.BootstrapRepository)
-    if !ok {return NewResourceServer(store,cfg),nil}
-    return NewResourceServer(store,cfg,bootstrap),nil
+func newConfiguredResourceServer(store *v1engine.Store, cfg resourcemanager.Config, orgStore orgstructure.Store) (*ResourceServer, error) {
+	if cfg.YDBDSN != "" {
+		ydbStore, ok := orgStore.(*ydb.Store)
+		if !ok {
+			return nil, fmt.Errorf("YDB is configured but OrgUnit store is not YDB")
+		}
+		catalog, err := ydb.NewCatalogFromStore(ydbStore)
+		if err != nil {
+			return nil, err
+		}
+		return NewDurableResourceServer(catalog, cfg), nil
+	}
+	bootstrap, ok := orgStore.(orgstructure.BootstrapRepository)
+	if !ok {
+		return NewResourceServer(store, cfg), nil
+	}
+	return NewResourceServer(store, cfg, bootstrap), nil
 }
