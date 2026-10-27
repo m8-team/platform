@@ -35,9 +35,12 @@ export interface OrganizationDraft {
  * the same authenticated session and server-side M8 Access policy.
  */
 export class TenantNotFoundError extends Error {
-  constructor(readonly tenantId: string) {
+  readonly tenantId: string
+
+  constructor(tenantId: string) {
     super('Tenant not found in the current Resource Manager deployment')
     this.name = 'TenantNotFoundError'
+    this.tenantId = tenantId
   }
 }
 
