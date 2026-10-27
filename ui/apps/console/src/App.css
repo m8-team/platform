@@ -670,7 +670,7 @@
   }
 }
 
-/* Match API Debug's compact service records; probes expand independently. */
+/* Service Health uses API Debug rows and dotted DefinitionList leaders. */
 .m8-health-console .m8-request-console__header > div:first-child {
   min-width: 0;
 }
@@ -679,9 +679,13 @@
   margin-top: 12px;
 }
 
+.m8-health-service__summary {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .m8-health-service__details {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   padding: 12px;
   border-top: 1px solid var(--g-color-line-generic);
 }
@@ -693,44 +697,52 @@
 }
 
 .m8-health-service__probes {
+  width: 100%;
+  min-width: 0;
+  --g-definition-list-item-gap: 18px;
+}
+
+.m8-health-probe__term {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.m8-health-probe__value {
   display: grid;
   gap: 8px;
-  min-width: 0;
-  margin-top: 4px;
-}
-
-.m8-health-probe {
+  width: 100%;
   min-width: 0;
 }
 
-.m8-health-probe__heading,
+.m8-health-probe__time {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.m8-health-probe__definitions {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 0 0;
+  --g-definition-list-item-gap: 10px;
+}
+
 .m8-health-probe__check-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   min-width: 0;
-}
-
-.m8-health-probe__heading .g-label {
-  flex: 0 0 auto;
-}
-
-.m8-health-probe__title {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.m8-health-probe__definitions {
-  width: 100%;
 }
 
 .m8-health-probe__checks {
   display: grid;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -743,4 +755,10 @@
 
 .m8-health-probe__error {
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 650px) {
+  .m8-health-probe__time {
+    text-align: left;
+  }
 }
