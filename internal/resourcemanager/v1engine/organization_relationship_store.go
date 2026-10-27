@@ -1,7 +1,6 @@
 package v1engine
 
 import (
-	"crypto/sha256"
 	"time"
 )
 
@@ -75,7 +74,7 @@ type RelationshipUpdate struct {
 	EvidenceRef string
 }
 
-func updateHash(operation string, update RelationshipUpdate) [32]byte {
+func RelationshipUpdateHash(operation string, update RelationshipUpdate) [32]byte {
 	sum, _ := RelationshipHash(operation, OrganizationRelationship{
 		ID:update.ID,TenantID:update.TenantID, Revision:update.ExpectedRevision,
 		OwnershipBasisPoints:update.OwnershipBasisPoints,ValidTo:update.ValidTo,EvidenceRef:update.EvidenceRef,
@@ -84,7 +83,7 @@ func updateHash(operation string, update RelationshipUpdate) [32]byte {
 }
 func (s *Store) UpdateRelationship(u RelationshipUpdate, idempotencyKey string) (OrganizationRelationship,error) {
 	if idempotencyKey == "" || u.ID == "" || u.TenantID == "" || u.ExpectedRevision <= 0 { return OrganizationRelationship{},ErrInvalid }
-	hash := updateHash("update",u)
+	hash := RelationshipUpdateHash("update",u)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if replay, found, err := s.relationshipReplay(u.TenantID,idempotencyKey,hash); found { return replay,err }
@@ -105,7 +104,7 @@ func (s *Store) UpdateRelationship(u RelationshipUpdate, idempotencyKey string) 
 func (s *Store) CloseRelationship(tenantID, id string, expectedRevision, closedAt int64, idempotencyKey string) (OrganizationRelationship,error) {
 	if tenantID == "" || id == "" || expectedRevision <= 0 || closedAt <= 0 || idempotencyKey == "" { return OrganizationRelationship{},ErrInvalid }
 	cmd := RelationshipUpdate{TenantID:tenantID,ID:id,ExpectedRevision:expectedRevision,ValidTo:closedAt}
-	hash:=updateHash("close",cmd)
+	hash:=RelationshipUpdateHash("close",cmd)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if replay, found, err := s.relationshipReplay(tenantID,idempotencyKey,hash); found {return replay,err}
@@ -120,6 +119,3 @@ func (s *Store) CloseRelationship(tenantID, id string, expectedRevision, closedA
 	return r,nil
 }
 
-// Prevent accidental import removal by the Go formatter; SHA is part of
-// the idempotency receipt, not a security token.
-var _ [32]byte = sha256.Sum256(nil)
