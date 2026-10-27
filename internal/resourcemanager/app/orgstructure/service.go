@@ -116,3 +116,35 @@ func requestHash(plan orgunit.ChangeSet) (string, error) {
 	digest := sha256.Sum256(payload)
 	return hex.EncodeToString(digest[:]), nil
 }
+
+
+ // ValidateImmediate applies the same authorization and impact checks as Apply,
+ // but does not persist a revision or schedule a retroactive mutation.
+ func (s *Service) ValidateImmediate(ctx context.Context, actor Actor, plan orgunit.ChangeSet) (uint64, error) {
+  if s == nil || s.gate == nil || s.store == nil {
+    return 0, ErrPolicyNotConfigured
+  }
+  if actor.TenantID == "" || actor.PrincipalID == "" || plan.ID == "" || plan.OrganizationID == "" {
+    return 0, orgunit.ErrInvalidChangeSet
+  }
+  if !plan.EffectiveAt.IsZero() {
+    return 0, orgunit.ErrDeferredEffectiveTime
+  }
+  now := time.Now().UTC()
+  plan.EffectiveAt, plan.RecordedAt = now, now
+  if err := s.gate.Authorize(ctx, actor, plan); err != nil {
+    return 0, err
+  }
+  before, err := s.store.Load(ctx, actor.TenantID, plan.OrganizationID)
+  if err != nil {
+    return 0, err
+  }
+  next, err := orgunit.Apply(before, plan)
+  if err != nil {
+    return 0, err
+  }
+  if err := s.gate.CheckImpact(ctx, actor, before, next, plan); err != nil {
+    return 0, err
+  }
+  return next.Revision, nil
+ }
