@@ -4,6 +4,7 @@ import App, {
   ResourceManagerOverviewPage,
   ResourceOrganizationDetailsPage,
   ResourceOrganizationsPage,
+  ResourceCatalogRoutePage,
   ResourceProjectDetailsPage,
   ResourceProjectsPage,
   ResourceWorkspaceDetailsPage,
@@ -37,6 +38,18 @@ const resourceOrganizationDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/resource-manager/organizations/$organizationId',
   component: ResourceOrganizationDetailsPage,
+})
+
+const resourceCatalogRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/resource-manager/catalog',
+  component: ResourceCatalogRoutePage,
+})
+
+const resourceCatalogDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/resource-manager/catalog/$kind/$resourceId',
+  component: ResourceCatalogRoutePage,
 })
 
 const resourceWorkspacesRoute = createRoute({
@@ -76,6 +89,8 @@ const routeTree = rootRoute.addChildren([
   resourceManagerRoute,
   resourceOrganizationsRoute,
   resourceOrganizationDetailsRoute,
+  resourceCatalogRoute,
+  resourceCatalogDetailRoute,
   resourceWorkspacesRoute,
   resourceWorkspaceDetailsRoute,
   resourceProjectsRoute,

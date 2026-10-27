@@ -55,6 +55,7 @@ import {ConsoleBreadcrumbs} from './components/ConsoleBreadcrumbs'
 import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
+import {ResourceCatalogPage} from './modules/resource-manager/pages/ResourceCatalogPage'
 import {OrganizationDetailsPage} from './modules/resource-manager/pages/OrganizationDetailsPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {
@@ -109,6 +110,7 @@ const resourceManagerRoutes = {
     list: '/resource-manager/organizations',
     detail: '/resource-manager/organizations/:organizationId',
   },
+  catalog: {list: '/resource-manager/catalog'},
   workspaces: {
     list: '/resource-manager/workspaces',
     detail: '/resource-manager/workspaces/:workspaceId',
@@ -279,6 +281,13 @@ const menuItemConfigs: MenuItemConfig[] = [
     groupId: 'resources',
   },
   {
+    id: 'resources-catalog',
+    titleKey: 'menu.resources.catalog',
+    icon: Layers,
+    href: resourceManagerRoutes.catalog.list,
+    groupId: 'resources',
+  },
+  {
     id: 'resources-workspaces',
     titleKey: 'menu.resources.workspaces',
     icon: Folders,
@@ -398,6 +407,10 @@ function getCurrentMenuItemId(pathname: string) {
 
   if (pathname === resourceManagerRoutes.organizations.list) {
     return 'resources-organizations'
+  }
+
+  if (pathname === resourceManagerRoutes.catalog.list || pathname.startsWith(resourceManagerRoutes.catalog.list + '/')) {
+    return 'resources-catalog'
   }
 
   if (pathname.startsWith(`${resourceManagerRoutes.workspaces.list}/`)) {
@@ -1080,6 +1093,11 @@ export function ResourceOrganizationsPage() {
 export function ResourceOrganizationDetailsPage() {
   const {language, t} = useConsoleI18n()
   return <OrganizationDetailsPage language={language} t={t} />
+}
+
+export function ResourceCatalogRoutePage() {
+  const {t} = useConsoleI18n()
+  return <ResourceCatalogPage t={t} />
 }
 
 export function ResourceWorkspacesPage() {

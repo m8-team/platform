@@ -1,3 +1,5 @@
+import {resourceCatalogEn} from './locales/en/resourceCatalog'
+import {resourceCatalogRu} from './locales/ru/resourceCatalog'
 import {I18N} from '@gravity-ui/i18n'
 
 export type AppLanguage = 'en' | 'ru'
@@ -195,6 +197,7 @@ const consoleMessages = {
   'overview.signal.auditReady': 'Audit ready',
   'overview.signal.auditReadyDescription': 'Important lifecycle changes can be emitted as versioned domain events.',
 
+  ...resourceCatalogEn,
   'projects.title': 'Projects',
   'projects.description': 'Manage project lifecycle, desired state, operations, and auditability across M8 workspaces.',
   'projects.metric.projects': 'Projects',
@@ -417,6 +420,7 @@ const ruConsoleMessages: Record<keyof typeof consoleMessages, string> = {
   'overview.signal.auditReady': 'Готовность к аудиту',
   'overview.signal.auditReadyDescription': 'Важные изменения lifecycle можно публиковать как версионированные domain events.',
 
+  ...resourceCatalogRu,
   'projects.title': 'Проекты',
   'projects.description': 'Управление жизненным циклом проектов, desired state, операциями и аудитом в M8 workspaces.',
   'projects.metric.projects': 'Проекты',
