@@ -38,7 +38,10 @@ func TestIntegrationYDBOrgStructure(t *testing.T) {
 	if err = db.PingContext(ctx); err != nil {
 		t.Fatalf("YDB connection unavailable: %v", err)
 	}
-	store, err := NewStore(db, prefix)
+	if err := prepareIntegrationSchema(ctx, db, dsn, prefix); err != nil {
+        t.Fatalf("YDB test schema: %v", err)
+    }
+    store, err := NewStore(db, prefix)
 	if err != nil {
 		t.Fatal(err)
 	}
