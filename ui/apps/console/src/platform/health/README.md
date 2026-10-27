@@ -2,7 +2,7 @@
 
 The footer's **Service Health** panel uses the existing platform health adapter. It fetches
 `/livez`, `/readyz`, `/startupz` and `/healthz` on opening and every 15 seconds while
-open. The summary badge uses readiness. Backend HTTP 503 is expected for valid unhealthy
+open. Services are presented as compact expandable records matching API Debug, with readiness shown in a persistent status Label. Within an expanded service, Liveness, Readiness, Startup and Diagnostics are independently expandable Accordion items. They show response timings, detailed dependency checks and a copyable JSON response. Backend HTTP 503 is expected for valid unhealthy
 snapshots and is not treated as a network error.
 
 In development, Vite proxies `/health/resource-manager/*` to Resource Manager's
