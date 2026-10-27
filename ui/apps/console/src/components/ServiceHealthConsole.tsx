@@ -76,8 +76,7 @@ function ServiceHealthItem({service, probes, t}: {
           <DefinitionList
             className="m8-health-service__probes"
             direction="horizontal"
-            nameMaxWidth={230}
-            responsive
+            nameMaxWidth={210}
           >
             {healthProbes.map((probe) => {
               const result = probes?.[probe.path]
@@ -254,9 +253,6 @@ export function ServiceHealthConsole({open, t, onClose}: {
           </Button>
         </div>
       </div>
-      <Text variant="caption-2" color="secondary">
-        {t('health.autoRefresh')}
-      </Text>
       <div className="m8-request-console__records m8-health-services">
         {monitoredServices.map((service) => (
           <ServiceHealthItem
