@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react'
 import {ArrowRotateRight, Xmark} from '@gravity-ui/icons'
-import {Button, Icon, Label, Text} from '@gravity-ui/uikit'
+import {Accordion, Button, Icon, Label, Text} from '@gravity-ui/uikit'
 
 import type {Translate, TranslationKey} from '../i18n'
 import {
@@ -37,7 +37,7 @@ const statusThemes: Record<HealthDisplayStatus, 'success' | 'warning' | 'danger'
   CHECKING: 'info',
 }
 
-function StatusBadge({status, t}: {status: HealthDisplayStatus; t: Translate}) {
+function StatusLabel({status, t}: {status: HealthDisplayStatus; t: Translate}) {
   return <Label theme={statusThemes[status]}>{t(statusKeys[status])}</Label>
 }
 
@@ -59,7 +59,7 @@ function ProbeCard({probe, result, t}: {
           <Text variant="body-2" className="m8-health-probe__title">{t(probe.titleKey)}</Text>
           <Text variant="caption-2" color="secondary">{probe.path}</Text>
         </div>
-        <StatusBadge status={status} t={t} />
+        <StatusLabel status={status} t={t} />
       </div>
       {result ? (
         <>
@@ -81,7 +81,7 @@ function ProbeCard({probe, result, t}: {
                 <div key={`${check.name}-${index}`} className="m8-health-probe__check">
                   <div className="m8-health-probe__check-heading">
                     <Text variant="body-2">{check.name}</Text>
-                    <StatusBadge status={check.status} t={t} />
+                    <StatusLabel status={check.status} t={t} />
                   </div>
                   {check.target ? (
                     <Text variant="caption-2" color="secondary">
@@ -181,37 +181,51 @@ export function ServiceHealthConsole({open, t, onClose}: {
       <Text variant="caption-2" color="secondary">
         {t('health.autoRefresh')}
       </Text>
-      <div className="m8-health-services">
+      <Accordion
+        className="m8-health-services"
+        size="m"
+        view="solid"
+        multiple
+        defaultValue={monitoredServices.slice(0, 1).map((service) => service.id)}
+      >
         {monitoredServices.map((service) => {
           const probes = results[service.id]
           const readiness = probes?.['/readyz']
           const status: HealthDisplayStatus = readiness?.status ?? 'CHECKING'
 
           return (
-            <article key={service.id} className="m8-health-service">
-              <div className="m8-health-service__heading">
-                <div className="m8-health-service__title">
-                  <Text as="h3" variant="subheader-2">{service.name}</Text>
-                  <Text variant="caption-2" color="secondary">{service.id}</Text>
+            <Accordion.Item
+              key={service.id}
+              value={service.id}
+              className="m8-health-service"
+              summary={
+                <div className="m8-health-service__heading">
+                  <div className="m8-health-service__title">
+                    <Text as="span" variant="subheader-2">{service.name}</Text>
+                    <Text variant="caption-2" color="secondary">{service.id}</Text>
+                  </div>
+                  <StatusLabel status={status} t={t} />
                 </div>
-                <StatusBadge status={status} t={t} />
+              }
+            >
+              <div className="m8-health-service__body">
+                <Text variant="caption-2" color="secondary">
+                  {t('health.overallReadiness')}
+                  {readiness?.snapshot ? ` · ${t('health.lastChecked')}: ${formatTime(readiness.snapshot.checked_at)}` : ''}
+                </Text>
+                <Text variant="caption-2" color="secondary" className="m8-health-service__url">
+                  {service.baseUrl}
+                </Text>
+                <div className="m8-health-service__probes">
+                  {healthProbes.map((probe) => (
+                    <ProbeCard key={probe.path} probe={probe} result={probes?.[probe.path]} t={t} />
+                  ))}
+                </div>
               </div>
-              <Text variant="caption-2" color="secondary">
-                {t('health.overallReadiness')}
-                {readiness?.snapshot ? ` · ${t('health.lastChecked')}: ${formatTime(readiness.snapshot.checked_at)}` : ''}
-              </Text>
-              <Text variant="caption-2" color="secondary" className="m8-health-service__url">
-                {service.baseUrl}
-              </Text>
-              <div className="m8-health-service__probes">
-                {healthProbes.map((probe) => (
-                  <ProbeCard key={probe.path} probe={probe} result={probes?.[probe.path]} t={t} />
-                ))}
-              </div>
-            </article>
+            </Accordion.Item>
           )
         })}
-      </div>
+      </Accordion>
     </div>
   )
 }
