@@ -157,6 +157,7 @@ export interface OrganizationResource {
   name: string
   state: string
   revision?: number
+  structuralOwner?: {kind: string; id: string}
 }
 
 // This endpoint currently returns an unpaginated organization-scoped list.
@@ -180,9 +181,20 @@ export async function fetchOrganizationResources(
     if (!kind) throw new Error('Unknown resource record')
     const value = record[kind] as RecordValue
     const meta = metadata(value.metadata)
+    const rawOwner = isRecord(value.owner) ? value.owner : null
+    const scopeId = rawOwner?.organizationId ?? rawOwner?.workspaceId ?? rawOwner?.projectId
+    const scopeKind = rawOwner?.organizationId ? 'organization'
+      : rawOwner?.workspaceId ? 'workspace'
+        : rawOwner?.projectId ? 'project' : undefined
+    const fallbackOrg = kind === 'workspace' || kind === 'environment'
+      ? optionalString(value.organizationId) : undefined
+    const structuralOwner = scopeKind && typeof scopeId === 'string'
+      ? {kind: scopeKind, id: scopeId}
+      : fallbackOrg ? {kind: 'organization', id: fallbackOrg} : undefined
     return {
       id: requiredString(meta.id, 'resource ID'),
       kind,
+      structuralOwner,
       name: requiredString(meta.name, 'resource name'),
       state: optionalString(meta.state)?.replace(/^RESOURCE_STATE_/, '') ?? 'UNSPECIFIED',
       revision: typeof meta.revision === 'number' ? meta.revision : undefined,
