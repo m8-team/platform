@@ -24,7 +24,7 @@ func Module() fx.Option {
 		fx.Provide(provideOrgStructureStore),
 		fx.Provide(newConfiguredOrgStructureServer),
 		fx.Provide(fx.Annotate(newOrgStructureRegistration, fx.ResultTags(grpcserver.RegistrationResultTag))),
-		fx.Provide(NewResourceServer),
+		fx.Provide(newConfiguredResourceServer),
 		fx.Provide(asV1ServiceServer),
 		fx.Provide(fx.Annotate(newRegistration, fx.ResultTags(grpcserver.RegistrationResultTag))),
 	)
@@ -83,4 +83,10 @@ func provideOrgStructureStore(cfg resourcemanager.Config, lifecycle fx.Lifecycle
 	}
 	lifecycle.Append(fx.Hook{OnStop: func(context.Context) error { return db.Close() }})
 	return store, nil
+}
+
+func newConfiguredResourceServer(store *v1engine.Store, cfg resourcemanager.Config, orgStore orgstructure.Store) *ResourceServer {
+    bootstrap,ok:=orgStore.(orgstructure.BootstrapRepository)
+    if !ok{return NewResourceServer(store,cfg)}
+    return NewResourceServer(store,cfg,bootstrap)
 }
