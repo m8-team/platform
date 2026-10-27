@@ -126,3 +126,13 @@ export async function removeGroupOrganization(groupId: string, organizationId: s
   await request('/groups/' + encodeURIComponent(groupId) + '/organizations/' +
     encodeURIComponent(organizationId) + '?' + params, {method: 'DELETE'})
 }
+
+export async function verifyOrganizationInTenant(organizationId: string, tenantId: string): Promise<void> {
+  if (!uuid.test(organizationId)) throw new Error('Invalid Organization UUID')
+  const raw = await request('/resources/organization/' + encodeURIComponent(organizationId))
+  if (!object(raw) || !object(raw.organization) ||
+      raw.organization.tenantId !== tenantId || !object(raw.organization.metadata) ||
+      raw.organization.metadata.id !== organizationId) {
+    throw new Error('Organization does not belong to the selected Tenant')
+  }
+}
