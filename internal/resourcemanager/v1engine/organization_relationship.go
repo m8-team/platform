@@ -10,6 +10,7 @@ import (
 
 var ErrRelationshipCycle = errors.New("corporate parent relationship cycle")
 var ErrRelationshipOverlap = errors.New("overlapping corporate relationship")
+var ErrRelationshipStakeExceeded = errors.New("direct ownership shares exceed 100 percent")
 
 type RelationshipType string
 
@@ -134,6 +135,40 @@ func ValidateRelationshipGraph(existing []OrganizationRelationship, candidate Or
 			}
 			stack = append(stack, next{edge.ToOrganizationID, start, end})
 		}
+	}
+	return nil
+}
+
+// Validate the time-local sum of known direct ownership stakes for a subsidiary.
+// A zero stake is unknown and does not claim any share. Multiple parents are
+// allowed, while overlapping known percentages cannot exceed 100%.
+func validateDirectStakes(existing []OrganizationRelationship, candidate OrganizationRelationship) error {
+	if candidate.OwnershipBasisPoints == 0 { return nil }
+	type event struct {at int64; delta int32}
+	events := []event{{candidate.ValidFrom, candidate.OwnershipBasisPoints}}
+	if candidate.ValidTo != 0 {
+		events = append(events, event{candidate.ValidTo, -candidate.OwnershipBasisPoints})
+	}
+	for _, other := range existing {
+		if candidate.ID != "" && other.ID == candidate.ID { continue }
+		if other.TenantID != candidate.TenantID ||
+			other.Type != RelationshipParentSubsidiary ||
+			other.ToOrganizationID != candidate.ToOrganizationID ||
+			other.OwnershipBasisPoints == 0 || !overlap(other, candidate) { continue }
+		start := other.ValidFrom
+		if start < candidate.ValidFrom {start = candidate.ValidFrom}
+		end := rangeEnd(other.ValidTo, candidate.ValidTo)
+		events = append(events, event{start, other.OwnershipBasisPoints})
+		if end != 0 {events = append(events, event{end, -other.OwnershipBasisPoints})}
+	}
+	sort.Slice(events,func(i,j int) bool {
+		if events[i].at != events[j].at {return events[i].at < events[j].at}
+		return events[i].delta < events[j].delta
+	})
+	var total int32
+	for _,e := range events {
+		total += e.delta
+		if total > 10000 {return ErrRelationshipStakeExceeded}
 	}
 	return nil
 }
