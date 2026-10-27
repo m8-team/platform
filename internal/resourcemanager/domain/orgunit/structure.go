@@ -33,11 +33,11 @@ const (
 // Unit is the adjacency-list input. ID is stable across renames/reparenting.
 // There is no PersonID or employee assignment in this structure.
 type Unit struct {
-	ID             string
-	OrganizationID string
-	ParentID       string // empty for an organizational root
-	State          State
-	DisplayName    string
+	ID                    string
+	OrganizationID        string
+	ParentID              string // empty for an organizational root
+	State                 State
+	DisplayName           string
 	AuthoritativeSourceID string
 }
 

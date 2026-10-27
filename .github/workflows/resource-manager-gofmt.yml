@@ -1,0 +1,30 @@
+name: Resource Manager Go formatting
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'internal/resourcemanager/**'
+      - 'Makefile'
+      - '.github/workflows/resource-manager-gofmt.yml'
+  pull_request:
+    paths:
+      - 'internal/resourcemanager/**'
+      - 'Makefile'
+      - '.github/workflows/resource-manager-gofmt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gofmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.1'
+      - name: Check Go formatting
+        run: make fmt-check-resourcemanager
