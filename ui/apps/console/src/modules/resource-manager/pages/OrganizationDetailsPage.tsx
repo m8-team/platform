@@ -16,6 +16,7 @@ import {OrganizationSettings} from '../components/OrganizationSettings'
 import {OrgUnitChangeSetEditor} from '../components/OrgUnitChangeSetEditor'
 import {ResourceOwnershipCards} from '../components/ResourceOwnershipCards'
 import './organization-details.css'
+import './organization-editor.css'
 
 type Section = 'overview' | 'units' | 'changes' | 'resources' | 'ownership' | 'settings' | 'sync' | 'history'
 interface Props {language: AppLanguage; t: Translate}
