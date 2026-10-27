@@ -82,7 +82,9 @@ func TestListResourcesGroupsIsolatedPerTenant(t *testing.T) {
 				Metadata: &pb.ResourceMetadata{Name: name},
 			}}},
 		})
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+			t.Fatal(err)
+		}
 		return r.GetTenant().GetMetadata().GetId()
 	}
 	createGroup := func(tenantID, name string) string {
@@ -93,7 +95,9 @@ func TestListResourcesGroupsIsolatedPerTenant(t *testing.T) {
 				TenantId: tenantID, Metadata: &pb.ResourceMetadata{Name: name},
 			}}},
 		})
-		if err != nil { t.Fatal(err) }
+		if err != nil {
+			t.Fatal(err)
+		}
 		return r.GetGroup().GetMetadata().GetId()
 	}
 	first, second := createTenant("holding-a"), createTenant("holding-b")
@@ -118,5 +122,7 @@ func TestListResourcesGroupsIsolatedPerTenant(t *testing.T) {
 	_, err := svc.ListResources(ctx, &pb.ListResourcesRequest{
 		Kind: "group", TenantId: "00000000-0000-4000-8000-000000000001",
 	})
-	if status.Code(err) != codes.NotFound {t.Fatalf("unknown Tenant: %v", err)}
+	if status.Code(err) != codes.NotFound {
+		t.Fatalf("unknown Tenant: %v", err)
+	}
 }
