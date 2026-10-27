@@ -13,10 +13,12 @@ import (
 func (c *Catalog) ListTenantOrganizations(ctx context.Context, tenantID string) ([]v1engine.Record, error) {
 	return c.listTenantKind(ctx, tenantID, v1engine.Organization)
 }
+
 // ListTenantGroups loads only Groups of a known Tenant.
 func (c *Catalog) ListTenantGroups(ctx context.Context, tenantID string) ([]v1engine.Record, error) {
 	return c.listTenantKind(ctx, tenantID, v1engine.Group)
 }
+
 // A missing Tenant never falls back to a global listing.
 func (c *Catalog) listTenantKind(ctx context.Context, tenantID string, kind v1engine.Kind) ([]v1engine.Record, error) {
 	if tenantID == "" {
