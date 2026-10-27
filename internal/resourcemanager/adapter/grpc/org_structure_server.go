@@ -135,14 +135,14 @@ func orgUnitProto(u orgunit.Unit, actor orgstructure.Actor, revision uint64) *pb
 		mode = pb.OrgUnitManagementMode_ORG_UNIT_MANAGEMENT_MODE_EXTERNAL
 	}
 	return &pb.OrgUnit{
-		Metadata: &pb.ResourceMetadata{Id: u.ID, Name: u.DisplayName, Revision: int64(revision)},
-		TenantId: actor.TenantID,
-		OrganizationId: u.OrganizationID,
-		ParentOrgUnitId: u.ParentID,
-		LifecycleState: state,
-		ManagementMode: mode,
+		Metadata:              &pb.ResourceMetadata{Id: u.ID, Name: u.DisplayName, Revision: int64(revision)},
+		TenantId:              actor.TenantID,
+		OrganizationId:        u.OrganizationID,
+		ParentOrgUnitId:       u.ParentID,
+		LifecycleState:        state,
+		ManagementMode:        mode,
 		AuthoritativeSourceId: u.AuthoritativeSourceID,
-		StructureRevision: int64(revision),
+		StructureRevision:     int64(revision),
 	}
 }
 
