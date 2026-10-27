@@ -112,10 +112,33 @@ export async function updateRelationship(tenantId: string, id: string, revision:
   })})
   return parse(raw, tenantId)
 }
-export async function closeRelationship(tenantId: string, id: string, revision: number, idempotencyKey: string) {
+export async function fetchRelationshipHistory(tenantId: string, id: string, signal?: AbortSignal) {
+  const versions: OrganizationRelationship[] = []
+  const tokens = new Set<string>()
+  let token = ''
+  for (let i = 0; i < 100; i++) {
+    const params = new URLSearchParams({tenantId, pageSize: '100'})
+    if (token) params.set('pageToken', token)
+    const raw = await send('/' + encodeURIComponent(id) + '/versions?' + params, {signal})
+    if (!isRecord(raw) || !Array.isArray(raw.versions)) throw new Error('Invalid relationship revision history')
+    for (const entry of raw.versions) {
+      const version = parse(entry, tenantId)
+      if (version.id !== id) throw new Error('Relationship history identity mismatch')
+      versions.push(version)
+    }
+    const next = string(raw.nextPageToken)
+    if (!next) return versions
+    if (tokens.has(next)) throw new Error('Repeated relationship history token')
+    tokens.add(next)
+    token = next
+  }
+  throw new Error('Relationship version pagination limit exceeded')
+}
+
+export async function closeRelationship(tenantId: string, id: string, revision: number, idempotencyKey: string, closedAt: string) {
   const raw = await send('/' + encodeURIComponent(id) + ':close', {method: 'POST', body: JSON.stringify({
     id, tenantId, expectedRevision: revision, idempotencyKey,
-    closedAt: new Date().toISOString(),
+    closedAt,
   })})
   return parse(raw, tenantId)
 }
