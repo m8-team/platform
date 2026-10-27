@@ -34,3 +34,29 @@ Local dev proxies `/resource-manager/v1` to `http://127.0.0.1:8080`. A running R
 ## Follow-up
 
 Connect verified browser authentication and REST gateway; implement Directory Sync, ownership and version-history backend, scoped/tree pagination for organizations with over 20k visible OrgUnits, and create/change-set workflows when backend policies permit changes.
+
+## Phase 2: Organization management and reviewable ChangeSets
+
+A second, stacked PR adds:
+- `Create organization` action on the Organizations list with explicit Tenant UUID, name, description, field validation and a stable idempotency key per submission payload. A successful response navigates directly to the created Organization.
+- `Settings` tab: editable name/description through `UpdateResource` (FieldMask, expected revision and idempotency key), immutable Tenant/ID, explicit suspend confirmation and resume via `ChangeResourceState`.
+- `ChangeSets` tab: stage CREATE, RENAME, MOVE, CLOSE for manual OrgUnits, preview before/after name, parent, status, validate with `OrgUnitChangeSetService.ValidateOrgUnitChangeSet`, then explicitly confirm `ApplyOrgUnitChangeSet`. The apply action stays disabled until server validation succeeds for the exact current draft and base revision. The backend is authoritative for all constraints and impact-review/Access checks. No backdated or scheduled mutations are offered.
+- `Ownership` tab: resource cards show the owning Organization and immediate structural parent from existing API. Business owner, technical owner, operating team and accountable OrgUnit display **API unavailable**, not **unassigned**; assignments cannot be changed before a dedicated Directory/Ownership API.
+
+### Important deployment and API limitations
+
+- All mutations go to real REST annotation paths, never local browser mocks. A configured REST gateway must expose `CreateResource`, `UpdateResource`, `ChangeResourceState`, `ValidateOrgUnitChangeSet`, and `ApplyOrgUnitChangeSet`.
+- Production authentication and M8 Access (P0.9) and impact review (P0.10) are still required for writes. HTTP 401/403/409 errors are displayed. UI controls **do not** bypass authorization.
+- Organization creation requires an actual Tenant ID; a Tenant picker and directory of authorized tenants do not exist yet.
+- Company legal profiles, ownership assignments and 1C:ЗУП sync must be exposed by separate APIs; form fields are not invented to simulate persistence.
+- The diff describes the hierarchy only; it does not claim to compute changes to external access, projects or employee assignments. Server-side approval/impact analysis is authoritative.
+- Merge the base Organization details UI PR before this stacked PR, then update the base to `main`.
+
+### Acceptance checks
+
+```sh
+cd ui/apps/console
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm build
+```
