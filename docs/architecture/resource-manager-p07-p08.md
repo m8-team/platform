@@ -55,3 +55,7 @@ The test bootstraps schema only in an explicitly disposable local-YDB environmen
 - Some existing `v1engine` helpers survive as type/validation utilities and dev-only backend; they are not authoritative production storage.
 
 Never enable `AllowUnauthenticated` with a configured YDB connection.
+
+## Extended verification scenarios
+
+The live-YDB integration suite executes the actual `003_unified_resources.sql` migration and verifies concurrent create attempts using one idempotency key, OrgUnit revision-1 creation, durable read-back from a new repository instance, optimistic conflicts, environment uniqueness, project moves, lifecycle restrictions, group unlink, binding removal, and scoped Outbox event counts. A failed serializable concurrent attempt is expected to be safely retryable by the client with the original idempotency key.
