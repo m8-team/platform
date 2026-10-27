@@ -56,6 +56,9 @@ service OrganizationRelationshipService {
   rpc UpdateOrganizationRelationship(UpdateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
     option (google.api.http) = {patch: "/resource-manager/v1/organization-relationships/{id}" body: "*"};
   }
+  rpc ListOrganizationRelationshipVersions(ListOrganizationRelationshipVersionsRequest) returns (ListOrganizationRelationshipVersionsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}/versions"};
+  }
   rpc CloseOrganizationRelationship(CloseOrganizationRelationshipRequest) returns (OrganizationRelationship) {
     option (google.api.http) = {post: "/resource-manager/v1/organization-relationships/{id}:close" body: "*"};
   }
@@ -97,4 +100,15 @@ message CloseOrganizationRelationshipRequest {
   int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Timestamp closed_at = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message ListOrganizationRelationshipVersionsRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListOrganizationRelationshipVersionsResponse {
+  repeated OrganizationRelationship versions = 1;
+  string next_page_token = 2;
 }
