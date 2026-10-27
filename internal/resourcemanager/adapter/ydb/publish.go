@@ -24,11 +24,11 @@ func (s *Store) stage(ctx context.Context, tenant, org, snapshot string, v orgun
 	defer tx.Rollback()
 	for _, u := range v.Units {
 		_, e = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8; DECLARE $org AS Utf8; DECLARE $snap AS Utf8;
-  DECLARE $id AS Utf8; DECLARE $parent AS Utf8?; DECLARE $display AS Utf8;
-  DECLARE $state AS Utf8; DECLARE $src AS Utf8?;
+  DECLARE $id AS Utf8; DECLARE $parent AS Utf8; DECLARE $display AS Utf8;
+  DECLARE $state AS Utf8; DECLARE $src AS Utf8;
   INSERT INTO `+"`m8-resource-manager/org_unit_snapshots`"+`
   (tenant_id,organization_id,snapshot_id,org_unit_id,parent_org_unit_id,display_name,lifecycle_state,authoritative_source_id)
-  VALUES ($tenant,$org,$snap,$id,$parent,$display,$state,$src);`), sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("snap", snapshot), sql.Named("id", u.ID), sql.Named("parent", nilIfEmpty(u.ParentID)), sql.Named("display", u.DisplayName), sql.Named("state", string(u.State)), sql.Named("src", nilIfEmpty(u.AuthoritativeSourceID)))
+  VALUES ($tenant,$org,$snap,$id,IF($parent != '', $parent),$display,$state,IF($src != '', $src));`), sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("snap", snapshot), sql.Named("id", u.ID), sql.Named("parent", u.ParentID), sql.Named("display", u.DisplayName), sql.Named("state", string(u.State)), sql.Named("src", u.AuthoritativeSourceID))
 		if e != nil {
 			return e
 		}
@@ -78,10 +78,10 @@ func (s *Store) Initialize(ctx context.Context, tenant string, v orgunit.Structu
 	}
 	for _, unit := range v.Units {
 		_, e = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8; DECLARE $org AS Utf8;
- DECLARE $id AS Utf8; DECLARE $src AS Utf8?; DECLARE $at AS Timestamp;
+ DECLARE $id AS Utf8; DECLARE $src AS Utf8; DECLARE $at AS Timestamp;
  INSERT INTO `+"`m8-resource-manager/org_units`"+`
  (tenant_id,organization_id,org_unit_id,authoritative_source_id,create_time)
- VALUES ($tenant,$org,$id,$src,$at);`), sql.Named("tenant", tenant), sql.Named("org", v.OrganizationID), sql.Named("id", unit.ID), sql.Named("src", nilIfEmpty(unit.AuthoritativeSourceID)), sql.Named("at", now))
+ VALUES ($tenant,$org,$id,IF($src != '', $src),$at);`), sql.Named("tenant", tenant), sql.Named("org", v.OrganizationID), sql.Named("id", unit.ID), sql.Named("src", unit.AuthoritativeSourceID), sql.Named("at", now))
 		if e != nil {
 			return e
 		}
@@ -141,15 +141,15 @@ func (s *Store) Commit(ctx context.Context, r orgstructure.CommitRequest) (orgst
 		return orgstructure.Result{}, e
 	}
 	_, e = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8; DECLARE $org AS Utf8; DECLARE $id AS Utf8;
- DECLARE $source AS Utf8?; DECLARE $base AS Uint64; DECLARE $next AS Uint64;
+ DECLARE $source AS Utf8; DECLARE $base AS Uint64; DECLARE $next AS Uint64;
  DECLARE $snap AS Utf8; DECLARE $hash AS String; DECLARE $effective AS Timestamp;
  DECLARE $recorded AS Timestamp; DECLARE $changes AS Utf8;
  INSERT INTO `+"`m8-resource-manager/org_unit_change_sets`"+`
  (tenant_id,organization_id,change_set_id,source_id,base_revision,target_revision,
  staged_snapshot_id,request_hash,status,effective_at,recorded_at,changes,created_at,updated_at)
- VALUES ($tenant,$org,$id,$source,$base,$next,$snap,$hash,'APPLIED',
+ VALUES ($tenant,$org,$id,IF($source != '', $source),$base,$next,$snap,$hash,'APPLIED',
  $effective,$recorded,CAST($changes AS JsonDocument),$recorded,$recorded);`),
-		sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", r.Plan.ID), sql.Named("source", nilIfEmpty(r.Plan.SourceID)), sql.Named("base", r.Plan.ExpectedRevision), sql.Named("next", after.Revision), sql.Named("snap", nextSnapshot), sql.Named("hash", r.RequestHash), sql.Named("effective", r.Plan.EffectiveAt), sql.Named("recorded", r.Plan.RecordedAt), sql.Named("changes", string(changes)))
+		sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", r.Plan.ID), sql.Named("source", r.Plan.SourceID), sql.Named("base", r.Plan.ExpectedRevision), sql.Named("next", after.Revision), sql.Named("snap", nextSnapshot), sql.Named("hash", r.RequestHash), sql.Named("effective", r.Plan.EffectiveAt), sql.Named("recorded", r.Plan.RecordedAt), sql.Named("changes", string(changes)))
 	if e != nil {
 		return orgstructure.Result{}, e
 	}
@@ -159,10 +159,10 @@ func (s *Store) Commit(ctx context.Context, r orgstructure.CommitRequest) (orgst
 				continue
 			}
 			_, e = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8; DECLARE $org AS Utf8;
-   DECLARE $id AS Utf8; DECLARE $src AS Utf8?; DECLARE $at AS Timestamp;
+   DECLARE $id AS Utf8; DECLARE $src AS Utf8; DECLARE $at AS Timestamp;
    INSERT INTO `+"`m8-resource-manager/org_units`"+`
    (tenant_id,organization_id,org_unit_id,authoritative_source_id,create_time)
-   VALUES ($tenant,$org,$id,$src,$at);`), sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", m.UnitID), sql.Named("src", nilIfEmpty(r.Plan.SourceID)), sql.Named("at", r.Plan.RecordedAt))
+   VALUES ($tenant,$org,$id,IF($src != '', $src),$at);`), sql.Named("tenant", tenant), sql.Named("org", org), sql.Named("id", m.UnitID), sql.Named("src", r.Plan.SourceID), sql.Named("at", r.Plan.RecordedAt))
 			if e != nil {
 				return orgstructure.Result{}, e
 			}
