@@ -131,6 +131,19 @@ The UI requires an explicit Tenant UUID and stores the last selected Tenant only
 - Creating a new Organization defaults to the selected Tenant, while privileged explicit Tenant creation remains a separate option. The form keeps stable idempotency keys for retry.
 - Both search and status filters are currently client-side **inside the selected Tenant** because v1 tenant listing does not provide server-side query/pagination cursors. All resource reads and mutations remain subject to the backend M8 Access guard.
 
+## Org Structure focused view (Gravity UI)
+
+- Open an Organization and select **Open org structure** to navigate to
+  `/resource-manager/organizations/:organizationId/structure`.
+- The existing live OrgUnit tree and inspector are reused; no mock data is introduced.
+- The **Create org unit**, **Add child**, **Rename**, and **Move** actions prefill
+  the existing ChangeSet editor using Gravity UI controls.
+- Mutations remain staged and require authoritative server validation plus
+  explicit confirmation before apply. Externally managed or inactive OrgUnits
+  have no edit actions, and invalid parent/descendant moves are blocked.
+- The same revision-scoped pagination, M8 Access checks and HTTP error handling
+  apply to the focused view.
+
 ## Resource Catalog & Ownership (02)
 
 - Open `/resource-manager/catalog`, select an explicit Organization UUID, then filter and inspect live `ListResources` results. Only the current page is filtered/countable, and next-page cursor navigation is supported when supplied by the server.

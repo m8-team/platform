@@ -38,7 +38,7 @@ export function useOrganizationColumns(language: AppLanguage, t: Translate) {
         header: t('organizations.column.state'),
         size: 150,
         enableSorting: false,
-        cell: ({getValue}) => <OrganizationStateLabel state={getValue<Organization['state']>()} />,
+        cell: ({getValue}) => <OrganizationStateLabel state={getValue<Organization['state']>()} t={t} />,
       },
       {
         accessorKey: 'id',

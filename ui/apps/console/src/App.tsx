@@ -56,7 +56,7 @@ import {Metric} from './components/Metric'
 import {ServiceRequestConsole} from './components/ServiceRequestConsole'
 import {OrganizationsPage} from './modules/resource-manager/pages/OrganizationsPage'
 import {ResourceCatalogPage} from './modules/resource-manager/pages/ResourceCatalogPage'
-import {OrganizationDetailsPage} from './modules/resource-manager/pages/OrganizationDetailsPage'
+import {OrganizationDetailsPage, OrganizationStructurePage} from './modules/resource-manager/pages/OrganizationDetailsPage'
 import {isServiceRequestLoggingEnabled} from './platform/http/loggedFetch'
 import {
   createTranslator,
@@ -1093,6 +1093,11 @@ export function ResourceOrganizationsPage() {
 export function ResourceOrganizationDetailsPage() {
   const {language, t} = useConsoleI18n()
   return <OrganizationDetailsPage language={language} t={t} />
+}
+
+export function ResourceOrganizationStructurePage() {
+  const {language, t} = useConsoleI18n()
+  return <OrganizationStructurePage language={language} t={t} />
 }
 
 export function ResourceCatalogRoutePage() {

@@ -18,7 +18,7 @@ export function CopyableOrganizationID({id, t}: {id: string; t: Translate}) {
   )
 }
 
-export function OrganizationStateLabel({state}: {state: Organization['state']}) {
+export function OrganizationStateLabel({state, t}: {state: Organization['state']; t: Translate}) {
   const theme =
     state === 'ACTIVE'
       ? 'success'
@@ -27,5 +27,5 @@ export function OrganizationStateLabel({state}: {state: Organization['state']}) 
         : state === 'SUSPENDED' || state === 'DELETING'
           ? 'warning'
           : 'normal'
-  return <Label theme={theme}>{state?.replace('STATE_', '') || 'UNSPECIFIED'}</Label>
+  return <Label theme={theme}>{t(`organizations.state.${state}`)}</Label>
 }

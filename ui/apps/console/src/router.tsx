@@ -3,6 +3,7 @@ import {createRootRoute, createRoute, createRouter} from '@tanstack/react-router
 import App, {
   ResourceManagerOverviewPage,
   ResourceOrganizationDetailsPage,
+  ResourceOrganizationStructurePage,
   ResourceOrganizationsPage,
   ResourceCatalogRoutePage,
   ResourceProjectDetailsPage,
@@ -38,6 +39,12 @@ const resourceOrganizationDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/resource-manager/organizations/$organizationId',
   component: ResourceOrganizationDetailsPage,
+})
+
+const resourceOrganizationStructureRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/resource-manager/organizations/$organizationId/structure',
+  component: ResourceOrganizationStructurePage,
 })
 
 const resourceCatalogRoute = createRoute({
@@ -89,6 +96,7 @@ const routeTree = rootRoute.addChildren([
   resourceManagerRoute,
   resourceOrganizationsRoute,
   resourceOrganizationDetailsRoute,
+  resourceOrganizationStructureRoute,
   resourceCatalogRoute,
   resourceCatalogDetailRoute,
   resourceWorkspacesRoute,
