@@ -89,8 +89,8 @@ message ListResourcesRequest {
   int32 page_size = 5;
   string page_token = 6; // bound to authorization scope, filters and revision
   bool show_deleted = 7;
-  // List organizations inside exactly one Tenant. Only valid with
-  // kind = "organization" and an empty organization_id. Never global list.
+  // List Organizations or Groups inside exactly one Tenant. Valid with
+  // kind = "organization" or "group" and empty organization_id/owner. Never global list.
   string tenant_id = 8;
 }
 message ListResourcesResponse {

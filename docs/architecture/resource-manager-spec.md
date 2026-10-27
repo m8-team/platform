@@ -117,3 +117,88 @@ Contract: `api/proto/m8/platform/modules/v1/module.proto` and `module_registry_s
 ## 11. Domain events
 
 Resource Manager emits `ResourceChangedEvent`, `GroupAffiliationChangedEvent` and `EnvironmentBindingChangedEvent`; Access emits `AccessGrantChangedEvent`. Event envelopes carry actor, source resource/organization, revision, correlation and idempotency metadata. Events contain no credentials or PII beyond minimal audited identifiers. Outbox, publication and consumer idempotency must be implemented with the corresponding running services.
+
+## P1: Organization Groups vs. legal corporate relationships
+
+Three independent concepts are deliberately modeled separately:
+
+| Entity | Meaning | Access inheritance |
+| --- | --- | --- |
+| `Organization` | Independent company and its resource boundary | Never implicit |
+| `Group` / `GroupOrganizationLink` | Optional business grouping (non-owning) | Never |
+| `OrganizationRelationship` | Dated, directed business or legal relation between two Organizations | Never |
+
+Corporate relationships MUST NOT be written to OrgUnit adjacency/closure tables.
+A Person may belong to multiple Organizations, but that information belongs to
+M8 Identity / Directory; the corporate graph contains no employee assignments.
+
+### Type semantics and temporal constraints
+
+The typed service `m8.platform.resourcemanager.v1.OrganizationRelationshipService` supports:
+
+- `PARENT_SUBSIDIARY`: from = direct parent/shareholder, to = subsidiary;
+  optional `ownership_basis_points` (1..10000, 0 = unknown). Multiple direct
+  parent organizations are supported. The sum of *known overlapping* direct
+  shares for the same subsidiary may not exceed 100%.
+- `AFFILIATE`: explicitly recorded related entity, with declared direction
+  and no automatic inference of control.
+- `PARTNER`: contractual or operational collaboration, without assumed control.
+- `SERVICE_PROVIDER`: from organization provides services to the to organization.
+
+`valid_from` is inclusive, `valid_to` is exclusive; absent `valid_to`
+means indefinite. A history snapshot is stored at each revision. Only stake,
+valid-to, and evidence reference may be amended; changing endpoints, type
+or valid-from requires closing and creating a new relationship. Closing never
+deletes the companies or prior snapshots.
+
+Duplicate overlapping relationships and temporal cycles in
+`PARENT_SUBSIDIARY` are rejected. Cycles use overlapping *time
+intervals*, not the union of disjoint historic graphs. Tenant and Organization
+existence is verified against authoritative resource records in the same YDB
+transaction. Both endpoints must be active Organizations of the same Tenant.
+Cross-Tenant federation is a distinct future feature.
+
+### API and implementation
+
+- `POST /resource-manager/v1/organization-relationships`
+- `GET /resource-manager/v1/organization-relationships?tenantId=<UUID>`
+- `GET /resource-manager/v1/organization-relationships/{id}?tenantId=<UUID>`
+- `PATCH /resource-manager/v1/organization-relationships/{id}`
+- `POST /resource-manager/v1/organization-relationships/{id}:close`
+- `GET /resource-manager/v1/organization-relationships/{id}/versions`
+
+Mutations require an idempotency key; changes require expected revision.
+History is immutable, and all YDB mutations write an outbox event in the
+same serializable transaction. A shared Tenant graph-head write serializes
+concurrent changes that would otherwise independently produce cycles.
+The API uses query-scope-bound pagination; it never supports an unscoped
+global inventory.
+
+**Deployment:** apply
+`docs/executable-baseline/data/ydb/m8-resource-manager/004_organization_relationships.sql`
+after migration 003. The Resource Manager intentionally does not auto-migrate
+production schema on startup. Integration tests apply both migrations to
+disposable YDB.
+
+**Security:** legal or business relationships confer no M8 Access
+permissions, role grants, session visibility, or access to employees.
+Resource Manager's existing Access production gate remains fail-closed:
+until a real M8 Access authorization integration is deployed, production
+reads and writes to this service are denied. Loopback development mode is
+not a production authentication substitute.
+
+### UI
+
+`/resource-manager/relationships` shows Tenant-scoped corporate links
+independently from Group membership. The Group detail view shows relations
+involving its member Organizations. Both use the real REST gateway, show
+effective dates, direct stakes, state, evidence reference and immutable
+version history, and permit create/update/close with explicit review.
+
+**Known constraints:** corporate relations do not compute ultimate-beneficial
+ownership, legal consolidation, or voting rights; those interpretations
+require a separate governed domain. Read-pagination tokens are currently
+scope-bound but not snapshot-pinned. Emptying a previously set valid-to
+is not yet an update operation; close and re-create if an unbounded
+validity period is needed. No Group membership or corporate relationship
+ever changes tenant/resource ownership.

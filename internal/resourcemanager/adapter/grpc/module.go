@@ -27,11 +27,23 @@ func Module() fx.Option {
 		fx.Provide(newConfiguredOrgStructureServer),
 		fx.Provide(fx.Annotate(newOrgStructureRegistration, fx.ResultTags(grpcserver.RegistrationResultTag))),
 		fx.Provide(newConfiguredResourceServer),
+		fx.Provide(NewOrganizationRelationshipServer),
+		fx.Provide(asRelationshipServiceServer),
+		fx.Provide(fx.Annotate(newRelationshipRegistration, fx.ResultTags(grpcserver.RegistrationResultTag))),
 		fx.Provide(asV1ServiceServer),
 		fx.Provide(fx.Annotate(newRegistration, fx.ResultTags(grpcserver.RegistrationResultTag))),
 	)
 }
 func asV1ServiceServer(server *ResourceServer) pb.ResourceManagerServiceServer { return server }
+func asRelationshipServiceServer(server *OrganizationRelationshipServer) pb.OrganizationRelationshipServiceServer {
+	return server
+}
+func newRelationshipRegistration(server *OrganizationRelationshipServer) grpcserver.Registration {
+	return func(registrar grpc.ServiceRegistrar) error {
+		pb.RegisterOrganizationRelationshipServiceServer(registrar, server)
+		return nil
+	}
+}
 func newRegistration(server *ResourceServer) grpcserver.Registration {
 	return func(registrar grpc.ServiceRegistrar) error {
 		pb.RegisterResourceManagerServiceServer(registrar, server)

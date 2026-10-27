@@ -59,10 +59,11 @@ func healthHTTPModule(cfg HealthHTTPConfig) fx.Option {
 
 func newResourceManagerHTTPHandler(
 	resourceServer resourcemanagerpb.ResourceManagerServiceServer,
+	relationshipServer resourcemanagerpb.OrganizationRelationshipServiceServer,
 	orgStructureServer *grpcadapter.OrgStructureServer,
 	cfg resourcemanager.Config,
 ) (resourceManagerHTTPHandler, error) {
-	if resourceServer == nil || orgStructureServer == nil {
+	if resourceServer == nil || relationshipServer == nil || orgStructureServer == nil {
 		return resourceManagerHTTPHandler{}, errors.New("resource manager and org structure HTTP services are required")
 	}
 
@@ -82,6 +83,12 @@ func newResourceManagerHTTPHandler(
 		resourceServer,
 	); err != nil {
 		return resourceManagerHTTPHandler{}, fmt.Errorf("register resource manager HTTP gateway: %w", err)
+	}
+
+	if err := resourcemanagerpb.RegisterOrganizationRelationshipServiceHandlerServer(
+		context.Background(), gateway, relationshipServer,
+	); err != nil {
+		return resourceManagerHTTPHandler{}, fmt.Errorf("register relationship HTTP gateway: %w", err)
 	}
 
 	var structureAPI resourcemanagerpb.OrgStructureServiceServer = orgStructureServer

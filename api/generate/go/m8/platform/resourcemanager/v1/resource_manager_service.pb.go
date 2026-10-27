@@ -350,8 +350,8 @@ type ListResourcesRequest struct {
 	PageSize           int32                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken          string                 `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // bound to authorization scope, filters and revision
 	ShowDeleted        bool                   `protobuf:"varint,7,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
-	// List organizations inside exactly one Tenant. Only valid with
-	// kind = "organization" and an empty organization_id. Never global list.
+	// List Organizations or Groups inside exactly one Tenant. Valid with
+	// kind = "organization" or "group" and empty organization_id/owner. Never global list.
 	TenantId      string `protobuf:"bytes,8,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
