@@ -33,6 +33,65 @@ A Group affiliation does not imply any capability to access member Organizations
 
 A logical resource has exactly one immediate owner and exactly one derived owning Organization. External relations are not containment edges. All paths are derived from immutable identifiers rather than display names.
 
+### Resource contract validation
+
+`ResourceRef` contains an exact kind key and a resource UUID. Built-in kind keys
+include `organization`, `project` and `workload_service`; module-owned kinds may
+be namespaced, such as `provisioning.database`. Neither a reference nor knowledge
+of its UUID grants access: resolution must enforce the caller's tenant and
+authorization scope. External provider identifiers are not catalog UUIDs.
+
+When an `OwnerScope` is present, exactly one Organization, Workspace or Project
+UUID is required. An optional scope filter can be omitted, but `{}` is invalid.
+The application still checks the selected owner's existence, tenant, lifecycle
+and allowed placement; the oneof cannot establish those facts.
+
+`ResourceMetadata.name` is an optional display name, not a resource path or
+identity. Existing name/description limits remain 256/1024 Unicode characters.
+Create input may omit the server-generated ID, lifecycle, revision and timestamps.
+State must be a defined enum value and revision cannot be negative; zero values
+remain valid before creation. Handlers must ignore output-only input fields,
+merge field-mask updates into stored state, and validate the resulting value.
+Requests carry concurrency preconditions in `expected_revision`, not metadata.
+
+`ResourceDescriptor` requires the canonical module resource reference, one owner,
+catalog metadata and a module key. Its derived Organization UUID may be omitted
+on input. The catalog entry's metadata ID/revision do not replace the canonical
+resource reference or its module-owned version; the schema does not require the
+two IDs to be equal. The server must check that the module matches the registered
+kind policy's `responsible_module`.
+
+`ResourceKindPolicy.allowed_owner_kinds` is an unordered set containing only
+`organization`, `workspace` and `project`. Duplicates and unsupported owner kinds
+are invalid. An empty set permits no placement. `environment_binding_allowed`
+defaults to false; enabling it does not bypass authorization or same-Organization
+checks. Policies apply to module-owned kinds and cannot redefine the built-in
+containment matrix.
+
+Example `RegisterResourceKind` payload for the intended registration API:
+
+```json
+{
+  "policy": {
+    "kind": "provisioning.database",
+    "allowedOwnerKinds": ["organization", "project"],
+    "responsibleModule": "provisioning",
+    "environmentBindingAllowed": true
+  },
+  "idempotencyKey": "register-provisioning-database-v1"
+}
+```
+
+These constraints preserve field names, numbers and types, while tightening
+validation of previously unconstrained values. Contract tests validate generated
+messages with Protovalidate. They do not establish runtime enforcement:
+ResourceServer does not invoke Protovalidate, descriptor creation is unsupported,
+and RegisterResourceKind returns Unimplemented. The current general resource
+adapter also drops labels and delete_time and does not merge sparse field masks
+correctly. The OpenAPI generator uses unqualified schema names, so the separate
+`common.operation.v1.ResourceRef` can collide with this Resource Manager type;
+generated OpenAPI references need that separate generator fix before SDK use.
+
 ## 3. Environment behavior
 
 Organization environments are registered independently of Workspaces/Projects. Examples: production, staging, testing, development, preview. Each has an identity, classification, isolation profile, lifecycle and optional TTL. Their names need only be unique within the owning Organization.
@@ -40,6 +99,60 @@ Organization environments are registered independently of Workspaces/Projects. E
 Resource Definitions/Versions are not cloned just to switch environments. Installations / EnvironmentBindings point to explicit immutable version references, separate configurations and credentials. Access to Testing must not imply access to Production. A resource is bound to an Environment only if its derived owning Organization matches the Environment's owning Organization.
 
 A single deployed M8 Platform control plane can host customer Production and Testing environments, **without** promising physical isolation. ResourceManager records the requested isolation profile; Provisioning / Runtime enforce the actual runtime and data isolation. This is verified against actual topology at promotion time.
+
+### Environment contract validation
+
+`Environment.organization_id` is an immutable Organization UUID. `key` is an
+immutable lowercase slug of alphanumeric segments separated by single hyphens
+(for example, `preview-123`), unique within that Organization. `metadata.name`
+is a display name, not the uniqueness key. `kind` is explicit classification
+independent of the key; both `kind` and `isolation` must be defined, nonzero
+enum values. `expires_at` is an optional absolute timestamp, not a duration.
+Omitting it means no scheduled expiration; expired records remain valid API
+representations. The schema does not restrict expiration to preview environments.
+
+An EnvironmentBinding is unique by `(resource, environment_id)`. Both references
+are immutable for that binding. `version_ref` identifies an immutable version
+in the owning module, but the binding can be updated to point to another
+version. `configuration_ref` is optional and contains only an opaque reference.
+The server checks the resource kind's `environment_binding_allowed` policy,
+matching owning Organizations and authorization; the binding grants no access.
+Mutations use the request's `expected_revision`, not the output-only
+`binding.revision`, as their concurrency precondition.
+
+The protobuf validation rules apply to complete Environment/EnvironmentBinding
+values. For field-mask updates, application handlers must merge the selected
+fields with stored state before validating, and separately reject changes to
+immutable fields. Metadata IDs and binding IDs may be absent on creation because
+the server assigns them; nonempty IDs must be UUIDs. Validation of a complete
+value does not establish persistence, authorization, uniqueness, idempotency,
+concurrency checks or expiration enforcement.
+
+Example create payload (Organization UUID must refer to an existing authorized
+Organization):
+
+```json
+{
+  "resource": {
+    "environment": {
+      "metadata": {"name": "Checkout preview"},
+      "organizationId": "11111111-1111-4111-8111-111111111111",
+      "key": "preview-123",
+      "kind": "ENVIRONMENT_KIND_PREVIEW",
+      "isolation": "ISOLATION_PROFILE_LOGICAL"
+    }
+  },
+  "idempotencyKey": "checkout-preview-123"
+}
+```
+
+These rules preserve protobuf field names, numbers and types, but reject
+previously unconstrained malformed values when Protovalidate is invoked.
+The current ResourceServer does not invoke Protovalidate and does not persist
+`kind`, `isolation` or `expires_at`; these remain implementation gaps. Its
+`SetEnvironmentBinding` handler also does not yet enforce the request's
+`expected_revision` or `idempotency_key`. Contract tests validate the schema,
+not those runtime guarantees.
 
 ## 4. Multi-company and workforce
 

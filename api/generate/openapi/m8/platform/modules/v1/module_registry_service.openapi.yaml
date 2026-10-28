@@ -344,11 +344,18 @@ components:
             properties:
                 organizationId:
                     type: string
+                    description: Own the resource directly in this Organization.
                 workspaceId:
                     type: string
+                    description: Own the resource in this Workspace, subject to its Organization's scope.
                 projectId:
                     type: string
-            description: Exactly one immediate owner. The owning Organization is derived on the server.
+                    description: Own the resource in this Project, subject to its Organization's scope.
+            description: |-
+                Exactly one immediate Organization, Workspace or Project owner. The server
+                 derives the owning Organization and checks the resource's placement policy.
+                 Group affiliations and Environment bindings are not containment edges.
+                 A field using OwnerScope may be optional, but a supplied scope cannot be empty.
         PublishModuleVersionRequest:
             required:
                 - version

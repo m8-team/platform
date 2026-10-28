@@ -7,6 +7,7 @@
 package resourcemanager
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,10 +24,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Environments do not participate in the containment tree.
+// Classification of an environment, independent of its key.
 type EnvironmentKind int32
 
 const (
+	// Not a valid classification for a complete Environment.
 	EnvironmentKind_ENVIRONMENT_KIND_UNSPECIFIED EnvironmentKind = 0
 	EnvironmentKind_ENVIRONMENT_KIND_PRODUCTION  EnvironmentKind = 1
 	EnvironmentKind_ENVIRONMENT_KIND_STAGING     EnvironmentKind = 2
@@ -85,14 +87,21 @@ func (EnvironmentKind) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_environment_proto_rawDescGZIP(), []int{0}
 }
 
+// Requested isolation, not a guarantee of the current infrastructure topology.
+// Provisioning and Runtime enforce and verify the requested profile.
 type IsolationProfile int32
 
 const (
-	IsolationProfile_ISOLATION_PROFILE_UNSPECIFIED       IsolationProfile = 0
-	IsolationProfile_ISOLATION_PROFILE_LOGICAL           IsolationProfile = 1
+	// Not a valid isolation profile for a complete Environment.
+	IsolationProfile_ISOLATION_PROFILE_UNSPECIFIED IsolationProfile = 0
+	// Logical separation on shared runtime and data infrastructure.
+	IsolationProfile_ISOLATION_PROFILE_LOGICAL IsolationProfile = 1
+	// Dedicated runtime; data infrastructure may be shared.
 	IsolationProfile_ISOLATION_PROFILE_DEDICATED_RUNTIME IsolationProfile = 2
-	IsolationProfile_ISOLATION_PROFILE_DEDICATED_DATA    IsolationProfile = 3
-	IsolationProfile_ISOLATION_PROFILE_FULL              IsolationProfile = 4
+	// Dedicated data infrastructure; runtime may be shared.
+	IsolationProfile_ISOLATION_PROFILE_DEDICATED_DATA IsolationProfile = 3
+	// Both runtime and data infrastructure are dedicated.
+	IsolationProfile_ISOLATION_PROFILE_FULL IsolationProfile = 4
 )
 
 // Enum value maps for IsolationProfile.
@@ -140,16 +149,29 @@ func (IsolationProfile) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_environment_proto_rawDescGZIP(), []int{1}
 }
 
+// An Organization-owned environment registry entry. It is not a containment
+// parent for Workspaces, Projects or module-owned resources.
+// Validation describes a complete resource. For a partial update, apply the
+// update mask to the stored resource before validating the resulting state.
 type Environment struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Metadata       *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	Key            string                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"` // immutable slug, unique per Organization
-	Kind           EnvironmentKind        `protobuf:"varint,4,opt,name=kind,proto3,enum=m8.platform.resourcemanager.v1.EnvironmentKind" json:"kind,omitempty"`
-	Isolation      IsolationProfile       `protobuf:"varint,5,opt,name=isolation,proto3,enum=m8.platform.resourcemanager.v1.IsolationProfile" json:"isolation,omitempty"`
-	ExpiresAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"` // optional preview TTL
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identity, display metadata, lifecycle and optimistic concurrency revision.
+	Metadata *ResourceMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	// UUID of the owning Organization. Environments cannot move between owners.
+	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	// Immutable lowercase slug, unique within the owning Organization.
+	// Examples: "production", "staging", "preview-123". Not a display name.
+	Key string `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
+	// Explicit classification; must not be inferred from key.
+	Kind EnvironmentKind `protobuf:"varint,4,opt,name=kind,proto3,enum=m8.platform.resourcemanager.v1.EnvironmentKind" json:"kind,omitempty"`
+	// Desired isolation profile, enforced by Provisioning and Runtime.
+	Isolation IsolationProfile `protobuf:"varint,5,opt,name=isolation,proto3,enum=m8.platform.resourcemanager.v1.IsolationProfile" json:"isolation,omitempty"`
+	// Absolute expiration time, commonly used for preview environments.
+	// Unset means no scheduled expiration. Expired records remain readable;
+	// expiration enforcement and cleanup belong to application lifecycle logic.
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Environment) Reset() {
@@ -225,17 +247,29 @@ func (x *Environment) GetExpiresAt() *timestamppb.Timestamp {
 }
 
 // Non-owning association of a logical resource to an Organization environment.
-// Consumer module owns actual deployment and secrets; never embed credentials.
+// The pair (resource, environment_id) identifies a unique binding. The server
+// must verify matching owning Organizations and that the resource kind permits
+// environment bindings. A binding grants no access by itself.
+// Delivery owns rollout state; the consumer module owns configuration and
+// secrets. This record contains references only, never credentials.
 type EnvironmentBinding struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Resource         *ResourceRef           `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	EnvironmentId    string                 `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
-	VersionRef       string                 `protobuf:"bytes,4,opt,name=version_ref,json=versionRef,proto3" json:"version_ref,omitempty"`
-	ConfigurationRef string                 `protobuf:"bytes,5,opt,name=configuration_ref,json=configurationRef,proto3" json:"configuration_ref,omitempty"` // opaque reference, never plaintext secrets
-	Revision         int64                  `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Server-generated UUID. May be omitted when setting a binding by its pair.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Logical resource; changing it requires a different binding.
+	Resource *ResourceRef `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Environment UUID; changing it requires a different binding.
+	EnvironmentId string `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// Opaque reference to an immutable version owned by the resource's module.
+	// The binding may be updated to reference a different version.
+	VersionRef string `protobuf:"bytes,4,opt,name=version_ref,json=versionRef,proto3" json:"version_ref,omitempty"`
+	// Optional module-owned configuration reference, never plaintext secrets.
+	ConfigurationRef string `protobuf:"bytes,5,opt,name=configuration_ref,json=configurationRef,proto3" json:"configuration_ref,omitempty"`
+	// Server-managed revision. Mutations use the request's expected_revision;
+	// this output field is not a concurrency precondition.
+	Revision      int64 `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EnvironmentBinding) Reset() {
@@ -314,23 +348,25 @@ var File_m8_platform_resourcemanager_v1_environment_proto protoreflect.FileDescr
 
 const file_m8_platform_resourcemanager_v1_environment_proto_rawDesc = "" +
 	"\n" +
-	"0m8/platform/resourcemanager/v1/environment.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xff\x02\n" +
-	"\vEnvironment\x12Q\n" +
-	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\x03\xe0A\x02R\bmetadata\x12,\n" +
-	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12\x15\n" +
-	"\x03key\x18\x03 \x01(\tB\x03\xe0A\x02R\x03key\x12H\n" +
-	"\x04kind\x18\x04 \x01(\x0e2/.m8.platform.resourcemanager.v1.EnvironmentKindB\x03\xe0A\x02R\x04kind\x12S\n" +
-	"\tisolation\x18\x05 \x01(\x0e20.m8.platform.resourcemanager.v1.IsolationProfileB\x03\xe0A\x02R\tisolation\x129\n" +
+	"0m8/platform/resourcemanager/v1/environment.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xcd\x03\n" +
+	"\vEnvironment\x12W\n" +
+	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bmetadata\x127\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x129\n" +
+	"\x03key\x18\x03 \x01(\tB'\xe0A\x02\xe0A\x05\xbaH\x1er\x1c\x10\x012\x18^[a-z0-9]+(-[a-z0-9]+)*$R\x03key\x12R\n" +
+	"\x04kind\x18\x04 \x01(\x0e2/.m8.platform.resourcemanager.v1.EnvironmentKindB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x04kind\x12]\n" +
+	"\tisolation\x18\x05 \x01(\x0e20.m8.platform.resourcemanager.v1.IsolationProfileB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\tisolation\x12>\n" +
 	"\n" +
-	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\x97\x02\n" +
-	"\x12EnvironmentBinding\x12\x13\n" +
-	"\x02id\x18\x01 \x01(\tB\x03\xe0A\bR\x02id\x12L\n" +
-	"\bresource\x18\x02 \x01(\v2+.m8.platform.resourcemanager.v1.ResourceRefB\x03\xe0A\x02R\bresource\x12*\n" +
-	"\x0eenvironment_id\x18\x03 \x01(\tB\x03\xe0A\x02R\renvironmentId\x12$\n" +
-	"\vversion_ref\x18\x04 \x01(\tB\x03\xe0A\x02R\n" +
-	"versionRef\x12+\n" +
-	"\x11configuration_ref\x18\x05 \x01(\tR\x10configurationRef\x12\x1f\n" +
-	"\brevision\x18\x06 \x01(\x03B\x03\xe0A\x03R\brevision*\xed\x01\n" +
+	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x01R\texpiresAt\"\xc9\x02\n" +
+	"\x12EnvironmentBinding\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x02id\x12U\n" +
+	"\bresource\x18\x02 \x01(\v2+.m8.platform.resourcemanager.v1.ResourceRefB\f\xe0A\x02\xe0A\x05\xbaH\x03\xc8\x01\x01R\bresource\x125\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\renvironmentId\x12+\n" +
+	"\vversion_ref\x18\x04 \x01(\tB\n" +
+	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\n" +
+	"versionRef\x120\n" +
+	"\x11configuration_ref\x18\x05 \x01(\tB\x03\xe0A\x01R\x10configurationRef\x12&\n" +
+	"\brevision\x18\x06 \x01(\x03B\n" +
+	"\xe0A\x03\xbaH\x04\"\x02(\x00R\brevision*\xed\x01\n" +
 	"\x0fEnvironmentKind\x12 \n" +
 	"\x1cENVIRONMENT_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bENVIRONMENT_KIND_PRODUCTION\x10\x01\x12\x1c\n" +

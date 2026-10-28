@@ -15,10 +15,17 @@ paths:
             parameters:
                 - name: resource.kind
                   in: query
+                  description: |-
+                    Stable resource kind. Built-in kinds include "organization", "project"
+                     and "workload_service". Module-owned kinds may be namespaced, for example
+                     "provisioning.database". Registration and lookup use the exact same key.
                   schema:
                     type: string
                 - name: resource.id
                   in: query
+                  description: |-
+                    Stable UUID assigned by the resource's owning service, not a display name
+                     or an external provider identifier.
                   schema:
                     type: string
                 - name: environmentId
@@ -214,14 +221,17 @@ paths:
                     type: string
                 - name: owner.organizationId
                   in: query
+                  description: Own the resource directly in this Organization.
                   schema:
                     type: string
                 - name: owner.workspaceId
                   in: query
+                  description: Own the resource in this Workspace, subject to its Organization's scope.
                   schema:
                     type: string
                 - name: owner.projectId
                   in: query
+                  description: Own the resource in this Project, subject to its Organization's scope.
                   schema:
                     type: string
                 - name: includeDescendants
@@ -417,11 +427,17 @@ components:
             type: object
             properties:
                 metadata:
-                    $ref: '#/components/schemas/ResourceMetadata'
+                    allOf:
+                        - $ref: '#/components/schemas/ResourceMetadata'
+                    description: Identity, display metadata, lifecycle and optimistic concurrency revision.
                 organizationId:
                     type: string
+                    description: UUID of the owning Organization. Environments cannot move between owners.
                 key:
                     type: string
+                    description: |-
+                        Immutable lowercase slug, unique within the owning Organization.
+                         Examples: "production", "staging", "preview-123". Not a display name.
                 kind:
                     enum:
                         - ENVIRONMENT_KIND_UNSPECIFIED
@@ -432,6 +448,7 @@ components:
                         - ENVIRONMENT_KIND_PREVIEW
                         - ENVIRONMENT_KIND_CUSTOM
                     type: string
+                    description: Explicit classification; must not be inferred from key.
                     format: enum
                 isolation:
                     enum:
@@ -441,10 +458,20 @@ components:
                         - ISOLATION_PROFILE_DEDICATED_DATA
                         - ISOLATION_PROFILE_FULL
                     type: string
+                    description: Desired isolation profile, enforced by Provisioning and Runtime.
                     format: enum
                 expiresAt:
                     type: string
+                    description: |-
+                        Absolute expiration time, commonly used for preview environments.
+                         Unset means no scheduled expiration. Expired records remain readable;
+                         expiration enforcement and cleanup belong to application lifecycle logic.
                     format: date-time
+            description: |-
+                An Organization-owned environment registry entry. It is not a containment
+                 parent for Workspaces, Projects or module-owned resources.
+                 Validation describes a complete resource. For a partial update, apply the
+                 update mask to the stored resource before validating the resulting state.
         EnvironmentBinding:
             required:
                 - resource
@@ -454,20 +481,35 @@ components:
             properties:
                 id:
                     type: string
+                    description: Server-generated UUID. May be omitted when setting a binding by its pair.
                 resource:
-                    $ref: '#/components/schemas/ResourceRef'
+                    allOf:
+                        - $ref: '#/components/schemas/ResourceRef'
+                    description: Logical resource; changing it requires a different binding.
                 environmentId:
                     type: string
+                    description: Environment UUID; changing it requires a different binding.
                 versionRef:
                     type: string
+                    description: |-
+                        Opaque reference to an immutable version owned by the resource's module.
+                         The binding may be updated to reference a different version.
                 configurationRef:
                     type: string
+                    description: Optional module-owned configuration reference, never plaintext secrets.
                 revision:
                     readOnly: true
                     type: string
+                    description: |-
+                        Server-managed revision. Mutations use the request's expected_revision;
+                         this output field is not a concurrency precondition.
             description: |-
                 Non-owning association of a logical resource to an Organization environment.
-                 Consumer module owns actual deployment and secrets; never embed credentials.
+                 The pair (resource, environment_id) identifies a unique binding. The server
+                 must verify matching owning Organizations and that the resource kind permits
+                 environment bindings. A binding grants no access by itself.
+                 Delivery owns rollout state; the consumer module owns configuration and
+                 secrets. This record contains references only, never credentials.
         Group:
             required:
                 - metadata
@@ -557,11 +599,18 @@ components:
             properties:
                 organizationId:
                     type: string
+                    description: Own the resource directly in this Organization.
                 workspaceId:
                     type: string
+                    description: Own the resource in this Workspace, subject to its Organization's scope.
                 projectId:
                     type: string
-            description: Exactly one immediate owner. The owning Organization is derived on the server.
+                    description: Own the resource in this Project, subject to its Organization's scope.
+            description: |-
+                Exactly one immediate Organization, Workspace or Project owner. The server
+                 derives the owning Organization and checks the resource's placement policy.
+                 Group affiliations and Environment bindings are not containment edges.
+                 A field using OwnerScope may be optional, but a supplied scope cannot be empty.
         Project:
             required:
                 - metadata
@@ -606,19 +655,32 @@ components:
             type: object
             properties:
                 resource:
-                    $ref: '#/components/schemas/ResourceRef'
+                    allOf:
+                        - $ref: '#/components/schemas/ResourceRef'
+                    description: Canonical identity of the object in its owning module.
                 owner:
-                    $ref: '#/components/schemas/OwnerScope'
+                    allOf:
+                        - $ref: '#/components/schemas/OwnerScope'
+                    description: Exactly one immediate owner permitted by the registered kind policy.
                 owningOrganizationId:
                     readOnly: true
                     type: string
+                    description: Organization UUID derived from owner by the server; absent on create input.
                 metadata:
-                    $ref: '#/components/schemas/ResourceMetadata'
+                    allOf:
+                        - $ref: '#/components/schemas/ResourceMetadata'
+                    description: |-
+                        Metadata of the catalog entry. Its ID and revision are not substitutes for
+                         the canonical resource reference or the owning module's resource version.
                 module:
                     type: string
+                    description: Module key; must match the kind policy's responsible_module.
             description: |-
                 Module-owned resources remain canonically stored in their module.
-                 Resource Manager stores only searchable ownership metadata.
+                 Resource Manager stores searchable catalog and ownership metadata only.
+                 The server must resolve the registered kind policy, verify the responsible
+                 module and allowed owner, and authorize the operation. For partial updates,
+                 validate the complete descriptor after applying the field mask.
         ResourceKindPolicy:
             required:
                 - kind
@@ -627,28 +689,45 @@ components:
             properties:
                 kind:
                     type: string
+                    description: Exact kind key used in ResourceRef.kind.
                 allowedOwnerKinds:
                     type: array
                     items:
                         type: string
+                    description: |-
+                        Allowed immediate owners, expressed as built-in kind keys. Order has no
+                         meaning. An empty list permits no placement; it never means unrestricted.
                 responsibleModule:
                     type: string
+                    description: Module responsible for the canonical resource and its business behavior.
                 environmentBindingAllowed:
                     type: boolean
-            description: A resource kind registry prevents arbitrary use of containment.
+                    description: |-
+                        Whether resources of this kind may have EnvironmentBindings. Defaults to
+                         false. A true value still requires ownership and authorization checks.
+            description: |-
+                Placement policy for a registered module-owned resource kind. Registration
+                 requires authorization; a policy does not grant access or override the
+                 containment rules of built-in Resource Manager resources.
         ResourceMetadata:
             type: object
             properties:
                 id:
                     type: string
+                    description: Server-generated; may be omitted on create. Validate its format when set.
                 name:
                     type: string
+                    description: |-
+                        Optional display name, not an identifier or a unique resource path.
+                         Individual create/update use cases may impose additional requirements.
                 description:
                     type: string
+                    description: Optional human-readable description.
                 labels:
                     type: object
                     additionalProperties:
                         type: string
+                    description: Optional descriptive labels. They must not contain secrets or grant access.
                 state:
                     readOnly: true
                     enum:
@@ -658,22 +737,34 @@ components:
                         - RESOURCE_STATE_ARCHIVED
                         - RESOURCE_STATE_DELETED
                     type: string
+                    description: Server-managed lifecycle. Use the explicit state-change operation.
                     format: enum
                 revision:
                     readOnly: true
                     type: string
+                    description: |-
+                        Server-managed revision; zero is allowed before the resource is created.
+                         Mutations use the request's expected_revision as their precondition.
                 createTime:
                     readOnly: true
                     type: string
+                    description: Time when this catalog record was created.
                     format: date-time
                 updateTime:
                     readOnly: true
                     type: string
+                    description: Time when this catalog record was last changed.
                     format: date-time
                 deleteTime:
                     readOnly: true
                     type: string
+                    description: Time of soft deletion; unset before deletion. Not a physical purge deadline.
                     format: date-time
+            description: |-
+                Common catalog identity, display metadata and server-managed lifecycle.
+                 Handlers ignore output-only input fields and apply field masks before
+                 validating the merged resource. State transitions, ownership and optimistic
+                 concurrency checks are application responsibilities, not field validation.
         ResourceRecord:
             type: object
             properties:

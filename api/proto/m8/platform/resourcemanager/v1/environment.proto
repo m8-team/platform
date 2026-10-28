@@ -1,12 +1,17 @@
 syntax = "proto3";
+
 package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
+
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Environments do not participate in the containment tree.
+// Classification of an environment, independent of its key.
 enum EnvironmentKind {
+  // Not a valid classification for a complete Environment.
   ENVIRONMENT_KIND_UNSPECIFIED = 0;
   ENVIRONMENT_KIND_PRODUCTION = 1;
   ENVIRONMENT_KIND_STAGING = 2;
@@ -15,29 +20,117 @@ enum EnvironmentKind {
   ENVIRONMENT_KIND_PREVIEW = 5;
   ENVIRONMENT_KIND_CUSTOM = 6;
 }
+
+// Requested isolation, not a guarantee of the current infrastructure topology.
+// Provisioning and Runtime enforce and verify the requested profile.
 enum IsolationProfile {
+  // Not a valid isolation profile for a complete Environment.
   ISOLATION_PROFILE_UNSPECIFIED = 0;
+  // Logical separation on shared runtime and data infrastructure.
   ISOLATION_PROFILE_LOGICAL = 1;
+  // Dedicated runtime; data infrastructure may be shared.
   ISOLATION_PROFILE_DEDICATED_RUNTIME = 2;
+  // Dedicated data infrastructure; runtime may be shared.
   ISOLATION_PROFILE_DEDICATED_DATA = 3;
+  // Both runtime and data infrastructure are dedicated.
   ISOLATION_PROFILE_FULL = 4;
 }
+
+// An Organization-owned environment registry entry. It is not a containment
+// parent for Workspaces, Projects or module-owned resources.
+// Validation describes a complete resource. For a partial update, apply the
+// update mask to the stored resource before validating the resulting state.
 message Environment {
-  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
-  string key = 3 [(google.api.field_behavior) = REQUIRED]; // immutable slug, unique per Organization
-  EnvironmentKind kind = 4 [(google.api.field_behavior) = REQUIRED];
-  IsolationProfile isolation = 5 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.Timestamp expires_at = 6; // optional preview TTL
+  // Identity, display metadata, lifecycle and optimistic concurrency revision.
+  ResourceMetadata metadata = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // UUID of the owning Organization. Environments cannot move between owners.
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Immutable lowercase slug, unique within the owning Organization.
+  // Examples: "production", "staging", "preview-123". Not a display name.
+  string key = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string = {
+      min_len: 1
+      pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+    }
+  ];
+
+  // Explicit classification; must not be inferred from key.
+  EnvironmentKind kind = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Desired isolation profile, enforced by Provisioning and Runtime.
+  IsolationProfile isolation = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
+
+  // Absolute expiration time, commonly used for preview environments.
+  // Unset means no scheduled expiration. Expired records remain readable;
+  // expiration enforcement and cleanup belong to application lifecycle logic.
+  google.protobuf.Timestamp expires_at = 6 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // Non-owning association of a logical resource to an Organization environment.
-// Consumer module owns actual deployment and secrets; never embed credentials.
+// The pair (resource, environment_id) identifies a unique binding. The server
+// must verify matching owning Organizations and that the resource kind permits
+// environment bindings. A binding grants no access by itself.
+// Delivery owns rollout state; the consumer module owns configuration and
+// secrets. This record contains references only, never credentials.
 message EnvironmentBinding {
-  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
-  ResourceRef resource = 2 [(google.api.field_behavior) = REQUIRED];
-  string environment_id = 3 [(google.api.field_behavior) = REQUIRED];
-  string version_ref = 4 [(google.api.field_behavior) = REQUIRED];
-  string configuration_ref = 5; // opaque reference, never plaintext secrets
-  int64 revision = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  // Server-generated UUID. May be omitted when setting a binding by its pair.
+  string id = 1 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Logical resource; changing it requires a different binding.
+  ResourceRef resource = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).required = true
+  ];
+
+  // Environment UUID; changing it requires a different binding.
+  string environment_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Opaque reference to an immutable version owned by the resource's module.
+  // The binding may be updated to reference a different version.
+  string version_ref = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1
+  ];
+
+  // Optional module-owned configuration reference, never plaintext secrets.
+  string configuration_ref = 5 [(google.api.field_behavior) = OPTIONAL];
+
+  // Server-managed revision. Mutations use the request's expected_revision;
+  // this output field is not a concurrency precondition.
+  int64 revision = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).int64.gte = 0
+  ];
 }

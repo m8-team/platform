@@ -240,7 +240,7 @@ export function ResourceTable<TData>({
         </div>
       ) : null}
       <div className="m8-resource-table-shell" aria-busy={loading}>
-        <Table
+        <Table<TData>
           table={table}
           size="m"
           className={className}
