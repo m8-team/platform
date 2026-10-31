@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "m8/platform/resourcemanager/v1/organization_relationship.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+service OrganizationRelationshipService {
+  rpc CreateOrganizationRelationship(CreateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {
+      post: "/resource-manager/v1/organization-relationships"
+      body: "*"
+    };
+  }
+  rpc GetOrganizationRelationship(GetOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}"};
+  }
+  rpc ListOrganizationRelationships(ListOrganizationRelationshipsRequest) returns (ListOrganizationRelationshipsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships"};
+  }
+  rpc UpdateOrganizationRelationship(UpdateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {
+      patch: "/resource-manager/v1/organization-relationships/{id}"
+      body: "*"
+    };
+  }
+  rpc ListOrganizationRelationshipVersions(ListOrganizationRelationshipVersionsRequest) returns (ListOrganizationRelationshipVersionsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}/versions"};
+  }
+  rpc CloseOrganizationRelationship(CloseOrganizationRelationshipRequest) returns (OrganizationRelationship) {
+    option (google.api.http) = {
+      post: "/resource-manager/v1/organization-relationships/{id}:close"
+      body: "*"
+    };
+  }
+}

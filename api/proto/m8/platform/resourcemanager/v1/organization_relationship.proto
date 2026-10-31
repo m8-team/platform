@@ -1,7 +1,6 @@
 syntax = "proto3";
 package m8.platform.resourcemanager.v1;
 
-import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -41,27 +40,6 @@ message OrganizationRelationship {
   google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
   google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
   string evidence_ref = 13;
-}
-
-service OrganizationRelationshipService {
-  rpc CreateOrganizationRelationship(CreateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
-    option (google.api.http) = {post: "/resource-manager/v1/organization-relationships" body: "*"};
-  }
-  rpc GetOrganizationRelationship(GetOrganizationRelationshipRequest) returns (OrganizationRelationship) {
-    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}"};
-  }
-  rpc ListOrganizationRelationships(ListOrganizationRelationshipsRequest) returns (ListOrganizationRelationshipsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships"};
-  }
-  rpc UpdateOrganizationRelationship(UpdateOrganizationRelationshipRequest) returns (OrganizationRelationship) {
-    option (google.api.http) = {patch: "/resource-manager/v1/organization-relationships/{id}" body: "*"};
-  }
-  rpc ListOrganizationRelationshipVersions(ListOrganizationRelationshipVersionsRequest) returns (ListOrganizationRelationshipVersionsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organization-relationships/{id}/versions"};
-  }
-  rpc CloseOrganizationRelationship(CloseOrganizationRelationshipRequest) returns (OrganizationRelationship) {
-    option (google.api.http) = {post: "/resource-manager/v1/organization-relationships/{id}:close" body: "*"};
-  }
 }
 
 message CreateOrganizationRelationshipRequest {

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "m8/platform/resourcemanager/v1/org_unit_change_set.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// These are contract sources only: no handler is registered by this PR.
+service OrgUnitChangeSetService {
+  rpc ValidateOrgUnitChangeSet(ValidateOrgUnitChangeSetRequest) returns (ValidateOrgUnitChangeSetResponse) {
+    option (google.api.http) = {
+      post: "/resource-manager/v1/org-unit-change-sets:validate"
+      body: "*"
+    };
+  }
+  rpc ApplyOrgUnitChangeSet(ApplyOrgUnitChangeSetRequest) returns (ApplyOrgUnitChangeSetResponse) {
+    option (google.api.http) = {
+      post: "/resource-manager/v1/org-unit-change-sets:apply"
+      body: "*"
+    };
+  }
+}

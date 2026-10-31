@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: m8/platform/resourcemanager/v1/org_unit_change_set.proto
+// source: m8/platform/resourcemanager/v1/org_unit_change_set_service.proto
 
 package resourcemanager
 
@@ -160,5 +160,5 @@ var OrgUnitChangeSetService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "m8/platform/resourcemanager/v1/org_unit_change_set.proto",
+	Metadata: "m8/platform/resourcemanager/v1/org_unit_change_set_service.proto",
 }

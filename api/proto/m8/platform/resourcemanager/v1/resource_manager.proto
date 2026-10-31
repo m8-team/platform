@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package m8.platform.resourcemanager.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/field_mask.proto";
+import "m8/platform/resourcemanager/v1/environment.proto";
+import "m8/platform/resourcemanager/v1/organization.proto";
+import "m8/platform/resourcemanager/v1/organization_group.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+import "m8/platform/resourcemanager/v1/service.proto";
+import "m8/platform/resourcemanager/v1/tenant.proto";
+import "m8/platform/resourcemanager/v1/workspace.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+message ResourceRecord {
+  reserved 5;
+  reserved "project";
+
+  oneof resource {
+    Tenant tenant = 1;
+    OrganizationGroup group = 2;
+    Organization organization = 3;
+    Workspace workspace = 4;
+    Environment environment = 6;
+    WorkloadService workload_service = 7;
+    ResourceDescriptor descriptor = 8;
+  }
+}
+message EmptyResponse {}
+message CreateResourceRequest {
+  ResourceRecord resource = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message GetResourceRequest {
+  string kind = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListResourcesRequest {
+  string kind = 1; // Resource kind filter
+  string organization_id = 2; // caller must be authorized in this organization
+  OwnerScope owner = 3; // optional exact scope filter
+  bool include_descendants = 4;
+  int32 page_size = 5;
+  string page_token = 6; // bound to authorization scope, filters and revision
+  bool show_deleted = 7;
+  // List Organizations or Groups inside exactly one Tenant. Valid with
+  // kind = "organization" or "group" and empty organization_id/owner. Never global list.
+  string tenant_id = 8;
+}
+message ListResourcesResponse {
+  repeated ResourceRecord resources = 1;
+  string next_page_token = 2;
+}
+message UpdateResourceRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  ResourceRecord resource = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.FieldMask update_mask = 3 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
+}
+message ChangeResourceStateRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string kind = 2 [(google.api.field_behavior) = REQUIRED];
+  ResourceState target_state = 3 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
+}
+message ResolveResourceScopeRequest {
+  string kind = 1 [(google.api.field_behavior) = REQUIRED];
+  string id = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ResolveResourceScopeResponse {
+  string owning_organization_id = 1;
+  repeated ResourceRef ancestry = 2; // root organization first; target last
+}
+message SetOrganizationGroupLinkRequest {
+  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+message RemoveOrganizationGroupLinkRequest {
+  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+message ListOrganizationGroupLinksRequest {
+  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 page_size = 2;
+  string page_token = 3;
+}
+message ListOrganizationGroupLinksResponse {
+  repeated OrganizationGroupLink links = 1;
+  string next_page_token = 2;
+}
+message SetEnvironmentBindingRequest {
+  EnvironmentBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3;
+}
+message RemoveEnvironmentBindingRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+}
+message ListEnvironmentBindingsRequest {
+  ResourceRef resource = 1;
+  string environment_id = 2;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+message ListEnvironmentBindingsResponse {
+  repeated EnvironmentBinding bindings = 1;
+  string next_page_token = 2;
+}
+message RegisterResourceKindRequest {
+  ResourceKindPolicy policy = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}

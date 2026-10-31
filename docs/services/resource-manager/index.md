@@ -19,6 +19,6 @@ Resource Manager is the source of truth for ownership and lifecycle metadata, no
 
 ## New v1 protobuf contract
 
-[ResourceManagerService](https://github.com/m8-team/platform/blob/main/api/proto/m8/platform/resourcemanager/v1/resource_manager_service.proto) (link resolves after merge), plus `tenant.proto`, `organization.proto`, `organization_group.proto`, `workspace.proto`, `environment.proto`, `service.proto`, `resource.proto`.
+[ResourceManagerService](https://github.com/m8-team/platform/blob/main/api/proto/m8/platform/resourcemanager/v1/resource_manager_service.proto) (link resolves after merge) contains only RPC definitions. Its request, response and resource messages live in `resource_manager.proto`, with entity contracts in `tenant.proto`, `organization.proto`, `organization_group.proto`, `workspace.proto`, `environment.proto`, `service.proto` and `resource.proto`. Organization relationship and org-structure APIs follow the same `*_service.proto` separation.
 
 The existing legacy RPC/REST reference pages are retained solely as historical material until replacement documentation is generated. Do not use them for new client development.

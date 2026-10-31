@@ -1,11 +1,13 @@
 syntax = "proto3";
 package m8.platform.resourcemanager.v1;
+
 import "google/protobuf/timestamp.proto";
 import "m8/platform/common/extension/v1/extension.proto";
-import "m8/platform/resourcemanager/v1/resource.proto";
-import "m8/platform/resourcemanager/v1/resource_manager_service.proto";
-import "m8/platform/resourcemanager/v1/organization_group.proto";
 import "m8/platform/resourcemanager/v1/environment.proto";
+import "m8/platform/resourcemanager/v1/organization_group.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+import "m8/platform/resourcemanager/v1/resource_manager.proto";
+
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 // Published transactionally with mutations via Resource Manager outbox.

@@ -8,10 +8,6 @@ import "m8/platform/resourcemanager/v1/resource.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Optional business grouping. Independent Organizations require no OrganizationGroup.
-//
-// OrganizationGroup is distinct from an Identity Group, which groups subjects
-// for membership and access-management purposes.
 message OrganizationGroup {
   ResourceMetadata metadata = 1 [
     (google.api.field_behavior) = REQUIRED,
@@ -24,7 +20,6 @@ message OrganizationGroup {
   ];
 }
 
-// Non-owning business relation between an OrganizationGroup and an Organization.
 message OrganizationGroupLink {
   string group_id = 1 [
     (google.api.field_behavior) = REQUIRED,

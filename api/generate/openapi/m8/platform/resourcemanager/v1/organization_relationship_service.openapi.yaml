@@ -1,0 +1,301 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /resource-manager/v1/organization-relationships:
+        get:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_ListOrganizationRelationships
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: includeClosed
+                  in: query
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrganizationRelationshipsResponse'
+        post:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_CreateOrganizationRelationship
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOrganizationRelationshipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationRelationship'
+    /resource-manager/v1/organization-relationships/{id}:
+        get:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_GetOrganizationRelationship
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationRelationship'
+        patch:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_UpdateOrganizationRelationship
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateOrganizationRelationshipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationRelationship'
+    /resource-manager/v1/organization-relationships/{id}/versions:
+        get:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_ListOrganizationRelationshipVersions
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrganizationRelationshipVersionsResponse'
+    /resource-manager/v1/organization-relationships/{id}:close:
+        post:
+            tags:
+                - OrganizationRelationshipService
+            operationId: OrganizationRelationshipService_CloseOrganizationRelationship
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CloseOrganizationRelationshipRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizationRelationship'
+components:
+    schemas:
+        CloseOrganizationRelationshipRequest:
+            required:
+                - id
+                - tenantId
+                - expectedRevision
+                - idempotencyKey
+                - closedAt
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+                closedAt:
+                    type: string
+                    format: date-time
+        CreateOrganizationRelationshipRequest:
+            required:
+                - relationship
+                - idempotencyKey
+            type: object
+            properties:
+                relationship:
+                    $ref: '#/components/schemas/OrganizationRelationship'
+                idempotencyKey:
+                    type: string
+        ListOrganizationRelationshipVersionsResponse:
+            type: object
+            properties:
+                versions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizationRelationship'
+                nextPageToken:
+                    type: string
+        ListOrganizationRelationshipsResponse:
+            type: object
+            properties:
+                relationships:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizationRelationship'
+                nextPageToken:
+                    type: string
+        OrganizationRelationship:
+            required:
+                - tenantId
+                - fromOrganizationId
+                - toOrganizationId
+                - type
+                - validFrom
+            type: object
+            properties:
+                id:
+                    readOnly: true
+                    type: string
+                tenantId:
+                    type: string
+                fromOrganizationId:
+                    type: string
+                    description: |-
+                        Directed from -> to. For PARENT_SUBSIDIARY, from is the parent.
+                         For SERVICE_PROVIDER, from provides services to the receiving "to".
+                toOrganizationId:
+                    type: string
+                type:
+                    enum:
+                        - ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED
+                        - ORGANIZATION_RELATIONSHIP_TYPE_PARENT_SUBSIDIARY
+                        - ORGANIZATION_RELATIONSHIP_TYPE_AFFILIATE
+                        - ORGANIZATION_RELATIONSHIP_TYPE_PARTNER
+                        - ORGANIZATION_RELATIONSHIP_TYPE_SERVICE_PROVIDER
+                    type: string
+                    format: enum
+                ownershipBasisPoints:
+                    type: integer
+                    description: 0 = unknown; 1..10000 = percent * 100; only PARENT_SUBSIDIARY.
+                    format: int32
+                validFrom:
+                    type: string
+                    format: date-time
+                validTo:
+                    type: string
+                    description: Optional exclusive end; unset means unbounded.
+                    format: date-time
+                state:
+                    readOnly: true
+                    enum:
+                        - ORGANIZATION_RELATIONSHIP_STATE_UNSPECIFIED
+                        - ORGANIZATION_RELATIONSHIP_STATE_ACTIVE
+                        - ORGANIZATION_RELATIONSHIP_STATE_CLOSED
+                    type: string
+                    format: enum
+                revision:
+                    readOnly: true
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                evidenceRef:
+                    type: string
+        UpdateOrganizationRelationshipRequest:
+            required:
+                - id
+                - tenantId
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+                ownershipBasisPoints:
+                    type: integer
+                    description: |-
+                        Only these mutable fields can change. Endpoints/type and validity start
+                         are immutable. To change them, close and create a new relation.
+                    format: int32
+                validTo:
+                    type: string
+                    format: date-time
+                evidenceRef:
+                    type: string
+tags:
+    - name: OrganizationRelationshipService

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: m8/platform/resourcemanager/v1/organization_relationship.proto
+// source: m8/platform/resourcemanager/v1/organization_relationship_service.proto
 
 package resourcemanager
 
@@ -308,5 +308,5 @@ var OrganizationRelationshipService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "m8/platform/resourcemanager/v1/organization_relationship.proto",
+	Metadata: "m8/platform/resourcemanager/v1/organization_relationship_service.proto",
 }

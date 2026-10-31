@@ -1,7 +1,6 @@
 syntax = "proto3";
 package m8.platform.resourcemanager.v1;
 
-import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -49,13 +48,4 @@ message ApplyOrgUnitChangeSetRequest {
 message ApplyOrgUnitChangeSetResponse {
   int64 structure_revision = 1;
   bool replayed = 2;
-}
-// These are contract sources only: no handler is registered by this PR.
-service OrgUnitChangeSetService {
-  rpc ValidateOrgUnitChangeSet(ValidateOrgUnitChangeSetRequest) returns (ValidateOrgUnitChangeSetResponse) {
-    option (google.api.http) = {post: "/resource-manager/v1/org-unit-change-sets:validate" body: "*"};
-  }
-  rpc ApplyOrgUnitChangeSet(ApplyOrgUnitChangeSetRequest) returns (ApplyOrgUnitChangeSetResponse) {
-    option (google.api.http) = {post: "/resource-manager/v1/org-unit-change-sets:apply" body: "*"};
-  }
 }

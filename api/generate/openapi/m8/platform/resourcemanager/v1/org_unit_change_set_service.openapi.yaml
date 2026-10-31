@@ -1,0 +1,138 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /resource-manager/v1/org-unit-change-sets:apply:
+        post:
+            tags:
+                - OrgUnitChangeSetService
+            operationId: OrgUnitChangeSetService_ApplyOrgUnitChangeSet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ApplyOrgUnitChangeSetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ApplyOrgUnitChangeSetResponse'
+    /resource-manager/v1/org-unit-change-sets:validate:
+        post:
+            tags:
+                - OrgUnitChangeSetService
+            operationId: OrgUnitChangeSetService_ValidateOrgUnitChangeSet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ValidateOrgUnitChangeSetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidateOrgUnitChangeSetResponse'
+components:
+    schemas:
+        ApplyOrgUnitChangeSetRequest:
+            required:
+                - changeSet
+                - idempotencyKey
+            type: object
+            properties:
+                changeSet:
+                    $ref: '#/components/schemas/OrgUnitChangeSet'
+                idempotencyKey:
+                    type: string
+        ApplyOrgUnitChangeSetResponse:
+            type: object
+            properties:
+                structureRevision:
+                    type: string
+                replayed:
+                    type: boolean
+        OrgUnitChangeSet:
+            required:
+                - organizationId
+                - expectedStructureRevision
+                - mutations
+            type: object
+            properties:
+                id:
+                    type: string
+                organizationId:
+                    type: string
+                expectedStructureRevision:
+                    type: string
+                effectiveAt:
+                    type: string
+                    description: |-
+                        Immediate cutover only for this slice. The server derives recorded_at.
+                         Deferred or backdated effective_at requires the temporal workflow.
+                    format: date-time
+                mutations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitMutation'
+                sourceId:
+                    type: string
+                changeSetStatus:
+                    readOnly: true
+                    type: string
+                resultingStructureRevision:
+                    readOnly: true
+                    type: string
+        OrgUnitMutation:
+            required:
+                - kind
+                - orgUnitId
+            type: object
+            properties:
+                kind:
+                    enum:
+                        - ORG_UNIT_MUTATION_KIND_UNSPECIFIED
+                        - ORG_UNIT_MUTATION_KIND_CREATE
+                        - ORG_UNIT_MUTATION_KIND_MOVE
+                        - ORG_UNIT_MUTATION_KIND_RENAME
+                        - ORG_UNIT_MUTATION_KIND_CLOSE
+                    type: string
+                    format: enum
+                orgUnitId:
+                    type: string
+                parentOrgUnitId:
+                    type: string
+                displayName:
+                    type: string
+                authoritativeSourceId:
+                    type: string
+        ValidateOrgUnitChangeSetRequest:
+            required:
+                - changeSet
+            type: object
+            properties:
+                changeSet:
+                    $ref: '#/components/schemas/OrgUnitChangeSet'
+        ValidateOrgUnitChangeSetResponse:
+            type: object
+            properties:
+                valid:
+                    type: boolean
+                blockers:
+                    type: array
+                    items:
+                        type: string
+                proposedStructureRevision:
+                    type: string
+tags:
+    - name: OrgUnitChangeSetService

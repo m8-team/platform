@@ -518,9 +518,6 @@ components:
                     $ref: '#/components/schemas/ResourceMetadata'
                 tenantId:
                     type: string
-            description: |-
-                Organization is the mandatory ownership/security root within a Tenant.
-                 No OrganizationGroup is required.
         OrganizationGroup:
             required:
                 - metadata
@@ -531,11 +528,6 @@ components:
                     $ref: '#/components/schemas/ResourceMetadata'
                 tenantId:
                     type: string
-            description: |-
-                Optional business grouping. Independent Organizations require no OrganizationGroup.
-
-                 OrganizationGroup is distinct from an Identity Group, which groups subjects
-                 for membership and access-management purposes.
         OrganizationGroupLink:
             required:
                 - groupId
@@ -550,7 +542,6 @@ components:
                     readOnly: true
                     type: string
                     format: date-time
-            description: Non-owning business relation between an OrganizationGroup and an Organization.
         OwnerScope:
             type: object
             properties:
@@ -722,41 +713,24 @@ components:
                     $ref: '#/components/schemas/ResourceDescriptor'
         ResourceRef:
             required:
-                - type
+                - kind
                 - id
             type: object
             properties:
-                type:
+                kind:
                     type: string
                     description: |-
-                        Required. Resource type.
-
-                         Recommended format:
-                           {service}.{resource}
-
-                         Examples:
-                           resourcemanager.organization
-                           resourcemanager.workspace
-                           resourcemanager.service
-                           provisioning.kafka_topic
-                           provisioning.database
-                           identity.user
-                           access.permission_schema
+                        Stable resource kind. Built-in kinds include "organization", "project"
+                         and "workload_service". Module-owned kinds may be namespaced, for example
+                         "provisioning.database". Registration and lookup use the exact same key.
                 id:
                     type: string
                     description: |-
-                        Required. Stable resource identifier.
-
-                         For Resource Manager resources this is usually UUID.
-                         For external/provider resources this may be provider-specific.
-                name:
-                    type: string
-                    description: |-
-                        Optional. Full resource name.
-
-                         Examples:
-                           organizations/{organization_id}
-            description: ResourceRef is a generic reference to any M8 Platform resource.
+                        Stable UUID assigned by the resource's owning service, not a display name
+                         or an external provider identifier.
+            description: |-
+                Resource identity within a tenant. The server resolves references in the
+                 caller's authorized tenant; possession of a reference grants no access.
         SetEnvironmentBindingRequest:
             required:
                 - binding
