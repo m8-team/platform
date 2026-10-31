@@ -7,6 +7,7 @@
 package resourcemanager
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -22,11 +23,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Optional collaboration/security scope within an Organization.
+// Workspace is an optional resource ownership and collaboration scope within
+// an Organization. It is a containment boundary and grants no access by itself;
+// authorization policies and permissions are owned by M8 Access.
 type Workspace struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Metadata       *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identity, display metadata, labels, lifecycle and optimistic concurrency revision.
+	Metadata *ResourceMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	// UUID of the owning Organization. The owner is fixed for the Workspace
+	// lifetime; moving resources between Workspaces does not move the Workspace.
+	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -79,10 +85,10 @@ var File_m8_platform_resourcemanager_v1_workspace_proto protoreflect.FileDescrip
 
 const file_m8_platform_resourcemanager_v1_workspace_proto_rawDesc = "" +
 	"\n" +
-	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\x8c\x01\n" +
-	"\tWorkspace\x12Q\n" +
-	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\x03\xe0A\x02R\bmetadata\x12,\n" +
-	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eorganizationIdBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	".m8/platform/resourcemanager/v1/workspace.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\x9d\x01\n" +
+	"\tWorkspace\x12W\n" +
+	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bmetadata\x127\n" +
+	"\x0forganization_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationIdBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_workspace_proto_rawDescOnce sync.Once

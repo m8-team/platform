@@ -27,7 +27,6 @@ const (
 	OrganizationGroup Kind = "group"
 	Organization      Kind = "organization"
 	Workspace         Kind = "workspace"
-	Project           Kind = "project"
 	Environment       Kind = "environment"
 	WorkloadService   Kind = "workload_service"
 	Descriptor        Kind = "descriptor"
@@ -101,12 +100,10 @@ func AllowedParent(child, parent Kind) bool {
 		return parent == Tenant
 	case Workspace, Environment:
 		return parent == Organization
-	case Project:
-		return parent == Organization || parent == Workspace
 	case WorkloadService:
-		return parent == Workspace || parent == Project
+		return parent == Workspace
 	case Descriptor:
-		return parent == Organization || parent == Workspace || parent == Project
+		return parent == Organization || parent == Workspace
 	}
 	return false
 }
@@ -272,36 +269,6 @@ func (s *Store) ChangeState(kind Kind, id string, rev int64, state string) (Reco
 	r.Revision++
 	r.UpdatedAt = time.Now().UTC()
 	s.objects[key(kind, id)] = r
-	return r, nil
-}
-func (s *Store) MoveProject(id string, parent Owner, rev int64) (Record, error) {
-	if !AllowedParent(Project, parent.Kind) || rev <= 0 {
-		return Record{}, ErrInvalid
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	r, ok := s.objects[key(Project, id)]
-	if !ok {
-		return Record{}, ErrNotFound
-	}
-	if r.Revision != rev || r.State != "ACTIVE" {
-		return Record{}, ErrConflict
-	}
-	p, exists := s.objects[key(parent.Kind, parent.ID)]
-	if !exists || p.State != "ACTIVE" {
-		return Record{}, ErrNotFound
-	}
-	newOrg := p.OrganizationID
-	if p.Kind == Organization {
-		newOrg = p.ID
-	}
-	if newOrg != r.OrganizationID {
-		return Record{}, fmt.Errorf("%w: cross-organization move prohibited", ErrInvalid)
-	}
-	r.Owner = parent
-	r.Revision++
-	r.UpdatedAt = time.Now().UTC()
-	s.objects[key(Project, id)] = r
 	return r, nil
 }
 func (s *Store) Resolve(kind Kind, id string) ([]Owner, error) {

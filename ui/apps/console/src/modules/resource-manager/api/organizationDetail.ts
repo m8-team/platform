@@ -194,10 +194,9 @@ export async function fetchOrganizationResources(
     const value = record[kind] as RecordValue
     const meta = metadata(value.metadata)
     const rawOwner = isRecord(value.owner) ? value.owner : null
-    const scopeId = rawOwner?.organizationId ?? rawOwner?.workspaceId ?? rawOwner?.projectId
+    const scopeId = rawOwner?.organizationId ?? rawOwner?.workspaceId
     const scopeKind = rawOwner?.organizationId ? 'organization'
-      : rawOwner?.workspaceId ? 'workspace'
-        : rawOwner?.projectId ? 'project' : undefined
+      : rawOwner?.workspaceId ? 'workspace' : undefined
     const fallbackOrg = kind === 'workspace' || kind === 'environment'
       ? optionalString(value.organizationId) : undefined
     const structuralOwner = scopeKind && typeof scopeId === 'string'

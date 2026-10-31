@@ -24,7 +24,7 @@ const (
 )
 
 // Organization is the mandatory ownership/security root within a Tenant.
-// No OrganizationGroup is required; legal entity profile is separately owned.
+// No OrganizationGroup is required.
 type Organization struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`

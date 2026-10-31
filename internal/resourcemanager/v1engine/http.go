@@ -41,8 +41,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.update(w, r, strings.TrimPrefix(path, "resources/"))
 	case strings.HasPrefix(path, "resources/") && r.Method == http.MethodPost && strings.HasSuffix(path, ":changeState"):
 		h.state(w, r, strings.TrimSuffix(strings.TrimPrefix(path, "resources/"), ":changeState"))
-	case strings.HasPrefix(path, "projects/") && strings.HasSuffix(path, ":move") && r.Method == http.MethodPost:
-		h.move(w, r, strings.TrimSuffix(strings.TrimPrefix(path, "projects/"), ":move"))
 	case path == "group-affiliations" && r.Method == http.MethodPost:
 		h.group(w, r)
 	case path == "environment-bindings" && r.Method == http.MethodPost:
@@ -115,8 +113,6 @@ func parseRecord(raw json.RawMessage) (Record, error) {
 			kind = Organization
 		case "workspace":
 			kind = Workspace
-		case "project":
-			kind = Project
 		case "environment":
 			kind = Environment
 		case "workloadService":
@@ -137,15 +133,13 @@ func parseRecord(raw json.RawMessage) (Record, error) {
 		r.Owner = Owner{Tenant, in.TenantID}
 	case Workspace, Environment:
 		r.Owner = Owner{Organization, in.OrganizationID}
-	case Project, WorkloadService, Descriptor:
+	case WorkloadService, Descriptor:
 		for k, v := range in.Owner {
 			switch k {
 			case "organizationId":
 				r.Owner = Owner{Organization, v}
 			case "workspaceId":
 				r.Owner = Owner{Workspace, v}
-			case "projectId":
-				r.Owner = Owner{Project, v}
 			default:
 				return Record{}, ErrInvalid
 			}
@@ -165,8 +159,6 @@ func payload(r Record) any {
 		owner["organizationId"] = r.Owner.ID
 	case Workspace:
 		owner["workspaceId"] = r.Owner.ID
-	case Project:
-		owner["projectId"] = r.Owner.ID
 	}
 	var variant string
 	switch r.Kind {
@@ -181,10 +173,6 @@ func payload(r Record) any {
 	case Workspace:
 		variant = "workspace"
 		v["organizationId"] = r.OrganizationID
-	case Project:
-		variant = "project"
-		v["owner"] = owner
-		v["owningOrganizationId"] = r.OrganizationID
 	case Environment:
 		variant = "environment"
 		v["organizationId"] = r.OrganizationID
@@ -314,34 +302,6 @@ func (h *Handler) state(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 	o, e := h.Store.ChangeState(req.Kind, id, req.ExpectedRevision, strings.TrimPrefix(req.TargetState, "RESOURCE_STATE_"))
-	if e != nil {
-		failure(w, e)
-		return
-	}
-	respond(w, 200, payload(o))
-}
-func (h *Handler) move(w http.ResponseWriter, r *http.Request, id string) {
-	var req struct {
-		NewOwner         map[string]string `json:"newOwner"`
-		ExpectedRevision int64             `json:"expectedRevision"`
-	}
-	if decode(r, &req) != nil {
-		failure(w, ErrInvalid)
-		return
-	}
-	var owner Owner
-	for k, v := range req.NewOwner {
-		switch k {
-		case "organizationId":
-			owner = Owner{Organization, v}
-		case "workspaceId":
-			owner = Owner{Workspace, v}
-		default:
-			failure(w, ErrInvalid)
-			return
-		}
-	}
-	o, e := h.Store.MoveProject(id, owner, req.ExpectedRevision)
 	if e != nil {
 		failure(w, e)
 		return

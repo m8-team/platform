@@ -39,9 +39,6 @@ const (
 	// ResourceManagerServiceChangeResourceStateProcedure is the procedure name of the
 	// ResourceManagerService's ChangeResourceState RPC.
 	ResourceManagerServiceChangeResourceStateProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/ChangeResourceState"
-	// ResourceManagerServiceMoveProjectProcedure is the procedure name of the ResourceManagerService's
-	// MoveProject RPC.
-	ResourceManagerServiceMoveProjectProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/MoveProject"
 	// ResourceManagerServiceResolveResourceScopeProcedure is the procedure name of the
 	// ResourceManagerService's ResolveResourceScope RPC.
 	ResourceManagerServiceResolveResourceScopeProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/ResolveResourceScope"
@@ -102,13 +99,6 @@ var (
 			StreamType: connect.StreamTypeUnary,
 			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("ChangeResourceState"),
 			Procedure:  ResourceManagerServiceChangeResourceStateProcedure,
-		}
-	})
-	resourceManagerServiceMoveProjectSpec = sync.OnceValue(func() connect.Spec {
-		return connect.Spec{
-			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("MoveProject"),
-			Procedure:  ResourceManagerServiceMoveProjectProcedure,
 		}
 	})
 	resourceManagerServiceResolveResourceScopeSpec = sync.OnceValue(func() connect.Spec {
@@ -177,7 +167,6 @@ type ResourceManagerServiceClient interface {
 	ListResources(context.Context, *v1.ListResourcesRequest) (*v1.ListResourcesResponse, error)
 	UpdateResource(context.Context, *v1.UpdateResourceRequest) (*v1.ResourceRecord, error)
 	ChangeResourceState(context.Context, *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error)
-	MoveProject(context.Context, *v1.MoveProjectRequest) (*v1.Project, error)
 	ResolveResourceScope(context.Context, *v1.ResolveResourceScopeRequest) (*v1.ResolveResourceScopeResponse, error)
 	SetOrganizationGroupLink(context.Context, *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error)
 	RemoveOrganizationGroupLink(context.Context, *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error)
@@ -203,7 +192,6 @@ type ResourceManagerServiceHandler interface {
 	ListResources(context.Context, *v1.ListResourcesRequest) (*v1.ListResourcesResponse, error)
 	UpdateResource(context.Context, *v1.UpdateResourceRequest) (*v1.ResourceRecord, error)
 	ChangeResourceState(context.Context, *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error)
-	MoveProject(context.Context, *v1.MoveProjectRequest) (*v1.Project, error)
 	ResolveResourceScope(context.Context, *v1.ResolveResourceScopeRequest) (*v1.ResolveResourceScopeResponse, error)
 	SetOrganizationGroupLink(context.Context, *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error)
 	RemoveOrganizationGroupLink(context.Context, *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error)
@@ -224,7 +212,6 @@ func RegisterResourceManagerServiceHandler(server *connect.Server, svc ResourceM
 		connect.Method{Spec: resourceManagerServiceListResourcesSpec(), Handler: adapter.listResources},
 		connect.Method{Spec: resourceManagerServiceUpdateResourceSpec(), Handler: adapter.updateResource},
 		connect.Method{Spec: resourceManagerServiceChangeResourceStateSpec(), Handler: adapter.changeResourceState},
-		connect.Method{Spec: resourceManagerServiceMoveProjectSpec(), Handler: adapter.moveProject},
 		connect.Method{Spec: resourceManagerServiceResolveResourceScopeSpec(), Handler: adapter.resolveResourceScope},
 		connect.Method{Spec: resourceManagerServiceSetOrganizationGroupLinkSpec(), Handler: adapter.setOrganizationGroupLink},
 		connect.Method{Spec: resourceManagerServiceRemoveOrganizationGroupLinkSpec(), Handler: adapter.removeOrganizationGroupLink},
@@ -257,10 +244,6 @@ func (UnimplementedResourceManagerServiceHandler) UpdateResource(context.Context
 
 func (UnimplementedResourceManagerServiceHandler) ChangeResourceState(context.Context, *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState is not implemented")
-}
-
-func (UnimplementedResourceManagerServiceHandler) MoveProject(context.Context, *v1.MoveProjectRequest) (*v1.Project, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.MoveProject is not implemented")
 }
 
 func (UnimplementedResourceManagerServiceHandler) ResolveResourceScope(context.Context, *v1.ResolveResourceScopeRequest) (*v1.ResolveResourceScopeResponse, error) {
@@ -334,14 +317,6 @@ func (c *resourceManagerServiceClient) UpdateResource(ctx context.Context, req *
 func (c *resourceManagerServiceClient) ChangeResourceState(ctx context.Context, req *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error) {
 	var res v1.ResourceRecord
 	if err := c.client.CallUnary(ctx, resourceManagerServiceChangeResourceStateSpec(), req, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func (c *resourceManagerServiceClient) MoveProject(ctx context.Context, req *v1.MoveProjectRequest) (*v1.Project, error) {
-	var res v1.Project
-	if err := c.client.CallUnary(ctx, resourceManagerServiceMoveProjectSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -467,18 +442,6 @@ func (h resourceManagerServiceHandler) changeResourceState(ctx context.Context, 
 		return err
 	}
 	res, err := h.svc.ChangeResourceState(ctx, &req)
-	if err != nil {
-		return err
-	}
-	return stream.Send(res)
-}
-
-func (h resourceManagerServiceHandler) moveProject(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req v1.MoveProjectRequest
-	if err := stream.Receive(&req); err != nil {
-		return err
-	}
-	res, err := h.svc.MoveProject(ctx, &req)
 	if err != nil {
 		return err
 	}

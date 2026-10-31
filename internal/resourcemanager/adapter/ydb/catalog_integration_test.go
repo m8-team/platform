@@ -226,10 +226,6 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	project, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Project, Owner: v1engine.Owner{Kind: v1engine.Workspace, ID: ws.ID}, Name: "ERP"}, seed+"-project")
-	if err != nil {
-		t.Fatal(err)
-	}
 	env, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Environment, Owner: v1engine.Owner{Kind: v1engine.Organization, ID: org.ID}, Name: "Production", EnvironmentKey: "prod"}, seed+"-prod")
 	if err != nil {
 		t.Fatal(err)
@@ -237,23 +233,23 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if _, err = cat.Create(ctx, v1engine.Record{Kind: v1engine.Environment, Owner: v1engine.Owner{Kind: v1engine.Organization, ID: org.ID}, Name: "Production Again", EnvironmentKey: "prod"}, seed+"-prod-duplicate"); !errors.Is(err, v1engine.ErrConflict) {
 		t.Fatalf("duplicate environment key: %v", err)
 	}
-	service, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.WorkloadService, Owner: v1engine.Owner{Kind: v1engine.Project, ID: project.ID}, Name: "ERP API"}, seed+"-service")
+	service, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.WorkloadService, Owner: v1engine.Owner{Kind: v1engine.Workspace, ID: ws.ID}, Name: "ERP API"}, seed+"-service")
 	if err != nil {
 		t.Fatal(err)
 	}
 	got, err := another.List(ctx, "", org.ID)
-	if err != nil || len(got) != 5 {
+	if err != nil || len(got) != 4 {
 		t.Fatalf("scope listing: len=%d %v", len(got), err)
 	}
 	parents, err := another.Resolve(ctx, v1engine.WorkloadService, service.ID)
-	if err != nil || len(parents) != 5 {
+	if err != nil || len(parents) != 4 {
 		t.Fatalf("ancestry: %#v %v", parents, err)
 	}
-	updated, err := cat.Update(ctx, v1engine.Project, project.ID, 1, "ERP New", "Owned by Alpha", nil)
+	updated, err := cat.Update(ctx, v1engine.Workspace, ws.ID, 1, "Engineering New", "Owned by Alpha", nil)
 	if err != nil || updated.Revision != 2 {
 		t.Fatalf("update CAS: %#v %v", updated, err)
 	}
-	if _, err = cat.Update(ctx, v1engine.Project, project.ID, 1, "stale", "", nil); !errors.Is(err, v1engine.ErrConflict) {
+	if _, err = cat.Update(ctx, v1engine.Workspace, ws.ID, 1, "stale", "", nil); !errors.Is(err, v1engine.ErrConflict) {
 		t.Fatalf("stale update: %v", err)
 	}
 	if err = cat.SetOrganizationGroupLink(ctx, group.ID, org.ID); err != nil {
@@ -276,17 +272,6 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	}
 	if _, err = cat.ChangeState(ctx, v1engine.Organization, org.ID, 1, "DELETED"); !errors.Is(err, v1engine.ErrConflict) {
 		t.Fatalf("delete with descendants must fail: %v", err)
-	}
-	secondWorkspace, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Workspace, Owner: v1engine.Owner{Kind: v1engine.Organization, ID: org.ID}, Name: "Other Workspace"}, seed+"-ws2")
-	if err != nil {
-		t.Fatal(err)
-	}
-	moved, err := cat.MoveProject(ctx, project.ID, v1engine.Owner{Kind: v1engine.Workspace, ID: secondWorkspace.ID}, 2)
-	if err != nil || moved.Revision != 3 || moved.Owner.ID != secondWorkspace.ID {
-		t.Fatalf("move: %#v %v", moved, err)
-	}
-	if _, err = cat.MoveProject(ctx, project.ID, v1engine.Owner{Kind: v1engine.Workspace, ID: ws.ID}, 2); !errors.Is(err, v1engine.ErrConflict) {
-		t.Fatalf("stale move: %v", err)
 	}
 	if err = cat.RemoveBinding(ctx, binding.ID, 1); err != nil {
 		t.Fatalf("delete binding: %v", err)

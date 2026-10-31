@@ -2,11 +2,11 @@
 
 ## Release rule
 
-The old version is deliberately discarded. `v1` now means **Tenant + Organization + optional OrganizationGroup/Workspace/Project + Environment + logical Service**. There is no compatibility obligation to the old `OrganizationService/WorkspaceService/ServiceService` APIs or to `Service.environment`.
+The old version is deliberately discarded. `v1` now means **Tenant + Organization + optional OrganizationGroup/Workspace + Environment + logical Service**. There is no compatibility obligation to the old `OrganizationService/WorkspaceService/ServiceService` APIs or to `Service.environment`.
 
 ## Changes already committed in this branch
 
-- Canonical RM proto messages: ResourceRef/OwnerScope, Tenant, OrganizationGroup, Organization, Workspace, Project, Environment, EnvironmentBinding, WorkloadService, ResourceDescriptor, ResourceKindPolicy.
+- Canonical RM proto messages: ResourceRef/OwnerScope, Tenant, OrganizationGroup, Organization, Workspace, Environment, EnvironmentBinding, WorkloadService, ResourceDescriptor, ResourceKindPolicy.
 - New unified ResourceManagerService protobuf; former RPC service proto sources removed.
 - Separate module contracts for Identity, Workforce, AccessGrant, SharedServices and Delivery.
 - Domain shape-check package with 23 placement scenarios.
@@ -29,7 +29,7 @@ The old version is deliberately discarded. `v1` now means **Tenant + Organizatio
 
 **V1-03 — Resource Manager transport and application**
 - Replace old OrganizationService server bindings with ResourceManagerService.
-- Implement full CRUD/lifecycle and MoveProject; require authorization on both source and destination.
+- Implement full CRUD/lifecycle with explicit authorization checks.
 - Resolve server-side canonical owner organization and ancestry; prevent cycles and unauthorized traversal.
 - Server-enforced resource kind placement policy and environment binding checks.
 - Implement filtered, stable pagination with scoped list query.
@@ -46,11 +46,11 @@ The old version is deliberately discarded. `v1` now means **Tenant + Organizatio
 - Tool Gateway must enforce company + environment + principal + agent + resource grants.
 
 **V1-06 — End-to-end test matrix**
-- Single independent Tenant/Organization with Agent directly under Organization (without Group/Workspace/Project).
+- Single independent Tenant/Organization with Agent directly under Organization (without OrganizationGroup/Workspace).
 - Holding with Group affiliation but no implicit cross-Organization permissions.
-- OwnerScope Project under Organization and under Workspace; WorkloadService in both allowed scopes.
+- OwnerScope supports Organization and Workspace; WorkloadService is Workspace-owned.
 - Testing vs Production connection / credential isolation; cross-environment access denied.
-- Temporary contractor without Organization Membership accessing one Project only.
+- Temporary contractor without Organization Membership accessing one Workspace only.
 - External Support provider assigned one Case, can read only that Case's permitted resource, expires/revokes immediately.
 - Multi-company human one principal with independent Employment/Engagement and Organization memberships.
 - Repeated concurrent mutations, pagination, deleted ancestor, stale revision, moved project, duplicate events.

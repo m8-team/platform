@@ -24,7 +24,6 @@ const (
 	ResourceManagerService_ListResources_FullMethodName               = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListResources"
 	ResourceManagerService_UpdateResource_FullMethodName              = "/m8.platform.resourcemanager.v1.ResourceManagerService/UpdateResource"
 	ResourceManagerService_ChangeResourceState_FullMethodName         = "/m8.platform.resourcemanager.v1.ResourceManagerService/ChangeResourceState"
-	ResourceManagerService_MoveProject_FullMethodName                 = "/m8.platform.resourcemanager.v1.ResourceManagerService/MoveProject"
 	ResourceManagerService_ResolveResourceScope_FullMethodName        = "/m8.platform.resourcemanager.v1.ResourceManagerService/ResolveResourceScope"
 	ResourceManagerService_SetOrganizationGroupLink_FullMethodName    = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetOrganizationGroupLink"
 	ResourceManagerService_RemoveOrganizationGroupLink_FullMethodName = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveOrganizationGroupLink"
@@ -47,7 +46,6 @@ type ResourceManagerServiceClient interface {
 	ListResources(ctx context.Context, in *ListResourcesRequest, opts ...grpc.CallOption) (*ListResourcesResponse, error)
 	UpdateResource(ctx context.Context, in *UpdateResourceRequest, opts ...grpc.CallOption) (*ResourceRecord, error)
 	ChangeResourceState(ctx context.Context, in *ChangeResourceStateRequest, opts ...grpc.CallOption) (*ResourceRecord, error)
-	MoveProject(ctx context.Context, in *MoveProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	ResolveResourceScope(ctx context.Context, in *ResolveResourceScopeRequest, opts ...grpc.CallOption) (*ResolveResourceScopeResponse, error)
 	SetOrganizationGroupLink(ctx context.Context, in *SetOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*OrganizationGroupLink, error)
 	RemoveOrganizationGroupLink(ctx context.Context, in *RemoveOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
@@ -110,16 +108,6 @@ func (c *resourceManagerServiceClient) ChangeResourceState(ctx context.Context, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ResourceRecord)
 	err := c.cc.Invoke(ctx, ResourceManagerService_ChangeResourceState_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceManagerServiceClient) MoveProject(ctx context.Context, in *MoveProjectRequest, opts ...grpc.CallOption) (*Project, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Project)
-	err := c.cc.Invoke(ctx, ResourceManagerService_MoveProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +206,6 @@ type ResourceManagerServiceServer interface {
 	ListResources(context.Context, *ListResourcesRequest) (*ListResourcesResponse, error)
 	UpdateResource(context.Context, *UpdateResourceRequest) (*ResourceRecord, error)
 	ChangeResourceState(context.Context, *ChangeResourceStateRequest) (*ResourceRecord, error)
-	MoveProject(context.Context, *MoveProjectRequest) (*Project, error)
 	ResolveResourceScope(context.Context, *ResolveResourceScopeRequest) (*ResolveResourceScopeResponse, error)
 	SetOrganizationGroupLink(context.Context, *SetOrganizationGroupLinkRequest) (*OrganizationGroupLink, error)
 	RemoveOrganizationGroupLink(context.Context, *RemoveOrganizationGroupLinkRequest) (*EmptyResponse, error)
@@ -251,9 +238,6 @@ func (UnimplementedResourceManagerServiceServer) UpdateResource(context.Context,
 }
 func (UnimplementedResourceManagerServiceServer) ChangeResourceState(context.Context, *ChangeResourceStateRequest) (*ResourceRecord, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeResourceState not implemented")
-}
-func (UnimplementedResourceManagerServiceServer) MoveProject(context.Context, *MoveProjectRequest) (*Project, error) {
-	return nil, status.Error(codes.Unimplemented, "method MoveProject not implemented")
 }
 func (UnimplementedResourceManagerServiceServer) ResolveResourceScope(context.Context, *ResolveResourceScopeRequest) (*ResolveResourceScopeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResolveResourceScope not implemented")
@@ -387,24 +371,6 @@ func _ResourceManagerService_ChangeResourceState_Handler(srv interface{}, ctx co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ResourceManagerServiceServer).ChangeResourceState(ctx, req.(*ChangeResourceStateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceManagerService_MoveProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MoveProjectRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceManagerServiceServer).MoveProject(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceManagerService_MoveProject_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceManagerServiceServer).MoveProject(ctx, req.(*MoveProjectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -579,10 +545,6 @@ var ResourceManagerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeResourceState",
 			Handler:    _ResourceManagerService_ChangeResourceState_Handler,
-		},
-		{
-			MethodName: "MoveProject",
-			Handler:    _ResourceManagerService_MoveProject_Handler,
 		},
 		{
 			MethodName: "ResolveResourceScope",

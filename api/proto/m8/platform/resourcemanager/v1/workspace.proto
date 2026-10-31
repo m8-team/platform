@@ -1,11 +1,27 @@
 syntax = "proto3";
 package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
+
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Optional collaboration/security scope within an Organization.
+// Workspace is an optional resource ownership and collaboration scope within
+// an Organization. It is a containment boundary and grants no access by itself;
+// authorization policies and permissions are owned by M8 Access.
 message Workspace {
-  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+  // Identity, display metadata, labels, lifecycle and optimistic concurrency revision.
+  ResourceMetadata metadata = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // UUID of the owning Organization. The owner is fixed for the Workspace
+  // lifetime; moving resources between Workspaces does not move the Workspace.
+  string organization_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
 }

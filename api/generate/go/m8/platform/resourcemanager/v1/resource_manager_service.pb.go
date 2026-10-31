@@ -31,7 +31,6 @@ type ResourceRecord struct {
 	//	*ResourceRecord_Group
 	//	*ResourceRecord_Organization
 	//	*ResourceRecord_Workspace
-	//	*ResourceRecord_Project
 	//	*ResourceRecord_Environment
 	//	*ResourceRecord_WorkloadService
 	//	*ResourceRecord_Descriptor_
@@ -113,15 +112,6 @@ func (x *ResourceRecord) GetWorkspace() *Workspace {
 	return nil
 }
 
-func (x *ResourceRecord) GetProject() *Project {
-	if x != nil {
-		if x, ok := x.Resource.(*ResourceRecord_Project); ok {
-			return x.Project
-		}
-	}
-	return nil
-}
-
 func (x *ResourceRecord) GetEnvironment() *Environment {
 	if x != nil {
 		if x, ok := x.Resource.(*ResourceRecord_Environment); ok {
@@ -169,10 +159,6 @@ type ResourceRecord_Workspace struct {
 	Workspace *Workspace `protobuf:"bytes,4,opt,name=workspace,proto3,oneof"`
 }
 
-type ResourceRecord_Project struct {
-	Project *Project `protobuf:"bytes,5,opt,name=project,proto3,oneof"`
-}
-
 type ResourceRecord_Environment struct {
 	Environment *Environment `protobuf:"bytes,6,opt,name=environment,proto3,oneof"`
 }
@@ -192,8 +178,6 @@ func (*ResourceRecord_Group) isResourceRecord_Resource() {}
 func (*ResourceRecord_Organization) isResourceRecord_Resource() {}
 
 func (*ResourceRecord_Workspace) isResourceRecord_Resource() {}
-
-func (*ResourceRecord_Project) isResourceRecord_Resource() {}
 
 func (*ResourceRecord_Environment) isResourceRecord_Resource() {}
 
@@ -647,74 +631,6 @@ func (x *ChangeResourceStateRequest) GetIdempotencyKey() string {
 	return ""
 }
 
-type MoveProjectRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	ProjectId        string                 `protobuf:"bytes,1,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
-	NewOwner         *OwnerScope            `protobuf:"bytes,2,opt,name=new_owner,json=newOwner,proto3" json:"new_owner,omitempty"` // only Organization or Workspace
-	ExpectedRevision int64                  `protobuf:"varint,3,opt,name=expected_revision,json=expectedRevision,proto3" json:"expected_revision,omitempty"`
-	IdempotencyKey   string                 `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *MoveProjectRequest) Reset() {
-	*x = MoveProjectRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MoveProjectRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MoveProjectRequest) ProtoMessage() {}
-
-func (x *MoveProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MoveProjectRequest.ProtoReflect.Descriptor instead.
-func (*MoveProjectRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *MoveProjectRequest) GetProjectId() string {
-	if x != nil {
-		return x.ProjectId
-	}
-	return ""
-}
-
-func (x *MoveProjectRequest) GetNewOwner() *OwnerScope {
-	if x != nil {
-		return x.NewOwner
-	}
-	return nil
-}
-
-func (x *MoveProjectRequest) GetExpectedRevision() int64 {
-	if x != nil {
-		return x.ExpectedRevision
-	}
-	return 0
-}
-
-func (x *MoveProjectRequest) GetIdempotencyKey() string {
-	if x != nil {
-		return x.IdempotencyKey
-	}
-	return ""
-}
-
 type ResolveResourceScopeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
@@ -725,7 +641,7 @@ type ResolveResourceScopeRequest struct {
 
 func (x *ResolveResourceScopeRequest) Reset() {
 	*x = ResolveResourceScopeRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[9]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -737,7 +653,7 @@ func (x *ResolveResourceScopeRequest) String() string {
 func (*ResolveResourceScopeRequest) ProtoMessage() {}
 
 func (x *ResolveResourceScopeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[9]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -750,7 +666,7 @@ func (x *ResolveResourceScopeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveResourceScopeRequest.ProtoReflect.Descriptor instead.
 func (*ResolveResourceScopeRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{9}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ResolveResourceScopeRequest) GetKind() string {
@@ -777,7 +693,7 @@ type ResolveResourceScopeResponse struct {
 
 func (x *ResolveResourceScopeResponse) Reset() {
 	*x = ResolveResourceScopeResponse{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[10]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -789,7 +705,7 @@ func (x *ResolveResourceScopeResponse) String() string {
 func (*ResolveResourceScopeResponse) ProtoMessage() {}
 
 func (x *ResolveResourceScopeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[10]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -802,7 +718,7 @@ func (x *ResolveResourceScopeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResolveResourceScopeResponse.ProtoReflect.Descriptor instead.
 func (*ResolveResourceScopeResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{10}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ResolveResourceScopeResponse) GetOwningOrganizationId() string {
@@ -830,7 +746,7 @@ type SetOrganizationGroupLinkRequest struct {
 
 func (x *SetOrganizationGroupLinkRequest) Reset() {
 	*x = SetOrganizationGroupLinkRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -842,7 +758,7 @@ func (x *SetOrganizationGroupLinkRequest) String() string {
 func (*SetOrganizationGroupLinkRequest) ProtoMessage() {}
 
 func (x *SetOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -855,7 +771,7 @@ func (x *SetOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetOrganizationGroupLinkRequest.ProtoReflect.Descriptor instead.
 func (*SetOrganizationGroupLinkRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{11}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SetOrganizationGroupLinkRequest) GetGroupId() string {
@@ -890,7 +806,7 @@ type RemoveOrganizationGroupLinkRequest struct {
 
 func (x *RemoveOrganizationGroupLinkRequest) Reset() {
 	*x = RemoveOrganizationGroupLinkRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -902,7 +818,7 @@ func (x *RemoveOrganizationGroupLinkRequest) String() string {
 func (*RemoveOrganizationGroupLinkRequest) ProtoMessage() {}
 
 func (x *RemoveOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -915,7 +831,7 @@ func (x *RemoveOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use RemoveOrganizationGroupLinkRequest.ProtoReflect.Descriptor instead.
 func (*RemoveOrganizationGroupLinkRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{12}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RemoveOrganizationGroupLinkRequest) GetGroupId() string {
@@ -950,7 +866,7 @@ type ListOrganizationGroupLinksRequest struct {
 
 func (x *ListOrganizationGroupLinksRequest) Reset() {
 	*x = ListOrganizationGroupLinksRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +878,7 @@ func (x *ListOrganizationGroupLinksRequest) String() string {
 func (*ListOrganizationGroupLinksRequest) ProtoMessage() {}
 
 func (x *ListOrganizationGroupLinksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +891,7 @@ func (x *ListOrganizationGroupLinksRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListOrganizationGroupLinksRequest.ProtoReflect.Descriptor instead.
 func (*ListOrganizationGroupLinksRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{13}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListOrganizationGroupLinksRequest) GetGroupId() string {
@@ -1009,7 +925,7 @@ type ListOrganizationGroupLinksResponse struct {
 
 func (x *ListOrganizationGroupLinksResponse) Reset() {
 	*x = ListOrganizationGroupLinksResponse{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1021,7 +937,7 @@ func (x *ListOrganizationGroupLinksResponse) String() string {
 func (*ListOrganizationGroupLinksResponse) ProtoMessage() {}
 
 func (x *ListOrganizationGroupLinksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1034,7 +950,7 @@ func (x *ListOrganizationGroupLinksResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListOrganizationGroupLinksResponse.ProtoReflect.Descriptor instead.
 func (*ListOrganizationGroupLinksResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{14}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListOrganizationGroupLinksResponse) GetLinks() []*OrganizationGroupLink {
@@ -1062,7 +978,7 @@ type SetEnvironmentBindingRequest struct {
 
 func (x *SetEnvironmentBindingRequest) Reset() {
 	*x = SetEnvironmentBindingRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[15]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1074,7 +990,7 @@ func (x *SetEnvironmentBindingRequest) String() string {
 func (*SetEnvironmentBindingRequest) ProtoMessage() {}
 
 func (x *SetEnvironmentBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[15]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1087,7 +1003,7 @@ func (x *SetEnvironmentBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetEnvironmentBindingRequest.ProtoReflect.Descriptor instead.
 func (*SetEnvironmentBindingRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{15}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SetEnvironmentBindingRequest) GetBinding() *EnvironmentBinding {
@@ -1122,7 +1038,7 @@ type RemoveEnvironmentBindingRequest struct {
 
 func (x *RemoveEnvironmentBindingRequest) Reset() {
 	*x = RemoveEnvironmentBindingRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[16]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1134,7 +1050,7 @@ func (x *RemoveEnvironmentBindingRequest) String() string {
 func (*RemoveEnvironmentBindingRequest) ProtoMessage() {}
 
 func (x *RemoveEnvironmentBindingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[16]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1147,7 +1063,7 @@ func (x *RemoveEnvironmentBindingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveEnvironmentBindingRequest.ProtoReflect.Descriptor instead.
 func (*RemoveEnvironmentBindingRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{16}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RemoveEnvironmentBindingRequest) GetId() string {
@@ -1183,7 +1099,7 @@ type ListEnvironmentBindingsRequest struct {
 
 func (x *ListEnvironmentBindingsRequest) Reset() {
 	*x = ListEnvironmentBindingsRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[17]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1195,7 +1111,7 @@ func (x *ListEnvironmentBindingsRequest) String() string {
 func (*ListEnvironmentBindingsRequest) ProtoMessage() {}
 
 func (x *ListEnvironmentBindingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[17]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1208,7 +1124,7 @@ func (x *ListEnvironmentBindingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentBindingsRequest.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentBindingsRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{17}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListEnvironmentBindingsRequest) GetResource() *ResourceRef {
@@ -1249,7 +1165,7 @@ type ListEnvironmentBindingsResponse struct {
 
 func (x *ListEnvironmentBindingsResponse) Reset() {
 	*x = ListEnvironmentBindingsResponse{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[18]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1261,7 +1177,7 @@ func (x *ListEnvironmentBindingsResponse) String() string {
 func (*ListEnvironmentBindingsResponse) ProtoMessage() {}
 
 func (x *ListEnvironmentBindingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[18]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1274,7 +1190,7 @@ func (x *ListEnvironmentBindingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironmentBindingsResponse.ProtoReflect.Descriptor instead.
 func (*ListEnvironmentBindingsResponse) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{18}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListEnvironmentBindingsResponse) GetBindings() []*EnvironmentBinding {
@@ -1301,7 +1217,7 @@ type RegisterResourceKindRequest struct {
 
 func (x *RegisterResourceKindRequest) Reset() {
 	*x = RegisterResourceKindRequest{}
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[19]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1313,7 +1229,7 @@ func (x *RegisterResourceKindRequest) String() string {
 func (*RegisterResourceKindRequest) ProtoMessage() {}
 
 func (x *RegisterResourceKindRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[19]
+	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1326,7 +1242,7 @@ func (x *RegisterResourceKindRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterResourceKindRequest.ProtoReflect.Descriptor instead.
 func (*RegisterResourceKindRequest) Descriptor() ([]byte, []int) {
-	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{19}
+	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RegisterResourceKindRequest) GetPolicy() *ResourceKindPolicy {
@@ -1347,20 +1263,19 @@ var File_m8_platform_resourcemanager_v1_resource_manager_service_proto protorefl
 
 const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc = "" +
 	"\n" +
-	"=m8/platform/resourcemanager/v1/resource_manager_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a+m8/platform/resourcemanager/v1/tenant.proto\x1a7m8/platform/resourcemanager/v1/organization_group.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\x1a,m8/platform/resourcemanager/v1/project.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\x1a,m8/platform/resourcemanager/v1/service.proto\"\x92\x05\n" +
+	"=m8/platform/resourcemanager/v1/resource_manager_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\x1a7m8/platform/resourcemanager/v1/organization_group.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a,m8/platform/resourcemanager/v1/service.proto\x1a+m8/platform/resourcemanager/v1/tenant.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\"\xdc\x04\n" +
 	"\x0eResourceRecord\x12@\n" +
 	"\x06tenant\x18\x01 \x01(\v2&.m8.platform.resourcemanager.v1.TenantH\x00R\x06tenant\x12I\n" +
 	"\x05group\x18\x02 \x01(\v21.m8.platform.resourcemanager.v1.OrganizationGroupH\x00R\x05group\x12R\n" +
 	"\forganization\x18\x03 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationH\x00R\forganization\x12I\n" +
-	"\tworkspace\x18\x04 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceH\x00R\tworkspace\x12C\n" +
-	"\aproject\x18\x05 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectH\x00R\aproject\x12O\n" +
+	"\tworkspace\x18\x04 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceH\x00R\tworkspace\x12O\n" +
 	"\venvironment\x18\x06 \x01(\v2+.m8.platform.resourcemanager.v1.EnvironmentH\x00R\venvironment\x12\\\n" +
 	"\x10workload_service\x18\a \x01(\v2/.m8.platform.resourcemanager.v1.WorkloadServiceH\x00R\x0fworkloadService\x12T\n" +
 	"\n" +
 	"descriptor\x18\b \x01(\v22.m8.platform.resourcemanager.v1.ResourceDescriptorH\x00R\n" +
 	"descriptorB\n" +
 	"\n" +
-	"\bresource\"\x0f\n" +
+	"\bresourceJ\x04\b\x05\x10\x06R\aproject\"\x0f\n" +
 	"\rEmptyResponse\"\x96\x01\n" +
 	"\x15CreateResourceRequest\x12O\n" +
 	"\bresource\x18\x01 \x01(\v2..m8.platform.resourcemanager.v1.ResourceRecordB\x03\xe0A\x02R\bresource\x12,\n" +
@@ -1393,13 +1308,7 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x04kind\x18\x02 \x01(\tB\x03\xe0A\x02R\x04kind\x12U\n" +
 	"\ftarget_state\x18\x03 \x01(\x0e2-.m8.platform.resourcemanager.v1.ResourceStateB\x03\xe0A\x02R\vtargetState\x120\n" +
 	"\x11expected_revision\x18\x04 \x01(\x03B\x03\xe0A\x02R\x10expectedRevision\x12,\n" +
-	"\x0fidempotency_key\x18\x05 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"\xe6\x01\n" +
-	"\x12MoveProjectRequest\x12\"\n" +
-	"\n" +
-	"project_id\x18\x01 \x01(\tB\x03\xe0A\x02R\tprojectId\x12L\n" +
-	"\tnew_owner\x18\x02 \x01(\v2*.m8.platform.resourcemanager.v1.OwnerScopeB\x03\xe0A\x02R\bnewOwner\x120\n" +
-	"\x11expected_revision\x18\x03 \x01(\x03B\x03\xe0A\x02R\x10expectedRevision\x12,\n" +
-	"\x0fidempotency_key\x18\x04 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"K\n" +
+	"\x0fidempotency_key\x18\x05 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"K\n" +
 	"\x1bResolveResourceScopeRequest\x12\x17\n" +
 	"\x04kind\x18\x01 \x01(\tB\x03\xe0A\x02R\x04kind\x12\x13\n" +
 	"\x02id\x18\x02 \x01(\tB\x03\xe0A\x02R\x02id\"\x9d\x01\n" +
@@ -1441,14 +1350,13 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x9c\x01\n" +
 	"\x1bRegisterResourceKindRequest\x12O\n" +
 	"\x06policy\x18\x01 \x01(\v22.m8.platform.resourcemanager.v1.ResourceKindPolicyB\x03\xe0A\x02R\x06policy\x12,\n" +
-	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey2\x95\x15\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey2\xec\x13\n" +
 	"\x16ResourceManagerService\x12\xa2\x01\n" +
 	"\x0eCreateResource\x125.m8.platform.resourcemanager.v1.CreateResourceRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/resource-manager/v1/resources\x12\xa5\x01\n" +
 	"\vGetResource\x122.m8.platform.resourcemanager.v1.GetResourceRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\"2\x82\xd3\xe4\x93\x02,\x12*/resource-manager/v1/resources/{kind}/{id}\x12\xa4\x01\n" +
 	"\rListResources\x124.m8.platform.resourcemanager.v1.ListResourcesRequest\x1a5.m8.platform.resourcemanager.v1.ListResourcesResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/resource-manager/v1/resources\x12\xa7\x01\n" +
 	"\x0eUpdateResource\x125.m8.platform.resourcemanager.v1.UpdateResourceRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\".\x82\xd3\xe4\x93\x02(:\x01*2#/resource-manager/v1/resources/{id}\x12\xbd\x01\n" +
-	"\x13ChangeResourceState\x12:.m8.platform.resourcemanager.v1.ChangeResourceStateRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\":\x82\xd3\xe4\x93\x024:\x01*\"//resource-manager/v1/resources/{id}:changeState\x12\xa6\x01\n" +
-	"\vMoveProject\x122.m8.platform.resourcemanager.v1.MoveProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\":\x82\xd3\xe4\x93\x024:\x01*\"//resource-manager/v1/projects/{project_id}:move\x12\xd2\x01\n" +
+	"\x13ChangeResourceState\x12:.m8.platform.resourcemanager.v1.ChangeResourceStateRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\":\x82\xd3\xe4\x93\x024:\x01*\"//resource-manager/v1/resources/{id}:changeState\x12\xd2\x01\n" +
 	"\x14ResolveResourceScope\x12;.m8.platform.resourcemanager.v1.ResolveResourceScopeRequest\x1a<.m8.platform.resourcemanager.v1.ResolveResourceScopeResponse\"?\x82\xd3\xe4\x93\x029\x127/resource-manager/v1/resources/{kind}/{id}:resolveScope\x12\xc6\x01\n" +
 	"\x18SetOrganizationGroupLink\x12?.m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest\x1a5.m8.platform.resourcemanager.v1.OrganizationGroupLink\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/resource-manager/v1/group-affiliations\x12\xe0\x01\n" +
 	"\x1bRemoveOrganizationGroupLink\x12B.m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest\x1a-.m8.platform.resourcemanager.v1.EmptyResponse\"N\x82\xd3\xe4\x93\x02H*F/resource-manager/v1/groups/{group_id}/organizations/{organization_id}\x12\xe1\x01\n" +
@@ -1470,7 +1378,7 @@ func file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescG
 	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescData
 }
 
-var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_goTypes = []any{
 	(*ResourceRecord)(nil),                     // 0: m8.platform.resourcemanager.v1.ResourceRecord
 	(*EmptyResponse)(nil),                      // 1: m8.platform.resourcemanager.v1.EmptyResponse
@@ -1480,89 +1388,83 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_goTypes =
 	(*ListResourcesResponse)(nil),              // 5: m8.platform.resourcemanager.v1.ListResourcesResponse
 	(*UpdateResourceRequest)(nil),              // 6: m8.platform.resourcemanager.v1.UpdateResourceRequest
 	(*ChangeResourceStateRequest)(nil),         // 7: m8.platform.resourcemanager.v1.ChangeResourceStateRequest
-	(*MoveProjectRequest)(nil),                 // 8: m8.platform.resourcemanager.v1.MoveProjectRequest
-	(*ResolveResourceScopeRequest)(nil),        // 9: m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
-	(*ResolveResourceScopeResponse)(nil),       // 10: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
-	(*SetOrganizationGroupLinkRequest)(nil),    // 11: m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
-	(*RemoveOrganizationGroupLinkRequest)(nil), // 12: m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
-	(*ListOrganizationGroupLinksRequest)(nil),  // 13: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
-	(*ListOrganizationGroupLinksResponse)(nil), // 14: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
-	(*SetEnvironmentBindingRequest)(nil),       // 15: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
-	(*RemoveEnvironmentBindingRequest)(nil),    // 16: m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
-	(*ListEnvironmentBindingsRequest)(nil),     // 17: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
-	(*ListEnvironmentBindingsResponse)(nil),    // 18: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
-	(*RegisterResourceKindRequest)(nil),        // 19: m8.platform.resourcemanager.v1.RegisterResourceKindRequest
-	(*Tenant)(nil),                             // 20: m8.platform.resourcemanager.v1.Tenant
-	(*OrganizationGroup)(nil),                  // 21: m8.platform.resourcemanager.v1.OrganizationGroup
-	(*Organization)(nil),                       // 22: m8.platform.resourcemanager.v1.Organization
-	(*Workspace)(nil),                          // 23: m8.platform.resourcemanager.v1.Workspace
-	(*Project)(nil),                            // 24: m8.platform.resourcemanager.v1.Project
-	(*Environment)(nil),                        // 25: m8.platform.resourcemanager.v1.Environment
-	(*WorkloadService)(nil),                    // 26: m8.platform.resourcemanager.v1.WorkloadService
-	(*ResourceDescriptor)(nil),                 // 27: m8.platform.resourcemanager.v1.ResourceDescriptor
-	(*OwnerScope)(nil),                         // 28: m8.platform.resourcemanager.v1.OwnerScope
-	(*fieldmaskpb.FieldMask)(nil),              // 29: google.protobuf.FieldMask
-	(ResourceState)(0),                         // 30: m8.platform.resourcemanager.v1.ResourceState
-	(*ResourceRef)(nil),                        // 31: m8.platform.resourcemanager.v1.ResourceRef
-	(*OrganizationGroupLink)(nil),              // 32: m8.platform.resourcemanager.v1.OrganizationGroupLink
-	(*EnvironmentBinding)(nil),                 // 33: m8.platform.resourcemanager.v1.EnvironmentBinding
-	(*ResourceKindPolicy)(nil),                 // 34: m8.platform.resourcemanager.v1.ResourceKindPolicy
+	(*ResolveResourceScopeRequest)(nil),        // 8: m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
+	(*ResolveResourceScopeResponse)(nil),       // 9: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
+	(*SetOrganizationGroupLinkRequest)(nil),    // 10: m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
+	(*RemoveOrganizationGroupLinkRequest)(nil), // 11: m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
+	(*ListOrganizationGroupLinksRequest)(nil),  // 12: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
+	(*ListOrganizationGroupLinksResponse)(nil), // 13: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
+	(*SetEnvironmentBindingRequest)(nil),       // 14: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
+	(*RemoveEnvironmentBindingRequest)(nil),    // 15: m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
+	(*ListEnvironmentBindingsRequest)(nil),     // 16: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
+	(*ListEnvironmentBindingsResponse)(nil),    // 17: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
+	(*RegisterResourceKindRequest)(nil),        // 18: m8.platform.resourcemanager.v1.RegisterResourceKindRequest
+	(*Tenant)(nil),                             // 19: m8.platform.resourcemanager.v1.Tenant
+	(*OrganizationGroup)(nil),                  // 20: m8.platform.resourcemanager.v1.OrganizationGroup
+	(*Organization)(nil),                       // 21: m8.platform.resourcemanager.v1.Organization
+	(*Workspace)(nil),                          // 22: m8.platform.resourcemanager.v1.Workspace
+	(*Environment)(nil),                        // 23: m8.platform.resourcemanager.v1.Environment
+	(*WorkloadService)(nil),                    // 24: m8.platform.resourcemanager.v1.WorkloadService
+	(*ResourceDescriptor)(nil),                 // 25: m8.platform.resourcemanager.v1.ResourceDescriptor
+	(*OwnerScope)(nil),                         // 26: m8.platform.resourcemanager.v1.OwnerScope
+	(*fieldmaskpb.FieldMask)(nil),              // 27: google.protobuf.FieldMask
+	(ResourceState)(0),                         // 28: m8.platform.resourcemanager.v1.ResourceState
+	(*ResourceRef)(nil),                        // 29: m8.platform.resourcemanager.v1.ResourceRef
+	(*OrganizationGroupLink)(nil),              // 30: m8.platform.resourcemanager.v1.OrganizationGroupLink
+	(*EnvironmentBinding)(nil),                 // 31: m8.platform.resourcemanager.v1.EnvironmentBinding
+	(*ResourceKindPolicy)(nil),                 // 32: m8.platform.resourcemanager.v1.ResourceKindPolicy
 }
 var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_depIdxs = []int32{
-	20, // 0: m8.platform.resourcemanager.v1.ResourceRecord.tenant:type_name -> m8.platform.resourcemanager.v1.Tenant
-	21, // 1: m8.platform.resourcemanager.v1.ResourceRecord.group:type_name -> m8.platform.resourcemanager.v1.OrganizationGroup
-	22, // 2: m8.platform.resourcemanager.v1.ResourceRecord.organization:type_name -> m8.platform.resourcemanager.v1.Organization
-	23, // 3: m8.platform.resourcemanager.v1.ResourceRecord.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
-	24, // 4: m8.platform.resourcemanager.v1.ResourceRecord.project:type_name -> m8.platform.resourcemanager.v1.Project
-	25, // 5: m8.platform.resourcemanager.v1.ResourceRecord.environment:type_name -> m8.platform.resourcemanager.v1.Environment
-	26, // 6: m8.platform.resourcemanager.v1.ResourceRecord.workload_service:type_name -> m8.platform.resourcemanager.v1.WorkloadService
-	27, // 7: m8.platform.resourcemanager.v1.ResourceRecord.descriptor:type_name -> m8.platform.resourcemanager.v1.ResourceDescriptor
-	0,  // 8: m8.platform.resourcemanager.v1.CreateResourceRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
-	28, // 9: m8.platform.resourcemanager.v1.ListResourcesRequest.owner:type_name -> m8.platform.resourcemanager.v1.OwnerScope
-	0,  // 10: m8.platform.resourcemanager.v1.ListResourcesResponse.resources:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
-	0,  // 11: m8.platform.resourcemanager.v1.UpdateResourceRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
-	29, // 12: m8.platform.resourcemanager.v1.UpdateResourceRequest.update_mask:type_name -> google.protobuf.FieldMask
-	30, // 13: m8.platform.resourcemanager.v1.ChangeResourceStateRequest.target_state:type_name -> m8.platform.resourcemanager.v1.ResourceState
-	28, // 14: m8.platform.resourcemanager.v1.MoveProjectRequest.new_owner:type_name -> m8.platform.resourcemanager.v1.OwnerScope
-	31, // 15: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse.ancestry:type_name -> m8.platform.resourcemanager.v1.ResourceRef
-	32, // 16: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse.links:type_name -> m8.platform.resourcemanager.v1.OrganizationGroupLink
-	33, // 17: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest.binding:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
-	31, // 18: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRef
-	33, // 19: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse.bindings:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
-	34, // 20: m8.platform.resourcemanager.v1.RegisterResourceKindRequest.policy:type_name -> m8.platform.resourcemanager.v1.ResourceKindPolicy
-	2,  // 21: m8.platform.resourcemanager.v1.ResourceManagerService.CreateResource:input_type -> m8.platform.resourcemanager.v1.CreateResourceRequest
-	3,  // 22: m8.platform.resourcemanager.v1.ResourceManagerService.GetResource:input_type -> m8.platform.resourcemanager.v1.GetResourceRequest
-	4,  // 23: m8.platform.resourcemanager.v1.ResourceManagerService.ListResources:input_type -> m8.platform.resourcemanager.v1.ListResourcesRequest
-	6,  // 24: m8.platform.resourcemanager.v1.ResourceManagerService.UpdateResource:input_type -> m8.platform.resourcemanager.v1.UpdateResourceRequest
-	7,  // 25: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:input_type -> m8.platform.resourcemanager.v1.ChangeResourceStateRequest
-	8,  // 26: m8.platform.resourcemanager.v1.ResourceManagerService.MoveProject:input_type -> m8.platform.resourcemanager.v1.MoveProjectRequest
-	9,  // 27: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:input_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
-	11, // 28: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
-	12, // 29: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
-	13, // 30: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:input_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
-	15, // 31: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
-	16, // 32: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
-	17, // 33: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:input_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
-	19, // 34: m8.platform.resourcemanager.v1.ResourceManagerService.RegisterResourceKind:input_type -> m8.platform.resourcemanager.v1.RegisterResourceKindRequest
-	0,  // 35: m8.platform.resourcemanager.v1.ResourceManagerService.CreateResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
-	0,  // 36: m8.platform.resourcemanager.v1.ResourceManagerService.GetResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
-	5,  // 37: m8.platform.resourcemanager.v1.ResourceManagerService.ListResources:output_type -> m8.platform.resourcemanager.v1.ListResourcesResponse
-	0,  // 38: m8.platform.resourcemanager.v1.ResourceManagerService.UpdateResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
-	0,  // 39: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
-	24, // 40: m8.platform.resourcemanager.v1.ResourceManagerService.MoveProject:output_type -> m8.platform.resourcemanager.v1.Project
-	10, // 41: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:output_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
-	32, // 42: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.OrganizationGroupLink
-	1,  // 43: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
-	14, // 44: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:output_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
-	33, // 45: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EnvironmentBinding
-	1,  // 46: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
-	18, // 47: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:output_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
-	34, // 48: m8.platform.resourcemanager.v1.ResourceManagerService.RegisterResourceKind:output_type -> m8.platform.resourcemanager.v1.ResourceKindPolicy
-	35, // [35:49] is the sub-list for method output_type
-	21, // [21:35] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	19, // 0: m8.platform.resourcemanager.v1.ResourceRecord.tenant:type_name -> m8.platform.resourcemanager.v1.Tenant
+	20, // 1: m8.platform.resourcemanager.v1.ResourceRecord.group:type_name -> m8.platform.resourcemanager.v1.OrganizationGroup
+	21, // 2: m8.platform.resourcemanager.v1.ResourceRecord.organization:type_name -> m8.platform.resourcemanager.v1.Organization
+	22, // 3: m8.platform.resourcemanager.v1.ResourceRecord.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
+	23, // 4: m8.platform.resourcemanager.v1.ResourceRecord.environment:type_name -> m8.platform.resourcemanager.v1.Environment
+	24, // 5: m8.platform.resourcemanager.v1.ResourceRecord.workload_service:type_name -> m8.platform.resourcemanager.v1.WorkloadService
+	25, // 6: m8.platform.resourcemanager.v1.ResourceRecord.descriptor:type_name -> m8.platform.resourcemanager.v1.ResourceDescriptor
+	0,  // 7: m8.platform.resourcemanager.v1.CreateResourceRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
+	26, // 8: m8.platform.resourcemanager.v1.ListResourcesRequest.owner:type_name -> m8.platform.resourcemanager.v1.OwnerScope
+	0,  // 9: m8.platform.resourcemanager.v1.ListResourcesResponse.resources:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
+	0,  // 10: m8.platform.resourcemanager.v1.UpdateResourceRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
+	27, // 11: m8.platform.resourcemanager.v1.UpdateResourceRequest.update_mask:type_name -> google.protobuf.FieldMask
+	28, // 12: m8.platform.resourcemanager.v1.ChangeResourceStateRequest.target_state:type_name -> m8.platform.resourcemanager.v1.ResourceState
+	29, // 13: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse.ancestry:type_name -> m8.platform.resourcemanager.v1.ResourceRef
+	30, // 14: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse.links:type_name -> m8.platform.resourcemanager.v1.OrganizationGroupLink
+	31, // 15: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest.binding:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
+	29, // 16: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRef
+	31, // 17: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse.bindings:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
+	32, // 18: m8.platform.resourcemanager.v1.RegisterResourceKindRequest.policy:type_name -> m8.platform.resourcemanager.v1.ResourceKindPolicy
+	2,  // 19: m8.platform.resourcemanager.v1.ResourceManagerService.CreateResource:input_type -> m8.platform.resourcemanager.v1.CreateResourceRequest
+	3,  // 20: m8.platform.resourcemanager.v1.ResourceManagerService.GetResource:input_type -> m8.platform.resourcemanager.v1.GetResourceRequest
+	4,  // 21: m8.platform.resourcemanager.v1.ResourceManagerService.ListResources:input_type -> m8.platform.resourcemanager.v1.ListResourcesRequest
+	6,  // 22: m8.platform.resourcemanager.v1.ResourceManagerService.UpdateResource:input_type -> m8.platform.resourcemanager.v1.UpdateResourceRequest
+	7,  // 23: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:input_type -> m8.platform.resourcemanager.v1.ChangeResourceStateRequest
+	8,  // 24: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:input_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
+	10, // 25: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
+	11, // 26: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
+	12, // 27: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:input_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
+	14, // 28: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
+	15, // 29: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
+	16, // 30: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:input_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
+	18, // 31: m8.platform.resourcemanager.v1.ResourceManagerService.RegisterResourceKind:input_type -> m8.platform.resourcemanager.v1.RegisterResourceKindRequest
+	0,  // 32: m8.platform.resourcemanager.v1.ResourceManagerService.CreateResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
+	0,  // 33: m8.platform.resourcemanager.v1.ResourceManagerService.GetResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
+	5,  // 34: m8.platform.resourcemanager.v1.ResourceManagerService.ListResources:output_type -> m8.platform.resourcemanager.v1.ListResourcesResponse
+	0,  // 35: m8.platform.resourcemanager.v1.ResourceManagerService.UpdateResource:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
+	0,  // 36: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
+	9,  // 37: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:output_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
+	30, // 38: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.OrganizationGroupLink
+	1,  // 39: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
+	13, // 40: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:output_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
+	31, // 41: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EnvironmentBinding
+	1,  // 42: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
+	17, // 43: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:output_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
+	32, // 44: m8.platform.resourcemanager.v1.ResourceManagerService.RegisterResourceKind:output_type -> m8.platform.resourcemanager.v1.ResourceKindPolicy
+	32, // [32:45] is the sub-list for method output_type
+	19, // [19:32] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_resource_manager_service_proto_init() }
@@ -1570,20 +1472,18 @@ func file_m8_platform_resourcemanager_v1_resource_manager_service_proto_init() {
 	if File_m8_platform_resourcemanager_v1_resource_manager_service_proto != nil {
 		return
 	}
-	file_m8_platform_resourcemanager_v1_resource_proto_init()
-	file_m8_platform_resourcemanager_v1_tenant_proto_init()
-	file_m8_platform_resourcemanager_v1_organization_group_proto_init()
-	file_m8_platform_resourcemanager_v1_organization_proto_init()
-	file_m8_platform_resourcemanager_v1_workspace_proto_init()
-	file_m8_platform_resourcemanager_v1_project_proto_init()
 	file_m8_platform_resourcemanager_v1_environment_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_group_proto_init()
+	file_m8_platform_resourcemanager_v1_resource_proto_init()
 	file_m8_platform_resourcemanager_v1_service_proto_init()
+	file_m8_platform_resourcemanager_v1_tenant_proto_init()
+	file_m8_platform_resourcemanager_v1_workspace_proto_init()
 	file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[0].OneofWrappers = []any{
 		(*ResourceRecord_Tenant)(nil),
 		(*ResourceRecord_Group)(nil),
 		(*ResourceRecord_Organization)(nil),
 		(*ResourceRecord_Workspace)(nil),
-		(*ResourceRecord_Project)(nil),
 		(*ResourceRecord_Environment)(nil),
 		(*ResourceRecord_WorkloadService)(nil),
 		(*ResourceRecord_Descriptor_)(nil),
@@ -1594,7 +1494,7 @@ func file_m8_platform_resourcemanager_v1_resource_manager_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

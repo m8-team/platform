@@ -9,7 +9,7 @@
 M8 operates for independent companies, optional groups/holdings, external providers and users with temporary grants. The five independent axes are:
 
 1. **Tenancy:** Tenant/Account is the customer/subscription and billing boundary.
-2. **Ownership:** Organization is the mandatory security and ownership root; optional Workspace/Project organize work and manage resources.
+2. **Ownership:** Organization is the mandatory security and ownership root; optional Workspace scopes organize work and manage resources.
 3. **Execution:** Environment is an Organization-owned registry entity and **NOT** a containment parent. Preview environments may expire.
 4. **Deployment:** ResourceManager EnvironmentBinding associates logical resources/versions with environments. Delivery owns rollout/status, module implementations own configurations and secrets.
 5. **Authorization:** Identity and Workforce own principals/relationships. Access owns all permissions, grants, risk, delegation and real-time access decisions.
@@ -22,10 +22,9 @@ M8 operates for independent companies, optional groups/holdings, external provid
 | Group | Tenant | optional, not tenant security inheritance |
 | Organization | Tenant | Group membership is separate association |
 | Workspace | Organization | optional |
-| Project | Organization OR Workspace | optional |
 | Environment | Organization | not a parent of arbitrary business resources |
-| WorkloadService | Workspace OR Project | logical workload independent of environment |
-| ResourceDescriptor (Agent/Workflow/Collection/Connection/etc) | Organization, Workspace OR Project **subject to registered policy** | module owns actual data |
+| WorkloadService | Workspace | logical workload independent of environment |
+| ResourceDescriptor (Agent/Workflow/Collection/Connection/etc) | Organization OR Workspace **subject to registered policy** | module owns actual data |
 | EnvironmentBinding | ResourceRef + Environment | relation only; server verifies matching owning Organization |
 | Deployment | ResourceRef + Environment | Delivery owns actual deployment / runtime state |
 
@@ -41,7 +40,7 @@ be namespaced, such as `provisioning.database`. Neither a reference nor knowledg
 of its UUID grants access: resolution must enforce the caller's tenant and
 authorization scope. External provider identifiers are not catalog UUIDs.
 
-When an `OwnerScope` is present, exactly one Organization, Workspace or Project
+When an `OwnerScope` is present, exactly one Organization or Workspace
 UUID is required. An optional scope filter can be omitted, but `{}` is invalid.
 The application still checks the selected owner's existence, tenant, lifecycle
 and allowed placement; the oneof cannot establish those facts.
@@ -170,12 +169,11 @@ Requester/approver/revoker are server-authenticated, not client-authored values.
 
 ## 6. Resource Manager API
 
-The new `ResourceManagerService` has typed Create/Get/List/Update/ChangeState plus MoveProject, ResolveResourceScope, Group link operations, Environment bindings and resource-kind registration.
+The new `ResourceManagerService` has typed Create/Get/List/Update/ChangeState plus ResolveResourceScope, OrganizationGroup link operations, Environment bindings and resource-kind registration.
 
 **Invariants:**
 - IDs are server-generated and immutable.
 - Create mutators are idempotent; expected revisions guard updates and deletes.
-- Changing Project owner requires a dedicated MoveProject with source/destination checks.
 - KindPolicy constrains where module-owned resource descriptors can live.
 - No hierarchy cycles, orphaned resources, hidden default Workspaces or Projects.
 - Child creation only under active parents.
@@ -189,7 +187,7 @@ The wire-format protobuf contracts are not themselves a full enforcement mechani
 
 ## 7. Contract files
 
-- Resource Manager: `resource.proto`, `tenant.proto`, `group.proto`, `organization.proto`, `workspace.proto`, `project.proto`, `environment.proto`, `service.proto`, `resource_manager_service.proto`.
+- Resource Manager: `resource.proto`, `tenant.proto`, `organization_group.proto`, `organization.proto`, `workspace.proto`, `environment.proto`, `service.proto`, `resource_manager_service.proto`.
 - Identity: `identity/v1/principal.proto`, `identity_directory_service.proto`.
 - Workforce: `workforce/v1/engagement.proto`, `workforce_service.proto`.
 - Access: `access/v1/access_grant.proto`, `access_grant_service.proto` (existing AuthZEN decision API remains).
@@ -202,7 +200,7 @@ The old `OrganizationService`, `WorkspaceService`, `ServiceService` and immutabl
 
 1. Run `buf lint` and `buf generate` in a connected CI/build environment. Review generated gateway and OpenAPI output; add validation to all newly introduced request fields.
 2. Regenerate/replace the separate `github.com/m8-team/go-genproto` module and update M8 Platform imports. Remove stale `api/generate/go` outputs from deleted service RPCs.
-3. Replace the current OrganizationService Go implementation with the new ResourceManagerService handlers and implement Workspace/Project/Environment/Tenant/Group/ResourceCatalog.
+3. Replace the current OrganizationService Go implementation with the new ResourceManagerService handlers and implement Workspace/Environment/Tenant/OrganizationGroup/ResourceCatalog.
 4. Implement YDB schema changes, lifecycle, parent indexes, server-side tenant/scope filtering, transactions, outbox/idempotency, and Access/Audit adapters.
 5. Implement Identity/Workforce/AccessGrant/SharedServices handlers in their own bounded contexts.
 6. Execute an explicit **breaking** migration (schema, generated SDKs, clients, docs, events, CI baseline). There is **no promise of old client compatibility**.
@@ -210,10 +208,10 @@ The old `OrganizationService`, `WorkspaceService`, `ServiceService` and immutabl
 
 ## 9. Acceptance criteria
 
-- A single-company Tenant has one Organization and no Group, Workspace or Project.
+- A single-company Tenant has one Organization and no OrganizationGroup or Workspace.
 - Holding Tenant has multiple Organizations; Group is optional; affiliation grants no data access.
-- AgentDefinition/Workflow directly owned by Organization requires no dummy Workspace/Project.
-- Engineering Organization can create Workspace -> Project -> logical WorkloadService.
+- AgentDefinition/Workflow directly owned by Organization requires no dummy Workspace.
+- Engineering Organization can create Workspace -> logical WorkloadService.
 - Testing & Production are distinct Environments with separate bindings, credentials and approval.
 - Contractor with NO OrganizationMembership can temporarily access one project via approved AccessGrant.
 - Support operator employed by Provider can access Consumer resource only for an active case with an unexpired grant, not its sibling resources.
@@ -223,7 +221,7 @@ The old `OrganizationService`, `WorkspaceService`, `ServiceService` and immutabl
 
 ## 10. Module catalog and installation
 
-`ModuleRegistry` owns `ModuleDefinition`, immutable `ModuleVersion`, Tenant-scoped `ModuleEntitlement`, and `ModuleInstallation` at an Organization/Workspace/Project scope. The module remains the owner of its business objects. An entitlement means the tenant may install the module, **not** that all users gain rights. Installations require an active entitlement, kind-aware placement and Access permissions. Per-environment rollout is handled through the declared EnvironmentBinding and Delivery workflows, not by duplicating ModuleDefinitions.
+`ModuleRegistry` owns `ModuleDefinition`, immutable `ModuleVersion`, Tenant-scoped `ModuleEntitlement`, and `ModuleInstallation` at an Organization/Workspace scope. The module remains the owner of its business objects. An entitlement means the tenant may install the module, **not** that all users gain rights. Installations require an active entitlement, kind-aware placement and Access permissions. Per-environment rollout is handled through the declared EnvironmentBinding and Delivery workflows, not by duplicating ModuleDefinitions.
 
 Contract: `api/proto/m8/platform/modules/v1/module.proto` and `module_registry_service.proto`.
 

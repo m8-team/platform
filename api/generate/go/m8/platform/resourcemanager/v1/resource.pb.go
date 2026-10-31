@@ -141,7 +141,7 @@ func (x *ResourceRef) GetId() string {
 	return ""
 }
 
-// Exactly one immediate Organization, Workspace or Project owner. The server
+// Exactly one immediate Organization or Workspace owner. The server
 // derives the owning Organization and checks the resource's placement policy.
 // OrganizationGroup affiliations and Environment bindings are not containment edges.
 // A field using OwnerScope may be optional, but a supplied scope cannot be empty.
@@ -151,7 +151,6 @@ type OwnerScope struct {
 	//
 	//	*OwnerScope_OrganizationId
 	//	*OwnerScope_WorkspaceId
-	//	*OwnerScope_ProjectId
 	Owner         isOwnerScope_Owner `protobuf_oneof:"owner"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -212,15 +211,6 @@ func (x *OwnerScope) GetWorkspaceId() string {
 	return ""
 }
 
-func (x *OwnerScope) GetProjectId() string {
-	if x != nil {
-		if x, ok := x.Owner.(*OwnerScope_ProjectId); ok {
-			return x.ProjectId
-		}
-	}
-	return ""
-}
-
 type isOwnerScope_Owner interface {
 	isOwnerScope_Owner()
 }
@@ -235,16 +225,9 @@ type OwnerScope_WorkspaceId struct {
 	WorkspaceId string `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3,oneof"`
 }
 
-type OwnerScope_ProjectId struct {
-	// Own the resource in this Project, subject to its Organization's scope.
-	ProjectId string `protobuf:"bytes,3,opt,name=project_id,json=projectId,proto3,oneof"`
-}
-
 func (*OwnerScope_OrganizationId) isOwnerScope_Owner() {}
 
 func (*OwnerScope_WorkspaceId) isOwnerScope_Owner() {}
-
-func (*OwnerScope_ProjectId) isOwnerScope_Owner() {}
 
 // Common catalog identity, display metadata and server-managed lifecycle.
 // Handlers ignore output-only input fields and apply field masks before
@@ -541,14 +524,13 @@ const file_m8_platform_resourcemanager_v1_resource_proto_rawDesc = "" +
 	"\vResourceRef\x12\x1e\n" +
 	"\x04kind\x18\x01 \x01(\tB\n" +
 	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04kind\x12\x1b\n" +
-	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\xab\x01\n" +
+	"\x02id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x92\x01\n" +
 	"\n" +
 	"OwnerScope\x123\n" +
 	"\x0forganization_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x0eorganizationId\x12-\n" +
-	"\fworkspace_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\vworkspaceId\x12)\n" +
-	"\n" +
-	"project_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\tprojectIdB\x0e\n" +
-	"\x05owner\x12\x05\xbaH\x02\b\x01\"\xd8\x04\n" +
+	"\fworkspace_id\x18\x02 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\vworkspaceIdB\x0e\n" +
+	"\x05owner\x12\x05\xbaH\x02\b\x01J\x04\b\x03\x10\x04R\n" +
+	"project_id\"\xd8\x04\n" +
 	"\x10ResourceMetadata\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xe0A\b\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x02id\x12\x1f\n" +
 	"\x04name\x18\x02 \x01(\tB\v\xe0A\x01\xbaH\x05r\x03\x18\x80\x02R\x04name\x12-\n" +
@@ -635,7 +617,6 @@ func file_m8_platform_resourcemanager_v1_resource_proto_init() {
 	file_m8_platform_resourcemanager_v1_resource_proto_msgTypes[1].OneofWrappers = []any{
 		(*OwnerScope_OrganizationId)(nil),
 		(*OwnerScope_WorkspaceId)(nil),
-		(*OwnerScope_ProjectId)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

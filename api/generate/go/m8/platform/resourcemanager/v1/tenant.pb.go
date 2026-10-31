@@ -7,6 +7,7 @@
 package resourcemanager
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -22,14 +23,11 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Tenant is a platform customer/account and billing boundary.
-// It is NOT an automatic cross-Organization permission grant.
 type Tenant struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Metadata          *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	BillingAccountRef string                 `protobuf:"bytes,2,opt,name=billing_account_ref,json=billingAccountRef,proto3" json:"billing_account_ref,omitempty"` // opaque external reference; billing owns the record.
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Tenant) Reset() {
@@ -69,21 +67,13 @@ func (x *Tenant) GetMetadata() *ResourceMetadata {
 	return nil
 }
 
-func (x *Tenant) GetBillingAccountRef() string {
-	if x != nil {
-		return x.BillingAccountRef
-	}
-	return ""
-}
-
 var File_m8_platform_resourcemanager_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"+m8/platform/resourcemanager/v1/tenant.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\x8b\x01\n" +
-	"\x06Tenant\x12Q\n" +
-	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\x03\xe0A\x02R\bmetadata\x12.\n" +
-	"\x13billing_account_ref\x18\x02 \x01(\tR\x11billingAccountRefBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"+m8/platform/resourcemanager/v1/tenant.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"a\n" +
+	"\x06Tenant\x12W\n" +
+	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bmetadataBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_tenant_proto_rawDescOnce sync.Once

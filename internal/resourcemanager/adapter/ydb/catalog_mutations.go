@@ -136,44 +136,6 @@ func (c *Catalog) ChangeState(ctx context.Context, kind v1engine.Kind, id string
 	})
 	return out, err
 }
-func (c *Catalog) MoveProject(ctx context.Context, id string, parent v1engine.Owner, rev int64) (v1engine.Record, error) {
-	if !v1engine.AllowedParent(v1engine.Project, parent.Kind) || parent.ID == "" || rev <= 0 {
-		return v1engine.Record{}, v1engine.ErrInvalid
-	}
-	var out v1engine.Record
-	err := c.transaction(ctx, func(tx *sql.Tx) error {
-		r, err := c.get(ctx, tx, v1engine.Project, id)
-		if err != nil {
-			return err
-		}
-		p, err := c.get(ctx, tx, parent.Kind, parent.ID)
-		if err != nil {
-			return err
-		}
-		if r.Revision != rev || r.State != "ACTIVE" || p.State != "ACTIVE" {
-			return v1engine.ErrConflict
-		}
-		org := p.OrganizationID
-		if p.Kind == v1engine.Organization {
-			org = p.ID
-		}
-		if org != r.OrganizationID || r.TenantID != p.TenantID {
-			return v1engine.ErrInvalid
-		}
-		r.Owner = parent
-		r.Revision++
-		r.UpdatedAt = time.Now().UTC()
-		if err = c.save(ctx, tx, r); err != nil {
-			return err
-		}
-		if err = c.event(ctx, tx, r, "m8.resourcemanager.resource.moved.v1"); err != nil {
-			return err
-		}
-		out = r
-		return nil
-	})
-	return out, err
-}
 func (c *Catalog) Resolve(ctx context.Context, kind v1engine.Kind, id string) ([]v1engine.Owner, error) {
 	var out []v1engine.Owner
 	visited := map[string]bool{}

@@ -24,7 +24,6 @@ type ResourceBackend interface {
 	CloseRelationship(context.Context, string, string, int64, int64, string) (v1engine.OrganizationRelationship, error)
 	Update(context.Context, v1engine.Kind, string, int64, string, string, map[string]string) (v1engine.Record, error)
 	ChangeState(context.Context, v1engine.Kind, string, int64, string) (v1engine.Record, error)
-	MoveProject(context.Context, string, v1engine.Owner, int64) (v1engine.Record, error)
 	Resolve(context.Context, v1engine.Kind, string) ([]v1engine.Owner, error)
 	SetOrganizationGroupLink(context.Context, string, string) error
 	RemoveOrganizationGroupLink(context.Context, string, string) error
@@ -55,9 +54,6 @@ func (b memoryResourceBackend) Update(_ context.Context, k v1engine.Kind, id str
 }
 func (b memoryResourceBackend) ChangeState(_ context.Context, k v1engine.Kind, id string, rev int64, state string) (v1engine.Record, error) {
 	return b.store.ChangeState(k, id, rev, state)
-}
-func (b memoryResourceBackend) MoveProject(_ context.Context, id string, o v1engine.Owner, rev int64) (v1engine.Record, error) {
-	return b.store.MoveProject(id, o, rev)
 }
 func (b memoryResourceBackend) Resolve(_ context.Context, k v1engine.Kind, id string) ([]v1engine.Owner, error) {
 	return b.store.Resolve(k, id)

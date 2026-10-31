@@ -68,8 +68,6 @@ func owner(in *pb.OwnerScope) v1engine.Owner {
 		return v1engine.Owner{Kind: v1engine.Organization, ID: in.GetOrganizationId()}
 	case *pb.OwnerScope_WorkspaceId:
 		return v1engine.Owner{Kind: v1engine.Workspace, ID: in.GetWorkspaceId()}
-	case *pb.OwnerScope_ProjectId:
-		return v1engine.Owner{Kind: v1engine.Project, ID: in.GetProjectId()}
 	}
 	return v1engine.Owner{}
 }
@@ -79,8 +77,6 @@ func ownerProto(o v1engine.Owner) *pb.OwnerScope {
 		return &pb.OwnerScope{Owner: &pb.OwnerScope_OrganizationId{OrganizationId: o.ID}}
 	case v1engine.Workspace:
 		return &pb.OwnerScope{Owner: &pb.OwnerScope_WorkspaceId{WorkspaceId: o.ID}}
-	case v1engine.Project:
-		return &pb.OwnerScope{Owner: &pb.OwnerScope_ProjectId{ProjectId: o.ID}}
 	}
 	return nil
 }
@@ -110,11 +106,6 @@ func fromRecord(in *pb.ResourceRecord) (v1engine.Record, error) {
 		r.Kind = v1engine.Workspace
 		m = x.GetMetadata()
 		r.Owner = v1engine.Owner{Kind: v1engine.Organization, ID: x.GetOrganizationId()}
-	case in.GetProject() != nil:
-		x := in.GetProject()
-		r.Kind = v1engine.Project
-		m = x.GetMetadata()
-		r.Owner = owner(x.GetOwner())
 	case in.GetEnvironment() != nil:
 		x := in.GetEnvironment()
 		r.Kind = v1engine.Environment
@@ -153,8 +144,6 @@ func toRecord(r v1engine.Record) *pb.ResourceRecord {
 		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Organization{Organization: &pb.Organization{Metadata: meta, TenantId: r.TenantID}}}
 	case v1engine.Workspace:
 		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Workspace{Workspace: &pb.Workspace{Metadata: meta, OrganizationId: r.OrganizationID}}}
-	case v1engine.Project:
-		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Project{Project: &pb.Project{Metadata: meta, Owner: ownerProto(r.Owner), OwningOrganizationId: r.OrganizationID}}}
 	case v1engine.Environment:
 		envKind := "ENVIRONMENT_KIND_" + strings.ToUpper(r.EnvironmentKey)
 		switch envKind {
@@ -288,19 +277,6 @@ func (s *ResourceServer) ChangeResourceState(ctx context.Context, req *pb.Change
 		return nil, asErr(e)
 	}
 	return toRecord(v), nil
-}
-func (s *ResourceServer) MoveProject(ctx context.Context, req *pb.MoveProjectRequest) (*pb.Project, error) {
-	if e := s.guard(); e != nil {
-		return nil, e
-	}
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "request is required")
-	}
-	v, e := s.store.MoveProject(ctx, req.GetProjectId(), owner(req.GetNewOwner()), req.GetExpectedRevision())
-	if e != nil {
-		return nil, asErr(e)
-	}
-	return toRecord(v).GetProject(), nil
 }
 func (s *ResourceServer) ResolveResourceScope(ctx context.Context, req *pb.ResolveResourceScopeRequest) (*pb.ResolveResourceScopeResponse, error) {
 	if e := s.guard(); e != nil {

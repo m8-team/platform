@@ -27,7 +27,7 @@ All four are committed or rolled back together. Retrying the same request return
 ### Related persistence
 
 - All resource creations use the same transactional idempotency/outbox protocol.
-- Update, state changes and MoveProject use serializable revision checks.
+- Updates and state changes use serializable revision checks.
 - Cross-organization project moves and environment bindings are prohibited.
 - Environment key uniqueness is materialized in its own YDB table.
 - Group affiliation never grants authorization.

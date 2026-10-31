@@ -45,9 +45,9 @@ To run a separate, loopback-only standard-library prototype (independent of grpc
 
 ## Implemented on development memory adapter
 
-- Create/Get/Update/ChangeState for Tenant, OrganizationGroup, Organization, Workspace, Project, Environment and WorkloadService.
+- Create/Get/Update/ChangeState for Tenant, OrganizationGroup, Organization, Workspace, Environment and WorkloadService.
 - Scoped listing of Organization-owned objects (simple query mode).
-- Explicit Project move within one Organization and canonical ancestor resolution.
+- Canonical ancestor resolution across Organization and Workspace scopes.
 - Group-to-Organization affiliation, association removal and listing.
 - EnvironmentBinding creation/update, lookup by resource/environment, revision-aware removal.
 - Blocking deletion of resources with active children.

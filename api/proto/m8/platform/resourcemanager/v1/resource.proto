@@ -27,11 +27,14 @@ message ResourceRef {
   ];
 }
 
-// Exactly one immediate Organization, Workspace or Project owner. The server
+// Exactly one immediate Organization or Workspace owner. The server
 // derives the owning Organization and checks the resource's placement policy.
 // OrganizationGroup affiliations and Environment bindings are not containment edges.
 // A field using OwnerScope may be optional, but a supplied scope cannot be empty.
 message OwnerScope {
+  reserved 3;
+  reserved "project_id";
+
   oneof owner {
     option (buf.validate.oneof).required = true;
 
@@ -39,8 +42,6 @@ message OwnerScope {
     string organization_id = 1 [(buf.validate.field).string.uuid = true];
     // Own the resource in this Workspace, subject to its Organization's scope.
     string workspace_id = 2 [(buf.validate.field).string.uuid = true];
-    // Own the resource in this Project, subject to its Organization's scope.
-    string project_id = 3 [(buf.validate.field).string.uuid = true];
   }
 }
 

@@ -163,30 +163,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/EmptyResponse'
-    /resource-manager/v1/projects/{projectId}:move:
-        post:
-            tags:
-                - ResourceManagerService
-            operationId: ResourceManagerService_MoveProject
-            parameters:
-                - name: projectId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/MoveProjectRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/Project'
     /resource-manager/v1/resource-kinds:
         post:
             tags:
@@ -227,11 +203,6 @@ paths:
                 - name: owner.workspaceId
                   in: query
                   description: Own the resource in this Workspace, subject to its Organization's scope.
-                  schema:
-                    type: string
-                - name: owner.projectId
-                  in: query
-                  description: Own the resource in this Project, subject to its Organization's scope.
                   schema:
                     type: string
                 - name: includeDescendants
@@ -537,22 +508,6 @@ components:
                         $ref: '#/components/schemas/ResourceRecord'
                 nextPageToken:
                     type: string
-        MoveProjectRequest:
-            required:
-                - projectId
-                - newOwner
-                - expectedRevision
-                - idempotencyKey
-            type: object
-            properties:
-                projectId:
-                    type: string
-                newOwner:
-                    $ref: '#/components/schemas/OwnerScope'
-                expectedRevision:
-                    type: string
-                idempotencyKey:
-                    type: string
         Organization:
             required:
                 - metadata
@@ -565,7 +520,7 @@ components:
                     type: string
             description: |-
                 Organization is the mandatory ownership/security root within a Tenant.
-                 No OrganizationGroup is required; legal entity profile is separately owned.
+                 No OrganizationGroup is required.
         OrganizationGroup:
             required:
                 - metadata
@@ -605,30 +560,11 @@ components:
                 workspaceId:
                     type: string
                     description: Own the resource in this Workspace, subject to its Organization's scope.
-                projectId:
-                    type: string
-                    description: Own the resource in this Project, subject to its Organization's scope.
             description: |-
-                Exactly one immediate Organization, Workspace or Project owner. The server
+                Exactly one immediate Organization or Workspace owner. The server
                  derives the owning Organization and checks the resource's placement policy.
                  OrganizationGroup affiliations and Environment bindings are not containment edges.
                  A field using OwnerScope may be optional, but a supplied scope cannot be empty.
-        Project:
-            required:
-                - metadata
-                - owner
-            type: object
-            properties:
-                metadata:
-                    $ref: '#/components/schemas/ResourceMetadata'
-                owner:
-                    $ref: '#/components/schemas/OwnerScope'
-                owningOrganizationId:
-                    readOnly: true
-                    type: string
-            description: |-
-                Project may belong directly to an Organization or to a Workspace.
-                 A move is an explicit authorized transaction (never an ordinary update).
         RegisterResourceKindRequest:
             required:
                 - policy
@@ -778,8 +714,6 @@ components:
                     $ref: '#/components/schemas/Organization'
                 workspace:
                     $ref: '#/components/schemas/Workspace'
-                project:
-                    $ref: '#/components/schemas/Project'
                 environment:
                     $ref: '#/components/schemas/Environment'
                 workloadService:
@@ -855,11 +789,6 @@ components:
             properties:
                 metadata:
                     $ref: '#/components/schemas/ResourceMetadata'
-                billingAccountRef:
-                    type: string
-            description: |-
-                Tenant is a platform customer/account and billing boundary.
-                 It is NOT an automatic cross-Organization permission grant.
         UpdateResourceRequest:
             required:
                 - id
@@ -905,9 +834,17 @@ components:
             type: object
             properties:
                 metadata:
-                    $ref: '#/components/schemas/ResourceMetadata'
+                    allOf:
+                        - $ref: '#/components/schemas/ResourceMetadata'
+                    description: Identity, display metadata, labels, lifecycle and optimistic concurrency revision.
                 organizationId:
                     type: string
-            description: Optional collaboration/security scope within an Organization.
+                    description: |-
+                        UUID of the owning Organization. The owner is fixed for the Workspace
+                         lifetime; moving resources between Workspaces does not move the Workspace.
+            description: |-
+                Workspace is an optional resource ownership and collaboration scope within
+                 an Organization. It is a containment boundary and grants no access by itself;
+                 authorization policies and permissions are owned by M8 Access.
 tags:
     - name: ResourceManagerService

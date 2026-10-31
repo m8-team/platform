@@ -23,9 +23,8 @@ func TestOrganizationHierarchyAndEnvironmentIsolation(t *testing.T) {
 	if err := s.SetOrganizationGroupLink(group.ID, a.ID); err != nil {
 		t.Fatal(err)
 	}
-	project := must(t, s, Record{Kind: Project, Name: "OMS", Owner: Owner{Organization, a.ID}}, "project")
 	ws := must(t, s, Record{Kind: Workspace, Name: "Engineering", Owner: Owner{Organization, a.ID}}, "ws")
-	_ = must(t, s, Record{Kind: Project, Name: "Pricing", Owner: Owner{Workspace, ws.ID}}, "project2")
+	service := must(t, s, Record{Kind: WorkloadService, Name: "OMS", Owner: Owner{Workspace, ws.ID}}, "service")
 	if _, err := s.Create(Record{Kind: Environment, Name: "Invalid", Owner: Owner{Workspace, ws.ID}, EnvironmentKey: "testing"}, "bad"); !errors.Is(err, ErrInvalid) {
 		t.Fatalf("invalid parent: %v", err)
 	}
@@ -38,12 +37,6 @@ func TestOrganizationHierarchyAndEnvironmentIsolation(t *testing.T) {
 	if _, err := s.SetBinding(Owner{Descriptor, agent.ID}, envA.ID, "v1", ""); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.MoveProject(project.ID, Owner{Workspace, ws.ID}, 1); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := s.MoveProject(project.ID, Owner{Organization, b.ID}, 2); !errors.Is(err, ErrInvalid) {
-		t.Fatalf("cross-organization move: %v", err)
-	}
 	if _, err := s.ChangeState(Organization, a.ID, 1, "DELETED"); !errors.Is(err, ErrConflict) {
 		t.Fatalf("parent deletion: %v", err)
 	}
@@ -54,7 +47,7 @@ func TestOrganizationHierarchyAndEnvironmentIsolation(t *testing.T) {
 	if _, err := s.List("", ""); !errors.Is(err, ErrInvalid) {
 		t.Fatalf("unscoped list: %v", err)
 	}
-	ancestry, err := s.Resolve(Project, project.ID)
+	ancestry, err := s.Resolve(WorkloadService, service.ID)
 	if err != nil || len(ancestry) != 4 {
 		t.Fatalf("ancestry: %+v %v", ancestry, err)
 	}
