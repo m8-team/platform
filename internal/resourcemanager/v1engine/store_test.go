@@ -19,8 +19,8 @@ func TestOrganizationHierarchyAndEnvironmentIsolation(t *testing.T) {
 	tenant := must(t, s, Record{Kind: Tenant, Name: "Account"}, "tenant")
 	a := must(t, s, Record{Kind: Organization, Name: "Retail", Owner: Owner{Tenant, tenant.ID}}, "orga")
 	b := must(t, s, Record{Kind: Organization, Name: "Logistics", Owner: Owner{Tenant, tenant.ID}}, "orgb")
-	group := must(t, s, Record{Kind: Group, Name: "Holding", Owner: Owner{Tenant, tenant.ID}}, "group")
-	if err := s.SetGroupLink(group.ID, a.ID); err != nil {
+	group := must(t, s, Record{Kind: OrganizationGroup, Name: "Holding", Owner: Owner{Tenant, tenant.ID}}, "group")
+	if err := s.SetOrganizationGroupLink(group.ID, a.ID); err != nil {
 		t.Fatal(err)
 	}
 	project := must(t, s, Record{Kind: Project, Name: "OMS", Owner: Owner{Organization, a.ID}}, "project")
@@ -66,14 +66,14 @@ func TestOrganizationHierarchyAndEnvironmentIsolation(t *testing.T) {
 func TestRevisionAndState(t *testing.T) {
 	s := NewStore()
 	r := must(t, s, Record{Kind: Tenant, Name: "Account"}, "1")
-	if _, err := s.Update(Tenant, r.ID, 0, "Updated", ""); !errors.Is(err, ErrInvalid) {
+	if _, err := s.Update(Tenant, r.ID, 0, "Updated", "", nil); !errors.Is(err, ErrInvalid) {
 		t.Fatal(err)
 	}
-	next, err := s.Update(Tenant, r.ID, 1, "Updated", "")
+	next, err := s.Update(Tenant, r.ID, 1, "Updated", "", nil)
 	if err != nil || next.Revision != 2 {
 		t.Fatal(next, err)
 	}
-	if _, err := s.Update(Tenant, r.ID, 1, "Stale", ""); !errors.Is(err, ErrConflict) {
+	if _, err := s.Update(Tenant, r.ID, 1, "Stale", "", nil); !errors.Is(err, ErrConflict) {
 		t.Fatal(err)
 	}
 }

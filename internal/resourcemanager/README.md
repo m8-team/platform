@@ -8,7 +8,7 @@ The new protobuf contracts for the **replacement v1** are in `api/proto/m8/platf
 
 ## What Resource Manager owns
 
-- Tenant (account metadata), independent Organization, optional Group affiliation
+- Tenant (account metadata), independent Organization, optional OrganizationGroup affiliation
 - Optional Workspace and Project management scopes
 - Organization Environment registry (prod/staging/dev/test/preview)
 - Logical WorkloadService catalog records
@@ -26,7 +26,7 @@ The new protobuf contracts for the **replacement v1** are in `api/proto/m8/platf
 
 ## Required invariants
 
-Exactly one owner scope for each tenant-owned resource and one server-derived owning Organization. No mandatory Workspace/Project. Group links are business affiliations and confer no permissions. Environment is not a resource-container parent. All mutation operations need idempotency, expected revisions, authorization, audit and transactionally persisted domain events. Listing applies per-resource authorization before paging.
+Exactly one owner scope for each tenant-owned resource and one server-derived owning Organization. No mandatory Workspace/Project. OrganizationGroup links are business affiliations and confer no permissions. Environment is not a resource-container parent. All mutation operations need idempotency, expected revisions, authorization, audit and transactionally persisted domain events. Listing applies per-resource authorization before paging.
 
 The new pure Go scope matrix in `internal/resourcemanager/domain/scope` validates *only* parent types and presence of an ID. It is **not** a full Resource Manager implementation.
 

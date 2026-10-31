@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 	"sync"
@@ -22,14 +23,14 @@ var (
 type Kind string
 
 const (
-	Tenant          Kind = "tenant"
-	Group           Kind = "group"
-	Organization    Kind = "organization"
-	Workspace       Kind = "workspace"
-	Project         Kind = "project"
-	Environment     Kind = "environment"
-	WorkloadService Kind = "workload_service"
-	Descriptor      Kind = "descriptor"
+	Tenant            Kind = "tenant"
+	OrganizationGroup Kind = "group"
+	Organization      Kind = "organization"
+	Workspace         Kind = "workspace"
+	Project           Kind = "project"
+	Environment       Kind = "environment"
+	WorkloadService   Kind = "workload_service"
+	Descriptor        Kind = "descriptor"
 )
 
 type Owner struct {
@@ -37,18 +38,20 @@ type Owner struct {
 	ID   string `json:"id"`
 }
 type Record struct {
-	Kind           Kind      `json:"kind"`
-	ID             string    `json:"id"`
-	TenantID       string    `json:"tenantId,omitempty"`
-	Owner          Owner     `json:"owner"`
-	OrganizationID string    `json:"owningOrganizationId,omitempty"`
-	Name           string    `json:"name"`
-	Description    string    `json:"description,omitempty"`
-	State          string    `json:"state"`
-	Revision       int64     `json:"revision"`
-	EnvironmentKey string    `json:"environmentKey,omitempty"`
-	CreatedAt      time.Time `json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	Kind           Kind              `json:"kind"`
+	ID             string            `json:"id"`
+	TenantID       string            `json:"tenantId,omitempty"`
+	Owner          Owner             `json:"owner"`
+	OrganizationID string            `json:"owningOrganizationId,omitempty"`
+	Name           string            `json:"name"`
+	Description    string            `json:"description,omitempty"`
+	Labels         map[string]string `json:"labels,omitempty"`
+	State          string            `json:"state"`
+	Revision       int64             `json:"revision"`
+	EnvironmentKey string            `json:"environmentKey,omitempty"`
+	CreatedAt      time.Time         `json:"createdAt"`
+	UpdatedAt      time.Time         `json:"updatedAt"`
+	DeletedAt      *time.Time        `json:"deletedAt,omitempty"`
 }
 type Binding struct {
 	ID            string `json:"id"`
@@ -58,11 +61,18 @@ type Binding struct {
 	ConfigRef     string `json:"configurationRef,omitempty"`
 	Revision      int64  `json:"revision"`
 }
+
+type OrganizationGroupLink struct {
+	GroupID        string
+	OrganizationID string
+	CreatedAt      time.Time
+}
+
 type Store struct {
 	mu                   sync.RWMutex
 	objects              map[string]Record
 	requestIDs           map[string]string
-	links                map[string]bool
+	links                map[string]time.Time
 	bindings             map[string]Binding
 	relationships        map[string]OrganizationRelationship
 	relationshipHistory  map[string][]OrganizationRelationship
@@ -70,7 +80,7 @@ type Store struct {
 }
 
 func NewStore() *Store {
-	return &Store{objects: make(map[string]Record), requestIDs: make(map[string]string), links: make(map[string]bool), bindings: make(map[string]Binding), relationships: make(map[string]OrganizationRelationship), relationshipHistory: make(map[string][]OrganizationRelationship), relationshipRequests: make(map[string]relationshipReceipt)}
+	return &Store{objects: make(map[string]Record), requestIDs: make(map[string]string), links: make(map[string]time.Time), bindings: make(map[string]Binding), relationships: make(map[string]OrganizationRelationship), relationshipHistory: make(map[string][]OrganizationRelationship), relationshipRequests: make(map[string]relationshipReceipt)}
 }
 func newID() (string, error) {
 	var b [16]byte
@@ -87,7 +97,7 @@ func AllowedParent(child, parent Kind) bool {
 	switch child {
 	case Tenant:
 		return parent == ""
-	case Group, Organization:
+	case OrganizationGroup, Organization:
 		return parent == Tenant
 	case Workspace, Environment:
 		return parent == Organization
@@ -121,7 +131,7 @@ func (s *Store) Create(r Record, idem string) (Record, error) {
 			return Record{}, ErrNotFound
 		}
 		switch r.Kind {
-		case Group, Organization:
+		case OrganizationGroup, Organization:
 			r.TenantID = parent.ID
 		default:
 			r.TenantID = parent.TenantID
@@ -187,7 +197,7 @@ func (s *Store) ListTenantOrganizations(tenantID string) ([]Record, error) {
 	return s.listTenantKind(tenantID, Organization)
 }
 func (s *Store) ListTenantGroups(tenantID string) ([]Record, error) {
-	return s.listTenantKind(tenantID, Group)
+	return s.listTenantKind(tenantID, OrganizationGroup)
 }
 func (s *Store) listTenantKind(tenantID string, kind Kind) ([]Record, error) {
 	if tenantID == "" {
@@ -213,7 +223,7 @@ func (s *Store) listTenantKind(tenantID string, kind Kind) ([]Record, error) {
 	return out, nil
 }
 
-func (s *Store) Update(kind Kind, id string, rev int64, name, description string) (Record, error) {
+func (s *Store) Update(kind Kind, id string, rev int64, name, description string, labels map[string]string) (Record, error) {
 	if rev <= 0 || strings.TrimSpace(name) == "" {
 		return Record{}, ErrInvalid
 	}
@@ -228,6 +238,7 @@ func (s *Store) Update(kind Kind, id string, rev int64, name, description string
 	}
 	r.Name = name
 	r.Description = description
+	r.Labels = maps.Clone(labels)
 	r.Revision++
 	r.UpdatedAt = time.Now().UTC()
 	s.objects[key(kind, id)] = r
@@ -254,6 +265,10 @@ func (s *Store) ChangeState(kind Kind, id string, rev int64, state string) (Reco
 		}
 	}
 	r.State = state
+	if state == "DELETED" {
+		deletedAt := time.Now().UTC()
+		r.DeletedAt = &deletedAt
+	}
 	r.Revision++
 	r.UpdatedAt = time.Now().UTC()
 	s.objects[key(kind, id)] = r
@@ -311,15 +326,18 @@ func (s *Store) Resolve(kind Kind, id string) ([]Owner, error) {
 	}
 	return nil, ErrInvalid
 }
-func (s *Store) SetGroupLink(groupID, orgID string) error {
+func (s *Store) SetOrganizationGroupLink(groupID, organizationID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	g, gok := s.objects[key(Group, groupID)]
-	o, ook := s.objects[key(Organization, orgID)]
+	g, gok := s.objects[key(OrganizationGroup, groupID)]
+	o, ook := s.objects[key(Organization, organizationID)]
 	if !gok || !ook || g.TenantID != o.TenantID || g.State != "ACTIVE" || o.State != "ACTIVE" {
 		return ErrInvalid
 	}
-	s.links[groupID+":"+orgID] = true
+	linkKey := groupID + ":" + organizationID
+	if _, exists := s.links[linkKey]; !exists {
+		s.links[linkKey] = time.Now().UTC()
+	}
 	return nil
 }
 func (s *Store) SetBinding(resource Owner, environmentID, version, config string) (Binding, error) {
@@ -351,30 +369,34 @@ func (s *Store) SetBinding(resource Owner, environmentID, version, config string
 	return b, nil
 }
 
-func (s *Store) RemoveGroupLink(groupID, orgID string) error {
+func (s *Store) RemoveOrganizationGroupLink(groupID, organizationID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	k := groupID + ":" + orgID
-	if !s.links[k] {
+	k := groupID + ":" + organizationID
+	if _, exists := s.links[k]; !exists {
 		return ErrNotFound
 	}
 	delete(s.links, k)
 	return nil
 }
-func (s *Store) ListGroupOrganizations(groupID string) ([]string, error) {
+func (s *Store) ListOrganizationGroupLinks(groupID string) ([]OrganizationGroupLink, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if _, ok := s.objects[key(Group, groupID)]; !ok {
+	if _, ok := s.objects[key(OrganizationGroup, groupID)]; !ok {
 		return nil, ErrNotFound
 	}
-	out := []string{}
+	out := make([]OrganizationGroupLink, 0)
 	prefix := groupID + ":"
-	for k := range s.links {
+	for k, createdAt := range s.links {
 		if strings.HasPrefix(k, prefix) {
-			out = append(out, strings.TrimPrefix(k, prefix))
+			out = append(out, OrganizationGroupLink{
+				GroupID:        groupID,
+				OrganizationID: strings.TrimPrefix(k, prefix),
+				CreatedAt:      createdAt,
+			})
 		}
 	}
-	sort.Strings(out)
+	sort.Slice(out, func(i, j int) bool { return out[i].OrganizationID < out[j].OrganizationID })
 	return out, nil
 }
 func (s *Store) RemoveBinding(id string, revision int64) error {

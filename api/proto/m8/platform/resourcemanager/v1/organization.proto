@@ -1,13 +1,22 @@
 syntax = "proto3";
 package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
+
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 // Organization is the mandatory ownership/security root within a Tenant.
-// No Group is required; legal entity profile is separately owned.
+// No OrganizationGroup is required.
 message Organization {
-  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
-  string company_profile_ref = 3; // optional, owned by Company Registry
+  ResourceMetadata metadata = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
 }

@@ -5,7 +5,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/field_mask.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
 import "m8/platform/resourcemanager/v1/tenant.proto";
-import "m8/platform/resourcemanager/v1/group.proto";
+import "m8/platform/resourcemanager/v1/organization_group.proto";
 import "m8/platform/resourcemanager/v1/organization.proto";
 import "m8/platform/resourcemanager/v1/workspace.proto";
 import "m8/platform/resourcemanager/v1/project.proto";
@@ -37,13 +37,13 @@ service ResourceManagerService {
   rpc ResolveResourceScope(ResolveResourceScopeRequest) returns (ResolveResourceScopeResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}:resolveScope"};
   }
-  rpc SetGroupOrganizationLink(SetGroupOrganizationLinkRequest) returns (GroupOrganizationLink) {
+  rpc SetOrganizationGroupLink(SetOrganizationGroupLinkRequest) returns (OrganizationGroupLink) {
     option (google.api.http) = {post: "/resource-manager/v1/group-affiliations" body: "*"};
   }
-  rpc RemoveGroupOrganizationLink(RemoveGroupOrganizationLinkRequest) returns (EmptyResponse) {
+  rpc RemoveOrganizationGroupLink(RemoveOrganizationGroupLinkRequest) returns (EmptyResponse) {
     option (google.api.http) = {delete: "/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"};
   }
-  rpc ListGroupOrganizations(ListGroupOrganizationsRequest) returns (ListGroupOrganizationsResponse) {
+  rpc ListOrganizationGroupLinks(ListOrganizationGroupLinksRequest) returns (ListOrganizationGroupLinksResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/groups/{group_id}/organizations"};
   }
   rpc SetEnvironmentBinding(SetEnvironmentBindingRequest) returns (EnvironmentBinding) {
@@ -63,7 +63,7 @@ service ResourceManagerService {
 message ResourceRecord {
   oneof resource {
     Tenant tenant = 1;
-    Group group = 2;
+    OrganizationGroup group = 2;
     Organization organization = 3;
     Workspace workspace = 4;
     Project project = 5;
@@ -125,23 +125,23 @@ message ResolveResourceScopeResponse {
   string owning_organization_id = 1;
   repeated ResourceRef ancestry = 2; // root organization first; target last
 }
-message SetGroupOrganizationLinkRequest {
+message SetOrganizationGroupLinkRequest {
   string group_id = 1 [(google.api.field_behavior) = REQUIRED];
   string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
 }
-message RemoveGroupOrganizationLinkRequest {
+message RemoveOrganizationGroupLinkRequest {
   string group_id = 1 [(google.api.field_behavior) = REQUIRED];
   string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
 }
-message ListGroupOrganizationsRequest {
+message ListOrganizationGroupLinksRequest {
   string group_id = 1 [(google.api.field_behavior) = REQUIRED];
   int32 page_size = 2;
   string page_token = 3;
 }
-message ListGroupOrganizationsResponse {
-  repeated GroupOrganizationLink links = 1;
+message ListOrganizationGroupLinksResponse {
+  repeated OrganizationGroupLink links = 1;
   string next_page_token = 2;
 }
 message SetEnvironmentBindingRequest {

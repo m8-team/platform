@@ -27,7 +27,7 @@ type Parent struct {
 	ID   string
 }
 
-// AllowedParent validates only containment shape. Group membership and
+// AllowedParent validates only containment shape. OrganizationGroup membership and
 // Environment bindings are separate edges and never grant permissions.
 func AllowedParent(child, parent Kind) bool {
 	switch child {

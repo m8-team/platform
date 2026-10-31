@@ -22,13 +22,13 @@ type ResourceBackend interface {
 	ListRelationships(context.Context, string, string, bool) ([]v1engine.OrganizationRelationship, error)
 	UpdateRelationship(context.Context, v1engine.RelationshipUpdate, string) (v1engine.OrganizationRelationship, error)
 	CloseRelationship(context.Context, string, string, int64, int64, string) (v1engine.OrganizationRelationship, error)
-	Update(context.Context, v1engine.Kind, string, int64, string, string) (v1engine.Record, error)
+	Update(context.Context, v1engine.Kind, string, int64, string, string, map[string]string) (v1engine.Record, error)
 	ChangeState(context.Context, v1engine.Kind, string, int64, string) (v1engine.Record, error)
 	MoveProject(context.Context, string, v1engine.Owner, int64) (v1engine.Record, error)
 	Resolve(context.Context, v1engine.Kind, string) ([]v1engine.Owner, error)
-	SetGroupLink(context.Context, string, string) error
-	RemoveGroupLink(context.Context, string, string) error
-	ListGroupOrganizations(context.Context, string) ([]string, error)
+	SetOrganizationGroupLink(context.Context, string, string) error
+	RemoveOrganizationGroupLink(context.Context, string, string) error
+	ListOrganizationGroupLinks(context.Context, string) ([]v1engine.OrganizationGroupLink, error)
 	SetBinding(context.Context, v1engine.Owner, string, string, string) (v1engine.Binding, error)
 	RemoveBinding(context.Context, string, int64) error
 	ListBindings(context.Context, v1engine.Owner, string) ([]v1engine.Binding, error)
@@ -50,8 +50,8 @@ func (b memoryResourceBackend) ListTenantOrganizations(_ context.Context, tenant
 func (b memoryResourceBackend) ListTenantGroups(_ context.Context, tenantID string) ([]v1engine.Record, error) {
 	return b.store.ListTenantGroups(tenantID)
 }
-func (b memoryResourceBackend) Update(_ context.Context, k v1engine.Kind, id string, rev int64, name, description string) (v1engine.Record, error) {
-	return b.store.Update(k, id, rev, name, description)
+func (b memoryResourceBackend) Update(_ context.Context, k v1engine.Kind, id string, rev int64, name, description string, labels map[string]string) (v1engine.Record, error) {
+	return b.store.Update(k, id, rev, name, description, labels)
 }
 func (b memoryResourceBackend) ChangeState(_ context.Context, k v1engine.Kind, id string, rev int64, state string) (v1engine.Record, error) {
 	return b.store.ChangeState(k, id, rev, state)
@@ -62,14 +62,14 @@ func (b memoryResourceBackend) MoveProject(_ context.Context, id string, o v1eng
 func (b memoryResourceBackend) Resolve(_ context.Context, k v1engine.Kind, id string) ([]v1engine.Owner, error) {
 	return b.store.Resolve(k, id)
 }
-func (b memoryResourceBackend) SetGroupLink(_ context.Context, g, o string) error {
-	return b.store.SetGroupLink(g, o)
+func (b memoryResourceBackend) SetOrganizationGroupLink(_ context.Context, groupID, organizationID string) error {
+	return b.store.SetOrganizationGroupLink(groupID, organizationID)
 }
-func (b memoryResourceBackend) RemoveGroupLink(_ context.Context, g, o string) error {
-	return b.store.RemoveGroupLink(g, o)
+func (b memoryResourceBackend) RemoveOrganizationGroupLink(_ context.Context, groupID, organizationID string) error {
+	return b.store.RemoveOrganizationGroupLink(groupID, organizationID)
 }
-func (b memoryResourceBackend) ListGroupOrganizations(_ context.Context, g string) ([]string, error) {
-	return b.store.ListGroupOrganizations(g)
+func (b memoryResourceBackend) ListOrganizationGroupLinks(_ context.Context, groupID string) ([]v1engine.OrganizationGroupLink, error) {
+	return b.store.ListOrganizationGroupLinks(groupID)
 }
 func (b memoryResourceBackend) SetBinding(_ context.Context, r v1engine.Owner, e, v, c string) (v1engine.Binding, error) {
 	return b.store.SetBinding(r, e, v, c)

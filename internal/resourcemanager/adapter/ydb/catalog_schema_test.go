@@ -12,7 +12,7 @@ import (
 // Apply the exact resource and corporate relationship DDL migrations in
 // disposable integration tests; never use a simplified schema facsimile.
 func prepareResourceCatalogSchema(ctx context.Context, db *sql.DB, prefix string) error {
-	for _, migration := range []string{"003_unified_resources.sql", "004_organization_relationships.sql"} {
+	for _, migration := range []string{"003_unified_resources.sql", "004_organization_relationships.sql", "005_resource_metadata.sql"} {
 		if err := prepareResourceMigration(ctx, db, prefix, migration); err != nil {
 			return err
 		}

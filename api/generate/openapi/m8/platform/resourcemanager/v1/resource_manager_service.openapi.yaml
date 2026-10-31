@@ -95,12 +95,12 @@ paths:
         post:
             tags:
                 - ResourceManagerService
-            operationId: ResourceManagerService_SetGroupOrganizationLink
+            operationId: ResourceManagerService_SetOrganizationGroupLink
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SetGroupOrganizationLinkRequest'
+                            $ref: '#/components/schemas/SetOrganizationGroupLinkRequest'
                 required: true
             responses:
                 "200":
@@ -108,12 +108,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GroupOrganizationLink'
+                                $ref: '#/components/schemas/OrganizationGroupLink'
     /resource-manager/v1/groups/{groupId}/organizations:
         get:
             tags:
                 - ResourceManagerService
-            operationId: ResourceManagerService_ListGroupOrganizations
+            operationId: ResourceManagerService_ListOrganizationGroupLinks
             parameters:
                 - name: groupId
                   in: path
@@ -135,12 +135,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGroupOrganizationsResponse'
+                                $ref: '#/components/schemas/ListOrganizationGroupLinksResponse'
     /resource-manager/v1/groups/{groupId}/organizations/{organizationId}:
         delete:
             tags:
                 - ResourceManagerService
-            operationId: ResourceManagerService_RemoveGroupOrganizationLink
+            operationId: ResourceManagerService_RemoveOrganizationGroupLink
             parameters:
                 - name: groupId
                   in: path
@@ -510,32 +510,6 @@ components:
                  environment bindings. A binding grants no access by itself.
                  Delivery owns rollout state; the consumer module owns configuration and
                  secrets. This record contains references only, never credentials.
-        Group:
-            required:
-                - metadata
-                - tenantId
-            type: object
-            properties:
-                metadata:
-                    $ref: '#/components/schemas/ResourceMetadata'
-                tenantId:
-                    type: string
-            description: Optional business grouping. Independent Organizations require no Group.
-        GroupOrganizationLink:
-            required:
-                - groupId
-                - organizationId
-            type: object
-            properties:
-                groupId:
-                    type: string
-                organizationId:
-                    type: string
-                createTime:
-                    readOnly: true
-                    type: string
-                    format: date-time
-            description: Non-owning business relation between a Group and an Organization.
         ListEnvironmentBindingsResponse:
             type: object
             properties:
@@ -545,13 +519,13 @@ components:
                         $ref: '#/components/schemas/EnvironmentBinding'
                 nextPageToken:
                     type: string
-        ListGroupOrganizationsResponse:
+        ListOrganizationGroupLinksResponse:
             type: object
             properties:
                 links:
                     type: array
                     items:
-                        $ref: '#/components/schemas/GroupOrganizationLink'
+                        $ref: '#/components/schemas/OrganizationGroupLink'
                 nextPageToken:
                     type: string
         ListResourcesResponse:
@@ -589,11 +563,39 @@ components:
                     $ref: '#/components/schemas/ResourceMetadata'
                 tenantId:
                     type: string
-                companyProfileRef:
-                    type: string
             description: |-
                 Organization is the mandatory ownership/security root within a Tenant.
-                 No Group is required; legal entity profile is separately owned.
+                 No OrganizationGroup is required; legal entity profile is separately owned.
+        OrganizationGroup:
+            required:
+                - metadata
+                - tenantId
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                tenantId:
+                    type: string
+            description: |-
+                Optional business grouping. Independent Organizations require no OrganizationGroup.
+
+                 OrganizationGroup is distinct from an Identity Group, which groups subjects
+                 for membership and access-management purposes.
+        OrganizationGroupLink:
+            required:
+                - groupId
+                - organizationId
+            type: object
+            properties:
+                groupId:
+                    type: string
+                organizationId:
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+            description: Non-owning business relation between an OrganizationGroup and an Organization.
         OwnerScope:
             type: object
             properties:
@@ -609,7 +611,7 @@ components:
             description: |-
                 Exactly one immediate Organization, Workspace or Project owner. The server
                  derives the owning Organization and checks the resource's placement policy.
-                 Group affiliations and Environment bindings are not containment edges.
+                 OrganizationGroup affiliations and Environment bindings are not containment edges.
                  A field using OwnerScope may be optional, but a supplied scope cannot be empty.
         Project:
             required:
@@ -771,7 +773,7 @@ components:
                 tenant:
                     $ref: '#/components/schemas/Tenant'
                 group:
-                    $ref: '#/components/schemas/Group'
+                    $ref: '#/components/schemas/OrganizationGroup'
                 organization:
                     $ref: '#/components/schemas/Organization'
                 workspace:
@@ -833,7 +835,7 @@ components:
                     type: string
                 expectedRevision:
                     type: string
-        SetGroupOrganizationLinkRequest:
+        SetOrganizationGroupLinkRequest:
             required:
                 - groupId
                 - organizationId

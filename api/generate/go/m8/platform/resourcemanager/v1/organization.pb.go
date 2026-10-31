@@ -7,6 +7,7 @@
 package resourcemanager
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -23,14 +24,13 @@ const (
 )
 
 // Organization is the mandatory ownership/security root within a Tenant.
-// No Group is required; legal entity profile is separately owned.
+// No OrganizationGroup is required; legal entity profile is separately owned.
 type Organization struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Metadata          *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	TenantId          string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	CompanyProfileRef string                 `protobuf:"bytes,3,opt,name=company_profile_ref,json=companyProfileRef,proto3" json:"company_profile_ref,omitempty"` // optional, owned by Company Registry
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metadata      *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	TenantId      string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Organization) Reset() {
@@ -77,22 +77,14 @@ func (x *Organization) GetTenantId() string {
 	return ""
 }
 
-func (x *Organization) GetCompanyProfileRef() string {
-	if x != nil {
-		return x.CompanyProfileRef
-	}
-	return ""
-}
-
 var File_m8_platform_resourcemanager_v1_organization_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_organization_proto_rawDesc = "" +
 	"\n" +
-	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xb3\x01\n" +
-	"\fOrganization\x12Q\n" +
-	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\x03\xe0A\x02R\bmetadata\x12 \n" +
-	"\ttenant_id\x18\x02 \x01(\tB\x03\xe0A\x02R\btenantId\x12.\n" +
-	"\x13company_profile_ref\x18\x03 \x01(\tR\x11companyProfileRefBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"1m8/platform/resourcemanager/v1/organization.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\x94\x01\n" +
+	"\fOrganization\x12W\n" +
+	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bmetadata\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\tB\x0e\xe0A\x02\xe0A\x05\xbaH\x05r\x03\xb0\x01\x01R\btenantIdBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_organization_proto_rawDescOnce sync.Once

@@ -3,6 +3,7 @@ package grpcadapter
 import (
 	"context"
 	"errors"
+	"maps"
 	"strings"
 
 	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
@@ -96,7 +97,7 @@ func fromRecord(in *pb.ResourceRecord) (v1engine.Record, error) {
 		m = in.GetTenant().GetMetadata()
 	case in.GetGroup() != nil:
 		x := in.GetGroup()
-		r.Kind = v1engine.Group
+		r.Kind = v1engine.OrganizationGroup
 		m = x.GetMetadata()
 		r.Owner = v1engine.Owner{Kind: v1engine.Tenant, ID: x.GetTenantId()}
 	case in.GetOrganization() != nil:
@@ -133,17 +134,21 @@ func fromRecord(in *pb.ResourceRecord) (v1engine.Record, error) {
 	}
 	r.Name = m.GetName()
 	r.Description = m.GetDescription()
+	r.Labels = maps.Clone(m.GetLabels())
 	return r, nil
 }
 func toRecord(r v1engine.Record) *pb.ResourceRecord {
 	meta := &pb.ResourceMetadata{Id: r.ID, Name: r.Name, Description: r.Description, Revision: r.Revision,
-		State:      pb.ResourceState(pb.ResourceState_value["RESOURCE_STATE_"+r.State]),
-		CreateTime: timestamppb.New(r.CreatedAt), UpdateTime: timestamppb.New(r.UpdatedAt)}
+		State:  pb.ResourceState(pb.ResourceState_value["RESOURCE_STATE_"+r.State]),
+		Labels: maps.Clone(r.Labels), CreateTime: timestamppb.New(r.CreatedAt), UpdateTime: timestamppb.New(r.UpdatedAt)}
+	if r.DeletedAt != nil {
+		meta.DeleteTime = timestamppb.New(*r.DeletedAt)
+	}
 	switch r.Kind {
 	case v1engine.Tenant:
 		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Tenant{Tenant: &pb.Tenant{Metadata: meta}}}
-	case v1engine.Group:
-		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Group{Group: &pb.Group{Metadata: meta, TenantId: r.TenantID}}}
+	case v1engine.OrganizationGroup:
+		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Group{Group: &pb.OrganizationGroup{Metadata: meta, TenantId: r.TenantID}}}
 	case v1engine.Organization:
 		return &pb.ResourceRecord{Resource: &pb.ResourceRecord_Organization{Organization: &pb.Organization{Metadata: meta, TenantId: r.TenantID}}}
 	case v1engine.Workspace:
@@ -231,7 +236,7 @@ func (s *ResourceServer) ListResources(ctx context.Context, req *pb.ListResource
 		switch req.GetKind() {
 		case string(v1engine.Organization):
 			rr, e = s.store.ListTenantOrganizations(ctx, req.GetTenantId())
-		case string(v1engine.Group):
+		case string(v1engine.OrganizationGroup):
 			rr, e = s.store.ListTenantGroups(ctx, req.GetTenantId())
 		default:
 			return nil, status.Error(codes.InvalidArgument, "tenant_id requires kind=organization or kind=group")
@@ -264,7 +269,7 @@ func (s *ResourceServer) UpdateResource(ctx context.Context, req *pb.UpdateResou
 			return nil, status.Error(codes.InvalidArgument, "unsupported update_mask path")
 		}
 	}
-	v, e := s.store.Update(ctx, r.Kind, req.GetId(), req.GetExpectedRevision(), r.Name, r.Description)
+	v, e := s.store.Update(ctx, r.Kind, req.GetId(), req.GetExpectedRevision(), r.Name, r.Description, r.Labels)
 	if e != nil {
 		return nil, asErr(e)
 	}
@@ -320,46 +325,54 @@ func (s *ResourceServer) ResolveResourceScope(ctx context.Context, req *pb.Resol
 	}
 	return result, nil
 }
-func (s *ResourceServer) SetGroupOrganizationLink(ctx context.Context, req *pb.SetGroupOrganizationLinkRequest) (*pb.GroupOrganizationLink, error) {
+func (s *ResourceServer) SetOrganizationGroupLink(ctx context.Context, req *pb.SetOrganizationGroupLinkRequest) (*pb.OrganizationGroupLink, error) {
 	if e := s.guard(); e != nil {
 		return nil, e
 	}
-	if req == nil {
-		return nil, status.Error(codes.InvalidArgument, "request is required")
+	if req == nil || req.GetGroupId() == "" || req.GetOrganizationId() == "" || req.GetIdempotencyKey() == "" {
+		return nil, status.Error(codes.InvalidArgument, "group_id, organization_id and idempotency_key are required")
 	}
-	if err := s.store.SetGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
+	if err := s.store.SetOrganizationGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
 		return nil, asErr(err)
 	}
-	return &pb.GroupOrganizationLink{GroupId: req.GetGroupId(), OrganizationId: req.GetOrganizationId(), CreateTime: timestamppb.Now()}, nil
+	return newOrganizationGroupLink(req.GetGroupId(), req.GetOrganizationId(), timestamppb.Now()), nil
 }
-func (s *ResourceServer) RemoveGroupOrganizationLink(ctx context.Context, req *pb.RemoveGroupOrganizationLinkRequest) (*pb.EmptyResponse, error) {
+func (s *ResourceServer) RemoveOrganizationGroupLink(ctx context.Context, req *pb.RemoveOrganizationGroupLinkRequest) (*pb.EmptyResponse, error) {
 	if err := s.guard(); err != nil {
 		return nil, err
 	}
-	if req == nil || req.GetIdempotencyKey() == "" {
-		return nil, status.Error(codes.InvalidArgument, "idempotency_key required")
+	if req == nil || req.GetGroupId() == "" || req.GetOrganizationId() == "" || req.GetIdempotencyKey() == "" {
+		return nil, status.Error(codes.InvalidArgument, "group_id, organization_id and idempotency_key are required")
 	}
-	if err := s.store.RemoveGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
+	if err := s.store.RemoveOrganizationGroupLink(ctx, req.GetGroupId(), req.GetOrganizationId()); err != nil {
 		return nil, asErr(err)
 	}
 	return &pb.EmptyResponse{}, nil
 }
-func (s *ResourceServer) ListGroupOrganizations(ctx context.Context, req *pb.ListGroupOrganizationsRequest) (*pb.ListGroupOrganizationsResponse, error) {
+func (s *ResourceServer) ListOrganizationGroupLinks(ctx context.Context, req *pb.ListOrganizationGroupLinksRequest) (*pb.ListOrganizationGroupLinksResponse, error) {
 	if err := s.guard(); err != nil {
 		return nil, err
 	}
-	if req == nil || req.GetPageToken() != "" {
+	if req == nil || req.GetGroupId() == "" || req.GetPageToken() != "" {
 		return nil, status.Error(codes.InvalidArgument, "invalid request/page token")
 	}
-	ids, err := s.store.ListGroupOrganizations(ctx, req.GetGroupId())
+	links, err := s.store.ListOrganizationGroupLinks(ctx, req.GetGroupId())
 	if err != nil {
 		return nil, asErr(err)
 	}
-	out := &pb.ListGroupOrganizationsResponse{Links: make([]*pb.GroupOrganizationLink, 0, len(ids))}
-	for _, id := range ids {
-		out.Links = append(out.Links, &pb.GroupOrganizationLink{GroupId: req.GetGroupId(), OrganizationId: id})
+	out := &pb.ListOrganizationGroupLinksResponse{Links: make([]*pb.OrganizationGroupLink, 0, len(links))}
+	for _, link := range links {
+		out.Links = append(out.Links, newOrganizationGroupLink(link.GroupID, link.OrganizationID, timestamppb.New(link.CreatedAt)))
 	}
 	return out, nil
+}
+
+func newOrganizationGroupLink(groupID, organizationID string, createTime *timestamppb.Timestamp) *pb.OrganizationGroupLink {
+	return &pb.OrganizationGroupLink{
+		GroupId:        groupID,
+		OrganizationId: organizationID,
+		CreateTime:     createTime,
+	}
 }
 func (s *ResourceServer) SetEnvironmentBinding(ctx context.Context, req *pb.SetEnvironmentBindingRequest) (*pb.EnvironmentBinding, error) {
 	if e := s.guard(); e != nil {

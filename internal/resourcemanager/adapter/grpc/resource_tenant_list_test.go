@@ -91,7 +91,7 @@ func TestListResourcesGroupsIsolatedPerTenant(t *testing.T) {
 		t.Helper()
 		r, err := svc.CreateResource(ctx, &pb.CreateResourceRequest{
 			IdempotencyKey: "group-" + name,
-			Resource: &pb.ResourceRecord{Resource: &pb.ResourceRecord_Group{Group: &pb.Group{
+			Resource: &pb.ResourceRecord{Resource: &pb.ResourceRecord_Group{Group: &pb.OrganizationGroup{
 				TenantId: tenantID, Metadata: &pb.ResourceMetadata{Name: name},
 			}}},
 		})

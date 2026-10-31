@@ -238,7 +238,7 @@ Three independent concepts are deliberately modeled separately:
 | Entity | Meaning | Access inheritance |
 | --- | --- | --- |
 | `Organization` | Independent company and its resource boundary | Never implicit |
-| `Group` / `GroupOrganizationLink` | Optional business grouping (non-owning) | Never |
+| `OrganizationGroup` / `OrganizationGroupLink` | Optional business grouping (non-owning) | Never |
 | `OrganizationRelationship` | Dated, directed business or legal relation between two Organizations | Never |
 
 Corporate relationships MUST NOT be written to OrgUnit adjacency/closure tables.

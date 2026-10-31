@@ -12,7 +12,7 @@ Tenant / Account
   │     ├── Project (optional, direct organization ownership)
   │     ├── Environment (production/testing/staging/etc; not a parent scope)
   │     └── ResourceDescriptors (Agents, Workflows, etc by owner policy)
-  └── Group (optional; affiliation to organizations, not permission inheritance)
+  └── OrganizationGroup (optional; affiliation to organizations, not permission inheritance)
 ```
 
 `WorkloadService` is a logical service owned by Workspace or Project and is deployed/bound to Environments separately. `EnvironmentBinding` records approved target versions/configuration references; runtime rollout belongs to Delivery.

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 	"time"
@@ -44,12 +45,16 @@ func (c *Catalog) event(ctx context.Context, tx *sql.Tx, r v1engine.Record, even
 	return err
 }
 func (c *Catalog) save(ctx context.Context, tx *sql.Tx, r v1engine.Record) error {
-	_, err := tx.ExecContext(ctx, c.stmt(fmt.Sprintf(
-		"DECLARE $kind AS Utf8;DECLARE $id AS Utf8;DECLARE $name AS Utf8;DECLARE $description AS Utf8;DECLARE $state AS Utf8;DECLARE $revision AS Int64;DECLARE $ownerKind AS Utf8;DECLARE $owner AS Utf8;DECLARE $org AS Utf8;DECLARE $updated AS Timestamp;UPDATE %s SET display_name=$name,description=$description,state=$state,revision=$revision,owner_kind=$ownerKind,owner_id=$owner,organization_id=$org,updated_at=$updated WHERE kind=$kind AND id=$id;", resourceTable())),
-		sql.Named("kind", string(r.Kind)), sql.Named("id", r.ID), sql.Named("name", r.Name), sql.Named("description", r.Description), sql.Named("state", r.State), sql.Named("revision", r.Revision), sql.Named("ownerKind", string(r.Owner.Kind)), sql.Named("owner", r.Owner.ID), sql.Named("org", r.OrganizationID), sql.Named("updated", r.UpdatedAt))
+	labelsJSON, err := json.Marshal(r.Labels)
+	if err != nil {
+		return fmt.Errorf("encode resource labels: %w", err)
+	}
+	_, err = tx.ExecContext(ctx, c.stmt(fmt.Sprintf(
+		"DECLARE $kind AS Utf8;DECLARE $id AS Utf8;DECLARE $name AS Utf8;DECLARE $description AS Utf8;DECLARE $labels AS Utf8;DECLARE $state AS Utf8;DECLARE $revision AS Int64;DECLARE $ownerKind AS Utf8;DECLARE $owner AS Utf8;DECLARE $org AS Utf8;DECLARE $updated AS Timestamp;DECLARE $deleted AS Timestamp?;UPDATE %s SET display_name=$name,description=$description,labels_json=$labels,state=$state,revision=$revision,owner_kind=$ownerKind,owner_id=$owner,organization_id=$org,updated_at=$updated,deleted_at=$deleted WHERE kind=$kind AND id=$id;", resourceTable())),
+		sql.Named("kind", string(r.Kind)), sql.Named("id", r.ID), sql.Named("name", r.Name), sql.Named("description", r.Description), sql.Named("labels", string(labelsJSON)), sql.Named("state", r.State), sql.Named("revision", r.Revision), sql.Named("ownerKind", string(r.Owner.Kind)), sql.Named("owner", r.Owner.ID), sql.Named("org", r.OrganizationID), sql.Named("updated", r.UpdatedAt), sql.Named("deleted", r.DeletedAt))
 	return err
 }
-func (c *Catalog) Update(ctx context.Context, kind v1engine.Kind, id string, rev int64, name, description string) (v1engine.Record, error) {
+func (c *Catalog) Update(ctx context.Context, kind v1engine.Kind, id string, rev int64, name, description string, labels map[string]string) (v1engine.Record, error) {
 	if rev <= 0 || strings.TrimSpace(name) == "" {
 		return v1engine.Record{}, v1engine.ErrInvalid
 	}
@@ -64,6 +69,7 @@ func (c *Catalog) Update(ctx context.Context, kind v1engine.Kind, id string, rev
 		}
 		r.Name = name
 		r.Description = description
+		r.Labels = maps.Clone(labels)
 		r.Revision++
 		r.UpdatedAt = time.Now().UTC()
 		if err = c.save(ctx, tx, r); err != nil {
@@ -113,6 +119,10 @@ func (c *Catalog) ChangeState(ctx context.Context, kind v1engine.Kind, id string
 			}
 		}
 		r.State = state
+		if state == "DELETED" {
+			deletedAt := time.Now().UTC()
+			r.DeletedAt = &deletedAt
+		}
 		r.Revision++
 		r.UpdatedAt = time.Now().UTC()
 		if err = c.save(ctx, tx, r); err != nil {
@@ -185,12 +195,12 @@ func (c *Catalog) Resolve(ctx context.Context, kind v1engine.Kind, id string) ([
 	}
 	return nil, v1engine.ErrInvalid
 }
-func (c *Catalog) SetGroupLink(ctx context.Context, groupID, orgID string) error {
+func (c *Catalog) SetOrganizationGroupLink(ctx context.Context, groupID, orgID string) error {
 	if groupID == "" || orgID == "" {
 		return v1engine.ErrInvalid
 	}
 	return c.transaction(ctx, func(tx *sql.Tx) error {
-		g, err := c.get(ctx, tx, v1engine.Group, groupID)
+		g, err := c.get(ctx, tx, v1engine.OrganizationGroup, groupID)
 		if err != nil {
 			return err
 		}
@@ -209,7 +219,7 @@ func (c *Catalog) SetGroupLink(ctx context.Context, groupID, orgID string) error
 		return c.event(ctx, tx, g, "m8.resourcemanager.group_affiliation.changed.v1")
 	})
 }
-func (c *Catalog) RemoveGroupLink(ctx context.Context, groupID, orgID string) error {
+func (c *Catalog) RemoveOrganizationGroupLink(ctx context.Context, groupID, orgID string) error {
 	if groupID == "" || orgID == "" {
 		return v1engine.ErrInvalid
 	}
@@ -223,7 +233,7 @@ func (c *Catalog) RemoveGroupLink(ctx context.Context, groupID, orgID string) er
 		if err != nil {
 			return err
 		}
-		g, err := c.get(ctx, tx, v1engine.Group, groupID)
+		g, err := c.get(ctx, tx, v1engine.OrganizationGroup, groupID)
 		if err != nil {
 			return err
 		}
@@ -235,23 +245,23 @@ func (c *Catalog) RemoveGroupLink(ctx context.Context, groupID, orgID string) er
 		return c.event(ctx, tx, g, "m8.resourcemanager.group_affiliation.removed.v1")
 	})
 }
-func (c *Catalog) ListGroupOrganizations(ctx context.Context, groupID string) ([]string, error) {
-	if _, err := c.Get(ctx, v1engine.Group, groupID); err != nil {
+func (c *Catalog) ListOrganizationGroupLinks(ctx context.Context, groupID string) ([]v1engine.OrganizationGroupLink, error) {
+	if _, err := c.Get(ctx, v1engine.OrganizationGroup, groupID); err != nil {
 		return nil, err
 	}
-	rows, err := c.store.db.QueryContext(ctx, c.stmt("DECLARE $group AS Utf8;SELECT organization_id FROM `m8-resource-manager/resource_group_affiliations` WHERE group_id=$group;"), sql.Named("group", groupID))
+	rows, err := c.store.db.QueryContext(ctx, c.stmt("DECLARE $group AS Utf8;SELECT organization_id,created_at FROM `m8-resource-manager/resource_group_affiliations` WHERE group_id=$group;"), sql.Named("group", groupID))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	out := []string{}
+	out := make([]v1engine.OrganizationGroupLink, 0)
 	for rows.Next() {
-		var id string
-		if err = rows.Scan(&id); err != nil {
+		link := v1engine.OrganizationGroupLink{GroupID: groupID}
+		if err = rows.Scan(&link.OrganizationID, &link.CreatedAt); err != nil {
 			return nil, err
 		}
-		out = append(out, id)
+		out = append(out, link)
 	}
-	sort.Strings(out)
+	sort.Slice(out, func(i, j int) bool { return out[i].OrganizationID < out[j].OrganizationID })
 	return out, rows.Err()
 }

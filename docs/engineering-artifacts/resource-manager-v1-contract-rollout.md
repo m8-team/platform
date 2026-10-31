@@ -2,11 +2,11 @@
 
 ## Release rule
 
-The old version is deliberately discarded. `v1` now means **Tenant + Organization + optional Group/Workspace/Project + Environment + logical Service**. There is no compatibility obligation to the old `OrganizationService/WorkspaceService/ServiceService` APIs or to `Service.environment`.
+The old version is deliberately discarded. `v1` now means **Tenant + Organization + optional OrganizationGroup/Workspace/Project + Environment + logical Service**. There is no compatibility obligation to the old `OrganizationService/WorkspaceService/ServiceService` APIs or to `Service.environment`.
 
 ## Changes already committed in this branch
 
-- Canonical RM proto messages: ResourceRef/OwnerScope, Tenant, Group, Organization, Workspace, Project, Environment, EnvironmentBinding, WorkloadService, ResourceDescriptor, ResourceKindPolicy.
+- Canonical RM proto messages: ResourceRef/OwnerScope, Tenant, OrganizationGroup, Organization, Workspace, Project, Environment, EnvironmentBinding, WorkloadService, ResourceDescriptor, ResourceKindPolicy.
 - New unified ResourceManagerService protobuf; former RPC service proto sources removed.
 - Separate module contracts for Identity, Workforce, AccessGrant, SharedServices and Delivery.
 - Domain shape-check package with 23 placement scenarios.

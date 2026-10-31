@@ -342,9 +342,9 @@ func local_request_ResourceManagerService_ResolveResourceScope_0(ctx context.Con
 	return msg, metadata, err
 }
 
-func request_ResourceManagerService_SetGroupOrganizationLink_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ResourceManagerService_SetOrganizationGroupLink_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SetGroupOrganizationLinkRequest
+		protoReq SetOrganizationGroupLinkRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -353,27 +353,27 @@ func request_ResourceManagerService_SetGroupOrganizationLink_0(ctx context.Conte
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.SetGroupOrganizationLink(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.SetOrganizationGroupLink(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_ResourceManagerService_SetGroupOrganizationLink_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ResourceManagerService_SetOrganizationGroupLink_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq SetGroupOrganizationLinkRequest
+		protoReq SetOrganizationGroupLinkRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.SetGroupOrganizationLink(ctx, &protoReq)
+	msg, err := server.SetOrganizationGroupLink(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_ResourceManagerService_RemoveGroupOrganizationLink_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0, "organization_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
+var filter_ResourceManagerService_RemoveOrganizationGroupLink_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0, "organization_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
-func request_ResourceManagerService_RemoveGroupOrganizationLink_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ResourceManagerService_RemoveOrganizationGroupLink_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq RemoveGroupOrganizationLinkRequest
+		protoReq RemoveOrganizationGroupLinkRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -396,19 +396,19 @@ func request_ResourceManagerService_RemoveGroupOrganizationLink_0(ctx context.Co
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_RemoveGroupOrganizationLink_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_RemoveOrganizationGroupLink_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.RemoveGroupOrganizationLink(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.RemoveOrganizationGroupLink(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_ResourceManagerService_RemoveGroupOrganizationLink_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ResourceManagerService_RemoveOrganizationGroupLink_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq RemoveGroupOrganizationLinkRequest
+		protoReq RemoveOrganizationGroupLinkRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -431,18 +431,18 @@ func local_request_ResourceManagerService_RemoveGroupOrganizationLink_0(ctx cont
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_RemoveGroupOrganizationLink_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_RemoveOrganizationGroupLink_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.RemoveGroupOrganizationLink(ctx, &protoReq)
+	msg, err := server.RemoveOrganizationGroupLink(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-var filter_ResourceManagerService_ListGroupOrganizations_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_ResourceManagerService_ListOrganizationGroupLinks_0 = &utilities.DoubleArray{Encoding: map[string]int{"group_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
-func request_ResourceManagerService_ListGroupOrganizations_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ResourceManagerService_ListOrganizationGroupLinks_0(ctx context.Context, marshaler runtime.Marshaler, client ResourceManagerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListGroupOrganizationsRequest
+		protoReq ListOrganizationGroupLinksRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -457,19 +457,19 @@ func request_ResourceManagerService_ListGroupOrganizations_0(ctx context.Context
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_ListGroupOrganizations_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_ListOrganizationGroupLinks_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.ListGroupOrganizations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListOrganizationGroupLinks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_ResourceManagerService_ListGroupOrganizations_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ResourceManagerService_ListOrganizationGroupLinks_0(ctx context.Context, marshaler runtime.Marshaler, server ResourceManagerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListGroupOrganizationsRequest
+		protoReq ListOrganizationGroupLinksRequest
 		metadata runtime.ServerMetadata
 		err      error
 	)
@@ -484,10 +484,10 @@ func local_request_ResourceManagerService_ListGroupOrganizations_0(ctx context.C
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_ListGroupOrganizations_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ResourceManagerService_ListOrganizationGroupLinks_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.ListGroupOrganizations(ctx, &protoReq)
+	msg, err := server.ListOrganizationGroupLinks(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -779,65 +779,65 @@ func RegisterResourceManagerServiceHandlerServer(ctx context.Context, mux *runti
 		}
 		forward_ResourceManagerService_ResolveResourceScope_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetGroupOrganizationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetOrganizationGroupLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/SetGroupOrganizationLink", runtime.WithHTTPPathPattern("/resource-manager/v1/group-affiliations"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/SetOrganizationGroupLink", runtime.WithHTTPPathPattern("/resource-manager/v1/group-affiliations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ResourceManagerService_SetGroupOrganizationLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ResourceManagerService_SetOrganizationGroupLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_SetGroupOrganizationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_SetOrganizationGroupLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_ResourceManagerService_RemoveGroupOrganizationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ResourceManagerService_RemoveOrganizationGroupLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveGroupOrganizationLink", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveOrganizationGroupLink", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ResourceManagerService_RemoveGroupOrganizationLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ResourceManagerService_RemoveOrganizationGroupLink_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_RemoveGroupOrganizationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_RemoveOrganizationGroupLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_ResourceManagerService_ListGroupOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ResourceManagerService_ListOrganizationGroupLinks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/ListGroupOrganizations", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/ListOrganizationGroupLinks", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ResourceManagerService_ListGroupOrganizations_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ResourceManagerService_ListOrganizationGroupLinks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_ListGroupOrganizations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_ListOrganizationGroupLinks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetEnvironmentBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1078,56 +1078,56 @@ func RegisterResourceManagerServiceHandlerClient(ctx context.Context, mux *runti
 		}
 		forward_ResourceManagerService_ResolveResourceScope_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetGroupOrganizationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetOrganizationGroupLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/SetGroupOrganizationLink", runtime.WithHTTPPathPattern("/resource-manager/v1/group-affiliations"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/SetOrganizationGroupLink", runtime.WithHTTPPathPattern("/resource-manager/v1/group-affiliations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ResourceManagerService_SetGroupOrganizationLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ResourceManagerService_SetOrganizationGroupLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_SetGroupOrganizationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_SetOrganizationGroupLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_ResourceManagerService_RemoveGroupOrganizationLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ResourceManagerService_RemoveOrganizationGroupLink_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveGroupOrganizationLink", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveOrganizationGroupLink", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ResourceManagerService_RemoveGroupOrganizationLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ResourceManagerService_RemoveOrganizationGroupLink_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_RemoveGroupOrganizationLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_RemoveOrganizationGroupLink_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_ResourceManagerService_ListGroupOrganizations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ResourceManagerService_ListOrganizationGroupLinks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/ListGroupOrganizations", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.ResourceManagerService/ListOrganizationGroupLinks", runtime.WithHTTPPathPattern("/resource-manager/v1/groups/{group_id}/organizations"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ResourceManagerService_ListGroupOrganizations_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ResourceManagerService_ListOrganizationGroupLinks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ResourceManagerService_ListGroupOrganizations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ResourceManagerService_ListOrganizationGroupLinks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_ResourceManagerService_SetEnvironmentBinding_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -1208,9 +1208,9 @@ var (
 	pattern_ResourceManagerService_ChangeResourceState_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "resources", "id"}, "changeState"))
 	pattern_ResourceManagerService_MoveProject_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "projects", "project_id"}, "move"))
 	pattern_ResourceManagerService_ResolveResourceScope_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"resource-manager", "v1", "resources", "kind", "id"}, "resolveScope"))
-	pattern_ResourceManagerService_SetGroupOrganizationLink_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "group-affiliations"}, ""))
-	pattern_ResourceManagerService_RemoveGroupOrganizationLink_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "groups", "group_id", "organizations", "organization_id"}, ""))
-	pattern_ResourceManagerService_ListGroupOrganizations_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "groups", "group_id", "organizations"}, ""))
+	pattern_ResourceManagerService_SetOrganizationGroupLink_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "group-affiliations"}, ""))
+	pattern_ResourceManagerService_RemoveOrganizationGroupLink_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "groups", "group_id", "organizations", "organization_id"}, ""))
+	pattern_ResourceManagerService_ListOrganizationGroupLinks_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "groups", "group_id", "organizations"}, ""))
 	pattern_ResourceManagerService_SetEnvironmentBinding_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "environment-bindings"}, ""))
 	pattern_ResourceManagerService_RemoveEnvironmentBinding_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"resource-manager", "v1", "environment-bindings", "id"}, ""))
 	pattern_ResourceManagerService_ListEnvironmentBindings_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"resource-manager", "v1", "environment-bindings"}, ""))
@@ -1225,9 +1225,9 @@ var (
 	forward_ResourceManagerService_ChangeResourceState_0         = runtime.ForwardResponseMessage
 	forward_ResourceManagerService_MoveProject_0                 = runtime.ForwardResponseMessage
 	forward_ResourceManagerService_ResolveResourceScope_0        = runtime.ForwardResponseMessage
-	forward_ResourceManagerService_SetGroupOrganizationLink_0    = runtime.ForwardResponseMessage
-	forward_ResourceManagerService_RemoveGroupOrganizationLink_0 = runtime.ForwardResponseMessage
-	forward_ResourceManagerService_ListGroupOrganizations_0      = runtime.ForwardResponseMessage
+	forward_ResourceManagerService_SetOrganizationGroupLink_0    = runtime.ForwardResponseMessage
+	forward_ResourceManagerService_RemoveOrganizationGroupLink_0 = runtime.ForwardResponseMessage
+	forward_ResourceManagerService_ListOrganizationGroupLinks_0  = runtime.ForwardResponseMessage
 	forward_ResourceManagerService_SetEnvironmentBinding_0       = runtime.ForwardResponseMessage
 	forward_ResourceManagerService_RemoveEnvironmentBinding_0    = runtime.ForwardResponseMessage
 	forward_ResourceManagerService_ListEnvironmentBindings_0     = runtime.ForwardResponseMessage

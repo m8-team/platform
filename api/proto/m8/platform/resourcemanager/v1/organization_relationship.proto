@@ -7,7 +7,7 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Directed business/legal relationship. Independent from Group affiliation,
+// Directed business/legal relationship. Independent from OrganizationGroup affiliation,
 // OrgUnit closure and resource containment. No implicit Access grants.
 enum OrganizationRelationshipType {
   ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED = 0;

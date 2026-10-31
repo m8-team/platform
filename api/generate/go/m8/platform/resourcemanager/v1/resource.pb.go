@@ -143,7 +143,7 @@ func (x *ResourceRef) GetId() string {
 
 // Exactly one immediate Organization, Workspace or Project owner. The server
 // derives the owning Organization and checks the resource's placement policy.
-// Group affiliations and Environment bindings are not containment edges.
+// OrganizationGroup affiliations and Environment bindings are not containment edges.
 // A field using OwnerScope may be optional, but a supplied scope cannot be empty.
 type OwnerScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`

@@ -45,15 +45,15 @@ const (
 	// ResourceManagerServiceResolveResourceScopeProcedure is the procedure name of the
 	// ResourceManagerService's ResolveResourceScope RPC.
 	ResourceManagerServiceResolveResourceScopeProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/ResolveResourceScope"
-	// ResourceManagerServiceSetGroupOrganizationLinkProcedure is the procedure name of the
-	// ResourceManagerService's SetGroupOrganizationLink RPC.
-	ResourceManagerServiceSetGroupOrganizationLinkProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetGroupOrganizationLink"
-	// ResourceManagerServiceRemoveGroupOrganizationLinkProcedure is the procedure name of the
-	// ResourceManagerService's RemoveGroupOrganizationLink RPC.
-	ResourceManagerServiceRemoveGroupOrganizationLinkProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveGroupOrganizationLink"
-	// ResourceManagerServiceListGroupOrganizationsProcedure is the procedure name of the
-	// ResourceManagerService's ListGroupOrganizations RPC.
-	ResourceManagerServiceListGroupOrganizationsProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListGroupOrganizations"
+	// ResourceManagerServiceSetOrganizationGroupLinkProcedure is the procedure name of the
+	// ResourceManagerService's SetOrganizationGroupLink RPC.
+	ResourceManagerServiceSetOrganizationGroupLinkProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetOrganizationGroupLink"
+	// ResourceManagerServiceRemoveOrganizationGroupLinkProcedure is the procedure name of the
+	// ResourceManagerService's RemoveOrganizationGroupLink RPC.
+	ResourceManagerServiceRemoveOrganizationGroupLinkProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveOrganizationGroupLink"
+	// ResourceManagerServiceListOrganizationGroupLinksProcedure is the procedure name of the
+	// ResourceManagerService's ListOrganizationGroupLinks RPC.
+	ResourceManagerServiceListOrganizationGroupLinksProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListOrganizationGroupLinks"
 	// ResourceManagerServiceSetEnvironmentBindingProcedure is the procedure name of the
 	// ResourceManagerService's SetEnvironmentBinding RPC.
 	ResourceManagerServiceSetEnvironmentBindingProcedure = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetEnvironmentBinding"
@@ -118,25 +118,25 @@ var (
 			Procedure:  ResourceManagerServiceResolveResourceScopeProcedure,
 		}
 	})
-	resourceManagerServiceSetGroupOrganizationLinkSpec = sync.OnceValue(func() connect.Spec {
+	resourceManagerServiceSetOrganizationGroupLinkSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("SetGroupOrganizationLink"),
-			Procedure:  ResourceManagerServiceSetGroupOrganizationLinkProcedure,
+			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("SetOrganizationGroupLink"),
+			Procedure:  ResourceManagerServiceSetOrganizationGroupLinkProcedure,
 		}
 	})
-	resourceManagerServiceRemoveGroupOrganizationLinkSpec = sync.OnceValue(func() connect.Spec {
+	resourceManagerServiceRemoveOrganizationGroupLinkSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("RemoveGroupOrganizationLink"),
-			Procedure:  ResourceManagerServiceRemoveGroupOrganizationLinkProcedure,
+			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("RemoveOrganizationGroupLink"),
+			Procedure:  ResourceManagerServiceRemoveOrganizationGroupLinkProcedure,
 		}
 	})
-	resourceManagerServiceListGroupOrganizationsSpec = sync.OnceValue(func() connect.Spec {
+	resourceManagerServiceListOrganizationGroupLinksSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("ListGroupOrganizations"),
-			Procedure:  ResourceManagerServiceListGroupOrganizationsProcedure,
+			Schema:     v1.File_m8_platform_resourcemanager_v1_resource_manager_service_proto.Services().ByName("ResourceManagerService").Methods().ByName("ListOrganizationGroupLinks"),
+			Procedure:  ResourceManagerServiceListOrganizationGroupLinksProcedure,
 		}
 	})
 	resourceManagerServiceSetEnvironmentBindingSpec = sync.OnceValue(func() connect.Spec {
@@ -179,9 +179,9 @@ type ResourceManagerServiceClient interface {
 	ChangeResourceState(context.Context, *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error)
 	MoveProject(context.Context, *v1.MoveProjectRequest) (*v1.Project, error)
 	ResolveResourceScope(context.Context, *v1.ResolveResourceScopeRequest) (*v1.ResolveResourceScopeResponse, error)
-	SetGroupOrganizationLink(context.Context, *v1.SetGroupOrganizationLinkRequest) (*v1.GroupOrganizationLink, error)
-	RemoveGroupOrganizationLink(context.Context, *v1.RemoveGroupOrganizationLinkRequest) (*v1.EmptyResponse, error)
-	ListGroupOrganizations(context.Context, *v1.ListGroupOrganizationsRequest) (*v1.ListGroupOrganizationsResponse, error)
+	SetOrganizationGroupLink(context.Context, *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error)
+	RemoveOrganizationGroupLink(context.Context, *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error)
+	ListOrganizationGroupLinks(context.Context, *v1.ListOrganizationGroupLinksRequest) (*v1.ListOrganizationGroupLinksResponse, error)
 	SetEnvironmentBinding(context.Context, *v1.SetEnvironmentBindingRequest) (*v1.EnvironmentBinding, error)
 	RemoveEnvironmentBinding(context.Context, *v1.RemoveEnvironmentBindingRequest) (*v1.EmptyResponse, error)
 	ListEnvironmentBindings(context.Context, *v1.ListEnvironmentBindingsRequest) (*v1.ListEnvironmentBindingsResponse, error)
@@ -205,9 +205,9 @@ type ResourceManagerServiceHandler interface {
 	ChangeResourceState(context.Context, *v1.ChangeResourceStateRequest) (*v1.ResourceRecord, error)
 	MoveProject(context.Context, *v1.MoveProjectRequest) (*v1.Project, error)
 	ResolveResourceScope(context.Context, *v1.ResolveResourceScopeRequest) (*v1.ResolveResourceScopeResponse, error)
-	SetGroupOrganizationLink(context.Context, *v1.SetGroupOrganizationLinkRequest) (*v1.GroupOrganizationLink, error)
-	RemoveGroupOrganizationLink(context.Context, *v1.RemoveGroupOrganizationLinkRequest) (*v1.EmptyResponse, error)
-	ListGroupOrganizations(context.Context, *v1.ListGroupOrganizationsRequest) (*v1.ListGroupOrganizationsResponse, error)
+	SetOrganizationGroupLink(context.Context, *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error)
+	RemoveOrganizationGroupLink(context.Context, *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error)
+	ListOrganizationGroupLinks(context.Context, *v1.ListOrganizationGroupLinksRequest) (*v1.ListOrganizationGroupLinksResponse, error)
 	SetEnvironmentBinding(context.Context, *v1.SetEnvironmentBindingRequest) (*v1.EnvironmentBinding, error)
 	RemoveEnvironmentBinding(context.Context, *v1.RemoveEnvironmentBindingRequest) (*v1.EmptyResponse, error)
 	ListEnvironmentBindings(context.Context, *v1.ListEnvironmentBindingsRequest) (*v1.ListEnvironmentBindingsResponse, error)
@@ -226,9 +226,9 @@ func RegisterResourceManagerServiceHandler(server *connect.Server, svc ResourceM
 		connect.Method{Spec: resourceManagerServiceChangeResourceStateSpec(), Handler: adapter.changeResourceState},
 		connect.Method{Spec: resourceManagerServiceMoveProjectSpec(), Handler: adapter.moveProject},
 		connect.Method{Spec: resourceManagerServiceResolveResourceScopeSpec(), Handler: adapter.resolveResourceScope},
-		connect.Method{Spec: resourceManagerServiceSetGroupOrganizationLinkSpec(), Handler: adapter.setGroupOrganizationLink},
-		connect.Method{Spec: resourceManagerServiceRemoveGroupOrganizationLinkSpec(), Handler: adapter.removeGroupOrganizationLink},
-		connect.Method{Spec: resourceManagerServiceListGroupOrganizationsSpec(), Handler: adapter.listGroupOrganizations},
+		connect.Method{Spec: resourceManagerServiceSetOrganizationGroupLinkSpec(), Handler: adapter.setOrganizationGroupLink},
+		connect.Method{Spec: resourceManagerServiceRemoveOrganizationGroupLinkSpec(), Handler: adapter.removeOrganizationGroupLink},
+		connect.Method{Spec: resourceManagerServiceListOrganizationGroupLinksSpec(), Handler: adapter.listOrganizationGroupLinks},
 		connect.Method{Spec: resourceManagerServiceSetEnvironmentBindingSpec(), Handler: adapter.setEnvironmentBinding},
 		connect.Method{Spec: resourceManagerServiceRemoveEnvironmentBindingSpec(), Handler: adapter.removeEnvironmentBinding},
 		connect.Method{Spec: resourceManagerServiceListEnvironmentBindingsSpec(), Handler: adapter.listEnvironmentBindings},
@@ -267,16 +267,16 @@ func (UnimplementedResourceManagerServiceHandler) ResolveResourceScope(context.C
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope is not implemented")
 }
 
-func (UnimplementedResourceManagerServiceHandler) SetGroupOrganizationLink(context.Context, *v1.SetGroupOrganizationLinkRequest) (*v1.GroupOrganizationLink, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.SetGroupOrganizationLink is not implemented")
+func (UnimplementedResourceManagerServiceHandler) SetOrganizationGroupLink(context.Context, *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink is not implemented")
 }
 
-func (UnimplementedResourceManagerServiceHandler) RemoveGroupOrganizationLink(context.Context, *v1.RemoveGroupOrganizationLinkRequest) (*v1.EmptyResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.RemoveGroupOrganizationLink is not implemented")
+func (UnimplementedResourceManagerServiceHandler) RemoveOrganizationGroupLink(context.Context, *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink is not implemented")
 }
 
-func (UnimplementedResourceManagerServiceHandler) ListGroupOrganizations(context.Context, *v1.ListGroupOrganizationsRequest) (*v1.ListGroupOrganizationsResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.ListGroupOrganizations is not implemented")
+func (UnimplementedResourceManagerServiceHandler) ListOrganizationGroupLinks(context.Context, *v1.ListOrganizationGroupLinksRequest) (*v1.ListOrganizationGroupLinksResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks is not implemented")
 }
 
 func (UnimplementedResourceManagerServiceHandler) SetEnvironmentBinding(context.Context, *v1.SetEnvironmentBindingRequest) (*v1.EnvironmentBinding, error) {
@@ -355,25 +355,25 @@ func (c *resourceManagerServiceClient) ResolveResourceScope(ctx context.Context,
 	return &res, nil
 }
 
-func (c *resourceManagerServiceClient) SetGroupOrganizationLink(ctx context.Context, req *v1.SetGroupOrganizationLinkRequest) (*v1.GroupOrganizationLink, error) {
-	var res v1.GroupOrganizationLink
-	if err := c.client.CallUnary(ctx, resourceManagerServiceSetGroupOrganizationLinkSpec(), req, &res); err != nil {
+func (c *resourceManagerServiceClient) SetOrganizationGroupLink(ctx context.Context, req *v1.SetOrganizationGroupLinkRequest) (*v1.OrganizationGroupLink, error) {
+	var res v1.OrganizationGroupLink
+	if err := c.client.CallUnary(ctx, resourceManagerServiceSetOrganizationGroupLinkSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func (c *resourceManagerServiceClient) RemoveGroupOrganizationLink(ctx context.Context, req *v1.RemoveGroupOrganizationLinkRequest) (*v1.EmptyResponse, error) {
+func (c *resourceManagerServiceClient) RemoveOrganizationGroupLink(ctx context.Context, req *v1.RemoveOrganizationGroupLinkRequest) (*v1.EmptyResponse, error) {
 	var res v1.EmptyResponse
-	if err := c.client.CallUnary(ctx, resourceManagerServiceRemoveGroupOrganizationLinkSpec(), req, &res); err != nil {
+	if err := c.client.CallUnary(ctx, resourceManagerServiceRemoveOrganizationGroupLinkSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
 }
 
-func (c *resourceManagerServiceClient) ListGroupOrganizations(ctx context.Context, req *v1.ListGroupOrganizationsRequest) (*v1.ListGroupOrganizationsResponse, error) {
-	var res v1.ListGroupOrganizationsResponse
-	if err := c.client.CallUnary(ctx, resourceManagerServiceListGroupOrganizationsSpec(), req, &res); err != nil {
+func (c *resourceManagerServiceClient) ListOrganizationGroupLinks(ctx context.Context, req *v1.ListOrganizationGroupLinksRequest) (*v1.ListOrganizationGroupLinksResponse, error) {
+	var res v1.ListOrganizationGroupLinksResponse
+	if err := c.client.CallUnary(ctx, resourceManagerServiceListOrganizationGroupLinksSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -497,36 +497,36 @@ func (h resourceManagerServiceHandler) resolveResourceScope(ctx context.Context,
 	return stream.Send(res)
 }
 
-func (h resourceManagerServiceHandler) setGroupOrganizationLink(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req v1.SetGroupOrganizationLinkRequest
+func (h resourceManagerServiceHandler) setOrganizationGroupLink(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetOrganizationGroupLinkRequest
 	if err := stream.Receive(&req); err != nil {
 		return err
 	}
-	res, err := h.svc.SetGroupOrganizationLink(ctx, &req)
+	res, err := h.svc.SetOrganizationGroupLink(ctx, &req)
 	if err != nil {
 		return err
 	}
 	return stream.Send(res)
 }
 
-func (h resourceManagerServiceHandler) removeGroupOrganizationLink(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req v1.RemoveGroupOrganizationLinkRequest
+func (h resourceManagerServiceHandler) removeOrganizationGroupLink(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RemoveOrganizationGroupLinkRequest
 	if err := stream.Receive(&req); err != nil {
 		return err
 	}
-	res, err := h.svc.RemoveGroupOrganizationLink(ctx, &req)
+	res, err := h.svc.RemoveOrganizationGroupLink(ctx, &req)
 	if err != nil {
 		return err
 	}
 	return stream.Send(res)
 }
 
-func (h resourceManagerServiceHandler) listGroupOrganizations(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req v1.ListGroupOrganizationsRequest
+func (h resourceManagerServiceHandler) listOrganizationGroupLinks(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListOrganizationGroupLinksRequest
 	if err := stream.Receive(&req); err != nil {
 		return err
 	}
-	res, err := h.svc.ListGroupOrganizations(ctx, &req)
+	res, err := h.svc.ListOrganizationGroupLinks(ctx, &req)
 	if err != nil {
 		return err
 	}

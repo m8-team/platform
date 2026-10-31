@@ -45,7 +45,7 @@ To run a separate, loopback-only standard-library prototype (independent of grpc
 
 ## Implemented on development memory adapter
 
-- Create/Get/Update/ChangeState for Tenant, Group, Organization, Workspace, Project, Environment and WorkloadService.
+- Create/Get/Update/ChangeState for Tenant, OrganizationGroup, Organization, Workspace, Project, Environment and WorkloadService.
 - Scoped listing of Organization-owned objects (simple query mode).
 - Explicit Project move within one Organization and canonical ancestor resolution.
 - Group-to-Organization affiliation, association removal and listing.
@@ -59,7 +59,7 @@ To run a separate, loopback-only standard-library prototype (independent of grpc
 - The `ResourceDescriptor` and `RegisterResourceKind` domain-specific registration flow is not yet implemented. Unsupported operations return `Unimplemented`, not success.
 - Full paginated/filtered listing, field-mask semantics beyond basic fields, durable idempotency and event publication require the production storage and query model.
 - Persisting requested Environment.kind/isolation independently from Environment.key requires a complete Environment aggregate. Do not treat the dev default isolation response as actual Runtime enforcement.
-- `SetGroupOrganizationLink` and environment binding mutations are in-memory only.
+- `SetOrganizationGroupLink` and environment binding mutations are in-memory only.
 - Authentication, authorization, risk, approvals, audit, YDB transactional outbox/inbox and deployment reconciliation are **not connected**.
 - Identity, Workforce, AccessGrant, ModuleRegistry, SharedServices and Delivery have protobuf source contracts and generated bindings, but are **not yet implemented as running services**.
 - Automatic code-generation workflow runs in CI, but production release requires immutable SDK artifacts and end-to-end deployment tests.

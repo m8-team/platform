@@ -110,7 +110,7 @@ func parseRecord(raw json.RawMessage) (Record, error) {
 		case "tenant":
 			kind = Tenant
 		case "group":
-			kind = Group
+			kind = OrganizationGroup
 		case "organization":
 			kind = Organization
 		case "workspace":
@@ -133,7 +133,7 @@ func parseRecord(raw json.RawMessage) (Record, error) {
 	}
 	r := Record{Kind: kind, Name: in.Metadata.Name, Description: in.Metadata.Description, EnvironmentKey: in.Key}
 	switch kind {
-	case Group, Organization:
+	case OrganizationGroup, Organization:
 		r.Owner = Owner{Tenant, in.TenantID}
 	case Workspace, Environment:
 		r.Owner = Owner{Organization, in.OrganizationID}
@@ -172,7 +172,7 @@ func payload(r Record) any {
 	switch r.Kind {
 	case Tenant:
 		variant = "tenant"
-	case Group:
+	case OrganizationGroup:
 		variant = "group"
 		v["tenantId"] = r.TenantID
 	case Organization:
@@ -296,7 +296,7 @@ func (h *Handler) update(w http.ResponseWriter, r *http.Request, part string) {
 		failure(w, e)
 		return
 	}
-	o, e := h.Store.Update(rec.Kind, part, req.ExpectedRevision, rec.Name, rec.Description)
+	o, e := h.Store.Update(rec.Kind, part, req.ExpectedRevision, rec.Name, rec.Description, rec.Labels)
 	if e != nil {
 		failure(w, e)
 		return
@@ -357,7 +357,7 @@ func (h *Handler) group(w http.ResponseWriter, r *http.Request) {
 		failure(w, ErrInvalid)
 		return
 	}
-	if err := h.Store.SetGroupLink(req.GroupID, req.OrganizationID); err != nil {
+	if err := h.Store.SetOrganizationGroupLink(req.GroupID, req.OrganizationID); err != nil {
 		failure(w, err)
 		return
 	}

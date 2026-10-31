@@ -16,7 +16,7 @@ func (c *Catalog) ListTenantOrganizations(ctx context.Context, tenantID string) 
 
 // ListTenantGroups loads only Groups of a known Tenant.
 func (c *Catalog) ListTenantGroups(ctx context.Context, tenantID string) ([]v1engine.Record, error) {
-	return c.listTenantKind(ctx, tenantID, v1engine.Group)
+	return c.listTenantKind(ctx, tenantID, v1engine.OrganizationGroup)
 }
 
 // A missing Tenant never falls back to a global listing.

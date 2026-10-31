@@ -43,7 +43,9 @@ func envKeysTable() string                  { return "`m8-resource-manager/resou
 func scanResource(row *sql.Row) (v1engine.Record, error) {
 	var r v1engine.Record
 	var k, ownerKind string
-	err := row.Scan(&k, &r.ID, &r.TenantID, &ownerKind, &r.Owner.ID, &r.OrganizationID, &r.Name, &r.Description, &r.State, &r.Revision, &r.EnvironmentKey, &r.CreatedAt, &r.UpdatedAt)
+	var labelsJSON sql.NullString
+	var deletedAt sql.NullTime
+	err := row.Scan(&k, &r.ID, &r.TenantID, &ownerKind, &r.Owner.ID, &r.OrganizationID, &r.Name, &r.Description, &labelsJSON, &r.State, &r.Revision, &r.EnvironmentKey, &r.CreatedAt, &r.UpdatedAt, &deletedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return r, v1engine.ErrNotFound
@@ -52,11 +54,19 @@ func scanResource(row *sql.Row) (v1engine.Record, error) {
 	}
 	r.Kind = v1engine.Kind(k)
 	r.Owner.Kind = v1engine.Kind(ownerKind)
+	if labelsJSON.Valid && labelsJSON.String != "" {
+		if err := json.Unmarshal([]byte(labelsJSON.String), &r.Labels); err != nil {
+			return r, fmt.Errorf("decode resource labels: %w", err)
+		}
+	}
+	if deletedAt.Valid {
+		r.DeletedAt = &deletedAt.Time
+	}
 	return r, nil
 }
 func (c *Catalog) get(ctx context.Context, q queryer, kind v1engine.Kind, id string) (v1engine.Record, error) {
 	return scanResource(q.QueryRowContext(ctx, c.stmt(fmt.Sprintf(
-		"DECLARE $kind AS Utf8; DECLARE $id AS Utf8; SELECT kind,id,tenant_id,owner_kind,owner_id,organization_id,display_name,description,state,revision,environment_key,created_at,updated_at FROM %s WHERE kind=$kind AND id=$id;",
+		"DECLARE $kind AS Utf8; DECLARE $id AS Utf8; SELECT kind,id,tenant_id,owner_kind,owner_id,organization_id,display_name,description,labels_json,state,revision,environment_key,created_at,updated_at,deleted_at FROM %s WHERE kind=$kind AND id=$id;",
 		resourceTable())), sql.Named("kind", string(kind)), sql.Named("id", id)))
 }
 func (c *Catalog) Get(ctx context.Context, kind v1engine.Kind, id string) (v1engine.Record, error) {
@@ -71,8 +81,9 @@ func createHash(r v1engine.Record) (string, error) {
 		Owner          v1engine.Owner
 		Name           string
 		Description    string
+		Labels         map[string]string
 		EnvironmentKey string
-	}{r.Kind, r.Owner, r.Name, r.Description, r.EnvironmentKey})
+	}{r.Kind, r.Owner, r.Name, r.Description, r.Labels, r.EnvironmentKey})
 	if err != nil {
 		return "", err
 	}
@@ -123,7 +134,7 @@ func (c *Catalog) Create(ctx context.Context, r v1engine.Record, idem string) (v
 		if parent.State != "ACTIVE" {
 			return v1engine.Record{}, v1engine.ErrConflict
 		}
-		if r.Kind == v1engine.Group || r.Kind == v1engine.Organization {
+		if r.Kind == v1engine.OrganizationGroup || r.Kind == v1engine.Organization {
 			r.TenantID = parent.ID
 		} else {
 			r.TenantID = parent.TenantID
@@ -163,14 +174,18 @@ func (c *Catalog) Create(ctx context.Context, r v1engine.Record, idem string) (v
 	r.Revision = 1
 	r.CreatedAt = now
 	r.UpdatedAt = now
+	labelsJSON, err := json.Marshal(r.Labels)
+	if err != nil {
+		return v1engine.Record{}, fmt.Errorf("encode resource labels: %w", err)
+	}
 	if r.Kind == v1engine.Tenant {
 		r.TenantID = id
 	}
 	_, err = tx.ExecContext(ctx, c.stmt(fmt.Sprintf(
-		"DECLARE $kind AS Utf8;DECLARE $id AS Utf8;DECLARE $tenant AS Utf8;DECLARE $ownerKind AS Utf8;DECLARE $owner AS Utf8;DECLARE $org AS Utf8;DECLARE $name AS Utf8;DECLARE $description AS Utf8;DECLARE $state AS Utf8;DECLARE $revision AS Int64;DECLARE $env AS Utf8;DECLARE $now AS Timestamp; INSERT INTO %s (kind,id,tenant_id,owner_kind,owner_id,organization_id,display_name,description,state,revision,environment_key,created_at,updated_at) VALUES($kind,$id,$tenant,$ownerKind,$owner,$org,$name,$description,$state,$revision,$env,$now,$now);", resourceTable())),
+		"DECLARE $kind AS Utf8;DECLARE $id AS Utf8;DECLARE $tenant AS Utf8;DECLARE $ownerKind AS Utf8;DECLARE $owner AS Utf8;DECLARE $org AS Utf8;DECLARE $name AS Utf8;DECLARE $description AS Utf8;DECLARE $labels AS Utf8;DECLARE $state AS Utf8;DECLARE $revision AS Int64;DECLARE $env AS Utf8;DECLARE $now AS Timestamp; INSERT INTO %s (kind,id,tenant_id,owner_kind,owner_id,organization_id,display_name,description,labels_json,state,revision,environment_key,created_at,updated_at) VALUES($kind,$id,$tenant,$ownerKind,$owner,$org,$name,$description,$labels,$state,$revision,$env,$now,$now);", resourceTable())),
 		sql.Named("kind", string(r.Kind)), sql.Named("id", id), sql.Named("tenant", r.TenantID),
 		sql.Named("ownerKind", string(r.Owner.Kind)), sql.Named("owner", r.Owner.ID),
-		sql.Named("org", r.OrganizationID), sql.Named("name", r.Name), sql.Named("description", r.Description),
+		sql.Named("org", r.OrganizationID), sql.Named("name", r.Name), sql.Named("description", r.Description), sql.Named("labels", string(labelsJSON)),
 		sql.Named("state", r.State), sql.Named("revision", r.Revision), sql.Named("env", r.EnvironmentKey), sql.Named("now", now))
 	if err != nil {
 		return v1engine.Record{}, err

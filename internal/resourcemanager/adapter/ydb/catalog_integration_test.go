@@ -218,7 +218,7 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	}
 
 	// Resource hierarchy, ownership and environments must survive repository recreation.
-	group, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.Group, Owner: owner, Name: "Holding"}, seed+"-group")
+	group, err := cat.Create(ctx, v1engine.Record{Kind: v1engine.OrganizationGroup, Owner: owner, Name: "Holding"}, seed+"-group")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,18 +249,18 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil || len(parents) != 5 {
 		t.Fatalf("ancestry: %#v %v", parents, err)
 	}
-	updated, err := cat.Update(ctx, v1engine.Project, project.ID, 1, "ERP New", "Owned by Alpha")
+	updated, err := cat.Update(ctx, v1engine.Project, project.ID, 1, "ERP New", "Owned by Alpha", nil)
 	if err != nil || updated.Revision != 2 {
 		t.Fatalf("update CAS: %#v %v", updated, err)
 	}
-	if _, err = cat.Update(ctx, v1engine.Project, project.ID, 1, "stale", ""); !errors.Is(err, v1engine.ErrConflict) {
+	if _, err = cat.Update(ctx, v1engine.Project, project.ID, 1, "stale", "", nil); !errors.Is(err, v1engine.ErrConflict) {
 		t.Fatalf("stale update: %v", err)
 	}
-	if err = cat.SetGroupLink(ctx, group.ID, org.ID); err != nil {
+	if err = cat.SetOrganizationGroupLink(ctx, group.ID, org.ID); err != nil {
 		t.Fatal(err)
 	}
-	links, err := cat.ListGroupOrganizations(ctx, group.ID)
-	if err != nil || len(links) != 1 || links[0] != org.ID {
+	links, err := cat.ListOrganizationGroupLinks(ctx, group.ID)
+	if err != nil || len(links) != 1 || links[0].GroupID != group.ID || links[0].OrganizationID != org.ID || links[0].CreatedAt.IsZero() {
 		t.Fatalf("group links: %#v %v", links, err)
 	}
 	binding, err := cat.SetBinding(ctx, v1engine.Owner{Kind: v1engine.WorkloadService, ID: service.ID}, env.ID, "v1", "ref://config")
@@ -295,10 +295,10 @@ func TestIntegrationUnifiedCatalogAndAtomicOrganization(t *testing.T) {
 	if err != nil || len(remaining) != 0 {
 		t.Fatalf("remaining bindings: %#v %v", remaining, err)
 	}
-	if err = cat.RemoveGroupLink(ctx, group.ID, org.ID); err != nil {
+	if err = cat.RemoveOrganizationGroupLink(ctx, group.ID, org.ID); err != nil {
 		t.Fatal(err)
 	}
-	links, err = cat.ListGroupOrganizations(ctx, group.ID)
+	links, err = cat.ListOrganizationGroupLinks(ctx, group.ID)
 	if err != nil || len(links) != 0 {
 		t.Fatalf("remove group link: %#v %v", links, err)
 	}

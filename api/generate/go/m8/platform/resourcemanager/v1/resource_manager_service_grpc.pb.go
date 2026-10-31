@@ -26,9 +26,9 @@ const (
 	ResourceManagerService_ChangeResourceState_FullMethodName         = "/m8.platform.resourcemanager.v1.ResourceManagerService/ChangeResourceState"
 	ResourceManagerService_MoveProject_FullMethodName                 = "/m8.platform.resourcemanager.v1.ResourceManagerService/MoveProject"
 	ResourceManagerService_ResolveResourceScope_FullMethodName        = "/m8.platform.resourcemanager.v1.ResourceManagerService/ResolveResourceScope"
-	ResourceManagerService_SetGroupOrganizationLink_FullMethodName    = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetGroupOrganizationLink"
-	ResourceManagerService_RemoveGroupOrganizationLink_FullMethodName = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveGroupOrganizationLink"
-	ResourceManagerService_ListGroupOrganizations_FullMethodName      = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListGroupOrganizations"
+	ResourceManagerService_SetOrganizationGroupLink_FullMethodName    = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetOrganizationGroupLink"
+	ResourceManagerService_RemoveOrganizationGroupLink_FullMethodName = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveOrganizationGroupLink"
+	ResourceManagerService_ListOrganizationGroupLinks_FullMethodName  = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListOrganizationGroupLinks"
 	ResourceManagerService_SetEnvironmentBinding_FullMethodName       = "/m8.platform.resourcemanager.v1.ResourceManagerService/SetEnvironmentBinding"
 	ResourceManagerService_RemoveEnvironmentBinding_FullMethodName    = "/m8.platform.resourcemanager.v1.ResourceManagerService/RemoveEnvironmentBinding"
 	ResourceManagerService_ListEnvironmentBindings_FullMethodName     = "/m8.platform.resourcemanager.v1.ResourceManagerService/ListEnvironmentBindings"
@@ -49,9 +49,9 @@ type ResourceManagerServiceClient interface {
 	ChangeResourceState(ctx context.Context, in *ChangeResourceStateRequest, opts ...grpc.CallOption) (*ResourceRecord, error)
 	MoveProject(ctx context.Context, in *MoveProjectRequest, opts ...grpc.CallOption) (*Project, error)
 	ResolveResourceScope(ctx context.Context, in *ResolveResourceScopeRequest, opts ...grpc.CallOption) (*ResolveResourceScopeResponse, error)
-	SetGroupOrganizationLink(ctx context.Context, in *SetGroupOrganizationLinkRequest, opts ...grpc.CallOption) (*GroupOrganizationLink, error)
-	RemoveGroupOrganizationLink(ctx context.Context, in *RemoveGroupOrganizationLinkRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
-	ListGroupOrganizations(ctx context.Context, in *ListGroupOrganizationsRequest, opts ...grpc.CallOption) (*ListGroupOrganizationsResponse, error)
+	SetOrganizationGroupLink(ctx context.Context, in *SetOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*OrganizationGroupLink, error)
+	RemoveOrganizationGroupLink(ctx context.Context, in *RemoveOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	ListOrganizationGroupLinks(ctx context.Context, in *ListOrganizationGroupLinksRequest, opts ...grpc.CallOption) (*ListOrganizationGroupLinksResponse, error)
 	SetEnvironmentBinding(ctx context.Context, in *SetEnvironmentBindingRequest, opts ...grpc.CallOption) (*EnvironmentBinding, error)
 	RemoveEnvironmentBinding(ctx context.Context, in *RemoveEnvironmentBindingRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 	ListEnvironmentBindings(ctx context.Context, in *ListEnvironmentBindingsRequest, opts ...grpc.CallOption) (*ListEnvironmentBindingsResponse, error)
@@ -136,30 +136,30 @@ func (c *resourceManagerServiceClient) ResolveResourceScope(ctx context.Context,
 	return out, nil
 }
 
-func (c *resourceManagerServiceClient) SetGroupOrganizationLink(ctx context.Context, in *SetGroupOrganizationLinkRequest, opts ...grpc.CallOption) (*GroupOrganizationLink, error) {
+func (c *resourceManagerServiceClient) SetOrganizationGroupLink(ctx context.Context, in *SetOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*OrganizationGroupLink, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GroupOrganizationLink)
-	err := c.cc.Invoke(ctx, ResourceManagerService_SetGroupOrganizationLink_FullMethodName, in, out, cOpts...)
+	out := new(OrganizationGroupLink)
+	err := c.cc.Invoke(ctx, ResourceManagerService_SetOrganizationGroupLink_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *resourceManagerServiceClient) RemoveGroupOrganizationLink(ctx context.Context, in *RemoveGroupOrganizationLinkRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+func (c *resourceManagerServiceClient) RemoveOrganizationGroupLink(ctx context.Context, in *RemoveOrganizationGroupLinkRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(EmptyResponse)
-	err := c.cc.Invoke(ctx, ResourceManagerService_RemoveGroupOrganizationLink_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ResourceManagerService_RemoveOrganizationGroupLink_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *resourceManagerServiceClient) ListGroupOrganizations(ctx context.Context, in *ListGroupOrganizationsRequest, opts ...grpc.CallOption) (*ListGroupOrganizationsResponse, error) {
+func (c *resourceManagerServiceClient) ListOrganizationGroupLinks(ctx context.Context, in *ListOrganizationGroupLinksRequest, opts ...grpc.CallOption) (*ListOrganizationGroupLinksResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGroupOrganizationsResponse)
-	err := c.cc.Invoke(ctx, ResourceManagerService_ListGroupOrganizations_FullMethodName, in, out, cOpts...)
+	out := new(ListOrganizationGroupLinksResponse)
+	err := c.cc.Invoke(ctx, ResourceManagerService_ListOrganizationGroupLinks_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -220,9 +220,9 @@ type ResourceManagerServiceServer interface {
 	ChangeResourceState(context.Context, *ChangeResourceStateRequest) (*ResourceRecord, error)
 	MoveProject(context.Context, *MoveProjectRequest) (*Project, error)
 	ResolveResourceScope(context.Context, *ResolveResourceScopeRequest) (*ResolveResourceScopeResponse, error)
-	SetGroupOrganizationLink(context.Context, *SetGroupOrganizationLinkRequest) (*GroupOrganizationLink, error)
-	RemoveGroupOrganizationLink(context.Context, *RemoveGroupOrganizationLinkRequest) (*EmptyResponse, error)
-	ListGroupOrganizations(context.Context, *ListGroupOrganizationsRequest) (*ListGroupOrganizationsResponse, error)
+	SetOrganizationGroupLink(context.Context, *SetOrganizationGroupLinkRequest) (*OrganizationGroupLink, error)
+	RemoveOrganizationGroupLink(context.Context, *RemoveOrganizationGroupLinkRequest) (*EmptyResponse, error)
+	ListOrganizationGroupLinks(context.Context, *ListOrganizationGroupLinksRequest) (*ListOrganizationGroupLinksResponse, error)
 	SetEnvironmentBinding(context.Context, *SetEnvironmentBindingRequest) (*EnvironmentBinding, error)
 	RemoveEnvironmentBinding(context.Context, *RemoveEnvironmentBindingRequest) (*EmptyResponse, error)
 	ListEnvironmentBindings(context.Context, *ListEnvironmentBindingsRequest) (*ListEnvironmentBindingsResponse, error)
@@ -258,14 +258,14 @@ func (UnimplementedResourceManagerServiceServer) MoveProject(context.Context, *M
 func (UnimplementedResourceManagerServiceServer) ResolveResourceScope(context.Context, *ResolveResourceScopeRequest) (*ResolveResourceScopeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResolveResourceScope not implemented")
 }
-func (UnimplementedResourceManagerServiceServer) SetGroupOrganizationLink(context.Context, *SetGroupOrganizationLinkRequest) (*GroupOrganizationLink, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetGroupOrganizationLink not implemented")
+func (UnimplementedResourceManagerServiceServer) SetOrganizationGroupLink(context.Context, *SetOrganizationGroupLinkRequest) (*OrganizationGroupLink, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetOrganizationGroupLink not implemented")
 }
-func (UnimplementedResourceManagerServiceServer) RemoveGroupOrganizationLink(context.Context, *RemoveGroupOrganizationLinkRequest) (*EmptyResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RemoveGroupOrganizationLink not implemented")
+func (UnimplementedResourceManagerServiceServer) RemoveOrganizationGroupLink(context.Context, *RemoveOrganizationGroupLinkRequest) (*EmptyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveOrganizationGroupLink not implemented")
 }
-func (UnimplementedResourceManagerServiceServer) ListGroupOrganizations(context.Context, *ListGroupOrganizationsRequest) (*ListGroupOrganizationsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGroupOrganizations not implemented")
+func (UnimplementedResourceManagerServiceServer) ListOrganizationGroupLinks(context.Context, *ListOrganizationGroupLinksRequest) (*ListOrganizationGroupLinksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOrganizationGroupLinks not implemented")
 }
 func (UnimplementedResourceManagerServiceServer) SetEnvironmentBinding(context.Context, *SetEnvironmentBindingRequest) (*EnvironmentBinding, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetEnvironmentBinding not implemented")
@@ -427,56 +427,56 @@ func _ResourceManagerService_ResolveResourceScope_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceManagerService_SetGroupOrganizationLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetGroupOrganizationLinkRequest)
+func _ResourceManagerService_SetOrganizationGroupLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetOrganizationGroupLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceManagerServiceServer).SetGroupOrganizationLink(ctx, in)
+		return srv.(ResourceManagerServiceServer).SetOrganizationGroupLink(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceManagerService_SetGroupOrganizationLink_FullMethodName,
+		FullMethod: ResourceManagerService_SetOrganizationGroupLink_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceManagerServiceServer).SetGroupOrganizationLink(ctx, req.(*SetGroupOrganizationLinkRequest))
+		return srv.(ResourceManagerServiceServer).SetOrganizationGroupLink(ctx, req.(*SetOrganizationGroupLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceManagerService_RemoveGroupOrganizationLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveGroupOrganizationLinkRequest)
+func _ResourceManagerService_RemoveOrganizationGroupLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveOrganizationGroupLinkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceManagerServiceServer).RemoveGroupOrganizationLink(ctx, in)
+		return srv.(ResourceManagerServiceServer).RemoveOrganizationGroupLink(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceManagerService_RemoveGroupOrganizationLink_FullMethodName,
+		FullMethod: ResourceManagerService_RemoveOrganizationGroupLink_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceManagerServiceServer).RemoveGroupOrganizationLink(ctx, req.(*RemoveGroupOrganizationLinkRequest))
+		return srv.(ResourceManagerServiceServer).RemoveOrganizationGroupLink(ctx, req.(*RemoveOrganizationGroupLinkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceManagerService_ListGroupOrganizations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGroupOrganizationsRequest)
+func _ResourceManagerService_ListOrganizationGroupLinks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrganizationGroupLinksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceManagerServiceServer).ListGroupOrganizations(ctx, in)
+		return srv.(ResourceManagerServiceServer).ListOrganizationGroupLinks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceManagerService_ListGroupOrganizations_FullMethodName,
+		FullMethod: ResourceManagerService_ListOrganizationGroupLinks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceManagerServiceServer).ListGroupOrganizations(ctx, req.(*ListGroupOrganizationsRequest))
+		return srv.(ResourceManagerServiceServer).ListOrganizationGroupLinks(ctx, req.(*ListOrganizationGroupLinksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -589,16 +589,16 @@ var ResourceManagerService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ResourceManagerService_ResolveResourceScope_Handler,
 		},
 		{
-			MethodName: "SetGroupOrganizationLink",
-			Handler:    _ResourceManagerService_SetGroupOrganizationLink_Handler,
+			MethodName: "SetOrganizationGroupLink",
+			Handler:    _ResourceManagerService_SetOrganizationGroupLink_Handler,
 		},
 		{
-			MethodName: "RemoveGroupOrganizationLink",
-			Handler:    _ResourceManagerService_RemoveGroupOrganizationLink_Handler,
+			MethodName: "RemoveOrganizationGroupLink",
+			Handler:    _ResourceManagerService_RemoveOrganizationGroupLink_Handler,
 		},
 		{
-			MethodName: "ListGroupOrganizations",
-			Handler:    _ResourceManagerService_ListGroupOrganizations_Handler,
+			MethodName: "ListOrganizationGroupLinks",
+			Handler:    _ResourceManagerService_ListOrganizationGroupLinks_Handler,
 		},
 		{
 			MethodName: "SetEnvironmentBinding",

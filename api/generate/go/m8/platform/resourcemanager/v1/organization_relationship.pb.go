@@ -23,7 +23,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Directed business/legal relationship. Independent from Group affiliation,
+// Directed business/legal relationship. Independent from OrganizationGroup affiliation,
 // OrgUnit closure and resource containment. No implicit Access grants.
 type OrganizationRelationshipType int32
 

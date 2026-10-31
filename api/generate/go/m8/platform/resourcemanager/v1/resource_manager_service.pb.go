@@ -86,7 +86,7 @@ func (x *ResourceRecord) GetTenant() *Tenant {
 	return nil
 }
 
-func (x *ResourceRecord) GetGroup() *Group {
+func (x *ResourceRecord) GetGroup() *OrganizationGroup {
 	if x != nil {
 		if x, ok := x.Resource.(*ResourceRecord_Group); ok {
 			return x.Group
@@ -158,7 +158,7 @@ type ResourceRecord_Tenant struct {
 }
 
 type ResourceRecord_Group struct {
-	Group *Group `protobuf:"bytes,2,opt,name=group,proto3,oneof"`
+	Group *OrganizationGroup `protobuf:"bytes,2,opt,name=group,proto3,oneof"`
 }
 
 type ResourceRecord_Organization struct {
@@ -819,7 +819,7 @@ func (x *ResolveResourceScopeResponse) GetAncestry() []*ResourceRef {
 	return nil
 }
 
-type SetGroupOrganizationLinkRequest struct {
+type SetOrganizationGroupLinkRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	GroupId        string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
@@ -828,20 +828,20 @@ type SetGroupOrganizationLinkRequest struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *SetGroupOrganizationLinkRequest) Reset() {
-	*x = SetGroupOrganizationLinkRequest{}
+func (x *SetOrganizationGroupLinkRequest) Reset() {
+	*x = SetOrganizationGroupLinkRequest{}
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetGroupOrganizationLinkRequest) String() string {
+func (x *SetOrganizationGroupLinkRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetGroupOrganizationLinkRequest) ProtoMessage() {}
+func (*SetOrganizationGroupLinkRequest) ProtoMessage() {}
 
-func (x *SetGroupOrganizationLinkRequest) ProtoReflect() protoreflect.Message {
+func (x *SetOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -853,33 +853,33 @@ func (x *SetGroupOrganizationLinkRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetGroupOrganizationLinkRequest.ProtoReflect.Descriptor instead.
-func (*SetGroupOrganizationLinkRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SetOrganizationGroupLinkRequest.ProtoReflect.Descriptor instead.
+func (*SetOrganizationGroupLinkRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *SetGroupOrganizationLinkRequest) GetGroupId() string {
+func (x *SetOrganizationGroupLinkRequest) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
 	return ""
 }
 
-func (x *SetGroupOrganizationLinkRequest) GetOrganizationId() string {
+func (x *SetOrganizationGroupLinkRequest) GetOrganizationId() string {
 	if x != nil {
 		return x.OrganizationId
 	}
 	return ""
 }
 
-func (x *SetGroupOrganizationLinkRequest) GetIdempotencyKey() string {
+func (x *SetOrganizationGroupLinkRequest) GetIdempotencyKey() string {
 	if x != nil {
 		return x.IdempotencyKey
 	}
 	return ""
 }
 
-type RemoveGroupOrganizationLinkRequest struct {
+type RemoveOrganizationGroupLinkRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	GroupId        string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
@@ -888,20 +888,20 @@ type RemoveGroupOrganizationLinkRequest struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *RemoveGroupOrganizationLinkRequest) Reset() {
-	*x = RemoveGroupOrganizationLinkRequest{}
+func (x *RemoveOrganizationGroupLinkRequest) Reset() {
+	*x = RemoveOrganizationGroupLinkRequest{}
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RemoveGroupOrganizationLinkRequest) String() string {
+func (x *RemoveOrganizationGroupLinkRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveGroupOrganizationLinkRequest) ProtoMessage() {}
+func (*RemoveOrganizationGroupLinkRequest) ProtoMessage() {}
 
-func (x *RemoveGroupOrganizationLinkRequest) ProtoReflect() protoreflect.Message {
+func (x *RemoveOrganizationGroupLinkRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -913,33 +913,33 @@ func (x *RemoveGroupOrganizationLinkRequest) ProtoReflect() protoreflect.Message
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveGroupOrganizationLinkRequest.ProtoReflect.Descriptor instead.
-func (*RemoveGroupOrganizationLinkRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveOrganizationGroupLinkRequest.ProtoReflect.Descriptor instead.
+func (*RemoveOrganizationGroupLinkRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *RemoveGroupOrganizationLinkRequest) GetGroupId() string {
+func (x *RemoveOrganizationGroupLinkRequest) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
 	return ""
 }
 
-func (x *RemoveGroupOrganizationLinkRequest) GetOrganizationId() string {
+func (x *RemoveOrganizationGroupLinkRequest) GetOrganizationId() string {
 	if x != nil {
 		return x.OrganizationId
 	}
 	return ""
 }
 
-func (x *RemoveGroupOrganizationLinkRequest) GetIdempotencyKey() string {
+func (x *RemoveOrganizationGroupLinkRequest) GetIdempotencyKey() string {
 	if x != nil {
 		return x.IdempotencyKey
 	}
 	return ""
 }
 
-type ListGroupOrganizationsRequest struct {
+type ListOrganizationGroupLinksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GroupId       string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	PageSize      int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
@@ -948,20 +948,20 @@ type ListGroupOrganizationsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGroupOrganizationsRequest) Reset() {
-	*x = ListGroupOrganizationsRequest{}
+func (x *ListOrganizationGroupLinksRequest) Reset() {
+	*x = ListOrganizationGroupLinksRequest{}
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGroupOrganizationsRequest) String() string {
+func (x *ListOrganizationGroupLinksRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGroupOrganizationsRequest) ProtoMessage() {}
+func (*ListOrganizationGroupLinksRequest) ProtoMessage() {}
 
-func (x *ListGroupOrganizationsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListOrganizationGroupLinksRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -973,54 +973,54 @@ func (x *ListGroupOrganizationsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGroupOrganizationsRequest.ProtoReflect.Descriptor instead.
-func (*ListGroupOrganizationsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrganizationGroupLinksRequest.ProtoReflect.Descriptor instead.
+func (*ListOrganizationGroupLinksRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ListGroupOrganizationsRequest) GetGroupId() string {
+func (x *ListOrganizationGroupLinksRequest) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
 	return ""
 }
 
-func (x *ListGroupOrganizationsRequest) GetPageSize() int32 {
+func (x *ListOrganizationGroupLinksRequest) GetPageSize() int32 {
 	if x != nil {
 		return x.PageSize
 	}
 	return 0
 }
 
-func (x *ListGroupOrganizationsRequest) GetPageToken() string {
+func (x *ListOrganizationGroupLinksRequest) GetPageToken() string {
 	if x != nil {
 		return x.PageToken
 	}
 	return ""
 }
 
-type ListGroupOrganizationsResponse struct {
+type ListOrganizationGroupLinksResponse struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Links         []*GroupOrganizationLink `protobuf:"bytes,1,rep,name=links,proto3" json:"links,omitempty"`
+	Links         []*OrganizationGroupLink `protobuf:"bytes,1,rep,name=links,proto3" json:"links,omitempty"`
 	NextPageToken string                   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGroupOrganizationsResponse) Reset() {
-	*x = ListGroupOrganizationsResponse{}
+func (x *ListOrganizationGroupLinksResponse) Reset() {
+	*x = ListOrganizationGroupLinksResponse{}
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGroupOrganizationsResponse) String() string {
+func (x *ListOrganizationGroupLinksResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGroupOrganizationsResponse) ProtoMessage() {}
+func (*ListOrganizationGroupLinksResponse) ProtoMessage() {}
 
-func (x *ListGroupOrganizationsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListOrganizationGroupLinksResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_m8_platform_resourcemanager_v1_resource_manager_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1032,19 +1032,19 @@ func (x *ListGroupOrganizationsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGroupOrganizationsResponse.ProtoReflect.Descriptor instead.
-func (*ListGroupOrganizationsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListOrganizationGroupLinksResponse.ProtoReflect.Descriptor instead.
+func (*ListOrganizationGroupLinksResponse) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *ListGroupOrganizationsResponse) GetLinks() []*GroupOrganizationLink {
+func (x *ListOrganizationGroupLinksResponse) GetLinks() []*OrganizationGroupLink {
 	if x != nil {
 		return x.Links
 	}
 	return nil
 }
 
-func (x *ListGroupOrganizationsResponse) GetNextPageToken() string {
+func (x *ListOrganizationGroupLinksResponse) GetNextPageToken() string {
 	if x != nil {
 		return x.NextPageToken
 	}
@@ -1347,10 +1347,10 @@ var File_m8_platform_resourcemanager_v1_resource_manager_service_proto protorefl
 
 const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc = "" +
 	"\n" +
-	"=m8/platform/resourcemanager/v1/resource_manager_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a+m8/platform/resourcemanager/v1/tenant.proto\x1a*m8/platform/resourcemanager/v1/group.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\x1a,m8/platform/resourcemanager/v1/project.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\x1a,m8/platform/resourcemanager/v1/service.proto\"\x86\x05\n" +
+	"=m8/platform/resourcemanager/v1/resource_manager_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a google/protobuf/field_mask.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a+m8/platform/resourcemanager/v1/tenant.proto\x1a7m8/platform/resourcemanager/v1/organization_group.proto\x1a1m8/platform/resourcemanager/v1/organization.proto\x1a.m8/platform/resourcemanager/v1/workspace.proto\x1a,m8/platform/resourcemanager/v1/project.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\x1a,m8/platform/resourcemanager/v1/service.proto\"\x92\x05\n" +
 	"\x0eResourceRecord\x12@\n" +
-	"\x06tenant\x18\x01 \x01(\v2&.m8.platform.resourcemanager.v1.TenantH\x00R\x06tenant\x12=\n" +
-	"\x05group\x18\x02 \x01(\v2%.m8.platform.resourcemanager.v1.GroupH\x00R\x05group\x12R\n" +
+	"\x06tenant\x18\x01 \x01(\v2&.m8.platform.resourcemanager.v1.TenantH\x00R\x06tenant\x12I\n" +
+	"\x05group\x18\x02 \x01(\v21.m8.platform.resourcemanager.v1.OrganizationGroupH\x00R\x05group\x12R\n" +
 	"\forganization\x18\x03 \x01(\v2,.m8.platform.resourcemanager.v1.OrganizationH\x00R\forganization\x12I\n" +
 	"\tworkspace\x18\x04 \x01(\v2).m8.platform.resourcemanager.v1.WorkspaceH\x00R\tworkspace\x12C\n" +
 	"\aproject\x18\x05 \x01(\v2'.m8.platform.resourcemanager.v1.ProjectH\x00R\aproject\x12O\n" +
@@ -1406,21 +1406,21 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x1cResolveResourceScopeResponse\x124\n" +
 	"\x16owning_organization_id\x18\x01 \x01(\tR\x14owningOrganizationId\x12G\n" +
 	"\bancestry\x18\x02 \x03(\v2+.m8.platform.resourcemanager.v1.ResourceRefR\bancestry\"\x9d\x01\n" +
-	"\x1fSetGroupOrganizationLinkRequest\x12\x1e\n" +
+	"\x1fSetOrganizationGroupLinkRequest\x12\x1e\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\x03\xe0A\x02R\agroupId\x12,\n" +
 	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12,\n" +
 	"\x0fidempotency_key\x18\x03 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"\xa0\x01\n" +
-	"\"RemoveGroupOrganizationLinkRequest\x12\x1e\n" +
+	"\"RemoveOrganizationGroupLinkRequest\x12\x1e\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\x03\xe0A\x02R\agroupId\x12,\n" +
 	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12,\n" +
-	"\x0fidempotency_key\x18\x03 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"{\n" +
-	"\x1dListGroupOrganizationsRequest\x12\x1e\n" +
+	"\x0fidempotency_key\x18\x03 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"\x7f\n" +
+	"!ListOrganizationGroupLinksRequest\x12\x1e\n" +
 	"\bgroup_id\x18\x01 \x01(\tB\x03\xe0A\x02R\agroupId\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"\x95\x01\n" +
-	"\x1eListGroupOrganizationsResponse\x12K\n" +
-	"\x05links\x18\x01 \x03(\v25.m8.platform.resourcemanager.v1.GroupOrganizationLinkR\x05links\x12&\n" +
+	"page_token\x18\x03 \x01(\tR\tpageToken\"\x99\x01\n" +
+	"\"ListOrganizationGroupLinksResponse\x12K\n" +
+	"\x05links\x18\x01 \x03(\v25.m8.platform.resourcemanager.v1.OrganizationGroupLinkR\x05links\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xcc\x01\n" +
 	"\x1cSetEnvironmentBindingRequest\x12Q\n" +
 	"\abinding\x18\x01 \x01(\v22.m8.platform.resourcemanager.v1.EnvironmentBindingB\x03\xe0A\x02R\abinding\x12,\n" +
@@ -1441,7 +1441,7 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x9c\x01\n" +
 	"\x1bRegisterResourceKindRequest\x12O\n" +
 	"\x06policy\x18\x01 \x01(\v22.m8.platform.resourcemanager.v1.ResourceKindPolicyB\x03\xe0A\x02R\x06policy\x12,\n" +
-	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey2\x89\x15\n" +
+	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey2\x95\x15\n" +
 	"\x16ResourceManagerService\x12\xa2\x01\n" +
 	"\x0eCreateResource\x125.m8.platform.resourcemanager.v1.CreateResourceRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/resource-manager/v1/resources\x12\xa5\x01\n" +
 	"\vGetResource\x122.m8.platform.resourcemanager.v1.GetResourceRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\"2\x82\xd3\xe4\x93\x02,\x12*/resource-manager/v1/resources/{kind}/{id}\x12\xa4\x01\n" +
@@ -1450,9 +1450,9 @@ const file_m8_platform_resourcemanager_v1_resource_manager_service_proto_rawDesc
 	"\x13ChangeResourceState\x12:.m8.platform.resourcemanager.v1.ChangeResourceStateRequest\x1a..m8.platform.resourcemanager.v1.ResourceRecord\":\x82\xd3\xe4\x93\x024:\x01*\"//resource-manager/v1/resources/{id}:changeState\x12\xa6\x01\n" +
 	"\vMoveProject\x122.m8.platform.resourcemanager.v1.MoveProjectRequest\x1a'.m8.platform.resourcemanager.v1.Project\":\x82\xd3\xe4\x93\x024:\x01*\"//resource-manager/v1/projects/{project_id}:move\x12\xd2\x01\n" +
 	"\x14ResolveResourceScope\x12;.m8.platform.resourcemanager.v1.ResolveResourceScopeRequest\x1a<.m8.platform.resourcemanager.v1.ResolveResourceScopeResponse\"?\x82\xd3\xe4\x93\x029\x127/resource-manager/v1/resources/{kind}/{id}:resolveScope\x12\xc6\x01\n" +
-	"\x18SetGroupOrganizationLink\x12?.m8.platform.resourcemanager.v1.SetGroupOrganizationLinkRequest\x1a5.m8.platform.resourcemanager.v1.GroupOrganizationLink\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/resource-manager/v1/group-affiliations\x12\xe0\x01\n" +
-	"\x1bRemoveGroupOrganizationLink\x12B.m8.platform.resourcemanager.v1.RemoveGroupOrganizationLinkRequest\x1a-.m8.platform.resourcemanager.v1.EmptyResponse\"N\x82\xd3\xe4\x93\x02H*F/resource-manager/v1/groups/{group_id}/organizations/{organization_id}\x12\xd5\x01\n" +
-	"\x16ListGroupOrganizations\x12=.m8.platform.resourcemanager.v1.ListGroupOrganizationsRequest\x1a>.m8.platform.resourcemanager.v1.ListGroupOrganizationsResponse\"<\x82\xd3\xe4\x93\x026\x124/resource-manager/v1/groups/{group_id}/organizations\x12\xbf\x01\n" +
+	"\x18SetOrganizationGroupLink\x12?.m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest\x1a5.m8.platform.resourcemanager.v1.OrganizationGroupLink\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/resource-manager/v1/group-affiliations\x12\xe0\x01\n" +
+	"\x1bRemoveOrganizationGroupLink\x12B.m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest\x1a-.m8.platform.resourcemanager.v1.EmptyResponse\"N\x82\xd3\xe4\x93\x02H*F/resource-manager/v1/groups/{group_id}/organizations/{organization_id}\x12\xe1\x01\n" +
+	"\x1aListOrganizationGroupLinks\x12A.m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest\x1aB.m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse\"<\x82\xd3\xe4\x93\x026\x124/resource-manager/v1/groups/{group_id}/organizations\x12\xbf\x01\n" +
 	"\x15SetEnvironmentBinding\x12<.m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest\x1a2.m8.platform.resourcemanager.v1.EnvironmentBinding\"4\x82\xd3\xe4\x93\x02.:\x01*\")/resource-manager/v1/environment-bindings\x12\xc2\x01\n" +
 	"\x18RemoveEnvironmentBinding\x12?.m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest\x1a-.m8.platform.resourcemanager.v1.EmptyResponse\"6\x82\xd3\xe4\x93\x020*./resource-manager/v1/environment-bindings/{id}\x12\xcd\x01\n" +
 	"\x17ListEnvironmentBindings\x12>.m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest\x1a?.m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse\"1\x82\xd3\xe4\x93\x02+\x12)/resource-manager/v1/environment-bindings\x12\xb7\x01\n" +
@@ -1483,17 +1483,17 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_goTypes =
 	(*MoveProjectRequest)(nil),                 // 8: m8.platform.resourcemanager.v1.MoveProjectRequest
 	(*ResolveResourceScopeRequest)(nil),        // 9: m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
 	(*ResolveResourceScopeResponse)(nil),       // 10: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
-	(*SetGroupOrganizationLinkRequest)(nil),    // 11: m8.platform.resourcemanager.v1.SetGroupOrganizationLinkRequest
-	(*RemoveGroupOrganizationLinkRequest)(nil), // 12: m8.platform.resourcemanager.v1.RemoveGroupOrganizationLinkRequest
-	(*ListGroupOrganizationsRequest)(nil),      // 13: m8.platform.resourcemanager.v1.ListGroupOrganizationsRequest
-	(*ListGroupOrganizationsResponse)(nil),     // 14: m8.platform.resourcemanager.v1.ListGroupOrganizationsResponse
+	(*SetOrganizationGroupLinkRequest)(nil),    // 11: m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
+	(*RemoveOrganizationGroupLinkRequest)(nil), // 12: m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
+	(*ListOrganizationGroupLinksRequest)(nil),  // 13: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
+	(*ListOrganizationGroupLinksResponse)(nil), // 14: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
 	(*SetEnvironmentBindingRequest)(nil),       // 15: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
 	(*RemoveEnvironmentBindingRequest)(nil),    // 16: m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
 	(*ListEnvironmentBindingsRequest)(nil),     // 17: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
 	(*ListEnvironmentBindingsResponse)(nil),    // 18: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
 	(*RegisterResourceKindRequest)(nil),        // 19: m8.platform.resourcemanager.v1.RegisterResourceKindRequest
 	(*Tenant)(nil),                             // 20: m8.platform.resourcemanager.v1.Tenant
-	(*Group)(nil),                              // 21: m8.platform.resourcemanager.v1.Group
+	(*OrganizationGroup)(nil),                  // 21: m8.platform.resourcemanager.v1.OrganizationGroup
 	(*Organization)(nil),                       // 22: m8.platform.resourcemanager.v1.Organization
 	(*Workspace)(nil),                          // 23: m8.platform.resourcemanager.v1.Workspace
 	(*Project)(nil),                            // 24: m8.platform.resourcemanager.v1.Project
@@ -1504,13 +1504,13 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_goTypes =
 	(*fieldmaskpb.FieldMask)(nil),              // 29: google.protobuf.FieldMask
 	(ResourceState)(0),                         // 30: m8.platform.resourcemanager.v1.ResourceState
 	(*ResourceRef)(nil),                        // 31: m8.platform.resourcemanager.v1.ResourceRef
-	(*GroupOrganizationLink)(nil),              // 32: m8.platform.resourcemanager.v1.GroupOrganizationLink
+	(*OrganizationGroupLink)(nil),              // 32: m8.platform.resourcemanager.v1.OrganizationGroupLink
 	(*EnvironmentBinding)(nil),                 // 33: m8.platform.resourcemanager.v1.EnvironmentBinding
 	(*ResourceKindPolicy)(nil),                 // 34: m8.platform.resourcemanager.v1.ResourceKindPolicy
 }
 var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_depIdxs = []int32{
 	20, // 0: m8.platform.resourcemanager.v1.ResourceRecord.tenant:type_name -> m8.platform.resourcemanager.v1.Tenant
-	21, // 1: m8.platform.resourcemanager.v1.ResourceRecord.group:type_name -> m8.platform.resourcemanager.v1.Group
+	21, // 1: m8.platform.resourcemanager.v1.ResourceRecord.group:type_name -> m8.platform.resourcemanager.v1.OrganizationGroup
 	22, // 2: m8.platform.resourcemanager.v1.ResourceRecord.organization:type_name -> m8.platform.resourcemanager.v1.Organization
 	23, // 3: m8.platform.resourcemanager.v1.ResourceRecord.workspace:type_name -> m8.platform.resourcemanager.v1.Workspace
 	24, // 4: m8.platform.resourcemanager.v1.ResourceRecord.project:type_name -> m8.platform.resourcemanager.v1.Project
@@ -1525,7 +1525,7 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_depIdxs =
 	30, // 13: m8.platform.resourcemanager.v1.ChangeResourceStateRequest.target_state:type_name -> m8.platform.resourcemanager.v1.ResourceState
 	28, // 14: m8.platform.resourcemanager.v1.MoveProjectRequest.new_owner:type_name -> m8.platform.resourcemanager.v1.OwnerScope
 	31, // 15: m8.platform.resourcemanager.v1.ResolveResourceScopeResponse.ancestry:type_name -> m8.platform.resourcemanager.v1.ResourceRef
-	32, // 16: m8.platform.resourcemanager.v1.ListGroupOrganizationsResponse.links:type_name -> m8.platform.resourcemanager.v1.GroupOrganizationLink
+	32, // 16: m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse.links:type_name -> m8.platform.resourcemanager.v1.OrganizationGroupLink
 	33, // 17: m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest.binding:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
 	31, // 18: m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest.resource:type_name -> m8.platform.resourcemanager.v1.ResourceRef
 	33, // 19: m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse.bindings:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
@@ -1537,9 +1537,9 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_depIdxs =
 	7,  // 25: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:input_type -> m8.platform.resourcemanager.v1.ChangeResourceStateRequest
 	8,  // 26: m8.platform.resourcemanager.v1.ResourceManagerService.MoveProject:input_type -> m8.platform.resourcemanager.v1.MoveProjectRequest
 	9,  // 27: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:input_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeRequest
-	11, // 28: m8.platform.resourcemanager.v1.ResourceManagerService.SetGroupOrganizationLink:input_type -> m8.platform.resourcemanager.v1.SetGroupOrganizationLinkRequest
-	12, // 29: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveGroupOrganizationLink:input_type -> m8.platform.resourcemanager.v1.RemoveGroupOrganizationLinkRequest
-	13, // 30: m8.platform.resourcemanager.v1.ResourceManagerService.ListGroupOrganizations:input_type -> m8.platform.resourcemanager.v1.ListGroupOrganizationsRequest
+	11, // 28: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.SetOrganizationGroupLinkRequest
+	12, // 29: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:input_type -> m8.platform.resourcemanager.v1.RemoveOrganizationGroupLinkRequest
+	13, // 30: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:input_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksRequest
 	15, // 31: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.SetEnvironmentBindingRequest
 	16, // 32: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:input_type -> m8.platform.resourcemanager.v1.RemoveEnvironmentBindingRequest
 	17, // 33: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:input_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsRequest
@@ -1551,9 +1551,9 @@ var file_m8_platform_resourcemanager_v1_resource_manager_service_proto_depIdxs =
 	0,  // 39: m8.platform.resourcemanager.v1.ResourceManagerService.ChangeResourceState:output_type -> m8.platform.resourcemanager.v1.ResourceRecord
 	24, // 40: m8.platform.resourcemanager.v1.ResourceManagerService.MoveProject:output_type -> m8.platform.resourcemanager.v1.Project
 	10, // 41: m8.platform.resourcemanager.v1.ResourceManagerService.ResolveResourceScope:output_type -> m8.platform.resourcemanager.v1.ResolveResourceScopeResponse
-	32, // 42: m8.platform.resourcemanager.v1.ResourceManagerService.SetGroupOrganizationLink:output_type -> m8.platform.resourcemanager.v1.GroupOrganizationLink
-	1,  // 43: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveGroupOrganizationLink:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
-	14, // 44: m8.platform.resourcemanager.v1.ResourceManagerService.ListGroupOrganizations:output_type -> m8.platform.resourcemanager.v1.ListGroupOrganizationsResponse
+	32, // 42: m8.platform.resourcemanager.v1.ResourceManagerService.SetOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.OrganizationGroupLink
+	1,  // 43: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveOrganizationGroupLink:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
+	14, // 44: m8.platform.resourcemanager.v1.ResourceManagerService.ListOrganizationGroupLinks:output_type -> m8.platform.resourcemanager.v1.ListOrganizationGroupLinksResponse
 	33, // 45: m8.platform.resourcemanager.v1.ResourceManagerService.SetEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EnvironmentBinding
 	1,  // 46: m8.platform.resourcemanager.v1.ResourceManagerService.RemoveEnvironmentBinding:output_type -> m8.platform.resourcemanager.v1.EmptyResponse
 	18, // 47: m8.platform.resourcemanager.v1.ResourceManagerService.ListEnvironmentBindings:output_type -> m8.platform.resourcemanager.v1.ListEnvironmentBindingsResponse
@@ -1572,7 +1572,7 @@ func file_m8_platform_resourcemanager_v1_resource_manager_service_proto_init() {
 	}
 	file_m8_platform_resourcemanager_v1_resource_proto_init()
 	file_m8_platform_resourcemanager_v1_tenant_proto_init()
-	file_m8_platform_resourcemanager_v1_group_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_group_proto_init()
 	file_m8_platform_resourcemanager_v1_organization_proto_init()
 	file_m8_platform_resourcemanager_v1_workspace_proto_init()
 	file_m8_platform_resourcemanager_v1_project_proto_init()

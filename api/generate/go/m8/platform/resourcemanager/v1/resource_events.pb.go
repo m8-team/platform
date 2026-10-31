@@ -284,7 +284,7 @@ func (x *ResourceChangedEvent) GetResourceAfter() *ResourceRecord {
 type GroupAffiliationChangedEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *ResourceEventMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Link          *GroupOrganizationLink `protobuf:"bytes,2,opt,name=link,proto3" json:"link,omitempty"`
+	Link          *OrganizationGroupLink `protobuf:"bytes,2,opt,name=link,proto3" json:"link,omitempty"`
 	Affiliated    bool                   `protobuf:"varint,3,opt,name=affiliated,proto3" json:"affiliated,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -327,7 +327,7 @@ func (x *GroupAffiliationChangedEvent) GetMetadata() *ResourceEventMetadata {
 	return nil
 }
 
-func (x *GroupAffiliationChangedEvent) GetLink() *GroupOrganizationLink {
+func (x *GroupAffiliationChangedEvent) GetLink() *OrganizationGroupLink {
 	if x != nil {
 		return x.Link
 	}
@@ -405,7 +405,7 @@ var File_m8_platform_resourcemanager_v1_resource_events_proto protoreflect.FileD
 
 const file_m8_platform_resourcemanager_v1_resource_events_proto_rawDesc = "" +
 	"\n" +
-	"4m8/platform/resourcemanager/v1/resource_events.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a=m8/platform/resourcemanager/v1/resource_manager_service.proto\x1a*m8/platform/resourcemanager/v1/group.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\"\x92\x04\n" +
+	"4m8/platform/resourcemanager/v1/resource_events.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/m8/platform/common/extension/v1/extension.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\x1a=m8/platform/resourcemanager/v1/resource_manager_service.proto\x1a7m8/platform/resourcemanager/v1/organization_group.proto\x1a0m8/platform/resourcemanager/v1/environment.proto\"\x92\x04\n" +
 	"\x15ResourceEventMetadata\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1d\n" +
 	"\n" +
@@ -428,7 +428,7 @@ const file_m8_platform_resourcemanager_v1_resource_events_proto_rawDesc = "" +
 	"\x0eresource_after\x18\x03 \x01(\v2..m8.platform.resourcemanager.v1.ResourceRecordR\rresourceAfter:-\x8a\xb5\x18)m8.platform.resource-manager.resources.v1\"\x8e\x02\n" +
 	"\x1cGroupAffiliationChangedEvent\x12Q\n" +
 	"\bmetadata\x18\x01 \x01(\v25.m8.platform.resourcemanager.v1.ResourceEventMetadataR\bmetadata\x12I\n" +
-	"\x04link\x18\x02 \x01(\v25.m8.platform.resourcemanager.v1.GroupOrganizationLinkR\x04link\x12\x1e\n" +
+	"\x04link\x18\x02 \x01(\v25.m8.platform.resourcemanager.v1.OrganizationGroupLinkR\x04link\x12\x1e\n" +
 	"\n" +
 	"affiliated\x18\x03 \x01(\bR\n" +
 	"affiliated:0\x8a\xb5\x18,m8.platform.resource-manager.affiliations.v1\"\x95\x02\n" +
@@ -469,7 +469,7 @@ var file_m8_platform_resourcemanager_v1_resource_events_proto_goTypes = []any{
 	(*ResourceRef)(nil),                    // 5: m8.platform.resourcemanager.v1.ResourceRef
 	(*timestamppb.Timestamp)(nil),          // 6: google.protobuf.Timestamp
 	(*ResourceRecord)(nil),                 // 7: m8.platform.resourcemanager.v1.ResourceRecord
-	(*GroupOrganizationLink)(nil),          // 8: m8.platform.resourcemanager.v1.GroupOrganizationLink
+	(*OrganizationGroupLink)(nil),          // 8: m8.platform.resourcemanager.v1.OrganizationGroupLink
 	(*EnvironmentBinding)(nil),             // 9: m8.platform.resourcemanager.v1.EnvironmentBinding
 }
 var file_m8_platform_resourcemanager_v1_resource_events_proto_depIdxs = []int32{
@@ -479,7 +479,7 @@ var file_m8_platform_resourcemanager_v1_resource_events_proto_depIdxs = []int32{
 	0, // 3: m8.platform.resourcemanager.v1.ResourceChangedEvent.change:type_name -> m8.platform.resourcemanager.v1.ResourceChangeKind
 	7, // 4: m8.platform.resourcemanager.v1.ResourceChangedEvent.resource_after:type_name -> m8.platform.resourcemanager.v1.ResourceRecord
 	1, // 5: m8.platform.resourcemanager.v1.GroupAffiliationChangedEvent.metadata:type_name -> m8.platform.resourcemanager.v1.ResourceEventMetadata
-	8, // 6: m8.platform.resourcemanager.v1.GroupAffiliationChangedEvent.link:type_name -> m8.platform.resourcemanager.v1.GroupOrganizationLink
+	8, // 6: m8.platform.resourcemanager.v1.GroupAffiliationChangedEvent.link:type_name -> m8.platform.resourcemanager.v1.OrganizationGroupLink
 	1, // 7: m8.platform.resourcemanager.v1.EnvironmentBindingChangedEvent.metadata:type_name -> m8.platform.resourcemanager.v1.ResourceEventMetadata
 	9, // 8: m8.platform.resourcemanager.v1.EnvironmentBindingChangedEvent.binding:type_name -> m8.platform.resourcemanager.v1.EnvironmentBinding
 	9, // [9:9] is the sub-list for method output_type
@@ -496,7 +496,7 @@ func file_m8_platform_resourcemanager_v1_resource_events_proto_init() {
 	}
 	file_m8_platform_resourcemanager_v1_resource_proto_init()
 	file_m8_platform_resourcemanager_v1_resource_manager_service_proto_init()
-	file_m8_platform_resourcemanager_v1_group_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_group_proto_init()
 	file_m8_platform_resourcemanager_v1_environment_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{

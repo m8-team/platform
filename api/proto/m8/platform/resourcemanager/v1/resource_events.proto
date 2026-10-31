@@ -4,7 +4,7 @@ import "google/protobuf/timestamp.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
 import "m8/platform/resourcemanager/v1/resource_manager_service.proto";
-import "m8/platform/resourcemanager/v1/group.proto";
+import "m8/platform/resourcemanager/v1/organization_group.proto";
 import "m8/platform/resourcemanager/v1/environment.proto";
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
@@ -43,7 +43,7 @@ message ResourceChangedEvent {
 message GroupAffiliationChangedEvent {
   option (m8.platform.common.extension.v1.topic) = "m8.platform.resource-manager.affiliations.v1";
   ResourceEventMetadata metadata = 1;
-  GroupOrganizationLink link = 2;
+  OrganizationGroupLink link = 2;
   bool affiliated = 3;
 }
 message EnvironmentBindingChangedEvent {
