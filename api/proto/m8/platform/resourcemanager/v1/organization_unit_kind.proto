@@ -19,6 +19,7 @@ message OrganizationUnitKind {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
+
   UnitKindScope scope = 2 [
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).enum = {
@@ -27,13 +28,19 @@ message OrganizationUnitKind {
     }
   ];
 
-  string tenant_id = 3;
+  string tenant_id = 3 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
 
-  string organization_id = 4;
+  string organization_id = 4 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
 
   string code = 5 [
     (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
+    (buf.validate.field).string.pattern = "^[A-Z_]+$"
   ];
 
   bool active = 6;

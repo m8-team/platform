@@ -163,14 +163,13 @@ var File_m8_platform_resourcemanager_v1_organization_unit_kind_proto protoreflec
 
 const file_m8_platform_resourcemanager_v1_organization_unit_kind_proto_rawDesc = "" +
 	"\n" +
-	";m8/platform/resourcemanager/v1/organization_unit_kind.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xba\x03\n" +
+	";m8/platform/resourcemanager/v1/organization_unit_kind.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xdd\x03\n" +
 	"\x14OrganizationUnitKind\x12W\n" +
 	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\t\xe0A\x02\xbaH\x03\xc8\x01\x01R\bmetadata\x12g\n" +
-	"\x05scope\x18\x02 \x01(\x0e2B.m8.platform.resourcemanager.v1.OrganizationUnitKind.UnitKindScopeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05scope\x12\x1b\n" +
-	"\ttenant_id\x18\x03 \x01(\tR\btenantId\x12'\n" +
-	"\x0forganization_id\x18\x04 \x01(\tR\x0eorganizationId\x12\x1e\n" +
-	"\x04code\x18\x05 \x01(\tB\n" +
-	"\xe0A\x02\xbaH\x04r\x02\x10\x01R\x04code\x12\x16\n" +
+	"\x05scope\x18\x02 \x01(\x0e2B.m8.platform.resourcemanager.v1.OrganizationUnitKind.UnitKindScopeB\r\xe0A\x02\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05scope\x12(\n" +
+	"\ttenant_id\x18\x03 \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\btenantId\x124\n" +
+	"\x0forganization_id\x18\x04 \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x0eorganizationId\x12'\n" +
+	"\x04code\x18\x05 \x01(\tB\x13\xe0A\x02\xbaH\rr\v2\t^[A-Z_]+$R\x04code\x12\x16\n" +
 	"\x06active\x18\x06 \x01(\bR\x06active\"b\n" +
 	"\rUnitKindScope\x12\x15\n" +
 	"\x11SCOPE_UNSPECIFIED\x10\x00\x12\x10\n" +
