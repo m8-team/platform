@@ -1,0 +1,32 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/resourcemanager/v1/resource.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// System kinds are global, tenant kinds shared in a tenant, organization kinds
+// are visible only in their organization. Kind IDs never change on rename.
+enum OrgUnitKindScope {
+  ORG_UNIT_KIND_SCOPE_UNSPECIFIED = 0;
+  ORG_UNIT_KIND_SCOPE_SYSTEM = 1;
+  ORG_UNIT_KIND_SCOPE_TENANT = 2;
+  ORG_UNIT_KIND_SCOPE_ORGANIZATION = 3;
+}
+
+// User-extensible directory of kinds; not the ResourceKindPolicy registry.
+message OrgUnitKind {
+  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
+  OrgUnitKindScope scope = 2 [(google.api.field_behavior) = REQUIRED];
+  // Empty for SYSTEM; required by server for TENANT and ORGANIZATION.
+  string tenant_id = 3;
+  // Required by server only for ORGANIZATION.
+  string organization_id = 4;
+  // Stable unique code within the scope, e.g. DEPARTMENT, DARK_STORE.
+  string code = 5 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
+  // Disabling prevents new assignments but preserves existing kind_id links.
+  bool enabled = 6;
+  map<string, string> localized_names = 7;
+}

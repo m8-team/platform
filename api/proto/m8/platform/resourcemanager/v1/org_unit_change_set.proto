@@ -13,6 +13,10 @@ enum OrgUnitMutationKind {
   ORG_UNIT_MUTATION_KIND_MOVE = 2;
   ORG_UNIT_MUTATION_KIND_RENAME = 3;
   ORG_UNIT_MUTATION_KIND_CLOSE = 4;
+  // Contract-level extension: current immediate writer rejects these until
+  // kind/source-authority validation and persistence are implemented.
+  ORG_UNIT_MUTATION_KIND_SET_KIND = 5;
+  ORG_UNIT_MUTATION_KIND_SET_CODE = 6;
 }
 message OrgUnitMutation {
   OrgUnitMutationKind kind = 1 [(google.api.field_behavior) = REQUIRED];
@@ -20,6 +24,12 @@ message OrgUnitMutation {
   string parent_org_unit_id = 3;
   string display_name = 4;
   string authoritative_source_id = 5;
+  // For CREATE/SET_KIND, references the registered OrgUnitKind.
+  string kind_id = 6;
+  // For CREATE/SET_CODE. Business code is not the stable OrgUnit ID.
+  string code = 7;
+  // Recorded in OrgUnitMove on MOVE and in version provenance.
+  string reason = 8;
 }
 message OrgUnitChangeSet {
   string id = 1 [(google.api.field_behavior) = IDENTIFIER];

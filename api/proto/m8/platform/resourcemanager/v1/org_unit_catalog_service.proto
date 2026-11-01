@@ -1,0 +1,91 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "m8/platform/resourcemanager/v1/org_unit_external_reference.proto";
+import "m8/platform/resourcemanager/v1/org_unit_kind.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Contract-first: implementation/authn, persistence, generated bindings and
+// source-authority checks must be wired before these routes are registered.
+service OrgUnitKindService {
+  rpc CreateOrgUnitKind(CreateOrgUnitKindRequest) returns (OrgUnitKind) {
+    option (google.api.http) = {post: "/resource-manager/v1/org-unit-kinds" body: "*"};
+  }
+  rpc ListOrgUnitKinds(ListOrgUnitKindsRequest) returns (ListOrgUnitKindsResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/org-unit-kinds"};
+  }
+  rpc UpdateOrgUnitKind(UpdateOrgUnitKindRequest) returns (OrgUnitKind) {
+    option (google.api.http) = {patch: "/resource-manager/v1/org-unit-kinds/{kind_id}" body: "*"};
+  }
+}
+
+message CreateOrgUnitKindRequest {
+  OrgUnitKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListOrgUnitKindsRequest {
+  string tenant_id = 1;
+  string organization_id = 2;
+  bool include_disabled = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+}
+message ListOrgUnitKindsResponse {
+  repeated OrgUnitKind kinds = 1;
+  string next_page_token = 2;
+}
+message UpdateOrgUnitKindRequest {
+  string kind_id = 1 [(google.api.field_behavior) = REQUIRED];
+  OrgUnitKind kind = 2 [(google.api.field_behavior) = REQUIRED];
+  int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+service OrgUnitExternalReferenceService {
+  rpc LinkOrgUnitExternalReference(LinkOrgUnitExternalReferenceRequest) returns (OrgUnitExternalReference) {
+    option (google.api.http) = {post: "/resource-manager/v1/org-unit-external-references" body: "*"};
+  }
+  rpc RetireOrgUnitExternalReference(RetireOrgUnitExternalReferenceRequest) returns (OrgUnitExternalReference) {
+    option (google.api.http) = {post: "/resource-manager/v1/org-unit-external-references/{id}:retire" body: "*"};
+  }
+  rpc ListOrgUnitExternalReferences(ListOrgUnitExternalReferencesRequest) returns (ListOrgUnitExternalReferencesResponse) {
+    option (google.api.http) = {get: "/resource-manager/v1/org-unit-external-references"};
+  }
+  rpc ResolveOrgUnitExternalReference(ResolveOrgUnitExternalReferenceRequest) returns (OrgUnitExternalReference) {
+    option (google.api.http) = {get: "/resource-manager/v1/org-unit-external-references:resolve"};
+  }
+}
+
+message LinkOrgUnitExternalReferenceRequest {
+  OrgUnitExternalReference reference = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message RetireOrgUnitExternalReferenceRequest {
+  string id = 1 [(google.api.field_behavior) = REQUIRED];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_to = 3 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
+}
+message ListOrgUnitExternalReferencesRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string organization_id = 2;
+  string org_unit_id = 3;
+  bool include_retired = 4;
+  int32 page_size = 5;
+  string page_token = 6;
+}
+message ListOrgUnitExternalReferencesResponse {
+  repeated OrgUnitExternalReference references = 1;
+  string next_page_token = 2;
+}
+message ResolveOrgUnitExternalReferenceRequest {
+  string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string source_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string external_type = 3 [(google.api.field_behavior) = REQUIRED];
+  string external_id = 4 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp as_of = 5;
+}
