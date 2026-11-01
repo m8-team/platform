@@ -11,7 +11,7 @@ message OrganizationUnitKind {
   enum UnitKindScope {
     SCOPE_UNSPECIFIED = 0;
     SCOPE_SYSTEM = 1;
-    SCOPE_TENANT = 2;
+    SCOPE_TENANT = 2;   
     SCOPE_ORGANIZATION = 3;
   }
 

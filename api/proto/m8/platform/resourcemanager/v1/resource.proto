@@ -8,130 +8,132 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-message ResourceRef {
-  string kind = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-
-  string id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
-  ];
-}
-
-message OwnerScope {
-  reserved 3;
-  reserved "project_id";
-
-  oneof owner {
-    option (buf.validate.oneof).required = true;
-
-    string organization_id = 1 [(buf.validate.field).string.uuid = true];
-
-    string workspace_id = 2 [(buf.validate.field).string.uuid = true];
-  }
-}
-
 enum ResourceState {
-  RESOURCE_STATE_UNSPECIFIED = 0;
-  RESOURCE_STATE_ACTIVE = 1;
-  RESOURCE_STATE_SUSPENDED = 2;
-  RESOURCE_STATE_ARCHIVED = 3;
-  RESOURCE_STATE_DELETED = 4;
+    RESOURCE_STATE_UNSPECIFIED = 0;
+    RESOURCE_STATE_ACTIVE = 1;
+    RESOURCE_STATE_SUSPENDED = 2;
+    RESOURCE_STATE_ARCHIVED = 3;
+    RESOURCE_STATE_DELETED = 4;
 }
 
 message ResourceMetadata {
-  string id = 1 [
-    (google.api.field_behavior) = IDENTIFIER,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
+    string id = 1 [
+        (google.api.field_behavior) = IDENTIFIER,
+        (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  string name = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 256
-  ];
+    string name = 2 [
+        (google.api.field_behavior) = OPTIONAL,
+        (buf.validate.field).string.max_len = 256
+    ];
 
-  string description = 3 [
-    (google.api.field_behavior) = OPTIONAL,
-    (buf.validate.field).string.max_len = 1024
-  ];
+    string description = 3 [
+        (google.api.field_behavior) = OPTIONAL,
+        (buf.validate.field).string.max_len = 1024
+    ];
 
-  map<string, string> labels = 4 [(google.api.field_behavior) = OPTIONAL];
+    map<string, string> labels = 4 [(google.api.field_behavior) = OPTIONAL];
 
-  ResourceState state = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    ResourceState state = 5 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  int64 revision = 6 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int64.gte = 0
-  ];
+    int64 revision = 6 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).int64.gte = 0
+    ];
 
-  google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  google.protobuf.Timestamp delete_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp delete_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message ResourceDescriptor {
-  ResourceRef resource = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
+    ResourceRef resource = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).required = true
+    ];
 
-  OwnerScope owner = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
+    OwnerScope owner = 2 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).required = true
+    ];
 
-  string owning_organization_id = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
+    string owning_organization_id = 3 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  ResourceMetadata metadata = 4 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
+    ResourceMetadata metadata = 4 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).required = true
+    ];
 
-  string module = 5 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
+    string module = 5 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
 }
 
-message ResourceKindPolicy {
-  string kind = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
 
-  repeated string allowed_owner_kinds = 2 [
-    (google.api.field_behavior) = OPTIONAL,
-    (google.api.field_behavior) = UNORDERED_LIST,
-    (buf.validate.field).repeated = {
-      unique: true
-      items: {
-        string: {
-          in: [
-            "organization",
-            "workspace",
-            "project"
-          ]
-        }
-      }
+message ResourceRef {
+    string kind = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
+
+    string id = 2 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.uuid = true
+    ];
+}
+
+message OwnerScope {
+    reserved 3;
+    reserved "project_id";
+
+    oneof owner {
+        option (buf.validate.oneof).required = true;
+
+        string organization_id = 1 [(buf.validate.field).string.uuid = true];
+
+        string workspace_id = 2 [(buf.validate.field).string.uuid = true];
     }
-  ];
+}
 
-  string responsible_module = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
 
-  bool environment_binding_allowed = 4 [(google.api.field_behavior) = OPTIONAL];
+message ResourceKindPolicy {
+    string kind = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
+
+    repeated string allowed_owner_kinds = 2 [
+        (google.api.field_behavior) = OPTIONAL,
+        (google.api.field_behavior) = UNORDERED_LIST,
+        (buf.validate.field).repeated = {
+            unique: true
+            items: {
+                string: {
+                    in: [
+                        "organization",
+                        "workspace",
+                        "project"
+                    ]
+                }
+            }
+        }
+    ];
+
+    string responsible_module = 3 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
+
+    bool environment_binding_allowed = 4 [(google.api.field_behavior) = OPTIONAL];
 }

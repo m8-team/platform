@@ -1,0 +1,28 @@
+{
+  "source": {
+    "host": "rc1d-r5gtv0oel5pb5oeh.mdb.yandexcloud.net",
+    "port": 8443,
+    "secure": true,
+    "ca_cert": "certs/RootCA.pem",
+    "username": "import",
+    "password": "\"jAJ5%@y2>;4jB]",
+    "timeout_seconds": 120
+  },
+  "target": {
+    "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+    "port": 8443,
+    "secure": true,
+    "ca_cert": "certs/RootCA.pem",
+    "username": "analytics",
+    "password": "ycBL:.yv`X+7;7m$/MOAdmX)ZR(\\foxZz/d\"",
+    "timeout_seconds": 120
+  },
+  "target_cluster": "default",
+  "expected_replicas": 2,
+  "databases": [
+    "analytics",
+    "corp_portal",
+    "zendendb"
+  ],
+  "source_native_tls_port": 9440
+}

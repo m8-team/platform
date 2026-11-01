@@ -4,7 +4,7 @@ package m8.platform.resourcemanager.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-import "m8/platform/resourcemanager/v1/org_unit.proto";
+import "m8/platform/resourcemanager/v1/organization_unit.proto";
 import "m8/platform/resourcemanager/v1/org_unit_move.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
