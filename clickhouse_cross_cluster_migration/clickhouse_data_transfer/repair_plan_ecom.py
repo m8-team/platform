@@ -15,9 +15,12 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from transfer_data import (Client, MigrationError, ident, get_metadata, get_columns,
-                           describe_columns, row_fingerprint, fingerprint_equal,
-                           verify_fingerprint_on_replicas, rowcount)
+from transfer_data import (Client, MigrationError, ident, lit as sql_lit,
+                           get_metadata, get_columns, describe_columns,
+                           row_fingerprint, fingerprint_equal,
+                           verify_fingerprint_on_replicas, rowcount,
+                           is_unversioned_replacing, verified_replicas,
+                           replica_counts)
 
 DB = 'zendendb'
 TABLE = 'ПланПродаж_ecom'
@@ -60,8 +63,8 @@ def meta_check(source, target, stage_exists=False):
         raise MigrationError('Source or current target table does not exist')
     if src['engine'] != 'ReplacingMergeTree' or dst['engine'] != 'ReplicatedReplacingMergeTree':
         raise MigrationError('Unexpected source/target engine, expected ReplacingMergeTree / ReplicatedReplacingMergeTree')
-    if str(src.get('engine_full') or '').strip() != 'ReplacingMergeTree':
-        raise MigrationError('Source engine has unexpected parameters; this tool is only for unversioned ReplacingMergeTree')
+    if not is_unversioned_replacing(src):
+        raise MigrationError('Source ReplacingMergeTree has explicit version/parameters; this tool requires unversioned ReplacingMergeTree')
     for field in ('partition_key', 'sorting_key', 'primary_key', 'sampling_key'):
         if (src.get(field) or '') != (dst.get(field) or ''):
             raise MigrationError(f'Source and target {field} differ')
@@ -82,6 +85,15 @@ def meta_check(source, target, stage_exists=False):
             raise MigrationError('Staging columns differ from target')
         if describe_columns(target, (DB, STAGE)) != describe_columns(target, (DB, TABLE)):
             raise MigrationError('Staging DESCRIBE columns differ from target')
+        keeper_rows = target.rows(
+            'SELECT `table`, zookeeper_path FROM system.replicas '
+            f'WHERE database = {sql_lit(DB)} AND `table` IN ({sql_lit(TABLE)}, {sql_lit(STAGE)})'
+        )
+        by_table = {r['table']: r['zookeeper_path'] for r in keeper_rows}
+        if not all(by_table.get(t) for t in (TABLE, STAGE)):
+            raise MigrationError('Cannot verify distinct Keeper paths for target and stage; refusing INSERT')
+        if by_table[TABLE] == by_table[STAGE]:
+            raise MigrationError('Staging table SHARES Keeper path with original: refusing INSERT')
     return (DB, STAGE) in dst_meta
 
 
@@ -127,9 +139,19 @@ def run():
             target.query(f'CREATE TABLE {ident(DB)}.{ident(STAGE)} AS {ident(DB)}.{ident(TABLE)}')
             print('Created staged table; original target untouched.')
         meta_check(source, target, stage_exists=True)
+        # Both replicas must be healthy and the staging table empty on BOTH
+        # before writing any data; never blindly retry a partially populated stage.
+        verified_replicas(target, cluster, stage_key, replicas, None, args.replica_wait_seconds)
+        per_replica_counts = replica_counts(target, cluster, stage_key)
+        if len(per_replica_counts) != replicas:
+            raise MigrationError('Cannot confirm stage row counts on both replicas; refusing INSERT')
         stage_rows = rowcount(target, stage_key)
-        if stage_rows:
+        if any(int(r['rows']) > 0 for r in per_replica_counts):
+            if stage_rows == 0:
+                raise MigrationError('Staging is empty locally but contains rows on another replica; refusing INSERT')
             print('Stage already has rows: no INSERT will be retried.')
+        elif stage_rows != 0:
+            raise MigrationError('Stage local count differs from replica counts; refusing INSERT')
         else:
             # Native preserves DateTime, LowCardinality, Decimals, NULLs precisely.
             native = execute_binary(source, f'SELECT * FROM {ident(DB)}.{ident(TABLE)} FINAL FORMAT Native')
@@ -149,7 +171,7 @@ def run():
         if not fingerprint_equal(src_fp, staged_fp):
             raise MigrationError(f'Stage FINAL mismatches source FINAL. source={src_fp}, stage={staged_fp}; NO CUTOVER')
         # Verify each replica independently via aggregate query pushed to the local host.
-        from transfer_data import verified_replicas, replica_fingerprints
+        from transfer_data import replica_fingerprints
         verified_replicas(target, cluster, stage_key, replicas, None, args.replica_wait_seconds)
         per_replica = replica_fingerprints(target, cluster, stage_key, True)
         if len(per_replica) != replicas or any(not fingerprint_equal(src_fp, row) for row in per_replica):

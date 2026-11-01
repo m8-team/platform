@@ -158,12 +158,25 @@ def is_unversioned_replacing(metadata):
     """
     if metadata.get('engine') != 'ReplacingMergeTree':
         return False
+    # engine_full is a FULL engine expression, not just the engine name.
+    # Example: "ReplacingMergeTree ORDER BY (`Подразделение`, `Дата`) SETTINGS ...".
     engine_full = str(metadata.get('engine_full') or '').strip()
-    prefix = 'ReplacingMergeTree'
-    if not engine_full.startswith(prefix):
-        raise MigrationError('Cannot determine ReplacingMergeTree arguments from engine_full; refusing an unsafe copy')
-    suffix = engine_full[len(prefix):].lstrip()
-    return not suffix.startswith('(')
+    match = re.match(r'^ReplacingMergeTree\b', engine_full, flags=re.IGNORECASE)
+    if not match:
+        raise MigrationError('Cannot determine ReplacingMergeTree arguments from engine_full; refusing unsafe copy')
+    tail = engine_full[match.end():].lstrip()
+    if tail.startswith('('):
+        # No-argument "ReplacingMergeTree()" is also unversioned.
+        empty_args = re.match(r'^\(\s*\)', tail)
+        if not empty_args:
+            return False  # Has version or other explicit engine arguments.
+        tail = tail[empty_args.end():].lstrip()
+    if tail and not re.match(
+        r'^(?:PARTITION\s+BY|ORDER\s+BY|PRIMARY\s+KEY|SAMPLE\s+BY|TTL\b|SETTINGS\b|COMMENT\b)',
+        tail, flags=re.IGNORECASE
+    ):
+        raise MigrationError('Unexpected engine_full syntax after ReplacingMergeTree; refusing unsafe copy')
+    return True
 
 
 def read_journal(path):

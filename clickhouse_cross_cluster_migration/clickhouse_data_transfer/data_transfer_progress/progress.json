@@ -2,6 +2,39 @@
   "format_version": 1,
   "source": "rc1d-r5gtv0oel5pb5oeh.mdb.yandexcloud.net:9440",
   "tables": {
+    "analytics.authentications": {
+      "completed_at": "2026-11-01T23:35:33.399898+00:00",
+      "insert_returned_at": "2026-11-01T23:35:30.687120+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "11538940598048187108",
+          "checksum_xor": "10743242918687551766",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 178039
+        },
+        {
+          "checksum_sum": "11538940598048187108",
+          "checksum_xor": "10743242918687551766",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 178039
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "11538940598048187108",
+        "checksum_xor": "10743242918687551766",
+        "rows": 178039
+      },
+      "source_rows_after": 178041,
+      "source_rows_before": 178041,
+      "started_at": "2026-11-01T23:35:29.804949+00:00",
+      "status": "DONE",
+      "target_rows": 178039,
+      "verified_fingerprint": {
+        "checksum_sum": "11538940598048187108",
+        "checksum_xor": "10743242918687551766",
+        "rows": 178039
+      }
+    },
     "analytics.authentications_channels": {
       "completed_at": "2026-11-01T23:17:15.010646+00:00",
       "insert_returned_at": "2026-11-01T23:17:12.858220+00:00",
@@ -201,15 +234,37 @@
       }
     },
     "analytics.products": {
+      "completed_at": "2026-11-01T23:35:11.689083+00:00",
       "insert_returned_at": "2026-11-01T23:35:09.039384+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "15301663269331546343",
+          "checksum_xor": "10801969139602894899",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 141075
+        },
+        {
+          "checksum_sum": "15301663269331546343",
+          "checksum_xor": "10801969139602894899",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 141075
+        }
+      ],
       "source_fingerprint_before": {
         "checksum_sum": "15301663269331546343",
         "checksum_xor": "10801969139602894899",
         "rows": 141075
       },
+      "source_rows_after": 152799,
       "source_rows_before": 152799,
       "started_at": "2026-11-01T23:35:08.315435+00:00",
-      "status": "VERIFYING"
+      "status": "DONE",
+      "target_rows": 141075,
+      "verified_fingerprint": {
+        "checksum_sum": "15301663269331546343",
+        "checksum_xor": "10801969139602894899",
+        "rows": 141075
+      }
     },
     "analytics.stores": {
       "failed_at": "2026-11-01T23:06:22.174111+00:00",
@@ -238,6 +293,39 @@
         "checksum_sum": "16140427678774037266",
         "checksum_xor": "6161846164558961206",
         "rows": 560
+      }
+    },
+    "corp_portal.b_user": {
+      "completed_at": "2026-11-01T23:35:21.497968+00:00",
+      "insert_returned_at": "2026-11-01T23:35:18.904001+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "13364835777205980963",
+          "checksum_xor": "6086187683240196934",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 27991
+        },
+        {
+          "checksum_sum": "13364835777205980963",
+          "checksum_xor": "6086187683240196934",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 27991
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "13364835777205980963",
+        "checksum_xor": "6086187683240196934",
+        "rows": 27991
+      },
+      "source_rows_after": 27991,
+      "source_rows_before": 27991,
+      "started_at": "2026-11-01T23:35:18.343880+00:00",
+      "status": "DONE",
+      "target_rows": 27991,
+      "verified_fingerprint": {
+        "checksum_sum": "13364835777205980963",
+        "checksum_xor": "6086187683240196934",
+        "rows": 27991
       }
     },
     "corp_portal.employees": {
@@ -1165,6 +1253,39 @@
         "checksum_sum": "0",
         "checksum_xor": "0",
         "rows": 0
+      }
+    },
+    "zendendb.WB_Warehouse": {
+      "completed_at": "2026-11-01T23:35:42.385857+00:00",
+      "insert_returned_at": "2026-11-01T23:35:38.900417+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "3594565556259682353",
+          "checksum_xor": "16477705173978598954",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1749320
+        },
+        {
+          "checksum_sum": "3594565556259682353",
+          "checksum_xor": "16477705173978598954",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1749320
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "3594565556259682353",
+        "checksum_xor": "16477705173978598954",
+        "rows": 1749320
+      },
+      "source_rows_after": 1749320,
+      "source_rows_before": 1749320,
+      "started_at": "2026-11-01T23:35:37.757895+00:00",
+      "status": "DONE",
+      "target_rows": 1749320,
+      "verified_fingerprint": {
+        "checksum_sum": "3594565556259682353",
+        "checksum_xor": "16477705173978598954",
+        "rows": 1749320
       }
     },
     "zendendb.WB_warehouses_catalog": {
@@ -3485,6 +3606,18 @@
         "checksum_xor": "204613668520554566",
         "rows": 54024
       }
+    },
+    "zendendb.ЦеныНоменклатуры": {
+      "error": "target: HTTP 500: Code: 252. DB::Exception: Too many partitions for single INSERT block (more than 100). The limit is controlled by 'max_partitions_per_insert_block' setting. Large number of partitions is a common misconception. It will lead to severe negative performance impact, including slow server startup, slow INSERT queries and slow SELECT queries. Recommended total number of partitions for a table is under 1000..10000. Please note, that partitioning is not intended to speed up SELECT queries (ORDER BY key is sufficient to make range queries fast). Partitions are intended for data manipulation (DROP PARTITION, etc). (TOO_MANY_PARTS) (version 26.8.33.10-yc.3)",
+      "failed_at": "2026-11-01T23:35:48.855757+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "6509966378410127514",
+        "checksum_xor": "7867915035579916613",
+        "rows": 1068464
+      },
+      "source_rows_before": 1068464,
+      "started_at": "2026-11-01T23:35:47.827671+00:00",
+      "status": "UNCERTAIN"
     }
   },
   "target": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net"

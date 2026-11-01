@@ -1,3 +1,13 @@
+# Исправление v2 (2026-11-02)
+
+Ошибка `Source engine has unexpected parameters` вызвана некорректной проверкой `system.tables.engine_full` на равенство строке `ReplacingMergeTree`. На самом деле `engine_full` может быть `ReplacingMergeTree ORDER BY (...) SETTINGS ...`. Теперь версия движка определяется отдельно от секций ORDER BY, PARTITION BY, SETTINGS и т. д. `ReplacingMergeTree(timestamp)` по-прежнему отклоняется, чтобы не применять этот сценарий к таблице с параметром версии.
+
+Дополнительно перед вставкой staging-таблица проверяется на **отдельный Keeper-путь** от действующей таблицы, а обе реплики проверяются на наличие данных. Работа с `--prepare` по-прежнему не изменяет действующую таблицу.
+
+Замени **оба** файла `repair_plan_ecom.py` и `transfer_data.py` из этого архива в своём текущем каталоге; `config.json`, `progress.json` и `RootCA.pem` сохраняй. Выполняй сначала `--inspect`, затем `--prepare --ack-source-frozen`, затем `--verify --ack-source-frozen`. Самостоятельно повторно делать `INSERT INTO zendendb.ПланПродаж_ecom` нельзя.
+
+---
+
 # План безопасного восстановления `zendendb.ПланПродаж_ecom`
 
 Только для **одной** таблицы и конкретного случая: `ReplacingMergeTree` без `ver`, 492 физических строки на исходном ClickHouse, 430 логических строк при `FINAL`, а в новом ClickHouse 430 строк, 62 из которых выбраны не так, как на источнике.
