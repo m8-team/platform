@@ -281,6 +281,112 @@ func local_request_OrgStructureService_ListOrgUnitDescendants_0(ctx context.Cont
 	return msg, metadata, err
 }
 
+var filter_OrgStructureService_GetOrganizationStructureAt_0 = &utilities.DoubleArray{Encoding: map[string]int{"organization_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_OrgStructureService_GetOrganizationStructureAt_0(ctx context.Context, marshaler runtime.Marshaler, client OrgStructureServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetOrganizationStructureAtRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["organization_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
+	}
+	protoReq.OrganizationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OrgStructureService_GetOrganizationStructureAt_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.GetOrganizationStructureAt(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_OrgStructureService_GetOrganizationStructureAt_0(ctx context.Context, marshaler runtime.Marshaler, server OrgStructureServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetOrganizationStructureAtRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["organization_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
+	}
+	protoReq.OrganizationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OrgStructureService_GetOrganizationStructureAt_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.GetOrganizationStructureAt(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_OrgStructureService_ListOrgUnitMoves_0 = &utilities.DoubleArray{Encoding: map[string]int{"organization_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_OrgStructureService_ListOrgUnitMoves_0(ctx context.Context, marshaler runtime.Marshaler, client OrgStructureServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListOrgUnitMovesRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["organization_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
+	}
+	protoReq.OrganizationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OrgStructureService_ListOrgUnitMoves_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListOrgUnitMoves(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_OrgStructureService_ListOrgUnitMoves_0(ctx context.Context, marshaler runtime.Marshaler, server OrgStructureServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListOrgUnitMovesRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["organization_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "organization_id")
+	}
+	protoReq.OrganizationId, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "organization_id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OrgStructureService_ListOrgUnitMoves_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListOrgUnitMoves(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 var filter_OrgStructureService_ListOrgUnitVersions_0 = &utilities.DoubleArray{Encoding: map[string]int{"organization_id": 0, "org_unit_id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 
 func request_OrgStructureService_ListOrgUnitVersions_0(ctx context.Context, marshaler runtime.Marshaler, client OrgStructureServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -436,6 +542,46 @@ func RegisterOrgStructureServiceHandlerServer(ctx context.Context, mux *runtime.
 		}
 		forward_OrgStructureService_ListOrgUnitDescendants_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_OrgStructureService_GetOrganizationStructureAt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrganizationStructureAt", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}/org-structure:at"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OrgStructureService_GetOrganizationStructureAt_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgStructureService_GetOrganizationStructureAt_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_OrgStructureService_ListOrgUnitMoves_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitMoves", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}/org-unit-moves"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OrgStructureService_ListOrgUnitMoves_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgStructureService_ListOrgUnitMoves_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_OrgStructureService_ListOrgUnitVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -564,6 +710,40 @@ func RegisterOrgStructureServiceHandlerClient(ctx context.Context, mux *runtime.
 		}
 		forward_OrgStructureService_ListOrgUnitDescendants_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_OrgStructureService_GetOrganizationStructureAt_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrganizationStructureAt", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}/org-structure:at"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OrgStructureService_GetOrganizationStructureAt_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgStructureService_GetOrganizationStructureAt_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_OrgStructureService_ListOrgUnitMoves_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitMoves", runtime.WithHTTPPathPattern("/resource-manager/v1/organizations/{organization_id}/org-unit-moves"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OrgStructureService_ListOrgUnitMoves_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OrgStructureService_ListOrgUnitMoves_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_OrgStructureService_ListOrgUnitVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -585,17 +765,21 @@ func RegisterOrgStructureServiceHandlerClient(ctx context.Context, mux *runtime.
 }
 
 var (
-	pattern_OrgStructureService_GetOrgUnit_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, ""))
-	pattern_OrgStructureService_ListOrgUnits_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units"}, ""))
-	pattern_OrgStructureService_ListOrgUnitAncestors_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "ancestors"))
-	pattern_OrgStructureService_ListOrgUnitDescendants_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "descendants"))
-	pattern_OrgStructureService_ListOrgUnitVersions_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "history"))
+	pattern_OrgStructureService_GetOrgUnit_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, ""))
+	pattern_OrgStructureService_ListOrgUnits_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units"}, ""))
+	pattern_OrgStructureService_ListOrgUnitAncestors_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "ancestors"))
+	pattern_OrgStructureService_ListOrgUnitDescendants_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "descendants"))
+	pattern_OrgStructureService_GetOrganizationStructureAt_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-structure"}, "at"))
+	pattern_OrgStructureService_ListOrgUnitMoves_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-unit-moves"}, ""))
+	pattern_OrgStructureService_ListOrgUnitVersions_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"resource-manager", "v1", "organizations", "organization_id", "org-units", "org_unit_id"}, "history"))
 )
 
 var (
-	forward_OrgStructureService_GetOrgUnit_0             = runtime.ForwardResponseMessage
-	forward_OrgStructureService_ListOrgUnits_0           = runtime.ForwardResponseMessage
-	forward_OrgStructureService_ListOrgUnitAncestors_0   = runtime.ForwardResponseMessage
-	forward_OrgStructureService_ListOrgUnitDescendants_0 = runtime.ForwardResponseMessage
-	forward_OrgStructureService_ListOrgUnitVersions_0    = runtime.ForwardResponseMessage
+	forward_OrgStructureService_GetOrgUnit_0                 = runtime.ForwardResponseMessage
+	forward_OrgStructureService_ListOrgUnits_0               = runtime.ForwardResponseMessage
+	forward_OrgStructureService_ListOrgUnitAncestors_0       = runtime.ForwardResponseMessage
+	forward_OrgStructureService_ListOrgUnitDescendants_0     = runtime.ForwardResponseMessage
+	forward_OrgStructureService_GetOrganizationStructureAt_0 = runtime.ForwardResponseMessage
+	forward_OrgStructureService_ListOrgUnitMoves_0           = runtime.ForwardResponseMessage
+	forward_OrgStructureService_ListOrgUnitVersions_0        = runtime.ForwardResponseMessage
 )

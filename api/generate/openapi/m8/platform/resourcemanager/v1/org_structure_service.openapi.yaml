@@ -7,6 +7,73 @@ info:
     description: HTTP API specifications generated from protobuf contracts.
     version: v1
 paths:
+    /resource-manager/v1/organizations/{organizationId}/org-structure:at:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_GetOrganizationStructureAt
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: asOf
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: atRevision
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetOrganizationStructureAtResponse'
+    /resource-manager/v1/organizations/{organizationId}/org-unit-moves:
+        get:
+            tags:
+                - OrgStructureService
+            operationId: OrgStructureService_ListOrgUnitMoves
+            parameters:
+                - name: organizationId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitMovesResponse'
     /resource-manager/v1/organizations/{organizationId}/org-units:
         get:
             tags:
@@ -164,6 +231,20 @@ paths:
                                 $ref: '#/components/schemas/ListOrgUnitVersionsResponse'
 components:
     schemas:
+        GetOrganizationStructureAtResponse:
+            type: object
+            properties:
+                orgUnits:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnit'
+                structureRevision:
+                    type: string
+                asOf:
+                    type: string
+                    format: date-time
+                nextPageToken:
+                    type: string
         ListOrgUnitAncestorsResponse:
             type: object
             properties:
@@ -183,6 +264,15 @@ components:
                 nextPageToken:
                     type: string
                 structureRevision:
+                    type: string
+        ListOrgUnitMovesResponse:
+            type: object
+            properties:
+                moves:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitMove'
+                nextPageToken:
                     type: string
         ListOrgUnitVersionsResponse:
             type: object
@@ -245,9 +335,8 @@ components:
                 structureRevision:
                     readOnly: true
                     type: string
-            description: |-
-                OrgUnit has stable identity independent of its parent or display name.
-                 Person, OrganizationMembership and OrgUnitAssignment belong to Identity.
+                kindId:
+                    type: string
         OrgUnitAncestor:
             type: object
             properties:
@@ -256,7 +345,35 @@ components:
                 depth:
                     type: integer
                     format: int32
-            description: Read-only closure edge. Never expose closure writes.
+        OrgUnitMove:
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                organizationId:
+                    type: string
+                orgUnitId:
+                    type: string
+                fromParentOrgUnitId:
+                    type: string
+                toParentOrgUnitId:
+                    type: string
+                effectiveAt:
+                    type: string
+                    format: date-time
+                structureRevision:
+                    type: string
+                actorId:
+                    type: string
+                reason:
+                    type: string
+                recordedAt:
+                    type: string
+                    format: date-time
+                changeSetId:
+                    type: string
         OrgUnitVersion:
             type: object
             properties:
@@ -290,28 +407,42 @@ components:
                     format: date-time
                 sourceRevision:
                     type: string
-            description: |-
-                [valid_from, valid_to) is effective time.
-                 [recorded_from, recorded_to) is knowledge time.
+                tenantId:
+                    type: string
+                code:
+                    type: string
+                kindId:
+                    type: string
+                managementMode:
+                    enum:
+                        - ORG_UNIT_MANAGEMENT_MODE_UNSPECIFIED
+                        - ORG_UNIT_MANAGEMENT_MODE_MANUAL
+                        - ORG_UNIT_MANAGEMENT_MODE_EXTERNAL
+                    type: string
+                    format: enum
+                authoritativeSourceId:
+                    type: string
+                structureRevisionFrom:
+                    type: string
+                structureRevisionTo:
+                    type: string
+                changeSetId:
+                    type: string
+                reason:
+                    type: string
         ResourceMetadata:
             type: object
             properties:
                 id:
                     type: string
-                    description: Server-generated; may be omitted on create. Validate its format when set.
                 name:
                     type: string
-                    description: |-
-                        Optional display name, not an identifier or a unique resource path.
-                         Individual create/update use cases may impose additional requirements.
                 description:
                     type: string
-                    description: Optional human-readable description.
                 labels:
                     type: object
                     additionalProperties:
                         type: string
-                    description: Optional descriptive labels. They must not contain secrets or grant access.
                 state:
                     readOnly: true
                     enum:
@@ -321,33 +452,21 @@ components:
                         - RESOURCE_STATE_ARCHIVED
                         - RESOURCE_STATE_DELETED
                     type: string
-                    description: Server-managed lifecycle. Use the explicit state-change operation.
                     format: enum
                 revision:
                     readOnly: true
                     type: string
-                    description: |-
-                        Server-managed revision; zero is allowed before the resource is created.
-                         Mutations use the request's expected_revision as their precondition.
                 createTime:
                     readOnly: true
                     type: string
-                    description: Time when this catalog record was created.
                     format: date-time
                 updateTime:
                     readOnly: true
                     type: string
-                    description: Time when this catalog record was last changed.
                     format: date-time
                 deleteTime:
                     readOnly: true
                     type: string
-                    description: Time of soft deletion; unset before deletion. Not a physical purge deadline.
                     format: date-time
-            description: |-
-                Common catalog identity, display metadata and server-managed lifecycle.
-                 Handlers ignore output-only input fields and apply field masks before
-                 validating the merged resource. State transitions, ownership and optimistic
-                 concurrency checks are application responsibilities, not field validation.
 tags:
     - name: OrgStructureService

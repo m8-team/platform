@@ -165,18 +165,16 @@ func (x *GetResourceRequest) GetId() string {
 
 type ListResourcesRequest struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	Kind               string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`                                           // Resource kind filter
-	OrganizationId     string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"` // caller must be authorized in this organization
-	Owner              *OwnerScope            `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty"`                                         // optional exact scope filter
+	Kind               string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	OrganizationId     string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	Owner              *OwnerScope            `protobuf:"bytes,3,opt,name=owner,proto3" json:"owner,omitempty"`
 	IncludeDescendants bool                   `protobuf:"varint,4,opt,name=include_descendants,json=includeDescendants,proto3" json:"include_descendants,omitempty"`
 	PageSize           int32                  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	PageToken          string                 `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"` // bound to authorization scope, filters and revision
+	PageToken          string                 `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	ShowDeleted        bool                   `protobuf:"varint,7,opt,name=show_deleted,json=showDeleted,proto3" json:"show_deleted,omitempty"`
-	// List Organizations or Groups inside exactly one Tenant. Valid with
-	// kind = "organization" or "group" and empty organization_id/owner. Never global list.
-	TenantId      string `protobuf:"bytes,8,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	TenantId           string                 `protobuf:"bytes,8,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ListResourcesRequest) Reset() {
@@ -524,7 +522,7 @@ func (x *ResolveResourceScopeRequest) GetId() string {
 type ResolveResourceScopeResponse struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	OwningOrganizationId string                 `protobuf:"bytes,1,opt,name=owning_organization_id,json=owningOrganizationId,proto3" json:"owning_organization_id,omitempty"`
-	Ancestry             []*ResourceRef         `protobuf:"bytes,2,rep,name=ancestry,proto3" json:"ancestry,omitempty"` // root organization first; target last
+	Ancestry             []*ResourceRef         `protobuf:"bytes,2,rep,name=ancestry,proto3" json:"ancestry,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }

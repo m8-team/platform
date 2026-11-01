@@ -77,9 +77,6 @@ components:
                     type: string
                 effectiveAt:
                     type: string
-                    description: |-
-                        Immediate cutover only for this slice. The server derives recorded_at.
-                         Deferred or backdated effective_at requires the temporal workflow.
                     format: date-time
                 mutations:
                     type: array
@@ -106,6 +103,8 @@ components:
                         - ORG_UNIT_MUTATION_KIND_MOVE
                         - ORG_UNIT_MUTATION_KIND_RENAME
                         - ORG_UNIT_MUTATION_KIND_CLOSE
+                        - ORG_UNIT_MUTATION_KIND_SET_KIND
+                        - ORG_UNIT_MUTATION_KIND_SET_CODE
                     type: string
                     format: enum
                 orgUnitId:
@@ -115,6 +114,12 @@ components:
                 displayName:
                     type: string
                 authoritativeSourceId:
+                    type: string
+                kindId:
+                    type: string
+                code:
+                    type: string
+                reason:
                     type: string
         ValidateOrgUnitChangeSetRequest:
             required:

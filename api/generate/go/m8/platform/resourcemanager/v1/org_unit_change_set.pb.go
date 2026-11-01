@@ -23,7 +23,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// All mutations apply to stable OrgUnit IDs inside one Organization.
 type OrgUnitMutationKind int32
 
 const (
@@ -32,6 +31,8 @@ const (
 	OrgUnitMutationKind_ORG_UNIT_MUTATION_KIND_MOVE        OrgUnitMutationKind = 2
 	OrgUnitMutationKind_ORG_UNIT_MUTATION_KIND_RENAME      OrgUnitMutationKind = 3
 	OrgUnitMutationKind_ORG_UNIT_MUTATION_KIND_CLOSE       OrgUnitMutationKind = 4
+	OrgUnitMutationKind_ORG_UNIT_MUTATION_KIND_SET_KIND    OrgUnitMutationKind = 5
+	OrgUnitMutationKind_ORG_UNIT_MUTATION_KIND_SET_CODE    OrgUnitMutationKind = 6
 )
 
 // Enum value maps for OrgUnitMutationKind.
@@ -42,6 +43,8 @@ var (
 		2: "ORG_UNIT_MUTATION_KIND_MOVE",
 		3: "ORG_UNIT_MUTATION_KIND_RENAME",
 		4: "ORG_UNIT_MUTATION_KIND_CLOSE",
+		5: "ORG_UNIT_MUTATION_KIND_SET_KIND",
+		6: "ORG_UNIT_MUTATION_KIND_SET_CODE",
 	}
 	OrgUnitMutationKind_value = map[string]int32{
 		"ORG_UNIT_MUTATION_KIND_UNSPECIFIED": 0,
@@ -49,6 +52,8 @@ var (
 		"ORG_UNIT_MUTATION_KIND_MOVE":        2,
 		"ORG_UNIT_MUTATION_KIND_RENAME":      3,
 		"ORG_UNIT_MUTATION_KIND_CLOSE":       4,
+		"ORG_UNIT_MUTATION_KIND_SET_KIND":    5,
+		"ORG_UNIT_MUTATION_KIND_SET_CODE":    6,
 	}
 )
 
@@ -86,6 +91,9 @@ type OrgUnitMutation struct {
 	ParentOrgUnitId       string                 `protobuf:"bytes,3,opt,name=parent_org_unit_id,json=parentOrgUnitId,proto3" json:"parent_org_unit_id,omitempty"`
 	DisplayName           string                 `protobuf:"bytes,4,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	AuthoritativeSourceId string                 `protobuf:"bytes,5,opt,name=authoritative_source_id,json=authoritativeSourceId,proto3" json:"authoritative_source_id,omitempty"`
+	KindId                string                 `protobuf:"bytes,6,opt,name=kind_id,json=kindId,proto3" json:"kind_id,omitempty"`
+	Code                  string                 `protobuf:"bytes,7,opt,name=code,proto3" json:"code,omitempty"`
+	Reason                string                 `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -155,13 +163,32 @@ func (x *OrgUnitMutation) GetAuthoritativeSourceId() string {
 	return ""
 }
 
+func (x *OrgUnitMutation) GetKindId() string {
+	if x != nil {
+		return x.KindId
+	}
+	return ""
+}
+
+func (x *OrgUnitMutation) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *OrgUnitMutation) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 type OrgUnitChangeSet struct {
-	state                     protoimpl.MessageState `protogen:"open.v1"`
-	Id                        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OrganizationId            string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	ExpectedStructureRevision int64                  `protobuf:"varint,3,opt,name=expected_structure_revision,json=expectedStructureRevision,proto3" json:"expected_structure_revision,omitempty"`
-	// Immediate cutover only for this slice. The server derives recorded_at.
-	// Deferred or backdated effective_at requires the temporal workflow.
+	state                      protoimpl.MessageState `protogen:"open.v1"`
+	Id                         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OrganizationId             string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	ExpectedStructureRevision  int64                  `protobuf:"varint,3,opt,name=expected_structure_revision,json=expectedStructureRevision,proto3" json:"expected_structure_revision,omitempty"`
 	EffectiveAt                *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=effective_at,json=effectiveAt,proto3" json:"effective_at,omitempty"`
 	Mutations                  []*OrgUnitMutation     `protobuf:"bytes,5,rep,name=mutations,proto3" json:"mutations,omitempty"`
 	SourceId                   string                 `protobuf:"bytes,6,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
@@ -261,13 +288,16 @@ var File_m8_platform_resourcemanager_v1_org_unit_change_set_proto protoreflect.F
 
 const file_m8_platform_resourcemanager_v1_org_unit_change_set_proto_rawDesc = "" +
 	"\n" +
-	"8m8/platform/resourcemanager/v1/org_unit_change_set.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x02\n" +
+	"8m8/platform/resourcemanager/v1/org_unit_change_set.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd1\x02\n" +
 	"\x0fOrgUnitMutation\x12L\n" +
 	"\x04kind\x18\x01 \x01(\x0e23.m8.platform.resourcemanager.v1.OrgUnitMutationKindB\x03\xe0A\x02R\x04kind\x12#\n" +
 	"\vorg_unit_id\x18\x02 \x01(\tB\x03\xe0A\x02R\torgUnitId\x12+\n" +
 	"\x12parent_org_unit_id\x18\x03 \x01(\tR\x0fparentOrgUnitId\x12!\n" +
 	"\fdisplay_name\x18\x04 \x01(\tR\vdisplayName\x126\n" +
-	"\x17authoritative_source_id\x18\x05 \x01(\tR\x15authoritativeSourceId\"\xc2\x03\n" +
+	"\x17authoritative_source_id\x18\x05 \x01(\tR\x15authoritativeSourceId\x12\x17\n" +
+	"\akind_id\x18\x06 \x01(\tR\x06kindId\x12\x12\n" +
+	"\x04code\x18\a \x01(\tR\x04code\x12\x16\n" +
+	"\x06reason\x18\b \x01(\tR\x06reason\"\xc2\x03\n" +
 	"\x10OrgUnitChangeSet\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tB\x03\xe0A\bR\x02id\x12,\n" +
 	"\x0forganization_id\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12C\n" +
@@ -276,13 +306,15 @@ const file_m8_platform_resourcemanager_v1_org_unit_change_set_proto_rawDesc = ""
 	"\tmutations\x18\x05 \x03(\v2/.m8.platform.resourcemanager.v1.OrgUnitMutationB\x03\xe0A\x02R\tmutations\x12\x1b\n" +
 	"\tsource_id\x18\x06 \x01(\tR\bsourceId\x12/\n" +
 	"\x11change_set_status\x18\a \x01(\tB\x03\xe0A\x03R\x0fchangeSetStatus\x12E\n" +
-	"\x1cresulting_structure_revision\x18\b \x01(\x03B\x03\xe0A\x03R\x1aresultingStructureRevision*\xc6\x01\n" +
+	"\x1cresulting_structure_revision\x18\b \x01(\x03B\x03\xe0A\x03R\x1aresultingStructureRevision*\x90\x02\n" +
 	"\x13OrgUnitMutationKind\x12&\n" +
 	"\"ORG_UNIT_MUTATION_KIND_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dORG_UNIT_MUTATION_KIND_CREATE\x10\x01\x12\x1f\n" +
 	"\x1bORG_UNIT_MUTATION_KIND_MOVE\x10\x02\x12!\n" +
 	"\x1dORG_UNIT_MUTATION_KIND_RENAME\x10\x03\x12 \n" +
-	"\x1cORG_UNIT_MUTATION_KIND_CLOSE\x10\x04BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
+	"\x1cORG_UNIT_MUTATION_KIND_CLOSE\x10\x04\x12#\n" +
+	"\x1fORG_UNIT_MUTATION_KIND_SET_KIND\x10\x05\x12#\n" +
+	"\x1fORG_UNIT_MUTATION_KIND_SET_CODE\x10\x06BOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
 	file_m8_platform_resourcemanager_v1_org_unit_change_set_proto_rawDescOnce sync.Once

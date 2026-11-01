@@ -19,23 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrgStructureService_GetOrgUnit_FullMethodName             = "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrgUnit"
-	OrgStructureService_ListOrgUnits_FullMethodName           = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnits"
-	OrgStructureService_ListOrgUnitAncestors_FullMethodName   = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitAncestors"
-	OrgStructureService_ListOrgUnitDescendants_FullMethodName = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitDescendants"
-	OrgStructureService_ListOrgUnitVersions_FullMethodName    = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitVersions"
+	OrgStructureService_GetOrgUnit_FullMethodName                 = "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrgUnit"
+	OrgStructureService_ListOrgUnits_FullMethodName               = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnits"
+	OrgStructureService_ListOrgUnitAncestors_FullMethodName       = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitAncestors"
+	OrgStructureService_ListOrgUnitDescendants_FullMethodName     = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitDescendants"
+	OrgStructureService_GetOrganizationStructureAt_FullMethodName = "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrganizationStructureAt"
+	OrgStructureService_ListOrgUnitMoves_FullMethodName           = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitMoves"
+	OrgStructureService_ListOrgUnitVersions_FullMethodName        = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitVersions"
 )
 
 // OrgStructureServiceClient is the client API for OrgStructureService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Read-only org hierarchy API. Mutations require approved ChangeSets (later slice).
 type OrgStructureServiceClient interface {
 	GetOrgUnit(ctx context.Context, in *GetOrgUnitRequest, opts ...grpc.CallOption) (*OrgUnit, error)
 	ListOrgUnits(ctx context.Context, in *ListOrgUnitsRequest, opts ...grpc.CallOption) (*ListOrgUnitsResponse, error)
 	ListOrgUnitAncestors(ctx context.Context, in *ListOrgUnitAncestorsRequest, opts ...grpc.CallOption) (*ListOrgUnitAncestorsResponse, error)
 	ListOrgUnitDescendants(ctx context.Context, in *ListOrgUnitDescendantsRequest, opts ...grpc.CallOption) (*ListOrgUnitDescendantsResponse, error)
+	GetOrganizationStructureAt(ctx context.Context, in *GetOrganizationStructureAtRequest, opts ...grpc.CallOption) (*GetOrganizationStructureAtResponse, error)
+	ListOrgUnitMoves(ctx context.Context, in *ListOrgUnitMovesRequest, opts ...grpc.CallOption) (*ListOrgUnitMovesResponse, error)
 	ListOrgUnitVersions(ctx context.Context, in *ListOrgUnitVersionsRequest, opts ...grpc.CallOption) (*ListOrgUnitVersionsResponse, error)
 }
 
@@ -87,6 +89,26 @@ func (c *orgStructureServiceClient) ListOrgUnitDescendants(ctx context.Context, 
 	return out, nil
 }
 
+func (c *orgStructureServiceClient) GetOrganizationStructureAt(ctx context.Context, in *GetOrganizationStructureAtRequest, opts ...grpc.CallOption) (*GetOrganizationStructureAtResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOrganizationStructureAtResponse)
+	err := c.cc.Invoke(ctx, OrgStructureService_GetOrganizationStructureAt_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orgStructureServiceClient) ListOrgUnitMoves(ctx context.Context, in *ListOrgUnitMovesRequest, opts ...grpc.CallOption) (*ListOrgUnitMovesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOrgUnitMovesResponse)
+	err := c.cc.Invoke(ctx, OrgStructureService_ListOrgUnitMoves_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *orgStructureServiceClient) ListOrgUnitVersions(ctx context.Context, in *ListOrgUnitVersionsRequest, opts ...grpc.CallOption) (*ListOrgUnitVersionsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListOrgUnitVersionsResponse)
@@ -100,13 +122,13 @@ func (c *orgStructureServiceClient) ListOrgUnitVersions(ctx context.Context, in 
 // OrgStructureServiceServer is the server API for OrgStructureService service.
 // All implementations must embed UnimplementedOrgStructureServiceServer
 // for forward compatibility.
-//
-// Read-only org hierarchy API. Mutations require approved ChangeSets (later slice).
 type OrgStructureServiceServer interface {
 	GetOrgUnit(context.Context, *GetOrgUnitRequest) (*OrgUnit, error)
 	ListOrgUnits(context.Context, *ListOrgUnitsRequest) (*ListOrgUnitsResponse, error)
 	ListOrgUnitAncestors(context.Context, *ListOrgUnitAncestorsRequest) (*ListOrgUnitAncestorsResponse, error)
 	ListOrgUnitDescendants(context.Context, *ListOrgUnitDescendantsRequest) (*ListOrgUnitDescendantsResponse, error)
+	GetOrganizationStructureAt(context.Context, *GetOrganizationStructureAtRequest) (*GetOrganizationStructureAtResponse, error)
+	ListOrgUnitMoves(context.Context, *ListOrgUnitMovesRequest) (*ListOrgUnitMovesResponse, error)
 	ListOrgUnitVersions(context.Context, *ListOrgUnitVersionsRequest) (*ListOrgUnitVersionsResponse, error)
 	mustEmbedUnimplementedOrgStructureServiceServer()
 }
@@ -129,6 +151,12 @@ func (UnimplementedOrgStructureServiceServer) ListOrgUnitAncestors(context.Conte
 }
 func (UnimplementedOrgStructureServiceServer) ListOrgUnitDescendants(context.Context, *ListOrgUnitDescendantsRequest) (*ListOrgUnitDescendantsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOrgUnitDescendants not implemented")
+}
+func (UnimplementedOrgStructureServiceServer) GetOrganizationStructureAt(context.Context, *GetOrganizationStructureAtRequest) (*GetOrganizationStructureAtResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOrganizationStructureAt not implemented")
+}
+func (UnimplementedOrgStructureServiceServer) ListOrgUnitMoves(context.Context, *ListOrgUnitMovesRequest) (*ListOrgUnitMovesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOrgUnitMoves not implemented")
 }
 func (UnimplementedOrgStructureServiceServer) ListOrgUnitVersions(context.Context, *ListOrgUnitVersionsRequest) (*ListOrgUnitVersionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOrgUnitVersions not implemented")
@@ -226,6 +254,42 @@ func _OrgStructureService_ListOrgUnitDescendants_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrgStructureService_GetOrganizationStructureAt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrganizationStructureAtRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgStructureServiceServer).GetOrganizationStructureAt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgStructureService_GetOrganizationStructureAt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgStructureServiceServer).GetOrganizationStructureAt(ctx, req.(*GetOrganizationStructureAtRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrgStructureService_ListOrgUnitMoves_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrgUnitMovesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrgStructureServiceServer).ListOrgUnitMoves(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrgStructureService_ListOrgUnitMoves_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrgStructureServiceServer).ListOrgUnitMoves(ctx, req.(*ListOrgUnitMovesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OrgStructureService_ListOrgUnitVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListOrgUnitVersionsRequest)
 	if err := dec(in); err != nil {
@@ -266,6 +330,14 @@ var OrgStructureService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListOrgUnitDescendants",
 			Handler:    _OrgStructureService_ListOrgUnitDescendants_Handler,
+		},
+		{
+			MethodName: "GetOrganizationStructureAt",
+			Handler:    _OrgStructureService_GetOrganizationStructureAt_Handler,
+		},
+		{
+			MethodName: "ListOrgUnitMoves",
+			Handler:    _OrgStructureService_ListOrgUnitMoves_Handler,
 		},
 		{
 			MethodName: "ListOrgUnitVersions",

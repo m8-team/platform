@@ -22,14 +22,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Logical technical workload. Unlike the old v1 Service it does NOT own
-// an immutable dev/stage/prod field. Deployment is handled by Delivery.
 type WorkloadService struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	Metadata             *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Owner                *OwnerScope            `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"` // only Workspace
+	Owner                *OwnerScope            `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
 	OwningOrganizationId string                 `protobuf:"bytes,3,opt,name=owning_organization_id,json=owningOrganizationId,proto3" json:"owning_organization_id,omitempty"`
-	RuntimeProfileRef    string                 `protobuf:"bytes,4,opt,name=runtime_profile_ref,json=runtimeProfileRef,proto3" json:"runtime_profile_ref,omitempty"` // optional reference to Runtime
+	RuntimeProfileRef    string                 `protobuf:"bytes,4,opt,name=runtime_profile_ref,json=runtimeProfileRef,proto3" json:"runtime_profile_ref,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }

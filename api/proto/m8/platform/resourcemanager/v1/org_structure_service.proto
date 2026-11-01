@@ -9,7 +9,6 @@ import "m8/platform/resourcemanager/v1/org_unit_move.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Read-only org hierarchy API. Mutations require approved ChangeSets (later slice).
 service OrgStructureService {
   rpc GetOrgUnit(GetOrgUnitRequest) returns (OrgUnit) {
     option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}"};
@@ -23,9 +22,7 @@ service OrgStructureService {
   rpc ListOrgUnitDescendants(ListOrgUnitDescendantsRequest) returns (ListOrgUnitDescendantsResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants"};
   }
-  // Historical views are bitemporal and not served from the current closure.
-  // Contract only: current implementation returns UNIMPLEMENTED until writer
-  // and authorized history reader have been deployed.
+
   rpc GetOrganizationStructureAt(GetOrganizationStructureAtRequest) returns (GetOrganizationStructureAtResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-structure:at"};
   }
@@ -85,9 +82,6 @@ message ListOrgUnitVersionsResponse {
   string next_page_token = 2;
 }
 
-// Snapshot at business effective time and registered Organization revision.
-// revision=0 means the latest registered knowledge, not revision of one unit.
-// History query must be authorized and must bind pagination to both axes.
 message GetOrganizationStructureAtRequest {
   string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
   google.protobuf.Timestamp as_of = 2 [(google.api.field_behavior) = REQUIRED];

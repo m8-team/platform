@@ -6,15 +6,13 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// All mutations apply to stable OrgUnit IDs inside one Organization.
 enum OrgUnitMutationKind {
   ORG_UNIT_MUTATION_KIND_UNSPECIFIED = 0;
   ORG_UNIT_MUTATION_KIND_CREATE = 1;
   ORG_UNIT_MUTATION_KIND_MOVE = 2;
   ORG_UNIT_MUTATION_KIND_RENAME = 3;
   ORG_UNIT_MUTATION_KIND_CLOSE = 4;
-  // Contract-level extension: current immediate writer rejects these until
-  // kind/source-authority validation and persistence are implemented.
+
   ORG_UNIT_MUTATION_KIND_SET_KIND = 5;
   ORG_UNIT_MUTATION_KIND_SET_CODE = 6;
 }
@@ -24,19 +22,18 @@ message OrgUnitMutation {
   string parent_org_unit_id = 3;
   string display_name = 4;
   string authoritative_source_id = 5;
-  // For CREATE/SET_KIND, references the registered OrgUnitKind.
+
   string kind_id = 6;
-  // For CREATE/SET_CODE. Business code is not the stable OrgUnit ID.
+
   string code = 7;
-  // Recorded in OrgUnitMove on MOVE and in version provenance.
+
   string reason = 8;
 }
 message OrgUnitChangeSet {
   string id = 1 [(google.api.field_behavior) = IDENTIFIER];
   string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
   int64 expected_structure_revision = 3 [(google.api.field_behavior) = REQUIRED];
-  // Immediate cutover only for this slice. The server derives recorded_at.
-  // Deferred or backdated effective_at requires the temporal workflow.
+
   google.protobuf.Timestamp effective_at = 4;
   repeated OrgUnitMutation mutations = 5 [(google.api.field_behavior) = REQUIRED];
   string source_id = 6;

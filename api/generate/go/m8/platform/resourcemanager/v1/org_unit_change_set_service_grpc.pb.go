@@ -26,8 +26,6 @@ const (
 // OrgUnitChangeSetServiceClient is the client API for OrgUnitChangeSetService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// These are contract sources only: no handler is registered by this PR.
 type OrgUnitChangeSetServiceClient interface {
 	ValidateOrgUnitChangeSet(ctx context.Context, in *ValidateOrgUnitChangeSetRequest, opts ...grpc.CallOption) (*ValidateOrgUnitChangeSetResponse, error)
 	ApplyOrgUnitChangeSet(ctx context.Context, in *ApplyOrgUnitChangeSetRequest, opts ...grpc.CallOption) (*ApplyOrgUnitChangeSetResponse, error)
@@ -64,8 +62,6 @@ func (c *orgUnitChangeSetServiceClient) ApplyOrgUnitChangeSet(ctx context.Contex
 // OrgUnitChangeSetServiceServer is the server API for OrgUnitChangeSetService service.
 // All implementations must embed UnimplementedOrgUnitChangeSetServiceServer
 // for forward compatibility.
-//
-// These are contract sources only: no handler is registered by this PR.
 type OrgUnitChangeSetServiceServer interface {
 	ValidateOrgUnitChangeSet(context.Context, *ValidateOrgUnitChangeSetRequest) (*ValidateOrgUnitChangeSetResponse, error)
 	ApplyOrgUnitChangeSet(context.Context, *ApplyOrgUnitChangeSetRequest) (*ApplyOrgUnitChangeSetResponse, error)

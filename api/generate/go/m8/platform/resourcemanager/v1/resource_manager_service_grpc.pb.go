@@ -37,9 +37,6 @@ const (
 // ResourceManagerServiceClient is the client API for ResourceManagerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// ResourceManagerService owns resource identity, containment and lifecycle;
-// NOT identity/membership, access grants, business cases or deployments.
 type ResourceManagerServiceClient interface {
 	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*ResourceRecord, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*ResourceRecord, error)
@@ -197,9 +194,6 @@ func (c *resourceManagerServiceClient) RegisterResourceKind(ctx context.Context,
 // ResourceManagerServiceServer is the server API for ResourceManagerService service.
 // All implementations must embed UnimplementedResourceManagerServiceServer
 // for forward compatibility.
-//
-// ResourceManagerService owns resource identity, containment and lifecycle;
-// NOT identity/membership, access grants, business cases or deployments.
 type ResourceManagerServiceServer interface {
 	CreateResource(context.Context, *CreateResourceRequest) (*ResourceRecord, error)
 	GetResource(context.Context, *GetResourceRequest) (*ResourceRecord, error)

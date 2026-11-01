@@ -49,7 +49,7 @@ message GetOrganizationRelationshipRequest {
 }
 message ListOrganizationRelationshipsRequest {
   string tenant_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string organization_id = 2; // optional: either endpoint
+  string organization_id = 2;
   bool include_closed = 3;
   int32 page_size = 4;
   string page_token = 5;
@@ -63,8 +63,7 @@ message UpdateOrganizationRelationshipRequest {
   string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
   int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
-  // Only these mutable fields can change. Endpoints/type and validity start
-  // are immutable. To change them, close and create a new relation.
+
   int32 ownership_basis_points = 5;
   google.protobuf.Timestamp valid_to = 6;
   string evidence_ref = 7;

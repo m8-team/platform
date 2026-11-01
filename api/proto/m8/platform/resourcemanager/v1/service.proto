@@ -6,11 +6,9 @@ import "m8/platform/resourcemanager/v1/resource.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Logical technical workload. Unlike the old v1 Service it does NOT own
-// an immutable dev/stage/prod field. Deployment is handled by Delivery.
 message WorkloadService {
   ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  OwnerScope owner = 2 [(google.api.field_behavior) = REQUIRED]; // only Workspace
+  OwnerScope owner = 2 [(google.api.field_behavior) = REQUIRED];
   string owning_organization_id = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string runtime_profile_ref = 4; // optional reference to Runtime
+  string runtime_profile_ref = 4;
 }

@@ -6,8 +6,6 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// Directed business/legal relationship. Independent from OrganizationGroup affiliation,
-// OrgUnit closure and resource containment. No implicit Access grants.
 enum OrganizationRelationshipType {
   ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED = 0;
   ORGANIZATION_RELATIONSHIP_TYPE_PARENT_SUBSIDIARY = 1;
@@ -25,15 +23,14 @@ enum OrganizationRelationshipState {
 message OrganizationRelationship {
   string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
-  // Directed from -> to. For PARENT_SUBSIDIARY, from is the parent.
-  // For SERVICE_PROVIDER, from provides services to the receiving "to".
+
   string from_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
   string to_organization_id = 4 [(google.api.field_behavior) = REQUIRED];
   OrganizationRelationshipType type = 5 [(google.api.field_behavior) = REQUIRED];
-  // 0 = unknown; 1..10000 = percent * 100; only PARENT_SUBSIDIARY.
+
   int32 ownership_basis_points = 6;
   google.protobuf.Timestamp valid_from = 7 [(google.api.field_behavior) = REQUIRED];
-  // Optional exclusive end; unset means unbounded.
+
   google.protobuf.Timestamp valid_to = 8;
   OrganizationRelationshipState state = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
   int64 revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];

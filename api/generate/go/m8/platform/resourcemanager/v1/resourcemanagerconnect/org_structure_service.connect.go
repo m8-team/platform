@@ -36,6 +36,12 @@ const (
 	// OrgStructureServiceListOrgUnitDescendantsProcedure is the procedure name of the
 	// OrgStructureService's ListOrgUnitDescendants RPC.
 	OrgStructureServiceListOrgUnitDescendantsProcedure = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitDescendants"
+	// OrgStructureServiceGetOrganizationStructureAtProcedure is the procedure name of the
+	// OrgStructureService's GetOrganizationStructureAt RPC.
+	OrgStructureServiceGetOrganizationStructureAtProcedure = "/m8.platform.resourcemanager.v1.OrgStructureService/GetOrganizationStructureAt"
+	// OrgStructureServiceListOrgUnitMovesProcedure is the procedure name of the OrgStructureService's
+	// ListOrgUnitMoves RPC.
+	OrgStructureServiceListOrgUnitMovesProcedure = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitMoves"
 	// OrgStructureServiceListOrgUnitVersionsProcedure is the procedure name of the
 	// OrgStructureService's ListOrgUnitVersions RPC.
 	OrgStructureServiceListOrgUnitVersionsProcedure = "/m8.platform.resourcemanager.v1.OrgStructureService/ListOrgUnitVersions"
@@ -70,6 +76,20 @@ var (
 			Procedure:  OrgStructureServiceListOrgUnitDescendantsProcedure,
 		}
 	})
+	orgStructureServiceGetOrganizationStructureAtSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_resourcemanager_v1_org_structure_service_proto.Services().ByName("OrgStructureService").Methods().ByName("GetOrganizationStructureAt"),
+			Procedure:  OrgStructureServiceGetOrganizationStructureAtProcedure,
+		}
+	})
+	orgStructureServiceListOrgUnitMovesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_m8_platform_resourcemanager_v1_org_structure_service_proto.Services().ByName("OrgStructureService").Methods().ByName("ListOrgUnitMoves"),
+			Procedure:  OrgStructureServiceListOrgUnitMovesProcedure,
+		}
+	})
 	orgStructureServiceListOrgUnitVersionsSpec = sync.OnceValue(func() connect.Spec {
 		return connect.Spec{
 			StreamType: connect.StreamTypeUnary,
@@ -86,6 +106,8 @@ type OrgStructureServiceClient interface {
 	ListOrgUnits(context.Context, *v1.ListOrgUnitsRequest) (*v1.ListOrgUnitsResponse, error)
 	ListOrgUnitAncestors(context.Context, *v1.ListOrgUnitAncestorsRequest) (*v1.ListOrgUnitAncestorsResponse, error)
 	ListOrgUnitDescendants(context.Context, *v1.ListOrgUnitDescendantsRequest) (*v1.ListOrgUnitDescendantsResponse, error)
+	GetOrganizationStructureAt(context.Context, *v1.GetOrganizationStructureAtRequest) (*v1.GetOrganizationStructureAtResponse, error)
+	ListOrgUnitMoves(context.Context, *v1.ListOrgUnitMovesRequest) (*v1.ListOrgUnitMovesResponse, error)
 	ListOrgUnitVersions(context.Context, *v1.ListOrgUnitVersionsRequest) (*v1.ListOrgUnitVersionsResponse, error)
 }
 
@@ -103,6 +125,8 @@ type OrgStructureServiceHandler interface {
 	ListOrgUnits(context.Context, *v1.ListOrgUnitsRequest) (*v1.ListOrgUnitsResponse, error)
 	ListOrgUnitAncestors(context.Context, *v1.ListOrgUnitAncestorsRequest) (*v1.ListOrgUnitAncestorsResponse, error)
 	ListOrgUnitDescendants(context.Context, *v1.ListOrgUnitDescendantsRequest) (*v1.ListOrgUnitDescendantsResponse, error)
+	GetOrganizationStructureAt(context.Context, *v1.GetOrganizationStructureAtRequest) (*v1.GetOrganizationStructureAtResponse, error)
+	ListOrgUnitMoves(context.Context, *v1.ListOrgUnitMovesRequest) (*v1.ListOrgUnitMovesResponse, error)
 	ListOrgUnitVersions(context.Context, *v1.ListOrgUnitVersionsRequest) (*v1.ListOrgUnitVersionsResponse, error)
 }
 
@@ -115,6 +139,8 @@ func RegisterOrgStructureServiceHandler(server *connect.Server, svc OrgStructure
 		connect.Method{Spec: orgStructureServiceListOrgUnitsSpec(), Handler: adapter.listOrgUnits},
 		connect.Method{Spec: orgStructureServiceListOrgUnitAncestorsSpec(), Handler: adapter.listOrgUnitAncestors},
 		connect.Method{Spec: orgStructureServiceListOrgUnitDescendantsSpec(), Handler: adapter.listOrgUnitDescendants},
+		connect.Method{Spec: orgStructureServiceGetOrganizationStructureAtSpec(), Handler: adapter.getOrganizationStructureAt},
+		connect.Method{Spec: orgStructureServiceListOrgUnitMovesSpec(), Handler: adapter.listOrgUnitMoves},
 		connect.Method{Spec: orgStructureServiceListOrgUnitVersionsSpec(), Handler: adapter.listOrgUnitVersions},
 	)
 }
@@ -136,6 +162,14 @@ func (UnimplementedOrgStructureServiceHandler) ListOrgUnitAncestors(context.Cont
 
 func (UnimplementedOrgStructureServiceHandler) ListOrgUnitDescendants(context.Context, *v1.ListOrgUnitDescendantsRequest) (*v1.ListOrgUnitDescendantsResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitDescendants is not implemented")
+}
+
+func (UnimplementedOrgStructureServiceHandler) GetOrganizationStructureAt(context.Context, *v1.GetOrganizationStructureAtRequest) (*v1.GetOrganizationStructureAtResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgStructureService.GetOrganizationStructureAt is not implemented")
+}
+
+func (UnimplementedOrgStructureServiceHandler) ListOrgUnitMoves(context.Context, *v1.ListOrgUnitMovesRequest) (*v1.ListOrgUnitMovesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitMoves is not implemented")
 }
 
 func (UnimplementedOrgStructureServiceHandler) ListOrgUnitVersions(context.Context, *v1.ListOrgUnitVersionsRequest) (*v1.ListOrgUnitVersionsResponse, error) {
@@ -173,6 +207,22 @@ func (c *orgStructureServiceClient) ListOrgUnitAncestors(ctx context.Context, re
 func (c *orgStructureServiceClient) ListOrgUnitDescendants(ctx context.Context, req *v1.ListOrgUnitDescendantsRequest) (*v1.ListOrgUnitDescendantsResponse, error) {
 	var res v1.ListOrgUnitDescendantsResponse
 	if err := c.client.CallUnary(ctx, orgStructureServiceListOrgUnitDescendantsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orgStructureServiceClient) GetOrganizationStructureAt(ctx context.Context, req *v1.GetOrganizationStructureAtRequest) (*v1.GetOrganizationStructureAtResponse, error) {
+	var res v1.GetOrganizationStructureAtResponse
+	if err := c.client.CallUnary(ctx, orgStructureServiceGetOrganizationStructureAtSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *orgStructureServiceClient) ListOrgUnitMoves(ctx context.Context, req *v1.ListOrgUnitMovesRequest) (*v1.ListOrgUnitMovesResponse, error) {
+	var res v1.ListOrgUnitMovesResponse
+	if err := c.client.CallUnary(ctx, orgStructureServiceListOrgUnitMovesSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -230,6 +280,30 @@ func (h orgStructureServiceHandler) listOrgUnitDescendants(ctx context.Context, 
 		return err
 	}
 	res, err := h.svc.ListOrgUnitDescendants(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orgStructureServiceHandler) getOrganizationStructureAt(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetOrganizationStructureAtRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetOrganizationStructureAt(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h orgStructureServiceHandler) listOrgUnitMoves(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListOrgUnitMovesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListOrgUnitMoves(ctx, &req)
 	if err != nil {
 		return err
 	}

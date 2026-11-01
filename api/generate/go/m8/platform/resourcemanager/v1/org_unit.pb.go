@@ -125,20 +125,20 @@ func (OrgUnitManagementMode) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_org_unit_proto_rawDescGZIP(), []int{1}
 }
 
-// OrgUnit has stable identity independent of its parent or display name.
-// Person, OrganizationMembership and OrgUnitAssignment belong to Identity.
 type OrgUnit struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	Metadata              *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	TenantId              string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	OrganizationId        string                 `protobuf:"bytes,3,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	ParentOrgUnitId       string                 `protobuf:"bytes,4,opt,name=parent_org_unit_id,json=parentOrgUnitId,proto3" json:"parent_org_unit_id,omitempty"`
-	Code                  string                 `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
-	Kind                  string                 `protobuf:"bytes,6,opt,name=kind,proto3" json:"kind,omitempty"`
-	LifecycleState        OrgUnitState           `protobuf:"varint,7,opt,name=lifecycle_state,json=lifecycleState,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitState" json:"lifecycle_state,omitempty"`
-	ManagementMode        OrgUnitManagementMode  `protobuf:"varint,8,opt,name=management_mode,json=managementMode,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitManagementMode" json:"management_mode,omitempty"`
-	AuthoritativeSourceId string                 `protobuf:"bytes,9,opt,name=authoritative_source_id,json=authoritativeSourceId,proto3" json:"authoritative_source_id,omitempty"`
-	StructureRevision     int64                  `protobuf:"varint,10,opt,name=structure_revision,json=structureRevision,proto3" json:"structure_revision,omitempty"`
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Metadata        *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	TenantId        string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	OrganizationId  string                 `protobuf:"bytes,3,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	ParentOrgUnitId string                 `protobuf:"bytes,4,opt,name=parent_org_unit_id,json=parentOrgUnitId,proto3" json:"parent_org_unit_id,omitempty"`
+	Code            string                 `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
+	// Deprecated: Marked as deprecated in m8/platform/resourcemanager/v1/org_unit.proto.
+	Kind                  string                `protobuf:"bytes,6,opt,name=kind,proto3" json:"kind,omitempty"`
+	LifecycleState        OrgUnitState          `protobuf:"varint,7,opt,name=lifecycle_state,json=lifecycleState,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitState" json:"lifecycle_state,omitempty"`
+	ManagementMode        OrgUnitManagementMode `protobuf:"varint,8,opt,name=management_mode,json=managementMode,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitManagementMode" json:"management_mode,omitempty"`
+	AuthoritativeSourceId string                `protobuf:"bytes,9,opt,name=authoritative_source_id,json=authoritativeSourceId,proto3" json:"authoritative_source_id,omitempty"`
+	StructureRevision     int64                 `protobuf:"varint,10,opt,name=structure_revision,json=structureRevision,proto3" json:"structure_revision,omitempty"`
+	KindId                string                `protobuf:"bytes,11,opt,name=kind_id,json=kindId,proto3" json:"kind_id,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -208,6 +208,7 @@ func (x *OrgUnit) GetCode() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in m8/platform/resourcemanager/v1/org_unit.proto.
 func (x *OrgUnit) GetKind() string {
 	if x != nil {
 		return x.Kind
@@ -243,22 +244,36 @@ func (x *OrgUnit) GetStructureRevision() int64 {
 	return 0
 }
 
-// [valid_from, valid_to) is effective time.
-// [recorded_from, recorded_to) is knowledge time.
+func (x *OrgUnit) GetKindId() string {
+	if x != nil {
+		return x.KindId
+	}
+	return ""
+}
+
 type OrgUnitVersion struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	OrgUnitId       string                 `protobuf:"bytes,1,opt,name=org_unit_id,json=orgUnitId,proto3" json:"org_unit_id,omitempty"`
-	OrganizationId  string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
-	DisplayName     string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	ParentOrgUnitId string                 `protobuf:"bytes,4,opt,name=parent_org_unit_id,json=parentOrgUnitId,proto3" json:"parent_org_unit_id,omitempty"`
-	LifecycleState  OrgUnitState           `protobuf:"varint,5,opt,name=lifecycle_state,json=lifecycleState,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitState" json:"lifecycle_state,omitempty"`
-	ValidFrom       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
-	ValidTo         *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=valid_to,json=validTo,proto3" json:"valid_to,omitempty"`
-	RecordedFrom    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=recorded_from,json=recordedFrom,proto3" json:"recorded_from,omitempty"`
-	RecordedTo      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=recorded_to,json=recordedTo,proto3" json:"recorded_to,omitempty"`
-	SourceRevision  string                 `protobuf:"bytes,10,opt,name=source_revision,json=sourceRevision,proto3" json:"source_revision,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	OrgUnitId             string                 `protobuf:"bytes,1,opt,name=org_unit_id,json=orgUnitId,proto3" json:"org_unit_id,omitempty"`
+	OrganizationId        string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	DisplayName           string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	ParentOrgUnitId       string                 `protobuf:"bytes,4,opt,name=parent_org_unit_id,json=parentOrgUnitId,proto3" json:"parent_org_unit_id,omitempty"`
+	LifecycleState        OrgUnitState           `protobuf:"varint,5,opt,name=lifecycle_state,json=lifecycleState,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitState" json:"lifecycle_state,omitempty"`
+	ValidFrom             *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
+	ValidTo               *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=valid_to,json=validTo,proto3" json:"valid_to,omitempty"`
+	RecordedFrom          *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=recorded_from,json=recordedFrom,proto3" json:"recorded_from,omitempty"`
+	RecordedTo            *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=recorded_to,json=recordedTo,proto3" json:"recorded_to,omitempty"`
+	SourceRevision        string                 `protobuf:"bytes,10,opt,name=source_revision,json=sourceRevision,proto3" json:"source_revision,omitempty"`
+	TenantId              string                 `protobuf:"bytes,11,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	Code                  string                 `protobuf:"bytes,12,opt,name=code,proto3" json:"code,omitempty"`
+	KindId                string                 `protobuf:"bytes,13,opt,name=kind_id,json=kindId,proto3" json:"kind_id,omitempty"`
+	ManagementMode        OrgUnitManagementMode  `protobuf:"varint,14,opt,name=management_mode,json=managementMode,proto3,enum=m8.platform.resourcemanager.v1.OrgUnitManagementMode" json:"management_mode,omitempty"`
+	AuthoritativeSourceId string                 `protobuf:"bytes,15,opt,name=authoritative_source_id,json=authoritativeSourceId,proto3" json:"authoritative_source_id,omitempty"`
+	StructureRevisionFrom int64                  `protobuf:"varint,16,opt,name=structure_revision_from,json=structureRevisionFrom,proto3" json:"structure_revision_from,omitempty"`
+	StructureRevisionTo   *int64                 `protobuf:"varint,17,opt,name=structure_revision_to,json=structureRevisionTo,proto3,oneof" json:"structure_revision_to,omitempty"`
+	ChangeSetId           string                 `protobuf:"bytes,18,opt,name=change_set_id,json=changeSetId,proto3" json:"change_set_id,omitempty"`
+	Reason                string                 `protobuf:"bytes,19,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *OrgUnitVersion) Reset() {
@@ -361,7 +376,69 @@ func (x *OrgUnitVersion) GetSourceRevision() string {
 	return ""
 }
 
-// Read-only closure edge. Never expose closure writes.
+func (x *OrgUnitVersion) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
+func (x *OrgUnitVersion) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *OrgUnitVersion) GetKindId() string {
+	if x != nil {
+		return x.KindId
+	}
+	return ""
+}
+
+func (x *OrgUnitVersion) GetManagementMode() OrgUnitManagementMode {
+	if x != nil {
+		return x.ManagementMode
+	}
+	return OrgUnitManagementMode_ORG_UNIT_MANAGEMENT_MODE_UNSPECIFIED
+}
+
+func (x *OrgUnitVersion) GetAuthoritativeSourceId() string {
+	if x != nil {
+		return x.AuthoritativeSourceId
+	}
+	return ""
+}
+
+func (x *OrgUnitVersion) GetStructureRevisionFrom() int64 {
+	if x != nil {
+		return x.StructureRevisionFrom
+	}
+	return 0
+}
+
+func (x *OrgUnitVersion) GetStructureRevisionTo() int64 {
+	if x != nil && x.StructureRevisionTo != nil {
+		return *x.StructureRevisionTo
+	}
+	return 0
+}
+
+func (x *OrgUnitVersion) GetChangeSetId() string {
+	if x != nil {
+		return x.ChangeSetId
+	}
+	return ""
+}
+
+func (x *OrgUnitVersion) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 type OrgUnitAncestor struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrgUnitId     string                 `protobuf:"bytes,1,opt,name=org_unit_id,json=orgUnitId,proto3" json:"org_unit_id,omitempty"`
@@ -419,6 +496,7 @@ type OrgStructureRevision struct {
 	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	Revision       int64                  `protobuf:"varint,2,opt,name=revision,proto3" json:"revision,omitempty"`
 	PublishedAt    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=published_at,json=publishedAt,proto3" json:"published_at,omitempty"`
+	TenantId       string                 `protobuf:"bytes,4,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -474,23 +552,31 @@ func (x *OrgStructureRevision) GetPublishedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *OrgStructureRevision) GetTenantId() string {
+	if x != nil {
+		return x.TenantId
+	}
+	return ""
+}
+
 var File_m8_platform_resourcemanager_v1_org_unit_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_org_unit_proto_rawDesc = "" +
 	"\n" +
-	"-m8/platform/resourcemanager/v1/org_unit.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xbe\x04\n" +
+	"-m8/platform/resourcemanager/v1/org_unit.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/resource.proto\"\xe8\x04\n" +
 	"\aOrgUnit\x12Q\n" +
 	"\bmetadata\x18\x01 \x01(\v20.m8.platform.resourcemanager.v1.ResourceMetadataB\x03\xe0A\x02R\bmetadata\x12(\n" +
 	"\ttenant_id\x18\x02 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\btenantId\x124\n" +
 	"\x0forganization_id\x18\x03 \x01(\tB\v\xe0A\x02\xbaH\x05r\x03\xb0\x01\x01R\x0eorganizationId\x120\n" +
 	"\x12parent_org_unit_id\x18\x04 \x01(\tB\x03\xe0A\x03R\x0fparentOrgUnitId\x12\x12\n" +
-	"\x04code\x18\x05 \x01(\tR\x04code\x12\x12\n" +
-	"\x04kind\x18\x06 \x01(\tR\x04kind\x12Z\n" +
+	"\x04code\x18\x05 \x01(\tR\x04code\x12\x16\n" +
+	"\x04kind\x18\x06 \x01(\tB\x02\x18\x01R\x04kind\x12Z\n" +
 	"\x0flifecycle_state\x18\a \x01(\x0e2,.m8.platform.resourcemanager.v1.OrgUnitStateB\x03\xe0A\x03R\x0elifecycleState\x12^\n" +
 	"\x0fmanagement_mode\x18\b \x01(\x0e25.m8.platform.resourcemanager.v1.OrgUnitManagementModeR\x0emanagementMode\x126\n" +
 	"\x17authoritative_source_id\x18\t \x01(\tR\x15authoritativeSourceId\x122\n" +
 	"\x12structure_revision\x18\n" +
-	" \x01(\x03B\x03\xe0A\x03R\x11structureRevision\"\x99\x04\n" +
+	" \x01(\x03B\x03\xe0A\x03R\x11structureRevision\x12$\n" +
+	"\akind_id\x18\v \x01(\tB\v\xbaH\b\xd8\x01\x01r\x03\xb0\x01\x01R\x06kindId\"\xc2\a\n" +
 	"\x0eOrgUnitVersion\x12\x1e\n" +
 	"\vorg_unit_id\x18\x01 \x01(\tR\torgUnitId\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12!\n" +
@@ -504,14 +590,25 @@ const file_m8_platform_resourcemanager_v1_org_unit_proto_rawDesc = "" +
 	"\vrecorded_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"recordedTo\x12'\n" +
 	"\x0fsource_revision\x18\n" +
-	" \x01(\tR\x0esourceRevision\"G\n" +
+	" \x01(\tR\x0esourceRevision\x12\x1b\n" +
+	"\ttenant_id\x18\v \x01(\tR\btenantId\x12\x12\n" +
+	"\x04code\x18\f \x01(\tR\x04code\x12\x17\n" +
+	"\akind_id\x18\r \x01(\tR\x06kindId\x12^\n" +
+	"\x0fmanagement_mode\x18\x0e \x01(\x0e25.m8.platform.resourcemanager.v1.OrgUnitManagementModeR\x0emanagementMode\x126\n" +
+	"\x17authoritative_source_id\x18\x0f \x01(\tR\x15authoritativeSourceId\x126\n" +
+	"\x17structure_revision_from\x18\x10 \x01(\x03R\x15structureRevisionFrom\x127\n" +
+	"\x15structure_revision_to\x18\x11 \x01(\x03H\x00R\x13structureRevisionTo\x88\x01\x01\x12\"\n" +
+	"\rchange_set_id\x18\x12 \x01(\tR\vchangeSetId\x12\x16\n" +
+	"\x06reason\x18\x13 \x01(\tR\x06reasonB\x18\n" +
+	"\x16_structure_revision_to\"G\n" +
 	"\x0fOrgUnitAncestor\x12\x1e\n" +
 	"\vorg_unit_id\x18\x01 \x01(\tR\torgUnitId\x12\x14\n" +
-	"\x05depth\x18\x02 \x01(\x05R\x05depth\"\x9a\x01\n" +
+	"\x05depth\x18\x02 \x01(\x05R\x05depth\"\xb7\x01\n" +
 	"\x14OrgStructureRevision\x12'\n" +
 	"\x0forganization_id\x18\x01 \x01(\tR\x0eorganizationId\x12\x1a\n" +
 	"\brevision\x18\x02 \x01(\x03R\brevision\x12=\n" +
-	"\fpublished_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vpublishedAt*\x80\x01\n" +
+	"\fpublished_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vpublishedAt\x12\x1b\n" +
+	"\ttenant_id\x18\x04 \x01(\tR\btenantId*\x80\x01\n" +
 	"\fOrgUnitState\x12\x1e\n" +
 	"\x1aORG_UNIT_STATE_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16ORG_UNIT_STATE_PLANNED\x10\x01\x12\x19\n" +
@@ -547,20 +644,21 @@ var file_m8_platform_resourcemanager_v1_org_unit_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_org_unit_proto_depIdxs = []int32{
-	6, // 0: m8.platform.resourcemanager.v1.OrgUnit.metadata:type_name -> m8.platform.resourcemanager.v1.ResourceMetadata
-	0, // 1: m8.platform.resourcemanager.v1.OrgUnit.lifecycle_state:type_name -> m8.platform.resourcemanager.v1.OrgUnitState
-	1, // 2: m8.platform.resourcemanager.v1.OrgUnit.management_mode:type_name -> m8.platform.resourcemanager.v1.OrgUnitManagementMode
-	0, // 3: m8.platform.resourcemanager.v1.OrgUnitVersion.lifecycle_state:type_name -> m8.platform.resourcemanager.v1.OrgUnitState
-	7, // 4: m8.platform.resourcemanager.v1.OrgUnitVersion.valid_from:type_name -> google.protobuf.Timestamp
-	7, // 5: m8.platform.resourcemanager.v1.OrgUnitVersion.valid_to:type_name -> google.protobuf.Timestamp
-	7, // 6: m8.platform.resourcemanager.v1.OrgUnitVersion.recorded_from:type_name -> google.protobuf.Timestamp
-	7, // 7: m8.platform.resourcemanager.v1.OrgUnitVersion.recorded_to:type_name -> google.protobuf.Timestamp
-	7, // 8: m8.platform.resourcemanager.v1.OrgStructureRevision.published_at:type_name -> google.protobuf.Timestamp
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	6,  // 0: m8.platform.resourcemanager.v1.OrgUnit.metadata:type_name -> m8.platform.resourcemanager.v1.ResourceMetadata
+	0,  // 1: m8.platform.resourcemanager.v1.OrgUnit.lifecycle_state:type_name -> m8.platform.resourcemanager.v1.OrgUnitState
+	1,  // 2: m8.platform.resourcemanager.v1.OrgUnit.management_mode:type_name -> m8.platform.resourcemanager.v1.OrgUnitManagementMode
+	0,  // 3: m8.platform.resourcemanager.v1.OrgUnitVersion.lifecycle_state:type_name -> m8.platform.resourcemanager.v1.OrgUnitState
+	7,  // 4: m8.platform.resourcemanager.v1.OrgUnitVersion.valid_from:type_name -> google.protobuf.Timestamp
+	7,  // 5: m8.platform.resourcemanager.v1.OrgUnitVersion.valid_to:type_name -> google.protobuf.Timestamp
+	7,  // 6: m8.platform.resourcemanager.v1.OrgUnitVersion.recorded_from:type_name -> google.protobuf.Timestamp
+	7,  // 7: m8.platform.resourcemanager.v1.OrgUnitVersion.recorded_to:type_name -> google.protobuf.Timestamp
+	1,  // 8: m8.platform.resourcemanager.v1.OrgUnitVersion.management_mode:type_name -> m8.platform.resourcemanager.v1.OrgUnitManagementMode
+	7,  // 9: m8.platform.resourcemanager.v1.OrgStructureRevision.published_at:type_name -> google.protobuf.Timestamp
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_org_unit_proto_init() }
@@ -569,6 +667,7 @@ func file_m8_platform_resourcemanager_v1_org_unit_proto_init() {
 		return
 	}
 	file_m8_platform_resourcemanager_v1_resource_proto_init()
+	file_m8_platform_resourcemanager_v1_org_unit_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

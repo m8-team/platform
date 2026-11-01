@@ -224,9 +224,6 @@ components:
                     type: string
                 fromOrganizationId:
                     type: string
-                    description: |-
-                        Directed from -> to. For PARENT_SUBSIDIARY, from is the parent.
-                         For SERVICE_PROVIDER, from provides services to the receiving "to".
                 toOrganizationId:
                     type: string
                 type:
@@ -240,14 +237,12 @@ components:
                     format: enum
                 ownershipBasisPoints:
                     type: integer
-                    description: 0 = unknown; 1..10000 = percent * 100; only PARENT_SUBSIDIARY.
                     format: int32
                 validFrom:
                     type: string
                     format: date-time
                 validTo:
                     type: string
-                    description: Optional exclusive end; unset means unbounded.
                     format: date-time
                 state:
                     readOnly: true
@@ -288,9 +283,6 @@ components:
                     type: string
                 ownershipBasisPoints:
                     type: integer
-                    description: |-
-                        Only these mutable fields can change. Endpoints/type and validity start
-                         are immutable. To change them, close and create a new relation.
                     format: int32
                 validTo:
                     type: string

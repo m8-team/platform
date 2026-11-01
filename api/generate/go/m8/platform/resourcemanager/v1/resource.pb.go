@@ -24,12 +24,9 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Lifecycle of the Resource Manager record. This is not desired/actual
-// infrastructure state, deployment progress or an authorization decision.
 type ResourceState int32
 
 const (
-	// Unset on input before the server assigns a lifecycle state.
 	ResourceState_RESOURCE_STATE_UNSPECIFIED ResourceState = 0
 	ResourceState_RESOURCE_STATE_ACTIVE      ResourceState = 1
 	ResourceState_RESOURCE_STATE_SUSPENDED   ResourceState = 2
@@ -82,17 +79,10 @@ func (ResourceState) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_proto_rawDescGZIP(), []int{0}
 }
 
-// Resource identity within a tenant. The server resolves references in the
-// caller's authorized tenant; possession of a reference grants no access.
 type ResourceRef struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Stable resource kind. Built-in kinds include "organization", "project"
-	// and "workload_service". Module-owned kinds may be namespaced, for example
-	// "provisioning.database". Registration and lookup use the exact same key.
-	Kind string `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
-	// Stable UUID assigned by the resource's owning service, not a display name
-	// or an external provider identifier.
-	Id            string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Kind          string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -141,10 +131,6 @@ func (x *ResourceRef) GetId() string {
 	return ""
 }
 
-// Exactly one immediate Organization or Workspace owner. The server
-// derives the owning Organization and checks the resource's placement policy.
-// OrganizationGroup affiliations and Environment bindings are not containment edges.
-// A field using OwnerScope may be optional, but a supplied scope cannot be empty.
 type OwnerScope struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Owner:
@@ -216,12 +202,10 @@ type isOwnerScope_Owner interface {
 }
 
 type OwnerScope_OrganizationId struct {
-	// Own the resource directly in this Organization.
 	OrganizationId string `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3,oneof"`
 }
 
 type OwnerScope_WorkspaceId struct {
-	// Own the resource in this Workspace, subject to its Organization's scope.
 	WorkspaceId string `protobuf:"bytes,2,opt,name=workspace_id,json=workspaceId,proto3,oneof"`
 }
 
@@ -229,31 +213,16 @@ func (*OwnerScope_OrganizationId) isOwnerScope_Owner() {}
 
 func (*OwnerScope_WorkspaceId) isOwnerScope_Owner() {}
 
-// Common catalog identity, display metadata and server-managed lifecycle.
-// Handlers ignore output-only input fields and apply field masks before
-// validating the merged resource. State transitions, ownership and optimistic
-// concurrency checks are application responsibilities, not field validation.
 type ResourceMetadata struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Server-generated; may be omitted on create. Validate its format when set.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Optional display name, not an identifier or a unique resource path.
-	// Individual create/update use cases may impose additional requirements.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Optional human-readable description.
-	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	// Optional descriptive labels. They must not contain secrets or grant access.
-	Labels map[string]string `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Server-managed lifecycle. Use the explicit state-change operation.
-	State ResourceState `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.ResourceState" json:"state,omitempty"`
-	// Server-managed revision; zero is allowed before the resource is created.
-	// Mutations use the request's expected_revision as their precondition.
-	Revision int64 `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
-	// Time when this catalog record was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// Time when this catalog record was last changed.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	// Time of soft deletion; unset before deletion. Not a physical purge deadline.
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Labels        map[string]string      `protobuf:"bytes,4,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	State         ResourceState          `protobuf:"varint,5,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.ResourceState" json:"state,omitempty"`
+	Revision      int64                  `protobuf:"varint,6,opt,name=revision,proto3" json:"revision,omitempty"`
+	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	DeleteTime    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=delete_time,json=deleteTime,proto3" json:"delete_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -352,26 +321,15 @@ func (x *ResourceMetadata) GetDeleteTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// Module-owned resources remain canonically stored in their module.
-// Resource Manager stores searchable catalog and ownership metadata only.
-// The server must resolve the registered kind policy, verify the responsible
-// module and allowed owner, and authorize the operation. For partial updates,
-// validate the complete descriptor after applying the field mask.
 type ResourceDescriptor struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Canonical identity of the object in its owning module.
-	Resource *ResourceRef `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
-	// Exactly one immediate owner permitted by the registered kind policy.
-	Owner *OwnerScope `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Organization UUID derived from owner by the server; absent on create input.
-	OwningOrganizationId string `protobuf:"bytes,3,opt,name=owning_organization_id,json=owningOrganizationId,proto3" json:"owning_organization_id,omitempty"`
-	// Metadata of the catalog entry. Its ID and revision are not substitutes for
-	// the canonical resource reference or the owning module's resource version.
-	Metadata *ResourceMetadata `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	// Module key; must match the kind policy's responsible_module.
-	Module        string `protobuf:"bytes,5,opt,name=module,proto3" json:"module,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Resource             *ResourceRef           `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Owner                *OwnerScope            `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
+	OwningOrganizationId string                 `protobuf:"bytes,3,opt,name=owning_organization_id,json=owningOrganizationId,proto3" json:"owning_organization_id,omitempty"`
+	Metadata             *ResourceMetadata      `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Module               string                 `protobuf:"bytes,5,opt,name=module,proto3" json:"module,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ResourceDescriptor) Reset() {
@@ -439,21 +397,12 @@ func (x *ResourceDescriptor) GetModule() string {
 	return ""
 }
 
-// Placement policy for a registered module-owned resource kind. Registration
-// requires authorization; a policy does not grant access or override the
-// containment rules of built-in Resource Manager resources.
 type ResourceKindPolicy struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Exact kind key used in ResourceRef.kind.
-	Kind string `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
-	// Allowed immediate owners, expressed as built-in kind keys. Order has no
-	// meaning. An empty list permits no placement; it never means unrestricted.
-	AllowedOwnerKinds []string `protobuf:"bytes,2,rep,name=allowed_owner_kinds,json=allowedOwnerKinds,proto3" json:"allowed_owner_kinds,omitempty"`
-	// Module responsible for the canonical resource and its business behavior.
-	ResponsibleModule string `protobuf:"bytes,3,opt,name=responsible_module,json=responsibleModule,proto3" json:"responsible_module,omitempty"`
-	// Whether resources of this kind may have EnvironmentBindings. Defaults to
-	// false. A true value still requires ownership and authorization checks.
-	EnvironmentBindingAllowed bool `protobuf:"varint,4,opt,name=environment_binding_allowed,json=environmentBindingAllowed,proto3" json:"environment_binding_allowed,omitempty"`
+	state                     protoimpl.MessageState `protogen:"open.v1"`
+	Kind                      string                 `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	AllowedOwnerKinds         []string               `protobuf:"bytes,2,rep,name=allowed_owner_kinds,json=allowedOwnerKinds,proto3" json:"allowed_owner_kinds,omitempty"`
+	ResponsibleModule         string                 `protobuf:"bytes,3,opt,name=responsible_module,json=responsibleModule,proto3" json:"responsible_module,omitempty"`
+	EnvironmentBindingAllowed bool                   `protobuf:"varint,4,opt,name=environment_binding_allowed,json=environmentBindingAllowed,proto3" json:"environment_binding_allowed,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }

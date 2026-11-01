@@ -8,29 +8,30 @@ import "m8/platform/resourcemanager/v1/resource.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// OrgUnit has stable identity independent of its parent or display name.
-// Person, OrganizationMembership and OrgUnitAssignment belong to Identity.
 message OrgUnit {
   ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
-  string organization_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  string organization_id = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
   string parent_org_unit_id = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
   string code = 5;
-  // Legacy free-text kind; retained for existing clients during migration.
-  // New writes MUST use kind_id once the OrgUnitKind catalog is enabled.
+
   string kind = 6 [deprecated = true];
   OrgUnitState lifecycle_state = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   OrgUnitManagementMode management_mode = 8;
   string authoritative_source_id = 9;
-  // Revision of the entire Organization structure snapshot, NOT this OrgUnit.
-  // All units returned from the same structure snapshot have the same value.
-  // No-op mutations do not increment the Organization revision.
+
   int64 structure_revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Stable UUID of a registered OrgUnitKind (system/tenant/organization scope).
-  // Canonical replacement for the deprecated free-text kind field.
-  // Migration: backfill existing kinds before enforcing non-empty on writes.
-  string kind_id = 11 [(buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE, (buf.validate.field).string.uuid = true];
+  string kind_id = 11 [
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 enum OrgUnitState {
@@ -46,8 +47,6 @@ enum OrgUnitManagementMode {
   ORG_UNIT_MANAGEMENT_MODE_EXTERNAL = 2;
 }
 
-// [valid_from, valid_to) is effective time.
-// [recorded_from, recorded_to) is knowledge time.
 message OrgUnitVersion {
   string org_unit_id = 1;
   string organization_id = 2;
@@ -58,30 +57,25 @@ message OrgUnitVersion {
   google.protobuf.Timestamp valid_to = 7;
   google.protobuf.Timestamp recorded_from = 8;
   google.protobuf.Timestamp recorded_to = 9;
-  // External HRM revision, independent of M8 structure revision.
+
   string source_revision = 10;
   string tenant_id = 11;
   string code = 12;
   string kind_id = 13;
   OrgUnitManagementMode management_mode = 14;
   string authoritative_source_id = 15;
-  // [structure_revision_from, structure_revision_to) is knowledge revision.
-  // An absent upper bound denotes the latest recorded version.
+
   int64 structure_revision_from = 16;
   optional int64 structure_revision_to = 17;
   string change_set_id = 18;
   string reason = 19;
 }
 
-// Read-only closure edge. Never expose closure writes.
 message OrgUnitAncestor {
   string org_unit_id = 1;
   int32 depth = 2;
 }
 
-// Organization-scoped monotonic revision of the *whole* tree.
-// Same revision across units in a snapshot. Changes and history corrections
-// publish one new revision atomically with their corresponding snapshot.
 message OrgStructureRevision {
   string organization_id = 1;
   int64 revision = 2;

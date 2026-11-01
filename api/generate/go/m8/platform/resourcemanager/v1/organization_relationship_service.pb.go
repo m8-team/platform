@@ -130,7 +130,7 @@ func (x *GetOrganizationRelationshipRequest) GetId() string {
 type ListOrganizationRelationshipsRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	TenantId       string                 `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"` // optional: either endpoint
+	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	IncludeClosed  bool                   `protobuf:"varint,3,opt,name=include_closed,json=includeClosed,proto3" json:"include_closed,omitempty"`
 	PageSize       int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	PageToken      string                 `protobuf:"bytes,5,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
@@ -256,13 +256,11 @@ func (x *ListOrganizationRelationshipsResponse) GetNextPageToken() string {
 }
 
 type UpdateOrganizationRelationshipRequest struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	TenantId         string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	ExpectedRevision int64                  `protobuf:"varint,3,opt,name=expected_revision,json=expectedRevision,proto3" json:"expected_revision,omitempty"`
-	IdempotencyKey   string                 `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	// Only these mutable fields can change. Endpoints/type and validity start
-	// are immutable. To change them, close and create a new relation.
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Id                   string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TenantId             string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	ExpectedRevision     int64                  `protobuf:"varint,3,opt,name=expected_revision,json=expectedRevision,proto3" json:"expected_revision,omitempty"`
+	IdempotencyKey       string                 `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	OwnershipBasisPoints int32                  `protobuf:"varint,5,opt,name=ownership_basis_points,json=ownershipBasisPoints,proto3" json:"ownership_basis_points,omitempty"`
 	ValidTo              *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=valid_to,json=validTo,proto3" json:"valid_to,omitempty"`
 	EvidenceRef          string                 `protobuf:"bytes,7,opt,name=evidence_ref,json=evidenceRef,proto3" json:"evidence_ref,omitempty"`

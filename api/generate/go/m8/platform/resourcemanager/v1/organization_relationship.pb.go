@@ -23,8 +23,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Directed business/legal relationship. Independent from OrganizationGroup affiliation,
-// OrgUnit closure and resource containment. No implicit Access grants.
 type OrganizationRelationshipType int32
 
 const (
@@ -130,26 +128,22 @@ func (OrganizationRelationshipState) EnumDescriptor() ([]byte, []int) {
 }
 
 type OrganizationRelationship struct {
-	state    protoimpl.MessageState `protogen:"open.v1"`
-	Id       string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	TenantId string                 `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	// Directed from -> to. For PARENT_SUBSIDIARY, from is the parent.
-	// For SERVICE_PROVIDER, from provides services to the receiving "to".
-	FromOrganizationId string                       `protobuf:"bytes,3,opt,name=from_organization_id,json=fromOrganizationId,proto3" json:"from_organization_id,omitempty"`
-	ToOrganizationId   string                       `protobuf:"bytes,4,opt,name=to_organization_id,json=toOrganizationId,proto3" json:"to_organization_id,omitempty"`
-	Type               OrganizationRelationshipType `protobuf:"varint,5,opt,name=type,proto3,enum=m8.platform.resourcemanager.v1.OrganizationRelationshipType" json:"type,omitempty"`
-	// 0 = unknown; 1..10000 = percent * 100; only PARENT_SUBSIDIARY.
-	OwnershipBasisPoints int32                  `protobuf:"varint,6,opt,name=ownership_basis_points,json=ownershipBasisPoints,proto3" json:"ownership_basis_points,omitempty"`
-	ValidFrom            *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
-	// Optional exclusive end; unset means unbounded.
-	ValidTo       *timestamppb.Timestamp        `protobuf:"bytes,8,opt,name=valid_to,json=validTo,proto3" json:"valid_to,omitempty"`
-	State         OrganizationRelationshipState `protobuf:"varint,9,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.OrganizationRelationshipState" json:"state,omitempty"`
-	Revision      int64                         `protobuf:"varint,10,opt,name=revision,proto3" json:"revision,omitempty"`
-	CreateTime    *timestamppb.Timestamp        `protobuf:"bytes,11,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	UpdateTime    *timestamppb.Timestamp        `protobuf:"bytes,12,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	EvidenceRef   string                        `protobuf:"bytes,13,opt,name=evidence_ref,json=evidenceRef,proto3" json:"evidence_ref,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState        `protogen:"open.v1"`
+	Id                   string                        `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TenantId             string                        `protobuf:"bytes,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	FromOrganizationId   string                        `protobuf:"bytes,3,opt,name=from_organization_id,json=fromOrganizationId,proto3" json:"from_organization_id,omitempty"`
+	ToOrganizationId     string                        `protobuf:"bytes,4,opt,name=to_organization_id,json=toOrganizationId,proto3" json:"to_organization_id,omitempty"`
+	Type                 OrganizationRelationshipType  `protobuf:"varint,5,opt,name=type,proto3,enum=m8.platform.resourcemanager.v1.OrganizationRelationshipType" json:"type,omitempty"`
+	OwnershipBasisPoints int32                         `protobuf:"varint,6,opt,name=ownership_basis_points,json=ownershipBasisPoints,proto3" json:"ownership_basis_points,omitempty"`
+	ValidFrom            *timestamppb.Timestamp        `protobuf:"bytes,7,opt,name=valid_from,json=validFrom,proto3" json:"valid_from,omitempty"`
+	ValidTo              *timestamppb.Timestamp        `protobuf:"bytes,8,opt,name=valid_to,json=validTo,proto3" json:"valid_to,omitempty"`
+	State                OrganizationRelationshipState `protobuf:"varint,9,opt,name=state,proto3,enum=m8.platform.resourcemanager.v1.OrganizationRelationshipState" json:"state,omitempty"`
+	Revision             int64                         `protobuf:"varint,10,opt,name=revision,proto3" json:"revision,omitempty"`
+	CreateTime           *timestamppb.Timestamp        `protobuf:"bytes,11,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	UpdateTime           *timestamppb.Timestamp        `protobuf:"bytes,12,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	EvidenceRef          string                        `protobuf:"bytes,13,opt,name=evidence_ref,json=evidenceRef,proto3" json:"evidence_ref,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *OrganizationRelationship) Reset() {

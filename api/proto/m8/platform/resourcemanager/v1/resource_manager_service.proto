@@ -11,8 +11,6 @@ import "m8/platform/resourcemanager/v1/resource_manager.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-// ResourceManagerService owns resource identity, containment and lifecycle;
-// NOT identity/membership, access grants, business cases or deployments.
 service ResourceManagerService {
   rpc CreateResource(CreateResourceRequest) returns (ResourceRecord) {
     option (google.api.http) = {
@@ -83,15 +81,14 @@ message GetResourceRequest {
   string id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message ListResourcesRequest {
-  string kind = 1; // Resource kind filter
-  string organization_id = 2; // caller must be authorized in this organization
-  OwnerScope owner = 3; // optional exact scope filter
+  string kind = 1;
+  string organization_id = 2;
+  OwnerScope owner = 3;
   bool include_descendants = 4;
   int32 page_size = 5;
-  string page_token = 6; // bound to authorization scope, filters and revision
+  string page_token = 6;
   bool show_deleted = 7;
-  // List Organizations or Groups inside exactly one Tenant. Valid with
-  // kind = "organization" or "group" and empty organization_id/owner. Never global list.
+
   string tenant_id = 8;
 }
 message ListResourcesResponse {
@@ -118,7 +115,7 @@ message ResolveResourceScopeRequest {
 }
 message ResolveResourceScopeResponse {
   string owning_organization_id = 1;
-  repeated ResourceRef ancestry = 2; // root organization first; target last
+  repeated ResourceRef ancestry = 2;
 }
 message SetOrganizationGroupLinkRequest {
   string group_id = 1 [(google.api.field_behavior) = REQUIRED];

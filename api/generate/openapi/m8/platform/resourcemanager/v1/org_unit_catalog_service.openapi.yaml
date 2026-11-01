@@ -1,0 +1,375 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths:
+    /resource-manager/v1/org-unit-external-references:
+        get:
+            tags:
+                - OrgUnitExternalReferenceService
+            operationId: OrgUnitExternalReferenceService_ListOrgUnitExternalReferences
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: orgUnitId
+                  in: query
+                  schema:
+                    type: string
+                - name: includeRetired
+                  in: query
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitExternalReferencesResponse'
+        post:
+            tags:
+                - OrgUnitExternalReferenceService
+            operationId: OrgUnitExternalReferenceService_LinkOrgUnitExternalReference
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LinkOrgUnitExternalReferenceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnitExternalReference'
+    /resource-manager/v1/org-unit-external-references/{id}:retire:
+        post:
+            tags:
+                - OrgUnitExternalReferenceService
+            operationId: OrgUnitExternalReferenceService_RetireOrgUnitExternalReference
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RetireOrgUnitExternalReferenceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnitExternalReference'
+    /resource-manager/v1/org-unit-external-references:resolve:
+        get:
+            tags:
+                - OrgUnitExternalReferenceService
+            operationId: OrgUnitExternalReferenceService_ResolveOrgUnitExternalReference
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: sourceId
+                  in: query
+                  schema:
+                    type: string
+                - name: externalType
+                  in: query
+                  schema:
+                    type: string
+                - name: externalId
+                  in: query
+                  schema:
+                    type: string
+                - name: asOf
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnitExternalReference'
+    /resource-manager/v1/org-unit-kinds:
+        get:
+            tags:
+                - OrgUnitKindService
+            operationId: OrgUnitKindService_ListOrgUnitKinds
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: organizationId
+                  in: query
+                  schema:
+                    type: string
+                - name: includeDisabled
+                  in: query
+                  schema:
+                    type: boolean
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageToken
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOrgUnitKindsResponse'
+        post:
+            tags:
+                - OrgUnitKindService
+            operationId: OrgUnitKindService_CreateOrgUnitKind
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOrgUnitKindRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnitKind'
+    /resource-manager/v1/org-unit-kinds/{kindId}:
+        patch:
+            tags:
+                - OrgUnitKindService
+            operationId: OrgUnitKindService_UpdateOrgUnitKind
+            parameters:
+                - name: kindId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateOrgUnitKindRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrgUnitKind'
+components:
+    schemas:
+        CreateOrgUnitKindRequest:
+            required:
+                - kind
+                - idempotencyKey
+            type: object
+            properties:
+                kind:
+                    $ref: '#/components/schemas/OrgUnitKind'
+                idempotencyKey:
+                    type: string
+        LinkOrgUnitExternalReferenceRequest:
+            required:
+                - reference
+                - idempotencyKey
+            type: object
+            properties:
+                reference:
+                    $ref: '#/components/schemas/OrgUnitExternalReference'
+                idempotencyKey:
+                    type: string
+        ListOrgUnitExternalReferencesResponse:
+            type: object
+            properties:
+                references:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitExternalReference'
+                nextPageToken:
+                    type: string
+        ListOrgUnitKindsResponse:
+            type: object
+            properties:
+                kinds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrgUnitKind'
+                nextPageToken:
+                    type: string
+        OrgUnitExternalReference:
+            required:
+                - tenantId
+                - organizationId
+                - orgUnitId
+                - sourceId
+                - externalId
+                - externalType
+                - validFrom
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                organizationId:
+                    type: string
+                orgUnitId:
+                    type: string
+                sourceId:
+                    type: string
+                externalId:
+                    type: string
+                externalType:
+                    type: string
+                validFrom:
+                    type: string
+                    format: date-time
+                validTo:
+                    type: string
+                    format: date-time
+                lastSeenAt:
+                    readOnly: true
+                    type: string
+                    format: date-time
+        OrgUnitKind:
+            required:
+                - metadata
+                - scope
+                - code
+            type: object
+            properties:
+                metadata:
+                    $ref: '#/components/schemas/ResourceMetadata'
+                scope:
+                    enum:
+                        - ORG_UNIT_KIND_SCOPE_UNSPECIFIED
+                        - ORG_UNIT_KIND_SCOPE_SYSTEM
+                        - ORG_UNIT_KIND_SCOPE_TENANT
+                        - ORG_UNIT_KIND_SCOPE_ORGANIZATION
+                    type: string
+                    format: enum
+                tenantId:
+                    type: string
+                organizationId:
+                    type: string
+                code:
+                    type: string
+                enabled:
+                    type: boolean
+                localizedNames:
+                    type: object
+                    additionalProperties:
+                        type: string
+        ResourceMetadata:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                state:
+                    readOnly: true
+                    enum:
+                        - RESOURCE_STATE_UNSPECIFIED
+                        - RESOURCE_STATE_ACTIVE
+                        - RESOURCE_STATE_SUSPENDED
+                        - RESOURCE_STATE_ARCHIVED
+                        - RESOURCE_STATE_DELETED
+                    type: string
+                    format: enum
+                revision:
+                    readOnly: true
+                    type: string
+                createTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                updateTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+                deleteTime:
+                    readOnly: true
+                    type: string
+                    format: date-time
+        RetireOrgUnitExternalReferenceRequest:
+            required:
+                - id
+                - tenantId
+                - validTo
+                - idempotencyKey
+            type: object
+            properties:
+                id:
+                    type: string
+                tenantId:
+                    type: string
+                validTo:
+                    type: string
+                    format: date-time
+                idempotencyKey:
+                    type: string
+        UpdateOrgUnitKindRequest:
+            required:
+                - kindId
+                - kind
+                - expectedRevision
+                - idempotencyKey
+            type: object
+            properties:
+                kindId:
+                    type: string
+                kind:
+                    $ref: '#/components/schemas/OrgUnitKind'
+                expectedRevision:
+                    type: string
+                idempotencyKey:
+                    type: string
+tags:
+    - name: OrgUnitExternalReferenceService
+    - name: OrgUnitKindService

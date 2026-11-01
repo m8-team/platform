@@ -87,15 +87,13 @@ func (ResourceChangeKind) EnumDescriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_resource_events_proto_rawDescGZIP(), []int{0}
 }
 
-// Published transactionally with mutations via Resource Manager outbox.
-// Consumers use event_id + revision for idempotency and ordering.
 type ResourceEventMetadata struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
 	EventId           string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventType         string                 `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"` // stable name e.g. m8.resource_manager.resource_changed
+	EventType         string                 `protobuf:"bytes,2,opt,name=event_type,json=eventType,proto3" json:"event_type,omitempty"`
 	EventVersion      uint32                 `protobuf:"varint,3,opt,name=event_version,json=eventVersion,proto3" json:"event_version,omitempty"`
 	TenantId          string                 `protobuf:"bytes,4,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	OrganizationId    string                 `protobuf:"bytes,5,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"` // server-derived when applicable
+	OrganizationId    string                 `protobuf:"bytes,5,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	Resource          *ResourceRef           `protobuf:"bytes,6,opt,name=resource,proto3" json:"resource,omitempty"`
 	AggregateRevision int64                  `protobuf:"varint,7,opt,name=aggregate_revision,json=aggregateRevision,proto3" json:"aggregate_revision,omitempty"`
 	OccurredAt        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=occurred_at,json=occurredAt,proto3" json:"occurred_at,omitempty"`
@@ -225,7 +223,7 @@ type ResourceChangedEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metadata      *ResourceEventMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	Change        ResourceChangeKind     `protobuf:"varint,2,opt,name=change,proto3,enum=m8.platform.resourcemanager.v1.ResourceChangeKind" json:"change,omitempty"`
-	ResourceAfter *ResourceRecord        `protobuf:"bytes,3,opt,name=resource_after,json=resourceAfter,proto3" json:"resource_after,omitempty"` // optional on delete; omit sensitive fields
+	ResourceAfter *ResourceRecord        `protobuf:"bytes,3,opt,name=resource_after,json=resourceAfter,proto3" json:"resource_after,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

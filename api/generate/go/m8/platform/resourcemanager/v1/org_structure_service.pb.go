@@ -579,11 +579,275 @@ func (x *ListOrgUnitVersionsResponse) GetNextPageToken() string {
 	return ""
 }
 
+type GetOrganizationStructureAtRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	AsOf           *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
+	AtRevision     int64                  `protobuf:"varint,3,opt,name=at_revision,json=atRevision,proto3" json:"at_revision,omitempty"`
+	PageSize       int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken      string                 `protobuf:"bytes,5,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetOrganizationStructureAtRequest) Reset() {
+	*x = GetOrganizationStructureAtRequest{}
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrganizationStructureAtRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrganizationStructureAtRequest) ProtoMessage() {}
+
+func (x *GetOrganizationStructureAtRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrganizationStructureAtRequest.ProtoReflect.Descriptor instead.
+func (*GetOrganizationStructureAtRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetOrganizationStructureAtRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
+}
+
+func (x *GetOrganizationStructureAtRequest) GetAsOf() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AsOf
+	}
+	return nil
+}
+
+func (x *GetOrganizationStructureAtRequest) GetAtRevision() int64 {
+	if x != nil {
+		return x.AtRevision
+	}
+	return 0
+}
+
+func (x *GetOrganizationStructureAtRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *GetOrganizationStructureAtRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type GetOrganizationStructureAtResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	OrgUnits          []*OrgUnit             `protobuf:"bytes,1,rep,name=org_units,json=orgUnits,proto3" json:"org_units,omitempty"`
+	StructureRevision int64                  `protobuf:"varint,2,opt,name=structure_revision,json=structureRevision,proto3" json:"structure_revision,omitempty"`
+	AsOf              *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=as_of,json=asOf,proto3" json:"as_of,omitempty"`
+	NextPageToken     string                 `protobuf:"bytes,4,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetOrganizationStructureAtResponse) Reset() {
+	*x = GetOrganizationStructureAtResponse{}
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOrganizationStructureAtResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrganizationStructureAtResponse) ProtoMessage() {}
+
+func (x *GetOrganizationStructureAtResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrganizationStructureAtResponse.ProtoReflect.Descriptor instead.
+func (*GetOrganizationStructureAtResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetOrganizationStructureAtResponse) GetOrgUnits() []*OrgUnit {
+	if x != nil {
+		return x.OrgUnits
+	}
+	return nil
+}
+
+func (x *GetOrganizationStructureAtResponse) GetStructureRevision() int64 {
+	if x != nil {
+		return x.StructureRevision
+	}
+	return 0
+}
+
+func (x *GetOrganizationStructureAtResponse) GetAsOf() *timestamppb.Timestamp {
+	if x != nil {
+		return x.AsOf
+	}
+	return nil
+}
+
+func (x *GetOrganizationStructureAtResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
+type ListOrgUnitMovesRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	OrgUnitId      string                 `protobuf:"bytes,2,opt,name=org_unit_id,json=orgUnitId,proto3" json:"org_unit_id,omitempty"`
+	PageSize       int32                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	PageToken      string                 `protobuf:"bytes,4,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListOrgUnitMovesRequest) Reset() {
+	*x = ListOrgUnitMovesRequest{}
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListOrgUnitMovesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListOrgUnitMovesRequest) ProtoMessage() {}
+
+func (x *ListOrgUnitMovesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListOrgUnitMovesRequest.ProtoReflect.Descriptor instead.
+func (*ListOrgUnitMovesRequest) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListOrgUnitMovesRequest) GetOrganizationId() string {
+	if x != nil {
+		return x.OrganizationId
+	}
+	return ""
+}
+
+func (x *ListOrgUnitMovesRequest) GetOrgUnitId() string {
+	if x != nil {
+		return x.OrgUnitId
+	}
+	return ""
+}
+
+func (x *ListOrgUnitMovesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListOrgUnitMovesRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
+type ListOrgUnitMovesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Moves         []*OrgUnitMove         `protobuf:"bytes,1,rep,name=moves,proto3" json:"moves,omitempty"`
+	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListOrgUnitMovesResponse) Reset() {
+	*x = ListOrgUnitMovesResponse{}
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListOrgUnitMovesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListOrgUnitMovesResponse) ProtoMessage() {}
+
+func (x *ListOrgUnitMovesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListOrgUnitMovesResponse.ProtoReflect.Descriptor instead.
+func (*ListOrgUnitMovesResponse) Descriptor() ([]byte, []int) {
+	return file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListOrgUnitMovesResponse) GetMoves() []*OrgUnitMove {
+	if x != nil {
+		return x.Moves
+	}
+	return nil
+}
+
+func (x *ListOrgUnitMovesResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
+}
+
 var File_m8_platform_resourcemanager_v1_org_structure_service_proto protoreflect.FileDescriptor
 
 const file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDesc = "" +
 	"\n" +
-	":m8/platform/resourcemanager/v1/org_structure_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/org_unit.proto\"f\n" +
+	":m8/platform/resourcemanager/v1/org_structure_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a-m8/platform/resourcemanager/v1/org_unit.proto\x1a2m8/platform/resourcemanager/v1/org_unit_move.proto\"f\n" +
 	"\x11GetOrgUnitRequest\x12,\n" +
 	"\x0forganization_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12#\n" +
 	"\vorg_unit_id\x18\x02 \x01(\tB\x03\xe0A\x02R\torgUnitId\"\x7f\n" +
@@ -624,13 +888,37 @@ const file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDesc = 
 	"page_token\x18\x06 \x01(\tR\tpageToken\"\x91\x01\n" +
 	"\x1bListOrgUnitVersionsResponse\x12J\n" +
 	"\bversions\x18\x01 \x03(\v2..m8.platform.resourcemanager.v1.OrgUnitVersionR\bversions\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xf9\b\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xe4\x01\n" +
+	"!GetOrganizationStructureAtRequest\x12,\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x124\n" +
+	"\x05as_of\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x02R\x04asOf\x12\x1f\n" +
+	"\vat_revision\x18\x03 \x01(\x03R\n" +
+	"atRevision\x12\x1b\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x05 \x01(\tR\tpageToken\"\xf2\x01\n" +
+	"\"GetOrganizationStructureAtResponse\x12D\n" +
+	"\torg_units\x18\x01 \x03(\v2'.m8.platform.resourcemanager.v1.OrgUnitR\borgUnits\x12-\n" +
+	"\x12structure_revision\x18\x02 \x01(\x03R\x11structureRevision\x12/\n" +
+	"\x05as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\x12&\n" +
+	"\x0fnext_page_token\x18\x04 \x01(\tR\rnextPageToken\"\xa3\x01\n" +
+	"\x17ListOrgUnitMovesRequest\x12,\n" +
+	"\x0forganization_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x0eorganizationId\x12\x1e\n" +
+	"\vorg_unit_id\x18\x02 \x01(\tR\torgUnitId\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x04 \x01(\tR\tpageToken\"\x85\x01\n" +
+	"\x18ListOrgUnitMovesResponse\x12A\n" +
+	"\x05moves\x18\x01 \x03(\v2+.m8.platform.resourcemanager.v1.OrgUnitMoveR\x05moves\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xc3\f\n" +
 	"\x13OrgStructureService\x12\xbe\x01\n" +
 	"\n" +
 	"GetOrgUnit\x121.m8.platform.resourcemanager.v1.GetOrgUnitRequest\x1a'.m8.platform.resourcemanager.v1.OrgUnit\"T\x82\xd3\xe4\x93\x02N\x12L/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}\x12\xc1\x01\n" +
 	"\fListOrgUnits\x123.m8.platform.resourcemanager.v1.ListOrgUnitsRequest\x1a4.m8.platform.resourcemanager.v1.ListOrgUnitsResponse\"F\x82\xd3\xe4\x93\x02@\x12>/resource-manager/v1/organizations/{organization_id}/org-units\x12\xf1\x01\n" +
 	"\x14ListOrgUnitAncestors\x12;.m8.platform.resourcemanager.v1.ListOrgUnitAncestorsRequest\x1a<.m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse\"^\x82\xd3\xe4\x93\x02X\x12V/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:ancestors\x12\xf9\x01\n" +
-	"\x16ListOrgUnitDescendants\x12=.m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest\x1a>.m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse\"`\x82\xd3\xe4\x93\x02Z\x12X/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants\x12\xec\x01\n" +
+	"\x16ListOrgUnitDescendants\x12=.m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest\x1a>.m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse\"`\x82\xd3\xe4\x93\x02Z\x12X/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants\x12\xf2\x01\n" +
+	"\x1aGetOrganizationStructureAt\x12A.m8.platform.resourcemanager.v1.GetOrganizationStructureAtRequest\x1aB.m8.platform.resourcemanager.v1.GetOrganizationStructureAtResponse\"M\x82\xd3\xe4\x93\x02G\x12E/resource-manager/v1/organizations/{organization_id}/org-structure:at\x12\xd2\x01\n" +
+	"\x10ListOrgUnitMoves\x127.m8.platform.resourcemanager.v1.ListOrgUnitMovesRequest\x1a8.m8.platform.resourcemanager.v1.ListOrgUnitMovesResponse\"K\x82\xd3\xe4\x93\x02E\x12C/resource-manager/v1/organizations/{organization_id}/org-unit-moves\x12\xec\x01\n" +
 	"\x13ListOrgUnitVersions\x12:.m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest\x1a;.m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse\"\\\x82\xd3\xe4\x93\x02V\x12T/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:historyBOZMgithub.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanagerb\x06proto3"
 
 var (
@@ -645,44 +933,57 @@ func file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescGZIP
 	return file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDescData
 }
 
-var file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_m8_platform_resourcemanager_v1_org_structure_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_m8_platform_resourcemanager_v1_org_structure_service_proto_goTypes = []any{
-	(*GetOrgUnitRequest)(nil),              // 0: m8.platform.resourcemanager.v1.GetOrgUnitRequest
-	(*ListOrgUnitsRequest)(nil),            // 1: m8.platform.resourcemanager.v1.ListOrgUnitsRequest
-	(*ListOrgUnitsResponse)(nil),           // 2: m8.platform.resourcemanager.v1.ListOrgUnitsResponse
-	(*ListOrgUnitAncestorsRequest)(nil),    // 3: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsRequest
-	(*ListOrgUnitAncestorsResponse)(nil),   // 4: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse
-	(*ListOrgUnitDescendantsRequest)(nil),  // 5: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest
-	(*ListOrgUnitDescendantsResponse)(nil), // 6: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse
-	(*ListOrgUnitVersionsRequest)(nil),     // 7: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest
-	(*ListOrgUnitVersionsResponse)(nil),    // 8: m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse
-	(*OrgUnit)(nil),                        // 9: m8.platform.resourcemanager.v1.OrgUnit
-	(*OrgUnitAncestor)(nil),                // 10: m8.platform.resourcemanager.v1.OrgUnitAncestor
-	(*timestamppb.Timestamp)(nil),          // 11: google.protobuf.Timestamp
-	(*OrgUnitVersion)(nil),                 // 12: m8.platform.resourcemanager.v1.OrgUnitVersion
+	(*GetOrgUnitRequest)(nil),                  // 0: m8.platform.resourcemanager.v1.GetOrgUnitRequest
+	(*ListOrgUnitsRequest)(nil),                // 1: m8.platform.resourcemanager.v1.ListOrgUnitsRequest
+	(*ListOrgUnitsResponse)(nil),               // 2: m8.platform.resourcemanager.v1.ListOrgUnitsResponse
+	(*ListOrgUnitAncestorsRequest)(nil),        // 3: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsRequest
+	(*ListOrgUnitAncestorsResponse)(nil),       // 4: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse
+	(*ListOrgUnitDescendantsRequest)(nil),      // 5: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest
+	(*ListOrgUnitDescendantsResponse)(nil),     // 6: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse
+	(*ListOrgUnitVersionsRequest)(nil),         // 7: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest
+	(*ListOrgUnitVersionsResponse)(nil),        // 8: m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse
+	(*GetOrganizationStructureAtRequest)(nil),  // 9: m8.platform.resourcemanager.v1.GetOrganizationStructureAtRequest
+	(*GetOrganizationStructureAtResponse)(nil), // 10: m8.platform.resourcemanager.v1.GetOrganizationStructureAtResponse
+	(*ListOrgUnitMovesRequest)(nil),            // 11: m8.platform.resourcemanager.v1.ListOrgUnitMovesRequest
+	(*ListOrgUnitMovesResponse)(nil),           // 12: m8.platform.resourcemanager.v1.ListOrgUnitMovesResponse
+	(*OrgUnit)(nil),                            // 13: m8.platform.resourcemanager.v1.OrgUnit
+	(*OrgUnitAncestor)(nil),                    // 14: m8.platform.resourcemanager.v1.OrgUnitAncestor
+	(*timestamppb.Timestamp)(nil),              // 15: google.protobuf.Timestamp
+	(*OrgUnitVersion)(nil),                     // 16: m8.platform.resourcemanager.v1.OrgUnitVersion
+	(*OrgUnitMove)(nil),                        // 17: m8.platform.resourcemanager.v1.OrgUnitMove
 }
 var file_m8_platform_resourcemanager_v1_org_structure_service_proto_depIdxs = []int32{
-	9,  // 0: m8.platform.resourcemanager.v1.ListOrgUnitsResponse.org_units:type_name -> m8.platform.resourcemanager.v1.OrgUnit
-	10, // 1: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse.ancestors:type_name -> m8.platform.resourcemanager.v1.OrgUnitAncestor
-	10, // 2: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse.descendants:type_name -> m8.platform.resourcemanager.v1.OrgUnitAncestor
-	11, // 3: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest.valid_at:type_name -> google.protobuf.Timestamp
-	11, // 4: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest.known_at:type_name -> google.protobuf.Timestamp
-	12, // 5: m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse.versions:type_name -> m8.platform.resourcemanager.v1.OrgUnitVersion
-	0,  // 6: m8.platform.resourcemanager.v1.OrgStructureService.GetOrgUnit:input_type -> m8.platform.resourcemanager.v1.GetOrgUnitRequest
-	1,  // 7: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnits:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitsRequest
-	3,  // 8: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitAncestors:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitAncestorsRequest
-	5,  // 9: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitDescendants:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest
-	7,  // 10: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitVersions:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest
-	9,  // 11: m8.platform.resourcemanager.v1.OrgStructureService.GetOrgUnit:output_type -> m8.platform.resourcemanager.v1.OrgUnit
-	2,  // 12: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnits:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitsResponse
-	4,  // 13: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitAncestors:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse
-	6,  // 14: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitDescendants:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse
-	8,  // 15: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitVersions:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse
-	11, // [11:16] is the sub-list for method output_type
-	6,  // [6:11] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	13, // 0: m8.platform.resourcemanager.v1.ListOrgUnitsResponse.org_units:type_name -> m8.platform.resourcemanager.v1.OrgUnit
+	14, // 1: m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse.ancestors:type_name -> m8.platform.resourcemanager.v1.OrgUnitAncestor
+	14, // 2: m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse.descendants:type_name -> m8.platform.resourcemanager.v1.OrgUnitAncestor
+	15, // 3: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest.valid_at:type_name -> google.protobuf.Timestamp
+	15, // 4: m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest.known_at:type_name -> google.protobuf.Timestamp
+	16, // 5: m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse.versions:type_name -> m8.platform.resourcemanager.v1.OrgUnitVersion
+	15, // 6: m8.platform.resourcemanager.v1.GetOrganizationStructureAtRequest.as_of:type_name -> google.protobuf.Timestamp
+	13, // 7: m8.platform.resourcemanager.v1.GetOrganizationStructureAtResponse.org_units:type_name -> m8.platform.resourcemanager.v1.OrgUnit
+	15, // 8: m8.platform.resourcemanager.v1.GetOrganizationStructureAtResponse.as_of:type_name -> google.protobuf.Timestamp
+	17, // 9: m8.platform.resourcemanager.v1.ListOrgUnitMovesResponse.moves:type_name -> m8.platform.resourcemanager.v1.OrgUnitMove
+	0,  // 10: m8.platform.resourcemanager.v1.OrgStructureService.GetOrgUnit:input_type -> m8.platform.resourcemanager.v1.GetOrgUnitRequest
+	1,  // 11: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnits:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitsRequest
+	3,  // 12: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitAncestors:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitAncestorsRequest
+	5,  // 13: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitDescendants:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitDescendantsRequest
+	9,  // 14: m8.platform.resourcemanager.v1.OrgStructureService.GetOrganizationStructureAt:input_type -> m8.platform.resourcemanager.v1.GetOrganizationStructureAtRequest
+	11, // 15: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitMoves:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitMovesRequest
+	7,  // 16: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitVersions:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitVersionsRequest
+	13, // 17: m8.platform.resourcemanager.v1.OrgStructureService.GetOrgUnit:output_type -> m8.platform.resourcemanager.v1.OrgUnit
+	2,  // 18: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnits:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitsResponse
+	4,  // 19: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitAncestors:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitAncestorsResponse
+	6,  // 20: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitDescendants:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitDescendantsResponse
+	10, // 21: m8.platform.resourcemanager.v1.OrgStructureService.GetOrganizationStructureAt:output_type -> m8.platform.resourcemanager.v1.GetOrganizationStructureAtResponse
+	12, // 22: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitMoves:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitMovesResponse
+	8,  // 23: m8.platform.resourcemanager.v1.OrgStructureService.ListOrgUnitVersions:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitVersionsResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_m8_platform_resourcemanager_v1_org_structure_service_proto_init() }
@@ -691,13 +992,14 @@ func file_m8_platform_resourcemanager_v1_org_structure_service_proto_init() {
 		return
 	}
 	file_m8_platform_resourcemanager_v1_org_unit_proto_init()
+	file_m8_platform_resourcemanager_v1_org_unit_move_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDesc), len(file_m8_platform_resourcemanager_v1_org_structure_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

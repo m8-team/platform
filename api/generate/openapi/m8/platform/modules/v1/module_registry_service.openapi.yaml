@@ -344,15 +344,8 @@ components:
             properties:
                 organizationId:
                     type: string
-                    description: Own the resource directly in this Organization.
                 workspaceId:
                     type: string
-                    description: Own the resource in this Workspace, subject to its Organization's scope.
-            description: |-
-                Exactly one immediate Organization or Workspace owner. The server
-                 derives the owning Organization and checks the resource's placement policy.
-                 OrganizationGroup affiliations and Environment bindings are not containment edges.
-                 A field using OwnerScope may be optional, but a supplied scope cannot be empty.
         PublishModuleVersionRequest:
             required:
                 - version

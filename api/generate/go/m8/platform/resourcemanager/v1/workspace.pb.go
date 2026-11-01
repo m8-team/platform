@@ -23,16 +23,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Workspace is an optional resource ownership and collaboration scope within
-// an Organization. It is a containment boundary and grants no access by itself;
-// authorization policies and permissions are owned by M8 Access.
 type Workspace struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identity, display metadata, labels, lifecycle and optimistic concurrency revision.
-	Metadata *ResourceMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	// UUID of the owning Organization. The owner is fixed for the Workspace
-	// lifetime; moving resources between Workspaces does not move the Workspace.
-	OrganizationId string `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Metadata       *ResourceMetadata      `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	OrganizationId string                 `protobuf:"bytes,2,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
