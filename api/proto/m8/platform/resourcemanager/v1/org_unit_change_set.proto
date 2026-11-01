@@ -33,19 +33,3 @@ message OrgUnitChangeSet {
   string change_set_status = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   int64 resulting_structure_revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
-message ValidateOrgUnitChangeSetRequest {
-  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
-}
-message ValidateOrgUnitChangeSetResponse {
-  bool valid = 1;
-  repeated string blockers = 2;
-  int64 proposed_structure_revision = 3;
-}
-message ApplyOrgUnitChangeSetRequest {
-  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
-}
-message ApplyOrgUnitChangeSetResponse {
-  int64 structure_revision = 1;
-  bool replayed = 2;
-}

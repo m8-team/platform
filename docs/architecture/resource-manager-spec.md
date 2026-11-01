@@ -187,8 +187,8 @@ The wire-format protobuf contracts are not themselves a full enforcement mechani
 
 ## 7. Contract files
 
-- Resource Manager contracts: `resource.proto`, `resource_manager.proto`, `tenant.proto`, `organization_group.proto`, `organization.proto`, `workspace.proto`, `environment.proto`, `service.proto`, `org_structure.proto`, `org_unit_change_set.proto`, `organization_relationship.proto`.
-- Resource Manager APIs: `resource_manager_service.proto`, `org_structure_service.proto`, `org_unit_change_set_service.proto`, `organization_relationship_service.proto`.
+- Resource Manager entity contracts: `resource.proto`, `resource_manager.proto`, `tenant.proto`, `organization_group.proto`, `organization.proto`, `workspace.proto`, `environment.proto`, `service.proto`, `org_unit_change_set.proto`, `organization_relationship.proto`.
+- Resource Manager APIs and their request/response messages: `resource_manager_service.proto`, `org_structure_service.proto`, `org_unit_change_set_service.proto`, `organization_relationship_service.proto`.
 - Identity: `identity/v1/principal.proto`, `identity_directory_service.proto`.
 - Workforce: `workforce/v1/engagement.proto`, `workforce_service.proto`.
 - Access: `access/v1/access_grant.proto`, `access_grant_service.proto` (existing AuthZEN decision API remains).

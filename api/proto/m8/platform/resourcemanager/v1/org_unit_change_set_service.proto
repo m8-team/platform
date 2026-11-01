@@ -3,6 +3,7 @@ syntax = "proto3";
 package m8.platform.resourcemanager.v1;
 
 import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "m8/platform/resourcemanager/v1/org_unit_change_set.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
@@ -21,4 +22,21 @@ service OrgUnitChangeSetService {
       body: "*"
     };
   }
+}
+
+message ValidateOrgUnitChangeSetRequest {
+  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
+}
+message ValidateOrgUnitChangeSetResponse {
+  bool valid = 1;
+  repeated string blockers = 2;
+  int64 proposed_structure_revision = 3;
+}
+message ApplyOrgUnitChangeSetRequest {
+  OrgUnitChangeSet change_set = 1 [(google.api.field_behavior) = REQUIRED];
+  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ApplyOrgUnitChangeSetResponse {
+  int64 structure_revision = 1;
+  bool replayed = 2;
 }

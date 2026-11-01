@@ -713,24 +713,41 @@ components:
                     $ref: '#/components/schemas/ResourceDescriptor'
         ResourceRef:
             required:
-                - kind
+                - type
                 - id
             type: object
             properties:
-                kind:
+                type:
                     type: string
                     description: |-
-                        Stable resource kind. Built-in kinds include "organization", "project"
-                         and "workload_service". Module-owned kinds may be namespaced, for example
-                         "provisioning.database". Registration and lookup use the exact same key.
+                        Required. Resource type.
+
+                         Recommended format:
+                           {service}.{resource}
+
+                         Examples:
+                           resourcemanager.organization
+                           resourcemanager.workspace
+                           resourcemanager.service
+                           provisioning.kafka_topic
+                           provisioning.database
+                           identity.user
+                           access.permission_schema
                 id:
                     type: string
                     description: |-
-                        Stable UUID assigned by the resource's owning service, not a display name
-                         or an external provider identifier.
-            description: |-
-                Resource identity within a tenant. The server resolves references in the
-                 caller's authorized tenant; possession of a reference grants no access.
+                        Required. Stable resource identifier.
+
+                         For Resource Manager resources this is usually UUID.
+                         For external/provider resources this may be provider-specific.
+                name:
+                    type: string
+                    description: |-
+                        Optional. Full resource name.
+
+                         Examples:
+                           organizations/{organization_id}
+            description: ResourceRef is a generic reference to any M8 Platform resource.
         SetEnvironmentBindingRequest:
             required:
                 - binding
