@@ -1,0 +1,29 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// Immutable audit of a hierarchy MOVE mutation. The temporal writer owns
+// OrgUnitVersion truth; this event preserves the actor, reason and old parent.
+// A correction publishes a new event, never overwrites a previous event.
+message OrgUnitMove {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+  string tenant_id = 2;
+  string organization_id = 3;
+  string org_unit_id = 4;
+  // Empty from/to means root. Both parents belong to organization_id.
+  string from_parent_org_unit_id = 5;
+  string to_parent_org_unit_id = 6;
+  // Business effective time, can differ from recorded_at.
+  google.protobuf.Timestamp effective_at = 7;
+  // Organization-wide revision when the move was recorded/published.
+  int64 structure_revision = 8;
+  // Stable authenticated identity/actor reference, not a Person embedded here.
+  string actor_id = 9;
+  string reason = 10;
+  google.protobuf.Timestamp recorded_at = 11;
+  string change_set_id = 12;
+}

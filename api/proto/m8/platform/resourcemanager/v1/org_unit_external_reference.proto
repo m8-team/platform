@@ -1,0 +1,28 @@
+syntax = "proto3";
+package m8.platform.resourcemanager.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+
+// A link between a stable M8 OrgUnit and an identifier issued by an HRM/ERP.
+// This is NOT authoritative_source_id; that identifies which system owns writes.
+// A retired reference is kept for audit and migration, never reassigned over an
+// overlapping validity interval within the same tenant/source/type/external_id.
+message OrgUnitExternalReference {
+  string id = 1 [(google.api.field_behavior) = IDENTIFIER, (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE, (buf.validate.field).string.uuid = true];
+  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string organization_id = 3 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  string org_unit_id = 4 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.uuid = true];
+  // Stable registered connector/source identity, not a provider object ID.
+  string source_id = 5 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
+  string external_id = 6 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
+  // Namespaced object type in the source, e.g. department, branch.
+  string external_type = 7 [(google.api.field_behavior) = REQUIRED, (buf.validate.field).string.min_len = 1];
+  // Half-open interval [valid_from, valid_to); absent valid_to = unbounded.
+  google.protobuf.Timestamp valid_from = 8 [(google.api.field_behavior) = REQUIRED];
+  google.protobuf.Timestamp valid_to = 9;
+  google.protobuf.Timestamp last_seen_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
