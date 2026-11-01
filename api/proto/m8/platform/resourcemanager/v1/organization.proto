@@ -12,6 +12,7 @@ message Organization {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
+
   string tenant_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE,

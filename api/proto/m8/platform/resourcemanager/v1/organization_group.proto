@@ -13,6 +13,7 @@ message OrganizationGroup {
     (google.api.field_behavior) = REQUIRED,
     (buf.validate.field).required = true
   ];
+
   string tenant_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE,
@@ -26,10 +27,12 @@ message OrganizationGroupLink {
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
+
   string organization_id = 2 [
     (google.api.field_behavior) = REQUIRED,
     (google.api.field_behavior) = IMMUTABLE,
     (buf.validate.field).string.uuid = true
   ];
+
   google.protobuf.Timestamp create_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
