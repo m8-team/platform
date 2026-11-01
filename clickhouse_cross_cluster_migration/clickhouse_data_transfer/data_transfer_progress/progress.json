@@ -101,6 +101,39 @@
         "rows": 10
       }
     },
+    "analytics.bonus_logs": {
+      "completed_at": "2026-11-01T23:53:12.382900+00:00",
+      "insert_returned_at": "2026-11-01T23:53:09.871659+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "4698085079390094693",
+          "checksum_xor": "450623435883786892",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 300155
+        },
+        {
+          "checksum_sum": "4698085079390094693",
+          "checksum_xor": "450623435883786892",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 300155
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "4698085079390094693",
+        "checksum_xor": "450623435883786892",
+        "rows": 300155
+      },
+      "source_rows_after": 300155,
+      "source_rows_before": 300155,
+      "started_at": "2026-11-01T23:53:09.235691+00:00",
+      "status": "DONE",
+      "target_rows": 300155,
+      "verified_fingerprint": {
+        "checksum_sum": "4698085079390094693",
+        "checksum_xor": "450623435883786892",
+        "rows": 300155
+      }
+    },
     "analytics.employees": {
       "completed_at": "2026-11-01T23:32:00.552157+00:00",
       "insert_returned_at": "2026-11-01T23:31:58.254023+00:00",
@@ -165,6 +198,39 @@
         "checksum_sum": "4554933733180428411",
         "checksum_xor": "2703955167552910368",
         "rows": 28467
+      }
+    },
+    "analytics.offers": {
+      "completed_at": "2026-11-01T23:53:06.952212+00:00",
+      "insert_returned_at": "2026-11-01T23:53:03.342265+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "17577013830372676655",
+          "checksum_xor": "15838982024132471279",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1298703
+        },
+        {
+          "checksum_sum": "17577013830372676655",
+          "checksum_xor": "15838982024132471279",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1298703
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "17577013830372676655",
+        "checksum_xor": "15838982024132471279",
+        "rows": 1298703
+      },
+      "source_rows_after": 1376135,
+      "source_rows_before": 1376135,
+      "started_at": "2026-11-01T23:53:01.800186+00:00",
+      "status": "DONE",
+      "target_rows": 1346738,
+      "verified_fingerprint": {
+        "checksum_sum": "17577013830372676655",
+        "checksum_xor": "15838982024132471279",
+        "rows": 1298703
       }
     },
     "analytics.prices_costs": {
@@ -460,6 +526,39 @@
         "rows": 84
       }
     },
+    "corp_portal.time_corp_portal": {
+      "completed_at": "2026-11-01T23:54:56.360352+00:00",
+      "insert_returned_at": "2026-11-01T23:54:53.842277+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "12706622569221861415",
+          "checksum_xor": "10048827825555712180",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 537876
+        },
+        {
+          "checksum_sum": "12706622569221861415",
+          "checksum_xor": "10048827825555712180",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 537876
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "12706622569221861415",
+        "checksum_xor": "10048827825555712180",
+        "rows": 537876
+      },
+      "source_rows_after": 537876,
+      "source_rows_before": 537876,
+      "started_at": "2026-11-01T23:54:52.520441+00:00",
+      "status": "DONE",
+      "target_rows": 537876,
+      "verified_fingerprint": {
+        "checksum_sum": "12706622569221861415",
+        "checksum_xor": "10048827825555712180",
+        "rows": 537876
+      }
+    },
     "corp_portal.time_jira_portal": {
       "completed_at": "2026-11-01T23:34:19.151429+00:00",
       "insert_returned_at": "2026-11-01T23:34:16.827451+00:00",
@@ -590,6 +689,72 @@
         "checksum_sum": "14126484915030655232",
         "checksum_xor": "15276786693513947608",
         "rows": 255919
+      }
+    },
+    "zendendb.LAMODA_Prices_TM_old": {
+      "completed_at": "2026-11-01T23:53:53.009529+00:00",
+      "insert_returned_at": "2026-11-01T23:53:48.082374+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "7860954771176129111",
+          "checksum_xor": "11725568250418913213",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1144103
+        },
+        {
+          "checksum_sum": "7860954771176129111",
+          "checksum_xor": "11725568250418913213",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1144103
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "7860954771176129111",
+        "checksum_xor": "11725568250418913213",
+        "rows": 1144103
+      },
+      "source_rows_after": 1144103,
+      "source_rows_before": 1144103,
+      "started_at": "2026-11-01T23:53:45.499129+00:00",
+      "status": "DONE",
+      "target_rows": 1144103,
+      "verified_fingerprint": {
+        "checksum_sum": "7860954771176129111",
+        "checksum_xor": "11725568250418913213",
+        "rows": 1144103
+      }
+    },
+    "zendendb.NomenklaturaMP": {
+      "completed_at": "2026-11-01T23:53:40.332899+00:00",
+      "insert_returned_at": "2026-11-01T23:53:35.359919+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "16375883723801947426",
+          "checksum_xor": "6475405789148381600",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 856008
+        },
+        {
+          "checksum_sum": "16375883723801947426",
+          "checksum_xor": "6475405789148381600",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 856008
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "16375883723801947426",
+        "checksum_xor": "6475405789148381600",
+        "rows": 856008
+      },
+      "source_rows_after": 856008,
+      "source_rows_before": 856008,
+      "started_at": "2026-11-01T23:53:33.263057+00:00",
+      "status": "DONE",
+      "target_rows": 856008,
+      "verified_fingerprint": {
+        "checksum_sum": "16375883723801947426",
+        "checksum_xor": "6475405789148381600",
+        "rows": 856008
       }
     },
     "zendendb.OMS_pickup_orders": {
@@ -866,6 +1031,39 @@
         "checksum_sum": "None",
         "checksum_xor": "None",
         "rows": 0
+      }
+    },
+    "zendendb.SailPlay_tags_reg": {
+      "completed_at": "2026-11-01T23:55:06.202883+00:00",
+      "insert_returned_at": "2026-11-01T23:55:02.593079+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "2276142798289137805",
+          "checksum_xor": "14042426007477000376",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1368380
+        },
+        {
+          "checksum_sum": "2276142798289137805",
+          "checksum_xor": "14042426007477000376",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1368380
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "2276142798289137805",
+        "checksum_xor": "14042426007477000376",
+        "rows": 1368380
+      },
+      "source_rows_after": 1368380,
+      "source_rows_before": 1368380,
+      "started_at": "2026-11-01T23:55:00.999652+00:00",
+      "status": "DONE",
+      "target_rows": 1368380,
+      "verified_fingerprint": {
+        "checksum_sum": "2276142798289137805",
+        "checksum_xor": "14042426007477000376",
+        "rows": 1368380
       }
     },
     "zendendb.TM_MP_art_zoning": {
@@ -1420,6 +1618,39 @@
         "rows": 372268
       }
     },
+    "zendendb.YANDEX_Spends_TM": {
+      "completed_at": "2026-11-01T23:52:58.640439+00:00",
+      "insert_returned_at": "2026-11-01T23:52:55.603576+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "7091928708335137298",
+          "checksum_xor": "9406338626743668317",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1042595
+        },
+        {
+          "checksum_sum": "7091928708335137298",
+          "checksum_xor": "9406338626743668317",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1042595
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "7091928708335137298",
+        "checksum_xor": "9406338626743668317",
+        "rows": 1042595
+      },
+      "source_rows_after": 1155884,
+      "source_rows_before": 1155884,
+      "started_at": "2026-11-01T23:52:54.279923+00:00",
+      "status": "DONE",
+      "target_rows": 1054844,
+      "verified_fingerprint": {
+        "checksum_sum": "7091928708335137298",
+        "checksum_xor": "9406338626743668317",
+        "rows": 1042595
+      }
+    },
     "zendendb.YANDEX_warehouses": {
       "completed_at": "2026-11-01T23:17:38.499414+00:00",
       "insert_returned_at": "2026-11-01T23:17:36.254675+00:00",
@@ -1673,6 +1904,72 @@
         "checksum_sum": "0",
         "checksum_xor": "0",
         "rows": 0
+      }
+    },
+    "zendendb.sales_report_by_day": {
+      "completed_at": "2026-11-01T23:52:38.158199+00:00",
+      "insert_returned_at": "2026-11-01T23:52:35.158124+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "12022660398378534298",
+          "checksum_xor": "16019001434520844156",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 480582
+        },
+        {
+          "checksum_sum": "12022660398378534298",
+          "checksum_xor": "16019001434520844156",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 480582
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "12022660398378534298",
+        "checksum_xor": "16019001434520844156",
+        "rows": 480582
+      },
+      "source_rows_after": 480582,
+      "source_rows_before": 480582,
+      "started_at": "2026-11-01T23:52:34.284329+00:00",
+      "status": "DONE",
+      "target_rows": 480582,
+      "verified_fingerprint": {
+        "checksum_sum": "12022660398378534298",
+        "checksum_xor": "16019001434520844156",
+        "rows": 480582
+      }
+    },
+    "zendendb.sales_report_cohors_all": {
+      "completed_at": "2026-11-01T23:54:49.970310+00:00",
+      "insert_returned_at": "2026-11-01T23:54:45.707174+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "16438318394808476942",
+          "checksum_xor": "14400102454228584777",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 2644198
+        },
+        {
+          "checksum_sum": "16438318394808476942",
+          "checksum_xor": "14400102454228584777",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 2644198
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "16438318394808476942",
+        "checksum_xor": "14400102454228584777",
+        "rows": 2644198
+      },
+      "source_rows_after": 2644198,
+      "source_rows_before": 2644198,
+      "started_at": "2026-11-01T23:54:44.226138+00:00",
+      "status": "DONE",
+      "target_rows": 2644198,
+      "verified_fingerprint": {
+        "checksum_sum": "16438318394808476942",
+        "checksum_xor": "14400102454228584777",
+        "rows": 2644198
       }
     },
     "zendendb.sales_report_discount_cohors": {
@@ -2677,6 +2974,39 @@
         "rows": 150109
       }
     },
+    "zendendb.КадроваяИсторияСотрудников": {
+      "completed_at": "2026-11-01T23:53:28.769711+00:00",
+      "insert_returned_at": "2026-11-01T23:53:19.324845+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "12657767881999177048",
+          "checksum_xor": "6732452068308189884",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1905453
+        },
+        {
+          "checksum_sum": "12657767881999177048",
+          "checksum_xor": "6732452068308189884",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1905453
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "12657767881999177048",
+        "checksum_xor": "6732452068308189884",
+        "rows": 1905453
+      },
+      "source_rows_after": 1905453,
+      "source_rows_before": 1905453,
+      "started_at": "2026-11-01T23:53:17.339149+00:00",
+      "status": "DONE",
+      "target_rows": 1905453,
+      "verified_fingerprint": {
+        "checksum_sum": "12657767881999177048",
+        "checksum_xor": "6732452068308189884",
+        "rows": 1905453
+      }
+    },
     "zendendb.Магазины": {
       "completed_at": "2026-11-01T23:27:42.388426+00:00",
       "insert_returned_at": "2026-11-01T23:27:40.258679+00:00",
@@ -2842,6 +3172,39 @@
         "rows": 69148
       }
     },
+    "zendendb.Остатки КМ Mascotte": {
+      "completed_at": "2026-11-01T23:52:49.518557+00:00",
+      "insert_returned_at": "2026-11-01T23:52:46.308511+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "11422834394240582457",
+          "checksum_xor": "3008158877524944556",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 758452
+        },
+        {
+          "checksum_sum": "11422834394240582457",
+          "checksum_xor": "3008158877524944556",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 758452
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "11422834394240582457",
+        "checksum_xor": "3008158877524944556",
+        "rows": 758452
+      },
+      "source_rows_after": 758452,
+      "source_rows_before": 758452,
+      "started_at": "2026-11-01T23:52:42.920723+00:00",
+      "status": "DONE",
+      "target_rows": 758452,
+      "verified_fingerprint": {
+        "checksum_sum": "11422834394240582457",
+        "checksum_xor": "3008158877524944556",
+        "rows": 758452
+      }
+    },
     "zendendb.ПланОборачиваемостиМП_TM": {
       "completed_at": "2026-11-01T23:18:53.049759+00:00",
       "insert_returned_at": "2026-11-01T23:18:50.945715+00:00",
@@ -2975,9 +3338,23 @@
       }
     },
     "zendendb.ПланПродаж_ecom": {
-      "error": "zendendb.ПланПродаж_ecom: source and target fingerprints differ: source={'rows': 430, 'checksum_sum': '12070125909922254279', 'checksum_xor': '14177120676766803654'}, target={'rows': 430, 'checksum_sum': '1371321785314432197', 'checksum_xor': '2728900768889022852'}",
       "failed_at": "2026-11-01T23:18:56.619899+00:00",
       "insert_returned_at": "2026-11-01T23:18:55.571219+00:00",
+      "reconciled_at": "2026-11-01T23:49:12.594890+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "12070125909922254279",
+          "checksum_xor": "14177120676766803654",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 430
+        },
+        {
+          "checksum_sum": "12070125909922254279",
+          "checksum_xor": "14177120676766803654",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 430
+        }
+      ],
       "source_fingerprint_before": {
         "checksum_sum": "12070125909922254279",
         "checksum_xor": "14177120676766803654",
@@ -2986,8 +3363,13 @@
       "source_rows_after": 492,
       "source_rows_before": 492,
       "started_at": "2026-11-01T23:18:55.145590+00:00",
-      "status": "UNCERTAIN",
-      "target_rows": 430
+      "status": "DONE",
+      "target_rows": 430,
+      "verified_fingerprint": {
+        "checksum_sum": "12070125909922254279",
+        "checksum_xor": "14177120676766803654",
+        "rows": 430
+      }
     },
     "zendendb.ПланПродажМПZenden": {
       "completed_at": "2026-11-01T23:17:57.209468+00:00",
@@ -3187,6 +3569,39 @@
         "rows": 174
       }
     },
+    "zendendb.ПродажиПродавцыМесяц": {
+      "completed_at": "2026-11-01T23:55:17.887546+00:00",
+      "insert_returned_at": "2026-11-01T23:55:13.250891+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "17376849019822439040",
+          "checksum_xor": "6507680621027857735",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1201548
+        },
+        {
+          "checksum_sum": "17376849019822439040",
+          "checksum_xor": "6507680621027857735",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1201548
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "17376849019822439040",
+        "checksum_xor": "6507680621027857735",
+        "rows": 1201548
+      },
+      "source_rows_after": 1201548,
+      "source_rows_before": 1201548,
+      "started_at": "2026-11-01T23:55:11.627846+00:00",
+      "status": "DONE",
+      "target_rows": 1201548,
+      "verified_fingerprint": {
+        "checksum_sum": "17376849019822439040",
+        "checksum_xor": "6507680621027857735",
+        "rows": 1201548
+      }
+    },
     "zendendb.ПродажиУПП_temp": {
       "completed_at": "2026-11-01T23:34:00.667220+00:00",
       "insert_returned_at": "2026-11-01T23:33:58.188141+00:00",
@@ -3276,6 +3691,17 @@
         "checksum_xor": "0",
         "rows": 0
       }
+    },
+    "zendendb.Себестоимость": {
+      "insert_returned_at": "2026-11-01T23:55:27.101805+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "9410519059685195474",
+        "checksum_xor": "363519735485150056",
+        "rows": 2974903
+      },
+      "source_rows_before": 2974903,
+      "started_at": "2026-11-01T23:55:24.837083+00:00",
+      "status": "VERIFYING"
     },
     "zendendb.СостоянияСотрудников": {
       "completed_at": "2026-11-01T23:33:36.025163+00:00",
@@ -3618,6 +4044,72 @@
       "source_rows_before": 1068464,
       "started_at": "2026-11-01T23:35:47.827671+00:00",
       "status": "UNCERTAIN"
+    },
+    "zendendb.ЦеныНоменклатуры_2005-2022": {
+      "completed_at": "2026-11-01T23:54:04.467465+00:00",
+      "insert_returned_at": "2026-11-01T23:53:58.872491+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "1655767896192068409",
+          "checksum_xor": "14247516229379519317",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1999459
+        },
+        {
+          "checksum_sum": "1655767896192068409",
+          "checksum_xor": "14247516229379519317",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1999459
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "1655767896192068409",
+        "checksum_xor": "14247516229379519317",
+        "rows": 1999459
+      },
+      "source_rows_after": 1999459,
+      "source_rows_before": 1999459,
+      "started_at": "2026-11-01T23:53:56.948677+00:00",
+      "status": "DONE",
+      "target_rows": 1999459,
+      "verified_fingerprint": {
+        "checksum_sum": "1655767896192068409",
+        "checksum_xor": "14247516229379519317",
+        "rows": 1999459
+      }
+    },
+    "zendendb.ШтатноеРасписание": {
+      "completed_at": "2026-11-01T23:54:40.370095+00:00",
+      "insert_returned_at": "2026-11-01T23:54:18.599598+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "8713298066227125362",
+          "checksum_xor": "11738658413040764207",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 8676846
+        },
+        {
+          "checksum_sum": "8713298066227125362",
+          "checksum_xor": "11738658413040764207",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 8676846
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "8713298066227125362",
+        "checksum_xor": "11738658413040764207",
+        "rows": 8676846
+      },
+      "source_rows_after": 8676846,
+      "source_rows_before": 8676846,
+      "started_at": "2026-11-01T23:54:14.600391+00:00",
+      "status": "DONE",
+      "target_rows": 8676846,
+      "verified_fingerprint": {
+        "checksum_sum": "8713298066227125362",
+        "checksum_xor": "11738658413040764207",
+        "rows": 8676846
+      }
     }
   },
   "target": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net"

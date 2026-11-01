@@ -1,82 +1,105 @@
-# Исправление v2 (2026-11-02)
+# ClickHouse: safe recovery of partial months in `zendendb.ЦеныНоменклатуры`
 
-Ошибка `Source engine has unexpected parameters` вызвана некорректной проверкой `system.tables.engine_full` на равенство строке `ReplacingMergeTree`. На самом деле `engine_full` может быть `ReplacingMergeTree ORDER BY (...) SETTINGS ...`. Теперь версия движка определяется отдельно от секций ORDER BY, PARTITION BY, SETTINGS и т. д. `ReplacingMergeTree(timestamp)` по-прежнему отклоняется, чтобы не применять этот сценарий к таблице с параметром версии.
+## Problem
 
-Дополнительно перед вставкой staging-таблица проверяется на **отдельный Keeper-путь** от действующей таблицы, а обе реплики проверяются на наличие данных. Работа с `--prepare` по-прежнему не изменяет действующую таблицу.
+The first bulk `INSERT SELECT remoteSecure(...)` failed with `TOO_MANY_PARTS` because the source table partitions by **day** (`toYYYYMMDD(Период)`). It left partial **August 2026** (6,658 of 13,197 rows) and **September 2026** (7,119 of 7,121 rows) on the target cluster. `transfer_monthly.py` correctly refuses to insert on top of them. **Do not retry the same `INSERT`, raise the partition limit, truncate or drop target data.**
 
-Замени **оба** файла `repair_plan_ecom.py` и `transfer_data.py` из этого архива в своём текущем каталоге; `config.json`, `progress.json` и `RootCA.pem` сохраняй. Выполняй сначала `--inspect`, затем `--prepare --ack-source-frozen`, затем `--verify --ack-source-frozen`. Самостоятельно повторно делать `INSERT INTO zendendb.ПланПродаж_ecom` нельзя.
+## Strategy
 
----
+Build a NEW, separate replicated table `zendendb.ЦеныНоменклатуры__repair` via `CREATE TABLE ... AS existing_target`. Copy the complete source (45 calendar months) using INSERTs limited to ONE calendar month (max. 31 daily partitions per query). Verify *every month* and *full-table fingerprints* on **BOTH** replicas. Then, in a separate planned cutover, atomically exchange the table names (provided this form is supported on your server; it worked with the preceding `ПланПродаж_ecom` migration). The original partial target is retained under the `__repair` name for rollback.
 
-# План безопасного восстановления `zendendb.ПланПродаж_ecom`
+This script **never modifies the existing target table** and **never changes the main migration journal**. It creates/writes only the staging table; does not execute `EXCHANGE`, `DROP`, `TRUNCATE`, `RENAME`, `REPLACE PARTITION`, or `ALTER`.
 
-Только для **одной** таблицы и конкретного случая: `ReplacingMergeTree` без `ver`, 492 физических строки на исходном ClickHouse, 430 логических строк при `FINAL`, а в новом ClickHouse 430 строк, 62 из которых выбраны не так, как на источнике.
+**Before using**: stop source writes and ALL target writes. Check there is sufficient free disk on **both** target replicas for another full copy of this table. This is a `MergeTree`, not `ReplacingMergeTree`: copying all physical rows is the intended behavior. Keep original source data until cutover is checked.
 
-## Назначение
+## Setup
 
-Утилита готовит отдельную таблицу `zendendb.ПланПродаж_ecom__repair` с **той же схемой, движком, именами колонок, ключами и настройками**, что и целевая `zendendb.ПланПродаж_ecom`. Данные переносит из `SELECT * FROM source FINAL` с помощью бинарного ClickHouse `FORMAT Native`, чтобы сохранить типы `Decimal`, `DateTime`, `LowCardinality` и `NULL` без преобразования значений через JSON. Приёмник получает ровно один логический экземпляр каждой записи. В отличие от `remoteSecure`, данные этой небольшой таблицы проходят через компьютер, на котором запущен Python.
+Place these two Python files beside your current `config.json`:
 
-**Скрипт НЕ выполняет `DROP`, `TRUNCATE`, `RENAME` или `EXCHANGE`, НЕ изменяет исходный кластер, основную целевую таблицу или `progress.json`.** Он выполняет `CREATE` и `INSERT` только в новую staging-таблицу при `--prepare`.
+- `repair_prices_stage.py`
+- `transfer_monthly.py` (the compatible helper already supplied in v6)
 
-Использует `Client` и проверки из `transfer_data.py` **версии v5** (файл должен находиться рядом со скриптом). Конфигурация `config.json` та же, с обоими хостами и путями к RootCA.pem.
+Python >=3.9; no third-party packages. Do NOT replace your currently working `transfer_data.py` or remove `data_transfer_progress/progress.json`.
 
-## Порядок действий
+## 1. Inspect (read-only)
 
-Убедитесь, что запись в исходные таблицы прекращена на всё время подготовки, проверки и переключения. Отдельно исключите внешние процессы, которые могут изменять целевую таблицу.
-
-```bash
-# Только чтение и диагностика
-python3 repair_plan_ecom.py --config config.json --inspect
-
-# Создать staging-таблицу и загрузить в неё source FINAL
-python3 repair_plan_ecom.py --config config.json --prepare --ack-source-frozen
-
-# Повторить контрольную проверку source FINAL и обеих реплик staging
-python3 repair_plan_ecom.py --config config.json --verify --ack-source-frozen
+```sh
+python3 repair_prices_stage.py --config config.json --inspect
 ```
 
-Ожидается `STAGING VERIFIED` и **430 логических строк на обеих репликах**; из результата не следует, что оригинальная целевая таблица уже исправлена.
+Expected: stage does not yet exist; original target has partial data from the earlier failed insert.
 
-Если staging существует и непустая, `--prepare` **никогда не выполняет повторную вставку**: лишь сверяет её. При ошибках `UNCERTAIN` основного мигратора не запускайте тот же INSERT повторно.
+## 2. Prepare one pilot month (writes only to new staging table)
 
-### Переключение (ОТДЕЛЬНО, только после успешного --verify)
+```sh
+python3 repair_prices_stage.py \
+  --config config.json \
+  --prepare \
+  --ack-source-frozen \
+  --limit-months 1
+```
 
-В отдельном окне изменений убедитесь, что никто не пишет в целевую таблицу, и проверьте поддержку `EXCHANGE TABLES` именно на вашем `Replicated`-движке базы. Тогда вручную на **одном** целевом хосте:
+If no stage exists, the script creates it in the replicated database, confirms a Keeper path distinct from the original and healthy replicas, and inserts the first available month. It checks per-month row counts and two content checksums on each replica.
+
+## 3. Copy all remaining months
+
+```sh
+python3 repair_prices_stage.py \
+  --config config.json \
+  --prepare \
+  --ack-source-frozen
+```
+
+All complete stage months are skipped. If a month is partially loaded, differs, or has ambiguous journal status, the script refuses a blind retry. Stage journal: `data_transfer_progress/prices_stage_progress.json`.
+
+## 4. Independently verify stage (read-only)
+
+```sh
+python3 repair_prices_stage.py \
+  --config config.json \
+  --verify \
+  --ack-source-frozen
+```
+
+Requires all source months to match staging on **both replicas** and full-table source/stage fingerprint to match on both replicas. Expected `STAGING VERIFIED`. No production data mutation.
+
+## 5. Planned manual cutover (ONLY after STAGING VERIFIED)
+
+Freeze all writes to source and target again, re-run Step 4, confirm staging health/free disk, and run on **one** target host (no `ON CLUSTER` because database is `ENGINE=Replicated`):
 
 ```sql
-EXCHANGE TABLES `zendendb`.`ПланПродаж_ecom`
-    AND `zendendb`.`ПланПродаж_ecom__repair`;
+EXCHANGE TABLES
+    `zendendb`.`ЦеныНоменклатуры`
+AND
+    `zendendb`.`ЦеныНоменклатуры__repair`;
 ```
 
-Операция меняет имена таблиц; после неё прежние данные должны оставаться в таблице `ПланПродаж_ecom__repair`. Не выполняйте `EXCHANGE` повторно без диагностики: повторный обмен вернёт старые данные. Не используйте `ON CLUSTER` для базы `ENGINE = Replicated`.
+**Caution**: Confirm EXCHANGE support and the maintenance-window procedure on your exact Yandex ClickHouse version. This statement is NOT executed by the script.
 
-**Проверка после переключения:**
+After EXCHANGE, `ЦеныНоменклатуры` points to the fully verified copy. The old partial target is retained as `ЦеныНоменклатуры__repair` for rollback. **Do not re-run `repair_prices_stage.py --prepare` after exchange**, since the stage name will then refer to the old partial data.
 
-```bash
-python3 transfer_data.py --config config.json \
-  --only zendendb.ПланПродаж_ecom --reconcile
+## 6. Reconcile the main migration journal
+
+```sh
+python3 transfer_data.py \
+  --config config.json \
+  --only 'zendendb.ЦеныНоменклатуры' \
+  --reconcile \
+  --mark-done \
+  --ack-source-frozen
 ```
 
-Если `RECONCILED` и источник заморожен, обновить существующий журнал:
+This should move the existing `UNCERTAIN` main-journal state to `DONE` only after a full-table fingerprint match. Do NOT re-INSERT over an existing table. Keep the old `__repair` copy until after final audit.
 
-```bash
-python3 transfer_data.py --config config.json \
-  --only zendendb.ПланПродаж_ecom --reconcile \
-  --mark-done --ack-source-frozen
-```
+## Why not copy only the missing 6,539 and 2 rows?
 
-Обязательно проверьте идентичность таблицы на двух репликах после переключения (`system.replicas`, контрольные суммы) и сохраните старые данные для отката. Если `EXCHANGE` на вашем сервисе не поддерживается — остановитесь и не заменяйте его двумя `RENAME` без отдельного плана.
+Counts alone do not identify missing physical records. Row duplicates may be valid in a plain `MergeTree`, and blindly doing an anti-join can silently lose or double rows. An exact multiset diff could be implemented, but rebuilding in a staging table is more deterministic and leaves the production target untouched until an explicitly reviewed switch.
 
-### Ограничение
+## Security and limitations
 
-Таблица staging сохраняет только **430 строк текущего логического состояния**. Она **не сохраняет 62 избыточные физические версии**, имеющиеся на старом кластере. Если требование — побайтное сохранение всех 492 физических строк и того же правила выбора «последней» версии, используйте резервную копию/перенос частей, а не этот инструмент. После завершения можно повторно проверить `diagnose_replacing.py`: все логические ключи и `timestamp` должны совпасть.
-
-Это локально подготовленный инструмент. В этой среде доступ к кластерам отсутствует, поэтому обязательно проверяйте его на изолированной staging-таблице перед ручным переключением.
-
-## Файлы пакета
-
-- `repair_plan_ecom.py` — специализированная подготовка и проверка.
-- `transfer_data.py` — копия мигратора v5, необходимая для работы импорта; можно использовать уже установленный v5 с существующим `progress.json`.
-- `test_repair_plan_ecom.py` — локальные проверки вспомогательных функций.
-
-**При распаковке в текущий каталог не заменяйте существующий `config.json` или `data_transfer_progress/progress.json`.** В данном комплекте этих файлов нет.
+- `remoteSecure(...)` credentials are sent inside SQL to the target and might be recorded in query/audit logs. Use least-privileged short-lived source credentials and rotate as appropriate.
+- Exact types, server timezone, primary/sorting/partitioning keys, stage Keeper isolation and replica health are checked prior to writing.
+- Counts + 2 hashes offer a **probabilistic** comparison; not a formal proof of all bytes.
+- Each month scan re-reads source data. This is a read-intensive migration.
+- Only supports the hardcoded `zendendb.ЦеныНоменклатуры` schema on this 1-shard 2-replica target. No online write synchronization.
+- Test suite is local and mock-based. No actual Yandex ClickHouse cluster was contacted here.
