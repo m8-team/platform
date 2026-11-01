@@ -77,9 +77,9 @@ var (
 // OrgUnitKindServiceClient is a client for the m8.platform.resourcemanager.v1.OrgUnitKindService
 // service.
 type OrgUnitKindServiceClient interface {
-	CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrgUnitKind, error)
+	CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error)
 	ListOrgUnitKinds(context.Context, *v1.ListOrgUnitKindsRequest) (*v1.ListOrgUnitKindsResponse, error)
-	UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrgUnitKind, error)
+	UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error)
 }
 
 // NewOrgUnitKindServiceClient constructs a client for the
@@ -92,9 +92,9 @@ func NewOrgUnitKindServiceClient(client *connect.Client) OrgUnitKindServiceClien
 // OrgUnitKindServiceHandler is an implementation of the
 // m8.platform.resourcemanager.v1.OrgUnitKindService service.
 type OrgUnitKindServiceHandler interface {
-	CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrgUnitKind, error)
+	CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error)
 	ListOrgUnitKinds(context.Context, *v1.ListOrgUnitKindsRequest) (*v1.ListOrgUnitKindsResponse, error)
-	UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrgUnitKind, error)
+	UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error)
 }
 
 // RegisterOrgUnitKindServiceHandler registers svc as the
@@ -111,7 +111,7 @@ func RegisterOrgUnitKindServiceHandler(server *connect.Server, svc OrgUnitKindSe
 // UnimplementedOrgUnitKindServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedOrgUnitKindServiceHandler struct{}
 
-func (UnimplementedOrgUnitKindServiceHandler) CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrgUnitKind, error) {
+func (UnimplementedOrgUnitKindServiceHandler) CreateOrgUnitKind(context.Context, *v1.CreateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgUnitKindService.CreateOrgUnitKind is not implemented")
 }
 
@@ -119,7 +119,7 @@ func (UnimplementedOrgUnitKindServiceHandler) ListOrgUnitKinds(context.Context, 
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgUnitKindService.ListOrgUnitKinds is not implemented")
 }
 
-func (UnimplementedOrgUnitKindServiceHandler) UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrgUnitKind, error) {
+func (UnimplementedOrgUnitKindServiceHandler) UpdateOrgUnitKind(context.Context, *v1.UpdateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "m8.platform.resourcemanager.v1.OrgUnitKindService.UpdateOrgUnitKind is not implemented")
 }
 
@@ -127,8 +127,8 @@ type orgUnitKindServiceClient struct {
 	client *connect.Client
 }
 
-func (c *orgUnitKindServiceClient) CreateOrgUnitKind(ctx context.Context, req *v1.CreateOrgUnitKindRequest) (*v1.OrgUnitKind, error) {
-	var res v1.OrgUnitKind
+func (c *orgUnitKindServiceClient) CreateOrgUnitKind(ctx context.Context, req *v1.CreateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error) {
+	var res v1.OrganizationUnitKind
 	if err := c.client.CallUnary(ctx, orgUnitKindServiceCreateOrgUnitKindSpec(), req, &res); err != nil {
 		return nil, err
 	}
@@ -143,8 +143,8 @@ func (c *orgUnitKindServiceClient) ListOrgUnitKinds(ctx context.Context, req *v1
 	return &res, nil
 }
 
-func (c *orgUnitKindServiceClient) UpdateOrgUnitKind(ctx context.Context, req *v1.UpdateOrgUnitKindRequest) (*v1.OrgUnitKind, error) {
-	var res v1.OrgUnitKind
+func (c *orgUnitKindServiceClient) UpdateOrgUnitKind(ctx context.Context, req *v1.UpdateOrgUnitKindRequest) (*v1.OrganizationUnitKind, error) {
+	var res v1.OrganizationUnitKind
 	if err := c.client.CallUnary(ctx, orgUnitKindServiceUpdateOrgUnitKindSpec(), req, &res); err != nil {
 		return nil, err
 	}

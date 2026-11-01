@@ -25,7 +25,7 @@ const (
 
 type CreateOrgUnitKindRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Kind           *OrgUnitKind           `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
+	Kind           *OrganizationUnitKind  `protobuf:"bytes,1,opt,name=kind,proto3" json:"kind,omitempty"`
 	IdempotencyKey string                 `protobuf:"bytes,2,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -61,7 +61,7 @@ func (*CreateOrgUnitKindRequest) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateOrgUnitKindRequest) GetKind() *OrgUnitKind {
+func (x *CreateOrgUnitKindRequest) GetKind() *OrganizationUnitKind {
 	if x != nil {
 		return x.Kind
 	}
@@ -152,9 +152,9 @@ func (x *ListOrgUnitKindsRequest) GetPageToken() string {
 }
 
 type ListOrgUnitKindsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Kinds         []*OrgUnitKind         `protobuf:"bytes,1,rep,name=kinds,proto3" json:"kinds,omitempty"`
-	NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Kinds         []*OrganizationUnitKind `protobuf:"bytes,1,rep,name=kinds,proto3" json:"kinds,omitempty"`
+	NextPageToken string                  `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -189,7 +189,7 @@ func (*ListOrgUnitKindsResponse) Descriptor() ([]byte, []int) {
 	return file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListOrgUnitKindsResponse) GetKinds() []*OrgUnitKind {
+func (x *ListOrgUnitKindsResponse) GetKinds() []*OrganizationUnitKind {
 	if x != nil {
 		return x.Kinds
 	}
@@ -206,7 +206,7 @@ func (x *ListOrgUnitKindsResponse) GetNextPageToken() string {
 type UpdateOrgUnitKindRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	KindId           string                 `protobuf:"bytes,1,opt,name=kind_id,json=kindId,proto3" json:"kind_id,omitempty"`
-	Kind             *OrgUnitKind           `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	Kind             *OrganizationUnitKind  `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
 	ExpectedRevision int64                  `protobuf:"varint,3,opt,name=expected_revision,json=expectedRevision,proto3" json:"expected_revision,omitempty"`
 	IdempotencyKey   string                 `protobuf:"bytes,4,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	unknownFields    protoimpl.UnknownFields
@@ -250,7 +250,7 @@ func (x *UpdateOrgUnitKindRequest) GetKindId() string {
 	return ""
 }
 
-func (x *UpdateOrgUnitKindRequest) GetKind() *OrgUnitKind {
+func (x *UpdateOrgUnitKindRequest) GetKind() *OrganizationUnitKind {
 	if x != nil {
 		return x.Kind
 	}
@@ -607,9 +607,9 @@ var File_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto protorefl
 
 const file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_rawDesc = "" +
 	"\n" +
-	"=m8/platform/resourcemanager/v1/org_unit_catalog_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a@m8/platform/resourcemanager/v1/org_unit_external_reference.proto\x1a2m8/platform/resourcemanager/v1/org_unit_kind.proto\"\x8e\x01\n" +
-	"\x18CreateOrgUnitKindRequest\x12D\n" +
-	"\x04kind\x18\x01 \x01(\v2+.m8.platform.resourcemanager.v1.OrgUnitKindB\x03\xe0A\x02R\x04kind\x12,\n" +
+	"=m8/platform/resourcemanager/v1/org_unit_catalog_service.proto\x12\x1em8.platform.resourcemanager.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a@m8/platform/resourcemanager/v1/org_unit_external_reference.proto\x1a;m8/platform/resourcemanager/v1/organization_unit_kind.proto\"\x97\x01\n" +
+	"\x18CreateOrgUnitKindRequest\x12M\n" +
+	"\x04kind\x18\x01 \x01(\v24.m8.platform.resourcemanager.v1.OrganizationUnitKindB\x03\xe0A\x02R\x04kind\x12,\n" +
 	"\x0fidempotency_key\x18\x02 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"\xc6\x01\n" +
 	"\x17ListOrgUnitKindsRequest\x12\x1b\n" +
 	"\ttenant_id\x18\x01 \x01(\tR\btenantId\x12'\n" +
@@ -617,13 +617,13 @@ const file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_rawDesc
 	"\x10include_disabled\x18\x03 \x01(\bR\x0fincludeDisabled\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x05 \x01(\tR\tpageToken\"\x85\x01\n" +
-	"\x18ListOrgUnitKindsResponse\x12A\n" +
-	"\x05kinds\x18\x01 \x03(\v2+.m8.platform.resourcemanager.v1.OrgUnitKindR\x05kinds\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xde\x01\n" +
+	"page_token\x18\x05 \x01(\tR\tpageToken\"\x8e\x01\n" +
+	"\x18ListOrgUnitKindsResponse\x12J\n" +
+	"\x05kinds\x18\x01 \x03(\v24.m8.platform.resourcemanager.v1.OrganizationUnitKindR\x05kinds\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xe7\x01\n" +
 	"\x18UpdateOrgUnitKindRequest\x12\x1c\n" +
-	"\akind_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06kindId\x12D\n" +
-	"\x04kind\x18\x02 \x01(\v2+.m8.platform.resourcemanager.v1.OrgUnitKindB\x03\xe0A\x02R\x04kind\x120\n" +
+	"\akind_id\x18\x01 \x01(\tB\x03\xe0A\x02R\x06kindId\x12M\n" +
+	"\x04kind\x18\x02 \x01(\v24.m8.platform.resourcemanager.v1.OrganizationUnitKindB\x03\xe0A\x02R\x04kind\x120\n" +
 	"\x11expected_revision\x18\x03 \x01(\x03B\x03\xe0A\x02R\x10expectedRevision\x12,\n" +
 	"\x0fidempotency_key\x18\x04 \x01(\tB\x03\xe0A\x02R\x0eidempotencyKey\"\xb0\x01\n" +
 	"#LinkOrgUnitExternalReferenceRequest\x12[\n" +
@@ -653,11 +653,11 @@ const file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_rawDesc
 	"\rexternal_type\x18\x03 \x01(\tB\x03\xe0A\x02R\fexternalType\x12$\n" +
 	"\vexternal_id\x18\x04 \x01(\tB\x03\xe0A\x02R\n" +
 	"externalId\x12/\n" +
-	"\x05as_of\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf2\xad\x04\n" +
-	"\x12OrgUnitKindService\x12\xaa\x01\n" +
-	"\x11CreateOrgUnitKind\x128.m8.platform.resourcemanager.v1.CreateOrgUnitKindRequest\x1a+.m8.platform.resourcemanager.v1.OrgUnitKind\".\x82\xd3\xe4\x93\x02(:\x01*\"#/resource-manager/v1/org-unit-kinds\x12\xb2\x01\n" +
-	"\x10ListOrgUnitKinds\x127.m8.platform.resourcemanager.v1.ListOrgUnitKindsRequest\x1a8.m8.platform.resourcemanager.v1.ListOrgUnitKindsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/resource-manager/v1/org-unit-kinds\x12\xb4\x01\n" +
-	"\x11UpdateOrgUnitKind\x128.m8.platform.resourcemanager.v1.UpdateOrgUnitKindRequest\x1a+.m8.platform.resourcemanager.v1.OrgUnitKind\"8\x82\xd3\xe4\x93\x022:\x01*2-/resource-manager/v1/org-unit-kinds/{kind_id}2\xc0\a\n" +
+	"\x05as_of\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf2\xbf\x04\n" +
+	"\x12OrgUnitKindService\x12\xb3\x01\n" +
+	"\x11CreateOrgUnitKind\x128.m8.platform.resourcemanager.v1.CreateOrgUnitKindRequest\x1a4.m8.platform.resourcemanager.v1.OrganizationUnitKind\".\x82\xd3\xe4\x93\x02(:\x01*\"#/resource-manager/v1/org-unit-kinds\x12\xb2\x01\n" +
+	"\x10ListOrgUnitKinds\x127.m8.platform.resourcemanager.v1.ListOrgUnitKindsRequest\x1a8.m8.platform.resourcemanager.v1.ListOrgUnitKindsResponse\"+\x82\xd3\xe4\x93\x02%\x12#/resource-manager/v1/org-unit-kinds\x12\xbd\x01\n" +
+	"\x11UpdateOrgUnitKind\x128.m8.platform.resourcemanager.v1.UpdateOrgUnitKindRequest\x1a4.m8.platform.resourcemanager.v1.OrganizationUnitKind\"8\x82\xd3\xe4\x93\x022:\x01*2-/resource-manager/v1/org-unit-kinds/{kind_id}2\xc0\a\n" +
 	"\x1fOrgUnitExternalReferenceService\x12\xdb\x01\n" +
 	"\x1cLinkOrgUnitExternalReference\x12C.m8.platform.resourcemanager.v1.LinkOrgUnitExternalReferenceRequest\x1a8.m8.platform.resourcemanager.v1.OrgUnitExternalReference\"<\x82\xd3\xe4\x93\x026:\x01*\"1/resource-manager/v1/org-unit-external-references\x12\xeb\x01\n" +
 	"\x1eRetireOrgUnitExternalReference\x12E.m8.platform.resourcemanager.v1.RetireOrgUnitExternalReferenceRequest\x1a8.m8.platform.resourcemanager.v1.OrgUnitExternalReference\"H\x82\xd3\xe4\x93\x02B:\x01*\"=/resource-manager/v1/org-unit-external-references/{id}:retire\x12\xe7\x01\n" +
@@ -687,14 +687,14 @@ var file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_goTypes =
 	(*ListOrgUnitExternalReferencesRequest)(nil),   // 6: m8.platform.resourcemanager.v1.ListOrgUnitExternalReferencesRequest
 	(*ListOrgUnitExternalReferencesResponse)(nil),  // 7: m8.platform.resourcemanager.v1.ListOrgUnitExternalReferencesResponse
 	(*ResolveOrgUnitExternalReferenceRequest)(nil), // 8: m8.platform.resourcemanager.v1.ResolveOrgUnitExternalReferenceRequest
-	(*OrgUnitKind)(nil),                            // 9: m8.platform.resourcemanager.v1.OrgUnitKind
+	(*OrganizationUnitKind)(nil),                   // 9: m8.platform.resourcemanager.v1.OrganizationUnitKind
 	(*OrgUnitExternalReference)(nil),               // 10: m8.platform.resourcemanager.v1.OrgUnitExternalReference
 	(*timestamppb.Timestamp)(nil),                  // 11: google.protobuf.Timestamp
 }
 var file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_depIdxs = []int32{
-	9,  // 0: m8.platform.resourcemanager.v1.CreateOrgUnitKindRequest.kind:type_name -> m8.platform.resourcemanager.v1.OrgUnitKind
-	9,  // 1: m8.platform.resourcemanager.v1.ListOrgUnitKindsResponse.kinds:type_name -> m8.platform.resourcemanager.v1.OrgUnitKind
-	9,  // 2: m8.platform.resourcemanager.v1.UpdateOrgUnitKindRequest.kind:type_name -> m8.platform.resourcemanager.v1.OrgUnitKind
+	9,  // 0: m8.platform.resourcemanager.v1.CreateOrgUnitKindRequest.kind:type_name -> m8.platform.resourcemanager.v1.OrganizationUnitKind
+	9,  // 1: m8.platform.resourcemanager.v1.ListOrgUnitKindsResponse.kinds:type_name -> m8.platform.resourcemanager.v1.OrganizationUnitKind
+	9,  // 2: m8.platform.resourcemanager.v1.UpdateOrgUnitKindRequest.kind:type_name -> m8.platform.resourcemanager.v1.OrganizationUnitKind
 	10, // 3: m8.platform.resourcemanager.v1.LinkOrgUnitExternalReferenceRequest.reference:type_name -> m8.platform.resourcemanager.v1.OrgUnitExternalReference
 	11, // 4: m8.platform.resourcemanager.v1.RetireOrgUnitExternalReferenceRequest.valid_to:type_name -> google.protobuf.Timestamp
 	10, // 5: m8.platform.resourcemanager.v1.ListOrgUnitExternalReferencesResponse.references:type_name -> m8.platform.resourcemanager.v1.OrgUnitExternalReference
@@ -706,9 +706,9 @@ var file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_depIdxs =
 	5,  // 11: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.RetireOrgUnitExternalReference:input_type -> m8.platform.resourcemanager.v1.RetireOrgUnitExternalReferenceRequest
 	6,  // 12: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.ListOrgUnitExternalReferences:input_type -> m8.platform.resourcemanager.v1.ListOrgUnitExternalReferencesRequest
 	8,  // 13: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.ResolveOrgUnitExternalReference:input_type -> m8.platform.resourcemanager.v1.ResolveOrgUnitExternalReferenceRequest
-	9,  // 14: m8.platform.resourcemanager.v1.OrgUnitKindService.CreateOrgUnitKind:output_type -> m8.platform.resourcemanager.v1.OrgUnitKind
+	9,  // 14: m8.platform.resourcemanager.v1.OrgUnitKindService.CreateOrgUnitKind:output_type -> m8.platform.resourcemanager.v1.OrganizationUnitKind
 	2,  // 15: m8.platform.resourcemanager.v1.OrgUnitKindService.ListOrgUnitKinds:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitKindsResponse
-	9,  // 16: m8.platform.resourcemanager.v1.OrgUnitKindService.UpdateOrgUnitKind:output_type -> m8.platform.resourcemanager.v1.OrgUnitKind
+	9,  // 16: m8.platform.resourcemanager.v1.OrgUnitKindService.UpdateOrgUnitKind:output_type -> m8.platform.resourcemanager.v1.OrganizationUnitKind
 	10, // 17: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.LinkOrgUnitExternalReference:output_type -> m8.platform.resourcemanager.v1.OrgUnitExternalReference
 	10, // 18: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.RetireOrgUnitExternalReference:output_type -> m8.platform.resourcemanager.v1.OrgUnitExternalReference
 	7,  // 19: m8.platform.resourcemanager.v1.OrgUnitExternalReferenceService.ListOrgUnitExternalReferences:output_type -> m8.platform.resourcemanager.v1.ListOrgUnitExternalReferencesResponse
@@ -726,7 +726,7 @@ func file_m8_platform_resourcemanager_v1_org_unit_catalog_service_proto_init() {
 		return
 	}
 	file_m8_platform_resourcemanager_v1_org_unit_external_reference_proto_init()
-	file_m8_platform_resourcemanager_v1_org_unit_kind_proto_init()
+	file_m8_platform_resourcemanager_v1_organization_unit_kind_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

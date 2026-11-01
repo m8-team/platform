@@ -5,12 +5,12 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/resourcemanager/v1/org_unit_external_reference.proto";
-import "m8/platform/resourcemanager/v1/org_unit_kind.proto";
+import "m8/platform/resourcemanager/v1/organization_unit_kind.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
 service OrgUnitKindService {
-  rpc CreateOrgUnitKind(CreateOrgUnitKindRequest) returns (OrgUnitKind) {
+  rpc CreateOrgUnitKind(CreateOrgUnitKindRequest) returns (OrganizationUnitKind) {
     option (google.api.http) = {
       post: "/resource-manager/v1/org-unit-kinds"
       body: "*"
@@ -19,7 +19,7 @@ service OrgUnitKindService {
   rpc ListOrgUnitKinds(ListOrgUnitKindsRequest) returns (ListOrgUnitKindsResponse) {
     option (google.api.http) = {get: "/resource-manager/v1/org-unit-kinds"};
   }
-  rpc UpdateOrgUnitKind(UpdateOrgUnitKindRequest) returns (OrgUnitKind) {
+  rpc UpdateOrgUnitKind(UpdateOrgUnitKindRequest) returns (OrganizationUnitKind) {
     option (google.api.http) = {
       patch: "/resource-manager/v1/org-unit-kinds/{kind_id}"
       body: "*"
@@ -28,7 +28,7 @@ service OrgUnitKindService {
 }
 
 message CreateOrgUnitKindRequest {
-  OrgUnitKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+  OrganizationUnitKind kind = 1 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message ListOrgUnitKindsRequest {
@@ -39,12 +39,12 @@ message ListOrgUnitKindsRequest {
   string page_token = 5;
 }
 message ListOrgUnitKindsResponse {
-  repeated OrgUnitKind kinds = 1;
+  repeated OrganizationUnitKind kinds = 1;
   string next_page_token = 2;
 }
 message UpdateOrgUnitKindRequest {
   string kind_id = 1 [(google.api.field_behavior) = REQUIRED];
-  OrgUnitKind kind = 2 [(google.api.field_behavior) = REQUIRED];
+  OrganizationUnitKind kind = 2 [(google.api.field_behavior) = REQUIRED];
   int64 expected_revision = 3 [(google.api.field_behavior) = REQUIRED];
   string idempotency_key = 4 [(google.api.field_behavior) = REQUIRED];
 }

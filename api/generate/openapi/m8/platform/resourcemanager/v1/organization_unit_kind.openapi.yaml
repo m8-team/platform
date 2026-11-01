@@ -1,0 +1,11 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: M8 Platform API
+    description: HTTP API specifications generated from protobuf contracts.
+    version: v1
+paths: {}
+components:
+    schemas: {}

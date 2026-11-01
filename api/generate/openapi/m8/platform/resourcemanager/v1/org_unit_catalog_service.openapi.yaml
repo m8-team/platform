@@ -170,7 +170,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrgUnitKind'
+                                $ref: '#/components/schemas/OrganizationUnitKind'
     /resource-manager/v1/org-unit-kinds/{kindId}:
         patch:
             tags:
@@ -194,7 +194,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrgUnitKind'
+                                $ref: '#/components/schemas/OrganizationUnitKind'
 components:
     schemas:
         CreateOrgUnitKindRequest:
@@ -204,7 +204,7 @@ components:
             type: object
             properties:
                 kind:
-                    $ref: '#/components/schemas/OrgUnitKind'
+                    $ref: '#/components/schemas/OrganizationUnitKind'
                 idempotencyKey:
                     type: string
         LinkOrgUnitExternalReferenceRequest:
@@ -232,7 +232,7 @@ components:
                 kinds:
                     type: array
                     items:
-                        $ref: '#/components/schemas/OrgUnitKind'
+                        $ref: '#/components/schemas/OrganizationUnitKind'
                 nextPageToken:
                     type: string
         OrgUnitExternalReference:
@@ -270,7 +270,7 @@ components:
                     readOnly: true
                     type: string
                     format: date-time
-        OrgUnitKind:
+        OrganizationUnitKind:
             required:
                 - metadata
                 - scope
@@ -281,10 +281,10 @@ components:
                     $ref: '#/components/schemas/ResourceMetadata'
                 scope:
                     enum:
-                        - ORG_UNIT_KIND_SCOPE_UNSPECIFIED
-                        - ORG_UNIT_KIND_SCOPE_SYSTEM
-                        - ORG_UNIT_KIND_SCOPE_TENANT
-                        - ORG_UNIT_KIND_SCOPE_ORGANIZATION
+                        - SCOPE_UNSPECIFIED
+                        - SCOPE_SYSTEM
+                        - SCOPE_TENANT
+                        - SCOPE_ORGANIZATION
                     type: string
                     format: enum
                 tenantId:
@@ -293,12 +293,8 @@ components:
                     type: string
                 code:
                     type: string
-                enabled:
+                active:
                     type: boolean
-                localizedNames:
-                    type: object
-                    additionalProperties:
-                        type: string
         ResourceMetadata:
             type: object
             properties:
@@ -365,7 +361,7 @@ components:
                 kindId:
                     type: string
                 kind:
-                    $ref: '#/components/schemas/OrgUnitKind'
+                    $ref: '#/components/schemas/OrganizationUnitKind'
                 expectedRevision:
                     type: string
                 idempotencyKey:

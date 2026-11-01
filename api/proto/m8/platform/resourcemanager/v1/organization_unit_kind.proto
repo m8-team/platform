@@ -7,16 +7,25 @@ import "m8/platform/resourcemanager/v1/resource.proto";
 
 option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
 
-enum OrgUnitKindScope {
-  ORG_UNIT_KIND_SCOPE_UNSPECIFIED = 0;
-  ORG_UNIT_KIND_SCOPE_SYSTEM = 1;
-  ORG_UNIT_KIND_SCOPE_TENANT = 2;
-  ORG_UNIT_KIND_SCOPE_ORGANIZATION = 3;
-}
+message OrganizationUnitKind {
+  enum UnitKindScope {
+    SCOPE_UNSPECIFIED = 0;
+    SCOPE_SYSTEM = 1;
+    SCOPE_TENANT = 2;
+    SCOPE_ORGANIZATION = 3;
+  }
 
-message OrgUnitKind {
-  ResourceMetadata metadata = 1 [(google.api.field_behavior) = REQUIRED];
-  OrgUnitKindScope scope = 2 [(google.api.field_behavior) = REQUIRED];
+  ResourceMetadata metadata = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  UnitKindScope scope = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).enum = {
+      defined_only: true
+      not_in: [0]
+    }
+  ];
 
   string tenant_id = 3;
 
@@ -27,6 +36,5 @@ message OrgUnitKind {
     (buf.validate.field).string.min_len = 1
   ];
 
-  bool enabled = 6;
-  map<string, string> localized_names = 7;
+  bool active = 6;
 }

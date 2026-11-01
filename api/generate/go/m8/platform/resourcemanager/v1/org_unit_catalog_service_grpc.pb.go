@@ -28,9 +28,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrgUnitKindServiceClient interface {
-	CreateOrgUnitKind(ctx context.Context, in *CreateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrgUnitKind, error)
+	CreateOrgUnitKind(ctx context.Context, in *CreateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrganizationUnitKind, error)
 	ListOrgUnitKinds(ctx context.Context, in *ListOrgUnitKindsRequest, opts ...grpc.CallOption) (*ListOrgUnitKindsResponse, error)
-	UpdateOrgUnitKind(ctx context.Context, in *UpdateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrgUnitKind, error)
+	UpdateOrgUnitKind(ctx context.Context, in *UpdateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrganizationUnitKind, error)
 }
 
 type orgUnitKindServiceClient struct {
@@ -41,9 +41,9 @@ func NewOrgUnitKindServiceClient(cc grpc.ClientConnInterface) OrgUnitKindService
 	return &orgUnitKindServiceClient{cc}
 }
 
-func (c *orgUnitKindServiceClient) CreateOrgUnitKind(ctx context.Context, in *CreateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrgUnitKind, error) {
+func (c *orgUnitKindServiceClient) CreateOrgUnitKind(ctx context.Context, in *CreateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrganizationUnitKind, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrgUnitKind)
+	out := new(OrganizationUnitKind)
 	err := c.cc.Invoke(ctx, OrgUnitKindService_CreateOrgUnitKind_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -61,9 +61,9 @@ func (c *orgUnitKindServiceClient) ListOrgUnitKinds(ctx context.Context, in *Lis
 	return out, nil
 }
 
-func (c *orgUnitKindServiceClient) UpdateOrgUnitKind(ctx context.Context, in *UpdateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrgUnitKind, error) {
+func (c *orgUnitKindServiceClient) UpdateOrgUnitKind(ctx context.Context, in *UpdateOrgUnitKindRequest, opts ...grpc.CallOption) (*OrganizationUnitKind, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrgUnitKind)
+	out := new(OrganizationUnitKind)
 	err := c.cc.Invoke(ctx, OrgUnitKindService_UpdateOrgUnitKind_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -75,9 +75,9 @@ func (c *orgUnitKindServiceClient) UpdateOrgUnitKind(ctx context.Context, in *Up
 // All implementations must embed UnimplementedOrgUnitKindServiceServer
 // for forward compatibility.
 type OrgUnitKindServiceServer interface {
-	CreateOrgUnitKind(context.Context, *CreateOrgUnitKindRequest) (*OrgUnitKind, error)
+	CreateOrgUnitKind(context.Context, *CreateOrgUnitKindRequest) (*OrganizationUnitKind, error)
 	ListOrgUnitKinds(context.Context, *ListOrgUnitKindsRequest) (*ListOrgUnitKindsResponse, error)
-	UpdateOrgUnitKind(context.Context, *UpdateOrgUnitKindRequest) (*OrgUnitKind, error)
+	UpdateOrgUnitKind(context.Context, *UpdateOrgUnitKindRequest) (*OrganizationUnitKind, error)
 	mustEmbedUnimplementedOrgUnitKindServiceServer()
 }
 
@@ -88,13 +88,13 @@ type OrgUnitKindServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrgUnitKindServiceServer struct{}
 
-func (UnimplementedOrgUnitKindServiceServer) CreateOrgUnitKind(context.Context, *CreateOrgUnitKindRequest) (*OrgUnitKind, error) {
+func (UnimplementedOrgUnitKindServiceServer) CreateOrgUnitKind(context.Context, *CreateOrgUnitKindRequest) (*OrganizationUnitKind, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOrgUnitKind not implemented")
 }
 func (UnimplementedOrgUnitKindServiceServer) ListOrgUnitKinds(context.Context, *ListOrgUnitKindsRequest) (*ListOrgUnitKindsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOrgUnitKinds not implemented")
 }
-func (UnimplementedOrgUnitKindServiceServer) UpdateOrgUnitKind(context.Context, *UpdateOrgUnitKindRequest) (*OrgUnitKind, error) {
+func (UnimplementedOrgUnitKindServiceServer) UpdateOrgUnitKind(context.Context, *UpdateOrgUnitKindRequest) (*OrganizationUnitKind, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateOrgUnitKind not implemented")
 }
 func (UnimplementedOrgUnitKindServiceServer) mustEmbedUnimplementedOrgUnitKindServiceServer() {}
