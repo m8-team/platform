@@ -1,0 +1,33 @@
+{
+  "source_database": "zendendb_import",
+  "target_database": "zendendb",
+  "database_engines": {
+    "zendendb": "Replicated",
+    "zendendb_import": "Atomic"
+  },
+  "objects": {
+    "View": 127,
+    "MergeTree": 112,
+    "ReplacingMergeTree": 128,
+    "Log": 8,
+    "MySQL": 3
+  },
+  "merge_table_definitions": 240,
+  "partition_attach_statements": 53548,
+  "log_tables": 8,
+  "mysql_external_tables": 3,
+  "views": 127,
+  "source_data_kept": true,
+  "ddl_executed": false,
+  "manual_checks": [
+    "b_catalog_store_mysql: MySQL external engine preserved; manually provide its password, and test network access on every replica",
+    "b_sale_order_mysql: MySQL external engine preserved; manually provide its password, and test network access on every replica",
+    "b_sale_status_lang_mysql: MySQL external engine preserved; manually provide its password, and test network access on every replica",
+    "Pause writes to source during migration or perform a controlled final delta/cutover.",
+    "Only a single host/shard is inspected. On multishard clusters, migrate every shard separately.",
+    "Review generated view dependencies and source database references.",
+    "Never execute generated MySQL DDL with __REPLACE_MYSQL_PASSWORD__ unresolved; password is not copied.",
+    "Do not rerun ATTACH PARTITION or INSERT after uncertain outcomes; reconcile counts/parts first.",
+    "Check TTL, projections, quotas, Keeper access, storage space, and replica health."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "source_database": "analytics_import",
+  "target_database": "analytics",
+  "database_engines": {
+    "analytics": "Replicated",
+    "analytics_import": "Atomic"
+  },
+  "objects": {
+    "ReplacingMergeTree": 16,
+    "Kafka": 3,
+    "MaterializedView": 3
+  },
+  "merge_table_definitions": 16,
+  "partition_attach_statements": 159,
+  "log_tables": 0,
+  "mysql_external_tables": 0,
+  "views": 0,
+  "source_data_kept": true,
+  "ddl_executed": false,
+  "manual_checks": [
+    "kafka_onec_purchases_main: unsupported engine Kafka; requires manual treatment",
+    "kafka_onec_purchases_payments: unsupported engine Kafka; requires manual treatment",
+    "kafka_onec_purchases_products: unsupported engine Kafka; requires manual treatment",
+    "onec_purchases_main: unsupported engine MaterializedView; requires manual treatment",
+    "onec_purchases_payments: unsupported engine MaterializedView; requires manual treatment",
+    "onec_purchases_products: unsupported engine MaterializedView; requires manual treatment",
+    "Pause writes to source during migration or perform a controlled final delta/cutover.",
+    "Only a single host/shard is inspected. On multishard clusters, migrate every shard separately.",
+    "Review generated view dependencies and source database references.",
+    "Never execute generated MySQL DDL with __REPLACE_MYSQL_PASSWORD__ unresolved; password is not copied.",
+    "Do not rerun ATTACH PARTITION or INSERT after uncertain outcomes; reconcile counts/parts first.",
+    "Check TTL, projections, quotas, Keeper access, storage space, and replica health."
+  ]
+}
