@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Conservative ClickHouse to ClickHouse data migration via remoteSecure (v5).
+"""Conservative ClickHouse to ClickHouse data migration via remoteSecure (v9).
 
 Source is read-only. Target must contain empty, matching Replicated*MergeTree tables.
 Copy is server-to-server. Failures are intentionally NOT retried automatically.
@@ -158,25 +158,12 @@ def is_unversioned_replacing(metadata):
     """
     if metadata.get('engine') != 'ReplacingMergeTree':
         return False
-    # engine_full is a FULL engine expression, not just the engine name.
-    # Example: "ReplacingMergeTree ORDER BY (`Подразделение`, `Дата`) SETTINGS ...".
     engine_full = str(metadata.get('engine_full') or '').strip()
-    match = re.match(r'^ReplacingMergeTree\b', engine_full, flags=re.IGNORECASE)
-    if not match:
-        raise MigrationError('Cannot determine ReplacingMergeTree arguments from engine_full; refusing unsafe copy')
-    tail = engine_full[match.end():].lstrip()
-    if tail.startswith('('):
-        # No-argument "ReplacingMergeTree()" is also unversioned.
-        empty_args = re.match(r'^\(\s*\)', tail)
-        if not empty_args:
-            return False  # Has version or other explicit engine arguments.
-        tail = tail[empty_args.end():].lstrip()
-    if tail and not re.match(
-        r'^(?:PARTITION\s+BY|ORDER\s+BY|PRIMARY\s+KEY|SAMPLE\s+BY|TTL\b|SETTINGS\b|COMMENT\b)',
-        tail, flags=re.IGNORECASE
-    ):
-        raise MigrationError('Unexpected engine_full syntax after ReplacingMergeTree; refusing unsafe copy')
-    return True
+    prefix = 'ReplacingMergeTree'
+    if not engine_full.startswith(prefix):
+        raise MigrationError('Cannot determine ReplacingMergeTree arguments from engine_full; refusing an unsafe copy')
+    suffix = engine_full[len(prefix):].lstrip()
+    return not suffix.startswith('(')
 
 
 def read_journal(path):
@@ -198,6 +185,20 @@ def save_journal(path, journal):
         file.flush()
         os.fsync(file.fileno())
     os.replace(str(tmp), str(path))
+
+
+def source_partition_count(client, key):
+    """Conservative preflight: >100 existing partitions can break bulk INSERT.
+
+    This is a safety heuristic. A table may have >100 historical partitions
+    but fewer than 100 in any single block; we intentionally skip it anyway.
+    """
+    rows = client.rows('SELECT uniqExact(partition) AS partitions '
+                       'FROM system.parts '
+                       f'WHERE database={lit(key[0])} AND `table`={lit(key[1])} AND active = 1')
+    if len(rows) != 1:
+        raise MigrationError(f'Cannot check source partitions for {key}')
+    return int(rows[0]['partitions'])
 
 
 def rowcount(client, key):
@@ -388,6 +389,8 @@ def main():
     parser.add_argument('--ack-source-frozen', action='store_true', help='confirm source writes are paused and remain paused')
     parser.add_argument('--resume', action='store_true', help='skip journal entries marked DONE; never retry uncertain copies')
     parser.add_argument('--skip-uncertain', action='store_true', help='with --resume: omit UNCERTAIN/COPYING/VERIFYING tables without modifying their journal records')
+    parser.add_argument('--skip-high-partitions', action='store_true',
+                        help='skip source tables with >100 existing partitions before COPY; stage them separately')
     parser.add_argument('--skip-no-version-duplicates', action='store_true', help='skip unversioned ReplacingMergeTree tables with duplicate ORDER BY keys (physical > FINAL rows)')
     parser.add_argument('--limit', type=int, help='maximum number of pending tables to process')
     parser.add_argument('--verify', action='store_true', help='verify previously completed tables (no new inserts)')
@@ -511,6 +514,7 @@ def main():
     if problems and not args.only:
         print('WARN: blocked tables were skipped; migration cannot be called complete.')
     skipped_unsafe = 0
+    skipped_high_partition = 0
     for index, key in enumerate(keys, 1):
         name = '.'.join(key)
         record = journal['tables'].get(name, {})
@@ -522,6 +526,19 @@ def main():
         if record.get('status') in ('COPYING', 'VERIFYING', 'UNCERTAIN'):
             raise MigrationError(f'{name} has ambiguous prior state {record["status"]}; '
                                  f'do not retry automatically. Check row counts and repair manually.')
+        # Prevent further TOO_MANY_PARTS partial INSERTs during bulk migration.
+        # Counts active source partitions, not merely a CREATE TABLE expression.
+        # Run BEFORE journaling COPYING or issuing any INSERT.
+        partition_count = source_partition_count(source, key)
+        if partition_count > 100:
+            message = (f'{name}: {partition_count} source partitions (>100); bulk INSERT '
+                       'may fail with TOO_MANY_PARTS. No data copied. '
+                       'Use a separately verified staging/partition-batched transfer.')
+            if args.skip_high_partitions:
+                skipped_high_partition += 1
+                print('SKIP HIGH PARTITIONS', message, flush=True)
+                continue
+            raise MigrationError(message + ' Use --skip-high-partitions to continue other tables.')
         # DESCRIBE includes CODEC and column TTL; system.columns does not.
         # Compare immediately before transfer so unsupported expressions or
         # mismatched per-column settings cannot be silently ignored.
@@ -605,8 +622,8 @@ def main():
             raise MigrationError(f'{name}: {record["error"]}. State UNCERTAIN: NEVER retry '
                                  'without reconciling the target table.') from None
     print('FINISHED selected tables. Check pending/blocked tables and rerun with --resume if needed.')
-    if skipped_unsafe or skipped_uncertain or problems:
-        print(f'INCOMPLETE: skipped_unsafe={skipped_unsafe}, skipped_uncertain={skipped_uncertain}, '
+    if skipped_unsafe or skipped_uncertain or skipped_high_partition or problems:
+        print(f'INCOMPLETE: skipped_unsafe={skipped_unsafe}, skipped_uncertain={skipped_uncertain}, skipped_high_partitions={skipped_high_partition}, '
               f'missing_or_incompatible={len(problems)}.')
         print('No skipped table was marked DONE. Resolve every skipped table before cutover.')
     return 0

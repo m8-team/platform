@@ -1,105 +1,124 @@
-# ClickHouse: safe recovery of partial months in `zendendb.ЦеныНоменклатуры`
+# ClickHouse cross-cluster migration — daily-partition staging repair v9
 
-## Problem
+This package fixes the repeated ClickHouse error `TOO_MANY_PARTS` / `max_partitions_per_insert_block = 100` caused by a single `INSERT SELECT` touching too many source partitions. Source/target are the previously configured Yandex ClickHouse clusters; target is a **Replicated** database with two **ReplicatedMergeTree** replicas. Does NOT change original data or table names without an explicit manual DBA operation.
 
-The first bulk `INSERT SELECT remoteSecure(...)` failed with `TOO_MANY_PARTS` because the source table partitions by **day** (`toYYYYMMDD(Период)`). It left partial **August 2026** (6,658 of 13,197 rows) and **September 2026** (7,119 of 7,121 rows) on the target cluster. `transfer_monthly.py` correctly refuses to insert on top of them. **Do not retry the same `INSERT`, raise the partition limit, truncate or drop target data.**
+## Directly affected tables
 
-## Strategy
+The original DDLs for both tables are plain `MergeTree PARTITION BY toYYYYMMDD(\`Период\`)`:
 
-Build a NEW, separate replicated table `zendendb.ЦеныНоменклатуры__repair` via `CREATE TABLE ... AS existing_target`. Copy the complete source (45 calendar months) using INSERTs limited to ONE calendar month (max. 31 daily partitions per query). Verify *every month* and *full-table fingerprints* on **BOTH** replicas. Then, in a separate planned cutover, atomically exchange the table names (provided this form is supported on your server; it worked with the preceding `ПланПродаж_ecom` migration). The original partial target is retained under the `__repair` name for rollback.
+- `zendendb.ЗаказыПокупателей`
+- `zendendb.ТоварыВРезервеНаСкладах`
 
-This script **never modifies the existing target table** and **never changes the main migration journal**. It creates/writes only the staging table; does not execute `EXCHANGE`, `DROP`, `TRUNCATE`, `RENAME`, `REPLACE PARTITION`, or `ALTER`.
+Both have `UNCERTAIN` in the **main** migration journal after failed bulk INSERT, so **do not retry bulk INSERT**. Some rows may already be on both target replicas. The new tool creates independent staging table `<table>__repair` and copies the complete source by **month** (at most 31 day partitions per INSERT). It checks source schema, target schema, source and target timezone, separate Keeper path, replicated state and full table fingerprints. It does NOT touch the original target or main transfer journal, and does not perform EXCHANGE or any destructive SQL.
 
-**Before using**: stop source writes and ALL target writes. Check there is sufficient free disk on **both** target replicas for another full copy of this table. This is a `MergeTree`, not `ReplacingMergeTree`: copying all physical rows is the intended behavior. Keep original source data until cutover is checked.
+## Install
 
-## Setup
+Copy these files into your existing `clickhouse_data_transfer` directory, next to `config.json`:
 
-Place these two Python files beside your current `config.json`:
+- `repair_daily_stage.py` — **new** reusable repair for daily-partitioned plain MergeTree tables.
+- `transfer_monthly.py` — helper for HTTPS + ClickHouse replica checks; same API as prior v6/v7.
+- `transfer_data.py` — **optional replacement** of your existing main migrator; all previous v5 features retained plus the `--skip-high-partitions` guard.
 
-- `repair_prices_stage.py`
-- `transfer_monthly.py` (the compatible helper already supplied in v6)
+**Keep** your current `config.json`, `data_transfer_progress/progress.json`, other stage journals and existing repair scripts. Never overwrite or delete your journal. Python 3.9+ and standard library only.
 
-Python >=3.9; no third-party packages. Do NOT replace your currently working `transfer_data.py` or remove `data_transfer_progress/progress.json`.
+## Before writing
 
-## 1. Inspect (read-only)
+Stop all source ingestion and writes, and stop target writes to tables being migrated. Confirm adequate target disk space **on each replica** for a complete additional table copy. Confirm your current target is indeed the intended new ClickHouse cluster. Keep source untouched until cutover is verified. The fact a command contains `--ack-source-frozen` does not actually freeze writes: you must enforce it operationally.
 
-```sh
-python3 repair_prices_stage.py --config config.json --inspect
-```
-
-Expected: stage does not yet exist; original target has partial data from the earlier failed insert.
-
-## 2. Prepare one pilot month (writes only to new staging table)
+## 1. Source and target inspection (read-only)
 
 ```sh
-python3 repair_prices_stage.py \
-  --config config.json \
-  --prepare \
-  --ack-source-frozen \
-  --limit-months 1
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ЗаказыПокупателей' --inspect
+
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ТоварыВРезервеНаСкладах' --inspect
 ```
 
-If no stage exists, the script creates it in the replicated database, confirms a Keeper path distinct from the original and healthy replicas, and inserts the first available month. It checks per-month row counts and two content checksums on each replica.
+Each table gets its own independently named `<table>__repair` stage and own journal in `data_transfer_progress/daily_stage_<hash>.json`. The script refuses to use a nonmatching stage.
 
-## 3. Copy all remaining months
+## 2. Pilot one month into staging
 
 ```sh
-python3 repair_prices_stage.py \
-  --config config.json \
-  --prepare \
-  --ack-source-frozen
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ЗаказыПокупателей' \
+  --prepare --ack-source-frozen --limit-months 1
 ```
 
-All complete stage months are skipped. If a month is partially loaded, differs, or has ambiguous journal status, the script refuses a blind retry. Stage journal: `data_transfer_progress/prices_stage_progress.json`.
+Expected: created staging table and `DONE` for one month on **both** replicas. If any month is PARTIAL, CONFLICT or prior write status UNCERTAIN, the tool stops; no blind retry.
 
-## 4. Independently verify stage (read-only)
+## 3. Finish stage copy
 
 ```sh
-python3 repair_prices_stage.py \
-  --config config.json \
-  --verify \
-  --ack-source-frozen
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ЗаказыПокупателей' \
+  --prepare --ack-source-frozen
+
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ТоварыВРезервеНаСкладах' \
+  --prepare --ack-source-frozen
 ```
 
-Requires all source months to match staging on **both replicas** and full-table source/stage fingerprint to match on both replicas. Expected `STAGING VERIFIED`. No production data mutation.
+The second table may also be piloted first using `--limit-months 1`. Previously verified stage months are skipped. When all months match, script prints `STAGING VERIFIED`.
 
-## 5. Planned manual cutover (ONLY after STAGING VERIFIED)
+## 4. Verify each stage independently (read-only)
 
-Freeze all writes to source and target again, re-run Step 4, confirm staging health/free disk, and run on **one** target host (no `ON CLUSTER` because database is `ENGINE=Replicated`):
+```sh
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ЗаказыПокупателей' \
+  --verify --ack-source-frozen
+
+python3 repair_daily_stage.py --config config.json \
+  --table 'zendendb.ТоварыВРезервеНаСкладах' \
+  --verify --ack-source-frozen
+```
+
+This checks physical row count and two content hashes per month, whole-table hashes, replica health, and matching row hashes **on each replica**. `STAGING VERIFIED` is required. Hash checks are strong evidence, not mathematical proof of identical data.
+
+## 5. Cutover — only after `STAGING VERIFIED`
+
+In a scheduled maintenance window, stop all source and target writes, run `--verify` again, ensure no dependent queries or materialized views are writing to original tables, confirm `EXCHANGE` support on the target database, then run the following *manually* against **one target host** (no `ON CLUSTER` with `ENGINE=Replicated` database):
 
 ```sql
-EXCHANGE TABLES
-    `zendendb`.`ЦеныНоменклатуры`
-AND
-    `zendendb`.`ЦеныНоменклатуры__repair`;
+EXCHANGE TABLES `zendendb`.`ЗаказыПокупателей`
+AND `zendendb`.`ЗаказыПокупателей__repair`;
+
+EXCHANGE TABLES `zendendb`.`ТоварыВРезервеНаСкладах`
+AND `zendendb`.`ТоварыВРезервеНаСкладах__repair`;
 ```
 
-**Caution**: Confirm EXCHANGE support and the maintenance-window procedure on your exact Yandex ClickHouse version. This statement is NOT executed by the script.
-
-After EXCHANGE, `ЦеныНоменклатуры` points to the fully verified copy. The old partial target is retained as `ЦеныНоменклатуры__repair` for rollback. **Do not re-run `repair_prices_stage.py --prepare` after exchange**, since the stage name will then refer to the old partial data.
-
-## 6. Reconcile the main migration journal
+Perform each EXCHANGE separately only after the corresponding staging table is verified. The old partial target data is retained under `__repair` for rollback. **Do NOT rerun `repair_daily_stage.py --prepare` / `--verify` after exchange**: the stage name now denotes the old partial table. Verify the new production names on both replicas and use `transfer_data.py --reconcile --mark-done` to close the main journal for each:
 
 ```sh
-python3 transfer_data.py \
-  --config config.json \
-  --only 'zendendb.ЦеныНоменклатуры' \
-  --reconcile \
-  --mark-done \
-  --ack-source-frozen
+python3 transfer_data.py --config config.json \
+  --only 'zendendb.ЗаказыПокупателей' \
+  --reconcile --mark-done --ack-source-frozen
+
+python3 transfer_data.py --config config.json \
+  --only 'zendendb.ТоварыВРезервеНаСкладах' \
+  --reconcile --mark-done --ack-source-frozen
 ```
 
-This should move the existing `UNCERTAIN` main-journal state to `DONE` only after a full-table fingerprint match. Do NOT re-INSERT over an existing table. Keep the old `__repair` copy until after final audit.
+`--reconcile` must match the original physical row count and fingerprints on both target replicas before writing `DONE`. Do not mark them `DONE` manually.
 
-## Why not copy only the missing 6,539 and 2 rows?
+## Prevent more failures in remaining pending tables
 
-Counts alone do not identify missing physical records. Row duplicates may be valid in a plain `MergeTree`, and blindly doing an anti-join can silently lose or double rows. An exact multiset diff could be implemented, but rebuilding in a staging table is more deterministic and leaves the production target untouched until an explicitly reviewed switch.
+The packaged `transfer_data.py` adds a non-destructive pre-insert guard for any source table with more than 100 distinct **active** partitions (read from `system.parts`). Those are conservatively skipped *before* `COPYING` / `INSERT`; existing `UNCERTAIN` and unversioned `ReplacingMergeTree` duplicates remain skipped using the prior flags:
 
-## Security and limitations
+```sh
+python3 transfer_data.py --config config.json \
+  --apply --ack-source-frozen --resume \
+  --skip-uncertain --skip-no-version-duplicates \
+  --skip-high-partitions
+```
 
-- `remoteSecure(...)` credentials are sent inside SQL to the target and might be recorded in query/audit logs. Use least-privileged short-lived source credentials and rotate as appropriate.
-- Exact types, server timezone, primary/sorting/partitioning keys, stage Keeper isolation and replica health are checked prior to writing.
-- Counts + 2 hashes offer a **probabilistic** comparison; not a formal proof of all bytes.
-- Each month scan re-reads source data. This is a read-intensive migration.
-- Only supports the hardcoded `zendendb.ЦеныНоменклатуры` schema on this 1-shard 2-replica target. No online write synchronization.
-- Test suite is local and mock-based. No actual Yandex ClickHouse cluster was contacted here.
+This **does not automatically migrate the skipped high-partition tables**. A table with >100 partitions may be safe for some specific block sizes, but the guard chooses safety over throughput. For `PARTITION BY toYYYYMMDD(Период)` + `MergeTree`, reuse `repair_daily_stage.py`. For string-based partitions (`Товары` etc.), use your separate `repair_products_stage.py`. For `ReplacingMergeTree` with ambiguous winners, use a separately reviewed `FINAL` staging approach. For unknown partition expressions, do not force the daily-month script.
+
+The `--skip-high-partitions` heuristic is not a substitute for controlling `max_partitions_per_insert_block`: another query can exceed that limit for a different reason. Keep every skipped or ambiguous table in the final cutover checklist.
+
+## Verification, limitations and operational notes
+
+- No live database was contacted for this release; tests use mocked clients. Test suite: `python3 -m unittest discover -p 'test_*.py' -v`.
+- Data hashing is expensive for very large tables and done on two replicas. Streaming server-side `remoteSecure` reads require TCP 9440 reachability.
+- `remoteSecure` includes source credentials inside the server-side SQL; ensure query log/audit access is appropriately restricted and use a temporary read-only source account.
+- Before mass cutover, separately resolve the long missing table name `zendendb.ДокументыНаОснованииИнтернетЗаказов`, remaining unversioned ReplacingMergeTree duplicates, incomplete stage repairs and unsupported source engines/views.

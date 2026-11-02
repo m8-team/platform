@@ -1066,6 +1066,39 @@
         "rows": 1368380
       }
     },
+    "zendendb.StrakhovyeVznosyPoFizicheskimLitsam": {
+      "completed_at": "2026-11-02T00:02:09.140242+00:00",
+      "insert_returned_at": "2026-11-02T00:02:03.622865+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "11874657099280389516",
+          "checksum_xor": "15387261571652387894",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 907463
+        },
+        {
+          "checksum_sum": "11874657099280389516",
+          "checksum_xor": "15387261571652387894",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 907463
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "11874657099280389516",
+        "checksum_xor": "15387261571652387894",
+        "rows": 907463
+      },
+      "source_rows_after": 907463,
+      "source_rows_before": 907463,
+      "started_at": "2026-11-02T00:02:01.365291+00:00",
+      "status": "DONE",
+      "target_rows": 907463,
+      "verified_fingerprint": {
+        "checksum_sum": "11874657099280389516",
+        "checksum_xor": "15387261571652387894",
+        "rows": 907463
+      }
+    },
     "zendendb.TM_MP_art_zoning": {
       "completed_at": "2026-11-01T23:32:15.650659+00:00",
       "insert_returned_at": "2026-11-01T23:32:13.461370+00:00",
@@ -1131,6 +1164,17 @@
         "checksum_xor": "1300357934014806831",
         "rows": 116
       }
+    },
+    "zendendb.TM_MP_sales_report_2023_2024": {
+      "insert_returned_at": "2026-11-02T00:15:32.155740+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "15436565114780932629",
+        "checksum_xor": "8739965367331825295",
+        "rows": 23202617
+      },
+      "source_rows_before": 23202617,
+      "started_at": "2026-11-02T00:15:17.925954+00:00",
+      "status": "VERIFYING"
     },
     "zendendb.TM_MP_sales_report_by_region_temp": {
       "completed_at": "2026-11-01T23:14:32.990605+00:00",
@@ -1241,6 +1285,39 @@
         "checksum_sum": "2261139435893644331",
         "checksum_xor": "3060124060836965868",
         "rows": 2319
+      }
+    },
+    "zendendb.ThomasMunzEcom_by_art": {
+      "completed_at": "2026-11-02T00:09:48.523746+00:00",
+      "insert_returned_at": "2026-11-02T00:09:41.169464+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "8186076438963362348",
+          "checksum_xor": "16075665576562987852",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 906236
+        },
+        {
+          "checksum_sum": "8186076438963362348",
+          "checksum_xor": "16075665576562987852",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 906236
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "8186076438963362348",
+        "checksum_xor": "16075665576562987852",
+        "rows": 906236
+      },
+      "source_rows_after": 906236,
+      "source_rows_before": 906236,
+      "started_at": "2026-11-02T00:09:36.881636+00:00",
+      "status": "DONE",
+      "target_rows": 906236,
+      "verified_fingerprint": {
+        "checksum_sum": "8186076438963362348",
+        "checksum_xor": "16075665576562987852",
+        "rows": 906236
       }
     },
     "zendendb.ThomasMunzEcom_by_day": {
@@ -1651,6 +1728,39 @@
         "rows": 1042595
       }
     },
+    "zendendb.YANDEX_Warehouse_TM": {
+      "completed_at": "2026-11-02T00:10:24.397359+00:00",
+      "insert_returned_at": "2026-11-02T00:10:11.311791+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "9874467650802981376",
+          "checksum_xor": "17254077821143991921",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 12176210
+        },
+        {
+          "checksum_sum": "9874467650802981376",
+          "checksum_xor": "17254077821143991921",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 12176210
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "9874467650802981376",
+        "checksum_xor": "17254077821143991921",
+        "rows": 12176210
+      },
+      "source_rows_after": 12176210,
+      "source_rows_before": 12176210,
+      "started_at": "2026-11-02T00:10:08.077362+00:00",
+      "status": "DONE",
+      "target_rows": 12176210,
+      "verified_fingerprint": {
+        "checksum_sum": "9874467650802981376",
+        "checksum_xor": "17254077821143991921",
+        "rows": 12176210
+      }
+    },
     "zendendb.YANDEX_warehouses": {
       "completed_at": "2026-11-01T23:17:38.499414+00:00",
       "insert_returned_at": "2026-11-01T23:17:36.254675+00:00",
@@ -1816,6 +1926,39 @@
         "rows": 42185
       }
     },
+    "zendendb.prices_TM_MP_temp": {
+      "completed_at": "2026-11-02T00:01:54.867189+00:00",
+      "insert_returned_at": "2026-11-02T00:01:51.624495+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "None",
+          "checksum_xor": "None",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1831758
+        },
+        {
+          "checksum_sum": "None",
+          "checksum_xor": "None",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1831758
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "None",
+        "checksum_xor": "None",
+        "rows": 1831758
+      },
+      "source_rows_after": 1831758,
+      "source_rows_before": 1831758,
+      "started_at": "2026-11-02T00:01:50.605165+00:00",
+      "status": "DONE",
+      "target_rows": 1831758,
+      "verified_fingerprint": {
+        "checksum_sum": "None",
+        "checksum_xor": "None",
+        "rows": 1831758
+      }
+    },
     "zendendb.sales_report_MAIN": {
       "completed_at": "2026-11-01T23:18:48.468379+00:00",
       "insert_returned_at": "2026-11-01T23:18:46.291554+00:00",
@@ -1847,6 +1990,72 @@
         "checksum_sum": "13962389675955686521",
         "checksum_xor": "16010401629168264898",
         "rows": 270
+      }
+    },
+    "zendendb.sales_report_MAIN_all_by_day": {
+      "completed_at": "2026-11-02T00:02:18.142428+00:00",
+      "insert_returned_at": "2026-11-02T00:02:14.076930+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "8872637876160360175",
+          "checksum_xor": "5065667105282934137",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 497182
+        },
+        {
+          "checksum_sum": "8872637876160360175",
+          "checksum_xor": "5065667105282934137",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 497182
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "8872637876160360175",
+        "checksum_xor": "5065667105282934137",
+        "rows": 497182
+      },
+      "source_rows_after": 497182,
+      "source_rows_before": 497182,
+      "started_at": "2026-11-02T00:02:12.541694+00:00",
+      "status": "DONE",
+      "target_rows": 497182,
+      "verified_fingerprint": {
+        "checksum_sum": "8872637876160360175",
+        "checksum_xor": "5065667105282934137",
+        "rows": 497182
+      }
+    },
+    "zendendb.sales_report_MAIN_all_by_day_old": {
+      "completed_at": "2026-11-02T00:02:27.072356+00:00",
+      "insert_returned_at": "2026-11-02T00:02:22.930833+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "7956825772974361057",
+          "checksum_xor": "5375606473205148895",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 492498
+        },
+        {
+          "checksum_sum": "7956825772974361057",
+          "checksum_xor": "5375606473205148895",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 492498
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "7956825772974361057",
+        "checksum_xor": "5375606473205148895",
+        "rows": 492498
+      },
+      "source_rows_after": 492498,
+      "source_rows_before": 492498,
+      "started_at": "2026-11-02T00:02:21.288135+00:00",
+      "status": "DONE",
+      "target_rows": 492498,
+      "verified_fingerprint": {
+        "checksum_sum": "7956825772974361057",
+        "checksum_xor": "5375606473205148895",
+        "rows": 492498
       }
     },
     "zendendb.sales_report_MAIN_all_temp": {
@@ -2941,6 +3150,18 @@
         "rows": 57097
       }
     },
+    "zendendb.ЗаказыПокупателей": {
+      "error": "target: HTTP 500: Code: 252. DB::Exception: Too many partitions for single INSERT block (more than 100). The limit is controlled by 'max_partitions_per_insert_block' setting. Large number of partitions is a common misconception. It will lead to severe negative performance impact, including slow server startup, slow INSERT queries and slow SELECT queries. Recommended total number of partitions for a table is under 1000..10000. Please note, that partitioning is not intended to speed up SELECT queries (ORDER BY key is sufficient to make range queries fast). Partitions are intended for data manipulation (DROP PARTITION, etc). (TOO_MANY_PARTS) (version 26.8.33.10-yc.3)",
+      "failed_at": "2026-11-02T00:03:20.238191+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "5912096921522030346",
+        "checksum_xor": "14385920020066512089",
+        "rows": 832738
+      },
+      "source_rows_before": 832738,
+      "started_at": "2026-11-02T00:03:19.053986+00:00",
+      "status": "UNCERTAIN"
+    },
     "zendendb.ЗатратыНаСотрудников": {
       "completed_at": "2026-11-01T23:34:07.334922+00:00",
       "insert_returned_at": "2026-11-01T23:34:04.397873+00:00",
@@ -2973,6 +3194,18 @@
         "checksum_xor": "5617103682956182269",
         "rows": 150109
       }
+    },
+    "zendendb.ИнтернетЗаказПокупателя": {
+      "error": "target: HTTP 500: Code: 252. DB::Exception: Too many partitions for single INSERT block (more than 100). The limit is controlled by 'max_partitions_per_insert_block' setting. Large number of partitions is a common misconception. It will lead to severe negative performance impact, including slow server startup, slow INSERT queries and slow SELECT queries. Recommended total number of partitions for a table is under 1000..10000. Please note, that partitioning is not intended to speed up SELECT queries (ORDER BY key is sufficient to make range queries fast). Partitions are intended for data manipulation (DROP PARTITION, etc). (TOO_MANY_PARTS) (version 26.8.33.10-yc.3)",
+      "failed_at": "2026-11-02T00:10:41.272833+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "2805983151956445459",
+        "checksum_xor": "7830433387022238078",
+        "rows": 1182842
+      },
+      "source_rows_before": 1182842,
+      "started_at": "2026-11-02T00:10:36.916459+00:00",
+      "status": "UNCERTAIN"
     },
     "zendendb.КадроваяИсторияСотрудников": {
       "completed_at": "2026-11-01T23:53:28.769711+00:00",
@@ -3170,6 +3403,39 @@
         "checksum_sum": "17089734979159150202",
         "checksum_xor": "10661493938394863270",
         "rows": 69148
+      }
+    },
+    "zendendb.Остатки КМ": {
+      "completed_at": "2026-11-02T00:09:11.517001+00:00",
+      "insert_returned_at": "2026-11-02T00:09:05.387793+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "152798698102714030",
+          "checksum_xor": "5604303868585943024",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 3311267
+        },
+        {
+          "checksum_sum": "152798698102714030",
+          "checksum_xor": "5604303868585943024",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 3311267
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "152798698102714030",
+        "checksum_xor": "5604303868585943024",
+        "rows": 3311267
+      },
+      "source_rows_after": 3311267,
+      "source_rows_before": 3311267,
+      "started_at": "2026-11-02T00:08:59.750196+00:00",
+      "status": "DONE",
+      "target_rows": 3311267,
+      "verified_fingerprint": {
+        "checksum_sum": "152798698102714030",
+        "checksum_xor": "5604303868585943024",
+        "rows": 3311267
       }
     },
     "zendendb.Остатки КМ Mascotte": {
@@ -3693,15 +3959,37 @@
       }
     },
     "zendendb.Себестоимость": {
+      "completed_at": "2026-11-01T23:55:32.868949+00:00",
       "insert_returned_at": "2026-11-01T23:55:27.101805+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "9410519059685195474",
+          "checksum_xor": "363519735485150056",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 2974903
+        },
+        {
+          "checksum_sum": "9410519059685195474",
+          "checksum_xor": "363519735485150056",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 2974903
+        }
+      ],
       "source_fingerprint_before": {
         "checksum_sum": "9410519059685195474",
         "checksum_xor": "363519735485150056",
         "rows": 2974903
       },
+      "source_rows_after": 2974903,
       "source_rows_before": 2974903,
       "started_at": "2026-11-01T23:55:24.837083+00:00",
-      "status": "VERIFYING"
+      "status": "DONE",
+      "target_rows": 2974903,
+      "verified_fingerprint": {
+        "checksum_sum": "9410519059685195474",
+        "checksum_xor": "363519735485150056",
+        "rows": 2974903
+      }
     },
     "zendendb.СостоянияСотрудников": {
       "completed_at": "2026-11-01T23:33:36.025163+00:00",
@@ -3802,6 +4090,39 @@
         "rows": 108363
       }
     },
+    "zendendb.СтраховыеВзносы": {
+      "completed_at": "2026-11-02T00:09:31.275352+00:00",
+      "insert_returned_at": "2026-11-02T00:09:23.168826+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "2530307883459012960",
+          "checksum_xor": "227426462195963876",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1173169
+        },
+        {
+          "checksum_sum": "2530307883459012960",
+          "checksum_xor": "227426462195963876",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1173169
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "2530307883459012960",
+        "checksum_xor": "227426462195963876",
+        "rows": 1173169
+      },
+      "source_rows_after": 1173169,
+      "source_rows_before": 1173169,
+      "started_at": "2026-11-02T00:09:20.546500+00:00",
+      "status": "DONE",
+      "target_rows": 1173169,
+      "verified_fingerprint": {
+        "checksum_sum": "2530307883459012960",
+        "checksum_xor": "227426462195963876",
+        "rows": 1173169
+      }
+    },
     "zendendb.СтруктураПредприятия": {
       "completed_at": "2026-11-01T23:28:30.287444+00:00",
       "insert_returned_at": "2026-11-01T23:28:28.216365+00:00",
@@ -3899,6 +4220,148 @@
         "checksum_sum": "8192893921390719131",
         "checksum_xor": "9175224694703937736",
         "rows": 42717
+      }
+    },
+    "zendendb.Товары": {
+      "failed_at": "2026-11-01T23:55:40.246007+00:00",
+      "reconciled_at": "2026-11-02T00:12:34.987587+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "12609391475329253235",
+          "checksum_xor": "9630257611238425056",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 710473
+        },
+        {
+          "checksum_sum": "12609391475329253235",
+          "checksum_xor": "9630257611238425056",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 710473
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "12609391475329253235",
+        "checksum_xor": "9630257611238425056",
+        "rows": 710473
+      },
+      "source_rows_before": 710473,
+      "started_at": "2026-11-01T23:55:38.345115+00:00",
+      "status": "DONE",
+      "verified_fingerprint": {
+        "checksum_sum": "12609391475329253235",
+        "checksum_xor": "9630257611238425056",
+        "rows": 710473
+      }
+    },
+    "zendendb.ТоварыВРезервеНаСкладах": {
+      "error": "target: HTTP 500: Code: 252. DB::Exception: Too many partitions for single INSERT block (more than 100). The limit is controlled by 'max_partitions_per_insert_block' setting. Large number of partitions is a common misconception. It will lead to severe negative performance impact, including slow server startup, slow INSERT queries and slow SELECT queries. Recommended total number of partitions for a table is under 1000..10000. Please note, that partitioning is not intended to speed up SELECT queries (ORDER BY key is sufficient to make range queries fast). Partitions are intended for data manipulation (DROP PARTITION, etc). (TOO_MANY_PARTS) (version 26.8.33.10-yc.3)",
+      "failed_at": "2026-11-02T00:05:05.686049+00:00",
+      "source_fingerprint_before": {
+        "checksum_sum": "7746549428016469800",
+        "checksum_xor": "17280151443510612197",
+        "rows": 1098538
+      },
+      "source_rows_before": 1098538,
+      "started_at": "2026-11-02T00:05:04.164823+00:00",
+      "status": "UNCERTAIN"
+    },
+    "zendendb.ТоварыНаСкладахОстаткиЦР": {
+      "completed_at": "2026-11-02T00:03:13.716542+00:00",
+      "insert_returned_at": "2026-11-02T00:03:05.328112+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "17595094479844761073",
+          "checksum_xor": "7848239763598541522",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 2938810
+        },
+        {
+          "checksum_sum": "17595094479844761073",
+          "checksum_xor": "7848239763598541522",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 2938810
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "17595094479844761073",
+        "checksum_xor": "7848239763598541522",
+        "rows": 2938810
+      },
+      "source_rows_after": 2938810,
+      "source_rows_before": 2938810,
+      "started_at": "2026-11-02T00:03:02.706553+00:00",
+      "status": "DONE",
+      "target_rows": 2938810,
+      "verified_fingerprint": {
+        "checksum_sum": "17595094479844761073",
+        "checksum_xor": "7848239763598541522",
+        "rows": 2938810
+      }
+    },
+    "zendendb.ТоварыУПП": {
+      "completed_at": "2026-11-02T00:02:44.648883+00:00",
+      "insert_returned_at": "2026-11-02T00:02:37.193062+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "1926997896498401716",
+          "checksum_xor": "17410463291192417935",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 724947
+        },
+        {
+          "checksum_sum": "1926997896498401716",
+          "checksum_xor": "17410463291192417935",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 724947
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "1926997896498401716",
+        "checksum_xor": "17410463291192417935",
+        "rows": 724947
+      },
+      "source_rows_after": 724947,
+      "source_rows_before": 724947,
+      "started_at": "2026-11-02T00:02:34.394921+00:00",
+      "status": "DONE",
+      "target_rows": 724947,
+      "verified_fingerprint": {
+        "checksum_sum": "1926997896498401716",
+        "checksum_xor": "17410463291192417935",
+        "rows": 724947
+      }
+    },
+    "zendendb.ТоварыУПП_backup": {
+      "completed_at": "2026-11-02T00:02:57.324882+00:00",
+      "insert_returned_at": "2026-11-02T00:02:51.456624+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "1926997896498401716",
+          "checksum_xor": "17410463291192417935",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 724947
+        },
+        {
+          "checksum_sum": "1926997896498401716",
+          "checksum_xor": "17410463291192417935",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 724947
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "1926997896498401716",
+        "checksum_xor": "17410463291192417935",
+        "rows": 724947
+      },
+      "source_rows_after": 724947,
+      "source_rows_before": 724947,
+      "started_at": "2026-11-02T00:02:49.698071+00:00",
+      "status": "DONE",
+      "target_rows": 724947,
+      "verified_fingerprint": {
+        "checksum_sum": "1926997896498401716",
+        "checksum_xor": "17410463291192417935",
+        "rows": 724947
       }
     },
     "zendendb.ТоварыУППКомментарии": {
@@ -4034,8 +4497,22 @@
       }
     },
     "zendendb.ЦеныНоменклатуры": {
-      "error": "target: HTTP 500: Code: 252. DB::Exception: Too many partitions for single INSERT block (more than 100). The limit is controlled by 'max_partitions_per_insert_block' setting. Large number of partitions is a common misconception. It will lead to severe negative performance impact, including slow server startup, slow INSERT queries and slow SELECT queries. Recommended total number of partitions for a table is under 1000..10000. Please note, that partitioning is not intended to speed up SELECT queries (ORDER BY key is sufficient to make range queries fast). Partitions are intended for data manipulation (DROP PARTITION, etc). (TOO_MANY_PARTS) (version 26.8.33.10-yc.3)",
       "failed_at": "2026-11-01T23:35:48.855757+00:00",
+      "reconciled_at": "2026-11-02T00:00:29.615179+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "6509966378410127514",
+          "checksum_xor": "7867915035579916613",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1068464
+        },
+        {
+          "checksum_sum": "6509966378410127514",
+          "checksum_xor": "7867915035579916613",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1068464
+        }
+      ],
       "source_fingerprint_before": {
         "checksum_sum": "6509966378410127514",
         "checksum_xor": "7867915035579916613",
@@ -4043,7 +4520,12 @@
       },
       "source_rows_before": 1068464,
       "started_at": "2026-11-01T23:35:47.827671+00:00",
-      "status": "UNCERTAIN"
+      "status": "DONE",
+      "verified_fingerprint": {
+        "checksum_sum": "6509966378410127514",
+        "checksum_xor": "7867915035579916613",
+        "rows": 1068464
+      }
     },
     "zendendb.ЦеныНоменклатуры_2005-2022": {
       "completed_at": "2026-11-01T23:54:04.467465+00:00",
