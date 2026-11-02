@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only source -> new staging for MergeTree daily PARTITION BY toYYYYMMDD(Период).
+"""Read-only source -> independent staging for MergeTree daily partitions.
 
 Generic across tables with the validated schema/engine/partitioning pattern.
 NEVER touches current target table, source, or main migration journal.
@@ -19,13 +19,13 @@ from transfer_monthly import (Client, MigrationError, classify, normalize, qi, q
                               require_replicas, save_state, utcnow, redact)
 
 # Bound once at CLI startup; functions take no table input from untrusted SQL.
-DB = NAME = STAGE = None
+DB = NAME = STAGE = PART_COL = None
 SRC = DST = STG = None
 
 
 def select_table(full_name):
     """Select a target table, safely quoting identifiers in every SQL statement."""
-    global DB, NAME, STAGE, SRC, DST, STG
+    global DB, NAME, STAGE, PART_COL, SRC, DST, STG
     # Accept Cyrillic, spaces, etc., but require one database/table separator.
     if not isinstance(full_name, str) or full_name.count('.') != 1:
         raise MigrationError('--table must have database.table syntax')
@@ -38,6 +38,7 @@ def select_table(full_name):
     STAGE = name + '__repair'
     SRC = DST = (DB, NAME)
     STG = (DB, STAGE)
+    PART_COL = None
 
 
 def default_state_path():
@@ -62,27 +63,41 @@ def describe(client, tbl):
     return client.rows(f'DESCRIBE TABLE {table_sql(tbl)}')
 
 
+def daily_partition_column(expression):
+    """Only simple toYYYYMMDD(column) is supported, with quoted Unicode columns.
+
+    Do not guess a date field from the table name: mismatched partition and
+    filter columns can silently duplicate or omit rows in a stage.
+    """
+    compact = re.sub(r'[\s`]', '', str(expression))
+    match = re.fullmatch(r'toYYYYMMDD\(([^(),]+)\)', compact)
+    if not match:
+        raise MigrationError(f'Unexpected source partition key: {expression}')
+    return match.group(1)
+
+
 def validate_base(source, target):
+    global PART_COL
     sm, tm = metadata(source, SRC), metadata(target, DST)
     if not sm or not tm:
         raise MigrationError('Source/target table not found')
     if sm['engine'] != 'MergeTree' or tm['engine'] != 'ReplicatedMergeTree':
         raise MigrationError(f'Wrong source/target engine: {sm["engine"]}, {tm["engine"]}')
     # Day-partition validation guards the monthly batching assumption.
-    if not re.fullmatch(r'toYYYYMMDD\(Период\)', re.sub(r'[\s`]', '', sm['partition_key'])):
-        raise MigrationError(f'Unexpected source partition key: {sm["partition_key"]}')
+    partition_column = daily_partition_column(sm['partition_key'])
     for k in ('partition_key', 'sorting_key', 'primary_key', 'sampling_key'):
         if sm.get(k, '') != tm.get(k, ''):
             raise MigrationError(f'Source/target {k} mismatch')
     if describe(source, SRC) != describe(target, DST):
         raise MigrationError('Source/target DESCRIBE differs')
-    period = [c for c in describe(source, SRC) if c['name'] == 'Период']
-    if len(period) != 1 or period[0]['type'] not in ('DateTime', 'DateTime64(3)', 'DateTime64(6)', 'Date'):
-        raise MigrationError('Unsupported Период type for daily month-safe migration')
+    period = [c for c in describe(source, SRC) if c['name'] == partition_column]
+    if len(period) != 1 or not re.fullmatch(r'(Date|Date32|DateTime|DateTime64\(\d+(?:,\s*[^)]+)?\))', period[0]['type']):
+        raise MigrationError(f'Unsupported date type for partition column {partition_column}: {period}')
     sz = source.scalar_text('SELECT timezone()')
     tz = target.scalar_text('SELECT timezone()')
     if sz != tz:
         raise MigrationError(f'Source/target server timezones differ ({sz} vs {tz}); cannot safely partition by day')
+    PART_COL = partition_column
 
 
 def check_stage(source, target, cluster, expected):
@@ -117,9 +132,12 @@ def replica_state(target, cluster, tbl):
 
 
 def month_query(table, month=None, local_host=False):
+    if PART_COL is None:
+        raise MigrationError('Partition column not validated; run validate_base first')
+    date_col = qi(PART_COL)
     host = 'hostName() AS host, ' if local_host else ''
-    where = f' WHERE toYYYYMM(`Период`)={int(month)}' if month is not None else ''
-    cols = ('toYYYYMM(`Период`) AS month, ' if month is None else '')
+    where = f' WHERE toYYYYMM({date_col})={int(month)}' if month is not None else ''
+    cols = (f'toYYYYMM({date_col}) AS month, ' if month is None else '')
     query = (f'SELECT {host}{cols}count() AS rows, '
              'toString(sum(cityHash64(*))) AS checksum_sum, '
              'toString(groupBitXor(sipHash64(*))) AS checksum_xor '
@@ -194,9 +212,9 @@ def verify_all(source, target, cluster, hosts, src_summary):
 
 
 def main():
-    p = argparse.ArgumentParser(description='Build verified staging copy of any MergeTree PARTITION BY toYYYYMMDD(Период) table')
+    p = argparse.ArgumentParser(description='Build verified staging copy of MergeTree PARTITION BY toYYYYMMDD(date_column) table')
     p.add_argument('--config', default='config.json')
-    p.add_argument('--table', required=True, help='exact database.table; must have daily PARTITION BY toYYYYMMDD(Период)')
+    p.add_argument('--table', required=True, help='exact database.table; must have simple daily PARTITION BY toYYYYMMDD(Дата/Период/etc)')
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument('--inspect', action='store_true', help='read-only state, does not create staging')
     group.add_argument('--prepare', action='store_true', help='create stage and copy months, never touches original target')
@@ -227,6 +245,7 @@ def main():
         require_replicas(replica_state(target, cluster, DST), expected)
         src_summary = month_summary(source, SRC)
         existing = metadata(target, STG) is not None
+        print(f'Partition: toYYYYMMDD({PART_COL}); batching using toYYYYMM({PART_COL})')
         print(f'Source: months={len(src_summary)}, physical_rows={sum(int(v[0]) for v in src_summary.values())}')
         print(f'Original target: physical_rows={full_fingerprint(target, DST)[0]} (UNCHANGED by this script)')
         print(f'Stage exists: {existing}; stage name: {DB}.{STAGE}')
@@ -303,7 +322,7 @@ def main():
             sql = (f'INSERT INTO {table_sql(STG)} SELECT * FROM '
                    f'remoteSecure({qs(origin)}, {qs(DB)}, {qs(NAME)}, '
                    f'{qs(source.username)}, {qs(source.password)}) '
-                   f'WHERE toYYYYMM(`Период`)={month}')
+                   f'WHERE toYYYYMM({qi(PART_COL)})={month}')
             print(f'[{n}/{len(selected)}] COPYING {month}, rows={src_fp[0]} into STAGE only', flush=True)
             try:
                 target.query(sql)

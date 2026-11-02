@@ -361,6 +361,16 @@
         "rows": 560
       }
     },
+    "corp_portal.b_tasks": {
+      "source_fingerprint_before": {
+        "checksum_sum": "None",
+        "checksum_xor": "None",
+        "rows": 455187
+      },
+      "source_rows_before": 458127,
+      "started_at": "2026-11-02T00:17:34.694488+00:00",
+      "status": "COPYING"
+    },
     "corp_portal.b_user": {
       "completed_at": "2026-11-01T23:35:21.497968+00:00",
       "insert_returned_at": "2026-11-01T23:35:18.904001+00:00",
@@ -1021,6 +1031,39 @@
         "rows": 156
       }
     },
+    "zendendb.SailPlay_sms_light": {
+      "completed_at": "2026-11-02T00:17:28.554606+00:00",
+      "insert_returned_at": "2026-11-02T00:17:14.749292+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "6221604468773673634",
+          "checksum_xor": "3829740954820841500",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 5978312
+        },
+        {
+          "checksum_sum": "6221604468773673634",
+          "checksum_xor": "3829740954820841500",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 5978312
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "6221604468773673634",
+        "checksum_xor": "3829740954820841500",
+        "rows": 5978312
+      },
+      "source_rows_after": 5978312,
+      "source_rows_before": 5978312,
+      "started_at": "2026-11-02T00:17:12.295973+00:00",
+      "status": "DONE",
+      "target_rows": 5978312,
+      "verified_fingerprint": {
+        "checksum_sum": "6221604468773673634",
+        "checksum_xor": "3829740954820841500",
+        "rows": 5978312
+      }
+    },
     "zendendb.SailPlay_sms_light_last_purchase": {
       "completed_at": "2026-11-01T23:14:30.662715+00:00",
       "source_rows_after": 0,
@@ -1166,15 +1209,37 @@
       }
     },
     "zendendb.TM_MP_sales_report_2023_2024": {
+      "completed_at": "2026-11-02T00:16:39.293655+00:00",
       "insert_returned_at": "2026-11-02T00:15:32.155740+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "15436565114780932629",
+          "checksum_xor": "8739965367331825295",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 23202617
+        },
+        {
+          "checksum_sum": "15436565114780932629",
+          "checksum_xor": "8739965367331825295",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 23202617
+        }
+      ],
       "source_fingerprint_before": {
         "checksum_sum": "15436565114780932629",
         "checksum_xor": "8739965367331825295",
         "rows": 23202617
       },
+      "source_rows_after": 23202617,
       "source_rows_before": 23202617,
       "started_at": "2026-11-02T00:15:17.925954+00:00",
-      "status": "VERIFYING"
+      "status": "DONE",
+      "target_rows": 23202617,
+      "verified_fingerprint": {
+        "checksum_sum": "15436565114780932629",
+        "checksum_xor": "8739965367331825295",
+        "rows": 23202617
+      }
     },
     "zendendb.TM_MP_sales_report_by_region_temp": {
       "completed_at": "2026-11-01T23:14:32.990605+00:00",
@@ -3469,6 +3534,39 @@
         "checksum_sum": "11422834394240582457",
         "checksum_xor": "3008158877524944556",
         "rows": 758452
+      }
+    },
+    "zendendb.ОтработанноеВремяПоСотрудникам": {
+      "completed_at": "2026-11-02T00:17:00.680662+00:00",
+      "insert_returned_at": "2026-11-02T00:16:51.326334+00:00",
+      "replicas": [
+        {
+          "checksum_sum": "15295045859848032411",
+          "checksum_xor": "17121730993823878016",
+          "host": "rc1a-mh2j1dseb1qsgb68.mdb.yandexcloud.net",
+          "rows": 1887038
+        },
+        {
+          "checksum_sum": "15295045859848032411",
+          "checksum_xor": "17121730993823878016",
+          "host": "rc1d-7hqiainm2j9d2vhd.mdb.yandexcloud.net",
+          "rows": 1887038
+        }
+      ],
+      "source_fingerprint_before": {
+        "checksum_sum": "15295045859848032411",
+        "checksum_xor": "17121730993823878016",
+        "rows": 1887038
+      },
+      "source_rows_after": 1887038,
+      "source_rows_before": 1887038,
+      "started_at": "2026-11-02T00:16:48.186216+00:00",
+      "status": "DONE",
+      "target_rows": 1887038,
+      "verified_fingerprint": {
+        "checksum_sum": "15295045859848032411",
+        "checksum_xor": "17121730993823878016",
+        "rows": 1887038
       }
     },
     "zendendb.ПланОборачиваемостиМП_TM": {

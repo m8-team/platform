@@ -187,6 +187,16 @@ def save_journal(path, journal):
     os.replace(str(tmp), str(path))
 
 
+def is_daily_partitioned(metadata):
+    """Fail closed on calendar-day partitions regardless of system.parts visibility.
+
+    Counting active parts is a heuristic, while the INSERT block can span
+    days that are not visible in that preflight. Such tables need batched copy.
+    """
+    expr = re.sub(r'[\s`]', '', str(metadata.get('partition_key') or ''))
+    return bool(re.fullmatch(r'toYYYYMMDD\([^()]+\)', expr))
+
+
 def source_partition_count(client, key):
     """Conservative preflight: >100 existing partitions can break bulk INSERT.
 
@@ -390,7 +400,7 @@ def main():
     parser.add_argument('--resume', action='store_true', help='skip journal entries marked DONE; never retry uncertain copies')
     parser.add_argument('--skip-uncertain', action='store_true', help='with --resume: omit UNCERTAIN/COPYING/VERIFYING tables without modifying their journal records')
     parser.add_argument('--skip-high-partitions', action='store_true',
-                        help='skip source tables with >100 existing partitions before COPY; stage them separately')
+                        help='skip daily-partitioned tables and those with >100 source partitions; stage them separately')
     parser.add_argument('--skip-no-version-duplicates', action='store_true', help='skip unversioned ReplacingMergeTree tables with duplicate ORDER BY keys (physical > FINAL rows)')
     parser.add_argument('--limit', type=int, help='maximum number of pending tables to process')
     parser.add_argument('--verify', action='store_true', help='verify previously completed tables (no new inserts)')
@@ -529,6 +539,16 @@ def main():
         # Prevent further TOO_MANY_PARTS partial INSERTs during bulk migration.
         # Counts active source partitions, not merely a CREATE TABLE expression.
         # Run BEFORE journaling COPYING or issuing any INSERT.
+        if is_daily_partitioned(source_meta[key]):
+            message = (f'{name}: daily partition key {source_meta[key]["partition_key"]}; '
+                       'bulk INSERT is disabled even if system.parts reports <=100 partitions. '
+                       'Use repair_daily_stage.py with verified staging and monthly batches. '
+                       'No data copied.')
+            if args.skip_high_partitions:
+                skipped_high_partition += 1
+                print('SKIP DAILY PARTITIONS', message, flush=True)
+                continue
+            raise MigrationError(message + ' Use --skip-high-partitions to continue other tables.')
         partition_count = source_partition_count(source, key)
         if partition_count > 100:
             message = (f'{name}: {partition_count} source partitions (>100); bulk INSERT '

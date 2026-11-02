@@ -34,11 +34,34 @@ class DailyStageTests(unittest.TestCase):
 
     def test_month_sql(self):
         d.select_table('zendendb.ЗаказыПокупателей')
+        d.PART_COL = 'Период'
         sql = d.month_query(d.STG, 202608, local_host=True)
         self.assertIn('`ЗаказыПокупателей__repair`', sql)
         self.assertIn('toYYYYMM(`Период`)=202608', sql)
         self.assertIn('hostName() AS host', sql)
         self.assertIn('cityHash64(*)', sql)
+
+    def test_daily_column_detected_not_hardcoded(self):
+        self.assertEqual(d.daily_partition_column('toYYYYMMDD(`Дата`)'), 'Дата')
+        self.assertEqual(d.daily_partition_column('toYYYYMMDD(`Период`)'), 'Период')
+        self.assertEqual(d.daily_partition_column(' toYYYYMMDD( `Дата` ) '), 'Дата')
+        self.assertEqual(d.daily_partition_column('toYYYYMMDD(Дата)'), 'Дата')
+        for bad in ('toYYYYMM(Дата)', 'tuple()', 'toYYYYMMDD(Дата, 1)', 'x + 1'):
+            with self.assertRaises(MigrationError):
+                d.daily_partition_column(bad)
+
+    def test_date_batched_sql(self):
+        d.select_table('zendendb.ИнтернетЗаказПокупателя')
+        d.PART_COL = 'Дата'
+        monthly = d.month_query(d.STG, 202610, local_host=True)
+        self.assertIn('toYYYYMM(`Дата`)=202610', monthly)
+        self.assertNotIn('`Период`', monthly)
+        self.assertIn('`ИнтернетЗаказПокупателя__repair`', monthly)
+
+    def test_day_partitions_skipped_proactively(self):
+        self.assertTrue(t.is_daily_partitioned({'partition_key':'toYYYYMMDD(`Дата`)'}))
+        self.assertTrue(t.is_daily_partitioned({'partition_key':'toYYYYMMDD(`Период`)'}))
+        self.assertFalse(t.is_daily_partitioned({'partition_key':'toYYYYMM(Дата)'}))
 
     def test_month_max_partitions(self):
         for y in range(2020, 2029):
@@ -76,6 +99,7 @@ class DailyStageTests(unittest.TestCase):
             d.check_stage(Mock(), target, 'default', 2)
 
     def test_missing_month_is_not_verified(self):
+        d.PART_COL = 'Период'
         source, target = Mock(), Mock()
         src = {202608: ('100', '1', '2'), 202609: ('200', '2', '3')}
         source.rows.return_value = [{'month': m, 'rows': int(v[0]), 'checksum_sum': v[1], 'checksum_xor': v[2]} for m, v in src.items()]
@@ -98,6 +122,8 @@ class BulkSafetyTests(unittest.TestCase):
         self.assertLess(s.index('partition_count = source_partition_count(source, key)'), s.index("record = {'status': 'COPYING'"))
         self.assertIn('SKIP HIGH PARTITIONS', s)
         self.assertIn('--skip-high-partitions', s)
+        self.assertIn('SKIP DAILY PARTITIONS', s)
+        self.assertLess(s.index('if is_daily_partitioned(source_meta[key]):'), s.index("record = {'status': 'COPYING'"))
 
 
 if __name__ == '__main__':
