@@ -3,7 +3,7 @@
 **Status:** Draft; depends on PR #20. Package is `m8.platform.resourcemanager.v1`. No legacy API compatibility.
 
 ## Implemented
-
+HEAD OF ENGINEERING | PRODUCT & PLATFORM ENGINEERING
 - Pure `orgunit.Apply` for CREATE/MOVE/RENAME/CLOSE, final-graph validation, stable IDs, source authority, optimistic revision.
 - Authorized application boundary `orgstructure.Service` with caller-derived actor, idempotent request hash, mandatory Access/Impact policy gates and CAS store contract.
 - In-memory adapter with atomic commit of snapshot/revision/idempotency/outbox effect and concurrency tests. The in-memory adapter is for contract testing only.

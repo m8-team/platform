@@ -21,6 +21,18 @@ services:
       TEMPORAL_ADDRESS: temporal:7233
       TEMPORAL_NAMESPACE: default
 
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: m8
+      KEYCLOAK_ADMIN_URL: http://keycloak:8080
+
+      SPICEDB_ENDPOINT: spicedb:50051
+      SPICEDB_PRESHARED_KEY: m8-local-spicedb-key
+
+      CLICKSTACK_UI_URL: http://clickstack:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://clickstack:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_EXPORTER_OTLP_HEADERS: authorization=Bearer m8-local-clickstack-api-key
+
       FLINK_JOBMANAGER_ADDRESS: flink-jobmanager:6123
       FLINK_REST_URL: http://flink-jobmanager:8081
 
@@ -50,6 +62,9 @@ services:
     depends_on:
       - ydb
       - temporal
+      - keycloak
+      - spicedb
+      - clickstack
       - flink-jobmanager
       - flink-taskmanager
       - valkey
@@ -92,6 +107,104 @@ services:
       - "8233:8233" # Temporal UI for dev server
     volumes:
       - temporal-data:/home/temporal
+
+  keycloak-postgres:
+    image: postgres:18.6-alpine
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: m8-local-keycloak-db
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    container_name: keycloak
+    command: start-dev --features=ciba --health-enabled=true --metrics-enabled=true
+    ports:
+      - "18080:8080" # Keycloak UI/API
+      - "19000:9000" # Keycloak health and metrics
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: m8-local-keycloak-admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: m8-local-keycloak-db
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+
+  spicedb-postgres:
+    image: postgres:18.6-alpine
+    container_name: spicedb-postgres
+    environment:
+      POSTGRES_DB: spicedb
+      POSTGRES_USER: spicedb
+      POSTGRES_PASSWORD: m8-local-spicedb-db
+    volumes:
+      - spicedb-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spicedb -d spicedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  spicedb-migrate:
+    image: authzed/spicedb:v1.56.2
+    container_name: spicedb-migrate
+    command:
+      - datastore
+      - migrate
+      - head
+      - --datastore-engine=postgres
+      - --datastore-conn-uri=postgres://spicedb:m8-local-spicedb-db@spicedb-postgres:5432/spicedb?sslmode=disable
+    depends_on:
+      spicedb-postgres:
+        condition: service_healthy
+
+  spicedb:
+    image: authzed/spicedb:v1.56.2
+    container_name: spicedb
+    command:
+      - serve
+      - --datastore-engine=postgres
+      - --datastore-conn-uri=postgres://spicedb:m8-local-spicedb-db@spicedb-postgres:5432/spicedb?sslmode=disable
+      - --grpc-preshared-key=m8-local-spicedb-key
+      - --http-enabled=true
+      - --skip-release-check=true
+      - --telemetry-endpoint=
+    ports:
+      - "50051:50051" # SpiceDB gRPC
+      - "18443:8443" # SpiceDB HTTP gateway
+    depends_on:
+      spicedb-migrate:
+        condition: service_completed_successfully
+
+  clickstack:
+    image: clickhouse/clickstack-all-in-one:2.39.1
+    container_name: clickstack
+    command: clickstack
+    ports:
+      - "8080:8080" # ClickStack UI/API
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "18123:8123" # ClickStack ClickHouse HTTP
+    environment:
+      FRONTEND_URL: http://localhost:8080
+      HYPERDX_API_KEY: m8-local-clickstack-api-key
+      HYPERDX_LOG_LEVEL: info
+      USAGE_STATS_ENABLED: "false"
+    volumes:
+      - clickstack-mongodb-data:/data/db
+      - clickstack-clickhouse-data:/var/lib/clickhouse
+      - clickstack-clickhouse-logs:/var/log/clickhouse-server
 
   flink-jobmanager:
     image: flink:2.3.0
@@ -290,6 +403,11 @@ volumes:
   ydb-data:
   ydb-certs:
   temporal-data:
+  keycloak-postgres-data:
+  spicedb-postgres-data:
+  clickstack-mongodb-data:
+  clickstack-clickhouse-data:
+  clickstack-clickhouse-logs:
   flink-checkpoints:
   flink-savepoints:
   valkey-data:

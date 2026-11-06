@@ -8,6 +8,11 @@
 
 | Service | Description |
 | --- | --- |
-| [Organization](./organization/index.md) | OrganizationService manages organizations: it lets clients create, read, list, update, archive, and restore them. |
-| [Service](./service/index.md) | ServiceService manages services inside workspaces: it lets clients create, read, list, update, archive, and restore them. |
-| [Workspace](./workspace/index.md) | WorkspaceService manages workspaces inside organizations: it lets clients create, read, list, update, archive, and restore them. |
+| [Org Structure](./org-structure/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Org Unit Change Set](./org-unit-change-set/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Org Unit Kind](./org-unit-kind/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Organization](./organization/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Organization Relationship](./organization-relationship/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Resource Manager](./resource-manager/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Service](./service/index.md) | HTTP API specifications generated from protobuf contracts. |
+| [Workspace](./workspace/index.md) | HTTP API specifications generated from protobuf contracts. |

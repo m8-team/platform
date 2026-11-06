@@ -9,3 +9,4 @@
 | Service | Description |
 | --- | --- |
 | [Access](./access/index.md) | AccessService exposes AuthZEN-compatible authorization decision APIs. |
+| [Access Grant](./access-grant/index.md) | Request/approval/revocation lifecycle, separate from the PDP. |

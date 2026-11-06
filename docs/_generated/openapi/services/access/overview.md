@@ -9,3 +9,4 @@ This section contains generated OpenAPI references for the services in this grou
 | Service | Description |
 | --- | --- |
 | [Access](./access-service/overview.md) | AccessService exposes AuthZEN-compatible authorization decision APIs. |
+| [Access Grant](./access-grant-service/overview.md) | Request/approval/revocation lifecycle, separate from the PDP. |
