@@ -31,7 +31,7 @@ services:
       CLICKSTACK_UI_URL: http://clickstack:8080
       OTEL_EXPORTER_OTLP_ENDPOINT: http://clickstack:4318
       OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
-      OTEL_EXPORTER_OTLP_HEADERS: authorization=Bearer m8-local-clickstack-api-key
+      OTEL_EXPORTER_OTLP_HEADERS: authorization=m8-local-clickstack-api-key
 
       FLINK_JOBMANAGER_ADDRESS: flink-jobmanager:6123
       FLINK_REST_URL: http://flink-jobmanager:8081
