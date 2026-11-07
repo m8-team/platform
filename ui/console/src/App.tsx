@@ -956,6 +956,7 @@ function useConsoleSelection() {
   return selection
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useConsoleI18n() {
   const i18n = useContext(ConsoleI18nContext)
 
