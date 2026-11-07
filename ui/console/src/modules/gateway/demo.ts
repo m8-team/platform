@@ -194,7 +194,7 @@ export function simulateGatewayRequest(input:{hostname:string;path:string;method
   const limits=state.limits.filter(l=>l.status==='Enabled'&&(l.targetType==='Gateway'||l.targetType==='Route'&&l.targetId===route.id||l.targetType==='Service'&&l.targetId===route.serviceId||l.targetType==='Consumer'&&l.targetId===input.consumerId))
   const consumer=state.consumers.find(c=>c.id===input.consumerId)
   if(!consumer||consumer.status!=='Active')return{status:403,outcome:'Consumer is missing or suspended',route,service,appliedPolicies,limits}
-  if(route.status==='Rejected')return{status:503,outcome:'Route is rejected by the provider',route,service,appliedPolicies,limits}
+  if(route.status==='Rejected'||route.status==='Pending')return{status:503,outcome:route.status==='Pending'?'Route is awaiting provider acceptance':'Route is rejected by the provider',route,service,appliedPolicies,limits}
   const blocked=limits.find(l=>l.mode==='Enforce'&&l.used>=l.requests)
   if(blocked)return{status:429,outcome:`Enforced limit exceeded: ${blocked.name}`,route,service,appliedPolicies,limits}
   return{status:200,outcome:'Simulated routing match; no upstream request sent and no credentials validated',route,service,appliedPolicies,limits}
