@@ -13,7 +13,7 @@ import {
   retryDemoOperation,
   useOperationsDemo,
 } from './demo'
-import type {LongRunningOperation, OperationLog, OperationScope, OperationStatus, StepStatus} from './demo'
+import type {LongRunningOperation, OperationLog, OperationStatus, StepStatus} from './demo'
 import './long-running-operations.css'
 
 type T = (ru:string,en:string)=>string
@@ -84,8 +84,6 @@ function FormatTime({value}:{value:string}){return <span className="lro-mono">{v
 
 export function LongRunningOperationsPage(){
   const demo=useOperationsDemo()
-  const {language}=useConsoleI18n()
-  const t:T=(ru,en)=>language==='ru'?ru:en
   const [search,setSearch]=useState('')
   const [status,setStatus]=useState('All')
   const [service,setService]=useState('All')
