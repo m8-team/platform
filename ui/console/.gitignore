@@ -10,6 +10,7 @@ coverage/
 .cache/
 .eslintcache
 .vite/
+.pnpm/
 *.tsbuildinfo
 
 # Local environment files
@@ -20,3 +21,5 @@ coverage/
 # Logs and local OS files
 *.log
 .DS_Store
+/node_modules/.pnpm/
+/node_modules/
