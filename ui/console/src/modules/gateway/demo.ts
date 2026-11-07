@@ -81,7 +81,7 @@ export interface GatewayAudit {
   actor: string
   at: string
 }
-interface DemoGateway {
+export interface DemoGateway {
   services: ApiService[]
   routes: GatewayRoute[]
   consumers: GatewayConsumer[]
