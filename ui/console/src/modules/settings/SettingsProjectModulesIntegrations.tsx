@@ -3,7 +3,7 @@ import {ArrowRotateRight,Check,Cloud,Database,Gear,Magnifier} from '@gravity-ui/
 import {Button,Icon,Text} from '@gravity-ui/uikit'
 
 import {
-  integrationKinds,resetSettingsDemo,saveIntegration,saveProject,testIntegration,
+  initialSettings,integrationKinds,resetSettingsDemo,saveIntegration,saveProject,testIntegration,
   toggleIntegration,toggleModule,useSettingsDemo,validateModuleToggle,
 } from './demo'
 import type {Integration,IntegrationKind,ModuleCategory,ModuleDefinition,ProjectSettings} from './demo'
@@ -37,7 +37,7 @@ export function SettingsProjectPage(){
   return <SettingsPage tab="project" title="Project Settings" subtitle="Project metadata, default placement and organizational ownership">
     {t=><>
       <div className="st-section-heading"><div><Text as="h2" variant="header-2">{t('Настройки AI Studio','AI Studio settings')}</Text><Text color="secondary" variant="body-2">{t('Метаданные проекта и параметры размещения ресурсов','Project identity and resource placement defaults')}</Text></div>
-        <Button view="outlined" onClick={()=>{resetSettingsDemo();resetFields()}}><Icon data={ArrowRotateRight} size={16}/>{t('Сбросить демоданные','Reset demo')}</Button>
+        <Button view="outlined" onClick={()=>{resetSettingsDemo();const p=initialSettings.project;setName(p.displayName);setSlug(p.slug);setDescription(p.description);setRegion(p.region);setEnvironment(p.environment);setNamespace(p.defaultNamespace);setError('');setSuccess('')}}><Icon data={ArrowRotateRight} size={16}/>{t('Сбросить демоданные','Reset demo')}</Button>
       </div>
       <div className="st-kpis">
         <Metric label={t('Активные модули','Enabled modules')} value={demo.modules.filter(m=>m.enabled).length} caption={t('Примерный каталог','Sample registry')}/>
