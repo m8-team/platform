@@ -379,8 +379,8 @@ const menuItemConfigs: MenuItemConfig[] = [
   {id: 'observability-traces', titleKey: 'menu.observability.traces', icon: NodesRight, groupId: 'observability'},
   {id: 'observability-alerts', titleKey: 'menu.observability.alerts', icon: TriangleExclamation, groupId: 'observability'},
   {id: 'observability-slo', titleKey: 'menu.observability.slo', icon: Check, groupId: 'observability'},
-  {id: 'audit-events', titleKey: 'menu.audit.events', icon: ListUl, groupId: 'audit'},
-  {id: 'audit-exports', titleKey: 'menu.audit.exports', icon: ArrowRotateRight, groupId: 'audit'},
+  {id: 'audit-events', titleKey: 'menu.audit.events', icon: ListUl, href: '/audit/events', groupId: 'audit'},
+  {id: 'audit-exports', titleKey: 'menu.audit.exports', icon: ArrowRotateRight, href: '/audit/exports', groupId: 'audit'},
   {id: 'settings-project', titleKey: 'menu.settings.project', icon: Gear, groupId: 'settings'},
   {id: 'settings-modules', titleKey: 'menu.settings.modules', icon: Database, groupId: 'settings'},
   {id: 'settings-integrations', titleKey: 'menu.settings.integrations', icon: Cloud, groupId: 'settings'},
@@ -422,6 +422,12 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname === '/audit' || pathname === '/audit/events' || pathname.startsWith('/audit/events/')) {
+    return 'audit-events'
+  }
+  if (pathname === '/audit/exports') {
+    return 'audit-exports'
+  }
   if (pathname === '/gateway' || pathname.startsWith('/gateway/')) {
     const gatewayMenuItems: Record<string, string> = {
       '/gateway': 'gateway-api-services',
