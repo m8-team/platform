@@ -33,5 +33,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: ESLint
         run: pnpm lint
+      - name: Long-running Operations demo tests
+        run: node --experimental-strip-types --test src/modules/long-running-operations/demo.test.mjs
       - name: TypeScript + Vite build
         run: pnpm build
