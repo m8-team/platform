@@ -1,5 +1,5 @@
 import {useMemo,useState} from 'react'
-import {Button,Text} from '@gravity-ui/uikit'
+import {Text} from '@gravity-ui/uikit'
 import {Link,useParams} from '@tanstack/react-router'
 
 import {searchTraces,useObservabilityDemo,validateTrace,serviceNames} from './demo'
