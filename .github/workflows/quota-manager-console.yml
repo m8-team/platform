@@ -1,0 +1,39 @@
+name: M8 Quota Manager Console UI
+
+on:
+  pull_request:
+    paths:
+      - 'ui/console/**'
+      - '.github/workflows/quota-manager-console.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ui/console/**'
+      - '.github/workflows/quota-manager-console.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  console:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui/console
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+          cache-dependency-path: ui/console/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: ESLint
+        run: pnpm lint
+      - name: TypeScript + Vite build
+        run: pnpm build
