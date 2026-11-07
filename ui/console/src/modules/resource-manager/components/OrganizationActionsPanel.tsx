@@ -50,6 +50,14 @@ export function OrganizationActionsPanel({organizations, onClear, onOpen, t}: Or
               onClick: openSelected,
             },
           },
+          menu: {
+            item: {
+              children: t('organizations.actions.open'),
+              disabled: organizations.length !== 1,
+              onClick: openSelected,
+              icon: <Icon data={ArrowRight} size={16} />,
+            },
+          },
         },
         {
           id: 'copy-ids',
@@ -57,6 +65,13 @@ export function OrganizationActionsPanel({organizations, onClear, onOpen, t}: Or
             props: {
               children: [<Icon key="icon" data={Copy} size={16} />, t('organizations.actions.copyIds')],
               onClick: () => void copySelectedIds(),
+            },
+          },
+          menu: {
+            item: {
+              children: t('organizations.actions.copyIds'),
+              onClick: () => void copySelectedIds(),
+              icon: <Icon data={Copy} size={16} />,
             },
           },
         },
