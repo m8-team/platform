@@ -357,12 +357,12 @@ const menuItemConfigs: MenuItemConfig[] = [
   {id: 'identity-access-identity', titleKey: 'menu.identity.identity', icon: Person, groupId: 'identity-access'},
   {id: 'identity-access-authentication', titleKey: 'menu.identity.authentication', icon: Shield, groupId: 'identity-access'},
   {id: 'identity-access-control', titleKey: 'menu.identity.accessControl', icon: ShieldCheck, groupId: 'identity-access'},
-  {id: 'gateway-api-services', titleKey: 'menu.gateway.apiServices', icon: Cloud, groupId: 'gateway'},
-  {id: 'gateway-routes', titleKey: 'menu.gateway.routes', icon: ArrowShapeRightFromLine, groupId: 'gateway'},
-  {id: 'gateway-consumers', titleKey: 'menu.gateway.consumers', icon: Persons, groupId: 'gateway'},
-  {id: 'gateway-policies', titleKey: 'menu.gateway.policies', icon: Check, groupId: 'gateway'},
-  {id: 'gateway-rate-limits', titleKey: 'menu.gateway.rateLimits', icon: Speedometer, groupId: 'gateway'},
-  {id: 'gateway-yaml', titleKey: 'menu.gateway.yaml', icon: Code, groupId: 'gateway'},
+  {id: 'gateway-api-services', titleKey: 'menu.gateway.apiServices', icon: Cloud, href: '/gateway/services', groupId: 'gateway'},
+  {id: 'gateway-routes', titleKey: 'menu.gateway.routes', icon: ArrowShapeRightFromLine, href: '/gateway/routes', groupId: 'gateway'},
+  {id: 'gateway-consumers', titleKey: 'menu.gateway.consumers', icon: Persons, href: '/gateway/consumers', groupId: 'gateway'},
+  {id: 'gateway-policies', titleKey: 'menu.gateway.policies', icon: Check, href: '/gateway/policies', groupId: 'gateway'},
+  {id: 'gateway-rate-limits', titleKey: 'menu.gateway.rateLimits', icon: Speedometer, href: '/gateway/rate-limits', groupId: 'gateway'},
+  {id: 'gateway-yaml', titleKey: 'menu.gateway.yaml', icon: Code, href: '/gateway/yaml', groupId: 'gateway'},
   {id: 'security-dashboard', titleKey: 'menu.security.dashboard', icon: Rocket, groupId: 'security'},
   {id: 'security-risk-rules', titleKey: 'menu.security.riskRules', icon: Shield, groupId: 'security'},
   {id: 'security-device-fingerprints', titleKey: 'menu.security.deviceFingerprints', icon: Fingerprint, groupId: 'security'},
@@ -422,6 +422,18 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname === '/gateway' || pathname.startsWith('/gateway/')) {
+    const gatewayMenuItems: Record<string, string> = {
+      '/gateway': 'gateway-api-services',
+      '/gateway/services': 'gateway-api-services',
+      '/gateway/routes': 'gateway-routes',
+      '/gateway/consumers': 'gateway-consumers',
+      '/gateway/policies': 'gateway-policies',
+      '/gateway/rate-limits': 'gateway-rate-limits',
+      '/gateway/yaml': 'gateway-yaml',
+    }
+    return gatewayMenuItems[pathname] ?? 'gateway-api-services'
+  }
   if (pathname === '/platform-operations/long-running' || pathname.startsWith('/platform-operations/long-running/')) {
     return 'platform-operations-long-running'
   }
@@ -811,7 +823,7 @@ function App() {
 
   if (pathname.startsWith('/commerce-intelligence')) {
     return (
-      <ThemeProvider theme="light" lang="ru" fallbackLang={fallbackLanguage}>
+      <ThemeProvider theme="light">
         <ToasterProvider toaster={toaster}>
           <ToasterComponent />
           <Outlet />
@@ -821,7 +833,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme="light" lang={language} fallbackLang={fallbackLanguage}>
+    <ThemeProvider theme="light">
       <ToasterProvider toaster={toaster}>
         <ToasterComponent />
         <AsideHeader

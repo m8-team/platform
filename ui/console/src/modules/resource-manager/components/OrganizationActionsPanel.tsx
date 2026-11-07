@@ -50,12 +50,12 @@ export function OrganizationActionsPanel({organizations, onClear, onOpen, t}: Or
               onClick: openSelected,
             },
           },
-          dropdown: {
+          menu: {
             item: {
-              text: t('organizations.actions.open'),
+              children: t('organizations.actions.open'),
               disabled: organizations.length !== 1,
-              action: openSelected,
-              iconStart: <Icon data={ArrowRight} size={16} />,
+              onClick: openSelected,
+              icon: <Icon data={ArrowRight} size={16} />,
             },
           },
         },
@@ -67,11 +67,11 @@ export function OrganizationActionsPanel({organizations, onClear, onOpen, t}: Or
               onClick: () => void copySelectedIds(),
             },
           },
-          dropdown: {
+          menu: {
             item: {
-              text: t('organizations.actions.copyIds'),
-              action: () => void copySelectedIds(),
-              iconStart: <Icon data={Copy} size={16} />,
+              children: t('organizations.actions.copyIds'),
+              onClick: () => void copySelectedIds(),
+              icon: <Icon data={Copy} size={16} />,
             },
           },
         },

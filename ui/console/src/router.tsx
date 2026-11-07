@@ -15,6 +15,12 @@ import App, {
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
 import {
+  GatewayApiServicesPage,GatewayRoutesPage,GatewayConsumersPage,
+} from './modules/gateway/GatewayInventory'
+import {
+  GatewayPoliciesPage,GatewayRateLimitsPage,GatewayYamlPage,
+} from './modules/gateway/GatewayGovernance'
+import {
   LongRunningOperationsPage,
   LongRunningOperationDetailsPage,
 } from './modules/long-running-operations/LongRunningOperations'
@@ -126,6 +132,24 @@ const longRunningOperationDetailsRoute = createRoute({
   component: LongRunningOperationDetailsPage,
 })
 
+const gatewayPages = [
+  {path: '/gateway', component: GatewayApiServicesPage},
+  {path: '/gateway/services', component: GatewayApiServicesPage},
+  {path: '/gateway/routes', component: GatewayRoutesPage},
+  {path: '/gateway/consumers', component: GatewayConsumersPage},
+  {path: '/gateway/policies', component: GatewayPoliciesPage},
+  {path: '/gateway/rate-limits', component: GatewayRateLimitsPage},
+  {path: '/gateway/yaml', component: GatewayYamlPage},
+] as const
+
+const gatewayRoutes = gatewayPages.map(page =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: page.path,
+    component: page.component,
+  }),
+)
+
 const quotaRoutes = [
   {path: '/quota-manager', component: QuotaOverviewPage},
   {path: '/quota-manager/overview', component: QuotaOverviewPage},
@@ -168,6 +192,7 @@ const routeTree = rootRoute.addChildren([
   resourceProjectDetailsRoute,
   ...commerceRoutes,
   ...quotaManagerRoutes,
+  ...gatewayRoutes,
   longRunningOperationsRoute,
   longRunningOperationDetailsRoute,
 ])

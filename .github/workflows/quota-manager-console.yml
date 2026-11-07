@@ -35,5 +35,7 @@ jobs:
         run: pnpm lint
       - name: Long-running Operations demo tests
         run: node --experimental-strip-types --test src/modules/long-running-operations/demo.test.mjs
+      - name: Gateway demo tests
+        run: node --experimental-strip-types --test src/modules/gateway/demo.test.mjs
       - name: TypeScript + Vite build
         run: pnpm build
