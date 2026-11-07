@@ -6,7 +6,7 @@ import {Link} from '@tanstack/react-router'
 import {
   resetGatewayDemo,saveDemoService,saveDemoRoute,saveDemoConsumer,toggleDemoConsumer,simulateGatewayRequest,useGatewayDemo,
 } from './demo'
-import type {ApiService,GatewayRoute,GatewayRouteKind,GatewayConsumer,AuthType} from './demo'
+import type {ApiService,GatewayRoute,GatewayRouteKind,AuthType} from './demo'
 import {GatewayPage,Panel,Metric,Status,Pill,Drawer,Selector,TextField,DescriptionField,Detail,Notice,Empty,formatNumber} from './GatewayShell'
 import type {T} from './GatewayShell'
 
