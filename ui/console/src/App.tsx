@@ -330,8 +330,13 @@ const menuItemConfigs: MenuItemConfig[] = [
     id: 'platform-operations-quotas-limits',
     titleKey: 'menu.operations.quotasLimits',
     icon: Speedometer,
+    href: '/quota-manager/overview',
     groupId: 'platform-operations',
   },
+  {id: 'platform-operations-quota-policies', titleKey: 'menu.operations.quotaPolicies', icon: Gear, href: '/quota-manager/policies', groupId: 'platform-operations'},
+  {id: 'platform-operations-quota-reservations', titleKey: 'menu.operations.quotaReservations', icon: Clock, href: '/quota-manager/reservations', groupId: 'platform-operations'},
+  {id: 'platform-operations-quota-requests', titleKey: 'menu.operations.quotaRequests', icon: ListUl, href: '/quota-manager/requests', groupId: 'platform-operations'},
+  {id: 'platform-operations-quota-reconciliation', titleKey: 'menu.operations.quotaReconciliation', icon: ArrowRotateRight, href: '/quota-manager/reconciliation', groupId: 'platform-operations'},
   {id: 'platform-operations-jobs', titleKey: 'menu.operations.jobs', icon: BarsPlay, groupId: 'platform-operations'},
   {id: 'platform-operations-queues', titleKey: 'menu.operations.queues', icon: Layers, groupId: 'platform-operations'},
   {id: 'platform-operations-outbox', titleKey: 'menu.operations.outbox', icon: EnvelopeOpenXmark, groupId: 'platform-operations'},
@@ -416,6 +421,17 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname.startsWith('/quota-manager')) {
+    const quotaMenuItems: Record<string, string> = {
+      '/quota-manager': 'platform-operations-quotas-limits',
+      '/quota-manager/overview': 'platform-operations-quotas-limits',
+      '/quota-manager/policies': 'platform-operations-quota-policies',
+      '/quota-manager/reservations': 'platform-operations-quota-reservations',
+      '/quota-manager/requests': 'platform-operations-quota-requests',
+      '/quota-manager/reconciliation': 'platform-operations-quota-reconciliation',
+    }
+    return quotaMenuItems[pathname] ?? 'platform-operations-quotas-limits'
+  }
   if (pathname === resourceManagerRoutes.overview) {
     return 'resources-overview'
   }
@@ -940,7 +956,7 @@ function useConsoleSelection() {
   return selection
 }
 
-function useConsoleI18n() {
+export function useConsoleI18n() {
   const i18n = useContext(ConsoleI18nContext)
 
   if (!i18n) {
