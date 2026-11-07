@@ -14,6 +14,8 @@ import App, {
   ResourceWorkspacesPage,
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+import {AuditEventsPage,AuditEventDetailsPage} from './modules/audit/AuditEvents'
+import {AuditExportsPage} from './modules/audit/AuditExports'
 import {
   GatewayApiServicesPage,GatewayRoutesPage,GatewayConsumersPage,
 } from './modules/gateway/GatewayInventory'
@@ -150,6 +152,26 @@ const gatewayRoutes = gatewayPages.map(page =>
   }),
 )
 
+const auditPages = [
+  {path: '/audit', component: AuditEventsPage},
+  {path: '/audit/events', component: AuditEventsPage},
+  {path: '/audit/exports', component: AuditExportsPage},
+] as const
+
+const auditRoutes = auditPages.map(page =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: page.path,
+    component: page.component,
+  }),
+)
+
+const auditEventDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/audit/events/$eventId',
+  component: AuditEventDetailsPage,
+})
+
 const quotaRoutes = [
   {path: '/quota-manager', component: QuotaOverviewPage},
   {path: '/quota-manager/overview', component: QuotaOverviewPage},
@@ -192,6 +214,8 @@ const routeTree = rootRoute.addChildren([
   resourceProjectDetailsRoute,
   ...commerceRoutes,
   ...quotaManagerRoutes,
+  ...auditRoutes,
+  auditEventDetailsRoute,
   ...gatewayRoutes,
   longRunningOperationsRoute,
   longRunningOperationDetailsRoute,
