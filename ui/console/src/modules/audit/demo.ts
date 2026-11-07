@@ -208,14 +208,14 @@ export function createAuditExport(filters:AuditFilters,format:ExportFormat):Audi
   const logged=event('evt-20261107-export-'+id,'2026-11-07T21:16:01Z','System','audit.export.requested','Success','Info',admin,'Organization','AuditExport',id,id,'M8 Audit','A demo export request was created',{
     metadata:{format,rowCount:entry.rowCount,redaction:'Safe'},
   })
-  publish({events:[logged,...state.events],exports:[entry,...state.exports]})
+  publish({...state,events:[logged,...state.events],exports:[entry,...state.exports]})
   return entry
 }
 export function prepareAuditExport(id:string):boolean{
   const found=state.exports.find(e=>e.id===id)
   if(!found||found.status!=='Queued')return false
   const logged=event(`evt-20261107-ready-${id}`,'2026-11-07T21:16:10Z','System','audit.export.ready','Success','Info',system,'Organization','AuditExport',id,id,'M8 Audit','Redacted demo export prepared',{metadata:{exportId:id,rowCount:found.rowCount}})
-  publish({events:[logged,...state.events],exports:state.exports.map(e=>e.id===id?{...e,status:'Ready'}:e)})
+  publish({...state,events:[logged,...state.events],exports:state.exports.map(e=>e.id===id?{...e,status:'Ready'}:e)})
   return true
 }
 export function getExportContent(id:string):string|null{
