@@ -823,7 +823,7 @@ function App() {
 
   if (pathname.startsWith('/commerce-intelligence')) {
     return (
-      <ThemeProvider theme="light" lang="ru" fallbackLang={fallbackLanguage}>
+      <ThemeProvider theme="light">
         <ToasterProvider toaster={toaster}>
           <ToasterComponent />
           <Outlet />
@@ -833,7 +833,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme="light" lang={language} fallbackLang={fallbackLanguage}>
+    <ThemeProvider theme="light">
       <ToasterProvider toaster={toaster}>
         <ToasterComponent />
         <AsideHeader
