@@ -188,7 +188,7 @@ const exportKeys=['id','timestamp','category','action','outcome','severity','act
 function escapeCsv(value:unknown):string{
   const str=typeof value==='object'?JSON.stringify(value):String(value??'')
   // Escape spreadsheet formula injection, including leading whitespace.
-  const protectedValue=/^\s*[=+@\-]/.test(str)?`'${str}`:str
+  const protectedValue=/^\s*[=+@-]/.test(str)?`'${str}`:str
   return `"${protectedValue.replaceAll('"','""')}"`
 }
 export function serializeAuditExport(events:AuditEvent[],format:ExportFormat):string{
