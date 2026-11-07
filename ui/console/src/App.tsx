@@ -381,11 +381,11 @@ const menuItemConfigs: MenuItemConfig[] = [
   {id: 'observability-slo', titleKey: 'menu.observability.slo', icon: Check, href: '/observability/slo', groupId: 'observability'},
   {id: 'audit-events', titleKey: 'menu.audit.events', icon: ListUl, href: '/audit/events', groupId: 'audit'},
   {id: 'audit-exports', titleKey: 'menu.audit.exports', icon: ArrowRotateRight, href: '/audit/exports', groupId: 'audit'},
-  {id: 'settings-project', titleKey: 'menu.settings.project', icon: Gear, groupId: 'settings'},
-  {id: 'settings-modules', titleKey: 'menu.settings.modules', icon: Database, groupId: 'settings'},
-  {id: 'settings-integrations', titleKey: 'menu.settings.integrations', icon: Cloud, groupId: 'settings'},
-  {id: 'settings-webhooks', titleKey: 'menu.settings.webhooks', icon: ArrowShapeRightFromLine, groupId: 'settings'},
-  {id: 'settings-api-tokens', titleKey: 'menu.settings.apiTokens', icon: Shield, groupId: 'settings'},
+  {id: 'settings-project', titleKey: 'menu.settings.project', icon: Gear, href: '/settings/project', groupId: 'settings'},
+  {id: 'settings-modules', titleKey: 'menu.settings.modules', icon: Database, href: '/settings/modules', groupId: 'settings'},
+  {id: 'settings-integrations', titleKey: 'menu.settings.integrations', icon: Cloud, href: '/settings/integrations', groupId: 'settings'},
+  {id: 'settings-webhooks', titleKey: 'menu.settings.webhooks', icon: ArrowShapeRightFromLine, href: '/settings/webhooks', groupId: 'settings'},
+  {id: 'settings-api-tokens', titleKey: 'menu.settings.apiTokens', icon: Shield, href: '/settings/api-tokens', groupId: 'settings'},
 ]
 
 function readInitialNavigationCompact() {
@@ -422,6 +422,17 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname === '/settings' || pathname.startsWith('/settings/')) {
+    const sections: Record<string, string> = {
+      '/settings': 'settings-project',
+      '/settings/project': 'settings-project',
+      '/settings/modules': 'settings-modules',
+      '/settings/integrations': 'settings-integrations',
+      '/settings/webhooks': 'settings-webhooks',
+      '/settings/api-tokens': 'settings-api-tokens',
+    }
+    return sections[pathname] ?? 'settings-project'
+  }
   if (pathname === '/observability' || pathname.startsWith('/observability/')) {
     const sections: Record<string, string> = {
       '/observability': 'observability-metrics',

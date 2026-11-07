@@ -14,6 +14,10 @@ import App, {
   ResourceWorkspacesPage,
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+import {
+  SettingsProjectPage, SettingsModulesPage, SettingsIntegrationsPage,
+} from './modules/settings/SettingsProjectModulesIntegrations'
+import {SettingsWebhooksPage,SettingsApiTokensPage} from './modules/settings/SettingsWebhooksTokens'
 import {ObservabilityMetricsPage,ObservabilityLogsPage,ObservabilityLogDetailsPage} from './modules/observability/ObservabilityMetricsLogs'
 import {ObservabilityTracesPage,ObservabilityTraceDetailsPage} from './modules/observability/ObservabilityTraces'
 import {ObservabilityAlertsPage,ObservabilityAlertDetailsPage,ObservabilitySloPage} from './modules/observability/ObservabilityAlertsSlo'
@@ -207,6 +211,23 @@ const observabilityAlertDetailsRoute = createRoute({
   component: ObservabilityAlertDetailsPage,
 })
 
+const settingsPages = [
+  {path: '/settings', component: SettingsProjectPage},
+  {path: '/settings/project', component: SettingsProjectPage},
+  {path: '/settings/modules', component: SettingsModulesPage},
+  {path: '/settings/integrations', component: SettingsIntegrationsPage},
+  {path: '/settings/webhooks', component: SettingsWebhooksPage},
+  {path: '/settings/api-tokens', component: SettingsApiTokensPage},
+] as const
+
+const settingsRoutes = settingsPages.map(page =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: page.path,
+    component: page.component,
+  }),
+)
+
 const quotaRoutes = [
   {path: '/quota-manager', component: QuotaOverviewPage},
   {path: '/quota-manager/overview', component: QuotaOverviewPage},
@@ -249,6 +270,7 @@ const routeTree = rootRoute.addChildren([
   resourceProjectDetailsRoute,
   ...commerceRoutes,
   ...quotaManagerRoutes,
+  ...settingsRoutes,
   ...observabilityRoutes,
   observabilityLogDetailsRoute,
   observabilityTraceDetailsRoute,
