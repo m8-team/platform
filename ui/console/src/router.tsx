@@ -14,6 +14,9 @@ import App, {
   ResourceWorkspacesPage,
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+import {ObservabilityMetricsPage,ObservabilityLogsPage,ObservabilityLogDetailsPage} from './modules/observability/ObservabilityMetricsLogs'
+import {ObservabilityTracesPage,ObservabilityTraceDetailsPage} from './modules/observability/ObservabilityTraces'
+import {ObservabilityAlertsPage,ObservabilityAlertDetailsPage,ObservabilitySloPage} from './modules/observability/ObservabilityAlertsSlo'
 import {AuditEventsPage,AuditEventDetailsPage} from './modules/audit/AuditEvents'
 import {AuditExportsPage} from './modules/audit/AuditExports'
 import {
@@ -172,6 +175,38 @@ const auditEventDetailsRoute = createRoute({
   component: AuditEventDetailsPage,
 })
 
+const observabilityPages = [
+  {path: '/observability', component: ObservabilityMetricsPage},
+  {path: '/observability/metrics', component: ObservabilityMetricsPage},
+  {path: '/observability/logs', component: ObservabilityLogsPage},
+  {path: '/observability/traces', component: ObservabilityTracesPage},
+  {path: '/observability/alerts', component: ObservabilityAlertsPage},
+  {path: '/observability/slo', component: ObservabilitySloPage},
+] as const
+
+const observabilityRoutes = observabilityPages.map(page =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: page.path,
+    component: page.component,
+  }),
+)
+const observabilityLogDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/observability/logs/$logId',
+  component: ObservabilityLogDetailsPage,
+})
+const observabilityTraceDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/observability/traces/$traceId',
+  component: ObservabilityTraceDetailsPage,
+})
+const observabilityAlertDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/observability/alerts/$incidentId',
+  component: ObservabilityAlertDetailsPage,
+})
+
 const quotaRoutes = [
   {path: '/quota-manager', component: QuotaOverviewPage},
   {path: '/quota-manager/overview', component: QuotaOverviewPage},
@@ -214,6 +249,10 @@ const routeTree = rootRoute.addChildren([
   resourceProjectDetailsRoute,
   ...commerceRoutes,
   ...quotaManagerRoutes,
+  ...observabilityRoutes,
+  observabilityLogDetailsRoute,
+  observabilityTraceDetailsRoute,
+  observabilityAlertDetailsRoute,
   ...auditRoutes,
   auditEventDetailsRoute,
   ...gatewayRoutes,

@@ -374,11 +374,11 @@ const menuItemConfigs: MenuItemConfig[] = [
   {id: 'security-events', titleKey: 'menu.security.securityEvents', icon: ListUl, groupId: 'security'},
   {id: 'security-access-reviews', titleKey: 'menu.security.accessReviews', icon: Persons, groupId: 'security'},
   {id: 'security-policy-violations', titleKey: 'menu.security.policyViolations', icon: TriangleExclamation, groupId: 'security'},
-  {id: 'observability-metrics', titleKey: 'menu.observability.metrics', icon: Speedometer, groupId: 'observability'},
-  {id: 'observability-logs', titleKey: 'menu.observability.logs', icon: ListUl, groupId: 'observability'},
-  {id: 'observability-traces', titleKey: 'menu.observability.traces', icon: NodesRight, groupId: 'observability'},
-  {id: 'observability-alerts', titleKey: 'menu.observability.alerts', icon: TriangleExclamation, groupId: 'observability'},
-  {id: 'observability-slo', titleKey: 'menu.observability.slo', icon: Check, groupId: 'observability'},
+  {id: 'observability-metrics', titleKey: 'menu.observability.metrics', icon: Speedometer, href: '/observability/metrics', groupId: 'observability'},
+  {id: 'observability-logs', titleKey: 'menu.observability.logs', icon: ListUl, href: '/observability/logs', groupId: 'observability'},
+  {id: 'observability-traces', titleKey: 'menu.observability.traces', icon: NodesRight, href: '/observability/traces', groupId: 'observability'},
+  {id: 'observability-alerts', titleKey: 'menu.observability.alerts', icon: TriangleExclamation, href: '/observability/alerts', groupId: 'observability'},
+  {id: 'observability-slo', titleKey: 'menu.observability.slo', icon: Check, href: '/observability/slo', groupId: 'observability'},
   {id: 'audit-events', titleKey: 'menu.audit.events', icon: ListUl, href: '/audit/events', groupId: 'audit'},
   {id: 'audit-exports', titleKey: 'menu.audit.exports', icon: ArrowRotateRight, href: '/audit/exports', groupId: 'audit'},
   {id: 'settings-project', titleKey: 'menu.settings.project', icon: Gear, groupId: 'settings'},
@@ -422,6 +422,20 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname === '/observability' || pathname.startsWith('/observability/')) {
+    const sections: Record<string, string> = {
+      '/observability': 'observability-metrics',
+      '/observability/metrics': 'observability-metrics',
+      '/observability/logs': 'observability-logs',
+      '/observability/traces': 'observability-traces',
+      '/observability/alerts': 'observability-alerts',
+      '/observability/slo': 'observability-slo',
+    }
+    if (pathname.startsWith('/observability/logs/')) return 'observability-logs'
+    if (pathname.startsWith('/observability/traces/')) return 'observability-traces'
+    if (pathname.startsWith('/observability/alerts/')) return 'observability-alerts'
+    return sections[pathname] ?? 'observability-metrics'
+  }
   if (pathname === '/audit' || pathname === '/audit/events' || pathname.startsWith('/audit/events/')) {
     return 'audit-events'
   }
