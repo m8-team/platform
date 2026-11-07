@@ -14,6 +14,13 @@ import App, {
   ResourceWorkspacesPage,
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
+import {
+  QuotaOverviewPage,
+  QuotaPoliciesPage,
+  QuotaReservationsPage,
+  QuotaRequestsPage,
+  QuotaReconciliationPage,
+} from './modules/quota-manager/QuotaManager'
 
 const rootRoute = createRootRoute({
   component: App,
@@ -103,6 +110,23 @@ const resourceProjectDetailsRoute = createRoute({
   component: ResourceProjectDetailsPage,
 })
 
+const quotaRoutes = [
+  {path: '/quota-manager', component: QuotaOverviewPage},
+  {path: '/quota-manager/overview', component: QuotaOverviewPage},
+  {path: '/quota-manager/policies', component: QuotaPoliciesPage},
+  {path: '/quota-manager/reservations', component: QuotaReservationsPage},
+  {path: '/quota-manager/requests', component: QuotaRequestsPage},
+  {path: '/quota-manager/reconciliation', component: QuotaReconciliationPage},
+] as const
+
+const quotaManagerRoutes = quotaRoutes.map((route) =>
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: route.path,
+    component: route.component,
+  }),
+)
+
 const commerceRoutes = commerceIntelligenceRoutes.map((route) =>
   createRoute({
     getParentRoute: () => rootRoute,
@@ -127,6 +151,7 @@ const routeTree = rootRoute.addChildren([
   resourceProjectsRoute,
   resourceProjectDetailsRoute,
   ...commerceRoutes,
+  ...quotaManagerRoutes,
 ])
 
 export const router = createRouter({
