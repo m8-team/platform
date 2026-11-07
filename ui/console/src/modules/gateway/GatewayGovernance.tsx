@@ -6,8 +6,7 @@ import {Link} from '@tanstack/react-router'
 import {
   saveDemoPolicy,saveDemoLimit,toggleDemoPolicy,toggleDemoLimit,useGatewayDemo,
 } from './demo'
-import type {DemoGateway} from './types'
-import type {GatewayPolicy,GatewayRateLimit,GatewayPolicyKind,RateTargetType,RatePeriod} from './demo'
+import type {DemoGateway,GatewayPolicy,GatewayRateLimit,GatewayPolicyKind,RateTargetType,RatePeriod} from './demo'
 import {gatewayManifest,apiServiceDescriptor} from './manifest'
 import {GatewayPage,Panel,Metric,Status,Pill,Drawer,Selector,TextField,DescriptionField,Detail,Notice,Empty,UsageBar,formatNumber} from './GatewayShell'
 import type {T} from './GatewayShell'
