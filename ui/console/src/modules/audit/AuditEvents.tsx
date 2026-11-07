@@ -5,7 +5,7 @@ import {Link, useParams, useRouter} from '@tanstack/react-router'
 
 import {getAuditEvent,listAuditEvents,redactAuditData,resetAuditDemo,setExportDraft,useAuditDemo} from './demo'
 import type {AuditCategory,AuditFilters,AuditOutcome,AuditScope,AuditSeverity,ActorType} from './demo'
-import {AuditLayout,Chip,Empty,Field,Notice,Outcome,Panel,SelectFilter,Severity,Stat,TextField,auditEventPath,dateTimeUTC,fmt,jsonText} from './AuditShell'
+import {AuditLayout,Empty,Field,Notice,Outcome,Panel,SelectFilter,Severity,Stat,TextField,auditEventPath,dateTimeUTC,fmt,jsonText} from './AuditShell'
 import type {T} from './AuditShell'
 
 const categories:AuditCategory[]=['Resource','Gateway','Quota','Identity','Security','System']
