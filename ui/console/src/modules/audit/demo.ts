@@ -61,6 +61,7 @@ export interface AuditExport {
 interface AuditState {
   events:AuditEvent[]
   exports:AuditExport[]
+  draft:AuditFilters
 }
 
 const admin:AuditActor={id:'usr-platform-admin',displayName:'Platform Admin',type:'User'}
@@ -141,11 +142,13 @@ export const initialAuditEvents:AuditEvent[]=[
   }),
 ]
 
-let state:AuditState={events:initialAuditEvents,exports:[]}
+const initialState:AuditState={events:initialAuditEvents,exports:[],draft:{}}
+let state:AuditState=initialState
 const listeners=new Set<()=>void>()
 const subscribe=(listener:()=>void)=>{listeners.add(listener);return()=>{listeners.delete(listener)}}
 function publish(next:AuditState){state=next;listeners.forEach(fn=>fn())}
-export function useAuditDemo(){return useSyncExternalStore(subscribe,()=>state,()=>({events:initialAuditEvents,exports:[]}))}
+export function useAuditDemo(){return useSyncExternalStore(subscribe,()=>state,()=>initialState)}
+export function setExportDraft(filters:AuditFilters){publish({...state,draft:{...filters}})}
 export function listAuditEvents(filters:AuditFilters={},events:AuditEvent[]=state.events):AuditEvent[]{
   const q=(filters.query??'').trim().toLowerCase()
   const from=filters.fromDate?Date.parse(`${filters.fromDate}T00:00:00Z`):null
@@ -222,4 +225,4 @@ export function getExportContent(id:string):string|null{
   return serializeAuditExport(job.eventIds.map(eventId=>state.events.find(e=>e.id===eventId)).filter((e):e is AuditEvent=>!!e&&wanted.has(e.id)),job.format)
 }
 export function getAuditEvent(id:string){return state.events.find(e=>e.id===id)}
-export function resetAuditDemo(){publish({events:initialAuditEvents,exports:[]})}
+export function resetAuditDemo(){publish(initialState)}
