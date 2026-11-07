@@ -1,12 +1,12 @@
 import {useMemo,useState} from 'react'
-import {ArrowRotateRight,Check,Magnifier,Shield,TriangleExclamation} from '@gravity-ui/icons'
+import {ArrowRotateRight,Magnifier,Shield,TriangleExclamation} from '@gravity-ui/icons'
 import {Button,Icon,Text} from '@gravity-ui/uikit'
 
 import {
   allowedWebhookEvents,requestDemoToken,retryDelivery,revokeDemoToken,
   saveWebhook,tokenScopes,toggleWebhook,useSettingsDemo,
 } from './demo'
-import type {ApiToken,TokenScope,Webhook,WebhookEvent,WebhookDelivery} from './demo'
+import type {TokenScope,Webhook,WebhookEvent,WebhookDelivery} from './demo'
 import {Detail,Empty,Input,Metric,Modal,Notice,Panel,Pill,Select,SettingsPage} from './SettingsShell'
 import type {T} from './SettingsShell'
 
