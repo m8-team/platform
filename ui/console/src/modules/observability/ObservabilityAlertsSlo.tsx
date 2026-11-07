@@ -4,10 +4,10 @@ import {Button,Icon,Text} from '@gravity-ui/uikit'
 import {Link,useParams} from '@tanstack/react-router'
 
 import {
-  changeDemoIncident,createDemoRule,currentMetric,formatMetric,metricInfo,resetObservabilityDemo,
+  changeDemoIncident,createDemoRule,metricInfo,resetObservabilityDemo,
   serviceNames,sloBudget,toggleDemoRule,useObservabilityDemo,validateRule,
 } from './demo'
-import type {AlertRule,AlertRuleMetric,AlertSeverity,AlertStatus,ServiceSlo,TelemetryService} from './demo'
+import type {AlertRule,AlertRuleMetric,AlertSeverity,ServiceSlo,TelemetryService} from './demo'
 import {
   Bar,Detail,Empty,IncidentBadge,Input,Label,Notice,Page,Panel,Select,SeverityBadge,Stat,
   Sparkline,utc,
@@ -179,7 +179,7 @@ function SloCard({slo,t}:{slo:ServiceSlo;t:T}){
     </div>
     <div className="ob-slo-card__numbers"><span><small>SLI observed</small><strong>{slo.achieved.toFixed(3)}%</strong></span><span><small>SLO target</small><strong>{slo.target.toFixed(3)}%</strong></span></div>
     <Bar value={slo.achieved} max={100} variant={passing?'positive':'danger'}/>
-    <div className="ob-slo-card__bottom"><span>Error budget remaining</span><strong className={budget.remaining<0?'ob-negative':''}>{budget.remaining.toLocaleString('en-US')} requests</strong></div>
+    <div className="ob-slo-card__bottom"><span>{t('Остаток бюджета ошибок','Error budget remaining')}</span><strong className={budget.remaining<0?'ob-negative':''}>{budget.remaining.toLocaleString('en-US')} requests</strong></div>
   </div>
 }
 
