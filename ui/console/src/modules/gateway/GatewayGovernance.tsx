@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {Check, Clipboard, Magnifier, ShieldCheck, Speedometer} from '@gravity-ui/icons'
+import {Check, Code, Magnifier, ShieldCheck, Speedometer} from '@gravity-ui/icons'
 import {Button, Icon, Text} from '@gravity-ui/uikit'
 import {Link} from '@tanstack/react-router'
 
@@ -157,7 +157,7 @@ export function GatewayYamlPage(){
   }
   return <GatewayPage active="yaml" title="Gateway YAML" description="Inspect generated manifests and proposed M8 resource definitions">
     {t=><>
-      <div className="gw-section-title"><div><Text as="h2" variant="header-2">{t('Просмотр конфигурации','Configuration Preview')}</Text><Text variant="body-2" color="secondary">{t('Генерация read-only YAML по выбранным деморесурсам','Read-only YAML generated from demo resources')}</Text></div><div className="gw-actions"><Button view="outlined" onClick={()=>void copy()}><Icon data={Clipboard} size={16}/>{t('Скопировать','Copy YAML')}</Button><Link to="/gateway/routes" className="gw-link">{t('Маршруты','Routes')}</Link></div></div>
+      <div className="gw-section-title"><div><Text as="h2" variant="header-2">{t('Просмотр конфигурации','Configuration Preview')}</Text><Text variant="body-2" color="secondary">{t('Генерация read-only YAML по выбранным деморесурсам','Read-only YAML generated from demo resources')}</Text></div><div className="gw-actions"><Button view="outlined" onClick={()=>void copy()}><Icon data={Code} size={16}/>{t('Скопировать','Copy YAML')}</Button><Link to="/gateway/routes" className="gw-link">{t('Маршруты','Routes')}</Link></div></div>
       <div className="gw-yaml-layout">
         <Panel title={t('Выбор ресурса','Resource selection')} subtitle={t('Элементы из локального реестра Gateway','Entries from local Gateway demo store')}>
           <Selector label={t('Категория','Category')} value={resource} onChange={v=>{const type=v as 'Route'|'Service';setResource(type);setId(type==='Route'?demo.routes[0]?.id??'':demo.services[0]?.id??'');setCopyStatus('')}} options={[{value:'Route',label:'Route / HTTPRoute / AIGatewayRoute'},{value:'Service',label:'ApiService (M8 conceptual)'}]}/>
