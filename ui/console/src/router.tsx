@@ -15,6 +15,10 @@ import App, {
 } from './App'
 import {commerceIntelligenceRoutes} from './modules/commerce-intelligence/routes'
 import {
+  LongRunningOperationsPage,
+  LongRunningOperationDetailsPage,
+} from './modules/long-running-operations/LongRunningOperations'
+import {
   QuotaOverviewPage,
   QuotaPoliciesPage,
   QuotaReservationsPage,
@@ -110,6 +114,18 @@ const resourceProjectDetailsRoute = createRoute({
   component: ResourceProjectDetailsPage,
 })
 
+const longRunningOperationsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/platform-operations/long-running',
+  component: LongRunningOperationsPage,
+})
+
+const longRunningOperationDetailsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/platform-operations/long-running/$operationId',
+  component: LongRunningOperationDetailsPage,
+})
+
 const quotaRoutes = [
   {path: '/quota-manager', component: QuotaOverviewPage},
   {path: '/quota-manager/overview', component: QuotaOverviewPage},
@@ -152,6 +168,8 @@ const routeTree = rootRoute.addChildren([
   resourceProjectDetailsRoute,
   ...commerceRoutes,
   ...quotaManagerRoutes,
+  longRunningOperationsRoute,
+  longRunningOperationDetailsRoute,
 ])
 
 export const router = createRouter({

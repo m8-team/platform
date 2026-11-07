@@ -324,6 +324,7 @@ const menuItemConfigs: MenuItemConfig[] = [
     id: 'platform-operations-long-running',
     titleKey: 'menu.operations.longRunning',
     icon: Clock,
+    href: '/platform-operations/long-running',
     groupId: 'platform-operations',
   },
   {
@@ -421,6 +422,9 @@ function readCurrentPathname() {
 }
 
 function getCurrentMenuItemId(pathname: string) {
+  if (pathname === '/platform-operations/long-running' || pathname.startsWith('/platform-operations/long-running/')) {
+    return 'platform-operations-long-running'
+  }
   if (pathname.startsWith('/quota-manager')) {
     const quotaMenuItems: Record<string, string> = {
       '/quota-manager': 'platform-operations-quotas-limits',
