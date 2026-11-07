@@ -24,7 +24,7 @@ All mutations stay **in browser memory** until the page reloads. There is **no r
 
 ```bash
 cd ui/console
-pnpm install --frozen-lockfile
+pnpm install --no-frozen-lockfile
 pnpm lint
 pnpm build
 pnpm dev
