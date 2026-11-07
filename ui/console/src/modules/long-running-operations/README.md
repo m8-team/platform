@@ -26,6 +26,7 @@ All mutations stay **in browser memory** until the page reloads. There is **no r
 cd ui/console
 pnpm install --no-frozen-lockfile
 pnpm lint
+node --experimental-strip-types --test src/modules/long-running-operations/demo.test.mjs
 pnpm build
 pnpm dev
 ```
@@ -38,3 +39,9 @@ Open `http://localhost:5173/platform-operations/long-running`.
 - `LongRunningOperations.tsx`: list, detail, progress, timeline, errors and actions.
 - `long-running-operations.css`: responsive layout using existing Gravity UI tokens.
 - `src/App.tsx`, `src/router.tsx`: navigation and routing.
+
+## Existing Console build limitation
+
+At the time of this PR the Console dependencies had been upgraded to Gravity UI 8 and TanStack Table 9, while some existing Console components still use v7/v8 APIs. The full `pnpm build` reports errors in `App.tsx`, `LanguageSwitcher.tsx`, `commerce-intelligence` tables and `OrganizationActionsPanel.tsx`. These files were already incompatible with the upgraded dependency versions before the LRO screens were added.
+
+The new LRO demo is linted and separately tested. Updating the existing Console to the upgraded UI/table APIs should be handled in a follow-up dependency migration. The CI workflow no longer expects the removed `pnpm-lock.yaml`.
