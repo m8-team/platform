@@ -37,5 +37,7 @@ jobs:
         run: node --experimental-strip-types --test src/modules/long-running-operations/demo.test.mjs
       - name: Gateway demo tests
         run: node --experimental-strip-types --test src/modules/gateway/demo.test.mjs
+      - name: Audit demo tests
+        run: node --experimental-strip-types --test src/modules/audit/demo.test.mjs
       - name: TypeScript + Vite build
         run: pnpm build
