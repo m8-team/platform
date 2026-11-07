@@ -1,5 +1,5 @@
 import {useMemo,useState} from 'react'
-import {ArrowRotateRight,Check,Clock,Magnifier,TriangleExclamation} from '@gravity-ui/icons'
+import {ArrowRotateRight,Check,Clock,TriangleExclamation} from '@gravity-ui/icons'
 import {Button,Icon,Text} from '@gravity-ui/uikit'
 import {Link,useParams} from '@tanstack/react-router'
 
@@ -10,7 +10,6 @@ import type {LogLevel,TelemetryMetric,TelemetryService} from './demo'
 import {
   Bar,Detail,Empty,Input,Label,LogBadge,Notice,Page,Panel,Select,Sparkline,Stat,timeLabel,utc,
 } from './ObservabilityShell'
-import type {T} from './ObservabilityShell'
 
 const metricTypes:TelemetryMetric[]=['rps','errorRate','latencyP95','cpu']
 const metricLabels:Record<TelemetryMetric,string>={rps:'RPS',errorRate:'Error rate',latencyP95:'p95 latency',cpu:'CPU'}
