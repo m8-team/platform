@@ -1,4 +1,5 @@
 COMPOSE=docker compose -f docker-compose.yml
+ANALYTICS_COMPOSE=docker compose -f docker-compose.analytics.yml
 INSTALL_DIR ?= /usr/local/bin
 KIND_VERSION ?=
 KUBECTL_VERSION ?=
@@ -17,6 +18,7 @@ CLICKSTACK_OTLP_GRPC_PORT ?= 4317
 CLICKSTACK_OTLP_HTTP_PORT ?= 4318
 
 .PHONY: up down restart logs shell ps clean
+.PHONY: analytics\:up analytics\:down analytics\:reset analytics\:logs analytics\:status
 .PHONY: tools\:install-kind tools\:install-kubectl tools\:install-helm
 .PHONY: dev\:up dev\:down dev\:reset
 .PHONY: clickstack\:install clickstack\:uninstall clickstack\:reset clickstack\:status clickstack\:port-forward
@@ -42,6 +44,21 @@ ps:
 
 clean:
 	$(COMPOSE) down -v
+
+analytics\:up:
+	$(ANALYTICS_COMPOSE) up -d
+
+analytics\:down:
+	$(ANALYTICS_COMPOSE) down
+
+analytics\:reset:
+	$(ANALYTICS_COMPOSE) down -v
+
+analytics\:logs:
+	$(ANALYTICS_COMPOSE) logs -f
+
+analytics\:status:
+	$(ANALYTICS_COMPOSE) ps
 
 tools\:install-kind:
 	KIND_VERSION="$(KIND_VERSION)" INSTALL_DIR="$(INSTALL_DIR)" scripts/install-kind-macos.sh
