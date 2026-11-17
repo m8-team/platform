@@ -77,6 +77,23 @@ services:
     networks:
       - default
   #
+  temporal-ui:
+    container_name: datalens-temporal-ui
+    image: ghcr.io/datalens-tech/temporal-ui:2.34.0
+    pull_policy: ${IMAGE_PULL_POLICY:-always}
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+      TEMPORAL_AUTH_ENABLED: "false"
+      TEMPORAL_DEFAULT_NAMESPACE: meta-manager
+      TEMPORAL_DISABLE_NEWS_FETCH: "true"
+    depends_on:
+      temporal:
+        condition: service_healthy
+    ports:
+      - ${TEMPORAL_UI_PORT:-18233}:8080
+    networks:
+      - default
+  #
   control-api:
     container_name: datalens-control-api
     image: ghcr.io/datalens-tech/datalens-control-api:0.2457.0

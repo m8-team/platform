@@ -43,6 +43,7 @@ and CHYT has to upload its binaries and schedule a YTsaurus operation.
 | YTsaurus HTTP proxy | <http://localhost:8000> | none |
 | YTsaurus UI | <http://localhost:8001> | none |
 | DataLens | <http://localhost:18081> | `admin` / `admin` |
+| DataLens Temporal UI | <http://localhost:18233> | none |
 
 ## Connect DataLens to CHYT
 
