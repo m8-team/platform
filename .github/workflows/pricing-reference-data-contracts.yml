@@ -1,0 +1,49 @@
+name: Pricing and ReferenceData contracts
+
+on:
+  pull_request:
+    paths:
+      - "api/proto/m8/platform/pricing/**"
+      - "api/proto/m8/platform/referencedata/**"
+      - "internal/pricing/**"
+      - "internal/referencedata/**"
+      - ".github/workflows/pricing-reference-data-contracts.yml"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "api/proto/m8/platform/pricing/**"
+      - "api/proto/m8/platform/referencedata/**"
+      - "internal/pricing/**"
+      - "internal/referencedata/**"
+      - ".github/workflows/pricing-reference-data-contracts.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.1"
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          version: "1.50.0"
+      - name: Protobuf lint
+        run: buf lint
+      - name: Protobuf descriptor build
+        run: buf build
+      - name: Generate Go and HTTP bindings
+        run: |
+          buf generate
+          test -f api/generate/go/m8/platform/referencedata/v1/currency.pb.go
+          test -f api/generate/go/m8/platform/pricing/v1/price_record.pb.go
+      - name: Exact price calculation tests
+        run: go test ./internal/pricing/domain/...
