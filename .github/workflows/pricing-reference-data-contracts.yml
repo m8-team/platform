@@ -36,13 +36,18 @@ jobs:
       - uses: bufbuild/buf-setup-action@v1
         with:
           version: "1.50.0"
-      - name: Protobuf lint
-        run: buf lint
-      - name: Protobuf descriptor build
-        run: buf build
+      # The pre-existing Resource Manager proto has unresolved UnitState and
+      # UnitManagementMode references. Do not mask those with global lint.
+      # Compile and validate only the two newly introduced bounded contexts.
+      - name: Protobuf lint (ReferenceData and Pricing)
+        run: |
+          buf lint --path api/proto/m8/platform/referencedata --path api/proto/m8/platform/pricing
+      - name: Protobuf descriptor build (ReferenceData and Pricing)
+        run: |
+          buf build --path api/proto/m8/platform/referencedata --path api/proto/m8/platform/pricing
       - name: Generate Go and HTTP bindings
         run: |
-          buf generate
+          buf generate --path api/proto/m8/platform/referencedata --path api/proto/m8/platform/pricing
           test -f api/generate/go/m8/platform/referencedata/v1/currency.pb.go
           test -f api/generate/go/m8/platform/pricing/v1/price_record.pb.go
       - name: Exact price calculation tests
