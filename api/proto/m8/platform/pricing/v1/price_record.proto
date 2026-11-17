@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package m8.platform.pricing.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/decimal.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/pricing/v1;pricing";
+
+// ACTIVE is an active register movement, not the current applicable price.
+enum PriceRecordState {
+  PRICE_RECORD_STATE_UNSPECIFIED = 0;
+  PRICE_RECORD_STATE_ACTIVE = 1;
+  PRICE_RECORD_STATE_INACTIVE = 2;
+  PRICE_RECORD_STATE_DELETED = 3;
+}
+
+// Source: 1C _InfoRg4139.
+message PriceRecord {
+  // Identity & tenancy
+  // Deterministic UUID from source-namespaced register key.
+  string id = 1 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  PriceRecordState state = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Product & price type
+  string product_id = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  optional string sku_id = 5 [(buf.validate.field).string.uuid = true];
+  string type_id = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Price context
+  string currency_id = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  string unit_id = 8 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+
+  // Original RRP and percentage discount, not the derived selling price.
+  google.type.Decimal price = 9 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+  google.type.Decimal discount = 10 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Validity
+  google.protobuf.Timestamp valid_from = 11 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).required = true
+  ];
+
+  // Source setting document (_Document153 for observed recorder type).
+  string document_id = 12 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}

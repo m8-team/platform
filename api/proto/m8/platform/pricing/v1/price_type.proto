@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package m8.platform.pricing.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/pricing/v1;pricing";
+
+// PriceType owns its state enum independently.
+enum PriceTypeState {
+  PRICE_TYPE_STATE_UNSPECIFIED = 0;
+  PRICE_TYPE_STATE_ACTIVE = 1;
+  PRICE_TYPE_STATE_INACTIVE = 2;
+  PRICE_TYPE_STATE_DELETED = 3;
+}
+
+// Source: 1C _Reference50.
+message PriceType {
+  // Identity & tenancy
+  string id = 1 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  PriceTypeState state = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Directory attributes
+  string code = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
+  string name = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 256
+  ];
+  string description = 6 [(buf.validate.field).string.max_len = 4096];
+
+  // References to tenant-owned resources
+  string currency_id = 7 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  // Zero source reference is represented as absent.
+  optional string department_id = 8 [(buf.validate.field).string.uuid = true];
+
+  uint64 version = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

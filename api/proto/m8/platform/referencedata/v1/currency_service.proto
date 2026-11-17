@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package m8.platform.referencedata.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/referencedata/v1/currency.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/referencedata/v1;referencedata";
+
+// Read-only tenant-scoped projection; writes originate from source CDC.
+service CurrencyService {
+  rpc GetCurrency(GetCurrencyRequest) returns (Currency) {
+    option (google.api.http) = {get: "/reference-data/v1/tenants/{tenant_id}/currencies/{id}"};
+  }
+  rpc ListCurrencies(ListCurrenciesRequest) returns (ListCurrenciesResponse) {
+    option (google.api.http) = {get: "/reference-data/v1/tenants/{tenant_id}/currencies"};
+  }
+}
+
+message GetCurrencyRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+message ListCurrenciesRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  int32 page_size = 2 [
+    (buf.validate.field).int32.gte = 0,
+    (buf.validate.field).int32.lte = 500
+  ];
+  string page_token = 3 [(buf.validate.field).string.max_len = 2048];
+}
+
+message ListCurrenciesResponse {
+  repeated Currency currencies = 1;
+  string next_page_token = 2;
+}

@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package m8.platform.referencedata.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/referencedata/v1;referencedata";
+
+// State of tenant-specific currency reference data.
+enum CurrencyState {
+  CURRENCY_STATE_UNSPECIFIED = 0;
+  CURRENCY_STATE_ACTIVE = 1;
+  CURRENCY_STATE_INACTIVE = 2;
+  CURRENCY_STATE_DELETED = 3;
+}
+
+// Source: 1C _Reference4.
+message Currency {
+  // Identity & tenancy
+  string id = 1 [
+    (google.api.field_behavior) = IDENTIFIER,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  string tenant_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.field_behavior) = IMMUTABLE,
+    (buf.validate.field).string.uuid = true
+  ];
+  CurrencyState state = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (buf.validate.field).enum.defined_only = true
+  ];
+
+  // Currency identity: numeric ISO 4217 code ("643"), not alpha-3 code.
+  string code = 4 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.pattern = "^[0-9]{3}$"
+  ];
+  string name = 5 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 256
+  ];
+  // Original display abbreviation: "руб.", "EUR".
+  string label = 6 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 64
+  ];
+  // Verbatim 1C spell-out parameters from _Fld305.
+  string description = 7 [(buf.validate.field).string.max_len = 4096];
+
+  // Source record version.
+  uint64 version = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

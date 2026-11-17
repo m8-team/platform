@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package m8.platform.pricing.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "m8/platform/pricing/v1/price_record.proto";
+import "m8/platform/pricing/v1/price_type.proto";
+
+option go_package = "github.com/m8-team/go-genproto/m8/platform/pricing/v1;pricing";
+
+// Read-only pricing projection: changes originate from source CDC.
+service PricingService {
+  rpc GetPriceType(GetPriceTypeRequest) returns (PriceType) {
+    option (google.api.http) = {get: "/pricing/v1/tenants/{tenant_id}/price-types/{id}"};
+  }
+  rpc ListPriceTypes(ListPriceTypesRequest) returns (ListPriceTypesResponse) {
+    option (google.api.http) = {get: "/pricing/v1/tenants/{tenant_id}/price-types"};
+  }
+  rpc GetPriceRecord(GetPriceRecordRequest) returns (PriceRecord) {
+    option (google.api.http) = {get: "/pricing/v1/tenants/{tenant_id}/price-records/{id}"};
+  }
+  rpc ListPriceRecords(ListPriceRecordsRequest) returns (ListPriceRecordsResponse) {
+    option (google.api.http) = {get: "/pricing/v1/tenants/{tenant_id}/price-records"};
+  }
+}
+
+message GetPriceTypeRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+message ListPriceTypesRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  int32 page_size = 2 [
+    (buf.validate.field).int32.gte = 0,
+    (buf.validate.field).int32.lte = 500
+  ];
+  string page_token = 3 [(buf.validate.field).string.max_len = 2048];
+}
+
+message ListPriceTypesResponse {
+  repeated PriceType price_types = 1;
+  string next_page_token = 2;
+}
+
+message GetPriceRecordRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  string id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+message ListPriceRecordsRequest {
+  string tenant_id = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  // Bound history requests by product.
+  string product_id = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (buf.validate.field).string.uuid = true
+  ];
+  optional string sku_id = 3 [(buf.validate.field).string.uuid = true];
+  optional string type_id = 4 [(buf.validate.field).string.uuid = true];
+  int32 page_size = 5 [
+    (buf.validate.field).int32.gte = 0,
+    (buf.validate.field).int32.lte = 500
+  ];
+  string page_token = 6 [(buf.validate.field).string.max_len = 2048];
+}
+
+message ListPriceRecordsResponse {
+  repeated PriceRecord price_records = 1;
+  string next_page_token = 2;
+}
