@@ -2,7 +2,7 @@ syntax = "proto3";
 package m8.platform.access.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/access/v1;access";
 
 enum GrantState {
   GRANT_STATE_UNSPECIFIED = 0;

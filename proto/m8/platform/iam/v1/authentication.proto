@@ -12,7 +12,7 @@ import "m8/platform/iam/v1/authentication_context.proto";
 import "m8/platform/iam/v1/authentication_error.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 message Authentication {
   option (m8.platform.common.extension.v1.topic) = "m8.platform.iam.authentications.v1";

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"

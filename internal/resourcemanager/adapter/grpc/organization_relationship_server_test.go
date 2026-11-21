@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"

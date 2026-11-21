@@ -13,7 +13,7 @@ import "m8/platform/iam/v1/authentication_challenge.proto";
 import "m8/platform/iam/v1/authentication_context.proto";
 import "m8/platform/iam/v1/authentication_subject.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 service AuthenticationService {
   option (m8.platform.common.extension.v1.description) = "";

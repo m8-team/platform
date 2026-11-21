@@ -6,7 +6,7 @@ import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 message OrganizationUnit {
     enum UnitState {
@@ -59,7 +59,7 @@ message OrgUnitVersion {
     string organization_id = 2;
     string display_name = 3;
     string parent_id = 4;
-    UnitState lifecycle_state = 5;
+    OrganizationUnit.UnitState lifecycle_state = 5;
     google.protobuf.Timestamp valid_from = 6;
     google.protobuf.Timestamp valid_to = 7;
     google.protobuf.Timestamp recorded_from = 8;
@@ -69,7 +69,7 @@ message OrgUnitVersion {
     string tenant_id = 11;
     string code = 12;
     string kind_id = 13;
-    UnitManagementMode management_mode = 14;
+    OrganizationUnit.UnitManagementMode management_mode = 14;
     string authoritative_source_id = 15;
 
     int64 structure_revision_from = 16;

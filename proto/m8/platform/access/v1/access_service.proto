@@ -10,7 +10,7 @@ import "google/protobuf/struct.proto";
 import "m8/platform/access/v1/access.proto";
 import "m8/platform/common/extension/v1/extension.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/access/v1;access";
 
 // AccessService exposes AuthZEN-compatible authorization decision APIs.
 service AccessService {

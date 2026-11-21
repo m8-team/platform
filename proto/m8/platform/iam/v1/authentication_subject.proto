@@ -5,7 +5,7 @@ package m8.platform.iam.v1;
 import "buf/validate/validate.proto";
 import "m8/platform/common/type/v1/phone_number.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 // AuthenticationSubject identifies the claimant at the start of authentication.
 //

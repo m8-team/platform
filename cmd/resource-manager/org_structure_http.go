@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	grpcadapter "github.com/m8-team/platform/internal/resourcemanager/adapter/grpc"
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
 	"google.golang.org/grpc/codes"
@@ -40,7 +40,7 @@ func (s *localOrgStructureHTTPServer) actorContext(ctx context.Context, organiza
 	}), nil
 }
 
-func (s *localOrgStructureHTTPServer) GetOrgUnit(ctx context.Context, req *pb.GetOrgUnitRequest) (*pb.OrgUnit, error) {
+func (s *localOrgStructureHTTPServer) GetOrgUnit(ctx context.Context, req *pb.GetOrgUnitRequest) (*pb.OrganizationUnit, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "request required")
 	}

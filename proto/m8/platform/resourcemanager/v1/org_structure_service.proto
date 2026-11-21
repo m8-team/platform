@@ -7,10 +7,10 @@ import "google/protobuf/timestamp.proto";
 import "m8/platform/resourcemanager/v1/organization_unit.proto";
 import "m8/platform/resourcemanager/v1/org_unit_move.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 service OrgStructureService {
-  rpc GetOrgUnit(GetOrgUnitRequest) returns (OrgUnit) {
+  rpc GetOrgUnit(GetOrgUnitRequest) returns (OrganizationUnit) {
     option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}"};
   }
   rpc ListOrgUnits(ListOrgUnitsRequest) returns (ListOrgUnitsResponse) {
@@ -44,7 +44,7 @@ message ListOrgUnitsRequest {
   string page_token = 3;
 }
 message ListOrgUnitsResponse {
-  repeated OrgUnit org_units = 1;
+  repeated OrganizationUnit org_units = 1;
   string next_page_token = 2;
   int64 structure_revision = 3;
 }
@@ -90,7 +90,7 @@ message GetOrganizationStructureAtRequest {
   string page_token = 5;
 }
 message GetOrganizationStructureAtResponse {
-  repeated OrgUnit org_units = 1;
+  repeated OrganizationUnit org_units = 1;
   int64 structure_revision = 2;
   google.protobuf.Timestamp as_of = 3;
   string next_page_token = 4;

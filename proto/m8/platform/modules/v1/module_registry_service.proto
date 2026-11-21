@@ -3,7 +3,7 @@ package m8.platform.modules.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/modules/v1/module.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/modules/v1;modules";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/modules/v1;modules";
 
 service ModuleRegistryService {
   rpc RegisterModule(RegisterModuleRequest) returns (ModuleDefinition) {

@@ -8,7 +8,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "m8/platform/iam/v1/authentication_common.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 message AuthenticationStartContext {
   RequestHint request = 1 [(google.api.field_behavior) = OPTIONAL];

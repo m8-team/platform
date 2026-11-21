@@ -3,7 +3,7 @@ package m8.platform.sharedservices.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/sharedservices/v1/shared_services.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/sharedservices/v1;sharedservices";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/sharedservices/v1;sharedservices";
 
 service SharedServicesService {
   rpc PublishOffering(PublishOfferingRequest) returns (ServiceOffering) {

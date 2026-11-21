@@ -6,8 +6,8 @@ import (
 	"errors"
 	"math"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/orgaccess"
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
@@ -141,29 +141,29 @@ func grpcOrgErr(err error) error {
 	}
 }
 
-func orgUnitProto(u orgunit.Unit, actor orgstructure.Actor, revision uint64) *pb.OrgUnit {
-	var state pb.OrgUnitState
+func orgUnitProto(u orgunit.Unit, actor orgstructure.Actor, revision uint64) *pb.OrganizationUnit {
+	var state pb.OrganizationUnit_UnitState
 	switch u.State {
 	case orgunit.StatePlanned:
-		state = pb.OrgUnitState_ORG_UNIT_STATE_PLANNED
+		state = pb.OrganizationUnit_STATE_PLANNED
 	case orgunit.StateActive:
-		state = pb.OrgUnitState_ORG_UNIT_STATE_ACTIVE
+		state = pb.OrganizationUnit_STATE_ACTIVE
 	case orgunit.StateClosed:
-		state = pb.OrgUnitState_ORG_UNIT_STATE_CLOSED
+		state = pb.OrganizationUnit_STATE_CLOSED
 	}
-	mode := pb.OrgUnitManagementMode_ORG_UNIT_MANAGEMENT_MODE_MANUAL
+	mode := pb.OrganizationUnit_MANAGEMENT_MODE_MANUAL
 	if u.AuthoritativeSourceID != "" {
-		mode = pb.OrgUnitManagementMode_ORG_UNIT_MANAGEMENT_MODE_EXTERNAL
+		mode = pb.OrganizationUnit_MANAGEMENT_MODE_EXTERNAL
 	}
-	return &pb.OrgUnit{
+	return &pb.OrganizationUnit{
 		Metadata:              &pb.ResourceMetadata{Id: u.ID, Name: u.DisplayName, Revision: int64(revision)},
 		TenantId:              actor.TenantID,
 		OrganizationId:        u.OrganizationID,
-		ParentOrgUnitId:       u.ParentID,
+		ParentId:              u.ParentID,
 		LifecycleState:        state,
 		ManagementMode:        mode,
 		AuthoritativeSourceId: u.AuthoritativeSourceID,
-		StructureRevision:     int64(revision),
+		Revision:              int64(revision),
 	}
 }
 
@@ -174,7 +174,7 @@ func positiveRevision(v int64) (uint64, error) {
 	return uint64(v), nil
 }
 
-func (s *OrgStructureServer) GetOrgUnit(ctx context.Context, req *pb.GetOrgUnitRequest) (*pb.OrgUnit, error) {
+func (s *OrgStructureServer) GetOrgUnit(ctx context.Context, req *pb.GetOrgUnitRequest) (*pb.OrganizationUnit, error) {
 	actor, err := authenticatedOrgActor(ctx)
 	if err != nil {
 		return nil, err
@@ -226,7 +226,7 @@ func (s *OrgStructureServer) ListOrgUnitAncestors(ctx context.Context, req *pb.L
 	}
 	resp := &pb.ListOrgUnitAncestorsResponse{StructureRevision: int64(result.StructureRevision)}
 	for _, ancestor := range result.Ancestors {
-		resp.Ancestors = append(resp.Ancestors, &pb.OrgUnitAncestor{OrgUnitId: ancestor.AncestorID, Depth: int32(ancestor.Depth)})
+		resp.Ancestors = append(resp.Ancestors, &pb.OrgUnitAncestor{Id: ancestor.AncestorID, Depth: int32(ancestor.Depth)})
 	}
 	return resp, nil
 }
@@ -251,7 +251,7 @@ func (s *OrgStructureServer) ListOrgUnitDescendants(ctx context.Context, req *pb
 	}
 	resp := &pb.ListOrgUnitDescendantsResponse{StructureRevision: int64(result.StructureRevision), NextPageToken: result.NextPageToken}
 	for _, row := range result.Descendants {
-		resp.Descendants = append(resp.Descendants, &pb.OrgUnitAncestor{OrgUnitId: row.DescendantID, Depth: int32(row.Depth)})
+		resp.Descendants = append(resp.Descendants, &pb.OrgUnitAncestor{Id: row.DescendantID, Depth: int32(row.Depth)})
 	}
 	return resp, nil
 }

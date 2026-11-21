@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
 	"github.com/m8-team/platform/internal/resourcemanager/adapter/memory"
 	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
@@ -54,7 +54,7 @@ func TestOrgStructureGRPCReadHierarchy(t *testing.T) {
 	s := orgGRPCFixture(t, true)
 	ctx := orgContext()
 	got, err := s.GetOrgUnit(ctx, &pb.GetOrgUnitRequest{OrganizationId: "org", OrgUnitId: "b"})
-	if err != nil || got.GetMetadata().GetName() != "Regional Sales" || got.GetParentOrgUnitId() != "a" {
+	if err != nil || got.GetMetadata().GetName() != "Regional Sales" || got.GetParentId() != "a" {
 		t.Fatalf("Get: %v %#v", err, got)
 	}
 	units, err := s.ListOrgUnits(ctx, &pb.ListOrgUnitsRequest{OrganizationId: "org", PageSize: 2})

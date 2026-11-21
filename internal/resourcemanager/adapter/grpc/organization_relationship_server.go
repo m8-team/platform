@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

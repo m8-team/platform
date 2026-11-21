@@ -3,7 +3,7 @@ package m8.platform.access.v1;
 import "google/protobuf/timestamp.proto";
 import "m8/platform/access/v1/access_grant.proto";
 import "m8/platform/common/extension/v1/extension.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/access/v1;access";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/access/v1;access";
 
 message AccessGrantChangedEvent {
   option (m8.platform.common.extension.v1.topic) = "m8.platform.access.grants.v1";

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package m8.platform.iam.v1;
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 enum AuthenticationState {
   AUTHENTICATION_STATE_UNSPECIFIED = 0;

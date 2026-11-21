@@ -4,7 +4,7 @@ package m8.platform.iam.v1;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 enum AuthenticationChallenge {
   AUTHENTICATION_CHALLENGE_UNSPECIFIED = 0;

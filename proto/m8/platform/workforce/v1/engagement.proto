@@ -2,7 +2,7 @@ syntax = "proto3";
 package m8.platform.workforce.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/workforce/v1;workforce";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/workforce/v1;workforce";
 
 // Workforce relationships do not grant permissions by themselves.
 // Employment and contractual engagement are independent from membership.

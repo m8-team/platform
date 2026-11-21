@@ -2,7 +2,7 @@ syntax = "proto3";
 package m8.platform.identity.v1;
 import "google/api/field_behavior.proto";
 import "google/protobuf/timestamp.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/identity/v1;identity";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/identity/v1;identity";
 
 // A Principal may exist without an Organization membership. People can work
 // for multiple independent tenants under separately verified identities.

@@ -5,7 +5,7 @@ package m8.platform.riskdecision.v1;
 import "google/protobuf/timestamp.proto";
 import "m8/platform/iam/v1/authentication_decision_context.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/riskdecision/v1;riskdecision";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/riskdecision/v1;riskdecision";
 
 enum RiskLevel {
   RISK_LEVEL_UNSPECIFIED = 0;

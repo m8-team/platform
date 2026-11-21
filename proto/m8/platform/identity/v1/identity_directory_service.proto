@@ -3,7 +3,7 @@ package m8.platform.identity.v1;
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/identity/v1/principal.proto";
-option go_package = "github.com/m8-team/go-genproto/m8/platform/identity/v1;identity";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/identity/v1;identity";
 
 // Membership is optional for access; external principals may use AccessGrant.
 service IdentityDirectoryService {

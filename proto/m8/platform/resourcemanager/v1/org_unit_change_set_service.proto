@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "m8/platform/resourcemanager/v1/org_unit_change_set.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 service OrgUnitChangeSetService {
   rpc ValidateOrgUnitChangeSet(ValidateOrgUnitChangeSetRequest) returns (ValidateOrgUnitChangeSetResponse) {

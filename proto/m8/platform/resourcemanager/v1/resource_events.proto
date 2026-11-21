@@ -8,7 +8,7 @@ import "m8/platform/resourcemanager/v1/organization_group.proto";
 import "m8/platform/resourcemanager/v1/resource.proto";
 import "m8/platform/resourcemanager/v1/resource_manager.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1;resourcemanager";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 message ResourceEventMetadata {
   string event_id = 1;

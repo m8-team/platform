@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	resourcemanagerpb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/platform/health"
 	healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
 	"github.com/m8-team/platform/internal/platform/health/checks"
+	resourcemanagerpb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"github.com/m8-team/platform/internal/resourcemanager"
 	grpcadapter "github.com/m8-team/platform/internal/resourcemanager/adapter/grpc"
 	"go.uber.org/fx"

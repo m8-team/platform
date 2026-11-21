@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	pb "github.com/m8-team/go-genproto/m8/platform/resourcemanager/v1"
+	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 

@@ -5,7 +5,7 @@ package m8.platform.iam.v1;
 import "buf/validate/validate.proto";
 import "google/api/field_behavior.proto";
 
-option go_package = "github.com/m8-team/go-genproto/m8/platform/iam/v1;iam";
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 enum AuthenticationStateReason {
   AUTHENTICATION_STATE_REASON_UNSPECIFIED = 0;
