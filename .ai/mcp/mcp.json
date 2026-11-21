@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "gravity": {
-      "url": "https://gravity-ai.ydb-qdrant.tech/mcp"
-    }
-  }
-}
