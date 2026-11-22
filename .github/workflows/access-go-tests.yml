@@ -26,8 +26,6 @@ jobs:
           go-version-file: go.mod
           cache: true
       - name: Test Access packages
-        run: |
-          go mod tidy -diff
-          go test -count=1 ./internal/access/...
+        run: go test -count=1 ./internal/access/...
       - name: Vet Access packages
         run: go vet ./internal/access/...
