@@ -2227,6 +2227,9 @@ components:
                     type: string
                     format: date-time
         ConfigurationResponse:
+            required:
+                - policy_decision_point
+                - access_evaluation_endpoint
             type: object
             properties:
                 policy_decision_point:
@@ -2561,6 +2564,13 @@ components:
                         Output only. Evaluation results in execution order.
                          For execute_all, order matches the full request evaluation order.
                          For short-circuit semantics, the array may contain only the evaluated prefix
+                decision:
+                    readOnly: true
+                    type: boolean
+                    description: Single decision when the request omits evaluations or supplies an empty array.
+                context:
+                    readOnly: true
+                    type: object
             description: EvaluateAccessBatchResponse returns evaluation decisions in execution order.
         EvaluateAccessRequest:
             required:

@@ -161,6 +161,10 @@ message EvaluateAccessBatchResponse {
     // For execute_all, order matches the full request evaluation order.
     // For short-circuit semantics, the array may contain only the evaluated prefix
     repeated EvaluateAccessResponse evaluations = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+    // Single decision when the request omits evaluations or supplies an empty array.
+    optional bool decision = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Struct context = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // EvaluateAccessBatchOptions controls batch evaluation execution semantics.
@@ -307,12 +311,15 @@ message ConfigurationResponse {
     // Required. HTTPS Policy Decision Point identifier without query or fragment components.
     string policy_decision_point = 1 [
         json_name = "policy_decision_point",
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.pattern = "(?i)^https://[^/?#]+(/[^?#]*)?$",
         (buf.validate.field).string.uri = true
     ];
 
     // Required. URL of the Access Evaluation API endpoint.
     string access_evaluation_endpoint = 2 [
         json_name = "access_evaluation_endpoint",
+        (google.api.field_behavior) = REQUIRED,
         (buf.validate.field).string.uri = true
     ];
 
