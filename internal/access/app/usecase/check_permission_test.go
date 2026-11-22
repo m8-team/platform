@@ -197,3 +197,23 @@ func mustRevision(t *testing.T, value string) domain.ModelRevision {
 
 	return revision
 }
+
+func TestCheckPermissionHandlerPreservesSpiceDBRevision(t *testing.T) {
+	revision := mustRevision(t, "access-model-rev-1")
+	engineDecision, err := domain.NewPermissionDecision(domain.DecisionAllow, revision, "graph grant")
+	if err != nil {
+		t.Fatal(err)
+	}
+	engineDecision, err = engineDecision.WithZedToken("zed-revision-42")
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := mustHandler(t, fakePermissionEngine{decision: engineDecision})
+	result, err := handler.Handle(context.Background(), baseCommand())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ZedToken != "zed-revision-42" {
+		t.Fatalf("ZedToken = %q, want zed-revision-42", result.ZedToken)
+	}
+}

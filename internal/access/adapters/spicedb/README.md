@@ -1,0 +1,22 @@
+# SpiceDB HTTP adapter (M8 Access)
+
+This package implements the Access `PermissionEngine` and `RelationshipWriter` ports using SpiceDB's native HTTP API. The supported endpoints are `POST /v1/permissions/check` and `POST /v1/relationships/write`.
+
+## Invariants
+
+- Obtain `TenantID` from verified service identity and authoritative resource ownership, **never from client-provided headers alone**. Both subject and resource IDs are encoded as `<tenant UUID>/<base64url(raw ID)>`; this isolates equal raw IDs in different tenants. SpiceDB schema definitions remain global and must not cross tenant partitions through unrelated relationships.
+- Resolve the public M8 permission with a version-controlled `PermissionCatalog`. Unknown mappings, unrecognised SpiceDB permissionship, missing check revision and caveat-conditional outcomes never allow access.
+- Checks default to `fullyConsistent`; callers with a trusted ZedToken may specify `atLeastAsFresh`. ZedToken **does not prove** that upstream Resource Manager events have been applied. Reconcile and gate on a separate projection watermark.
+- `Config.ModelRevision` is an operator-provided **assertion** about the deployed schema, not a dynamic schema checksum. Validate it during model publish/rollout before enabling decisions.
+- Relationship writes accept 1–1000 updates, all for one tenant, and reject duplicate tuple identities in the same batch. The result returns `writtenAt` ZedToken. The owning application must still provide durable idempotency, source revision tracking, event outbox, actor authorization and optimistic concurrency.
+- An M8 `AccessGrant` is **not** translated directly into a shared user-to-resource tuple. Grant/Role/RoleBinding state stays in the authoritative M8 repository ports until a reviewed graph schema guarantees independent-grant revocation.
+
+## Deployment
+
+Run SpiceDB with `--http-enabled`. The adapter requires an HTTPS endpoint and a secret bearer token injected from the deployment's secret manager. Plain HTTP is only available for explicit loopback testing with `AllowInsecureLoopback`. Redirects are refused; request/response JSON is bounded to 1 MiB. The caller supplies its own verified tenant context and application middleware; this package provides no authentication or Resource Manager projection on its own.
+
+## Tests
+
+`go test ./internal/access/domain ./internal/access/app/... ./internal/access/adapters/spicedb`
+
+HTTP tests use `httptest`. Live SpiceDB schema, caveat semantics, TLS/service authentication and revocation-watermark integration require separate integration/E2E tests before production deployment.

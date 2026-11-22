@@ -3,6 +3,7 @@ package query
 import "github.com/m8-team/platform/internal/access/domain"
 
 type CheckPermissionResult struct {
+	ZedToken      string
 	Decision      string
 	Allowed       bool
 	ModelRevision string
@@ -13,6 +14,7 @@ type CheckPermissionResult struct {
 
 func NewCheckPermissionResult(decision domain.PermissionDecision) CheckPermissionResult {
 	return CheckPermissionResult{
+		ZedToken:      decision.ZedToken(),
 		Decision:      decision.Decision().String(),
 		Allowed:       decision.Allowed(),
 		ModelRevision: decision.ModelRevision().String(),
