@@ -34,7 +34,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          git diff --name-only -z --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" -- cmd/ internal/ > /tmp/m8-go-changed.z
+          git diff --merge-base --name-only -z --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" -- cmd/ internal/ > /tmp/m8-go-changed.z
           mapfile -d '' changed < /tmp/m8-go-changed.z
           go_files=()
           for path in "${changed[@]}"; do
