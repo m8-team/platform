@@ -175,7 +175,7 @@ func mustHandler(t *testing.T, engine ports.PermissionEngine) *CheckPermissionHa
 
 func baseCommand() command.CheckPermissionCommand {
 	return command.CheckPermissionCommand{
-		TenantID: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+		TenantID:      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
 		SubjectType:   "user",
 		SubjectID:     "usr_123",
 		Permission:    "m8.project.read",

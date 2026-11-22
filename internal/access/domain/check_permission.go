@@ -46,8 +46,12 @@ func NewCheckPermissionRequest(input CheckPermissionInput) (CheckPermissionReque
 }
 
 func (r CheckPermissionRequest) Validate() error {
-	if err := r.tenantID.Validate(); err != nil {return err}
-	if len(r.minZedToken) > 4096 {return ErrInvalidZedToken}
+	if err := r.tenantID.Validate(); err != nil {
+		return err
+	}
+	if len(r.minZedToken) > 4096 {
+		return ErrInvalidZedToken
+	}
 	if err := r.subject.Validate(); err != nil {
 		return err
 	}
@@ -104,6 +108,11 @@ func (r CheckPermissionRequest) FailOpenReference() string {
 }
 
 // TenantID is the trusted tenant partition of this check.
-func (r CheckPermissionRequest) TenantID() TenantID {return r.tenantID}
+func (r CheckPermissionRequest) TenantID() TenantID {
+	return r.tenantID
+}
+
 // MinZedToken pins the minimum graph snapshot required by the caller.
-func (r CheckPermissionRequest) MinZedToken() string {return r.minZedToken}
+func (r CheckPermissionRequest) MinZedToken() string {
+	return r.minZedToken
+}

@@ -7,7 +7,7 @@ import (
 )
 
 type CheckPermissionCommand struct {
-	TenantID string
+	TenantID    string
 	MinZedToken string
 	SubjectType string
 	SubjectID   string
@@ -25,8 +25,10 @@ type CheckPermissionCommand struct {
 }
 
 func (c CheckPermissionCommand) ToDomain() (domain.CheckPermissionRequest, error) {
-	tenant,err:=domain.NewTenantID(c.TenantID)
-	if err!=nil {return domain.CheckPermissionRequest{},fmt.Errorf("build permission check tenant: %w",err)}
+	tenant, err := domain.NewTenantID(c.TenantID)
+	if err != nil {
+		return domain.CheckPermissionRequest{}, fmt.Errorf("build permission check tenant: %w", err)
+	}
 	subject, err := domain.NewSubject(c.SubjectType, c.SubjectID)
 	if err != nil {
 		return domain.CheckPermissionRequest{}, fmt.Errorf("build permission check subject: %w", err)
@@ -48,8 +50,8 @@ func (c CheckPermissionCommand) ToDomain() (domain.CheckPermissionRequest, error
 	}
 
 	return domain.NewCheckPermissionRequest(domain.CheckPermissionInput{
-		TenantID: tenant,
-		MinZedToken: c.MinZedToken,
+		TenantID:          tenant,
+		MinZedToken:       c.MinZedToken,
 		Subject:           subject,
 		Permission:        permission,
 		Resource:          resource,
