@@ -12,151 +12,151 @@ import "m8/platform/resourcemanager/v1/resource_manager.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 service ResourceManagerService {
-  rpc CreateResource(CreateResourceRequest) returns (ResourceRecord) {
-    option (google.api.http) = {
-      post: "/resource-manager/v1/resources"
-      body: "*"
-    };
-  }
-  rpc GetResource(GetResourceRequest) returns (ResourceRecord) {
-    option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}"};
-  }
-  rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/resources"};
-  }
-  rpc UpdateResource(UpdateResourceRequest) returns (ResourceRecord) {
-    option (google.api.http) = {
-      patch: "/resource-manager/v1/resources/{id}"
-      body: "*"
-    };
-  }
-  rpc ChangeResourceState(ChangeResourceStateRequest) returns (ResourceRecord) {
-    option (google.api.http) = {
-      post: "/resource-manager/v1/resources/{id}:changeState"
-      body: "*"
-    };
-  }
-  rpc ResolveResourceScope(ResolveResourceScopeRequest) returns (ResolveResourceScopeResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}:resolveScope"};
-  }
-  rpc SetOrganizationGroupLink(SetOrganizationGroupLinkRequest) returns (OrganizationGroupLink) {
-    option (google.api.http) = {
-      post: "/resource-manager/v1/group-affiliations"
-      body: "*"
-    };
-  }
-  rpc RemoveOrganizationGroupLink(RemoveOrganizationGroupLinkRequest) returns (EmptyResponse) {
-    option (google.api.http) = {delete: "/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"};
-  }
-  rpc ListOrganizationGroupLinks(ListOrganizationGroupLinksRequest) returns (ListOrganizationGroupLinksResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/groups/{group_id}/organizations"};
-  }
-  rpc SetEnvironmentBinding(SetEnvironmentBindingRequest) returns (EnvironmentBinding) {
-    option (google.api.http) = {
-      post: "/resource-manager/v1/environment-bindings"
-      body: "*"
-    };
-  }
-  rpc RemoveEnvironmentBinding(RemoveEnvironmentBindingRequest) returns (EmptyResponse) {
-    option (google.api.http) = {delete: "/resource-manager/v1/environment-bindings/{id}"};
-  }
-  rpc ListEnvironmentBindings(ListEnvironmentBindingsRequest) returns (ListEnvironmentBindingsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/environment-bindings"};
-  }
-  rpc RegisterResourceKind(RegisterResourceKindRequest) returns (ResourceKindPolicy) {
-    option (google.api.http) = {
-      post: "/resource-manager/v1/resource-kinds"
-      body: "*"
-    };
-  }
+    rpc CreateResource(CreateResourceRequest) returns (ResourceRecord) {
+        option (google.api.http) = {
+            post: "/resource-manager/v1/resources"
+            body: "*"
+        };
+    }
+    rpc GetResource(GetResourceRequest) returns (ResourceRecord) {
+        option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}"};
+    }
+    rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/resources"};
+    }
+    rpc UpdateResource(UpdateResourceRequest) returns (ResourceRecord) {
+        option (google.api.http) = {
+            patch: "/resource-manager/v1/resources/{id}"
+            body: "*"
+        };
+    }
+    rpc ChangeResourceState(ChangeResourceStateRequest) returns (ResourceRecord) {
+        option (google.api.http) = {
+            post: "/resource-manager/v1/resources/{id}:changeState"
+            body: "*"
+        };
+    }
+    rpc ResolveResourceScope(ResolveResourceScopeRequest) returns (ResolveResourceScopeResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/resources/{kind}/{id}:resolveScope"};
+    }
+    rpc SetOrganizationGroupLink(SetOrganizationGroupLinkRequest) returns (OrganizationGroupLink) {
+        option (google.api.http) = {
+            post: "/resource-manager/v1/group-affiliations"
+            body: "*"
+        };
+    }
+    rpc RemoveOrganizationGroupLink(RemoveOrganizationGroupLinkRequest) returns (EmptyResponse) {
+        option (google.api.http) = {delete: "/resource-manager/v1/groups/{group_id}/organizations/{organization_id}"};
+    }
+    rpc ListOrganizationGroupLinks(ListOrganizationGroupLinksRequest) returns (ListOrganizationGroupLinksResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/groups/{group_id}/organizations"};
+    }
+    rpc SetEnvironmentBinding(SetEnvironmentBindingRequest) returns (EnvironmentBinding) {
+        option (google.api.http) = {
+            post: "/resource-manager/v1/environment-bindings"
+            body: "*"
+        };
+    }
+    rpc RemoveEnvironmentBinding(RemoveEnvironmentBindingRequest) returns (EmptyResponse) {
+        option (google.api.http) = {delete: "/resource-manager/v1/environment-bindings/{id}"};
+    }
+    rpc ListEnvironmentBindings(ListEnvironmentBindingsRequest) returns (ListEnvironmentBindingsResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/environment-bindings"};
+    }
+    rpc RegisterResourceKind(RegisterResourceKindRequest) returns (ResourceKindPolicy) {
+        option (google.api.http) = {
+            post: "/resource-manager/v1/resource-kinds"
+            body: "*"
+        };
+    }
 }
 
 message EmptyResponse {}
 message CreateResourceRequest {
-  ResourceRecord resource = 1 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+    ResourceRecord resource = 1 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message GetResourceRequest {
-  string kind = 1 [(google.api.field_behavior) = REQUIRED];
-  string id = 2 [(google.api.field_behavior) = REQUIRED];
+    string kind = 1 [(google.api.field_behavior) = REQUIRED];
+    string id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message ListResourcesRequest {
-  string kind = 1;
-  string organization_id = 2;
-  OwnerScope owner = 3;
-  bool include_descendants = 4;
-  int32 page_size = 5;
-  string page_token = 6;
-  bool show_deleted = 7;
+    string kind = 1;
+    string organization_id = 2;
+    OwnerScope owner = 3;
+    bool include_descendants = 4;
+    int32 page_size = 5;
+    string page_token = 6;
+    bool show_deleted = 7;
 
-  string tenant_id = 8;
+    string tenant_id = 8;
 }
 message ListResourcesResponse {
-  repeated ResourceRecord resources = 1;
-  string next_page_token = 2;
+    repeated ResourceRecord resources = 1;
+    string next_page_token = 2;
 }
 message UpdateResourceRequest {
-  string id = 1 [(google.api.field_behavior) = REQUIRED];
-  ResourceRecord resource = 2 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.FieldMask update_mask = 3 [(google.api.field_behavior) = REQUIRED];
-  int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
+    string id = 1 [(google.api.field_behavior) = REQUIRED];
+    ResourceRecord resource = 2 [(google.api.field_behavior) = REQUIRED];
+    google.protobuf.FieldMask update_mask = 3 [(google.api.field_behavior) = REQUIRED];
+    int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
 }
 message ChangeResourceStateRequest {
-  string id = 1 [(google.api.field_behavior) = REQUIRED];
-  string kind = 2 [(google.api.field_behavior) = REQUIRED];
-  ResourceState target_state = 3 [(google.api.field_behavior) = REQUIRED];
-  int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
+    string id = 1 [(google.api.field_behavior) = REQUIRED];
+    string kind = 2 [(google.api.field_behavior) = REQUIRED];
+    ResourceState target_state = 3 [(google.api.field_behavior) = REQUIRED];
+    int64 expected_revision = 4 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 5 [(google.api.field_behavior) = REQUIRED];
 }
 message ResolveResourceScopeRequest {
-  string kind = 1 [(google.api.field_behavior) = REQUIRED];
-  string id = 2 [(google.api.field_behavior) = REQUIRED];
+    string kind = 1 [(google.api.field_behavior) = REQUIRED];
+    string id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message ResolveResourceScopeResponse {
-  string owning_organization_id = 1;
-  repeated ResourceRef ancestry = 2;
+    string owning_organization_id = 1;
+    repeated ResourceRef ancestry = 2;
 }
 message SetOrganizationGroupLinkRequest {
-  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+    string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
 }
 message RemoveOrganizationGroupLinkRequest {
-  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+    string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
 }
 message ListOrganizationGroupLinksRequest {
-  string group_id = 1 [(google.api.field_behavior) = REQUIRED];
-  int32 page_size = 2;
-  string page_token = 3;
+    string group_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 page_size = 2;
+    string page_token = 3;
 }
 message ListOrganizationGroupLinksResponse {
-  repeated OrganizationGroupLink links = 1;
-  string next_page_token = 2;
+    repeated OrganizationGroupLink links = 1;
+    string next_page_token = 2;
 }
 message SetEnvironmentBindingRequest {
-  EnvironmentBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
-  int64 expected_revision = 3;
+    EnvironmentBinding binding = 1 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+    int64 expected_revision = 3;
 }
 message RemoveEnvironmentBindingRequest {
-  string id = 1 [(google.api.field_behavior) = REQUIRED];
-  int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
+    string id = 1 [(google.api.field_behavior) = REQUIRED];
+    int64 expected_revision = 2 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 3 [(google.api.field_behavior) = REQUIRED];
 }
 message ListEnvironmentBindingsRequest {
-  ResourceRef resource = 1;
-  string environment_id = 2;
-  int32 page_size = 3;
-  string page_token = 4;
+    ResourceRef resource = 1;
+    string environment_id = 2;
+    int32 page_size = 3;
+    string page_token = 4;
 }
 message ListEnvironmentBindingsResponse {
-  repeated EnvironmentBinding bindings = 1;
-  string next_page_token = 2;
+    repeated EnvironmentBinding bindings = 1;
+    string next_page_token = 2;
 }
 message RegisterResourceKindRequest {
-  ResourceKindPolicy policy = 1 [(google.api.field_behavior) = REQUIRED];
-  string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
+    ResourceKindPolicy policy = 1 [(google.api.field_behavior) = REQUIRED];
+    string idempotency_key = 2 [(google.api.field_behavior) = REQUIRED];
 }

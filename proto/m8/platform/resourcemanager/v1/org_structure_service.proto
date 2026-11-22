@@ -10,98 +10,98 @@ import "m8/platform/resourcemanager/v1/org_unit_move.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 service OrgStructureService {
-  rpc GetOrgUnit(GetOrgUnitRequest) returns (OrganizationUnit) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}"};
-  }
-  rpc ListOrgUnits(ListOrgUnitsRequest) returns (ListOrgUnitsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units"};
-  }
-  rpc ListOrgUnitAncestors(ListOrgUnitAncestorsRequest) returns (ListOrgUnitAncestorsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:ancestors"};
-  }
-  rpc ListOrgUnitDescendants(ListOrgUnitDescendantsRequest) returns (ListOrgUnitDescendantsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants"};
-  }
+    rpc GetOrgUnit(GetOrgUnitRequest) returns (OrganizationUnit) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}"};
+    }
+    rpc ListOrgUnits(ListOrgUnitsRequest) returns (ListOrgUnitsResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units"};
+    }
+    rpc ListOrgUnitAncestors(ListOrgUnitAncestorsRequest) returns (ListOrgUnitAncestorsResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:ancestors"};
+    }
+    rpc ListOrgUnitDescendants(ListOrgUnitDescendantsRequest) returns (ListOrgUnitDescendantsResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:descendants"};
+    }
 
-  rpc GetOrganizationStructureAt(GetOrganizationStructureAtRequest) returns (GetOrganizationStructureAtResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-structure:at"};
-  }
-  rpc ListOrgUnitMoves(ListOrgUnitMovesRequest) returns (ListOrgUnitMovesResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-unit-moves"};
-  }
-  rpc ListOrgUnitVersions(ListOrgUnitVersionsRequest) returns (ListOrgUnitVersionsResponse) {
-    option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:history"};
-  }
+    rpc GetOrganizationStructureAt(GetOrganizationStructureAtRequest) returns (GetOrganizationStructureAtResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-structure:at"};
+    }
+    rpc ListOrgUnitMoves(ListOrgUnitMovesRequest) returns (ListOrgUnitMovesResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-unit-moves"};
+    }
+    rpc ListOrgUnitVersions(ListOrgUnitVersionsRequest) returns (ListOrgUnitVersionsResponse) {
+        option (google.api.http) = {get: "/resource-manager/v1/organizations/{organization_id}/org-units/{org_unit_id}:history"};
+    }
 }
 
 message GetOrgUnitRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
 }
 message ListOrgUnitsRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  int32 page_size = 2;
-  string page_token = 3;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 page_size = 2;
+    string page_token = 3;
 }
 message ListOrgUnitsResponse {
-  repeated OrganizationUnit org_units = 1;
-  string next_page_token = 2;
-  int64 structure_revision = 3;
+    repeated OrganizationUnit org_units = 1;
+    string next_page_token = 2;
+    int64 structure_revision = 3;
 }
 message ListOrgUnitAncestorsRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
-  int64 structure_revision = 3;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int64 structure_revision = 3;
 }
 message ListOrgUnitAncestorsResponse {
-  repeated OrgUnitAncestor ancestors = 1;
-  int64 structure_revision = 2;
+    repeated OrgUnitAncestor ancestors = 1;
+    int64 structure_revision = 2;
 }
 message ListOrgUnitDescendantsRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
-  int64 structure_revision = 3;
-  int32 page_size = 4;
-  string page_token = 5;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int64 structure_revision = 3;
+    int32 page_size = 4;
+    string page_token = 5;
 }
 message ListOrgUnitDescendantsResponse {
-  repeated OrgUnitAncestor descendants = 1;
-  string next_page_token = 2;
-  int64 structure_revision = 3;
+    repeated OrgUnitAncestor descendants = 1;
+    string next_page_token = 2;
+    int64 structure_revision = 3;
 }
 message ListOrgUnitVersionsRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.Timestamp valid_at = 3;
-  google.protobuf.Timestamp known_at = 4;
-  int32 page_size = 5;
-  string page_token = 6;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+    google.protobuf.Timestamp valid_at = 3;
+    google.protobuf.Timestamp known_at = 4;
+    int32 page_size = 5;
+    string page_token = 6;
 }
 message ListOrgUnitVersionsResponse {
-  repeated OrgUnitVersion versions = 1;
-  string next_page_token = 2;
+    repeated OrgUnitVersion versions = 1;
+    string next_page_token = 2;
 }
 
 message GetOrganizationStructureAtRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.Timestamp as_of = 2 [(google.api.field_behavior) = REQUIRED];
-  int64 at_revision = 3;
-  int32 page_size = 4;
-  string page_token = 5;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    google.protobuf.Timestamp as_of = 2 [(google.api.field_behavior) = REQUIRED];
+    int64 at_revision = 3;
+    int32 page_size = 4;
+    string page_token = 5;
 }
 message GetOrganizationStructureAtResponse {
-  repeated OrganizationUnit org_units = 1;
-  int64 structure_revision = 2;
-  google.protobuf.Timestamp as_of = 3;
-  string next_page_token = 4;
+    repeated OrganizationUnit org_units = 1;
+    int64 structure_revision = 2;
+    google.protobuf.Timestamp as_of = 3;
+    string next_page_token = 4;
 }
 message ListOrgUnitMovesRequest {
-  string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2;
-  int32 page_size = 3;
-  string page_token = 4;
+    string organization_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2;
+    int32 page_size = 3;
+    string page_token = 4;
 }
 message ListOrgUnitMovesResponse {
-  repeated OrgUnitMove moves = 1;
-  string next_page_token = 2;
+    repeated OrgUnitMove moves = 1;
+    string next_page_token = 2;
 }

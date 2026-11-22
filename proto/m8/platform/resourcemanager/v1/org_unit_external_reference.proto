@@ -8,39 +8,39 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 message OrgUnitExternalReference {
-  string id = 1 [
-    (google.api.field_behavior) = IDENTIFIER,
-    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
-    (buf.validate.field).string.uuid = true
-  ];
-  string tenant_id = 2 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
-  ];
-  string organization_id = 3 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
-  ];
-  string org_unit_id = 4 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.uuid = true
-  ];
+    string id = 1 [
+        (google.api.field_behavior) = IDENTIFIER,
+        (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+        (buf.validate.field).string.uuid = true
+    ];
+    string tenant_id = 2 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.uuid = true
+    ];
+    string organization_id = 3 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.uuid = true
+    ];
+    string org_unit_id = 4 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  string source_id = 5 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
-  string external_id = 6 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
+    string source_id = 5 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
+    string external_id = 6 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
 
-  string external_type = 7 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.min_len = 1
-  ];
+    string external_type = 7 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.min_len = 1
+    ];
 
-  google.protobuf.Timestamp valid_from = 8 [(google.api.field_behavior) = REQUIRED];
-  google.protobuf.Timestamp valid_to = 9;
-  google.protobuf.Timestamp last_seen_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp valid_from = 8 [(google.api.field_behavior) = REQUIRED];
+    google.protobuf.Timestamp valid_to = 9;
+    google.protobuf.Timestamp last_seen_at = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

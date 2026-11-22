@@ -7,34 +7,34 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 enum OrganizationRelationshipType {
-  ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED = 0;
-  ORGANIZATION_RELATIONSHIP_TYPE_PARENT_SUBSIDIARY = 1;
-  ORGANIZATION_RELATIONSHIP_TYPE_AFFILIATE = 2;
-  ORGANIZATION_RELATIONSHIP_TYPE_PARTNER = 3;
-  ORGANIZATION_RELATIONSHIP_TYPE_SERVICE_PROVIDER = 4;
+    ORGANIZATION_RELATIONSHIP_TYPE_UNSPECIFIED = 0;
+    ORGANIZATION_RELATIONSHIP_TYPE_PARENT_SUBSIDIARY = 1;
+    ORGANIZATION_RELATIONSHIP_TYPE_AFFILIATE = 2;
+    ORGANIZATION_RELATIONSHIP_TYPE_PARTNER = 3;
+    ORGANIZATION_RELATIONSHIP_TYPE_SERVICE_PROVIDER = 4;
 }
 
 enum OrganizationRelationshipState {
-  ORGANIZATION_RELATIONSHIP_STATE_UNSPECIFIED = 0;
-  ORGANIZATION_RELATIONSHIP_STATE_ACTIVE = 1;
-  ORGANIZATION_RELATIONSHIP_STATE_CLOSED = 2;
+    ORGANIZATION_RELATIONSHIP_STATE_UNSPECIFIED = 0;
+    ORGANIZATION_RELATIONSHIP_STATE_ACTIVE = 1;
+    ORGANIZATION_RELATIONSHIP_STATE_CLOSED = 2;
 }
 
 message OrganizationRelationship {
-  string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string id = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+    string tenant_id = 2 [(google.api.field_behavior) = REQUIRED];
 
-  string from_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
-  string to_organization_id = 4 [(google.api.field_behavior) = REQUIRED];
-  OrganizationRelationshipType type = 5 [(google.api.field_behavior) = REQUIRED];
+    string from_organization_id = 3 [(google.api.field_behavior) = REQUIRED];
+    string to_organization_id = 4 [(google.api.field_behavior) = REQUIRED];
+    OrganizationRelationshipType type = 5 [(google.api.field_behavior) = REQUIRED];
 
-  int32 ownership_basis_points = 6;
-  google.protobuf.Timestamp valid_from = 7 [(google.api.field_behavior) = REQUIRED];
+    int32 ownership_basis_points = 6;
+    google.protobuf.Timestamp valid_from = 7 [(google.api.field_behavior) = REQUIRED];
 
-  google.protobuf.Timestamp valid_to = 8;
-  OrganizationRelationshipState state = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
-  int64 revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
-  google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
-  google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
-  string evidence_ref = 13;
+    google.protobuf.Timestamp valid_to = 8;
+    OrganizationRelationshipState state = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+    int64 revision = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp create_time = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp update_time = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
+    string evidence_ref = 13;
 }

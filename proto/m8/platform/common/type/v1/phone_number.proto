@@ -18,9 +18,9 @@ option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/comm
 // - +79991234567
 // - +12025550123
 message PhoneNumber {
-  // Phone number in E.164 format.
-  string e164 = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).string.pattern = "^\\+[1-9]\\d{1,14}$"
-  ];
+    // Phone number in E.164 format.
+    string e164 = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).string.pattern = "^\\+[1-9]\\d{1,14}$"
+    ];
 }

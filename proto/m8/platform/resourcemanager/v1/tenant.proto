@@ -8,8 +8,8 @@ import "m8/platform/resourcemanager/v1/resource.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 message Tenant {
-  ResourceMetadata metadata = 1 [
-    (google.api.field_behavior) = REQUIRED,
-    (buf.validate.field).required = true
-  ];
+    ResourceMetadata metadata = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (buf.validate.field).required = true
+    ];
 }

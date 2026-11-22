@@ -7,36 +7,36 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 enum OrgUnitMutationKind {
-  ORG_UNIT_MUTATION_KIND_UNSPECIFIED = 0;
-  ORG_UNIT_MUTATION_KIND_CREATE = 1;
-  ORG_UNIT_MUTATION_KIND_MOVE = 2;
-  ORG_UNIT_MUTATION_KIND_RENAME = 3;
-  ORG_UNIT_MUTATION_KIND_CLOSE = 4;
+    ORG_UNIT_MUTATION_KIND_UNSPECIFIED = 0;
+    ORG_UNIT_MUTATION_KIND_CREATE = 1;
+    ORG_UNIT_MUTATION_KIND_MOVE = 2;
+    ORG_UNIT_MUTATION_KIND_RENAME = 3;
+    ORG_UNIT_MUTATION_KIND_CLOSE = 4;
 
-  ORG_UNIT_MUTATION_KIND_SET_KIND = 5;
-  ORG_UNIT_MUTATION_KIND_SET_CODE = 6;
+    ORG_UNIT_MUTATION_KIND_SET_KIND = 5;
+    ORG_UNIT_MUTATION_KIND_SET_CODE = 6;
 }
 message OrgUnitMutation {
-  OrgUnitMutationKind kind = 1 [(google.api.field_behavior) = REQUIRED];
-  string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
-  string parent_org_unit_id = 3;
-  string display_name = 4;
-  string authoritative_source_id = 5;
+    OrgUnitMutationKind kind = 1 [(google.api.field_behavior) = REQUIRED];
+    string org_unit_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string parent_org_unit_id = 3;
+    string display_name = 4;
+    string authoritative_source_id = 5;
 
-  string kind_id = 6;
+    string kind_id = 6;
 
-  string code = 7;
+    string code = 7;
 
-  string reason = 8;
+    string reason = 8;
 }
 message OrgUnitChangeSet {
-  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
-  string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
-  int64 expected_structure_revision = 3 [(google.api.field_behavior) = REQUIRED];
+    string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+    string organization_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int64 expected_structure_revision = 3 [(google.api.field_behavior) = REQUIRED];
 
-  google.protobuf.Timestamp effective_at = 4;
-  repeated OrgUnitMutation mutations = 5 [(google.api.field_behavior) = REQUIRED];
-  string source_id = 6;
-  string change_set_status = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
-  int64 resulting_structure_revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp effective_at = 4;
+    repeated OrgUnitMutation mutations = 5 [(google.api.field_behavior) = REQUIRED];
+    string source_id = 6;
+    string change_set_status = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+    int64 resulting_structure_revision = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

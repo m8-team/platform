@@ -15,169 +15,169 @@ import "m8/platform/iam/v1/authentication_subject.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/iam/v1;iam";
 
 message Authentication {
-  option (m8.platform.common.extension.v1.topic) = "m8.platform.iam.authentications.v1";
+    option (m8.platform.common.extension.v1.topic) = "m8.platform.iam.authentications.v1";
 
-  string id = 1 [
-    (google.api.field_behavior) = IDENTIFIER,
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.uuid = true
-  ];
+    string id = 1 [
+        (google.api.field_behavior) = IDENTIFIER,
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  string client_id = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (google.api.field_behavior) = IMMUTABLE,
-    (buf.validate.field).string.uuid = true
-  ];
+    string client_id = 2 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (google.api.field_behavior) = IMMUTABLE,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  AuthenticationSubject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationSubject subject = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  AuthenticationPurpose purpose = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    AuthenticationPurpose purpose = 4 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  AuthenticationState state = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum = {
-      defined_only: true
-      not_in: [0]
-    }
-  ];
+    AuthenticationState state = 5 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum = {
+            defined_only: true
+            not_in: [0]
+        }
+    ];
 
-  AuthenticationStateReason state_reason = 6 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    AuthenticationStateReason state_reason = 6 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  AuthenticationChallengeInfo current_challenge = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationChallengeInfo current_challenge = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  repeated AuthenticationChallengeOption available_challenges = 8 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {max_items: 32}
-  ];
+    repeated AuthenticationChallengeOption available_challenges = 8 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).repeated = {max_items: 32}
+    ];
 
-  AuthenticationError error = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationError error = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  AuthenticationResult result = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationResult result = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  AuthenticationContext context = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationContext context = 11 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  google.protobuf.Timestamp create_time = 12 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (google.api.field_behavior) = IMMUTABLE
-  ];
+    google.protobuf.Timestamp create_time = 12 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (google.api.field_behavior) = IMMUTABLE
+    ];
 
-  google.protobuf.Timestamp update_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp update_time = 13 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  google.protobuf.Timestamp expire_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp expire_time = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  AuthenticationAssuranceLevel requested_assurance_level = 15 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    AuthenticationAssuranceLevel requested_assurance_level = 15 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  int64 version = 16 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).int64.gte = 0
-  ];
+    int64 version = 16 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).int64.gte = 0
+    ];
 }
 
 message AuthenticationInteraction {
-  string authentication_id = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.uuid = true
-  ];
+    string authentication_id = 1 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).string.uuid = true
+    ];
 
-  string interaction_token = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string = {
-      min_len: 8
-      max_len: 4096
-    }
-  ];
+    string interaction_token = 2 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).string = {
+            min_len: 8
+            max_len: 4096
+        }
+    ];
 
-  google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message AuthenticationResult {
-  google.protobuf.Timestamp auth_time = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp auth_time = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  AuthenticationAssuranceLevel achieved_assurance_level = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    AuthenticationAssuranceLevel achieved_assurance_level = 2 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  repeated AuthenticationMethod authentication_methods = 3 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {
-      max_items: 32
-      items: {
-        enum: {
-          defined_only: true
-          not_in: [0]
+    repeated AuthenticationMethod authentication_methods = 3 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).repeated = {
+            max_items: 32
+            items: {
+                enum: {
+                    defined_only: true
+                    not_in: [0]
+                }
+            }
         }
-      }
-    }
-  ];
+    ];
 
-  repeated string method_ids = 4 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {
-      max_items: 32
-      items: {
-        string: {
-          min_len: 1
-          max_len: 255
+    repeated string method_ids = 4 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).repeated = {
+            max_items: 32
+            items: {
+                string: {
+                    min_len: 1
+                    max_len: 255
+                }
+            }
         }
-      }
-    }
-  ];
+    ];
 
-  repeated string amr = 5 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).repeated = {
-      max_items: 32
-      items: {
-        string: {
-          min_len: 1
-          max_len: 64
+    repeated string amr = 5 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).repeated = {
+            max_items: 32
+            items: {
+                string: {
+                    min_len: 1
+                    max_len: 64
+                }
+            }
         }
-      }
-    }
-  ];
+    ];
 
-  string acr = 6 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 255
-  ];
+    string acr = 6 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).string.max_len = 255
+    ];
 
-  AuthenticationHandoff handoff = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+    AuthenticationHandoff handoff = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message AuthenticationHandoff {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
+    enum Type {
+        TYPE_UNSPECIFIED = 0;
 
-    AUTHORIZATION_CODE = 1;
+        AUTHORIZATION_CODE = 1;
 
-    CIBA_AUTH_REQ_ID = 2;
+        CIBA_AUTH_REQ_ID = 2;
 
-    SESSION_HANDOFF = 3;
+        SESSION_HANDOFF = 3;
 
-    JWT_BEARER_ASSERTION = 4;
+        JWT_BEARER_ASSERTION = 4;
 
-    KEYCLOAK_LOGIN_ACTION = 5;
-  }
+        KEYCLOAK_LOGIN_ACTION = 5;
+    }
 
-  Type type = 1 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).enum.defined_only = true
-  ];
+    Type type = 1 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).enum.defined_only = true
+    ];
 
-  string handoff_id = 2 [
-    (google.api.field_behavior) = OUTPUT_ONLY,
-    (buf.validate.field).string.max_len = 512
-  ];
+    string handoff_id = 2 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (buf.validate.field).string.max_len = 512
+    ];
 
-  google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp expire_time = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

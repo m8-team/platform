@@ -7,20 +7,20 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1;resourcemanager";
 
 message OrgUnitMove {
-  string id = 1 [(google.api.field_behavior) = IDENTIFIER];
-  string tenant_id = 2;
-  string organization_id = 3;
-  string org_unit_id = 4;
+    string id = 1 [(google.api.field_behavior) = IDENTIFIER];
+    string tenant_id = 2;
+    string organization_id = 3;
+    string org_unit_id = 4;
 
-  string from_parent_org_unit_id = 5;
-  string to_parent_org_unit_id = 6;
+    string from_parent_org_unit_id = 5;
+    string to_parent_org_unit_id = 6;
 
-  google.protobuf.Timestamp effective_at = 7;
+    google.protobuf.Timestamp effective_at = 7;
 
-  int64 structure_revision = 8;
+    int64 structure_revision = 8;
 
-  string actor_id = 9;
-  string reason = 10;
-  google.protobuf.Timestamp recorded_at = 11;
-  string change_set_id = 12;
+    string actor_id = 9;
+    string reason = 10;
+    google.protobuf.Timestamp recorded_at = 11;
+    string change_set_id = 12;
 }
