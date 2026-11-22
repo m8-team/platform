@@ -23,6 +23,7 @@ import (
 var (
 	ErrInvalidConfig          = errors.New("invalid SpiceDB gRPC configuration")
 	ErrInvalidResponse        = errors.New("invalid SpiceDB response")
+	ErrRPCRejected            = errors.New("SpiceDB rejected authorization request")
 	ErrSchemaRevisionMismatch = errors.New("SpiceDB adapter model revision mismatch")
 	ErrInvalidGraphReference  = errors.New("invalid SpiceDB graph reference")
 )

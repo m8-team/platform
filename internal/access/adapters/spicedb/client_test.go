@@ -132,6 +132,7 @@ func TestSDKCheckFailsClosedOnUnknownMissingRevisionAndRPCFailure(t *testing.T) 
 		{"unknown permissionship", &pb.CheckPermissionResponse{CheckedAt: &pb.ZedToken{Token: "z"}}, nil, ErrInvalidResponse},
 		{"missing zed token", &pb.CheckPermissionResponse{Permissionship: pb.CheckPermissionResponse_PERMISSIONSHIP_HAS_PERMISSION}, nil, ErrInvalidResponse},
 		{"unavailable", nil, status.Error(codes.Unavailable, "secret from infrastructure"), ports.ErrPermissionEngineUnavailable},
+		{"invalid argument sanitized", nil, status.Error(codes.InvalidArgument, "secret from infrastructure"), ErrRPCRejected},
 		{"timeout", nil, status.Error(codes.DeadlineExceeded, "secret"), ports.ErrPermissionEngineTimeout},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

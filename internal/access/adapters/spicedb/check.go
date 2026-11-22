@@ -26,7 +26,7 @@ func classifyRPCFailure(ctx context.Context, err error) error {
 	case codes.Unavailable, codes.ResourceExhausted:
 		return fmt.Errorf("%w: SpiceDB unavailable", ports.ErrPermissionEngineUnavailable)
 	default:
-		return fmt.Errorf("SpiceDB gRPC: %w", err)
+		return fmt.Errorf("%w: %s", ErrRPCRejected, status.Code(err))
 	}
 }
 
