@@ -48,6 +48,12 @@ func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID,
 		if err != nil {
 			return ports.RelationshipWriteResult{}, err
 		}
+		if change.Operation == ports.RelationshipDelete {
+			// DELETE matches tuple identity only; omit expired metadata to make
+			// revocation independent of the original expiration timestamp.
+			rel.OptionalExpiresAt = nil
+			rel.OptionalCaveat = nil
+		}
 		request.Updates = append(request.Updates, update{Operation: operation, Relationship: rel})
 	}
 	var response struct {

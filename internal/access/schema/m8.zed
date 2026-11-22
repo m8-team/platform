@@ -1,0 +1,73 @@
+// M8 Access / SpiceDB Schema v1.
+// Resource Manager is authoritative for resource ownership and tenancy;
+// graph objects are only authorization projections.
+// IDs on BOTH sides use: <tenant-uuid>/<base64url(raw-id)>.
+use expiration
+
+definition user {}
+definition service_account {}
+
+// One independent binding node per M8 RoleBinding. The owning M8 Role is
+// expanded to explicit permission edges by the projection worker.
+definition access_binding {
+  relation holder: user | service_account
+}
+
+// One independent grant node per M8 AccessGrant. Only an ACTIVE grant gets a
+// holder edge, which expires at the grant's expires_at. APPROVED grants only
+// get resource edges and therefore cannot authorize any subject.
+definition access_grant {
+  relation holder: user with expiration | service_account with expiration
+}
+
+// No implicit parent inheritance: hierarchy is exclusively owned by
+// Resource Manager and must be explicitly projected in a future revision.
+definition organization {
+  relation viewer: access_binding#holder | access_grant#holder
+  relation editor: access_binding#holder | access_grant#holder
+  relation manager: access_binding#holder | access_grant#holder
+  relation deleter: access_binding#holder | access_grant#holder
+
+  permission view = viewer + editor + manager + deleter
+  permission edit = editor + manager
+  permission manage = manager
+  permission delete = deleter + manager
+}
+
+definition workspace {
+  relation viewer: access_binding#holder | access_grant#holder
+  relation editor: access_binding#holder | access_grant#holder
+  relation manager: access_binding#holder | access_grant#holder
+  relation deleter: access_binding#holder | access_grant#holder
+
+  permission view = viewer + editor + manager + deleter
+  permission edit = editor + manager
+  permission manage = manager
+  permission delete = deleter + manager
+}
+
+definition environment {
+  relation viewer: access_binding#holder | access_grant#holder
+  relation editor: access_binding#holder | access_grant#holder
+  relation manager: access_binding#holder | access_grant#holder
+  relation deployer: access_binding#holder | access_grant#holder
+
+  permission view = viewer + editor + manager + deployer
+  permission edit = editor + manager
+  permission manage = manager
+  permission deploy = deployer + manager
+}
+
+definition workload_service {
+  relation viewer: access_binding#holder | access_grant#holder
+  relation editor: access_binding#holder | access_grant#holder
+  relation manager: access_binding#holder | access_grant#holder
+  relation deleter: access_binding#holder | access_grant#holder
+  relation deployer: access_binding#holder | access_grant#holder
+
+  permission view = viewer + editor + manager + deleter + deployer
+  permission edit = editor + manager
+  permission manage = manager
+  permission delete = deleter + manager
+  permission deploy = deployer + manager
+}
