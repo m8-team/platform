@@ -1,6 +1,6 @@
 # Architecture & Security Standard
 
-**Status:** PROPOSED · **Scope:** backend modules, integration boundaries, every API and Console surface handling tenant resources. See [index](README.md).
+**Status:** ACTIVE (for new/modified code; enforcement phased) · **Scope:** backend modules, integration boundaries, every API and Console surface handling tenant resources. See [index](README.md).
 
 ## A. Architecture and ownership
 
@@ -24,7 +24,7 @@ Each business resource/state has one owning module responsible for authoritative
 | Actual workload rollout/provider reconciliation | Delivery/Runtime (where implemented) | Logical owner hierarchy |
 | UI screens | Console | Authoritative authorization or persistence state |
 
-These are *intended responsibility contracts*, not assertions that every module has a production implementation today. New owners MUST be documented in their module README or ADR.
+These are *intended responsibility contracts*, not assertions that every module has a production implementation today. New owners MUST be documented in their module README or ADR. See [module-ownership.md](module-ownership.md) for the current authority registry with explicit planned vs implemented labels.
 
 ### ARCH-003 — Inward dependency direction (MUST)
 
@@ -49,7 +49,7 @@ New methods that mutate another module's resource MUST route to the owner. If a 
 
 Tenant-owned resources have exactly one valid owner scope according to the owning resource-kind contract (currently Organization or optional Workspace where defined), and one server-derived owning Organization where applicable. A Workspace is not always required. OrganizationGroup affiliation DOES NOT imply permissions. An Environment is not a hierarchy parent. Reject invalid owner combinations; verify the relevant scope against persisted authoritative state, not only client input.
 
-**Existing drift to reconcile explicitly:** the current `ResourceKindPolicy` sample includes `project` as an allowed owner kind while current `OwnerScope` has Organization/Workspace alternatives. Agents MUST flag rather than silently rewrite either behavior. See resource manager contracts and README.
+**Existing drift — interim safety rule:** current `ResourceKindPolicy.allowed_owner_kinds` accepts `project`, but `OwnerScope` only supports Organization/Workspace and reserves `project_id`. Until [ADR-0001](adr/ADR-0001-resource-owner-scope.md) is accepted and its contract/runtime migration is implemented, **MUST NOT** introduce Project as an owner scope or register a policy that permits a placement the runtime cannot represent. Reject invalid Project placements without silently mapping Project to Workspace or weakening the public Protobuf contract.
 
 ### ARCH-006 — Consistency and asynchronous boundaries (MUST)
 
@@ -77,7 +77,7 @@ M8 Access provides policy decisions (AuthZEN-compatible APIs). Gateway MAY enfor
 
 Enforce tenant scope at query, cache, event consumption and response mapping boundaries. Pagination, filtering and counts must not expose unauthorized objects. Never perform global list then paginate and filter authorization; apply eligible scope before pagination, or use an authorization-aware query plan with equivalent semantics.
 
-Cache keys MUST include tenant and relevant authorization/model scope; invalidate or isolate on tenant switch, permission change and sensitive revocation. Avoid secrets or PII in telemetry or caches without approved storage controls.
+Cache keys MUST include tenant and relevant authorization/model scope; invalidate or isolate on tenant switch, permission change and sensitive revocation. Avoid secrets or PII in telemetry or caches without approved storage controls. See `SEC-009` for decision consistency/freshness and `SEC-010` for mutation races.
 
 ### SEC-004 — Authentication and transport (MUST)
 
@@ -99,20 +99,28 @@ Service identities and deployment credentials are scoped minimally. Actions chan
 
 Set per-route/per-tenant resource limits, bounded payloads, pagination caps, request deadlines, and abuse-aware rate limits. Design retries with budgets and jitter; protect against retry amplification and unbounded fan-out. Add explicit threat analysis for security-sensitive public interfaces.
 
+### SEC-009 — Authorization consistency and revocation (MUST for protected paths)
+
+Every authorization check/cache MUST declare the decision inputs (principal, tenant, action, resource, context and policy/model revision where supported), consistency strategy, and maximum acceptable staleness/revocation window. There is **no universally safe cache TTL**: protected-data criticality determines whether decisions require fresh evaluation or validated revision-based caching. For sensitive reads, privilege/ownership changes and critical mutations, stale positive decisions MUST NOT outlive the approved revocation window. If the PDP cannot satisfy the required freshness, fail closed and surface a safe retryable error. Cache keys MUST distinguish principal, tenant, resource/action and applicable policy revision. Document tests for revocation, stale cache, PDP timeout and policy evolution.
+
+### SEC-010 — Authorization check/use races (MUST for protected mutations)
+
+An initial Gateway/application PDP result does not guarantee owner/tenant state is unchanged at mutation time. The owning service MUST bind authoritative tenant, owner, resource revision and security-relevant state preconditions to its write/transaction, rejecting or retrying on mismatch. When a remote PDP decision cannot join the database transaction, document the accepted decision lifetime, re-evaluation trigger and conditional-write guarantees. Do not assume a remote authorization check and later storage write are atomic. Test concurrent move/transfer, revocation and stale-revision scenarios.
+
 ## C. Concrete security decision flow
 
 1. Authenticate caller and verify trusted principal/tenant context.
 2. Resolve authoritative resource owner/tenant and business state (no client-derived ownership).
 3. Ask Access/PDP for the relevant decision, including context/model revision as needed.
 4. Apply domain and business invariants locally in the owning module.
-5. Execute read/write with scope restrictions and concurrency/idempotency protections.
+5. Execute read/write with scope restrictions and concurrency/idempotency protections, including current authoritative owner/tenant/revision preconditions (`SEC-010`).
 6. Record an appropriate audit event; return only authorized fields.
 
 No step may be skipped because a gateway or frontend already made a similar check.
 
 ## D. Exception and verification policy
 
-An exception to `ARCH-*` or `SEC-*` MUST identify: affected requirement ID, owner, business rationale, threat/impact, alternative controls, expiration or migration target, approving reviewer, and an ADR link. AI agents MUST NOT self-approve exceptions.
+An exception to `ARCH-*` or `SEC-*` MUST follow [the approval model](approval-model.md) and identify: affected requirement ID, owner, business rationale, threat/impact, alternative controls, expiration or migration target, approving reviewer, and an ADR link. AI agents MUST NOT self-approve exceptions.
 
 **High-value review tests:** unauthorized `Get/List/Update`; cross-tenant ID in request; scope changed after lookup; stale expected revision; replay same idempotency key with same/different payload; revocation during caching; PDP timeout; event replay; multi-tenant pagination; failure to write outbox/audit record.
 

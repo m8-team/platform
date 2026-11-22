@@ -1,0 +1,10 @@
+# Review routing for engineering governance. Required approvals need repository rulesets.
+# Verified repository maintainer; independent security/architecture approvers must be designated.
+/AGENTS.md @sergey-a-gorbachev
+/CLAUDE.md @sergey-a-gorbachev
+/internal/AGENTS.md @sergey-a-gorbachev
+/proto/AGENTS.md @sergey-a-gorbachev
+/ui/console/AGENTS.md @sergey-a-gorbachev
+/docs/engineering/ @sergey-a-gorbachev
+/.github/workflows/engineering-standards.yml @sergey-a-gorbachev
+/scripts/check_engineering_docs.py @sergey-a-gorbachev

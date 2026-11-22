@@ -1,11 +1,11 @@
 # M8 Engineering Review & Acceptance Checklist
 
-**Status:** PROPOSED. Use as PR template or AI final verification report. Mark N/A with reason; do not check items without evidence.
+**Status:** ACTIVE (for new/modified code; enforcement phased). Use as PR template or AI final verification report. Mark N/A with reason; do not check items without evidence.
 
 ## Context and scope
 
 - [ ] User story/bug and acceptance criteria are clear.
-- [ ] Owning module, authoritative state and affected resources are identified (`ARCH-002`).
+- [ ] Owning module, authoritative state and affected resources are identified (`ARCH-002`, [ownership registry](module-ownership.md)).
 - [ ] Diff is minimal and does not overwrite unrelated work (`AI-005`).
 - [ ] Existing README/ADR/contract/runtime discrepancies are recorded, not silently normalized (`AI-003`).
 
@@ -14,6 +14,7 @@
 - [ ] Module dependency direction and public API boundaries are preserved (`ARCH-003`).
 - [ ] No cross-module writes or duplicate authoritative owners (`ARCH-002`).
 - [ ] Tenant scope and object-level authorization are enforced server-side (`SEC-001`, `SEC-002`).
+- [ ] Authorization freshness/revocation window and mutation owner/tenant TOCTOU protections are addressed (`SEC-009`, `SEC-010`).
 - [ ] Denied/missing identity, cross-tenant, revocation and failure paths are covered (`SEC-003`).
 - [ ] No production bypass, sensitive logs or exposed secrets (`SEC-002`, `SEC-005`).
 - [ ] Audit trail and mutation integrity are addressed (`SEC-006`).
@@ -46,11 +47,12 @@
 - [ ] API types, tenant-scoped query keys and stale-cache behavior are correct (`FE-003`, `FE-004`).
 - [ ] Loading, empty, error, forbidden, success and conflict states are handled (`UX-001`).
 - [ ] Keyboard, labels, focus, i18n and responsive behavior checked (`UX-002`, `UX-003`).
-- [ ] Demo/fixture data cannot masquerade as live data (`FE-007`).
+- [ ] New or touched fixture data flows cannot masquerade as live data; untouched legacy debt is recorded (`FE-007`).
 
 ## Human review and release
 
-- [ ] Breaking/public/security/ownership/data changes have required human review (`AI-010`).
+- [ ] Breaking/public/security/ownership/data changes have appropriate accountable human review under [approval-model.md](approval-model.md) (`AI-010`).
+- [ ] CI status and baseline exceptions are accurately described; CODEOWNERS alone is not human approval.
 - [ ] ADR/exception exists for deliberately bypassed MUST rule (`architecture-security.md`).
 - [ ] Staged rollout/rollback is clear for risky change.
 - [ ] No merge, deployment, destructive migration or other protected action occurred without approval.

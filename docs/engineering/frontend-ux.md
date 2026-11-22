@@ -1,6 +1,6 @@
 # Frontend & UX Standard
 
-**Status:** PROPOSED · **Scope:** `ui/console/**`. Current stack includes React, TypeScript, Gravity UI, TanStack Router, TanStack Query, Vite and pnpm.
+**Status:** ACTIVE (for new/modified code; enforcement phased) · **Scope:** `ui/console/**`. Current stack includes React, TypeScript, Gravity UI, TanStack Router, TanStack Query, Vite and pnpm.
 
 ## A. Architecture and implementation
 
@@ -54,7 +54,7 @@ Avoid expensive computation in render, unnecessary re-fetching or mounting high-
 
 ### FE-007 — Demo data separation (MUST)
 
-Current console includes some static illustrative data. New/changed pages MUST clearly distinguish fixture/demo mode from live API data. Demo fixtures belong in explicit fixture files or a documented dev adapter, never mixed with real backend responses in production behavior. Never create users, resources or permission states that appear genuinely live without a source.
+Current console includes some static illustrative data. Any **new or modified data flow** MUST distinguish fixture/demo mode from live API data and place fixtures in dedicated fixture files or a documented dev adapter. A narrow unrelated visual change to a legacy page does not demand rewriting untouched mock-backed paths; record the existing gap and do not make it worse. A touched data flow advertised as production-backed MUST NOT silently use fixtures or mix mock and real backend responses. Never present fake users, resources or permission states as live.
 
 ### FE-008 — Authorization representation (MUST)
 

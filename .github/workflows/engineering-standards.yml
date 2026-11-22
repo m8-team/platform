@@ -1,0 +1,54 @@
+name: Engineering standards
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  policy-docs:
+    name: Policy links and requirement IDs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate engineering standards references and rule IDs
+        run: python3 scripts/check_engineering_docs.py
+
+  gofmt-changed:
+    name: Go format (changed files)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check changed Go files
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          git diff --name-only -z --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" -- cmd/ internal/ > /tmp/m8-go-changed.z
+          mapfile -d '' changed < /tmp/m8-go-changed.z
+          go_files=()
+          for path in "${changed[@]}"; do
+            if [[ "$path" == *.go ]]; then
+              go_files+=("$path")
+            fi
+          done
+          if (( ${#go_files[@]} == 0 )); then
+            echo "No changed Go files"
+            exit 0
+          fi
+          bad="$(gofmt -l "${go_files[@]}")"
+          if [[ -n "$bad" ]]; then
+            printf 'Unformatted Go files:\n%s\n' "$bad" >&2
+            exit 1
+          fi
+          echo "Go formatting passed for ${#go_files[@]} changed files"

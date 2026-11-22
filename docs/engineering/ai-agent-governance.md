@@ -1,6 +1,6 @@
 # AI Agent Governance Standard
 
-**Status:** PROPOSED · **Scope:** Codex, Claude Code and any autonomous contributor operating on the repository.
+**Status:** ACTIVE (for new/modified code; enforcement phased) · **Scope:** Codex, Claude Code and any autonomous contributor operating on the repository.
 
 ## A. Authority, trust and working boundaries
 
@@ -44,7 +44,7 @@ No copying repository secrets, tokens, private customer data, internal keys or c
 
 ### AI-010 — Human approval gates (MUST)
 
-Do not perform these without specific, informed authorization: pushing/merging/deleting Git branches, force-push, publishing releases, deploying or changing cloud production resources, destructive migrations/backfills, changing permissions or secrets, bypassing protected CI, rotating keys, or bulk resource deletions. An instruction to “fix the PR” is not blanket approval for force push, permission changes or production deployment.
+Do not perform these without specific, informed authorization: pushing/merging/deleting Git branches, force-push, publishing releases, deploying or changing cloud production resources, destructive migrations/backfills, changing permissions or secrets, bypassing protected CI, rotating keys, or bulk resource deletions. An instruction to “fix the PR” is not blanket approval for force push, permission changes or production deployment. [Approval-model.md](approval-model.md) defines accountable human approvers and exception/CI policy. CODEOWNERS provides routing only; it does not prove human approval or branch protection.
 
 ### AI-011 — Escalate architectural ambiguity (MUST)
 
@@ -72,7 +72,7 @@ Produce a concise report containing: objective/result, files changed, tests run 
 | --- | --- | --- |
 | R0 — Documentation/local test | Typo, non-behavioral docs, isolated test fixes | Implement in authorized local scope; verify |
 | R1 — Single-module behavior | Internal use case or UI change without contract/security change | Implement with tests and scoped review |
-| R2 — Public interface or state | Protobuf route, YDB schema, event contract, resource owner, auth decisions | Plan + explicit architecture/security review before accepting breaking or sensitive changes |
+| R2 — Public interface or state | Protobuf route, YDB schema, event contract, resource owner, auth decisions | Plan + designated architecture/security review per approval-model.md, with explicit accepted ADR when changing contested ownership |
 | R3 — Irreversible/production | Production deployment, destructive migration, secret rotation, force push, release | Never act without explicit approval of the specific action |
 
 Even R0/R1 changes must respect authorization and data safety invariants. Higher-priority platform/tool permissions still apply.

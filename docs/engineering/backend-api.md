@@ -1,6 +1,6 @@
 # Backend & API Standard
 
-**Status:** PROPOSED · **Applies to:** Go application code, Protobuf source, ConnectRPC/gRPC/HTTP adapters, YDB integrations, events and background processing.
+**Status:** ACTIVE (for new/modified code; enforcement phased) · **Applies to:** Go application code, Protobuf source, ConnectRPC/gRPC/HTTP adapters, YDB integrations, events and background processing.
 
 ## A. Go implementation
 
@@ -60,6 +60,10 @@ UpdateResourceRequest
 ### API-005 — Read/list/search semantics (MUST)
 
 Specify page size cap, ordering stability, filters, tenant/resource scope, authentication and authorization, cursor integrity and expiry. Do not leak unauthorized entries through results, totals or cursors. Define empty-set behavior and distinguish `NotFound` from `PermissionDenied` according to the resource-disclosure security policy.
+
+### API-009 — Representable resource placement (MUST)
+
+Registration policies MUST NOT advertise owner kinds that the current ownership contract/runtime cannot represent. Validate `allowed_owner_kinds` against supported `OwnerScope` alternatives; reject impossible placements rather than inventing Project-to-Workspace mapping. Existing `project` policy/oneof drift is tracked by [ADR-0001](adr/ADR-0001-resource-owner-scope.md). An actual Protobuf change requires the accepted ADR, compatibility review and explicit migration — it is not authorized by this documentation standard.
 
 ### API-006 — Long-running operations (MUST when applicable)
 
