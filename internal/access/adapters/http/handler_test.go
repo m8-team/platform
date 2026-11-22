@@ -72,7 +72,13 @@ func TestAuthZENValidation(t *testing.T) {
 		{&pb.SubjectSelector{Type: "user", Id: strings.Repeat("x", 257)}, true},
 		{&pb.ResourceSelector{Type: "file", Id: strings.Repeat("x", 257)}, true},
 	} {
-		if err := protovalidate.Validate(tc.msg); (err == nil) != tc.valid {
+		var err error
+		if batch, ok := tc.msg.(*pb.EvaluateAccessBatchRequest); ok {
+			err = validateBatchRequest(batch)
+		} else {
+			err = protovalidate.Validate(tc.msg)
+		}
+		if (err == nil) != tc.valid {
 			t.Errorf("%T: valid=%t, got %v", tc.msg, tc.valid, err)
 		}
 	}

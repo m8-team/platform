@@ -40,7 +40,7 @@ type validatedServer struct {
 }
 
 func (s validatedServer) EvaluateAccessBatch(ctx context.Context, req *accesspb.EvaluateAccessBatchRequest) (*accesspb.EvaluateAccessBatchResponse, error) {
-	if err := protovalidate.Validate(req); err != nil {
+	if err := validateBatchRequest(req); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 	if len(req.Evaluations) != 0 {
