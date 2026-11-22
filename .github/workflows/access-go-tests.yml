@@ -1,0 +1,31 @@
+name: Access Go tests
+
+on:
+  pull_request:
+    paths:
+      - "internal/access/**"
+      - "go.mod"
+      - "go.sum"
+  push:
+    branches: [main]
+    paths:
+      - "internal/access/**"
+      - "go.mod"
+      - "go.sum"
+
+permissions:
+  contents: read
+
+jobs:
+  access-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Test Access packages
+        run: go test -count=1 ./internal/access/...
+      - name: Vet Access packages
+        run: go vet ./internal/access/...

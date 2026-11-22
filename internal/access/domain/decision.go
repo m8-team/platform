@@ -83,6 +83,7 @@ func (k EngineFailureKind) String() string {
 }
 
 type PermissionDecision struct {
+	zedToken      string
 	decision      Decision
 	modelRevision ModelRevision
 	reason        string
@@ -159,4 +160,18 @@ func (d PermissionDecision) Degraded() bool {
 
 func (d PermissionDecision) FailureKind() EngineFailureKind {
 	return d.failureKind
+}
+
+// WithZedToken records the SpiceDB check snapshot without conflating it with
+// the published authorization model revision.
+func (d PermissionDecision) WithZedToken(token string) (PermissionDecision, error) {
+	if token == "" || len(token) > 4096 {
+		return PermissionDecision{}, ErrInvalidZedToken
+	}
+	d.zedToken = token
+	return d, nil
+}
+
+func (d PermissionDecision) ZedToken() string {
+	return d.zedToken
 }
