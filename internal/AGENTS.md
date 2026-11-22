@@ -1,0 +1,13 @@
+# Go Backend — Scoped Agent Instructions
+
+Applies to `internal/**`. Also follow the root `AGENTS.md`.
+
+Read `docs/engineering/architecture-security.md`, `docs/engineering/backend-api.md`, and `docs/engineering/quality-testing.md` as relevant to the changed code.
+
+- Respect module ownership: Resource Manager owns resource hierarchy/ownership metadata; Access owns authorization policy and decisions. Other modules own their business state.
+- Keep domain/application logic separate from gRPC/HTTP/YDB/Kafka adapters. Use inward dependency direction; do not reach into another module's private storage.
+- Prefer narrow application-facing ports and constructor injection. Use Fx in composition roots only.
+- Propagate context/deadlines, return typed/wrapped errors, and prevent sensitive or cross-tenant data in logs.
+- Implement checks in runtime code; `.proto` annotations alone are not proof of validation, idempotency, authorization, or revision control.
+- Test edge cases: tenant mismatch, unauthorized access, retries, concurrent updates, cancellations, and failure paths.
+- Do not assume `internal/resourcemanager/` is fully migrated to its replacement v1 contracts; inspect actual handlers and README gaps before editing.
