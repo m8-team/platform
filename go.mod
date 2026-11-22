@@ -6,13 +6,14 @@ require (
 	buf.build/go/protovalidate v1.1.3
 	cloud.google.com/go/longrunning v1.2.0
 	connectrpc.com/connect v1.20.0
+	github.com/authzed/authzed-go v1.11.0
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.155.1
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/fx v1.24.0
-	google.golang.org/grpc v1.82.1
+	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	k8s.io/apimachinery v0.36.2
 )
@@ -21,6 +22,11 @@ require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260709200747-435963d16310.1 // indirect
 	cel.dev/expr v0.25.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
+	github.com/authzed/grpcutil v0.0.0-20240123194739-2ea1e3d2d98b // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
+	github.com/envoyproxy/protoc-gen-validate v1.3.3 // indirect
+	github.com/jzelinskie/stringz v0.0.3 // indirect
+	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect

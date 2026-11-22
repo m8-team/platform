@@ -4,43 +4,42 @@ import (
 	"context"
 	"fmt"
 
+	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/domain"
 )
 
-// WriteRelationships atomically applies changes in a single SpiceDB request.
-// It does not publish domain events or advance an M8 source watermark.
+// WriteRelationships writes a single atomic SpiceDB transaction via the
+// official Go SDK. No source watermark is advanced by this adapter.
 func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID, changes []ports.RelationshipChange) (ports.RelationshipWriteResult, error) {
+	if err := ctx.Err(); err != nil {
+		return ports.RelationshipWriteResult{}, err
+	}
 	if err := tenant.Validate(); err != nil {
 		return ports.RelationshipWriteResult{}, err
 	}
 	if len(changes) == 0 || len(changes) > 1000 {
 		return ports.RelationshipWriteResult{}, ports.ErrInvalidRelationshipChange
 	}
-	type update struct {
-		Operation    string            `json:"operation"`
-		Relationship graphRelationship `json:"relationship"`
-	}
-	request := struct {
-		Updates []update `json:"updates"`
-	}{Updates: make([]update, 0, len(changes))}
+	updates := make([]*pb.RelationshipUpdate, 0, len(changes))
 	seen := make(map[domain.RelationshipKey]struct{}, len(changes))
 	for _, change := range changes {
 		if change.Relationship.TenantID() != tenant {
 			return ports.RelationshipWriteResult{}, ports.ErrInvalidRelationshipChange
 		}
-		if _, exists := seen[change.Relationship.Key()]; exists {
+		key := change.Relationship.Key()
+		if _, ok := seen[key]; ok {
 			return ports.RelationshipWriteResult{}, ports.ErrInvalidRelationshipChange
 		}
-		seen[change.Relationship.Key()] = struct{}{}
-		var operation string
+		seen[key] = struct{}{}
+		var operation pb.RelationshipUpdate_Operation
 		switch change.Operation {
 		case ports.RelationshipCreate:
-			operation = "OPERATION_CREATE"
+			operation = pb.RelationshipUpdate_OPERATION_CREATE
 		case ports.RelationshipTouch:
-			operation = "OPERATION_TOUCH"
+			operation = pb.RelationshipUpdate_OPERATION_TOUCH
 		case ports.RelationshipDelete:
-			operation = "OPERATION_DELETE"
+			operation = pb.RelationshipUpdate_OPERATION_DELETE
 		default:
 			return ports.RelationshipWriteResult{}, ports.ErrInvalidRelationshipChange
 		}
@@ -49,22 +48,17 @@ func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID,
 			return ports.RelationshipWriteResult{}, err
 		}
 		if change.Operation == ports.RelationshipDelete {
-			// DELETE matches tuple identity only; omit expired metadata to make
-			// revocation independent of the original expiration timestamp.
+			// Delete by tuple identity; expiry/caveat metadata must be absent.
 			rel.OptionalExpiresAt = nil
 			rel.OptionalCaveat = nil
 		}
-		request.Updates = append(request.Updates, update{Operation: operation, Relationship: rel})
+		updates = append(updates, &pb.RelationshipUpdate{Operation: operation, Relationship: rel})
 	}
-	var response struct {
-		WrittenAt struct {
-			Token string `json:"token"`
-		} `json:"writtenAt"`
+	response, err := c.permissions.WriteRelationships(ctx, &pb.WriteRelationshipsRequest{Updates: updates})
+	if err != nil {
+		return ports.RelationshipWriteResult{}, classifyRPCFailure(ctx, err)
 	}
-	if err := c.post(ctx, "/v1/relationships/write", request, &response); err != nil {
-		return ports.RelationshipWriteResult{}, err
-	}
-	if response.WrittenAt.Token == "" {
+	if response == nil || response.WrittenAt == nil || response.WrittenAt.Token == "" {
 		return ports.RelationshipWriteResult{}, fmt.Errorf("%w: missing writtenAt", ErrInvalidResponse)
 	}
 	return ports.RelationshipWriteResult{ZedToken: response.WrittenAt.Token}, nil

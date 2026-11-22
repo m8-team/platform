@@ -1,141 +1,116 @@
-// Package spicedb adapts the SpiceDB HTTP API to M8 Access application ports.
-// It does not own role/grant lifecycles, schema publication or tenant identity.
+// Package spicedb adapts the official Authzed Go SDK to M8 Access ports.
+// It does not own grants, authorization schema lifecycle, or tenant identity.
 package spicedb
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"crypto/tls"
 	"errors"
 	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
+	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
+	authzed "github.com/authzed/authzed-go/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/domain"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
-	ErrInvalidConfig          = errors.New("invalid SpiceDB adapter configuration")
+	ErrInvalidConfig          = errors.New("invalid SpiceDB gRPC configuration")
 	ErrInvalidResponse        = errors.New("invalid SpiceDB response")
 	ErrSchemaRevisionMismatch = errors.New("SpiceDB adapter model revision mismatch")
 	ErrInvalidGraphReference  = errors.New("invalid SpiceDB graph reference")
 )
 
-const maxMessageBytes = 1 << 20
-
-// Config is a pinned, independently reviewed graph schema deployment.
-// ModelRevision is an M8 schema marker; it is NOT a ZedToken and is NOT
-// automatically verified against the live SpiceDB schema.
+// Config describes the SpiceDB gRPC endpoint and the operator-reviewed M8 model
+// revision. ModelRevision is NOT a ZedToken and is not verified by the constructor.
+// It must be verified against the deployed schema during model rollout.
 type Config struct {
-	Endpoint              string
+	Endpoint              string // host:port, without scheme or path
 	BearerToken           string
 	ModelRevision         string
-	AllowInsecureLoopback bool // for local tests only; never for deployment
+	AllowInsecureLoopback bool // local tests only; production MUST use TLS
 }
 
-// Client implements PermissionEngine and RelationshipWriter using SpiceDB's
-// native HTTP gateway. Enable it on SpiceDB with --http-enabled.
+// Client uses the official authzed-go SDK. The PermissionsServiceClient interface
+// permits unit tests without an external SpiceDB process.
 type Client struct {
-	endpoint   string
-	token      string
-	revision   domain.ModelRevision
-	catalog    ports.PermissionCatalog
-	httpClient *http.Client
+	sdk         *authzed.Client
+	permissions pb.PermissionsServiceClient
+	revision    domain.ModelRevision
+	catalog     ports.PermissionCatalog
 }
 
 var _ ports.PermissionEngine = (*Client)(nil)
 var _ ports.RelationshipWriter = (*Client)(nil)
 
-func NewClient(cfg Config, catalog ports.PermissionCatalog, transport *http.Client) (*Client, error) {
-	if catalog == nil {
+// NewClient owns a gRPC connection; callers must Close it during shutdown.
+func NewClient(cfg Config, catalog ports.PermissionCatalog) (*Client, error) {
+	if catalog == nil || strings.TrimSpace(cfg.BearerToken) == "" || strings.ContainsAny(cfg.BearerToken, "\r\n") {
 		return nil, ErrInvalidConfig
 	}
-	u, err := url.Parse(cfg.Endpoint)
-	if err != nil || u == nil || u.Host == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || (u.Path != "" && u.Path != "/") {
+	endpoint := strings.TrimSpace(cfg.Endpoint)
+	parsed, err := url.Parse("//" + endpoint)
+	if err != nil || parsed.Host == "" || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || parsed.Path != "" || parsed.Hostname() == "" {
 		return nil, ErrInvalidConfig
 	}
-	if u.Scheme != "https" {
-		if u.Scheme != "http" || !cfg.AllowInsecureLoopback || !isLoopback(u.Hostname()) {
+	if _, _, err := net.SplitHostPort(endpoint); err != nil {
+		return nil, ErrInvalidConfig
+	}
+	revision, err := domain.NewModelRevision(cfg.ModelRevision)
+	if err != nil {
+		return nil, ErrInvalidConfig
+	}
+	var transport credentials.TransportCredentials = credentials.NewTLS(&tls.Config{MinVersion: tls.VersionTLS12})
+	if cfg.AllowInsecureLoopback {
+		host := parsed.Hostname()
+		ip := net.ParseIP(host)
+		if !strings.EqualFold(host, "localhost") && (ip == nil || !ip.IsLoopback()) {
 			return nil, ErrInvalidConfig
 		}
+		transport = insecure.NewCredentials()
 	}
-	if strings.TrimSpace(cfg.BearerToken) == "" || strings.ContainsAny(cfg.BearerToken, "\r\n") {
-		return nil, ErrInvalidConfig
-	}
-	rev, err := domain.NewModelRevision(strings.TrimSpace(cfg.ModelRevision))
+	client, err := authzed.NewClient(endpoint,
+		grpc.WithTransportCredentials(transport),
+		grpc.WithPerRPCCredentials(bearerCredentials{token: cfg.BearerToken, tlsRequired: !cfg.AllowInsecureLoopback}),
+	)
 	if err != nil {
-		return nil, ErrInvalidConfig
+		return nil, fmt.Errorf("create SpiceDB SDK client: %w", err)
 	}
-	if transport == nil {
-		transport = &http.Client{Timeout: 5 * time.Second}
-	}
-	copyTransport := *transport
-	// A redirect must never forward a SpiceDB bearer token to another host.
-	copyTransport.CheckRedirect = func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }
-	return &Client{endpoint: strings.TrimRight(cfg.Endpoint, "/"), token: cfg.BearerToken, revision: rev, catalog: catalog, httpClient: &copyTransport}, nil
+	return &Client{sdk: client, permissions: client.PermissionsServiceClient, revision: revision, catalog: catalog}, nil
 }
 
-func isLoopback(host string) bool {
-	if strings.EqualFold(host, "localhost") {
-		return true
-	}
-	ip := net.ParseIP(host)
-	return ip != nil && ip.IsLoopback()
+type bearerCredentials struct {
+	token       string
+	tlsRequired bool
 }
 
-func (c *Client) post(ctx context.Context, path string, payload any, result any) error {
-	if err := ctx.Err(); err != nil {
-		return err
+func (b bearerCredentials) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	return map[string]string{"authorization": "Bearer " + b.token}, nil
+}
+func (b bearerCredentials) RequireTransportSecurity() bool { return b.tlsRequired }
+
+// NewWithPermissionsClient supports explicit dependency injection in tests and
+// composition. The injected service must already be secured and authenticated.
+func NewWithPermissionsClient(modelRevision string, catalog ports.PermissionCatalog, service pb.PermissionsServiceClient) (*Client, error) {
+	if catalog == nil || service == nil {
+		return nil, ErrInvalidConfig
 	}
-	b, err := json.Marshal(payload)
+	rev, err := domain.NewModelRevision(modelRevision)
 	if err != nil {
-		return fmt.Errorf("marshal SpiceDB request: %w", err)
+		return nil, ErrInvalidConfig
 	}
-	if len(b) > maxMessageBytes {
-		return ErrInvalidGraphReference
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.endpoint+path, bytes.NewReader(b))
-	if err != nil {
-		return fmt.Errorf("build SpiceDB request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+c.token)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) || errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return fmt.Errorf("%w: deadline", ports.ErrPermissionEngineTimeout)
-		}
-		if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
-			return context.Canceled
-		}
-		if timeout, ok := err.(net.Error); ok && timeout.Timeout() {
-			return fmt.Errorf("%w: timeout", ports.ErrPermissionEngineTimeout)
-		}
-		return fmt.Errorf("%w: transport failure", ports.ErrPermissionEngineUnavailable)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable || resp.StatusCode == http.StatusBadGateway || resp.StatusCode == http.StatusGatewayTimeout {
-			return fmt.Errorf("%w: HTTP %d", ports.ErrPermissionEngineUnavailable, resp.StatusCode)
-		}
-		return fmt.Errorf("SpiceDB rejected request: HTTP %d", resp.StatusCode)
-	}
-	limited := io.LimitReader(resp.Body, maxMessageBytes+1)
-	body, err := io.ReadAll(limited)
-	if err != nil {
-		return fmt.Errorf("%w: unreadable response", ErrInvalidResponse)
-	}
-	if len(body) > maxMessageBytes {
-		return fmt.Errorf("%w: oversized response", ErrInvalidResponse)
-	}
-	if err := json.Unmarshal(body, result); err != nil {
-		return fmt.Errorf("%w: malformed JSON", ErrInvalidResponse)
+	return &Client{permissions: service, revision: rev, catalog: catalog}, nil
+}
+
+func (c *Client) Close() error {
+	if c != nil && c.sdk != nil {
+		return c.sdk.Close()
 	}
 	return nil
 }
