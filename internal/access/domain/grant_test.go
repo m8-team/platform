@@ -132,3 +132,26 @@ func TestGrantPermissionsAreImmutable(t *testing.T) {
 		t.Fatal("output slice leaked")
 	}
 }
+
+// An administrator may request access on behalf of a user. That user cannot
+// then self-approve the request even though the requester is someone else.
+func TestGrantBeneficiaryCannotSelfApprove(t *testing.T) {
+	input := grantTestInput(t)
+	admin, err := NewSubject("user", "administrator")
+	if err != nil {
+		t.Fatal(err)
+	}
+	input.RequestedBy = admin
+	grant, err := NewAccessGrant(input)
+	if err != nil {
+		t.Fatal(err)
+	}
+	grant, err = grant.SubmitForApproval(1, input.CreatedAt.Add(time.Minute))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = grant.Approve(2, input.Subject, input.CreatedAt.Add(2*time.Minute))
+	if !errors.Is(err, ErrGrantSelfApproval) {
+		t.Fatalf("beneficiary self approval: %v", err)
+	}
+}

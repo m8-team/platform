@@ -208,7 +208,7 @@ func (g AccessGrant) Approve(expectedRevision int64, actor Subject, at time.Time
 	if err := actor.Validate(); err != nil {
 		return AccessGrant{}, err
 	}
-	if actor == g.requestedBy {
+	if actor == g.requestedBy || actor == g.subject {
 		return AccessGrant{}, ErrGrantSelfApproval
 	}
 	if !at.Before(g.expiresAt) {
