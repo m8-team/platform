@@ -170,11 +170,11 @@ func mustModelRevision(t *testing.T, value string) ModelRevision {
 
 func TestCheckPermissionRequestRequiresTenant(t *testing.T) {
 	_, err := NewCheckPermissionRequest(CheckPermissionInput{
-		Subject: mustSubject(t),
-		Permission: mustPermission(t),
-		Resource: mustResource(t),
+		Subject:       mustSubject(t),
+		Permission:    mustPermission(t),
+		Resource:      mustResource(t),
 		ModelRevision: mustModelRevision(t, "access-model-rev-1"),
-		Critical: true,
+		Critical:      true,
 	})
 	if !errors.Is(err, ErrInvalidTenantID) {
 		t.Fatalf("missing tenant: %v, want %v", err, ErrInvalidTenantID)
