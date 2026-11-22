@@ -2,63 +2,42 @@ package spicedb
 
 import (
 	"context"
-	"encoding/json"
-	"net/http"
 	"testing"
 	"time"
 
+	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/domain"
 )
 
-func TestExpirationTransportAndDeletionIdentity(t *testing.T) {
+func TestSDKExpirationAndDeletionByTupleIdentity(t *testing.T) {
+	tn, _ := domain.NewTenantID(tenantValue)
+	obj, _ := domain.NewResource("access_grant", "11111111-1111-4111-8111-111111111111")
+	subject, _ := domain.NewSubject("user", "alice")
 	expiry := time.Date(2027, 1, 2, 3, 4, 5, 0, time.UTC)
-	var seen [][]map[string]any
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		var payload struct {
-			Updates []map[string]any `json:"updates"`
+	rel, _ := domain.NewRelationship(domain.RelationshipInput{TenantID: tn, Resource: obj, Relation: "holder", Subject: subject, ExpiresAt: expiry})
+	calls := 0
+	f := &fakePermissions{write: func(req *pb.WriteRelationshipsRequest) (*pb.WriteRelationshipsResponse, error) {
+		calls++
+		got := req.Updates[0].Relationship
+		if calls == 1 {
+			if got.OptionalExpiresAt == nil || !got.OptionalExpiresAt.AsTime().Equal(expiry) {
+				t.Fatalf("missing expiry: %+v", got)
+			}
+		} else {
+			if got.OptionalExpiresAt != nil || got.OptionalCaveat != nil || req.Updates[0].Operation != pb.RelationshipUpdate_OPERATION_DELETE {
+				t.Fatalf("delete identity: %+v", got)
+			}
 		}
-		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			t.Error(err)
-		}
-		seen = append(seen, payload.Updates)
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"writtenAt":{"token":"zed-write"}}`))
-	})
-	tn, e := domain.NewTenantID(tenantValue)
-	if e != nil {
-		t.Fatal(e)
-	}
-	obj, e := domain.NewResource("access_grant", "11111111-1111-4111-8111-111111111111")
-	if e != nil {
-		t.Fatal(e)
-	}
-	subject, e := domain.NewSubject("user", "alice")
-	if e != nil {
-		t.Fatal(e)
-	}
-	rel, e := domain.NewRelationship(domain.RelationshipInput{TenantID: tn, Resource: obj, Subject: subject, Relation: "holder", ExpiresAt: expiry})
-	if e != nil {
-		t.Fatal(e)
-	}
+		return &pb.WriteRelationshipsResponse{WrittenAt: &pb.ZedToken{Token: "zed-write"}}, nil
+	}}
+	c := testClient(t, f)
 	for _, op := range []ports.RelationshipOperation{ports.RelationshipTouch, ports.RelationshipDelete} {
-		_, e = client.WriteRelationships(context.Background(), tn, []ports.RelationshipChange{{Operation: op, Relationship: rel}})
-		if e != nil {
-			t.Fatal(e)
+		if _, err := c.WriteRelationships(context.Background(), tn, []ports.RelationshipChange{{Operation: op, Relationship: rel}}); err != nil {
+			t.Fatal(err)
 		}
 	}
-	if len(seen) != 2 {
-		t.Fatalf("requests=%d", len(seen))
-	}
-	wr := seen[0][0]["relationship"].(map[string]any)
-	if wr["optionalExpiresAt"] != "2027-01-02T03:04:05Z" {
-		t.Fatalf("expiration absent: %+v", wr)
-	}
-	deletion := seen[1][0]["relationship"].(map[string]any)
-	if _, ok := deletion["optionalExpiresAt"]; ok {
-		t.Fatalf("delete must omit expiration: %+v", deletion)
-	}
-	if seen[1][0]["operation"] != "OPERATION_DELETE" {
-		t.Fatalf("unexpected delete operation")
+	if calls != 2 {
+		t.Fatalf("calls=%d", calls)
 	}
 }
