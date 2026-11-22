@@ -9,18 +9,7 @@ import (
 
 // Object types must match the deployed SpiceDB schema. Namespaces are scoped
 // by encoded IDs, not by dynamically generated object types.
-var graphName = regexp.MustCompile(`^[a-z][a-z0-9_]{1,62}[a-z0-9]package spicedb
-
-import (
-	"encoding/base64"
-	"regexp"
-
-	"github.com/m8-team/platform/internal/access/domain"
-)
-
-// Object types must match the deployed SpiceDB schema. Namespaces are scoped
-// by encoded IDs, not by dynamically generated object types.
-var graphName = )
+var graphName = regexp.MustCompile(`^[a-z][a-z0-9_]{1,62}[a-z0-9]$`)
 
 // Prefixing both ends of every tuple prevents subjects and objects from being
 // shared across tenants even when their public IDs are identical.
