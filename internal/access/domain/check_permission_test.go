@@ -113,6 +113,7 @@ func newCheckPermissionRequest(
 	t.Helper()
 
 	return NewCheckPermissionRequest(CheckPermissionInput{
+		TenantID: TenantID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"),
 		Subject:           mustSubject(t),
 		Permission:        mustPermission(t),
 		Resource:          mustResource(t),

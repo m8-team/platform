@@ -16,3 +16,6 @@ var (
 	ErrFailOpenForCriticalCheck  = errors.New("fail-open is not allowed for critical permission checks")
 	ErrModelRevisionMismatch     = errors.New("permission decision model revision does not match request")
 )
+
+// ErrInvalidZedToken denotes a missing or unbounded graph revision token.
+var ErrInvalidZedToken = errors.New("invalid SpiceDB ZedToken")
