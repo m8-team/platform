@@ -28,8 +28,10 @@ When sources conflict, **stop the conflicting change**, document the conflict, a
 - **ARCH-002:** Each resource/data set has exactly one authoritative write owner; cross-module interaction uses owned contracts, not another module's storage.
 - **ARCH-003:** Domain code must not depend on transport, generated Protobuf messages, database SDKs, or infrastructure packages.
 - **ARCH-004:** Never move ownership or change public semantics without an approved ADR or explicit instruction.
+- **ARCH-005:** Project is not currently a representable Resource OwnerScope; do not introduce Project placement before ADR-0001 and an approved contract/runtime migration.
 - **SEC-001:** Every protected read/write enforces trusted tenant and subject context and relevant object-level authorization.
 - **SEC-002:** Deny by default. No production `AllowAll`, bypass, forged tenant identity, or authorization solely in UI/Gateway.
+- **SEC-009/010:** Define authorization revocation/freshness behavior and bind authoritative owner/tenant/revision to state changes.
 - **DATA-001:** Mutations requiring retry safety and concurrency control must implement idempotency and expected revision, not merely expose fields in `.proto`.
 - **API-001:** API changes require Buf validation, backwards-compatibility review, and regeneration when applicable.
 - **TEST-001:** Changed behavior requires tests; bug fixes need a regression test whenever practicable.
@@ -68,3 +70,5 @@ Report: files changed; purpose; affected contracts and ownership; tests/commands
 - [AI Agent Governance](docs/engineering/ai-agent-governance.md)
 - [Frontend & UX](docs/engineering/frontend-ux.md)
 - [Review checklist](docs/engineering/review-checklist.md)
+- [Module ownership registry](docs/engineering/module-ownership.md)
+- [Human approvals and exceptions](docs/engineering/approval-model.md)

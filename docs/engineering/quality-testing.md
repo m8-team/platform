@@ -1,6 +1,6 @@
 # Quality & Testing Standard
 
-**Status:** PROPOSED · **Scope:** all changed production, test, generated and configuration files.
+**Status:** ACTIVE (for new/modified code; enforcement phased) · **Scope:** all changed production, test, generated and configuration files.
 
 ## A. Definition of Done
 
@@ -48,8 +48,12 @@ Keep functions, packages and components small enough to review; avoid incidental
 Run from repository root unless indicated:
 
 ```bash
-# Go format check (read-only; exit nonzero if any output):
-find cmd internal -name '*.go' -type f -print0 | xargs -0 gofmt -l
+# Go formatting check (read-only; nonzero exit if unformatted):
+unformatted="$(find cmd internal -name '*.go' -type f -print0 | xargs -0 -r gofmt -l)"
+if [ -n "$unformatted" ]; then
+  printf 'Unformatted Go files:\n%s\n' "$unformatted" >&2
+  exit 1
+fi
 
 # Go analysis and tests:
 go vet ./...
@@ -70,11 +74,11 @@ pnpm build
 
 Caveats: The Buf breaking command needs a local Git baseline and dependencies; it may fail during an approved contract transition. Installing dependencies may require network access. `pnpm install` changes local installation state but should not rewrite the lockfile with `--frozen-lockfile`. Do not treat commands as executed merely because they appear in this document.
 
-## C. Proposed CI gates (not existing claims)
+## C. Phased CI adoption (limited gates implemented)
 
 ### TEST-008 — Continuous integration baseline (SHOULD, adoption milestone)
 
-Add independent, parallel required jobs:
+Phase 1 adds `.github/workflows/engineering-standards.yml` for policy documentation references/IDs and **changed Go files only** formatting (so unrelated legacy code is not made a new blocking failure). The workflow does not become a required merge gate until administrators configure branch protection. Next phases SHOULD add independent jobs:
 
 1. **Go format, vet, compile and tests**; optional scoped race run based on time/resources.
 2. **Buf lint, breaking and generated-code drift** against a known `main` baseline.
@@ -113,7 +117,7 @@ Required human approvals:
 ## E. Severity and review escalation
 
 - **Blocker:** cross-tenant access, authorization bypass, leaked credentials, destructive data loss, critical contract break without approval, unsafe production defaults.
-- **High:** unhandled failed idempotency, missing concurrency enforcement, incompatible migrations, test suite regressions, missing audit for critical mutations.
+- **High:** unhandled failed idempotency, missing concurrency enforcement, revocation-freshness violations or ownership TOCTOU, incompatible migrations, test suite regressions, missing audit for critical mutations.
 - **Medium:** unbounded retries, missing cancellation, significant accessibility regressions, weak error handling.
 - **Low:** style, small refactors, documentation clarity when no correctness/security impact.
 
