@@ -1,57 +1,62 @@
 package domain
 
-import "strings"
+import (
+	"errors"
+	"regexp"
+	"strings"
+)
 
-type Permission struct {
-	name string
-}
+var (
+	ErrInvalidPermissionName       = errors.New("invalid permission name")
+	ErrInvalidPermissionDefinition = errors.New("invalid permission definition")
+)
+
+var permissionNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_.:-]{0,127}$`)
+
+// Permission is a named authorization action. It is deliberately independent
+// of a resource's owner or any particular authorization engine.
+type Permission struct{ name string }
 
 func NewPermission(name string) (Permission, error) {
-	permission := Permission{name: strings.TrimSpace(name)}
-	if err := permission.Validate(); err != nil {
-		return Permission{}, err
-	}
-
-	return permission, nil
+	p := Permission{name: strings.TrimSpace(name)}
+	return p, p.Validate()
 }
 
 func (p Permission) Validate() error {
 	if p.name == "" {
 		return ErrPermissionRequired
 	}
-
+	if !permissionNamePattern.MatchString(p.name) {
+		return ErrInvalidPermissionName
+	}
 	return nil
 }
 
-func (p Permission) Name() string {
-	return p.name
+func (p Permission) Name() string { return p.name }
+
+// PermissionDefinition is the versioned registry mapping a public action to an
+// authorization graph permission. Its publication belongs to the Control Plane.
+type PermissionDefinition struct {
+	permission      Permission
+	resourceType    string
+	graphPermission string
 }
 
-type ModelRevision struct {
-	value string
+func NewPermissionDefinition(permission Permission, resourceType, graphPermission string) (PermissionDefinition, error) {
+	d := PermissionDefinition{permission: permission, resourceType: strings.TrimSpace(resourceType), graphPermission: strings.TrimSpace(graphPermission)}
+	return d, d.Validate()
 }
 
-func NewModelRevision(value string) (ModelRevision, error) {
-	revision := ModelRevision{value: strings.TrimSpace(value)}
-	if err := revision.Validate(); err != nil {
-		return ModelRevision{}, err
+func (d PermissionDefinition) Validate() error {
+	if err := d.permission.Validate(); err != nil {
+		return err
 	}
-
-	return revision, nil
-}
-
-func (r ModelRevision) Validate() error {
-	if r.value == "" {
-		return ErrModelRevisionRequired
+	if !relationNamePattern.MatchString(d.resourceType) || !relationNamePattern.MatchString(d.graphPermission) {
+		return ErrInvalidPermissionDefinition
 	}
-
 	return nil
 }
 
-func (r ModelRevision) String() string {
-	return r.value
-}
-
-func (r ModelRevision) Equal(other ModelRevision) bool {
-	return r.value == other.value
-}
+func (d PermissionDefinition) Permission() Permission  { return d.permission }
+func (d PermissionDefinition) ResourceType() string    { return d.resourceType }
+func (d PermissionDefinition) GraphPermission() string { return d.graphPermission }
