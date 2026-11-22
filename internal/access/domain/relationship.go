@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"time"
 )
 
 var (
@@ -46,6 +47,7 @@ type Relationship struct {
 	subject         Subject
 	subjectRelation string
 	conditionRef    string
+	expiresAt       time.Time
 }
 
 type RelationshipInput struct {
@@ -53,8 +55,9 @@ type RelationshipInput struct {
 	Resource        Resource
 	Relation        string
 	Subject         Subject
-	SubjectRelation string // e.g. "member" for an indirect group subject
-	ConditionRef    string // trusted, versioned policy name; never executable input
+	SubjectRelation string    // e.g. "member" for an indirect group subject
+	ConditionRef    string    // trusted, versioned policy name; never executable input
+	ExpiresAt       time.Time // optional SpiceDB relationship expiration (UTC)
 }
 
 func NewRelationship(input RelationshipInput) (Relationship, error) {
@@ -65,6 +68,7 @@ func NewRelationship(input RelationshipInput) (Relationship, error) {
 		subject:         input.Subject,
 		subjectRelation: strings.TrimSpace(input.SubjectRelation),
 		conditionRef:    strings.TrimSpace(input.ConditionRef),
+		expiresAt:       input.ExpiresAt.UTC(),
 	}
 	return r, r.Validate()
 }
@@ -114,3 +118,4 @@ func (r Relationship) Relation() string        { return r.relation }
 func (r Relationship) Subject() Subject        { return r.subject }
 func (r Relationship) SubjectRelation() string { return r.subjectRelation }
 func (r Relationship) ConditionRef() string    { return r.conditionRef }
+func (r Relationship) ExpiresAt() time.Time    { return r.expiresAt }

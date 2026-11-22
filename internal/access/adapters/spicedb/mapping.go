@@ -3,6 +3,7 @@ package spicedb
 import (
 	"encoding/base64"
 	"regexp"
+	"time"
 
 	"github.com/m8-team/platform/internal/access/domain"
 )
@@ -66,10 +67,11 @@ type caveatReference struct {
 	CaveatName string `json:"caveatName"`
 }
 type graphRelationship struct {
-	Resource       objectReference  `json:"resource"`
-	Relation       string           `json:"relation"`
-	Subject        subjectReference `json:"subject"`
-	OptionalCaveat *caveatReference `json:"optionalCaveat,omitempty"`
+	Resource          objectReference  `json:"resource"`
+	Relation          string           `json:"relation"`
+	Subject           subjectReference `json:"subject"`
+	OptionalCaveat    *caveatReference `json:"optionalCaveat,omitempty"`
+	OptionalExpiresAt *time.Time       `json:"optionalExpiresAt,omitempty"`
 }
 
 func mapRelationship(r domain.Relationship) (graphRelationship, error) {
@@ -88,6 +90,10 @@ func mapRelationship(r domain.Relationship) (graphRelationship, error) {
 		return graphRelationship{}, ErrInvalidGraphReference
 	}
 	rel := graphRelationship{Resource: resource, Subject: subject, Relation: r.Relation()}
+	if !r.ExpiresAt().IsZero() {
+		expires := r.ExpiresAt().UTC()
+		rel.OptionalExpiresAt = &expires
+	}
 	if r.ConditionRef() != "" {
 		if !graphName.MatchString(r.ConditionRef()) {
 			return graphRelationship{}, ErrInvalidGraphReference
