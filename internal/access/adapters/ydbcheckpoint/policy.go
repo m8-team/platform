@@ -168,8 +168,7 @@ func (s *Store) CommitPolicyJob(ctx context.Context, policyRevision uint64, key 
 		if err != nil {
 			return err
 		}
-		if required < 1 || !current.exists || current.cp.Revision < required ||
-			current.cp.FenceEpoch == 0 || current.cp.FenceEpoch != current.leaseEpoch || current.cp.ZedToken == "" {
+		if !current.certifiedAt(required) {
 			return ErrPolicyCheckpointBehind
 		}
 		_, err = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8;DECLARE $revision AS Uint64;DECLARE $kind AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $certified AS Bool;DECLARE $zed AS Utf8;DECLARE $epoch AS Uint64;

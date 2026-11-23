@@ -198,3 +198,17 @@ func TestReadProjectionEdgesRejectsCrossTenantTuple(t *testing.T) {
 		t.Fatalf("cross-tenant edge accepted: %v", err)
 	}
 }
+
+func TestFenceEpochIsBoundToTenant(t *testing.T) {
+	fence := testFence(t, 7)
+	other := fence
+	other.TenantID = otherTenantValue
+	subject, err := fenceSubject(other)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = parseFenceEpoch(fence, &pb.Relationship{Relation: "owner", Subject: subject})
+	if !errors.Is(err, ErrGraphFenceConflict) {
+		t.Fatalf("foreign epoch returned %v, want fence conflict", err)
+	}
+}

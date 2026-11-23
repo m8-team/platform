@@ -32,3 +32,32 @@ func TestDistributedStoreRejectsUnfencedLegacyWrites(t *testing.T) {
 		t.Fatalf("unfenced write allowed: %v", err)
 	}
 }
+
+func TestCheckpointCertification(t *testing.T) {
+	for _, tc := range []struct {
+		name               string
+		exists             bool
+		revision, required int64
+		fence, lease       uint64
+		token              string
+		want               bool
+	}{
+		{"current", true, 5, 5, 3, 3, "opaque", true},
+		{"ahead", true, 6, 5, 3, 3, "opaque", true},
+		{"behind", true, 4, 5, 3, 3, "opaque", false},
+		{"missing row", false, 5, 5, 3, 3, "opaque", false},
+		{"missing requirement", true, 5, 0, 3, 3, "opaque", false},
+		{"missing token", true, 5, 5, 3, 3, "", false},
+		{"unfenced", true, 5, 5, 0, 0, "opaque", false},
+		{"lease takeover", true, 5, 5, 3, 4, "opaque", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := row{exists: tc.exists, leaseEpoch: tc.lease, cp: projection.Checkpoint{
+				Revision: tc.revision, FenceEpoch: tc.fence, ZedToken: tc.token,
+			}}
+			if got := r.certifiedAt(tc.required); got != tc.want {
+				t.Fatalf("certifiedAt(%d) = %t, want %t", tc.required, got, tc.want)
+			}
+		})
+	}
+}

@@ -72,70 +72,10 @@ func (s *Store) tx(ctx context.Context, work func(*sql.Tx) error) error {
 	return tx.Commit()
 }
 
-type row struct {
-	cp          projection.Checkpoint
-	leaseEpoch  uint64
-	leaseHolder string
-	leaseUntil  time.Time
-	exists      bool
-}
-
-const selectCheckpoint = `DECLARE $tenant AS Utf8; DECLARE $kind AS Utf8; DECLARE $aggregate AS Utf8;
-SELECT revision,event_id,zed_token,fence_epoch,edges_json,updated_at,lease_epoch,lease_holder,lease_until
-FROM ` + "`m8-access/projection_checkpoints`" + ` WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`
-
-func (s *Store) load(ctx context.Context, q interface {
-	QueryRowContext(context.Context, string, ...any) *sql.Row
-}, key projection.Key) (row, error) {
-	state := row{cp: projection.Checkpoint{Key: key}}
-	var edges string
-	args := keyArgs(key)
-	err := q.QueryRowContext(ctx, s.q(selectCheckpoint), args...).Scan(&state.cp.Revision, &state.cp.EventID, &state.cp.ZedToken, &state.cp.FenceEpoch, &edges, &state.cp.UpdatedAt, &state.leaseEpoch, &state.leaseHolder, &state.leaseUntil)
-	if errors.Is(err, sql.ErrNoRows) {
-		return state, nil
-	}
-	if err != nil {
-		return row{}, err
-	}
-	if len(edges) > maxEdgesBytes {
-		return row{}, projection.ErrInvalidCheckpoint
-	}
-	if err := json.Unmarshal([]byte(edges), &state.cp.Edges); err != nil {
-		return row{}, fmt.Errorf("decode projection edges: %w", err)
-	}
-	if err := state.cp.Validate(); err != nil {
-		return row{}, err
-	}
-	state.exists = true
-	return state, nil
-}
-
 // WithLocked intentionally cannot be used: using it would bypass the required
 // graph-side fencing handshake. Worker dispatches to WithFenced instead.
 func (s *Store) WithLocked(context.Context, projection.Key, func(projection.Checkpoint) (projection.Checkpoint, error)) error {
 	return ErrLeaseLost
-}
-
-// LoadCheckpoint returns only a checkpoint certified against the most recent
-// lease epoch. It fails closed during takeover until graph reconciliation is
-// committed at that generation.
-func (s *Store) LoadCheckpoint(ctx context.Context, key projection.Key) (projection.Checkpoint, error) {
-	if err := key.Validate(); err != nil {
-		return projection.Checkpoint{}, err
-	}
-	var observed row
-	err := s.tx(ctx, func(tx *sql.Tx) error {
-		var loadErr error
-		observed, loadErr = s.load(ctx, tx, key)
-		return loadErr
-	})
-	if err != nil {
-		return projection.Checkpoint{}, err
-	}
-	if !observed.exists || observed.cp.Revision == 0 || observed.cp.FenceEpoch == 0 || observed.cp.FenceEpoch != observed.leaseEpoch || observed.cp.ZedToken == "" {
-		return projection.Checkpoint{}, ErrCheckpointNotConverged
-	}
-	return observed.cp, nil
 }
 
 func (s *Store) acquire(ctx context.Context, key projection.Key) (row, error) {

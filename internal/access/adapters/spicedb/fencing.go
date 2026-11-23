@@ -2,12 +2,10 @@ package spicedb
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
@@ -43,16 +41,11 @@ func parseFenceEpoch(f ports.GraphFence, rel *pb.Relationship) (uint64, error) {
 	if rel == nil || rel.Subject == nil || rel.Subject.Object == nil || rel.Subject.Object.ObjectType != "projection_epoch" || rel.Subject.OptionalRelation != "" || rel.Relation != "owner" {
 		return 0, ErrInvalidResponse
 	}
-	encoded := rel.Subject.Object.ObjectId
-	prefix := string(f.TenantID) + "/"
-	if !strings.HasPrefix(encoded, prefix) {
-		return 0, ErrGraphFenceConflict
-	}
-	raw, err := base64.RawURLEncoding.DecodeString(strings.TrimPrefix(encoded, prefix))
+	raw, err := decodeGraphID(f.TenantID, rel.Subject.Object.ObjectId)
 	if err != nil {
 		return 0, ErrGraphFenceConflict
 	}
-	epoch, err := strconv.ParseUint(string(raw), 10, 64)
+	epoch, err := strconv.ParseUint(raw, 10, 64)
 	if err != nil || epoch == 0 {
 		return 0, ErrGraphFenceConflict
 	}

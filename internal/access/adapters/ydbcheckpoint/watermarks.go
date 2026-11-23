@@ -47,8 +47,7 @@ func (s *Store) LoadWatermark(ctx context.Context, tenant domain.TenantID, resou
 		if err != nil {
 			return err
 		}
-		if !cpRow.exists || cpRow.cp.Revision < 1 || cpRow.cp.FenceEpoch == 0 ||
-			cpRow.cp.FenceEpoch != cpRow.leaseEpoch || cpRow.cp.ZedToken == "" {
+		if !cpRow.certifiedAt(1) {
 			return ErrCheckpointNotConverged
 		}
 		err = tx.QueryRowContext(ctx, s.q(selectWatermark), resourceArgs(tenant, resource)...).
@@ -92,8 +91,7 @@ func (s *Store) CommitResourceWatermark(ctx context.Context, key projection.Key)
 		if err != nil {
 			return err
 		}
-		if !row.exists || row.cp.Revision < 1 || row.cp.ZedToken == "" ||
-			row.cp.FenceEpoch == 0 || row.cp.FenceEpoch != row.leaseEpoch {
+		if !row.certifiedAt(1) {
 			return ErrCheckpointNotConverged
 		}
 		var current uint64

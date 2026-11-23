@@ -2,10 +2,8 @@ package spicedb
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"io"
-	"strings"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
@@ -88,54 +86,4 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 		result = append(result, edge)
 	}
 	return result, nil
-}
-
-func decodeGraphID(tenant domain.TenantID, id string) (string, error) {
-	prefix := string(tenant) + "/"
-	if !strings.HasPrefix(id, prefix) {
-		return "", ErrInvalidGraphReference
-	}
-	b, err := base64.RawURLEncoding.DecodeString(strings.TrimPrefix(id, prefix))
-	if err != nil || len(b) == 0 {
-		return "", ErrInvalidGraphReference
-	}
-	return string(b), nil
-}
-
-func decodeGraphRelationship(tenant domain.TenantID, rel *pb.Relationship) (domain.Relationship, error) {
-	if rel == nil || rel.Resource == nil || rel.Subject == nil || rel.Subject.Object == nil {
-		return domain.Relationship{}, ErrInvalidResponse
-	}
-	resourceID, err := decodeGraphID(tenant, rel.Resource.ObjectId)
-	if err != nil {
-		return domain.Relationship{}, err
-	}
-	subjectID, err := decodeGraphID(tenant, rel.Subject.Object.ObjectId)
-	if err != nil {
-		return domain.Relationship{}, err
-	}
-	resource, err := domain.NewResource(rel.Resource.ObjectType, resourceID)
-	if err != nil {
-		return domain.Relationship{}, err
-	}
-	subject, err := domain.NewSubject(rel.Subject.Object.ObjectType, subjectID)
-	if err != nil {
-		return domain.Relationship{}, err
-	}
-	input := domain.RelationshipInput{TenantID: tenant, Resource: resource, Subject: subject, Relation: rel.Relation, SubjectRelation: rel.Subject.OptionalRelation}
-	if rel.OptionalCaveat != nil {
-		// Caveat context is intentionally unsupported: do not lose it on a
-		// delta. Refuse reconciliation until the trusted evaluator is added.
-		if rel.OptionalCaveat.Context != nil {
-			return domain.Relationship{}, ErrInvalidResponse
-		}
-		input.ConditionRef = rel.OptionalCaveat.CaveatName
-	}
-	if rel.OptionalExpiresAt != nil {
-		if err := rel.OptionalExpiresAt.CheckValid(); err != nil {
-			return domain.Relationship{}, ErrInvalidResponse
-		}
-		input.ExpiresAt = rel.OptionalExpiresAt.AsTime()
-	}
-	return domain.NewRelationship(input)
 }
