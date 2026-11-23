@@ -82,7 +82,7 @@ type row struct {
 
 const selectCheckpoint = `DECLARE $tenant AS Utf8; DECLARE $kind AS Utf8; DECLARE $aggregate AS Utf8;
 SELECT revision,event_id,zed_token,fence_epoch,edges_json,updated_at,lease_epoch,lease_holder,lease_until
-FROM \x60m8-access/projection_checkpoints\x60 WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`
+FROM `+"`m8-access/projection_checkpoints`"+` WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`
 
 func (s *Store) load(ctx context.Context, q interface {
 	QueryRowContext(context.Context, string, ...any) *sql.Row
@@ -163,7 +163,7 @@ func (s *Store) acquire(ctx context.Context, key projection.Key) (row, error) {
 			return err
 		}
 		_, err = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $zed AS Utf8;DECLARE $fence AS Uint64;DECLARE $edges AS Utf8;DECLARE $updated AS Timestamp;DECLARE $epoch AS Uint64;DECLARE $owner AS Utf8;DECLARE $until AS Timestamp;
-UPSERT INTO \x60m8-access/projection_checkpoints\x60 (tenant_id,projection_kind,aggregate_id,revision,event_id,zed_token,fence_epoch,edges_json,updated_at,lease_epoch,lease_holder,lease_until)
+UPSERT INTO `+"`m8-access/projection_checkpoints`"+` (tenant_id,projection_kind,aggregate_id,revision,event_id,zed_token,fence_epoch,edges_json,updated_at,lease_epoch,lease_holder,lease_until)
 VALUES ($tenant,$kind,$aggregate,$revision,$event,$zed,$fence,$edges,$updated,$epoch,$owner,$until);`),
 			append(keyArgs(key), sql.Named("revision", current.cp.Revision), sql.Named("event", current.cp.EventID), sql.Named("zed", current.cp.ZedToken), sql.Named("fence", current.cp.FenceEpoch), sql.Named("edges", string(edges)), sql.Named("updated", now), sql.Named("epoch", current.leaseEpoch), sql.Named("owner", s.ownerID), sql.Named("until", current.leaseUntil))...)
 		if err != nil {
@@ -189,7 +189,7 @@ func (s *Store) renew(ctx context.Context, key projection.Key, epoch uint64) err
 			return ErrLeaseLost
 		}
 		_, err = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $until AS Timestamp;
-UPDATE \x60m8-access/projection_checkpoints\x60 SET lease_until=$until WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`), append(keyArgs(key), sql.Named("until", now.Add(s.ttl)))...)
+UPDATE `+"`m8-access/projection_checkpoints`"+` SET lease_until=$until WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`), append(keyArgs(key), sql.Named("until", now.Add(s.ttl)))...)
 		return err
 	})
 }
@@ -219,14 +219,14 @@ func (s *Store) finish(ctx context.Context, key projection.Key, epoch uint64, ne
 				return ErrCheckpointConflict
 			}
 			_, err = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $zed AS Utf8;DECLARE $fence AS Uint64;DECLARE $edges AS Utf8;DECLARE $updated AS Timestamp;
-UPDATE \x60m8-access/projection_checkpoints\x60 SET revision=$revision,event_id=$event,zed_token=$zed,fence_epoch=$fence,edges_json=$edges,updated_at=$updated WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`),
+UPDATE `+"`m8-access/projection_checkpoints`"+` SET revision=$revision,event_id=$event,zed_token=$zed,fence_epoch=$fence,edges_json=$edges,updated_at=$updated WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`),
 				append(keyArgs(key), sql.Named("revision", next.Revision), sql.Named("event", next.EventID), sql.Named("zed", next.ZedToken), sql.Named("fence", next.FenceEpoch), sql.Named("edges", string(edges)), sql.Named("updated", next.UpdatedAt.UTC()))...)
 			if err != nil {
 				return err
 			}
 		}
 		_, err = tx.ExecContext(ctx, s.q(`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $until AS Timestamp;
-UPDATE \x60m8-access/projection_checkpoints\x60 SET lease_holder='',lease_until=$until WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`), append(keyArgs(key), sql.Named("until", now))...)
+UPDATE `+"`m8-access/projection_checkpoints`"+` SET lease_holder='',lease_until=$until WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`), append(keyArgs(key), sql.Named("until", now))...)
 		return err
 	})
 }
