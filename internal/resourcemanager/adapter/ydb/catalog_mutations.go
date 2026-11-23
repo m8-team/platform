@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/m8-team/platform/internal/resourcemanager/domain/resource"
 	"github.com/m8-team/platform/internal/resourcemanager/v1engine"
 )
 
@@ -97,7 +98,7 @@ func (c *Catalog) hasChild(ctx context.Context, tx *sql.Tx, parent v1engine.Owne
 	return true, nil
 }
 func (c *Catalog) ChangeState(ctx context.Context, kind v1engine.Kind, id string, rev int64, state string) (v1engine.Record, error) {
-	if rev <= 0 || (state != "SUSPENDED" && state != "ACTIVE" && state != "ARCHIVED" && state != "DELETED") {
+	if rev <= 0 || !resource.State(state).MutableTarget() {
 		return v1engine.Record{}, v1engine.ErrInvalid
 	}
 	var out v1engine.Record
@@ -106,8 +107,14 @@ func (c *Catalog) ChangeState(ctx context.Context, kind v1engine.Kind, id string
 		if err != nil {
 			return err
 		}
-		if r.Revision != rev || r.State == "DELETED" {
+		next, err := (resource.Lifecycle{
+			State: resource.State(r.State), Revision: r.Revision, DeletedAt: r.DeletedAt,
+		}).Transition(rev, resource.State(state), time.Now().UTC())
+		if errors.Is(err, resource.ErrTransitionConflict) {
 			return v1engine.ErrConflict
+		}
+		if err != nil {
+			return v1engine.ErrInvalid
 		}
 		if state == "DELETED" || state == "ARCHIVED" {
 			yes, err := c.hasChild(ctx, tx, v1engine.Owner{Kind: kind, ID: id})
@@ -118,12 +125,9 @@ func (c *Catalog) ChangeState(ctx context.Context, kind v1engine.Kind, id string
 				return v1engine.ErrConflict
 			}
 		}
-		r.State = state
-		if state == "DELETED" {
-			deletedAt := time.Now().UTC()
-			r.DeletedAt = &deletedAt
-		}
-		r.Revision++
+		r.State = string(next.State)
+		r.DeletedAt = next.DeletedAt
+		r.Revision = next.Revision
 		r.UpdatedAt = time.Now().UTC()
 		if err = c.save(ctx, tx, r); err != nil {
 			return err

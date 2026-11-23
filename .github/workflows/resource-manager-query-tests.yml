@@ -26,6 +26,6 @@ jobs:
           go-version-file: go.mod
           cache: true
       - name: Run Resource Manager query and adapter tests
-        run: go test -count=1 ./internal/resourcemanager/domain/resource ./internal/resourcemanager/app/query ./internal/resourcemanager/adapter/resourcecatalog
+        run: go test -count=1 ./internal/resourcemanager/...
       - name: Vet Resource Manager query and adapter
-        run: go vet ./internal/resourcemanager/domain/resource ./internal/resourcemanager/app/query ./internal/resourcemanager/adapter/resourcecatalog
+        run: go vet ./internal/resourcemanager/...
