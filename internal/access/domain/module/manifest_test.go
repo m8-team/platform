@@ -37,4 +37,9 @@ func TestModuleManifestNamespacesAndRoleCatalog(t *testing.T){
 	foreignDef,_:=permission.NewDefinition(foreign,"finance.invoice","use")
 	in.Permissions=[]permission.Definition{foreignDef}
 	if _,err=NewManifest(in);!errors.Is(err,ErrInvalidManifest){t.Fatalf("foreign action accepted: %v",err)}
+	in.Permissions=[]permission.Definition{definition}
+	broadTemplate,_:=role.NewTemplate("finance",role.TemplateRef{Name:"finance.accountant",Version:"1.0.0"},
+		[]permission.Permission{action},[]authorization.ScopeKind{authorization.ScopeTenant})
+	in.Roles=[]role.Template{broadTemplate}
+	if _,err=NewManifest(in);!errors.Is(err,ErrInvalidManifest){t.Fatalf("unsupported role scope accepted: %v",err)}
 }

@@ -48,21 +48,25 @@ func (m Manifest) Validate()error{
 		if _,ok:=types[d.Name()];ok{return ErrInvalidManifest}
 		types[d.Name()]=d
 	}
-	actions:=map[string]bool{}
+	actions:=map[string]resource.TypeDefinition{}
 	for _,d:=range m.permissions{
 		if d.Validate()!=nil||!strings.HasPrefix(d.Permission().Name(),m.moduleID+"."){return ErrInvalidManifest}
-		if _,ok:=types[d.ResourceType()];!ok{return ErrInvalidManifest}
-		if actions[d.Key()]{return ErrInvalidManifest}
-		actions[d.Key()]=true
+		typ,exists:=types[d.ResourceType()];if !exists{return ErrInvalidManifest}
+		// A public action must resolve to one resource type; a collision cannot be
+		// used to widen the same role permission across unrelated resources.
+		if _,duplicate:=actions[d.Permission().Name()];duplicate{return ErrInvalidManifest}
+		actions[d.Permission().Name()]=typ
 	}
 	templates:=map[string]bool{}
 	for _,t:=range m.roles{
 		if t.Validate()!=nil||t.ModuleID()!=m.moduleID||templates[t.Ref().Key()]{return ErrInvalidManifest}
 		templates[t.Ref().Key()]=true
 		for _,action:=range t.Permissions(){
-			found:=false
-			for _,d:=range m.permissions{if d.Permission().Name()==action.Name(){found=true;break}}
+			typ,found:=actions[action.Name()]
 			if !found{return ErrInvalidManifest}
+			// A role template cannot advertise a broader scope than any
+			// protected resource type for which it includes an action.
+			for _,scope:=range t.AllowedScopes(){if !typ.Supports(scope){return ErrInvalidManifest}}
 		}
 	}
 	return nil
