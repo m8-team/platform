@@ -2,9 +2,10 @@ package authorization
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/m8-team/platform/internal/access/domain/permission"
 	"github.com/m8-team/platform/internal/access/domain/shared"
-	"testing"
 )
 
 const tenantID = "11111111-1111-4111-8111-111111111111"

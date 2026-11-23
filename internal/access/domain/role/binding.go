@@ -2,9 +2,10 @@ package role
 
 import (
 	"errors"
-	"github.com/m8-team/platform/internal/access/domain/shared"
 	"strings"
 	"time"
+
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 var (

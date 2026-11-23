@@ -33,6 +33,7 @@ procedure.
 ## Ownership and runtime
 
 -
+
 Resource
 Manager
 owns
@@ -43,7 +44,9 @@ lifecycle,
 tenant
 and
 revision.
+
 -
+
 Access
 owns
 permission
@@ -52,7 +55,9 @@ and
 its
 projection
 checkpoints.
+
 -
+
 RM
 source
 catalog
@@ -77,7 +82,9 @@ never
 populate
 tenant/principal
 context.
+
 -
+
 The
 RM
 worker
@@ -108,7 +115,9 @@ are
 not
 yet
 supplied.
+
 -
+
 The
 worker
 projects
@@ -126,7 +135,9 @@ or
 implicit
 Access
 grants.
+
 -
+
 RM
 progress
 is
@@ -157,7 +168,9 @@ marker
 under
 guard
 CAS.
+
 -
+
 An
 Access
 grant
@@ -184,6 +197,7 @@ convergence.
 ## Deployment sequence
 
 1.
+
 Obtain
 human
 R2/R3
@@ -199,7 +213,9 @@ production
 endpoints
 are
 distinct.
+
 2.
+
 Stop
 legacy
 unfenced
@@ -222,7 +238,9 @@ snapshot
 and
 recovery
 plan.
+
 3.
+
 Review
 `internal/access/schema/m8.zed`
 and
@@ -239,7 +257,9 @@ build
 modifying
 live
 schema.
+
 4.
+
 Review
 `internal/access/adapters/ydbcheckpoint/schema.sql`
 and
@@ -275,7 +295,9 @@ against
 the
 wrong
 database.
+
 5.
+
 Configure
 separate
 immutable
@@ -299,7 +321,9 @@ tenant
 and
 lifecycle
 mismatches.
+
 6.
+
 Reconcile
 all
 existing
@@ -329,7 +353,9 @@ not
 via
 Access
 tables.
+
 7.
+
 Verify
 YDB
 source
@@ -349,7 +375,9 @@ stale
 or
 missing
 keys.
+
 8.
+
 Wire
 `wiring.NewProductionPDP`
 into
@@ -386,7 +414,9 @@ exceptions
 for
 protected
 operations.
+
 9.
+
 Simulate
 two
 replicas:
@@ -423,7 +453,9 @@ and
 checkpoint
 actual
 graph.
+
 10.
+
 Confirm
 grants
 remain
@@ -447,6 +479,7 @@ services.
 ## Rollback and recovery
 
 -
+
 **Before
 enablement:**
 leave
@@ -464,7 +497,9 @@ silently
 accepting
 unprojected
 revisions.
+
 -
+
 **After
 enablement:**
 do
@@ -493,7 +528,9 @@ before
 reopening
 protected
 operations.
+
 -
+
 Do
 not
 restore
@@ -518,7 +555,9 @@ and
 reconcile
 actual
 graph.
+
 -
+
 Do
 not
 treat
@@ -547,6 +586,7 @@ write.
 ## Validation evidence and remaining gates
 
 -
+
 `.github/workflows/access-live-integration.yml`
 uses
 disposable
@@ -573,7 +613,9 @@ and
 graph
 guard
 preconditions.
+
 -
+
 CI
 results
 must
@@ -596,7 +638,9 @@ successful
 live
 YDB
 migration.
+
 -
+
 No
 production
 Kafka

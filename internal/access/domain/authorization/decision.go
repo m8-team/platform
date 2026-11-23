@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"errors"
+
 	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 

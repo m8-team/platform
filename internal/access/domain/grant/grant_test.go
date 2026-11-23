@@ -2,10 +2,11 @@ package grant
 
 import (
 	"errors"
-	"github.com/m8-team/platform/internal/access/domain/permission"
-	"github.com/m8-team/platform/internal/access/domain/shared"
 	"testing"
 	"time"
+
+	"github.com/m8-team/platform/internal/access/domain/permission"
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 const tenantID = "11111111-1111-4111-8111-111111111111"

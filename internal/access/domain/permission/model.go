@@ -2,8 +2,9 @@ package permission
 
 import (
 	"errors"
-	"github.com/m8-team/platform/internal/access/domain/shared"
 	"strings"
+
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 var (

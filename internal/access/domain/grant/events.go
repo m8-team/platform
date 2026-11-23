@@ -2,8 +2,9 @@ package grant
 
 import (
 	"errors"
-	"github.com/m8-team/platform/internal/access/domain/shared"
 	"time"
+
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 type EventKind string

@@ -1,8 +1,9 @@
 package grant
 
 import (
-	"github.com/m8-team/platform/internal/access/domain/shared"
 	"time"
+
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 type State string

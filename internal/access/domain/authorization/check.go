@@ -3,9 +3,10 @@ package authorization
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/m8-team/platform/internal/access/domain/permission"
 	"github.com/m8-team/platform/internal/access/domain/shared"
-	"strings"
 )
 
 var (
