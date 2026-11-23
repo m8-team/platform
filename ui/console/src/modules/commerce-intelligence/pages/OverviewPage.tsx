@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Bar, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ApprovalQueue} from '../components/ApprovalQueue'
@@ -21,7 +21,7 @@ const filters = [
   {key: 'scenario', label: 'Сценарий', options: [{value: 'base', content: 'Базовый'}, {value: 'margin', content: 'Максимум маржи'}]},
 ]
 
-const recommendationColumns: ColumnDef<PriceAction, unknown>[] = [
+const recommendationColumns: TableColumn<PriceAction>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'currentPrice', header: 'Текущая'},

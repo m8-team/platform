@@ -1,5 +1,5 @@
 import {ResourceTable} from '../../../components/ResourceTable'
-import type {SortingState} from '@gravity-ui/table/tanstack'
+import type {SortingState} from '@tanstack/react-table'
 
 import type {AppLanguage, Translate} from '../../../i18n'
 import type {Organization} from '../api/organizations'
@@ -50,6 +50,8 @@ export function OrganizationsTable({
       loadingContent={t('organizations.loading')}
       emptyContent={t('organizations.empty')}
       className="m8-organizations-table"
+      selectRowLabel={t('organizations.selectRow')}
+      selectPageLabel={t('organizations.selectPage')}
       selectable
       sortable
       sorting={{mode: 'server', value: sorting, onUpdate: onSortingUpdate}}
@@ -70,6 +72,9 @@ export function OrganizationsTable({
         onUpdate: onPaginationUpdate,
       }}
       settings={{
+        label: t('menu.settings'),
+        moveUp: t('organizations.settings.moveUp'),
+        moveDown: t('organizations.settings.moveDown'),
         storageKey: 'm8.resource-manager.organizations.table-settings',
         enableSearch: true,
         searchPlaceholder: t('organizations.settings.searchPlaceholder'),

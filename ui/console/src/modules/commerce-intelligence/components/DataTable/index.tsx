@@ -1,22 +1,15 @@
-/* eslint-disable react-hooks/incompatible-library */
 import {useEffect, useMemo, useState} from 'react'
 import type {ReactNode} from 'react'
 import {Button, Checkbox, Text} from '@gravity-ui/uikit'
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
-import type {ColumnDef, Row, SortingState, VisibilityState} from '@tanstack/react-table'
+import {flexRender, useTable} from '@tanstack/react-table'
+import type {RowData} from '@tanstack/react-table'
+import {features, selectionColumn} from '../../../../components/tableModel'
+import type {TableColumn} from '../../../../components/tableModel'
 
-export type DataTableProps<T> = {
+export type DataTableProps<T extends RowData> = {
   title?: string
   data: T[]
-  columns: ColumnDef<T, unknown>[]
+  columns: TableColumn<T>[]
   getRowId?: (row: T, index: number) => string
   onRowClick?: (row: T) => void
   enableRowSelection?: boolean
@@ -27,24 +20,7 @@ export type DataTableProps<T> = {
   density?: 'compact' | 'normal'
 }
 
-const selectionColumn = createColumnHelper<unknown>().display({
-  id: '__select',
-  header: ({table}) => (
-    <Checkbox
-      checked={table.getIsAllPageRowsSelected()}
-      indeterminate={table.getIsSomePageRowsSelected()}
-      onUpdate={(checked) => table.toggleAllPageRowsSelected(checked)}
-    />
-  ),
-  cell: ({row}) => (
-    <span onClick={(event) => event.stopPropagation()}>
-      <Checkbox checked={row.getIsSelected()} onUpdate={(checked) => row.toggleSelected(checked)} />
-    </span>
-  ),
-  size: 42,
-})
-
-export function DataTable<T>({
+export function DataTable<T extends RowData>({
   title,
   data,
   columns,
@@ -57,9 +33,6 @@ export function DataTable<T>({
   emptyDescription = 'Измените фильтры или повторите загрузку.',
   density: initialDensity = 'compact',
 }: DataTableProps<T>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [density, setDensity] = useState(initialDensity)
 
   const tableColumns = useMemo(() => {
@@ -67,26 +40,20 @@ export function DataTable<T>({
       return columns
     }
 
-    return [selectionColumn as ColumnDef<T, unknown>, ...columns]
+    return [selectionColumn<T>('__select', 'Выбрать страницу', 'Выбрать строку'), ...columns]
   }, [columns, enableRowSelection])
 
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns: tableColumns,
-    state: {sorting, rowSelection, columnVisibility},
     enableRowSelection,
     getRowId,
-    onSortingChange: setSorting,
-    onRowSelectionChange: setRowSelection,
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     initialState: {pagination: {pageIndex: 0, pageSize: 8}},
   })
 
-  const selectedRows = table.getSelectedRowModel().rows.map((row: Row<T>) => row.original)
+  const selectedModel = table.getSelectedRowModel()
+  const selectedRows = useMemo(() => selectedModel.rows.map(row => row.original), [selectedModel])
 
   useEffect(() => {
     onSelectedRowsChange?.(selectedRows)
@@ -145,7 +112,7 @@ export function DataTable<T>({
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th key={header.id} style={{width: header.getSize()}}>
-                    {header.isPlaceholder ? null : (
+                    {header.isPlaceholder ? null : !header.column.getCanSort() ? flexRender(header.column.columnDef.header, header.getContext()) : (
                       <button
                         className="ci-table__sort"
                         type="button"
@@ -178,7 +145,7 @@ export function DataTable<T>({
           Назад
         </Button>
         <Text variant="caption-2" color="secondary">
-          Страница {table.getState().pagination.pageIndex + 1} из {table.getPageCount()}
+          Страница {table.state.pagination.pageIndex + 1} из {table.getPageCount()}
         </Text>
         <Button view="outlined" disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
           Вперед

@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ActionToolbar} from '../components/ActionToolbar'
@@ -34,7 +34,7 @@ export function PriceActionsPage() {
   const query = useQuery({queryKey: ['commerce-intelligence', 'price-actions'], queryFn: getPriceActions})
   const onSelectionChange = useCallback((rows: PriceAction[]) => setSelectedRows(rows), [])
 
-  const columns = useMemo<ColumnDef<PriceAction, unknown>[]>(
+  const columns = useMemo<TableColumn<PriceAction>[]>(
     () => [
       {accessorKey: 'sku', header: 'SKU'},
       {accessorKey: 'product', header: 'Товар'},

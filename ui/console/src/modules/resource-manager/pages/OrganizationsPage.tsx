@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from 'react'
 import {ArrowRotateRight} from '@gravity-ui/icons'
-import type {SortingState} from '@gravity-ui/table/tanstack'
+import type {SortingState} from '@tanstack/react-table'
 import {Button, Card, Icon, Text, TextInput} from '@gravity-ui/uikit'
 import {useRouter} from '@tanstack/react-router'
 

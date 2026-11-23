@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
@@ -24,7 +24,7 @@ const filters = [
   {key: 'risk', label: 'Складской риск', options: [{value: 'all', content: 'Любой'}, {value: 'risk', content: 'Риск'}, {value: 'normal', content: 'Норма'}]},
 ]
 
-const columns: ColumnDef<Product, unknown>[] = [
+const columns: TableColumn<Product>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'category', header: 'Категория'},

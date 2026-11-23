@@ -762,3 +762,23 @@
     text-align: left;
   }
 }
+
+.m8-organizations-table { border-collapse: collapse; }
+.m8-organizations-table :is(td, th) {
+  padding: 8px;
+  text-align: start;
+  border-bottom: 1px solid var(--g-color-line-generic);
+}
+.m8-table-settings { position: relative; }
+.m8-table-settings summary { cursor: pointer; }
+.m8-table-settings-panel {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: 0;
+  min-width: 240px;
+  padding: 12px;
+  background: var(--g-color-base-float);
+  box-shadow: 0 2px 12px var(--g-color-line-generic);
+}
+.m8-table-settings-panel > div { display: flex; align-items: center; gap: 4px; }
+.m8-table-settings-panel label { flex: 1; }

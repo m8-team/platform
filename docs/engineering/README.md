@@ -40,7 +40,7 @@ Human-approved ADRs and published interface contracts are authoritative architec
 
 ## Project baseline and phased enforcement
 
-- Go module `github.com/m8-team/platform`, toolchain directive `go 1.26.1`.
+- Go module `github.com/m8-team/platform`, Go version defined in `go.mod`.
 - `buf.yaml` uses Buf v2, `STANDARD` lint with explicit exceptions, `FILE` breaking policy; `buf.gen.yaml` generates Go/Connect/gRPC/gateway/OpenAPI.
 - `internal/access`, `internal/resourcemanager`, `internal/platform`; `cmd/resource-manager` composition root; YDB SDK and Uber Fx are dependencies.
 - Console uses React 19, TypeScript 6, Gravity UI, TanStack Router/Query, Vite, and pnpm 10.12.1.

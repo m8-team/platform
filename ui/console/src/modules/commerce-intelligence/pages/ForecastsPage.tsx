@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
@@ -22,7 +22,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<ForecastRiskSku, unknown>[] = [
+const columns: TableColumn<ForecastRiskSku>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'category', header: 'Категория'},

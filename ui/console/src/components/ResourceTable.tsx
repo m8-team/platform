@@ -1,24 +1,18 @@
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import type {ReactNode} from 'react'
-import {getSettingsColumn, selectionColumn, Table, useTable} from '@gravity-ui/table'
-import {
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-} from '@gravity-ui/table/tanstack'
-import type {
-  ColumnDef,
-  RowSelectionState,
-  SortingState,
-  Updater,
-  VisibilityState,
-} from '@gravity-ui/table/tanstack'
-import {Pagination, TextInput} from '@gravity-ui/uikit'
+import {flexRender, useTable} from '@tanstack/react-table'
+import type {ColumnVisibilityState, RowData, RowSelectionState, SortingState, Updater} from '@tanstack/react-table'
+import {Button, Checkbox, Pagination, TextInput} from '@gravity-ui/uikit'
+import {features, selectionColumn} from './tableModel'
+import type {TableColumn} from './tableModel'
 
 const selectionColumnId = '_select'
 const settingsColumnId = '_settings'
 
 export interface ResourceTableSettings {
+  label: string
+  moveUp: string
+  moveDown: string
   storageKey?: string
   enableSearch?: boolean
   searchPlaceholder?: string
@@ -70,9 +64,9 @@ export interface ResourceTableSelectionActions<TData> {
   clearSelection: () => void
 }
 
-export interface ResourceTableProps<TData> {
+export interface ResourceTableProps<TData extends RowData> {
   data: TData[]
-  columns: ColumnDef<TData>[]
+  columns: TableColumn<TData>[]
   getRowId: (item: TData) => string
   loading?: boolean
   loadingContent: string
@@ -80,6 +74,8 @@ export interface ResourceTableProps<TData> {
   className?: string
   onRowActivate?: (item: TData) => void
   getRowAriaLabel?: (item: TData) => string
+  selectPageLabel: string
+  selectRowLabel: string
   selectable?: boolean
   onSelectedRowsChange?: (items: TData[]) => void
   settings?: ResourceTableSettings
@@ -90,7 +86,7 @@ export interface ResourceTableProps<TData> {
   sorting?: ResourceTableSorting
 }
 
-export function ResourceTable<TData>({
+export function ResourceTable<TData extends RowData>({
   data,
   columns,
   getRowId,
@@ -101,6 +97,8 @@ export function ResourceTable<TData>({
   onRowActivate,
   getRowAriaLabel,
   selectable = false,
+  selectPageLabel,
+  selectRowLabel,
   onSelectedRowsChange,
   settings,
   renderSelectionActions,
@@ -123,32 +121,21 @@ export function ResourceTable<TData>({
   const [internalFilter, setInternalFilter] = useState('')
   const serverFiltering = filtering?.mode === 'server'
   const globalFilter = serverFiltering ? filtering.value : internalFilter
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>(() =>
     readTableSettings(settings?.storageKey).columnVisibility,
   )
   const [columnOrder, setColumnOrder] = useState<string[]>(() => {
     const storedOrder = readTableSettings(settings?.storageKey).columnOrder
     return storedOrder.length === 0 ? [] : normalizeColumnOrder(storedOrder, selectable, Boolean(settings))
   })
-  const tableColumns = useMemo(
-    () => [
-      ...(selectable ? [selectionColumn as ColumnDef<TData>] : []),
-      ...columns,
-      ...(settings
-        ? [
-            getSettingsColumn<TData>(settingsColumnId, {
-              sortable: true,
-              filterable: true,
-              enableSearch: settings.enableSearch,
-              searchPlaceholder: settings.searchPlaceholder,
-            }),
-          ]
-        : []),
-    ],
-    [columns, selectable, settings],
-  )
+  const [columnSearch, setColumnSearch] = useState('')
+  const tableColumns = useMemo<TableColumn<TData>[]>(() => [
+    ...(selectable ? [selectionColumn<TData>(selectionColumnId, selectPageLabel, selectRowLabel)] : []),
+    ...columns,
+    ...(settings ? [{id: settingsColumnId, size: 44, enableSorting: false, enableHiding: false}] : []),
+  ], [columns, selectable, selectPageLabel, selectRowLabel, settings])
   const updateColumnVisibility = useCallback(
-    (updater: Updater<VisibilityState>) => {
+    (updater: Updater<ColumnVisibilityState>) => {
       setColumnVisibility((current) => {
         const next = applyUpdater(updater, current)
         persistTableSettings(settings?.storageKey, next, columnOrder)
@@ -169,6 +156,7 @@ export function ResourceTable<TData>({
     [columnVisibility, selectable, settings],
   )
   const table = useTable({
+    features,
     columns: tableColumns,
     data,
     getRowId,
@@ -188,12 +176,9 @@ export function ResourceTable<TData>({
       if (serverFiltering) filtering.onUpdate(next)
       else setInternalFilter(next)
     },
-    getFilteredRowModel: filtering && !serverFiltering ? getFilteredRowModel() : undefined,
-    getSortedRowModel: sortable && !serverSorting ? getSortedRowModel() : undefined,
-    getPaginationRowModel: pagination && !serverPagination ? getPaginationRowModel() : undefined,
-    manualPagination: serverPagination,
-    manualFiltering: serverFiltering,
-    manualSorting: serverSorting,
+    manualPagination: !pagination || serverPagination,
+    manualFiltering: !filtering || serverFiltering,
+    manualSorting: !sortable || serverSorting,
     state: {
       rowSelection,
       columnOrder,
@@ -240,34 +225,58 @@ export function ResourceTable<TData>({
         </div>
       ) : null}
       <div className="m8-resource-table-shell" aria-busy={loading}>
-        <Table<TData>
-          table={table}
-          size="m"
-          className={className}
-          emptyContent={loading ? loadingContent : emptyContent}
-          onRowClick={
-            onRowActivate
-              ? (row, event) => {
-                  if (!isInteractiveTarget(event.target)) activate(row.original)
-                }
-              : undefined
-          }
-          rowAttributes={
-            onRowActivate
-              ? (row) => ({
-                  tabIndex: 0,
-                  'aria-label': getRowAriaLabel?.(row.original),
-                  onKeyDown: (event) => {
-                    if (isInteractiveTarget(event.target)) return
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      activate(row.original)
-                    }
-                  },
-                })
-              : undefined
-          }
-        />
+        <table className={className}>
+          <thead>{table.getHeaderGroups().map(group => <tr key={group.id}>
+            {group.headers.map(header => {
+              const column = header.column
+              const direction = column.getIsSorted()
+              const label = flexRender(column.columnDef.header, header.getContext())
+              return <th key={header.id} style={{width: header.getSize()}}
+                aria-sort={direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : undefined}>
+                {column.id === settingsColumnId && settings ? (
+                  <details className="m8-table-settings">
+                    <summary aria-label={settings.label}>⚙</summary>
+                    <div className="m8-table-settings-panel">
+                      {settings.enableSearch && <TextInput value={columnSearch} onUpdate={setColumnSearch}
+                        aria-label={settings.searchPlaceholder} placeholder={settings.searchPlaceholder} />}
+                      {table.getAllLeafColumns().filter(item => item.getCanHide()).map((item, index, items) => {
+                        const title = String(item.columnDef.header ?? item.id)
+                        if (!title.toLocaleLowerCase().includes(columnSearch.toLocaleLowerCase())) return null
+                        const move = (step: number) => {
+                          const order = items.map(entry => entry.id)
+                          order.splice(index + step, 0, ...order.splice(index, 1))
+                          table.setColumnOrder(order)
+                        }
+                        return <div key={item.id}>
+                          <Checkbox checked={item.getIsVisible()} onUpdate={checked => item.toggleVisibility(checked)}>{title}</Checkbox>
+                          <Button aria-label={settings.moveUp} disabled={index === 0} onClick={() => move(-1)}>↑</Button>
+                          <Button aria-label={settings.moveDown} disabled={index === items.length - 1} onClick={() => move(1)}>↓</Button>
+                        </div>
+                      })}
+                    </div>
+                  </details>
+                ) : column.getCanSort() ? <Button view="flat" onClick={column.getToggleSortingHandler()}>
+                  {label}{direction === 'asc' ? ' ↑' : direction === 'desc' ? ' ↓' : ''}
+                </Button> : label}
+              </th>
+            })}
+          </tr>)}</thead>
+          <tbody>{table.getRowModel().rows.map(row => <tr key={row.id}
+            tabIndex={onRowActivate ? 0 : undefined} aria-label={getRowAriaLabel?.(row.original)}
+            onClick={event => { if (!isInteractiveTarget(event.target)) activate(row.original) }}
+            onKeyDown={event => {
+              if (onRowActivate && event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault()
+                activate(row.original)
+              }
+            }}>
+            {row.getVisibleCells().map(cell => <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)}
+          </tr>)}
+            {!table.getRowModel().rows.length && <tr><td colSpan={table.getVisibleLeafColumns().length}>
+              {loading ? loadingContent : emptyContent}
+            </td></tr>}
+          </tbody>
+        </table>
       </div>
       {pagination && filteredRowCount > 0 ? (
         <div
@@ -312,7 +321,7 @@ function isInteractiveTarget(target: EventTarget | null) {
 }
 
 interface StoredTableSettings {
-  columnVisibility: VisibilityState
+  columnVisibility: ColumnVisibilityState
   columnOrder: string[]
 }
 
@@ -331,7 +340,7 @@ function readTableSettings(storageKey: string | undefined): StoredTableSettings 
 
 function persistTableSettings(
   storageKey: string | undefined,
-  columnVisibility: VisibilityState,
+  columnVisibility: ColumnVisibilityState,
   columnOrder: string[],
 ) {
   if (!storageKey || typeof window === 'undefined') return

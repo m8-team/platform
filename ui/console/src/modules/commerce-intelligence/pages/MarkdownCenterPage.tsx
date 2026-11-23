@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {Button, Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Scatter, ScatterChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
@@ -24,7 +24,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<MarkdownCandidate, unknown>[] = [
+const columns: TableColumn<MarkdownCandidate>[] = [
   {accessorKey: 'sku', header: 'SKU'},
   {accessorKey: 'product', header: 'Товар'},
   {accessorKey: 'currentPrice', header: 'Текущая цена'},

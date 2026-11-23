@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 
 import {ActionToolbar} from '../components/ActionToolbar'
 import {ChartCard} from '../components/ChartCard'
@@ -10,7 +10,7 @@ import type {Approval} from '../mock/types'
 import {notifyAction} from '../utils'
 import {CommercePage, ErrorState, KpiGrid, LoadingState, StatusCell} from './pageCommon'
 
-const columns: ColumnDef<Approval, unknown>[] = [
+const columns: TableColumn<Approval>[] = [
   {accessorKey: 'id', header: 'ID'},
   {accessorKey: 'type', header: 'Тип'},
   {accessorKey: 'subject', header: 'SKU / Группа'},

@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {Text} from '@gravity-ui/uikit'
 import {useQuery} from '@tanstack/react-query'
-import type {ColumnDef} from '@tanstack/react-table'
+import type {TableColumn} from '../../../components/tableModel'
 import {Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {ChartCard} from '../components/ChartCard'
@@ -23,7 +23,7 @@ const filters = [
   {key: 'period', label: 'Период', type: 'date' as const, options: commonOptions.period},
 ]
 
-const columns: ColumnDef<CompetitorMatch, unknown>[] = [
+const columns: TableColumn<CompetitorMatch>[] = [
   {accessorKey: 'sku', header: 'Наш SKU'},
   {accessorKey: 'competitor', header: 'Конкурент'},
   {accessorKey: 'competitorProduct', header: 'Товар конкурента'},

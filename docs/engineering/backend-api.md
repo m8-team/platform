@@ -6,7 +6,7 @@
 
 ### GO-001 — Formatting and language (MUST)
 
-Use repository toolchain (`go.mod` currently declares Go 1.26.1) and Go idioms. Format Go with `gofmt`; use `goimports` where available. The generic `.editorconfig` spaces setting does **not** override Go's canonical tab-based formatting. Name exported declarations clearly; add GoDoc to public declarations when it provides useful contract semantics. Avoid cryptic names, giant files, cyclic imports and hidden global state.
+Use repository toolchain (see the Go version in `go.mod`) and Go idioms. Format Go with `gofmt`; use `goimports` where available. The generic `.editorconfig` spaces setting does **not** override Go's canonical tab-based formatting. Name exported declarations clearly; add GoDoc to public declarations when it provides useful contract semantics. Avoid cryptic names, giant files, cyclic imports and hidden global state.
 
 ### GO-002 — Boundaries and interfaces (MUST)
 

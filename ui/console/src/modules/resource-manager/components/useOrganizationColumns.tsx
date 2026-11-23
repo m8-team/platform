@@ -1,13 +1,13 @@
 import {useMemo} from 'react'
 import {ClipboardButton, Text} from '@gravity-ui/uikit'
-import type {ColumnDef} from '@gravity-ui/table/tanstack'
+import type {TableColumn} from '../../../components/tableModel'
 
 import type {AppLanguage, Translate} from '../../../i18n'
 import type {Organization} from '../api/organizations'
 import {CopyableOrganizationID, OrganizationStateLabel} from './OrganizationTableCells'
 
 export function useOrganizationColumns(language: AppLanguage, t: Translate) {
-  return useMemo<ColumnDef<Organization>[]>(
+  return useMemo<TableColumn<Organization>[]>(
     () => [
       {
         accessorKey: 'name',
