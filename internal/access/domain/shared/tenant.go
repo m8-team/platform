@@ -2,9 +2,9 @@
 package shared
 
 import (
- "errors"
- "regexp"
- "strings"
+	"errors"
+	"regexp"
+	"strings"
 )
 
 var ErrInvalidTenantID = errors.New("invalid tenant id")
@@ -14,12 +14,14 @@ var canonicalUUID = regexp.MustCompile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-
 type TenantID string
 
 func NewTenantID(raw string) (TenantID, error) {
- id := TenantID(strings.TrimSpace(raw))
- return id, id.Validate()
+	id := TenantID(strings.TrimSpace(raw))
+	return id, id.Validate()
 }
 func (id TenantID) Validate() error {
- if !canonicalUUID.MatchString(string(id)) { return ErrInvalidTenantID }
- return nil
+	if !canonicalUUID.MatchString(string(id)) {
+		return ErrInvalidTenantID
+	}
+	return nil
 }
 func (id TenantID) String() string { return string(id) }
 
