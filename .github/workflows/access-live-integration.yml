@@ -6,6 +6,10 @@ on:
       - "internal/access/**"
       - ".github/workflows/access-live-integration.yml"
 
+concurrency:
+  group: m8-access-live-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
