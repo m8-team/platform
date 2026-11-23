@@ -42,7 +42,7 @@ jobs:
       - name: Apply exact YDB schema and exercise live SpiceDB and HA leases
         run: |
           go test -count=1 -tags=integration -timeout=9m -v \
-            ./internal/access/adapters/ydbcheckpoint ./internal/access/adapters/spicedb ./internal/access/adapters/ydbcatalog
+            ./internal/access/adapters/ydbcheckpoint ./internal/access/adapters/spicedb ./internal/access/adapters/ydbcatalog ./internal/access/adapters/ydbroles
       - name: Diagnostics from disposable services
         if: failure()
         run: |
