@@ -8,10 +8,10 @@ import (
 	"github.com/m8-team/platform/internal/access/adapters/authzen"
 	"github.com/m8-team/platform/internal/access/adapters/spicedb"
 	"github.com/m8-team/platform/internal/access/adapters/ydbcheckpoint"
+	"github.com/m8-team/platform/internal/access/app/consistency"
 	"github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/app/projection"
-	"github.com/m8-team/platform/internal/access/app/consistency"
 )
 
 // NewProductionPDP composes Access with a provider-neutral authoritative
