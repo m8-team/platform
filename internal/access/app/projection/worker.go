@@ -26,6 +26,10 @@ type Kind string
 const (
 	KindRoleBinding Kind = "ROLE_BINDING"
 	KindGrant       Kind = "ACCESS_GRANT"
+	KindRMOrganization Kind = "RM_ORGANIZATION"
+	KindRMWorkspace Kind = "RM_WORKSPACE"
+	KindRMEnvironment Kind = "RM_ENVIRONMENT"
+	KindRMWorkloadService Kind = "RM_WORKLOAD_SERVICE"
 )
 
 // Key is the independent graph ownership boundary. Role changes MUST fan out
@@ -42,7 +46,7 @@ func (k Key) Validate() error {
 	if err := k.TenantID.Validate(); err != nil {
 		return err
 	}
-	if k.Kind != KindRoleBinding && k.Kind != KindGrant {
+	if k.Kind != KindRoleBinding && k.Kind != KindGrant && !IsResourceKind(k.Kind) {
 		return ErrInvalidEvent
 	}
 	if !canonicalAggregateID.MatchString(k.AggregateID) {
@@ -76,6 +80,7 @@ type Snapshot struct {
 	Revision    int64
 	RoleBinding *RoleBindingState
 	Grant       *domain.AccessGrant
+	Resource    *ResourceState
 }
 
 func (s Snapshot) Validate() error {
@@ -86,7 +91,7 @@ func (s Snapshot) Validate() error {
 		return ErrInvalidEvent
 	}
 	if s.Key.Kind == KindRoleBinding {
-		if s.Grant != nil {
+		if s.Grant != nil || s.Resource != nil {
 			return ErrInvalidEvent
 		}
 		if s.RoleBinding != nil {
@@ -97,8 +102,8 @@ func (s Snapshot) Validate() error {
 				return ErrInvalidEvent
 			}
 		}
-	} else {
-		if s.RoleBinding != nil {
+	} else if s.Key.Kind == KindGrant {
+		if s.RoleBinding != nil || s.Resource != nil {
 			return ErrInvalidEvent
 		}
 		if s.Grant != nil {
@@ -108,6 +113,13 @@ func (s Snapshot) Validate() error {
 			if s.Grant.ID() != s.Key.AggregateID || s.Grant.TenantID() != s.Key.TenantID {
 				return ErrInvalidEvent
 			}
+		}
+	} else {
+		if s.RoleBinding != nil || s.Grant != nil || s.Resource == nil {
+			return ErrInvalidEvent
+		}
+		if err := s.Resource.Validate(s.Key, s.Revision); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -334,6 +346,8 @@ func (w *Worker) runTransition(ctx context.Context, key Key, eventRevision int64
 		desired, err = w.projector.bindingRelationships(ctx, snapshot.RoleBinding)
 	case KindGrant:
 		desired, err = w.projector.grantRelationships(ctx, snapshot.Grant, true)
+	case KindRMOrganization, KindRMWorkspace, KindRMEnvironment, KindRMWorkloadService:
+		desired, err = resourceRelationships(key, snapshot.Resource)
 	default:
 		return cp, ErrInvalidEvent
 	}
