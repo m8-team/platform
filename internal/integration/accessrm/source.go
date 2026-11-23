@@ -1,6 +1,6 @@
-// Package resourcemanager bridges Access to Resource Manager's authoritative
-// CQRS query, without importing Resource Manager's storage/runtime types.
-package resourcemanager
+// Package accessrm is the integration boundary for resource ownership facts.
+// It intentionally lives outside both bounded contexts.
+package accessrm
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/m8-team/platform/internal/access/app/consistency"
 	"github.com/m8-team/platform/internal/access/app/projection"
 	"github.com/m8-team/platform/internal/access/domain"
+	rmcatalog "github.com/m8-team/platform/internal/resourcemanager/adapter/resourcecatalog"
 	rmquery "github.com/m8-team/platform/internal/resourcemanager/app/query"
 	rmresource "github.com/m8-team/platform/internal/resourcemanager/domain/resource"
 )
@@ -90,4 +91,19 @@ func (s *Source) LoadCurrent(ctx context.Context, key projection.Key) (projectio
 		Revision: uint64(snapshot.Revision), Lifecycle: string(snapshot.State),
 	}
 	return projection.Snapshot{Key: key, Revision: snapshot.Revision, Resource: state}, nil
+}
+
+// NewSource wires Resource Manager's authoritative query and its repository
+// adapter to the Access-facing revision and snapshot ports. Neither domain
+// imports this integration package.
+func NewSource(catalog rmcatalog.Catalog) (*Source, error) {
+	repo, err := rmcatalog.New(catalog)
+	if err != nil {
+		return nil, err
+	}
+	query, err := rmquery.NewAuthoritativeResource(repo)
+	if err != nil {
+		return nil, err
+	}
+	return New(query)
 }

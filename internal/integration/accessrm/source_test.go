@@ -1,4 +1,4 @@
-package resourcemanager
+package accessrm
 
 import (
 	"context"
@@ -75,5 +75,14 @@ func TestSourceFailClosedOnForeignTenantAndInactiveState(t *testing.T) {
 	cancel()
 	if _, err := source.AuthoritativeRevision(cancelled, tenant, ref); !errors.Is(err, context.Canceled) {
 		t.Fatalf("cancelled query reached resource: %v", err)
+	}
+}
+
+func TestSourceRequiresResourceQueryAndCatalog(t *testing.T) {
+	if _, err := New(nil); !errors.Is(err, ErrUntrustedResource) {
+		t.Fatalf("accepted empty resource query: %v", err)
+	}
+	if _, err := NewSource(nil); err == nil {
+		t.Fatal("accepted missing authoritative catalog")
 	}
 }

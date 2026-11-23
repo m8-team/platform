@@ -7,7 +7,8 @@ Status: **INCREMENTAL / NOT FULLY MIGRATED**. This document is the architecture 
 - **Resource Manager** is the only writer for resource identity, hierarchy, tenant, owner, lifecycle and authoritative resource revision. `domain/resource.Snapshot` carries these facts without importing any storage or API types.
 - **Access** is the only writer for roles, bindings, grants, policy revision and authorization decisions. SpiceDB relationships are a read projection, never the authoritative grant store.
 - Resource Manager application query `AuthoritativeResource.Get/GetActive` sits behind a narrow `ResourceSnapshotRepository` port. `adapter/resourcecatalog` maps the current YDB/v1engine catalog to the domain read model.
-- Access `adapters/resourcemanager.Source` consumes the **query handler**, not `v1engine.Record` or tables. Composition occurs in Access `wiring`.
+- Access depends **only on its own** `consistency.ResourceRevisionReader` and `projection.SnapshotReader` ports. No `internal/access/**` package imports Resource Manager.
+- A separate integration adapter, `internal/integration/accessrm`, maps Resource Manager's authoritative CQRS query to those ports; the integration composition root is the only package that imports both bounded contexts.
 
 ## Consistency and single writers
 
@@ -46,3 +47,31 @@ RM GetActive(revision) ----> Consistency Barrier <---- Access policy journal hea
 5. Add end-to-end tests for active tenant transfer, concurrent owner changes and grant revocation races, YDB transaction rollback and SpiceDB consistency failures.
 
 This stage changes **no external Protobuf contracts**, no database schema and no deployment. It must not be merged as a claim of complete Resource Manager v1 readiness.
+
+## Dependency rule enforced by tests
+
+```text
+internal/access/{domain,app,adapters,wiring}
+        |            ports only
+        v
+  Access-owned interfaces
+        ^
+        | implements
+internal/integration/accessrm
+        |
+        v
+internal/resourcemanager/{app/query,adapter/resourcecatalog}
+```
+
+The cross-module adapter is intentionally **not inside** `internal/access`.
+The integration package composes an authoritative Resource Manager read implementation
+and passes it through Access-owned ports. Production graph projections may still
+consume RM-authored updates; Access is decoupled from RM's Go packages and YDB
+schema, but the freshness barrier still requires a trusted resource revision
+provider. If runtime independence is required, design a separate owner-certified
+revision feed/receipt contract and document its revocation guarantees before
+removing the authoritative freshness check.
+
+`internal/access/dependency_test.go` rejects any direct imports of
+`internal/resourcemanager` or `internal/integration` across Access packages,
+including their Go tests.
