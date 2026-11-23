@@ -115,12 +115,14 @@ func (a ProfileAssignment) Revoke(expected int64, at time.Time) (ProfileAssignme
 	return a, a.Validate()
 }
 
-func (a ProfileAssignment) ID() string                              { return a.id }
-func (a ProfileAssignment) TenantID() shared.TenantID               { return a.tenantID }
-func (a ProfileAssignment) Subject() shared.Subject                 { return a.subject }
-func (a ProfileAssignment) Target() AssignmentTarget                { return a.target }
-func (a ProfileAssignment) Scopes() []authorization.Scope           { return append([]authorization.Scope(nil), a.scopes...) }
-func (a ProfileAssignment) PolicyIDs() []string                     { return append([]string(nil), a.policyIDs...) }
-func (a ProfileAssignment) Revision() int64                         { return a.revision.Int64() }
-func (a ProfileAssignment) Status() ProfileAssignmentStatus         { return a.status }
-func (a ProfileAssignment) RevokedAt() time.Time                     { return a.revokedAt }
+func (a ProfileAssignment) ID() string                { return a.id }
+func (a ProfileAssignment) TenantID() shared.TenantID { return a.tenantID }
+func (a ProfileAssignment) Subject() shared.Subject   { return a.subject }
+func (a ProfileAssignment) Target() AssignmentTarget  { return a.target }
+func (a ProfileAssignment) Scopes() []authorization.Scope {
+	return append([]authorization.Scope(nil), a.scopes...)
+}
+func (a ProfileAssignment) PolicyIDs() []string             { return append([]string(nil), a.policyIDs...) }
+func (a ProfileAssignment) Revision() int64                 { return a.revision.Int64() }
+func (a ProfileAssignment) Status() ProfileAssignmentStatus { return a.status }
+func (a ProfileAssignment) RevokedAt() time.Time            { return a.revokedAt }
