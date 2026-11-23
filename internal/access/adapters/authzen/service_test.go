@@ -42,9 +42,11 @@ func (f fakeWatermark) LoadWatermark(context.Context, domain.TenantID, domain.Re
 }
 
 type fakePolicyState struct{ state consistency.PolicyState }
-func (f fakePolicyState)LoadPolicyState(context.Context,domain.TenantID)(consistency.PolicyState,error){
-    return f.state,nil
+
+func (f fakePolicyState) LoadPolicyState(context.Context, domain.TenantID) (consistency.PolicyState, error) {
+	return f.state, nil
 }
+
 type fakePDP struct{ calls int }
 
 func (f *fakePDP) CheckPermission(_ context.Context, req domain.CheckPermissionRequest) (domain.PermissionDecision, error) {
@@ -61,9 +63,11 @@ func makeService(t *testing.T, revision uint64, sourceError error) (*Service, *f
 	subject, _ := domain.NewSubject("user", "alice")
 	checker := &fakePDP{}
 	barrier, _ := consistency.New(fakeRMRevision{revision: revision, err: sourceError}, fakeWatermark{revision: 1}, checker)
-	policy,err:=consistency.NewPolicyBarrier(barrier,fakePolicyState{state:consistency.PolicyState{Head:7,Applied:7}})
-    if err!=nil{t.Fatal(err)}
-    service, err := New(testPrincipalResolver{principal: Principal{TenantID: tenant, Subject: subject}}, policy, "model-v1")
+	policy, err := consistency.NewPolicyBarrier(barrier, fakePolicyState{state: consistency.PolicyState{Head: 7, Applied: 7}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	service, err := New(testPrincipalResolver{principal: Principal{TenantID: tenant, Subject: subject}}, policy, "model-v1")
 	if err != nil {
 		t.Fatal(err)
 	}

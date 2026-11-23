@@ -23,8 +23,10 @@ func NewAuthZENHandler(ctx context.Context, principal authzen.PrincipalResolver,
 		return nil, err
 	}
 	policyBarrier, err := consistency.NewPolicyBarrier(barrier, policyState)
-    if err!=nil{return nil,err}
-    service, err := authzen.New(principal, policyBarrier, modelRevision)
+	if err != nil {
+		return nil, err
+	}
+	service, err := authzen.New(principal, policyBarrier, modelRevision)
 	if err != nil {
 		return nil, err
 	}

@@ -9,8 +9,8 @@ import (
 	rm "github.com/m8-team/platform/internal/access/adapters/resourcemanager"
 	"github.com/m8-team/platform/internal/access/adapters/spicedb"
 	"github.com/m8-team/platform/internal/access/adapters/ydbcheckpoint"
+	"github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/ports"
-    "github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/projection"
 )
 
@@ -56,12 +56,18 @@ func NewResourceProjectionWorker(resourceCatalog rm.Catalog,
 // The Access authoritative SnapshotReader and outbox transport are explicitly
 // supplied by the owner; there is NO unverified SQL snapshot fallback.
 func NewAccessPolicyWorker(source projection.SnapshotReader,
-    checkpoint *ydbcheckpoint.Store,spicedbClient *spicedb.Client,
-    permissions ports.PermissionCatalog,now func()time.Time)(*policyjournal.Worker,error){
-    if source==nil || checkpoint==nil || spicedbClient==nil{return nil,projection.ErrInvalidProjection}
-    projector,err:=projection.New(permissions,spicedbClient,now)
-    if err!=nil{return nil,err}
-    worker,err:=projection.NewWorker(projector,source,checkpoint,now)
-    if err!=nil{return nil,err}
-    return policyjournal.NewWorker(worker,checkpoint)
+	checkpoint *ydbcheckpoint.Store, spicedbClient *spicedb.Client,
+	permissions ports.PermissionCatalog, now func() time.Time) (*policyjournal.Worker, error) {
+	if source == nil || checkpoint == nil || spicedbClient == nil {
+		return nil, projection.ErrInvalidProjection
+	}
+	projector, err := projection.New(permissions, spicedbClient, now)
+	if err != nil {
+		return nil, err
+	}
+	worker, err := projection.NewWorker(projector, source, checkpoint, now)
+	if err != nil {
+		return nil, err
+	}
+	return policyjournal.NewWorker(worker, checkpoint)
 }

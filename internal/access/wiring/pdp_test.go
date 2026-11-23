@@ -33,9 +33,11 @@ func (checkpoint) LoadWatermark(context.Context, domain.TenantID, domain.Resourc
 }
 
 type readyPolicyState struct{}
-func(readyPolicyState)LoadPolicyState(context.Context,domain.TenantID)(consistency.PolicyState,error) {
-    return consistency.PolicyState{Head:4,Applied:4},nil
+
+func (readyPolicyState) LoadPolicyState(context.Context, domain.TenantID) (consistency.PolicyState, error) {
+	return consistency.PolicyState{Head: 4, Applied: 4}, nil
 }
+
 type allowEngine struct{ calls int }
 
 func (e *allowEngine) CheckPermission(_ context.Context, req domain.CheckPermissionRequest) (domain.PermissionDecision, error) {
