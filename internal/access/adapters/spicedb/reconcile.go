@@ -43,15 +43,20 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 			})
 		}
 	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	collected := make(map[domain.RelationshipKey]domain.Relationship)
 	for _, filter := range filters {
-		stream, err := c.permissions.ReadRelationships(ctx, &pb.ReadRelationshipsRequest{
+		request := &pb.ReadRelationshipsRequest{
 			Consistency:        &pb.Consistency{Requirement: &pb.Consistency_FullyConsistent{FullyConsistent: true}},
-			RelationshipFilter: filter, OptionalLimit: maxProjectionEdges + 1,
-		})
+			RelationshipFilter: filter, OptionalLimit: maxProjectionEdges,
+		}
+		stream, err := c.permissions.ReadRelationships(ctx, request)
 		if err != nil {
 			return nil, classifyRPCFailure(ctx, err)
 		}
+		start := len(collected)
+		var cursor *pb.Cursor
 		for {
 			item, err := stream.Recv()
 			if errors.Is(err, io.EOF) {
@@ -78,6 +83,26 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 			collected[edge.Key()] = edge
 			if len(collected) > maxProjectionEdges {
 				return nil, ErrInvalidResponse
+			}
+			cursor = item.AfterResultCursor
+		}
+		// A full page can hide an extra tuple. Resume the same query and
+		// snapshot before accepting a projection at the size boundary.
+		if len(collected)-start == maxProjectionEdges {
+			if cursor.GetToken() == "" {
+				return nil, ErrInvalidResponse
+			}
+			request.OptionalCursor = cursor
+			overflow, err := c.permissions.ReadRelationships(ctx, request)
+			if err != nil {
+				return nil, classifyRPCFailure(ctx, err)
+			}
+			_, err = overflow.Recv()
+			if err == nil {
+				return nil, ErrInvalidResponse
+			}
+			if !errors.Is(err, io.EOF) {
+				return nil, classifyRPCFailure(ctx, err)
 			}
 		}
 	}

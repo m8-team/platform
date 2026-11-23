@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strconv"
 	"testing"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
@@ -210,5 +211,54 @@ func TestFenceEpochIsBoundToTenant(t *testing.T) {
 	_, err = parseFenceEpoch(fence, &pb.Relationship{Relation: "owner", Subject: subject})
 	if !errors.Is(err, ErrGraphFenceConflict) {
 		t.Fatalf("foreign epoch returned %v, want fence conflict", err)
+	}
+}
+
+func TestReadProjectionEdgesChecksFullPageForOverflow(t *testing.T) {
+	fence := testFence(t, 1)
+	grant, err := graphObject(fence.TenantID, "access_grant", fence.AggregateID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	page := make([]*pb.ReadRelationshipsResponse, maxProjectionEdges)
+	for i := range page {
+		user, err := graphObject(fence.TenantID, "user", strconv.Itoa(i))
+		if err != nil {
+			t.Fatal(err)
+		}
+		page[i] = &pb.ReadRelationshipsResponse{Relationship: &pb.Relationship{Resource: grant, Relation: "holder", Subject: &pb.SubjectReference{Object: user}}, AfterResultCursor: &pb.Cursor{Token: strconv.Itoa(i + 1)}}
+	}
+	for _, size := range []int{maxProjectionEdges, maxProjectionEdges + 1} {
+		t.Run(strconv.Itoa(size), func(t *testing.T) {
+			fake := &fakeFencePermissions{fakePermissions: &fakePermissions{}}
+			probed := false
+			fake.read = func(req *pb.ReadRelationshipsRequest) (grpc.ServerStreamingClient[pb.ReadRelationshipsResponse], error) {
+				if req.OptionalLimit != maxProjectionEdges {
+					t.Fatalf("unsupported page limit %d", req.OptionalLimit)
+				}
+				if req.RelationshipFilter.ResourceType != "access_grant" {
+					return &fakeFenceReadStream{}, nil
+				}
+				if req.OptionalCursor == nil {
+					return &fakeFenceReadStream{items: page}, nil
+				}
+				if req.OptionalCursor.Token != page[len(page)-1].AfterResultCursor.Token {
+					t.Fatal("wrong continuation cursor")
+				}
+				probed = true
+				return &fakeFenceReadStream{items: page[:size-maxProjectionEdges]}, nil
+			}
+			edges, err := testFencedSDK(t, fake).ReadProjectionEdges(t.Context(), fence)
+			if !probed {
+				t.Fatal("full page accepted without checking continuation")
+			}
+			if size == maxProjectionEdges {
+				if err != nil || len(edges) != size {
+					t.Fatalf("exact limit: %d edges, %v", len(edges), err)
+				}
+			} else if !errors.Is(err, ErrInvalidResponse) || edges != nil {
+				t.Fatalf("overflow: %d edges, %v", len(edges), err)
+			}
+		})
 	}
 }
