@@ -33,7 +33,7 @@ jobs:
       - name: Start disposable databases (never production)
         run: |
           set -euo pipefail
-          docker run -d --name m8-access-ydb -p 127.0.0.1:2136:2136 \
+          docker run -d --hostname localhost --name m8-access-ydb -p 127.0.0.1:2136:2136 \
             -e GRPC_PORT=2136 -e MON_PORT=8765 \
             ydbplatform/local-ydb:26.3.1.25
           docker run -d --name m8-access-spicedb -p 127.0.0.1:50051:50051 \
