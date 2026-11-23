@@ -26,7 +26,10 @@ type Identity interface {
 }
 type Authorizer interface {
 	CanPublishProfile(context.Context, shared.Subject, role.BundleRef) (bool, error)
-	// CanManageTenant is checked before resolving an assignment ID to avoid\n	// revealing whether another tenant's assignment exists.\n	CanManageTenant(context.Context, shared.Subject, shared.TenantID) (bool, error)\n	CanManageSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
+	// CanManageTenant is checked before resolving an assignment ID to avoid
+	// revealing whether another tenant's assignment exists.
+	CanManageTenant(context.Context, shared.Subject, shared.TenantID) (bool, error)
+	CanManageSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
 	CanReadSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
 }
 
