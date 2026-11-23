@@ -11,12 +11,10 @@ var ErrInvalidSnapshot = errors.New("invalid authoritative resource snapshot")
 
 type Kind string
 
-const (
-	Organization     Kind = "organization"
-	Workspace        Kind = "workspace"
-	Environment      Kind = "environment"
-	WorkloadService  Kind = "workload_service"
-)
+const Organization Kind = "organization"
+const Workspace Kind = "workspace"
+const Environment Kind = "environment"
+const WorkloadService Kind = "workload_service"
 
 func (k Kind) Valid() bool {
 	switch k {

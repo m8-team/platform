@@ -19,7 +19,9 @@ type Catalog interface {
 	Get(context.Context, v1engine.Kind, string) (v1engine.Record, error)
 }
 
-type Repository struct { catalog Catalog }
+type Repository struct {
+	catalog Catalog
+}
 
 func New(catalog Catalog) (*Repository, error) {
 	if catalog == nil {
@@ -41,12 +43,15 @@ func (r *Repository) Load(ctx context.Context, kind resource.Kind, id string) (r
 	if err != nil {
 		return resource.Snapshot{}, err
 	}
-	snapshot := resource.Snapshot{
-		Kind: resource.Kind(record.Kind), ID: record.ID, TenantID: record.TenantID,
-		OwnerKind: string(record.Owner.Kind), OwnerID: record.Owner.ID,
-		OrganizationID: record.OrganizationID, State: resource.State(record.State),
-		Revision: record.Revision,
-	}
+	snapshot := resource.Snapshot{}
+	snapshot.Kind = resource.Kind(record.Kind)
+	snapshot.ID = record.ID
+	snapshot.TenantID = record.TenantID
+	snapshot.OwnerKind = string(record.Owner.Kind)
+	snapshot.OwnerID = record.Owner.ID
+	snapshot.OrganizationID = record.OrganizationID
+	snapshot.State = resource.State(record.State)
+	snapshot.Revision = record.Revision
 	if err := snapshot.Validate(); err != nil {
 		return resource.Snapshot{}, err
 	}

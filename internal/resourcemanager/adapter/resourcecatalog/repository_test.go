@@ -23,11 +23,16 @@ func TestRepositoryMapsAuthoritativeRecord(t *testing.T) {
 	if !errors.Is(err, ErrCatalogRequired) {
 		t.Fatalf("nil catalog accepted: %v", err)
 	}
-	repo, _ := New(stubCatalog{record: v1engine.Record{
-		Kind: v1engine.Workspace, ID: "w1", TenantID: "t1",
-		Owner: v1engine.Owner{Kind: v1engine.Organization, ID: "o1"},
-		OrganizationID: "o1", State: "ACTIVE", Revision: 3,
-	}})
+	record := v1engine.Record{
+		Kind:           v1engine.Workspace,
+		ID:             "w1",
+		TenantID:       "t1",
+		Owner:          v1engine.Owner{Kind: v1engine.Organization, ID: "o1"},
+		OrganizationID: "o1",
+		State:          "ACTIVE",
+		Revision:       3,
+	}
+	repo, _ := New(stubCatalog{record: record})
 	snapshot, err := repo.Load(context.Background(), resource.Workspace, "w1")
 	if err != nil || snapshot.OwnerID != "o1" || snapshot.Revision != 3 {
 		t.Fatalf("unexpected result %+v %v", snapshot, err)
