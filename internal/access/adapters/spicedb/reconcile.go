@@ -26,22 +26,24 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	kind := "access_binding"
-	if f.Kind == "ACCESS_GRANT" {
-		kind = "access_grant"
+	kind, ownerID, err := f.OwnedObject()
+	if err != nil {
+		return nil, err
 	}
-	obj, err := graphObject(f.TenantID, kind, f.AggregateID)
+	obj, err := graphObject(f.TenantID, kind, ownerID)
 	if err != nil {
 		return nil, err
 	}
 	filters := []*pb.RelationshipFilter{{ResourceType: kind, OptionalResourceId: obj.ObjectId}}
 	// v1 schema resource kinds. Do not query all namespaces or trust
 	// client-supplied resource-type strings.
-	for _, resourceType := range []string{"organization", "workspace", "environment", "workload_service"} {
-		filters = append(filters, &pb.RelationshipFilter{
-			ResourceType:          resourceType,
-			OptionalSubjectFilter: &pb.SubjectFilter{SubjectType: kind, OptionalSubjectId: obj.ObjectId},
-		})
+	if kind != "rm_projection" {
+		for _, resourceType := range []string{"organization", "workspace", "environment", "workload_service"} {
+			filters = append(filters, &pb.RelationshipFilter{
+				ResourceType: resourceType,
+				OptionalSubjectFilter: &pb.SubjectFilter{SubjectType: kind, OptionalSubjectId: obj.ObjectId},
+			})
+		}
 	}
 	collected := make(map[domain.RelationshipKey]domain.Relationship)
 	for _, filter := range filters {
@@ -69,7 +71,7 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 			}
 			// Do not accept adjacent but unowned tuples in query results.
 			r, s := edge.Resource(), edge.Subject()
-			if !((r.Type() == kind && r.ID() == f.AggregateID) || (s.Type() == kind && s.ID() == f.AggregateID)) {
+			if !((r.Type() == kind && r.ID() == ownerID) || (kind != "rm_projection" && s.Type() == kind && s.ID() == ownerID)) {
 				return nil, ErrInvalidResponse
 			}
 			if _, exists := collected[edge.Key()]; exists {
