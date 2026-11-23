@@ -150,7 +150,7 @@ VALUES ($tenant,$request,$revision,$digest);`),
 // mutations have already finished.
 func (s *Store) CommitPolicyJob(ctx context.Context, policyRevision uint64, key projection.Key) error {
 	if s == nil || policyRevision == 0 || key.Validate() != nil ||
-		(key.Kind != projection.KindGrant && key.Kind != projection.KindRoleBinding) {
+		(key.Kind != projection.KindGrant && key.Kind != projection.KindRoleBinding && key.Kind != projection.KindProfileAssignment) {
 		return ErrInvalidStore
 	}
 	return s.tx(ctx, func(tx *sql.Tx) error {

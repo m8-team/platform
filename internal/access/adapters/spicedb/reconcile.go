@@ -36,7 +36,7 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 	// v1 schema resource kinds. Do not query all namespaces or trust
 	// client-supplied resource-type strings.
 	if kind != "rm_projection" {
-		for _, resourceType := range []string{"organization", "workspace", "environment", "workload_service"} {
+		for _, resourceType := range []string{"organization", "workspace", "environment", "workload_service", "access_capability"} {
 			filters = append(filters, &pb.RelationshipFilter{
 				ResourceType:          resourceType,
 				OptionalSubjectFilter: &pb.SubjectFilter{SubjectType: kind, OptionalSubjectId: obj.ObjectId},

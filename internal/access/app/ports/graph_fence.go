@@ -23,7 +23,7 @@ func (f GraphFence) Validate() error {
 	if err := f.TenantID.Validate(); err != nil {
 		return err
 	}
-	if (f.Kind != "ROLE_BINDING" && f.Kind != "ACCESS_GRANT" && f.Kind != "RM_ORGANIZATION" && f.Kind != "RM_WORKSPACE" && f.Kind != "RM_ENVIRONMENT" && f.Kind != "RM_WORKLOAD_SERVICE") || strings.TrimSpace(f.AggregateID) == "" || f.Epoch == 0 {
+	if (f.Kind != "ROLE_BINDING" && f.Kind != "ACCESS_GRANT" && f.Kind != "PROFILE_ASSIGNMENT" && f.Kind != "RM_ORGANIZATION" && f.Kind != "RM_WORKSPACE" && f.Kind != "RM_ENVIRONMENT" && f.Kind != "RM_WORKLOAD_SERVICE") || strings.TrimSpace(f.AggregateID) == "" || f.Epoch == 0 {
 		return ErrInvalidGraphFence
 	}
 	return nil
@@ -69,6 +69,8 @@ func (f GraphFence) OwnedObject() (string, string, error) {
 		return "access_binding", f.AggregateID, nil
 	case "ACCESS_GRANT":
 		return "access_grant", f.AggregateID, nil
+	case "PROFILE_ASSIGNMENT":
+		return "access_profile_assignment", f.AggregateID, nil
 	case "RM_ORGANIZATION":
 		return "rm_projection", "organization:" + f.AggregateID, nil
 	case "RM_WORKSPACE":

@@ -77,3 +77,28 @@ CREATE TABLE `m8-access/role_management_outbox`
   created_at Timestamp NOT NULL,
   PRIMARY KEY (event_stream, tenant_id, aggregate_id, revision)
 );
+
+// Profile graph source is committed with the authoritative state and tenant policy
+// head. Zero capabilities on revoked records express a tombstone for reconciliation.
+CREATE TABLE `m8-access/profile_assignment_projection`
+(
+  tenant_id Utf8 NOT NULL,
+  assignment_id Utf8 NOT NULL,
+  revision Int64 NOT NULL,
+  capabilities_json Utf8 NOT NULL,
+  PRIMARY KEY (tenant_id, assignment_id)
+);
+// Dispatch to policyjournal.Worker only; this is NOT a general audit outbox.
+// Event may be ACKed only AFTER a fenced SpiceDB checkpoint and certification.
+CREATE TABLE `m8-access/profile_policy_events`
+(
+  tenant_id Utf8 NOT NULL,
+  assignment_id Utf8 NOT NULL,
+  revision Int64 NOT NULL,
+  policy_revision Uint64 NOT NULL,
+  event_id Utf8 NOT NULL,
+  payload_json Utf8 NOT NULL,
+  published Bool NOT NULL,
+  created_at Timestamp NOT NULL,
+  PRIMARY KEY (tenant_id, assignment_id, revision)
+);
