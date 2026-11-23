@@ -242,6 +242,7 @@ type testPolicyBroker struct {
 	fail bool
 	sent int
 }
+
 func (b *testPolicyBroker) PublishPolicyEvent(_ context.Context, event policyjournal.Event) error {
 	if err := event.Validate(); err != nil {
 		return err

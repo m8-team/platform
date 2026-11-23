@@ -54,7 +54,7 @@ type PolicyEventPublisher interface {
 var ErrDispatcherUnavailable = errors.New("profile policy outbox dispatcher unavailable")
 
 type PolicyDispatcher struct {
-	store *Store
+	store     *Store
 	publisher PolicyEventPublisher
 }
 

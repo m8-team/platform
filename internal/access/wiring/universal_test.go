@@ -9,8 +9,8 @@ import (
 )
 
 func TestProductionUniversalRuntimeDoesNotAllowPartialWiring(t *testing.T) {
-	_,err:=NewProductionUniversalPDP(context.Background(),nil,nil,nil,nil,nil,nil,nil,nil,nil,"model-v1")
-	if !errors.Is(err,authzen.ErrInvalidConfiguration){
-		t.Fatalf("partially wired Universal PDP was accepted: %v",err)
+	_, err := NewProductionUniversalPDP(context.Background(), nil, nil, nil, nil, nil, nil, nil, nil, nil, "model-v1")
+	if !errors.Is(err, authzen.ErrInvalidConfiguration) {
+		t.Fatalf("partially wired Universal PDP was accepted: %v", err)
 	}
 }

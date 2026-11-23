@@ -40,10 +40,10 @@ type PrincipalResolver interface {
 // barrier, or unregistered action cannot silently become an allow.
 type Service struct {
 	accesspb.UnimplementedAccessServiceServer
-	resolver PrincipalResolver
-	barrier  *consistency.PolicyBarrier
+	resolver  PrincipalResolver
+	barrier   *consistency.PolicyBarrier
 	universal *consistency.RestrictedUniversalBarrier
-	model    domain.ModelRevision
+	model     domain.ModelRevision
 }
 
 func New(resolver PrincipalResolver, barrier *consistency.PolicyBarrier, modelRevision string) (*Service, error) {
@@ -56,6 +56,7 @@ func New(resolver PrincipalResolver, barrier *consistency.PolicyBarrier, modelRe
 	}
 	return &Service{resolver: resolver, barrier: barrier, model: revision}, nil
 }
+
 // NewWithUniversal opts the existing AuthZEN handler into module-owned
 // resource kinds only. Legacy resource kinds keep the existing PDP barrier.
 // The caller must supply a restricted, fail-closed universal barrier, which

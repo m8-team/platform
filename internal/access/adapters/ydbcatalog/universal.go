@@ -14,7 +14,7 @@ import (
 
 var (
 	ErrTenantModuleUnavailable = errors.New("tenant module is not installed or not enabled")
-	ErrInvalidTenantModule = errors.New("invalid tenant module installation state")
+	ErrInvalidTenantModule     = errors.New("invalid tenant module installation state")
 )
 
 // TenantModuleInstallation is an authoritative tenant-specific module pin.
@@ -22,10 +22,11 @@ var (
 // owner, independently of catalog publication or user-supplied claims.
 type TenantModuleInstallation struct {
 	ModuleID string
-	Version string
+	Version  string
 	Revision uint64
 }
-func(i TenantModuleInstallation) Validate() error {
+
+func (i TenantModuleInstallation) Validate() error {
 	if !shared.ValidModuleName(i.ModuleID) || !shared.ValidReleaseVersion(i.Version) || i.Revision == 0 {
 		return ErrInvalidTenantModule
 	}
@@ -47,8 +48,9 @@ type ReleaseReader interface {
 // for every tenant.
 type UniversalPermissionReader struct {
 	installations TenantModuleResolver
-	releases ReleaseReader
+	releases      ReleaseReader
 }
+
 var _ consistency.UniversalCatalogReader = (*UniversalPermissionReader)(nil)
 
 func NewUniversalPermissionReader(installations TenantModuleResolver, releases ReleaseReader) (*UniversalPermissionReader, error) {
