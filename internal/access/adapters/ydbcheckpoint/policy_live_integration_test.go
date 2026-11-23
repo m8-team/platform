@@ -119,3 +119,22 @@ func TestLivePolicyJournalBlocksPartialFanoutAndCertifiesContiguousRevision(t *t
         t.Fatalf("different payload accepted under reused id: %v",err)
     }
 }
+
+func TestLivePolicyJournalNeverSkipsOutOfOrderCompletedRevisions(t *testing.T){
+    store:=livePolicyStore(t)
+    tenant,_:=domain.NewTenantID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+    first:=projection.Key{TenantID:tenant,Kind:projection.KindGrant,AggregateID:"11111111-1111-4111-8111-111111111111"}
+    second:=projection.Key{TenantID:tenant,Kind:projection.KindGrant,AggregateID:"22222222-2222-4222-8222-222222222222"}
+    one:=policyjournal.Mutation{TenantID:tenant,ExpectedHead:0,ID:"bootstrap-grant",Bootstrap:true,Jobs:[]policyjournal.Job{{Key:first,RequiredRevision:1}}}
+    two:=policyjournal.Mutation{TenantID:tenant,ExpectedHead:1,ID:"other-grant",Jobs:[]policyjournal.Job{{Key:second,RequiredRevision:1}}}
+    if rev,err:=publishLivePolicy(t,store,one);err!=nil||rev!=1{t.Fatalf("bootstrap: %d %v",rev,err)}
+    if rev,err:=publishLivePolicy(t,store,two);err!=nil||rev!=2{t.Fatalf("next: %d %v",rev,err)}
+    certifyFakeGraph(t,store,second,1)
+    if err:=store.CommitPolicyJob(context.Background(),2,second);err!=nil{t.Fatal(err)}
+    state,err:=store.LoadPolicyState(context.Background(),tenant)
+    if err!=nil||state.Head!=2||state.Applied!=0{t.Fatalf("policy revision jumped gap: %+v %v",state,err)}
+    certifyFakeGraph(t,store,first,1)
+    if err:=store.CommitPolicyJob(context.Background(),1,first);err!=nil{t.Fatal(err)}
+    state,err=store.LoadPolicyState(context.Background(),tenant)
+    if err!=nil||state.Head!=2||state.Applied!=2{t.Fatalf("policy was not drained contiguously: %+v %v",state,err)}
+}
