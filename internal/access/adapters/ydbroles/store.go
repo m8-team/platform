@@ -85,7 +85,7 @@ func (s *Store) appendOutboxTx(ctx context.Context, tx *sql.Tx, stream, tenant, 
 		return ErrInvalidCommand
 	}
 	eventID := fmt.Sprintf("%s/%s/%s/%d", stream, tenant, aggregate, revision)
-	_, err := tx.ExecContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $kind AS Utf8;DECLARE $payload AS Utf8;DECLARE $published AS Bool;DECLARE $created AS Timestamp;\nUPSERT INTO `m8-access/role_management_outbox` (stream,tenant_id,aggregate_id,revision,event_id,event_kind,payload_json,published,created_at) VALUES ($stream,$tenant,$aggregate,$revision,$event,$kind,$payload,$published,$created);"),
+	_, err := tx.ExecContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $kind AS Utf8;DECLARE $payload AS Utf8;DECLARE $published AS Bool;DECLARE $created AS Timestamp;\nUPSERT INTO `m8-access/role_management_outbox` (event_stream,tenant_id,aggregate_id,revision,event_id,event_kind,payload_json,published,created_at) VALUES ($stream,$tenant,$aggregate,$revision,$event,$kind,$payload,$published,$created);"),
 		sql.Named("stream", stream), sql.Named("tenant", tenant), sql.Named("aggregate", aggregate),
 		sql.Named("revision", revision), sql.Named("event", eventID), sql.Named("kind", eventKind),
 		sql.Named("payload", payload), sql.Named("published", false), sql.Named("created", now))

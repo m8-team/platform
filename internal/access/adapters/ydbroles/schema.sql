@@ -66,7 +66,7 @@ CREATE TABLE `m8-access/profile_assignment_receipts`
 );
 CREATE TABLE `m8-access/role_management_outbox`
 (
-  stream Utf8 NOT NULL,
+  event_stream Utf8 NOT NULL,
   tenant_id Utf8 NOT NULL,
   aggregate_id Utf8 NOT NULL,
   revision Int64 NOT NULL,
@@ -75,5 +75,5 @@ CREATE TABLE `m8-access/role_management_outbox`
   payload_json Utf8 NOT NULL,
   published Bool NOT NULL,
   created_at Timestamp NOT NULL,
-  PRIMARY KEY (stream, tenant_id, aggregate_id, revision)
+  PRIMARY KEY (event_stream, tenant_id, aggregate_id, revision)
 );

@@ -49,7 +49,7 @@ func (s *Store) GetAssignment(ctx context.Context, tenant shared.TenantID, id st
 	return s.getAssignment(ctx, s.db, tenant, id)
 }
 
-const selectAssignmentEvent = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $stream AS Utf8; SELECT payload_json FROM `m8-access/role_management_outbox` WHERE stream=$stream AND tenant_id=$tenant AND aggregate_id=$id AND revision=$revision;"
+const selectAssignmentEvent = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $stream AS Utf8; SELECT payload_json FROM `m8-access/role_management_outbox` WHERE event_stream=$stream AND tenant_id=$tenant AND aggregate_id=$id AND revision=$revision;"
 
 func (s *Store) replayAssignment(ctx context.Context, tx *sql.Tx, tenant shared.TenantID, id string, revision int64) (role.ProfileAssignment, error) {
 	var payload string

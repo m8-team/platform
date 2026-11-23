@@ -84,7 +84,7 @@ func (s *Store) Pending(ctx context.Context, stream, tenant, aggregate string, a
 			return nil, ErrInvalidCommand
 		}
 	}
-	rows, err := s.db.QueryContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $after AS Int64;DECLARE $limit AS Uint64;\nSELECT revision,event_id,event_kind,payload_json,created_at FROM `m8-access/role_management_outbox` WHERE stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision>$after AND published=FALSE ORDER BY revision LIMIT $limit;"),
+	rows, err := s.db.QueryContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $after AS Int64;DECLARE $limit AS Uint64;\nSELECT revision,event_id,event_kind,payload_json,created_at FROM `m8-access/role_management_outbox` WHERE event_stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision>$after AND published=FALSE ORDER BY revision LIMIT $limit;"),
 		sql.Named("stream", stream), sql.Named("tenant", tenant), sql.Named("aggregate", aggregate),
 		sql.Named("after", after), sql.Named("limit", uint64(limit)))
 	if err != nil {
@@ -120,7 +120,7 @@ func (s *Store) MarkPublished(ctx context.Context, e OutboxEvent) error {
 	return s.tx(ctx, func(tx *sql.Tx) error {
 		var eventID string
 		var published bool
-		err := tx.QueryRowContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;\nSELECT event_id,published FROM `m8-access/role_management_outbox` WHERE stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision=$revision;"),
+		err := tx.QueryRowContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;\nSELECT event_id,published FROM `m8-access/role_management_outbox` WHERE event_stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision=$revision;"),
 			sql.Named("stream", e.Stream), sql.Named("tenant", e.TenantID), sql.Named("aggregate", e.AggregateID),
 			sql.Named("revision", e.Revision)).Scan(&eventID, &published)
 		if errors.Is(err, sql.ErrNoRows) {
@@ -135,7 +135,7 @@ func (s *Store) MarkPublished(ctx context.Context, e OutboxEvent) error {
 		if published {
 			return nil
 		}
-		_, err = tx.ExecContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $published AS Bool;\nUPDATE `m8-access/role_management_outbox` SET published=$published WHERE stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision=$revision;"),
+		_, err = tx.ExecContext(ctx, s.q("DECLARE $stream AS Utf8;DECLARE $tenant AS Utf8;DECLARE $aggregate AS Utf8;DECLARE $revision AS Int64;DECLARE $published AS Bool;\nUPDATE `m8-access/role_management_outbox` SET published=$published WHERE event_stream=$stream AND tenant_id=$tenant AND aggregate_id=$aggregate AND revision=$revision;"),
 			sql.Named("stream", e.Stream), sql.Named("tenant", e.TenantID), sql.Named("aggregate", e.AggregateID),
 			sql.Named("revision", e.Revision), sql.Named("published", true))
 		if err != nil {
