@@ -116,7 +116,14 @@ func TestLiveYDBMigrationAndTwoReplicaLease(t *testing.T) {
 			return cp, c.Err()
 		})
 	}()
-	<-started
+	select {
+	case <-started:
+	case err := <-done:
+		t.Fatalf("replica A did not acquire initial YDB lease: %v", err)
+	case <-time.After(25 * time.Second):
+		cancel()
+		t.Fatal("timed out waiting for initial YDB lease")
+	}
 	err = ownerB.WithFenced(context.Background(), key, func(_ context.Context, cp projection.Checkpoint, _ ports.GraphFence) (projection.Checkpoint, error) {
 		t.Error("replica B entered while A holds lease")
 		return cp, nil
