@@ -1,0 +1,50 @@
+name: Access live YDB and SpiceDB integration
+
+on:
+  pull_request:
+    paths:
+      - "internal/access/**"
+      - ".github/workflows/access-live-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-services:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      M8_ACCESS_LIVE_YDB: "1"
+      M8_ACCESS_TEST_YDB_DSN: "grpc://localhost:2136/local"
+      M8_ACCESS_TEST_YDB_PREFIX: "/local/m8_access_ci"
+      M8_ACCESS_TEST_SPICEDB_ENDPOINT: "localhost:50051"
+      M8_ACCESS_TEST_SPICEDB_TOKEN: "local-ci-fixture-token"
+      YDB_ANONYMOUS_CREDENTIALS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Start disposable databases (never production)
+        run: |
+          set -euo pipefail
+          docker run -d --name m8-access-ydb -p 127.0.0.1:2136:2136 \
+            -e GRPC_PORT=2136 -e MON_PORT=8765 \
+            ydbplatform/local-ydb:26.3.1.25
+          docker run -d --name m8-access-spicedb -p 127.0.0.1:50051:50051 \
+            authzed/spicedb:v1.56.2 serve \
+            --grpc-preshared-key "$M8_ACCESS_TEST_SPICEDB_TOKEN" --datastore-engine memory
+      - name: Apply exact YDB schema and exercise live SpiceDB and HA leases
+        run: |
+          go test -count=1 -tags=integration -timeout=9m -v \
+            ./internal/access/adapters/ydbcheckpoint ./internal/access/adapters/spicedb
+      - name: Diagnostics from disposable services
+        if: failure()
+        run: |
+          docker logs --tail=200 m8-access-ydb || true
+          docker logs --tail=200 m8-access-spicedb || true
+      - name: Destroy disposable services
+        if: always()
+        run: |
+          docker rm -f m8-access-ydb m8-access-spicedb || true
