@@ -23,6 +23,10 @@ type Job struct {
 	RequiredRevision int64
 }
 
+func isPolicyTarget(kind projection.Kind) bool {
+	return kind == projection.KindGrant || kind == projection.KindRoleBinding
+}
+
 // Mutation MUST be written within the SAME serializable YDB transaction as
 // the authoritative Access grant, role or role binding mutation + outbox.
 // Bootstrap is only for an audited full entitlement inventory/migration.
@@ -44,7 +48,7 @@ func (m Mutation) Validate() error {
 	unique := make(map[projection.Key]bool, len(m.Jobs))
 	for _, job := range m.Jobs {
 		if job.Key.Validate() != nil || job.Key.TenantID != m.TenantID ||
-			(job.Key.Kind != projection.KindGrant && job.Key.Kind != projection.KindRoleBinding) ||
+			!isPolicyTarget(job.Key.Kind) ||
 			job.RequiredRevision < 1 || unique[job.Key] {
 			return ErrInvalidManifest
 		}

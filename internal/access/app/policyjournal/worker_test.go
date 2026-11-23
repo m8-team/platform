@@ -3,6 +3,7 @@ package policyjournal
 import (
 	"context"
 	"errors"
+	"io"
 	"testing"
 
 	"github.com/m8-team/platform/internal/access/app/projection"
@@ -34,23 +35,42 @@ func testPolicyEvent(t *testing.T) Event {
 		Revision: 7,
 	}}
 }
+
+type singleDelivery struct {
+	event     Event
+	delivered bool
+	acks      int
+}
+
+func (d *singleDelivery) Next(context.Context) (Delivery, error) {
+	if d.delivered {
+		return nil, io.EOF
+	}
+	d.delivered = true
+	return d, nil
+}
+func (d *singleDelivery) Event() Event              { return d.event }
+func (d *singleDelivery) Ack(context.Context) error { d.acks++; return nil }
+
 func TestPolicyWorkerDoesNotAckBeforeDurableCertification(t *testing.T) {
 	p := &fakeProjection{err: errors.New("SpiceDB failed")}
 	c := &fakeCertification{}
 	w, _ := NewWorker(p, c)
 	event := testPolicyEvent(t)
-	if err := w.Process(context.Background(), event); err == nil || c.calls != 0 {
-		t.Fatal("certified unprojected permissions")
+	run := func(wantErr error, commits, acks int) {
+		t.Helper()
+		d := &singleDelivery{event: event}
+		err := w.Run(t.Context(), d)
+		if !errors.Is(err, wantErr) || c.calls != commits || d.acks != acks {
+			t.Fatalf("Run returned %v, commits=%d, acknowledgements=%d; want %v, %d, %d", err, c.calls, d.acks, wantErr, commits, acks)
+		}
 	}
+	run(p.err, 0, 0)
 	p.err = nil
 	c.err = errors.New("YDB checkpoint not durable")
-	if err := w.Process(context.Background(), event); err == nil || c.calls != 1 {
-		t.Fatal("acked without policy job completion")
-	}
+	run(c.err, 1, 0)
 	c.err = nil
-	if err := w.Process(context.Background(), event); err != nil || c.calls != 2 {
-		t.Fatal("retry did not converge")
-	}
+	run(io.EOF, 2, 1)
 }
 func TestPolicyWorkerRequiresManifestRevision(t *testing.T) {
 	p := &fakeProjection{}
