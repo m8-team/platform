@@ -6,16 +6,18 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
+	"github.com/google/uuid"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/domain"
 )
 
-// Exercises the real SpiceDB datastore and gRPC preconditions, not mocks.
-func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
+func liveSpiceDB(t *testing.T) (*Client, context.Context) {
+	t.Helper()
 	endpoint := os.Getenv("M8_ACCESS_TEST_SPICEDB_ENDPOINT")
 	token := os.Getenv("M8_ACCESS_TEST_SPICEDB_TOKEN")
 	if endpoint == "" || token == "" {
@@ -31,9 +33,9 @@ func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer client.Close()
+	t.Cleanup(func() { _ = client.Close() })
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
-	defer cancel()
+	t.Cleanup(cancel)
 	schema, err := os.ReadFile("../../schema/m8.zed")
 	if err != nil {
 		t.Fatal(err)
@@ -50,6 +52,13 @@ func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
 	if !wrote {
 		t.Fatalf("real SpiceDB schema write: %v", err)
 	}
+	return client, ctx
+}
+
+// Exercises the real SpiceDB datastore and gRPC preconditions, not mocks.
+func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
+	client, ctx := liveSpiceDB(t)
+	p, _ := domain.NewPermission("m8.workspace.read")
 	tenant, _ := domain.NewTenantID(tenantValue)
 	workspace, _ := domain.NewResource("workspace", "same-id")
 	subject, _ := domain.NewSubject("user", "same-id")
@@ -122,4 +131,89 @@ func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
 		t.Fatalf("revoke second grant: %v", err)
 	}
 	evaluate(tenant, false)
+}
+
+func TestLiveReadProjectionEdgesPageBoundary(t *testing.T) {
+	// The extra holder is on the continuation page of the resource filter.
+	checkLiveProjectionEdgeLimit(t, 1001)
+}
+
+func TestLiveReadProjectionEdgesLimitAcrossFilters(t *testing.T) {
+	// 500 holders and 500 workspace viewers fit. The 501st viewer exceeds
+	// the aggregate limit while both filters still return a partial page.
+	checkLiveProjectionEdgeLimit(t, 500)
+}
+
+func checkLiveProjectionEdgeLimit(t *testing.T, holderCount int) {
+	t.Helper()
+	client, ctx := liveSpiceDB(t)
+	const pageSize = 1000
+	fence := ports.GraphFence{TenantID: tenantValue, Kind: "ROLE_BINDING", AggregateID: uuid.NewString(), Epoch: 1}
+	if _, err := client.EstablishFence(ctx, fence); err != nil {
+		t.Fatal(err)
+	}
+	guarded, err := ports.WithGraphFence(ctx, fence)
+	if err != nil {
+		t.Fatal(err)
+	}
+	binding, err := domain.NewResource("access_binding", fence.AggregateID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bindingSubject, err := domain.NewSubject(binding.Type(), binding.ID())
+	if err != nil {
+		t.Fatal(err)
+	}
+	changes := make([]ports.RelationshipChange, pageSize+1)
+	for i := range changes {
+		input := domain.RelationshipInput{TenantID: fence.TenantID}
+		if i < holderCount {
+			user, err := domain.NewSubject("user", strconv.Itoa(i))
+			if err != nil {
+				t.Fatal(err)
+			}
+			input.Resource, input.Relation, input.Subject = binding, "holder", user
+		} else {
+			workspace, err := domain.NewResource("workspace", strconv.Itoa(i))
+			if err != nil {
+				t.Fatal(err)
+			}
+			input.Resource, input.Relation = workspace, "viewer"
+			input.Subject, input.SubjectRelation = bindingSubject, "holder"
+		}
+		rel, err := domain.NewRelationship(input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		changes[i] = ports.RelationshipChange{Operation: ports.RelationshipCreate, Relationship: rel}
+	}
+	if _, err := client.WriteRelationships(guarded, fence.TenantID, changes[:pageSize]); err != nil {
+		t.Fatal(err)
+	}
+	edges, err := client.ReadProjectionEdges(ctx, fence)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(edges) != pageSize {
+		t.Fatalf("read %d edges, want %d", len(edges), pageSize)
+	}
+	want := make(map[domain.RelationshipKey]bool, pageSize)
+	for _, change := range changes[:pageSize] {
+		want[change.Relationship.Key()] = true
+	}
+	for _, edge := range edges {
+		if !want[edge.Key()] {
+			t.Fatalf("unexpected or duplicate edge: %+v", edge.Key())
+		}
+		delete(want, edge.Key())
+	}
+
+	if _, err := client.WriteRelationships(guarded, fence.TenantID, changes[pageSize:]); err != nil {
+		t.Fatal(err)
+	}
+	edges, err = client.ReadProjectionEdges(ctx, fence)
+	if !errors.Is(err, ErrInvalidResponse) || edges != nil {
+		t.Fatalf("overflow returned %d edges and error %v, want nil edges and ErrInvalidResponse", len(edges), err)
+	}
 }
