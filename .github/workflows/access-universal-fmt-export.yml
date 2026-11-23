@@ -1,0 +1,35 @@
+name: Temporary Universal Access gofmt exporter
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/access-universal-fmt-export.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Export changed formatted Go source
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64, subprocess
+          from pathlib import Path
+          files = ["internal/access/adapters/ydbcatalog/universal.go","internal/access/adapters/ydbcatalog/universal_test.go","internal/access/adapters/ydbcatalog/universal_live_integration_test.go","internal/access/app/consistency/restricted_universal.go","internal/access/app/consistency/restricted_universal_test.go","internal/access/adapters/authzen/service.go","internal/access/adapters/authzen/universal_test.go","internal/access/wiring/universal.go","internal/access/wiring/universal_test.go","internal/access/adapters/trustedcontext/context.go","internal/access/adapters/trustedcontext/context_test.go","internal/access/domain/shared/names.go","internal/access/domain/shared/names_test.go","internal/access/adapters/ydbroles/policy.go","internal/access/adapters/ydbroles/projection.go","internal/access/adapters/ydbroles/dispatcher.go","internal/access/adapters/ydbroles/policy_live_integration_test.go"]
+          for path in files:
+              before = Path(path).read_bytes()
+              result = subprocess.run(["gofmt"], input=before, capture_output=True, check=True).stdout
+              if result == before:
+                  continue
+              encoded = base64.b64encode(result).decode()
+              parts = [encoded[i:i+3000] for i in range(0,len(encoded),3000)]
+              for i,chunk in enumerate(parts):
+                  print(f"M8FMT|{path}|{i}|{len(parts)}|{chunk}")
+          PY
