@@ -6,16 +6,17 @@ import (
 	"errors"
 	"math"
 
+	"github.com/m8-team/platform/internal/access/app/rolemanagement"
 	"github.com/m8-team/platform/internal/access/domain/role"
 	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 // PublishedBundle is a version-pinned definition with its independent
 // per-profile publication revision, not a tenant policy decision.
-type PublishedBundle struct {
-	Bundle role.Bundle
-	Revision int64
-}
+type PublishedBundle = rolemanagement.BundleRecord
+
+var _ rolemanagement.BundleRepository = (*Store)(nil)
+var _ rolemanagement.AssignmentRepository = (*Store)(nil)
 
 func(s *Store) getBundle(ctx context.Context,q interface{
 	QueryRowContext(context.Context,string,...any)*sql.Row

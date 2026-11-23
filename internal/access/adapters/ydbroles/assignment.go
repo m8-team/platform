@@ -61,7 +61,7 @@ func(s *Store) receipt(ctx context.Context,tx *sql.Tx,tenant shared.TenantID,id,
 	record,err:=s.replayAssignment(ctx,tx,tenant,id,revision)
 	return record,true,err
 }
-func(s *Store) saveAssignmentTx(ctx context.Context,tx *sql.Tx,a role.ProfileAssignment,payload string,now interface{} )error{
+func(s *Store) saveAssignmentTx(ctx context.Context,tx *sql.Tx,a role.ProfileAssignment,payload string )error{
 	_,err:=tx.ExecContext(ctx,s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $status AS Utf8;DECLARE $payload AS Utf8;\nUPSERT INTO `m8-access/profile_assignments` (tenant_id,assignment_id,revision,status,assignment_json) VALUES ($tenant,$id,$revision,$status,$payload);"),
 		sql.Named("tenant",string(a.TenantID())),sql.Named("id",a.ID()),
 		sql.Named("revision",a.Revision()),sql.Named("status",string(a.Status())),sql.Named("payload",payload))
@@ -101,7 +101,7 @@ func(s *Store) CreateAssignment(ctx context.Context,a role.ProfileAssignment,key
 		if !errors.Is(err,ErrNotFound){return err}
 		now,err:=s.serverTime(ctx,tx)
 		if err!=nil{return err}
-		if err:=s.saveAssignmentTx(ctx,tx,a,payload,now);err!=nil{return err}
+		if err:=s.saveAssignmentTx(ctx,tx,a,payload);err!=nil{return err}
 		if err:=s.saveReceiptTx(ctx,tx,a.TenantID(),a.ID(),key,digest,1);err!=nil{return err}
 		if err:=s.appendOutboxTx(ctx,tx,"assignment",string(a.TenantID()),a.ID(),1,
 			"ProfileAssignmentStaged",payload,now);err!=nil{return err}
@@ -138,7 +138,7 @@ func(s *Store) RevokeAssignment(ctx context.Context,tenant shared.TenantID,id st
 		if err!=nil{return err}
 		payload,err:=encodeAssignment(revoked)
 		if err!=nil{return err}
-		if err:=s.saveAssignmentTx(ctx,tx,revoked,payload,now);err!=nil{return err}
+		if err:=s.saveAssignmentTx(ctx,tx,revoked,payload);err!=nil{return err}
 		if err:=s.saveReceiptTx(ctx,tx,tenant,id,key,digest,revoked.Revision());err!=nil{return err}
 		if err:=s.appendOutboxTx(ctx,tx,"assignment",string(tenant),id,revoked.Revision(),
 			"ProfileAssignmentRevoked",payload,now);err!=nil{return err}
