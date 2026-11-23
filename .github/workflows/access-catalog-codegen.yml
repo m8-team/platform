@@ -33,6 +33,20 @@ jobs:
       - name: Generate with repository plugin configuration
         run: |
           .bin/buf generate --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
+      - name: Generate complete OpenAPI and export for review
+        shell: bash
+        run: |
+          .bin/buf generate
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          p = Path("docs/openapi/openapi.yaml")
+          encoded = base64.b64encode(p.read_bytes()).decode("ascii")
+          chunks = [encoded[i:i+3000] for i in range(0,len(encoded),3000)]
+          for index, chunk in enumerate(chunks):
+              print(f"M8SPEC|{index}|{len(chunks)}|{chunk}")
+          print(f"M8SPEC_BYTES={p.stat().st_size}")
+          PY
       - name: Export new generated files for review
         shell: bash
         run: |
