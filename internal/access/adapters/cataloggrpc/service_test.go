@@ -2,7 +2,6 @@ package cataloggrpc
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/m8-team/platform/internal/access/app/catalog"
@@ -136,8 +135,5 @@ func TestCatalogGRPC_FailsClosedForUntrustedPublication(t *testing.T) {
 	_, err = s.GetModuleManifest(context.Background(), &accesspb.GetModuleManifestRequest{ModuleId: "finance", Version: "1.0.0"})
 	if status.Code(err) != codes.NotFound {
 		t.Fatalf("unexpected lookup status: %v", err)
-	}
-	if !errors.Is(catalog.ErrCatalogNotFound, catalog.ErrCatalogNotFound) {
-		t.Fatal("sentinel changed")
 	}
 }
