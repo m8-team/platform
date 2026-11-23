@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"buf.build/go/protovalidate"
+	"github.com/m8-team/platform/internal/access/adapters/internal/authzenbatch"
 	accesspb "github.com/m8-team/platform/internal/proto/m8/platform/access/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,31 +21,13 @@ func validateBatchRequest(req *accesspb.EvaluateAccessBatchRequest) error {
 		return err
 	}
 	if len(req.Evaluations) == 0 {
-		return protovalidate.Validate(&accesspb.EvaluateAccessRequest{
-			Subject: req.Subject, Action: req.Action, Resource: req.Resource, Context: req.Context,
-		})
+		return protovalidate.Validate(authzenbatch.Evaluation(req, nil))
 	}
 	for i, evaluation := range req.Evaluations {
 		if evaluation == nil {
 			return fmt.Errorf("evaluation %d is required", i)
 		}
-		subject, action, resource := req.Subject, req.Action, req.Resource
-		evalContext := req.Context
-		if evaluation.Subject != nil {
-			subject = evaluation.Subject
-		}
-		if evaluation.Action != nil {
-			action = evaluation.Action
-		}
-		if evaluation.Resource != nil {
-			resource = evaluation.Resource
-		}
-		if evaluation.Context != nil {
-			evalContext = evaluation.Context
-		}
-		if err := protovalidate.Validate(&accesspb.EvaluateAccessRequest{
-			Subject: subject, Action: action, Resource: resource, Context: evalContext,
-		}); err != nil {
+		if err := protovalidate.Validate(authzenbatch.Evaluation(req, evaluation)); err != nil {
 			return fmt.Errorf("evaluation %d: %w", i, err)
 		}
 	}

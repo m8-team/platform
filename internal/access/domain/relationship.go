@@ -8,34 +8,11 @@ import (
 )
 
 var (
-	ErrInvalidTenantID     = errors.New("invalid tenant id")
 	ErrInvalidRelationship = errors.New("invalid relationship")
 	ErrInvalidRelationName = errors.New("invalid relation name")
 )
 
-var (
-	canonicalUUIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
-	relationNamePattern  = regexp.MustCompile(`^[a-z][a-z0-9_]{0,127}$`)
-)
-
-// TenantID is an explicit authorization partition. It must come from a trusted
-// tenant context; parsing a client-supplied value does not authenticate it.
-type TenantID string
-
-func NewTenantID(value string) (TenantID, error) {
-	id := TenantID(strings.TrimSpace(value))
-	if err := id.Validate(); err != nil {
-		return "", err
-	}
-	return id, nil
-}
-
-func (t TenantID) Validate() error {
-	if !canonicalUUIDPattern.MatchString(string(t)) {
-		return ErrInvalidTenantID
-	}
-	return nil
-}
+var relationNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,127}$`)
 
 // Relationship is a tenant-bound authorization tuple, independent of SpiceDB.
 // The adapter must encode the tenant into *both* graph resource and subject

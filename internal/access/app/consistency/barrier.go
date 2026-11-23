@@ -28,6 +28,10 @@ type Watermark struct {
 	ZedToken string
 }
 
+func (w Watermark) covers(revision uint64) bool {
+	return w.Revision >= revision && w.ZedToken != ""
+}
+
 type WatermarkReader interface {
 	LoadWatermark(context.Context, domain.TenantID, domain.Resource) (Watermark, error)
 }
@@ -74,7 +78,7 @@ func (b *Barrier) checkResource(ctx context.Context, req domain.CheckPermissionR
 	if err != nil {
 		return domain.PermissionDecision{}, 0, err
 	}
-	if committed.Revision < latest || committed.ZedToken == "" {
+	if !committed.covers(latest) {
 		return domain.PermissionDecision{}, 0, ErrProjectionLag
 	}
 	// SpiceDB ZedTokens are opaque and not comparable. A second independent
@@ -96,9 +100,6 @@ func (b *Barrier) checkResource(ctx context.Context, req domain.CheckPermissionR
 	decision, err := b.pdp.CheckPermission(ctx, verified)
 	if err != nil {
 		return domain.PermissionDecision{}, 0, err
-	}
-	if !decision.Allowed() {
-		return decision, latest, nil
 	}
 	// This check's graph snapshot is at least as fresh as the committed
 	// watermark; authorized resource ownership is still checked by its owner.

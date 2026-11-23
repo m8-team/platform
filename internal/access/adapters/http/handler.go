@@ -7,6 +7,7 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/m8-team/platform/internal/access/adapters/internal/authzenbatch"
 	accesspb "github.com/m8-team/platform/internal/proto/m8/platform/access/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,9 +47,7 @@ func (s validatedServer) EvaluateAccessBatch(ctx context.Context, req *accesspb.
 	if len(req.Evaluations) != 0 {
 		return s.AccessServiceServer.EvaluateAccessBatch(ctx, req)
 	}
-	decision, err := s.EvaluateAccess(ctx, &accesspb.EvaluateAccessRequest{
-		Subject: req.Subject, Action: req.Action, Resource: req.Resource, Context: req.Context,
-	})
+	decision, err := s.EvaluateAccess(ctx, authzenbatch.Evaluation(req, nil))
 	if err != nil {
 		return nil, err
 	}

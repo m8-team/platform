@@ -121,3 +121,29 @@ func TestAuthZENBatchRespectsShortCircuit(t *testing.T) {
 		t.Fatalf("short-circuit failed %+v %v", response, err)
 	}
 }
+
+func TestAuthZENBatchChecksEffectiveSubject(t *testing.T) {
+	for _, tc := range []struct {
+		name, batchSubject, itemSubject string
+		code                            codes.Code
+		calls                           int
+	}{
+		{"item overrides authenticated default", "alice", "bob", codes.PermissionDenied, 0},
+		{"item overrides different default", "bob", "alice", codes.OK, 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			service, checker := makeService(t, 1, nil)
+			defaults := eval(tc.batchSubject)
+			response, err := service.EvaluateAccessBatch(t.Context(), &accesspb.EvaluateAccessBatchRequest{
+				Subject: defaults.Subject, Action: defaults.Action, Resource: defaults.Resource,
+				Evaluations: []*accesspb.Evaluation{{Subject: eval(tc.itemSubject).Subject}},
+			})
+			if status.Code(err) != tc.code || checker.calls != tc.calls {
+				t.Fatalf("code=%v PDP calls=%d", status.Code(err), checker.calls)
+			}
+			if tc.code == codes.OK && (len(response.GetEvaluations()) != 1 || !response.Evaluations[0].GetDecision()) {
+				t.Fatalf("unexpected batch decision %v", response)
+			}
+		})
+	}
+}

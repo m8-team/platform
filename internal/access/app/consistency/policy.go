@@ -47,14 +47,18 @@ func NewPolicyBarrier(resources *Barrier, policies PolicyStateReader) (*PolicyBa
 	return &PolicyBarrier{resources: resources, policies: policies}, nil
 }
 
-func validatePolicyState(s PolicyState) error {
+func (b *PolicyBarrier) convergedHead(ctx context.Context, tenant domain.TenantID) (uint64, error) {
+	s, err := b.policies.LoadPolicyState(ctx, tenant)
+	if err != nil {
+		return 0, err
+	}
 	if s.Head == 0 || s.Applied == 0 || s.Applied > s.Head {
-		return ErrPolicyUninitialized
+		return 0, ErrPolicyUninitialized
 	}
 	if s.Applied != s.Head {
-		return ErrPolicyProjectionLag
+		return 0, ErrPolicyProjectionLag
 	}
-	return nil
+	return s.Head, nil
 }
 
 func (b *PolicyBarrier) CheckPermission(ctx context.Context, req domain.CheckPermissionRequest) (domain.PermissionDecision, error) {
@@ -68,11 +72,8 @@ func (b *PolicyBarrier) CheckPermission(ctx context.Context, req domain.CheckPer
 		return domain.PermissionDecision{}, err
 	}
 
-	before, err := b.policies.LoadPolicyState(ctx, req.TenantID())
+	before, err := b.convergedHead(ctx, req.TenantID())
 	if err != nil {
-		return domain.PermissionDecision{}, err
-	}
-	if err := validatePolicyState(before); err != nil {
 		return domain.PermissionDecision{}, err
 	}
 
@@ -88,14 +89,11 @@ func (b *PolicyBarrier) CheckPermission(ctx context.Context, req domain.CheckPer
 
 	// A positive authorization result must not escape if a new revocation or
 	// role change became authoritative during the remote SpiceDB evaluation.
-	after, err := b.policies.LoadPolicyState(ctx, req.TenantID())
+	after, err := b.convergedHead(ctx, req.TenantID())
 	if err != nil {
 		return domain.PermissionDecision{}, err
 	}
-	if err := validatePolicyState(after); err != nil {
-		return domain.PermissionDecision{}, err
-	}
-	if after.Head != before.Head || after.Applied != before.Applied {
+	if after != before {
 		return domain.PermissionDecision{}, ErrPolicyHeadChanged
 	}
 
@@ -110,7 +108,7 @@ func (b *PolicyBarrier) CheckPermission(ctx context.Context, req domain.CheckPer
 	if err != nil {
 		return domain.PermissionDecision{}, err
 	}
-	if rmWatermark.Revision < rmRevision || rmWatermark.ZedToken == "" {
+	if !rmWatermark.covers(rmRevision) {
 		return domain.PermissionDecision{}, ErrProjectionLag
 	}
 	return decision, nil

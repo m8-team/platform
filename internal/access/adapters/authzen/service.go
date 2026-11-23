@@ -7,6 +7,7 @@ import (
 	"errors"
 
 	"buf.build/go/protovalidate"
+	"github.com/m8-team/platform/internal/access/adapters/internal/authzenbatch"
 	"github.com/m8-team/platform/internal/access/app/consistency"
 	"github.com/m8-team/platform/internal/access/domain"
 	accesspb "github.com/m8-team/platform/internal/proto/m8/platform/access/v1"
@@ -72,10 +73,6 @@ func (s *Service) EvaluateAccess(ctx context.Context, req *accesspb.EvaluateAcce
 	if req.Subject.Type != principal.Subject.Type() || req.Subject.Id != principal.Subject.ID() {
 		return nil, status.Error(codes.PermissionDenied, "delegation is not authorized")
 	}
-	subject, err := domain.NewSubject(req.Subject.Type, req.Subject.Id)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "invalid subject")
-	}
 	permission, err := domain.NewPermission(req.Action.Name)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
@@ -85,7 +82,7 @@ func (s *Service) EvaluateAccess(ctx context.Context, req *accesspb.EvaluateAcce
 		return nil, status.Error(codes.InvalidArgument, "invalid resource")
 	}
 	check, err := domain.NewCheckPermissionRequest(domain.CheckPermissionInput{
-		TenantID: principal.TenantID, Subject: subject, Permission: permission,
+		TenantID: principal.TenantID, Subject: principal.Subject, Permission: permission,
 		Resource: resource, ModelRevision: s.model, FailMode: domain.FailModeDeny, Critical: true,
 	})
 	if err != nil {
@@ -108,9 +105,7 @@ func (s *Service) EvaluateAccessBatch(ctx context.Context, req *accesspb.Evaluat
 		return nil, status.Error(codes.InvalidArgument, "batch too large")
 	}
 	if len(req.Evaluations) == 0 {
-		result, err := s.EvaluateAccess(ctx, &accesspb.EvaluateAccessRequest{
-			Subject: req.Subject, Action: req.Action, Resource: req.Resource, Context: req.Context,
-		})
+		result, err := s.EvaluateAccess(ctx, authzenbatch.Evaluation(req, nil))
 		if err != nil {
 			return nil, err
 		}
@@ -129,20 +124,7 @@ func (s *Service) EvaluateAccessBatch(ctx context.Context, req *accesspb.Evaluat
 		if item == nil {
 			return nil, status.Error(codes.InvalidArgument, "nil evaluation")
 		}
-		subject, action, resource, contextData := item.Subject, item.Action, item.Resource, item.Context
-		if subject == nil {
-			subject = req.Subject
-		}
-		if action == nil {
-			action = req.Action
-		}
-		if resource == nil {
-			resource = req.Resource
-		}
-		if contextData == nil {
-			contextData = req.Context
-		}
-		result, err := s.EvaluateAccess(ctx, &accesspb.EvaluateAccessRequest{Subject: subject, Action: action, Resource: resource, Context: contextData})
+		result, err := s.EvaluateAccess(ctx, authzenbatch.Evaluation(req, item))
 		if err != nil {
 			return nil, err
 		}
