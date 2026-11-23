@@ -1,0 +1,49 @@
+name: Access catalog contract generation
+
+on:
+  pull_request:
+    paths:
+      - "proto/m8/platform/access/v1/catalog*.proto"
+      - ".github/workflows/access-catalog-codegen.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install pinned Buf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .bin
+          curl -fsSL --remove-on-error "https://github.com/bufbuild/buf/releases/download/v1.75.0/buf-Linux-x86_64" -o .bin/buf
+          chmod +x .bin/buf
+          .bin/buf --version
+      - name: Lint and verify catalog contract
+        run: |
+          .bin/buf lint --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
+          .bin/buf breaking --against '.git#branch=main' --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
+      - name: Generate with repository plugin configuration
+        run: |
+          .bin/buf generate --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
+      - name: Export new generated files for review
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64
+          import pathlib
+          prefix = pathlib.Path("internal/proto/m8/platform/access/v1")
+          files = [p for p in prefix.rglob("*") if p.is_file() and ("catalog" in p.name)]
+          for p in sorted(files):
+              payload = base64.b64encode(p.read_bytes()).decode()
+              chunks = [payload[i:i+3000] for i in range(0,len(payload),3000)]
+              for idx, chunk in enumerate(chunks):
+                  print(f"M8GEN|{p.as_posix()}|{idx}|{len(chunks)}|{chunk}")
+          print(f"GENERATED_FILES={len(files)}")
+          PY
