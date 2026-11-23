@@ -82,24 +82,28 @@ func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
 			t.Fatalf("write grant tuple: %v", err)
 		}
 	}
-	evaluate := func(allowed bool) {
+	evaluate := func(checkTenant domain.TenantID, allowed bool) {
 		t.Helper()
 		rev, _ := domain.NewModelRevision("test-model-v1")
-		req, _ := domain.NewCheckPermissionRequest(domain.CheckPermissionInput{TenantID: tenant, Subject: subject,
+		req, err := domain.NewCheckPermissionRequest(domain.CheckPermissionInput{TenantID: checkTenant, Subject: subject,
 			Permission: p, Resource: workspace, ModelRevision: rev, Critical: true})
+		if err != nil {
+			t.Fatal(err)
+		}
 		result, err := client.CheckPermission(ctx, req)
 		if err != nil || result.Allowed() != allowed {
-			t.Fatalf("permission should be %v: %+v %v", allowed, result, err)
+			t.Fatalf("tenant %s: permission should be %v: %+v %v", checkTenant, allowed, result, err)
 		}
 	}
-	evaluate(true)
+	evaluate(tenant, true)
+	evaluate(otherTenantValue, false)
 	c1, _ := ports.WithGraphFence(ctx, g1)
 	if _, err := client.WriteRelationships(c1, tenant, []ports.RelationshipChange{
 		{Operation: ports.RelationshipDelete, Relationship: a1}, {Operation: ports.RelationshipDelete, Relationship: b1},
 	}); err != nil {
 		t.Fatalf("revoke first grant: %v", err)
 	}
-	evaluate(true) // independent grant #2 remains effective
+	evaluate(tenant, true) // independent grant #2 remains effective
 	newest := g1
 	newest.Epoch = 2
 	if _, err := client.EstablishFence(ctx, newest); err != nil {
@@ -117,5 +121,5 @@ func TestLiveSchemaFencingIndependentGrants(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("revoke second grant: %v", err)
 	}
-	evaluate(false)
+	evaluate(tenant, false)
 }

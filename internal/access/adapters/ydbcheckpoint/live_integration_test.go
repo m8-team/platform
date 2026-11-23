@@ -188,14 +188,26 @@ func TestLiveYDBarrierRejectsTakeoverUntilCertified(t *testing.T) {
 	if err != nil || w.Revision != 1 {
 		t.Fatalf("missing watermark: %+v %v", w, err)
 	}
-	err = b.WithFenced(context.Background(), key, func(_ context.Context, cp projection.Checkpoint, fence ports.GraphFence) (projection.Checkpoint, error) {
-		if _, loadErr := b.LoadWatermark(context.Background(), key.TenantID, resource); !errors.Is(loadErr, ErrCheckpointNotConverged) {
+	other := key
+	other.TenantID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
+	if _, err := a.LoadCheckpoint(t.Context(), other); !errors.Is(err, ErrCheckpointNotConverged) {
+		t.Fatalf("foreign checkpoint: %v", err)
+	}
+	if _, err := a.LoadWatermark(t.Context(), other.TenantID, resource); !errors.Is(err, ErrCheckpointNotConverged) {
+		t.Fatalf("foreign watermark: %v", err)
+	}
+	recoveryErr := errors.New("simulate recovery crash")
+	err = b.WithFenced(t.Context(), key, func(ctx context.Context, cp projection.Checkpoint, _ ports.GraphFence) (projection.Checkpoint, error) {
+		if _, err := b.LoadCheckpoint(ctx, key); !errors.Is(err, ErrCheckpointNotConverged) {
+			t.Errorf("stale checkpoint during takeover: %v", err)
+		}
+		if _, loadErr := b.LoadWatermark(ctx, key.TenantID, resource); !errors.Is(loadErr, ErrCheckpointNotConverged) {
 			t.Errorf("stale watermark accepted during takeover: %v", loadErr)
 		}
-		return cp, errors.New("simulate recovery crash")
+		return cp, recoveryErr
 	})
-	if err == nil {
-		t.Fatal("simulated crash unexpectedly succeeded")
+	if !errors.Is(err, recoveryErr) {
+		t.Fatalf("takeover returned %v, want simulated recovery crash", err)
 	}
 	if _, err = b.LoadWatermark(context.Background(), key.TenantID, resource); !errors.Is(err, ErrCheckpointNotConverged) {
 		t.Fatalf("uncertified checkpoint was used: %v", err)
