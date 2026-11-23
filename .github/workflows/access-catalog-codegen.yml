@@ -27,6 +27,7 @@ jobs:
           .bin/buf --version
       - name: Lint and verify catalog contract
         run: |
+          git fetch origin main:refs/heads/main
           .bin/buf lint --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
           .bin/buf breaking --against '.git#branch=main' --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
       - name: Generate with repository plugin configuration
