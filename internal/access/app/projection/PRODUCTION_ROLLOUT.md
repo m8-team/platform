@@ -1,0 +1,77 @@
+# M8 Access: RM projection + AuthZEN production rollout
+
+**Status: pre-production.** This change does not migrate or deploy a production
+database. A designated operations/security reviewer must authorize the target
+YDB database, table prefix, SpiceDB instance and rollback procedure.
+
+## Ownership and runtime
+
+- Resource Manager owns authoritative resource state, lifecycle, tenant and revision.
+- Access owns permission decisions and its projection checkpoints.
+- RM source catalog is read-only to Access. The AuthZEN handler requires a
+  verified principal resolver (OIDC/mTLS); untrusted HTTP headers must never
+  populate tenant/principal context.
+- The RM worker consumes **trusted owner-published events** with per-resource
+  monotonically increasing revision and loads snapshots through the RM catalog.
+  The event transport and production process entrypoint are not yet supplied.
+- The worker projects *revision markers only* into `rm_projection`, not
+  organization hierarchy, group membership or implicit Access grants.
+- RM progress is considered certified only when the latest YDB checkpoint
+  `fence_epoch == lease_epoch`, its revision and graph ZedToken match the
+  Resource Manager watermark, and SpiceDB wrote the marker under guard CAS.
+- An Access grant or role revocation has a **separate** freshness requirement;
+  this RM barrier alone does not certify Access policy revocation convergence.
+
+## Deployment sequence
+
+1. Obtain human R2/R3 approvals and a maintenance/rollback window. Confirm
+   test and production endpoints are distinct.
+2. Stop legacy unfenced graph writers; limit SpiceDB write credentials to the
+   owning Access worker. Record a complete Access snapshot and recovery plan.
+3. Review `internal/access/schema/m8.zed` and validate schema compatibility
+   against the exact target SpiceDB build **before** modifying live schema.
+4. Review `internal/access/adapters/ydbcheckpoint/schema.sql` and execute
+   using the approved YDB migration facility under the correct TablePathPrefix.
+   It contains two CREATE TABLE statements and is **not** an idempotent
+   migration. Do not rerun blindly or against the wrong database.
+5. Configure separate immutable worker identities, YDB transaction credentials
+   and SpiceDB TLS bearer credentials. Authoritative RM catalog reads must
+   reject tenant and lifecycle mismatches.
+6. Reconcile all existing RM resource IDs and tombstones; each projection key
+   has an independent fenced checkpoint and ZedToken. Discover all keys through
+   the RM owner, not via Access tables.
+7. Verify YDB source progress equals current RM revisions, verify marker
+   presence in SpiceDB and reconcile/retry stale or missing keys.
+8. Wire `wiring.NewProductionPDP` into the authenticated service entrypoint;
+   enable only with a real `PrincipalResolver`. PDP must deny with
+   `Unavailable` during migration lag, missing watermark, lost lease and RM
+   errors. Do not use fail-open exceptions for protected operations.
+9. Simulate two replicas: A holds lease; B cannot obtain it. Kill/disconnect A,
+   let lease expire and B acquire a higher epoch. Old A must fail graph
+   `MUST_MATCH` precondition; B must read, repair and checkpoint actual graph.
+10. Confirm grants remain independent, revoked grants do not remain effective,
+    and source/owner changes require object-level CAS in owning services.
+
+## Rollback and recovery
+
+- **Before enablement:** leave PDP in fail-closed mode; replay and reconcile
+  from RM without silently accepting unprojected revisions.
+- **After enablement:** do not restart unfenced legacy writers. If the RM
+  projector or YDB fails, keep the policy path unavailable/deny and repair its
+  checkpoint/graph before reopening protected operations.
+- Do not restore an old YDB watermark while leaving a newer SpiceDB graph
+  unchecked. On ambiguity, reacquire a higher epoch and reconcile actual graph.
+- Do not treat this as a distributed transaction with business object changes:
+  the owning service still checks authoritative tenant/owner/revision in its
+  own conditional write.
+
+## Validation evidence and remaining gates
+
+- `.github/workflows/access-live-integration.yml` uses disposable Docker
+  YDB and SpiceDB instances. It applies the exact SQL and writes a real
+  SpiceDB schema, tests grant independence and graph guard preconditions.
+- CI results must be reviewed on this PR; a green Go unit test is not evidence
+  of a successful live YDB migration.
+- No production Kafka consumer/outbox poller, real principal middleware,
+  production process/deployment or live target secrets are included. Keep the
+  branch in Draft until those paths are supplied and reviewed.
