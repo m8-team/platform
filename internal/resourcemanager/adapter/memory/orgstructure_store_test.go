@@ -3,11 +3,12 @@ package memory
 import (
 	"context"
 	"errors"
-	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
-	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/m8-team/platform/internal/resourcemanager/app/orgstructure"
+	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 )
 
 type allowOrgGate struct{}

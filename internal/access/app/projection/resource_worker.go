@@ -59,22 +59,5 @@ func (w *ResourceWorker) Run(ctx context.Context, feed EventFeed) error {
 	if w == nil || feed == nil {
 		return ErrInvalidEvent
 	}
-	for {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-		delivery, err := feed.Next(ctx)
-		if err != nil {
-			return err
-		}
-		if delivery == nil {
-			return ErrInvalidEvent
-		}
-		if err := w.Process(ctx, delivery.Event()); err != nil {
-			return err
-		}
-		if err := delivery.Ack(ctx); err != nil {
-			return err
-		}
-	}
+	return consumeEvents(ctx, feed, w.Process)
 }

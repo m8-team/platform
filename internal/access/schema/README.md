@@ -35,6 +35,7 @@ PR.
 ## Invariants and mapping
 
 -
+
 The
 graph
 is
@@ -65,7 +66,9 @@ bindings,
 grants
 and
 permissions.
+
 -
+
 Every
 resource
 and
@@ -91,7 +94,9 @@ not
 raw
 request
 fields.
+
 -
+
 Only
 `organization`,
 `workspace`,
@@ -108,7 +113,9 @@ intentionally
 excluded
 pending
 ADR-0001.
+
 -
+
 Published
 `PermissionDefinition.GraphPermission`
 must
@@ -142,7 +149,9 @@ to
 a
 computed
 permission.
+
 -
+
 M8
 `Role`
 remains
@@ -187,7 +196,9 @@ using
 old/new
 role
 snapshots.
+
 -
+
 Each
 M8
 AccessGrant
@@ -240,7 +251,9 @@ only
 that
 grant's
 relationships.
+
 -
+
 `access_binding`
 and
 `access_grant`
@@ -263,7 +276,9 @@ for
 arbitrary
 subject
 types.
+
 -
+
 No
 grant
 with
@@ -296,6 +311,7 @@ implemented.
 ## Activation / revocation sequence
 
 1.
+
 Validate
 tenant
 and
@@ -321,7 +337,9 @@ idempotency
 and
 revision
 preconditions.
+
 2.
+
 On
 `APPROVED`,
 stage
@@ -346,7 +364,9 @@ to
 transition
 to
 `ACTIVE`.
+
 3.
+
 After
 the
 committed
@@ -372,7 +392,9 @@ goes
 through
 the
 PDP.
+
 4.
+
 On
 `REVOKED`/
 `EXPIRED`,
@@ -418,7 +440,9 @@ an
 upstream
 source
 revision.
+
 5.
+
 Replay
 each
 aggregate
@@ -522,10 +546,13 @@ available.
 ## Validation and release
 
 -
+
 Domain/projection
 tests:
 `go test ./internal/access/domain ./internal/access/app/projection ./internal/access/adapters/spicedb`.
+
 -
+
 Before
 schema
 rollout:
@@ -552,7 +579,9 @@ isolation
 against
 live
 SpiceDB.
+
 -
+
 Publish
 schema
 before

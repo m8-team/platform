@@ -1,22 +1,157 @@
 # Platform Health
 
-`internal/platform/health` is the reusable M8 Platform health module. It is technical platform foundation code and is not owned by any business module.
+`internal/platform/health`
+is
+the
+reusable
+M8
+Platform
+health
+module.
+It
+is
+technical
+platform
+foundation
+code
+and
+is
+not
+owned
+by
+any
+business
+module.
 
-Domain modules may expose `HealthChecks() []health.Config`. They should not know about HTTP, gRPC, Kubernetes probes, or adapter packages.
+Domain
+modules
+may
+expose
+`HealthChecks() []health.Config`.
+They
+should
+not
+know
+about
+HTTP,
+gRPC,
+Kubernetes
+probes,
+or
+adapter
+packages.
 
 ## Probe Kinds
 
-- `/livez` uses `KindLiveness`. Use it for process-local checks only. Do not register external dependencies as liveness checks by default.
-- `/readyz` uses `KindReadiness`. Use it for checks that decide whether the service can receive traffic.
-- `/startupz` uses `KindStartup`. Use it for startup gating checks.
-- `/healthz` uses `KindReadiness`. Use it as a diagnostic endpoint for readiness checks.
+-
+`/livez`
+uses
+`KindLiveness`.
+Use
+it
+for
+process-local
+checks
+only.
+Do
+not
+register
+external
+dependencies
+as
+liveness
+checks
+by
+default.
+-
+`/readyz`
+uses
+`KindReadiness`.
+Use
+it
+for
+checks
+that
+decide
+whether
+the
+service
+can
+receive
+traffic.
+-
+`/startupz`
+uses
+`KindStartup`.
+Use
+it
+for
+startup
+gating
+checks.
+-
+`/healthz`
+uses
+`KindReadiness`.
+Use
+it
+as
+a
+diagnostic
+endpoint
+for
+readiness
+checks.
 
 ## Aggregation
 
-- Empty results are `HEALTHY`.
-- A required check with `UNHEALTHY` or `UNKNOWN` makes the snapshot `UNHEALTHY`.
-- An optional check with `UNHEALTHY` or `UNKNOWN` makes the snapshot `DEGRADED` unless a required check failed.
-- Any `DEGRADED` check makes the snapshot `DEGRADED` unless a required check failed.
+-
+Empty
+results
+are
+`HEALTHY`.
+-
+A
+required
+check
+with
+`UNHEALTHY`
+or
+`UNKNOWN`
+makes
+the
+snapshot
+`UNHEALTHY`.
+-
+An
+optional
+check
+with
+`UNHEALTHY`
+or
+`UNKNOWN`
+makes
+the
+snapshot
+`DEGRADED`
+unless
+a
+required
+check
+failed.
+-
+Any
+`DEGRADED`
+check
+makes
+the
+snapshot
+`DEGRADED`
+unless
+a
+required
+check
+failed.
 
 ## Register Dependency Checks
 
@@ -91,7 +226,22 @@ mux := http.NewServeMux()
 healthhttp.NewHandler(registry).RegisterRoutes(mux)
 ```
 
-The HTTP adapter returns JSON snapshots. `HEALTHY` and `DEGRADED` return HTTP 200. `UNHEALTHY` and `UNKNOWN` return HTTP 503.
+The
+HTTP
+adapter
+returns
+JSON
+snapshots.
+`HEALTHY`
+and
+`DEGRADED`
+return
+HTTP 200.
+`UNHEALTHY`
+and
+`UNKNOWN`
+return
+HTTP 503.
 
 ## gRPC Adapter
 
@@ -113,7 +263,24 @@ grpc_health_v1.RegisterHealthServer(grpcServer, adapter.Server())
 go adapter.Start(ctx)
 ```
 
-The adapter evaluates readiness. `HEALTHY` and `DEGRADED` map to `SERVING`; `UNHEALTHY` maps to `NOT_SERVING`; `UNKNOWN` maps to `UNKNOWN`.
+The
+adapter
+evaluates
+readiness.
+`HEALTHY`
+and
+`DEGRADED`
+map
+to
+`SERVING`;
+`UNHEALTHY`
+maps
+to
+`NOT_SERVING`;
+`UNKNOWN`
+maps
+to
+`UNKNOWN`.
 
 ## Fx
 

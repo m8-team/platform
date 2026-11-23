@@ -75,7 +75,7 @@ func (p *Projector) ProjectRoleBinding(ctx context.Context, before, after *RoleB
 		return Result{}, err
 	}
 	tenant := chooseTenant(before, after)
-	return p.apply(ctx, tenant, old, desired)
+	return p.apply(ctx, tenant, old, desired, false)
 }
 
 func chooseTenant(before, after *RoleBindingState) domain.TenantID {
@@ -158,7 +158,7 @@ func (p *Projector) ProjectGrant(ctx context.Context, before, after *domain.Acce
 	} else {
 		tenant = before.TenantID()
 	}
-	return p.apply(ctx, tenant, old, desired)
+	return p.apply(ctx, tenant, old, desired, false)
 }
 
 func (p *Projector) grantRelationships(ctx context.Context, grant *domain.AccessGrant, current bool) ([]domain.Relationship, error) {
@@ -252,7 +252,7 @@ func (p *Projector) directRelation(ctx context.Context, tenant domain.TenantID, 
 	return relation, nil
 }
 
-func (p *Projector) apply(ctx context.Context, tenant domain.TenantID, before, after []domain.Relationship) (Result, error) {
+func (p *Projector) apply(ctx context.Context, tenant domain.TenantID, before, after []domain.Relationship, touchAll bool) (Result, error) {
 	if err := ctx.Err(); err != nil {
 		return Result{}, err
 	}
@@ -275,7 +275,7 @@ func (p *Projector) apply(ctx context.Context, tenant domain.TenantID, before, a
 	}
 	for key, desired := range afterSet {
 		old, exists := beforeSet[key]
-		if !exists || old.ConditionRef() != desired.ConditionRef() || !old.ExpiresAt().Equal(desired.ExpiresAt()) {
+		if touchAll || !exists || old.ConditionRef() != desired.ConditionRef() || !old.ExpiresAt().Equal(desired.ExpiresAt()) {
 			changes = append(changes, ports.RelationshipChange{Operation: ports.RelationshipTouch, Relationship: desired})
 		}
 	}

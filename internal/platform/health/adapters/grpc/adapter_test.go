@@ -6,7 +6,7 @@ import (
 	"time"
 
 	platformhealth "github.com/m8-team/platform/internal/platform/health"
-	grpc_health_v1 "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func TestAdapterGRPCStatusMapping(t *testing.T) {

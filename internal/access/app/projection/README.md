@@ -56,6 +56,7 @@ implementing
 ## Delivery and checkpoint contract
 
 -
+
 Required
 envelope
 fields:
@@ -84,7 +85,9 @@ for
 affected
 role
 binding**.
+
 -
+
 Never
 trust
 tuple
@@ -115,7 +118,9 @@ head,
 otherwise
 reconcile
 explicitly.
+
 -
+
 A
 checkpoint
 contains
@@ -151,7 +156,9 @@ the
 Kafka
 offset/outbox
 row.
+
 -
+
 A
 crash
 between
@@ -179,7 +186,9 @@ but
 no
 longer
 desired.
+
 -
+
 The
 filecheckpoint
 adapter
@@ -226,7 +235,9 @@ and
 an
 audit/reconciliation
 strategy.
+
 -
+
 `ReconcileKey`
 does
 not
@@ -251,7 +262,9 @@ before
 claiming
 full
 repair.
+
 -
+
 ZedToken
 does
 not
@@ -281,7 +294,9 @@ source
 revision
 has
 converged.
+
 -
+
 This
 PR
 does

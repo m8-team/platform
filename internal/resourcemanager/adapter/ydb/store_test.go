@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 	"strings"
 	"testing"
+
+	"github.com/m8-team/platform/internal/resourcemanager/domain/orgunit"
 )
 
 func TestStoreConfiguration(t *testing.T) {

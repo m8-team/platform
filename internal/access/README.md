@@ -17,9 +17,12 @@ checks.
 ## Owns
 
 -
+
 Permission
 definition
+
 -
+
 Role
 -
 RoleBinding
@@ -28,7 +31,9 @@ Relationship
 -
 AuthorizationModel
 revision
+
 -
+
 CheckPermission
 decision
 policy
@@ -36,23 +41,32 @@ policy
 ## Does Not Own
 
 -
+
 Users
 and
 identities
+
 -
+
 Authentication
 sessions
+
 -
+
 Organization,
 workspace
 and
 project
 hierarchy
+
 -
+
 Audit
 event
 persistence
+
 -
+
 Provider-specific
 provisioning
 state
@@ -60,6 +74,7 @@ state
 ## Main APIs
 
 -
+
 CheckPermission
 -
 BatchCheckPermissions
@@ -81,6 +96,7 @@ PublishAuthorizationModel
 ## Events Published
 
 -
+
 AccessRelationshipCreated
 -
 AccessRelationshipDeleted
@@ -92,6 +108,7 @@ AuthorizationModelPublished
 ## Events Consumed
 
 -
+
 UserDisabled
 -
 ProjectSuspended

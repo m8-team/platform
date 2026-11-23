@@ -369,13 +369,13 @@ func (s *Service) Execute(
 
 	case domain.DecisionInProgress:
 		return &ExecuteResult{
-				Decision: begin.Decision,
-				Record:   begin.Record,
-			}, &domain.InProgressError{
-				Scope:      command.Begin.Scope,
-				Key:        command.Begin.Key,
-				RetryAfter: begin.RetryAfter.String(),
-			}
+			Decision: begin.Decision,
+			Record:   begin.Record,
+		}, &domain.InProgressError{
+			Scope:      command.Begin.Scope,
+			Key:        command.Begin.Key,
+			RetryAfter: begin.RetryAfter.String(),
+		}
 
 	case domain.DecisionConflict:
 		return &ExecuteResult{

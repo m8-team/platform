@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
+
 	accessusecase "github.com/m8-team/platform/internal/access/app/usecase"
 	grpcserver "github.com/m8-team/platform/internal/platform/server/grpc"
 	pb "github.com/m8-team/platform/internal/proto/m8/platform/resourcemanager/v1"
@@ -16,7 +18,6 @@ import (
 	_ "github.com/ydb-platform/ydb-go-sdk/v3"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
-	"time"
 )
 
 // Register the new canonical v1 service, not the retired OrganizationService.

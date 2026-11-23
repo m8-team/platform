@@ -25,6 +25,7 @@ and
 ## Invariants
 
 -
+
 Obtain
 `TenantID`
 from
@@ -71,7 +72,9 @@ partitions
 through
 unrelated
 relationships.
+
 -
+
 Resolve
 the
 public
@@ -95,7 +98,9 @@ outcomes
 never
 allow
 access.
+
 -
+
 Checks
 default
 to
@@ -128,7 +133,9 @@ a
 separate
 projection
 watermark.
+
 -
+
 `Config.ModelRevision`
 is
 an
@@ -151,7 +158,9 @@ publish/rollout
 before
 enabling
 decisions.
+
 -
+
 Relationship
 writes
 accept
@@ -193,7 +202,9 @@ authorization
 and
 optimistic
 concurrency.
+
 -
+
 An
 M8
 `AccessGrant`

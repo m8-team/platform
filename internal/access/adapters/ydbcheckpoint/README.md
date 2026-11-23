@@ -67,6 +67,7 @@ identifier.
 ## Fenced processing sequence
 
 1.
+
 YDB
 serializable
 transaction
@@ -99,7 +100,9 @@ not
 node
 wall
 clocks.
+
 2.
+
 Worker
 installs
 `projection_guard#owner@projection_epoch`
@@ -137,7 +140,9 @@ observation
 fails
 the
 precondition.
+
 3.
+
 Every
 `WriteRelationships`
 issued
@@ -165,7 +170,9 @@ the
 guard
 has
 changed.
+
 4.
+
 On
 each
 fresh
@@ -216,7 +223,9 @@ a
 failed
 checkpoint
 commit.
+
 5.
+
 A
 background
 YDB
@@ -242,7 +251,9 @@ that
 releases
 the
 lease.
+
 6.
+
 Kafka
 offset/outbox
 ack
@@ -414,6 +425,7 @@ owner/tenant/revision
 ## Rollout requirements
 
 1.
+
 Deploy
 updated
 `m8.zed`
@@ -432,7 +444,9 @@ live
 schema/relationship
 integration
 tests.
+
 2.
+
 Run
 `schema.sql`
 under
@@ -455,7 +469,9 @@ against
 a
 real
 database.
+
 3.
+
 **Stop
 all
 old
@@ -485,7 +501,9 @@ writes
 from
 other
 modules.
+
 4.
+
 Enumerate
 all
 current
@@ -514,7 +532,9 @@ source
 watermark
 catches
 up.
+
 5.
+
 Implement
 the
 Resource
@@ -555,7 +575,9 @@ public
 AuthZEN
 transport
 adapter.
+
 6.
+
 Test
 two
 replicas
@@ -589,7 +611,9 @@ reconciliation
 after
 disaster
 recovery.
+
 7.
+
 For
 a
 source
@@ -632,6 +656,7 @@ transaction.
 ## Unresolved rollout gates
 
 -
+
 Live
 YDB +
 live
@@ -645,7 +670,9 @@ required
 before
 production
 use.
+
 -
+
 Kafka/Outbox
 concrete
 transport
@@ -664,7 +691,9 @@ and
 ports
 need
 implementations.
+
 -
+
 Reconciliation
 reads
 only
@@ -684,7 +713,9 @@ and
 reader
 updates
 together.
+
 -
+
 The
 Resource
 Manager
