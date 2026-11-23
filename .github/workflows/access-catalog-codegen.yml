@@ -1,0 +1,48 @@
+name: Access catalog contract and generated-code verification
+
+on:
+  pull_request:
+    paths:
+      - "proto/m8/platform/access/v1/catalog*.proto"
+      - "internal/proto/m8/platform/access/v1/catalog*.go"
+      - "internal/proto/m8/platform/access/v1/accessconnect/catalog_service.connect.go"
+      - "docs/openapi/openapi.yaml"
+      - ".github/workflows/access-catalog-codegen.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-catalog-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install pinned Buf
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .bin
+          curl -fsSL --remove-on-error "https://github.com/bufbuild/buf/releases/download/v1.75.0/buf-Linux-x86_64" -o .bin/buf
+          chmod +x .bin/buf
+      - name: Lint and verify compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main:refs/heads/main
+          .bin/buf lint --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
+          .bin/buf breaking --against '.git#branch=main'
+      - name: Verify generated Go gRPC Gateway Connect and OpenAPI
+        shell: bash
+        run: |
+          set -euo pipefail
+          .bin/buf generate
+          git diff --exit-code -- \
+            internal/proto/m8/platform/access/v1/catalog.pb.go \
+            internal/proto/m8/platform/access/v1/catalog_service.pb.go \
+            internal/proto/m8/platform/access/v1/catalog_service.pb.gw.go \
+            internal/proto/m8/platform/access/v1/catalog_service_grpc.pb.go \
+            internal/proto/m8/platform/access/v1/accessconnect/catalog_service.connect.go \
+            docs/openapi/openapi.yaml
