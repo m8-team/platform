@@ -32,6 +32,12 @@ func (checkpoint) LoadWatermark(context.Context, domain.TenantID, domain.Resourc
 	return consistency.Watermark{Revision: 1, ZedToken: "old"}, nil
 }
 
+type readyPolicyState struct{}
+
+func (readyPolicyState) LoadPolicyState(context.Context, domain.TenantID) (consistency.PolicyState, error) {
+	return consistency.PolicyState{Head: 4, Applied: 4}, nil
+}
+
 type allowEngine struct{ calls int }
 
 func (e *allowEngine) CheckPermission(_ context.Context, req domain.CheckPermissionRequest) (domain.PermissionDecision, error) {
@@ -42,7 +48,7 @@ func TestHTTPIsWiredToBarrierAndRejectsStalePositive(t *testing.T) {
 	tenant, _ := domain.NewTenantID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
 	subject, _ := domain.NewSubject("user", "alice")
 	engine := &allowEngine{}
-	handler, err := NewAuthZENHandler(context.Background(), principal{tenant, subject}, source{}, checkpoint{}, engine, "model-v1")
+	handler, err := NewAuthZENHandler(context.Background(), principal{tenant, subject}, source{}, checkpoint{}, readyPolicyState{}, engine, "model-v1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +62,7 @@ func TestHTTPIsWiredToBarrierAndRejectsStalePositive(t *testing.T) {
 	}
 }
 func TestNoAuthZENHandlerWithoutTrustedComponents(t *testing.T) {
-	if _, err := NewAuthZENHandler(context.Background(), nil, nil, nil, nil, "model-v1"); err == nil {
+	if _, err := NewAuthZENHandler(context.Background(), nil, nil, nil, nil, nil, "model-v1"); err == nil {
 		t.Fatal("untrusted handler was constructed")
 	}
 }
