@@ -3,6 +3,8 @@ package spicedb
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
@@ -43,6 +45,17 @@ func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID,
 		default:
 			return ports.RelationshipWriteResult{}, ports.ErrInvalidRelationshipChange
 		}
+		if fence, guarded := ports.GraphFenceFromContext(ctx); guarded {
+			r := change.Relationship
+			kind := "access_binding"
+			if fence.Kind == "ACCESS_GRANT" {
+				kind = "access_grant"
+			}
+			owns := (r.Resource().Type() == kind && r.Resource().ID() == fence.AggregateID) || (r.Subject().Type() == kind && r.Subject().ID() == fence.AggregateID)
+			if !owns {
+				return ports.RelationshipWriteResult{}, ports.ErrInvalidGraphFence
+			}
+		}
 		rel, err := mapRelationship(change.Relationship)
 		if err != nil {
 			return ports.RelationshipWriteResult{}, err
@@ -54,8 +67,26 @@ func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID,
 		}
 		updates = append(updates, &pb.RelationshipUpdate{Operation: operation, Relationship: rel})
 	}
-	response, err := c.permissions.WriteRelationships(ctx, &pb.WriteRelationshipsRequest{Updates: updates})
+	request := &pb.WriteRelationshipsRequest{Updates: updates}
+	if fence, ok := ports.GraphFenceFromContext(ctx); ok {
+		if err := fence.Validate(); err != nil || fence.TenantID != tenant {
+			return ports.RelationshipWriteResult{}, ports.ErrInvalidGraphFence
+		}
+		guard, err := fenceResource(fence)
+		if err != nil {
+			return ports.RelationshipWriteResult{}, err
+		}
+		owner, err := fenceSubject(fence)
+		if err != nil {
+			return ports.RelationshipWriteResult{}, err
+		}
+		request.OptionalPreconditions = []*pb.Precondition{{Operation: pb.Precondition_OPERATION_MUST_MATCH, Filter: fenceFilter(guard, owner)}}
+	}
+	response, err := c.permissions.WriteRelationships(ctx, request)
 	if err != nil {
+		if _, guarded := ports.GraphFenceFromContext(ctx); guarded && status.Code(err) == codes.FailedPrecondition {
+			return ports.RelationshipWriteResult{}, ErrGraphFenceConflict
+		}
 		return ports.RelationshipWriteResult{}, classifyRPCFailure(ctx, err)
 	}
 	if response == nil || response.WrittenAt == nil || response.WrittenAt.Token == "" {

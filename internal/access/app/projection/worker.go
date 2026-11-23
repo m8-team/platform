@@ -156,19 +156,20 @@ func (e RecordedEdge) decode(tenant domain.TenantID) (domain.Relationship, error
 // Checkpoint is committed ONLY after the entire SpiceDB batch returned a
 // ZedToken. Replaying a write after a crash is safe (TOUCH/DELETE are idempotent).
 type Checkpoint struct {
-	Key       Key            `json:"key"`
-	Revision  int64          `json:"revision"`
-	EventID   string         `json:"event_id,omitempty"`
-	ZedToken  string         `json:"zed_token,omitempty"`
-	Edges     []RecordedEdge `json:"edges,omitempty"`
-	UpdatedAt time.Time      `json:"updated_at,omitempty"`
+	Key        Key            `json:"key"`
+	Revision   int64          `json:"revision"`
+	EventID    string         `json:"event_id,omitempty"`
+	ZedToken   string         `json:"zed_token,omitempty"`
+	FenceEpoch uint64         `json:"fence_epoch,omitempty"`
+	Edges      []RecordedEdge `json:"edges,omitempty"`
+	UpdatedAt  time.Time      `json:"updated_at,omitempty"`
 }
 
 func (c Checkpoint) Validate() error {
 	if err := c.Key.Validate(); err != nil {
 		return err
 	}
-	if c.Revision < 0 || (c.Revision > 0 && c.EventID == "") {
+	if c.Revision < 0 || (c.Revision > 0 && c.EventID == "") || (c.FenceEpoch != 0 && c.ZedToken == "") {
 		return ErrInvalidCheckpoint
 	}
 	if len(c.Edges) > 1000 {
@@ -247,81 +248,125 @@ func (w *Worker) process(ctx context.Context, key Key, eventRevision int64, even
 	if err := ctx.Err(); err != nil {
 		return err
 	}
+	if fenced, ok := w.store.(FencedCheckpointStore); ok {
+		installer, ok := w.projector.writer.(ports.GraphFenceInstaller)
+		if !ok {
+			return ports.ErrInvalidGraphFence
+		}
+		return fenced.WithFenced(ctx, key, func(leaseCtx context.Context, cp Checkpoint, fence ports.GraphFence) (Checkpoint, error) {
+			if err := fence.Validate(); err != nil || fence.TenantID != key.TenantID || fence.Kind != string(key.Kind) || fence.AggregateID != key.AggregateID {
+				return cp, ports.ErrInvalidGraphFence
+			}
+			graphToken, err := installer.EstablishFence(leaseCtx, fence)
+			if err != nil {
+				return cp, err
+			}
+			if graphToken == "" {
+				return cp, ErrMissingZedToken
+			}
+			guardedCtx, err := ports.WithGraphFence(leaseCtx, fence)
+			if err != nil {
+				return cp, err
+			}
+			// Read the real graph after fencing. A previous attempt may have
+			// written tuples and crashed before its checkpoint commit.
+			reader, ok := w.projector.writer.(ports.GraphProjectionReader)
+			if !ok {
+				return cp, ports.ErrInvalidGraphFence
+			}
+			actual, err := reader.ReadProjectionEdges(guardedCtx, fence)
+			if err != nil {
+				return cp, err
+			}
+			// A new epoch always performs authoritative full reconciliation.
+			return w.runTransition(guardedCtx, key, eventRevision, eventID, true, cp, fence.Epoch, graphToken, actual)
+		})
+	}
 	return w.store.WithLocked(ctx, key, func(cp Checkpoint) (Checkpoint, error) {
-		if cp.Key != key {
-			return cp, ErrInvalidCheckpoint
-		}
-		if err := cp.Validate(); err != nil {
-			return cp, err
-		}
-		if !force {
-			if eventRevision <= cp.Revision {
-				return cp, nil
-			}
-			if eventRevision > cp.Revision+1 {
-				return cp, ErrRevisionGap
-			}
-		}
-		snapshot, err := w.source.LoadCurrent(ctx, key)
-		if err != nil {
-			return cp, err
-		}
-		if err := snapshot.Validate(); err != nil {
-			return cp, err
-		}
-		if snapshot.Key != key {
-			return cp, ErrInvalidEvent
-		}
-		if !force && snapshot.Revision < eventRevision {
-			return cp, ErrSourceBehind
-		}
-		if !force && snapshot.Revision > eventRevision {
-			return cp, ErrSourceAhead
-		}
-		if snapshot.Revision < cp.Revision {
-			return cp, ErrSourceBehind
-		}
-		old, err := cp.relationships()
-		if err != nil {
-			return cp, err
-		}
-		var desired []domain.Relationship
-		switch key.Kind {
-		case KindRoleBinding:
-			desired, err = w.projector.bindingRelationships(ctx, snapshot.RoleBinding)
-		case KindGrant:
-			desired, err = w.projector.grantRelationships(ctx, snapshot.Grant, true)
-		default:
-			return cp, ErrInvalidEvent
-		}
-		if err != nil {
-			return cp, err
-		}
-		if _, err = indexRelationships(key.TenantID, desired); err != nil {
-			return cp, err
-		}
-		if len(desired) > 1000 {
-			return cp, ErrProjectionTooLarge
-		}
-		var result Result
-		if force {
-			result, err = w.forceApply(ctx, key.TenantID, old, desired)
-		} else {
-			result, err = w.projector.apply(ctx, key.TenantID, old, desired)
-		}
-		if err != nil {
-			return cp, err
-		}
-		token := cp.ZedToken
-		if result.Changed {
-			token = result.ZedToken
-		}
-		newCP := Checkpoint{Key: key, Revision: snapshot.Revision, EventID: eventID, ZedToken: token, Edges: recordEdges(desired), UpdatedAt: w.now().UTC()}
-		if err := newCP.Validate(); err != nil {
-			return cp, err
-		}
-		return newCP, nil
+		return w.runTransition(ctx, key, eventRevision, eventID, force, cp, 0, "", nil)
 	})
+}
+
+func (w *Worker) runTransition(ctx context.Context, key Key, eventRevision int64, eventID string, force bool, cp Checkpoint, fenceEpoch uint64, graphFenceToken string, graphEdges []domain.Relationship) (Checkpoint, error) {
+	if cp.Key != key {
+		return cp, ErrInvalidCheckpoint
+	}
+	if err := cp.Validate(); err != nil {
+		return cp, err
+	}
+	if !force {
+		if eventRevision <= cp.Revision {
+			return cp, nil
+		}
+		if eventRevision > cp.Revision+1 {
+			return cp, ErrRevisionGap
+		}
+	}
+	snapshot, err := w.source.LoadCurrent(ctx, key)
+	if err != nil {
+		return cp, err
+	}
+	if err := snapshot.Validate(); err != nil {
+		return cp, err
+	}
+	if snapshot.Key != key {
+		return cp, ErrInvalidEvent
+	}
+	if !force && snapshot.Revision < eventRevision {
+		return cp, ErrSourceBehind
+	}
+	if !force && snapshot.Revision > eventRevision {
+		return cp, ErrSourceAhead
+	}
+	if snapshot.Revision < cp.Revision {
+		return cp, ErrSourceBehind
+	}
+	old, err := cp.relationships()
+	if err != nil {
+		return cp, err
+	}
+	if fenceEpoch != 0 {
+		old = graphEdges
+	}
+	var desired []domain.Relationship
+	switch key.Kind {
+	case KindRoleBinding:
+		desired, err = w.projector.bindingRelationships(ctx, snapshot.RoleBinding)
+	case KindGrant:
+		desired, err = w.projector.grantRelationships(ctx, snapshot.Grant, true)
+	default:
+		return cp, ErrInvalidEvent
+	}
+	if err != nil {
+		return cp, err
+	}
+	if _, err = indexRelationships(key.TenantID, desired); err != nil {
+		return cp, err
+	}
+	if len(desired) > 1000 {
+		return cp, ErrProjectionTooLarge
+	}
+	var result Result
+	if force {
+		result, err = w.forceApply(ctx, key.TenantID, old, desired)
+	} else {
+		result, err = w.projector.apply(ctx, key.TenantID, old, desired)
+	}
+	if err != nil {
+		return cp, err
+	}
+	token := cp.ZedToken
+	if graphFenceToken != "" {
+		token = graphFenceToken
+	}
+	if result.Changed {
+		token = result.ZedToken
+	}
+	newCP := Checkpoint{Key: key, FenceEpoch: fenceEpoch, Revision: snapshot.Revision, EventID: eventID, ZedToken: token, Edges: recordEdges(desired), UpdatedAt: w.now().UTC()}
+	if err := newCP.Validate(); err != nil {
+		return cp, err
+	}
+	return newCP, nil
 }
 
 // forceApply performs an idempotent repair (touch all desired, delete removed).

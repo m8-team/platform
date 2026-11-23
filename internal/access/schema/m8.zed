@@ -71,3 +71,11 @@ definition workload_service {
   permission delete = deleter + manager
   permission deploy = deployer + manager
 }
+
+// Worker fencing guard: one active epoch per aggregate. The SDK enforces
+// compare-and-swap with WriteRelationships preconditions (schema alone does
+// not impose a relation cardinality constraint).
+definition projection_epoch {}
+definition projection_guard {
+  relation owner: projection_epoch
+}
