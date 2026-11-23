@@ -1,5 +1,5 @@
 -- Universal Access Catalog v1. Apply after creating the m8-access directory.
--- Execute under an explicitly configured TablePathPrefix; NEVER migrate at server startup.
+-- Execute under an explicitly configured TablePathPrefix. Never migrate at server startup.
 -- These tables are independent of the tenant policy/grant journal. Catalog publication
 -- does not change entitlements, SpiceDB relationship state, or applied policy barriers.
 CREATE TABLE `m8-access/catalog_heads`
