@@ -21,8 +21,16 @@ func TestTemporaryExportGofmt(t *testing.T) {
 			raw,err:=os.ReadFile(path);if err!=nil{return err}
 			formatted,err:=format.Source(raw);if err!=nil{return fmt.Errorf("%s: %w",path,err)}
 			if bytes.Equal(raw,formatted){return nil}
-			rel,err:=filepath.Rel("../..",path);if err!=nil{return err}
-			fmt.Printf("M8FMT|%s|%s\n",filepath.ToSlash(rel),base64.StdEncoding.EncodeToString(formatted))
+			rel:=""
+			switch {
+			case strings.HasPrefix(path,"../../app/catalog/"):
+				rel="app/catalog/"+strings.TrimPrefix(path,"../../app/catalog/")
+			case strings.HasPrefix(path,"../"):
+				rel="domain/"+strings.TrimPrefix(path,"../")
+			default:
+				return fmt.Errorf("unexpected path %q",path)
+			}
+			fmt.Printf("M8FMT|%s|%s\n",rel,base64.StdEncoding.EncodeToString(formatted))
 			count++
 			return nil
 		})
