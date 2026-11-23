@@ -82,7 +82,7 @@ type row struct {
 
 const selectCheckpoint = `DECLARE $tenant AS Utf8; DECLARE $kind AS Utf8; DECLARE $aggregate AS Utf8;
 SELECT revision,event_id,zed_token,fence_epoch,edges_json,updated_at,lease_epoch,lease_holder,lease_until
-FROM `+"`m8-access/projection_checkpoints`"+` WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`
+FROM ` + "`m8-access/projection_checkpoints`" + ` WHERE tenant_id=$tenant AND projection_kind=$kind AND aggregate_id=$aggregate;`
 
 func (s *Store) load(ctx context.Context, q interface {
 	QueryRowContext(context.Context, string, ...any) *sql.Row
