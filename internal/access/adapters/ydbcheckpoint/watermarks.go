@@ -23,7 +23,7 @@ func resourceArgs(tenant domain.TenantID,resource domain.Resource)[]any{
     return []any{sql.Named("tenant",string(tenant)),sql.Named("kind",resource.Type()),sql.Named("id",resource.ID())}
 }
 const selectWatermark=`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $id AS Utf8;
-SELECT source_revision, zed_token FROM `m8-access/resource_projection_watermarks`
+SELECT source_revision, zed_token FROM `+"`m8-access/resource_projection_watermarks`"+`
 WHERE tenant_id=$tenant AND resource_kind=$kind AND resource_id=$id;`
 
 // LoadWatermark validates the actual certified aggregate checkpoint IN THE SAME
@@ -83,7 +83,7 @@ func (s *Store) CommitResourceWatermark(ctx context.Context,key projection.Key)e
         now,err:=s.serverTime(ctx,tx)
         if err!=nil{return err}
         _,err=tx.ExecContext(ctx,s.q(`DECLARE $tenant AS Utf8;DECLARE $kind AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Uint64;DECLARE $zed AS Utf8;DECLARE $updated AS Timestamp;
-UPSERT INTO `m8-access/resource_projection_watermarks`(tenant_id,resource_kind,resource_id,source_revision,zed_token,updated_at)
+UPSERT INTO `+"`m8-access/resource_projection_watermarks`"+`(tenant_id,resource_kind,resource_id,source_revision,zed_token,updated_at)
 VALUES ($tenant,$kind,$id,$revision,$zed,$updated);`),append(resourceArgs(key.TenantID,resource),
             sql.Named("revision",uint64(row.cp.Revision)),sql.Named("zed",row.cp.ZedToken),sql.Named("updated",now))...)
         if err!=nil{return fmt.Errorf("commit certified RM watermark: %w",err)}
