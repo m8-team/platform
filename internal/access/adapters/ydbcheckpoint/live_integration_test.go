@@ -38,7 +38,16 @@ func liveYDB(t *testing.T) (*sql.DB, string) {
 	}
 	t.Cleanup(func() { _ = db.Close() })
 	for i := 0; i < 40; i++ {
-		if err = db.PingContext(ctx); err == nil {
+		probeCtx, stop := context.WithTimeout(ctx, 3*time.Second)
+		err = db.PingContext(probeCtx)
+		stop()
+		if err == nil {
+			break
+		}
+		if i%5 == 0 {
+			t.Logf("YDB readiness probe %d: %v", i+1, err)
+		}
+		if ctx.Err() != nil {
 			break
 		}
 		time.Sleep(time.Second)
