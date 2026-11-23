@@ -26,6 +26,9 @@ type authStub struct{ allow bool }
 func (a authStub) CanPublishProfile(context.Context, shared.Subject, role.BundleRef) (bool, error) {
 	return a.allow, nil
 }
+func (a authStub) CanManageTenant(context.Context, shared.Subject, shared.TenantID) (bool, error) {
+	return a.allow, nil
+}
 func (a authStub) CanManageSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error) {
 	return a.allow, nil
 }
@@ -65,6 +68,7 @@ func (b *bundlesStub) PublishBundle(_ context.Context, bb role.Bundle, _ int64, 
 
 type assignmentsStub struct {
 	items map[string]role.ProfileAssignment
+	reads int
 }
 
 func (a *assignmentsStub) CreateAssignment(_ context.Context, item role.ProfileAssignment, _ string) (role.ProfileAssignment, error) {
@@ -72,6 +76,7 @@ func (a *assignmentsStub) CreateAssignment(_ context.Context, item role.ProfileA
 	return item, nil
 }
 func (a *assignmentsStub) GetAssignment(_ context.Context, _ shared.TenantID, id string) (role.ProfileAssignment, error) {
+	a.reads++
 	v, ok := a.items[id]
 	if !ok {
 		return role.ProfileAssignment{}, ErrInvalidProfile
@@ -163,5 +168,17 @@ func TestPublishBundleRequiresPrivilegedIdentityAndPinnedRoles(t *testing.T) {
 	s.identity = identityStub{err: errors.New("unverified identity")}
 	if _, err := s.PublishBundle(context.Background(), b, 1, "published-3"); !errors.Is(err, ErrUnauthenticated) {
 		t.Fatal(err)
+	}
+}
+
+func TestRevocationChecksTenantBeforeIDLookup(t *testing.T) {
+	s, input, _, repository := setup(t)
+	s.auth = authStub{allow: false}
+	_, err := s.RevokeAssignment(context.Background(), input.TenantID, input.ID, 1, "revoke")
+	if !errors.Is(err, ErrForbidden) {
+		t.Fatalf("tenant authorization must be denied: %v", err)
+	}
+	if repository.reads != 0 {
+		t.Fatal("unauthorized request disclosed assignment existence via storage lookup")
 	}
 }

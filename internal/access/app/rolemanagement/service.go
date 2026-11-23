@@ -26,7 +26,7 @@ type Identity interface {
 }
 type Authorizer interface {
 	CanPublishProfile(context.Context, shared.Subject, role.BundleRef) (bool, error)
-	CanManageSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
+	// CanManageTenant is checked before resolving an assignment ID to avoid\n	// revealing whether another tenant's assignment exists.\n	CanManageTenant(context.Context, shared.Subject, shared.TenantID) (bool, error)\n	CanManageSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
 	CanReadSubject(context.Context, shared.Subject, shared.TenantID, shared.Subject) (bool, error)
 }
 
@@ -300,6 +300,10 @@ func (s *Service) RevokeAssignment(ctx context.Context, tenant shared.TenantID, 
 	actor, err := s.principal(ctx)
 	if err != nil {
 		return role.ProfileAssignment{}, err
+	}
+	tenantAllowed, err := s.auth.CanManageTenant(ctx, actor, tenant)
+	if err != nil || !tenantAllowed {
+		return role.ProfileAssignment{}, ErrForbidden
 	}
 	a, err := s.assignments.GetAssignment(ctx, tenant, id)
 	if err != nil {
