@@ -5,10 +5,8 @@ import (
 	"time"
 )
 
-var (
-	ErrInvalidTransition = errors.New("invalid resource lifecycle transition")
-	ErrTransitionConflict = errors.New("resource lifecycle revision conflict")
-)
+var ErrInvalidTransition = errors.New("invalid resource lifecycle transition")
+var ErrTransitionConflict = errors.New("resource lifecycle revision conflict")
 
 // Lifecycle is the state and optimistic revision of a Resource Manager-owned
 // aggregate. Adapters control persistence but never redefine transition rules.
