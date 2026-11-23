@@ -49,33 +49,38 @@ func New(source ResourceRevisionReader, progress WatermarkReader, pdp ports.Perm
 }
 
 func (b *Barrier) CheckPermission(ctx context.Context, req domain.CheckPermissionRequest) (domain.PermissionDecision, error) {
+	decision, _, err := b.checkResource(ctx, req, false)
+	return decision, err
+}
+
+func (b *Barrier) checkResource(ctx context.Context, req domain.CheckPermissionRequest, fullyConsistent bool) (domain.PermissionDecision, uint64, error) {
 	if b == nil || b.source == nil || b.progress == nil || b.pdp == nil {
-		return domain.PermissionDecision{}, ErrInvalidBarrier
+		return domain.PermissionDecision{}, 0, ErrInvalidBarrier
 	}
 	if err := req.Validate(); err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	if err := ctx.Err(); err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	latest, err := b.source.AuthoritativeRevision(ctx, req.TenantID(), req.Resource())
 	if err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	if latest == 0 {
-		return domain.PermissionDecision{}, ErrResourceRevisionUnavailable
+		return domain.PermissionDecision{}, 0, ErrResourceRevisionUnavailable
 	}
 	committed, err := b.progress.LoadWatermark(ctx, req.TenantID(), req.Resource())
 	if err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	if committed.Revision < latest || committed.ZedToken == "" {
-		return domain.PermissionDecision{}, ErrProjectionLag
+		return domain.PermissionDecision{}, 0, ErrProjectionLag
 	}
 	// SpiceDB ZedTokens are opaque and not comparable. A second independent
 	// caller-required token cannot be merged: use fully consistent instead.
 	token := committed.ZedToken
-	if req.MinZedToken() != "" && req.MinZedToken() != token {
+	if fullyConsistent || (req.MinZedToken() != "" && req.MinZedToken() != token) {
 		token = ""
 	}
 	// Internal barrier failures must always fail closed; never propagate a
@@ -86,16 +91,16 @@ func (b *Barrier) CheckPermission(ctx context.Context, req domain.CheckPermissio
 		FailMode: domain.FailModeDeny, Critical: true,
 	})
 	if err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	decision, err := b.pdp.CheckPermission(ctx, verified)
 	if err != nil {
-		return domain.PermissionDecision{}, err
+		return domain.PermissionDecision{}, 0, err
 	}
 	if !decision.Allowed() {
-		return decision, nil
+		return decision, latest, nil
 	}
 	// This check's graph snapshot is at least as fresh as the committed
 	// watermark; authorized resource ownership is still checked by its owner.
-	return decision, nil
+	return decision, latest, nil
 }
