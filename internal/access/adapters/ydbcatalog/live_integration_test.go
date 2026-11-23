@@ -70,21 +70,23 @@ func testStore(t *testing.T) *Store {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, fragment := range strings.Split(string(sqlBytes), ";") {
-		var lines []string
-		for _, line := range strings.Split(fragment, "\n") {
-			line = strings.TrimSpace(line)
-			if line != "" && !strings.HasPrefix(line, "--") {
-				lines = append(lines, line)
-			}
+	// Strip comments before splitting statements; semicolons in comments
+	// must never be interpreted as executable SQL.
+	var cleanLines []string
+	for _, line := range strings.Split(string(sqlBytes), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed != "" && !strings.HasPrefix(trimmed, "--") {
+			cleanLines = append(cleanLines, line)
 		}
-		if len(lines) == 0 {
+	}
+	for _, fragment := range strings.Split(strings.Join(cleanLines, "\n"), ";") {
+		statement := strings.TrimSpace(fragment)
+		if statement == "" {
 			continue
 		}
-		stmt := strings.Join(lines, "\n") + ";"
-		_, err = db.ExecContext(ctx, fmt.Sprintf("PRAGMA TablePathPrefix(%q);\n%s", prefix, stmt))
+		_, err = db.ExecContext(ctx, fmt.Sprintf("PRAGMA TablePathPrefix(%q);\n%s;", prefix, statement))
 		if err != nil {
-			t.Fatalf("catalog migration failed: %v; statement %s", err, stmt)
+			t.Fatalf("catalog migration failed: %v; statement %s", err, statement)
 		}
 	}
 	store, err := New(db, prefix, []byte(strings.Repeat("test-cursor-secret-", 4)), time.Hour)
@@ -193,5 +195,57 @@ func TestLiveYDBCatalogConcurrentPublishHasSingleWinner(t *testing.T) {
 	pending, err := store.Pending(ctx, "finance", 0, 10)
 	if err != nil || len(pending) != 2 {
 		t.Fatalf("partial outbox state: %v %+v", err, pending)
+	}
+}
+
+func TestLiveYDBCatalogCursorSnapshotExcludesLaterReleases(t *testing.T) {
+	store := testStore(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	if _, err := store.Publish(ctx, fixture(t, "1.0.0"), 0, "first"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Publish(ctx, fixture(t, "1.0.1"), 1, "second"); err != nil {
+		t.Fatal(err)
+	}
+	actor, _ := shared.NewSubject("service_account", "finance")
+	page, cursor, err := store.List(ctx, actor, "finance", 1, "")
+	if err != nil || len(page) != 1 || cursor == "" {
+		t.Fatalf("initial snapshot: %v", err)
+	}
+	if _, err := store.Publish(ctx, fixture(t, "1.0.2"), 2, "third"); err != nil {
+		t.Fatal(err)
+	}
+	page, cursor, err = store.List(ctx, actor, "finance", 1, cursor)
+	if err != nil || len(page) != 1 || page[0].Revision != 2 || cursor != "" {
+		t.Fatalf("existing snapshot leaked new publication: %v %+v", err, page)
+	}
+	all, next, err := store.List(ctx, actor, "finance", 10, "")
+	if err != nil || len(all) != 3 || next != "" {
+		t.Fatalf("fresh snapshot did not see committed release: %v %+v", err, all)
+	}
+}
+
+func TestLiveYDBCatalogRollsBackWhenOutboxWriteFails(t *testing.T) {
+	store := testStore(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	// TestStore refuses remote databases; dropping a disposable test table is safe.
+	_, err := store.db.ExecContext(ctx, store.q("DROP TABLE \x60m8-access/catalog_outbox\x60;"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.Publish(ctx, fixture(t, "1.0.0"), 0, "first"); err == nil {
+		t.Fatal("publication succeeded without durable outbox")
+	}
+	if _, err := store.Get(ctx, "finance", "1.0.0"); !errors.Is(err, catalog.ErrCatalogNotFound) {
+		t.Fatalf("release committed without outbox: %v", err)
+	}
+	actor, _ := shared.NewSubject("service_account", "finance")
+	page, next, err := store.List(ctx, actor, "finance", 10, "")
+	if err != nil || len(page) != 0 || next != "" {
+		t.Fatalf("read projection committed without outbox: %v %+v", err, page)
 	}
 }
