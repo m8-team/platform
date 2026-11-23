@@ -10,6 +10,7 @@ import (
 	"github.com/m8-team/platform/internal/access/adapters/spicedb"
 	"github.com/m8-team/platform/internal/access/adapters/ydbcheckpoint"
 	"github.com/m8-team/platform/internal/access/app/ports"
+    "github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/projection"
 )
 
@@ -26,7 +27,7 @@ func NewProductionPDP(ctx context.Context, principal authzen.PrincipalResolver,
 	if err != nil {
 		return nil, err
 	}
-	return NewAuthZENHandler(ctx, principal, source, checkpoint, spicedbClient, revision)
+	return NewAuthZENHandler(ctx, principal, source, checkpoint, checkpoint, spicedbClient, revision)
 }
 
 // NewResourceProjectionWorker connects authoritative RM snapshots to fenced
@@ -48,4 +49,19 @@ func NewResourceProjectionWorker(resourceCatalog rm.Catalog,
 		return nil, err
 	}
 	return projection.NewResourceWorker(projector, source, checkpoint, checkpoint, now)
+}
+
+// NewAccessPolicyWorker uses the SAME fenced Access grant/role projector as v1,
+// but commits a policy journal job before an event delivery may be acknowledged.
+// The Access authoritative SnapshotReader and outbox transport are explicitly
+// supplied by the owner; there is NO unverified SQL snapshot fallback.
+func NewAccessPolicyWorker(source projection.SnapshotReader,
+    checkpoint *ydbcheckpoint.Store,spicedbClient *spicedb.Client,
+    permissions ports.PermissionCatalog,now func()time.Time)(*policyjournal.Worker,error){
+    if source==nil || checkpoint==nil || spicedbClient==nil{return nil,projection.ErrInvalidProjection}
+    projector,err:=projection.New(permissions,spicedbClient,now)
+    if err!=nil{return nil,err}
+    worker,err:=projection.NewWorker(projector,source,checkpoint,now)
+    if err!=nil{return nil,err}
+    return policyjournal.NewWorker(worker,checkpoint)
 }

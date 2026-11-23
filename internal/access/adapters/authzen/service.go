@@ -38,11 +38,11 @@ type PrincipalResolver interface {
 type Service struct {
 	accesspb.UnimplementedAccessServiceServer
 	resolver PrincipalResolver
-	barrier  *consistency.Barrier
+	barrier  *consistency.PolicyBarrier
 	model    domain.ModelRevision
 }
 
-func New(resolver PrincipalResolver, barrier *consistency.Barrier, modelRevision string) (*Service, error) {
+func New(resolver PrincipalResolver, barrier *consistency.PolicyBarrier, modelRevision string) (*Service, error) {
 	if resolver == nil || barrier == nil {
 		return nil, ErrInvalidConfiguration
 	}

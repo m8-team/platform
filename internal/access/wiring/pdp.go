@@ -17,12 +17,14 @@ import (
 // verified OIDC/mTLS middleware, never by request headers. No AllowAll fallback.
 func NewAuthZENHandler(ctx context.Context, principal authzen.PrincipalResolver,
 	resourceManager consistency.ResourceRevisionReader, watermarks consistency.WatermarkReader,
-	spiceDB ports.PermissionEngine, modelRevision string) (http.Handler, error) {
+	policyState consistency.PolicyStateReader, spiceDB ports.PermissionEngine, modelRevision string) (http.Handler, error) {
 	barrier, err := consistency.New(resourceManager, watermarks, spiceDB)
 	if err != nil {
 		return nil, err
 	}
-	service, err := authzen.New(principal, barrier, modelRevision)
+	policyBarrier, err := consistency.NewPolicyBarrier(barrier, policyState)
+    if err!=nil{return nil,err}
+    service, err := authzen.New(principal, policyBarrier, modelRevision)
 	if err != nil {
 		return nil, err
 	}
