@@ -1,0 +1,31 @@
+name: Resource Manager CQRS query tests
+
+on:
+  pull_request:
+    paths:
+      - "internal/resourcemanager/**"
+      - "go.mod"
+      - "go.sum"
+  push:
+    branches: [main]
+    paths:
+      - "internal/resourcemanager/**"
+      - "go.mod"
+      - "go.sum"
+
+permissions:
+  contents: read
+
+jobs:
+  resource-query-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Run Resource Manager query and adapter tests
+        run: go test -count=1 ./internal/resourcemanager/...
+      - name: Vet Resource Manager query and adapter
+        run: go vet ./internal/resourcemanager/...

@@ -6,43 +6,35 @@ import (
 	"time"
 
 	"github.com/m8-team/platform/internal/access/adapters/authzen"
-	rm "github.com/m8-team/platform/internal/access/adapters/resourcemanager"
 	"github.com/m8-team/platform/internal/access/adapters/spicedb"
 	"github.com/m8-team/platform/internal/access/adapters/ydbcheckpoint"
+	"github.com/m8-team/platform/internal/access/app/consistency"
 	"github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/app/projection"
 )
 
-// NewProductionPDP assembles the concrete RM YDB catalog reader, certified YDB
-// projection store and official SpiceDB Go SDK. It does not implement caller
-// identity verification; authentication middleware supplies the resolver.
+// NewProductionPDP composes Access with a provider-neutral authoritative
+// resource revision port, the durable Access checkpoint and SpiceDB.
+// Authentication middleware must supply the trusted principal resolver.
 func NewProductionPDP(ctx context.Context, principal authzen.PrincipalResolver,
-	resourceCatalog rm.Catalog, checkpoint *ydbcheckpoint.Store,
+	resourceRevisions consistency.ResourceRevisionReader, checkpoint *ydbcheckpoint.Store,
 	spicedbClient *spicedb.Client, revision string) (http.Handler, error) {
-	if checkpoint == nil || spicedbClient == nil {
+	if resourceRevisions == nil || checkpoint == nil || spicedbClient == nil {
 		return nil, authzen.ErrInvalidConfiguration
 	}
-	source, err := rm.New(resourceCatalog)
-	if err != nil {
-		return nil, err
-	}
-	return NewAuthZENHandler(ctx, principal, source, checkpoint, checkpoint, spicedbClient, revision)
+	return NewAuthZENHandler(ctx, principal, resourceRevisions, checkpoint, checkpoint, spicedbClient, revision)
 }
 
-// NewResourceProjectionWorker connects authoritative RM snapshots to fenced
-// YDB checkpoint and SpiceDB graph projection. The caller wires the trusted
-// event source and starts worker.Run; no event offset is ACKed before YDB
-// confirms both checkpoint and RM watermark progress.
-func NewResourceProjectionWorker(resourceCatalog rm.Catalog,
+// NewResourceProjectionWorker accepts an authoritative snapshot reader through
+// an Access-owned port. The external composition root provides its adapter.
+// Event offsets are acknowledged only after fenced graph projection and
+// durable resource watermark commits.
+func NewResourceProjectionWorker(source projection.SnapshotReader,
 	checkpoint *ydbcheckpoint.Store, spicedbClient *spicedb.Client,
 	permissions ports.PermissionCatalog, now func() time.Time) (*projection.ResourceWorker, error) {
-	if checkpoint == nil || spicedbClient == nil {
+	if source == nil || checkpoint == nil || spicedbClient == nil {
 		return nil, projection.ErrInvalidProjection
-	}
-	source, err := rm.New(resourceCatalog)
-	if err != nil {
-		return nil, err
 	}
 	projector, err := projection.New(permissions, spicedbClient, now)
 	if err != nil {

@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/m8-team/platform/internal/resourcemanager/domain/resource"
 )
 
 var (
@@ -242,7 +244,7 @@ func (s *Store) Update(kind Kind, id string, rev int64, name, description string
 	return r, nil
 }
 func (s *Store) ChangeState(kind Kind, id string, rev int64, state string) (Record, error) {
-	if rev <= 0 || (state != "SUSPENDED" && state != "ACTIVE" && state != "ARCHIVED" && state != "DELETED") {
+	if rev <= 0 || !resource.State(state).MutableTarget() {
 		return Record{}, ErrInvalid
 	}
 	s.mu.Lock()
@@ -251,8 +253,14 @@ func (s *Store) ChangeState(kind Kind, id string, rev int64, state string) (Reco
 	if !ok {
 		return Record{}, ErrNotFound
 	}
-	if r.Revision != rev || r.State == "DELETED" {
+	next, err := (resource.Lifecycle{
+		State: resource.State(r.State), Revision: r.Revision, DeletedAt: r.DeletedAt,
+	}).Transition(rev, resource.State(state), time.Now().UTC())
+	if errors.Is(err, resource.ErrTransitionConflict) {
 		return Record{}, ErrConflict
+	}
+	if err != nil {
+		return Record{}, ErrInvalid
 	}
 	if state == "DELETED" || state == "ARCHIVED" {
 		for _, x := range s.objects {
@@ -261,12 +269,9 @@ func (s *Store) ChangeState(kind Kind, id string, rev int64, state string) (Reco
 			}
 		}
 	}
-	r.State = state
-	if state == "DELETED" {
-		deletedAt := time.Now().UTC()
-		r.DeletedAt = &deletedAt
-	}
-	r.Revision++
+	r.State = string(next.State)
+	r.DeletedAt = next.DeletedAt
+	r.Revision = next.Revision
 	r.UpdatedAt = time.Now().UTC()
 	s.objects[key(kind, id)] = r
 	return r, nil
