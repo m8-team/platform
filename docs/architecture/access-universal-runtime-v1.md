@@ -77,6 +77,12 @@ EventID/PolicyRevision and acknowledge only after a certified projection
 checkpoint and the PolicyJournal applied barrier. Parallel dispatchers must
 use a separately configured tenant lease; no delivery exactly-once promise.
 
+The typed `eventfeed.EncodePolicyEvent` and `eventfeed.NewPolicyKafka` /
+`NewPolicyOutbox` bridge preserves PolicyRevision and projection key in a
+bounded strict JSON envelope. A `policyjournal.Worker` using this feed sends
+Kafka ACKs only after the official SDK projection plus durable PolicyJob
+certification; envelopes containing extra untrusted attributes are rejected.
+
 This PR intentionally does not hardcode or install a Kafka client SDK, topic,
 consumer group, credentials or broker connection. The publisher is a required
 integration port; actual production broker wiring remains deployment work.
