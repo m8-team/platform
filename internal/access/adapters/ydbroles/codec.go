@@ -93,7 +93,7 @@ func encodeAssignment(a role.ProfileAssignment)(string,error){
 			Kind:s.Kind(),TenantID:string(s.TenantID()),ResourceType:s.ResourceType(),ResourceID:s.ResourceID(),
 			OrganizationID:s.OrganizationID(),CollectionIDs:s.CollectionIDs(),
 		}
-		if s.Kind()==authorization.ScopeSubtree{entry.RootType=s.Root().Type();entry.RootID=s.Root().ID()}
+		if s.Kind==authorization.ScopeSubtree{entry.RootType=s.Root().Type();entry.RootID=s.Root().ID()}
 		d.Scopes=append(d.Scopes,entry)
 	}
 	return encodeJSON(d)
