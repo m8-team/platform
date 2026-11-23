@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	pb "github.com/authzed/authzed-go/proto/authzed/api/v1"
-	authzed "github.com/authzed/authzed-go/v1"
+	"github.com/authzed/authzed-go/v1"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/domain"
 	"google.golang.org/grpc"
@@ -67,7 +67,7 @@ func NewClient(cfg Config, catalog ports.PermissionCatalog) (*Client, error) {
 	if err != nil {
 		return nil, ErrInvalidConfig
 	}
-	var transport credentials.TransportCredentials = credentials.NewTLS(&tls.Config{MinVersion: tls.VersionTLS12})
+	var transport = credentials.NewTLS(&tls.Config{MinVersion: tls.VersionTLS12})
 	if cfg.AllowInsecureLoopback {
 		host := parsed.Hostname()
 		ip := net.ParseIP(host)
