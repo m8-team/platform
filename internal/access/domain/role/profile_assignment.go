@@ -18,7 +18,7 @@ type ProfileAssignmentStatus string
 
 const (
 	ProfileAssignmentPending ProfileAssignmentStatus = "PENDING_PROJECTION"
-	ProfileAssignmentActive ProfileAssignmentStatus = "ACTIVE"
+	ProfileAssignmentActive  ProfileAssignmentStatus = "ACTIVE"
 	ProfileAssignmentRevoked ProfileAssignmentStatus = "REVOKED"
 )
 
@@ -119,7 +119,6 @@ func (a ProfileAssignment) Revoke(expected int64, at time.Time) (ProfileAssignme
 	a.revokedAt = at.UTC()
 	return a, a.Validate()
 }
-
 
 // Activate changes the authoritative aggregate state only. The caller MUST
 // perform this transition in the SAME serializable YDB transaction as a

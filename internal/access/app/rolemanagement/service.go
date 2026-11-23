@@ -339,57 +339,97 @@ func (s *Service) ListBySubject(ctx context.Context, tenant shared.TenantID, sub
 // scope again at activation time. Non-instance and contextual assignments are
 // deliberately unsupported until their owner graph and PDP policy exist.
 // This result must be committed atomically with the tenant policy journal.
-func (s *Service) CompileActivationPlan(ctx context.Context,tenant shared.TenantID,assignmentID string)([]projection.ProfileCapability,error){
-	if s==nil||s.assignments==nil||s.templates==nil||s.owner==nil{return nil,ErrUnavailable}
-	if tenant.Validate()!=nil||!shared.ValidUUID(assignmentID){return nil,ErrInvalidProfile}
-	actor,err:=s.principal(ctx)
-	if err!=nil{return nil,err}
-	canManage,err:=s.auth.CanManageTenant(ctx,actor,tenant)
-	if err!=nil||!canManage{return nil,ErrForbidden}
-	a,err:=s.assignments.GetAssignment(ctx,tenant,assignmentID)
-	if err!=nil{return nil,err}
-	allowed,err:=s.auth.CanManageSubject(ctx,actor,tenant,a.Subject())
-	if err!=nil||!allowed{return nil,ErrForbidden}
-	if a.Status()!=role.ProfileAssignmentPending||len(a.PolicyIDs())!=0{return nil,ErrInvalidProfile}
+func (s *Service) CompileActivationPlan(ctx context.Context, tenant shared.TenantID, assignmentID string) ([]projection.ProfileCapability, error) {
+	if s == nil || s.assignments == nil || s.templates == nil || s.owner == nil {
+		return nil, ErrUnavailable
+	}
+	if tenant.Validate() != nil || !shared.ValidUUID(assignmentID) {
+		return nil, ErrInvalidProfile
+	}
+	actor, err := s.principal(ctx)
+	if err != nil {
+		return nil, err
+	}
+	canManage, err := s.auth.CanManageTenant(ctx, actor, tenant)
+	if err != nil || !canManage {
+		return nil, ErrForbidden
+	}
+	a, err := s.assignments.GetAssignment(ctx, tenant, assignmentID)
+	if err != nil {
+		return nil, err
+	}
+	allowed, err := s.auth.CanManageSubject(ctx, actor, tenant, a.Subject())
+	if err != nil || !allowed {
+		return nil, ErrForbidden
+	}
+	if a.Status() != role.ProfileAssignmentPending || len(a.PolicyIDs()) != 0 {
+		return nil, ErrInvalidProfile
+	}
 	var refs []role.TemplateRef
-	switch a.Target().Kind{
+	switch a.Target().Kind {
 	case role.AssignmentTemplate:
-		refs=[]role.TemplateRef{{Name:a.Target().Name,Version:a.Target().Version}}
+		refs = []role.TemplateRef{{Name: a.Target().Name, Version: a.Target().Version}}
 	case role.AssignmentBundle:
-		refs,err=s.expandPublished(ctx,role.BundleRef{Name:a.Target().Name,Version:a.Target().Version})
-		if err!=nil{return nil,err}
-	default:return nil,ErrInvalidProfile
+		refs, err = s.expandPublished(ctx, role.BundleRef{Name: a.Target().Name, Version: a.Target().Version})
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, ErrInvalidProfile
 	}
-	templates,err:=s.resolveTemplates(ctx,refs)
-	if err!=nil{return nil,err}
-	scopes:=map[string]authorization.Scope{}
-	proofs:=map[string]int64{}
-	for _,scope:=range a.Scopes(){
-		if scope.Kind()!=authorization.ScopeInstance{return nil,projection.ErrUnsupportedProfileScope}
-		revision,err:=s.owner.VerifyScope(ctx,scope)
-		if err!=nil||revision<1{return nil,ErrUnverifiedScope}
-		scopes[scope.ResourceType()]=scope
-		proofs[scope.ResourceType()]=revision
+	templates, err := s.resolveTemplates(ctx, refs)
+	if err != nil {
+		return nil, err
 	}
-	caps:=make([]projection.ProfileCapability,0)
-	seen:=map[string]bool{}
-	used:=map[string]bool{}
-	for _,t:=range templates{
-		for _,p:=range t.Permissions{
-			scope,ok:=scopes[p.ResourceType]
-			if !ok||!t.Template.SupportsScope(scope.Kind()){return nil,ErrInvalidProfile}
-			scopeAllowed:=false
-			for _,allowed:=range p.Scopes{if allowed==scope.Kind(){scopeAllowed=true}}
-			if !scopeAllowed{return nil,ErrInvalidProfile}
-			cap:=projection.ProfileCapability{ResourceType:p.ResourceType,ResourceID:scope.ResourceID(),
-				Action:p.Action.Name(),OwnerRevision:proofs[p.ResourceType]}
-			id,err:=projection.CapabilityObjectID(cap.ResourceType,cap.ResourceID,cap.Action)
-			if err!=nil{return nil,err}
-			if !seen[id]{caps=append(caps,cap);seen[id]=true}
-			used[p.ResourceType]=true
+	scopes := map[string]authorization.Scope{}
+	proofs := map[string]int64{}
+	for _, scope := range a.Scopes() {
+		if scope.Kind() != authorization.ScopeInstance {
+			return nil, projection.ErrUnsupportedProfileScope
+		}
+		revision, err := s.owner.VerifyScope(ctx, scope)
+		if err != nil || revision < 1 {
+			return nil, ErrUnverifiedScope
+		}
+		scopes[scope.ResourceType()] = scope
+		proofs[scope.ResourceType()] = revision
+	}
+	caps := make([]projection.ProfileCapability, 0)
+	seen := map[string]bool{}
+	used := map[string]bool{}
+	for _, t := range templates {
+		for _, p := range t.Permissions {
+			scope, ok := scopes[p.ResourceType]
+			if !ok || !t.Template.SupportsScope(scope.Kind()) {
+				return nil, ErrInvalidProfile
+			}
+			scopeAllowed := false
+			for _, allowed := range p.Scopes {
+				if allowed == scope.Kind() {
+					scopeAllowed = true
+				}
+			}
+			if !scopeAllowed {
+				return nil, ErrInvalidProfile
+			}
+			cap := projection.ProfileCapability{ResourceType: p.ResourceType, ResourceID: scope.ResourceID(),
+				Action: p.Action.Name(), OwnerRevision: proofs[p.ResourceType]}
+			id, err := projection.CapabilityObjectID(cap.ResourceType, cap.ResourceID, cap.Action)
+			if err != nil {
+				return nil, err
+			}
+			if !seen[id] {
+				caps = append(caps, cap)
+				seen[id] = true
+			}
+			used[p.ResourceType] = true
 		}
 	}
-	if len(used)!=len(scopes)||len(caps)==0||len(caps)>999{return nil,ErrInvalidProfile}
-	if err:=projection.ValidateProfileCapabilities(a,caps);err!=nil{return nil,err}
-	return caps,nil
+	if len(used) != len(scopes) || len(caps) == 0 || len(caps) > 999 {
+		return nil, ErrInvalidProfile
+	}
+	if err := projection.ValidateProfileCapabilities(a, caps); err != nil {
+		return nil, err
+	}
+	return caps, nil
 }
