@@ -12,18 +12,20 @@ import (
 	"github.com/m8-team/platform/internal/access/app/policyjournal"
 	"github.com/m8-team/platform/internal/access/app/ports"
 	"github.com/m8-team/platform/internal/access/app/projection"
+	rmcatalog "github.com/m8-team/platform/internal/resourcemanager/adapter/resourcecatalog"
+	rmquery "github.com/m8-team/platform/internal/resourcemanager/app/query"
 )
 
 // NewProductionPDP assembles the concrete RM YDB catalog reader, certified YDB
 // projection store and official SpiceDB Go SDK. It does not implement caller
 // identity verification; authentication middleware supplies the resolver.
 func NewProductionPDP(ctx context.Context, principal authzen.PrincipalResolver,
-	resourceCatalog rm.Catalog, checkpoint *ydbcheckpoint.Store,
+	resourceCatalog rmcatalog.Catalog, checkpoint *ydbcheckpoint.Store,
 	spicedbClient *spicedb.Client, revision string) (http.Handler, error) {
 	if checkpoint == nil || spicedbClient == nil {
 		return nil, authzen.ErrInvalidConfiguration
 	}
-	source, err := rm.New(resourceCatalog)
+	source, err := newResourceSource(resourceCatalog)
 	if err != nil {
 		return nil, err
 	}
@@ -34,13 +36,13 @@ func NewProductionPDP(ctx context.Context, principal authzen.PrincipalResolver,
 // YDB checkpoint and SpiceDB graph projection. The caller wires the trusted
 // event source and starts worker.Run; no event offset is ACKed before YDB
 // confirms both checkpoint and RM watermark progress.
-func NewResourceProjectionWorker(resourceCatalog rm.Catalog,
+func NewResourceProjectionWorker(resourceCatalog rmcatalog.Catalog,
 	checkpoint *ydbcheckpoint.Store, spicedbClient *spicedb.Client,
 	permissions ports.PermissionCatalog, now func() time.Time) (*projection.ResourceWorker, error) {
 	if checkpoint == nil || spicedbClient == nil {
 		return nil, projection.ErrInvalidProjection
 	}
-	source, err := rm.New(resourceCatalog)
+	source, err := newResourceSource(resourceCatalog)
 	if err != nil {
 		return nil, err
 	}
@@ -70,4 +72,18 @@ func NewAccessPolicyWorker(source projection.SnapshotReader,
 		return nil, err
 	}
 	return policyjournal.NewWorker(worker, checkpoint)
+}
+
+// newResourceSource is the composition boundary. Access never reads the
+// Resource Manager's storage types or bypasses its tenant-aware CQRS query.
+func newResourceSource(catalog rmcatalog.Catalog) (*rm.Source, error) {
+	repository, err := rmcatalog.New(catalog)
+	if err != nil {
+		return nil, err
+	}
+	query, err := rmquery.NewAuthoritativeResource(repository)
+	if err != nil {
+		return nil, err
+	}
+	return rm.New(query)
 }
