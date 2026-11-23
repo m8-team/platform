@@ -1,0 +1,32 @@
+name: Temporary policy feed formatter
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/access-policy-feed-fmt.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Export formatted source
+        run: |
+          python3 - <<'PY'
+          import base64, subprocess
+          from pathlib import Path
+          for path in ["internal/access/adapters/eventfeed/policy.go","internal/access/adapters/eventfeed/policy_test.go"]:
+              source=Path(path).read_bytes()
+              formatted=subprocess.run(["gofmt"],input=source,capture_output=True,check=True).stdout
+              if source==formatted:continue
+              b64=base64.b64encode(formatted).decode()
+              parts=[b64[i:i+3000] for i in range(0,len(b64),3000)]
+              for i,part in enumerate(parts):
+                  print(f"M8FMT|{path}|{i}|{len(parts)}|{part}")
+          PY
