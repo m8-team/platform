@@ -42,17 +42,17 @@ service AccessCatalogService {
   }
 
   // Reads the resource definitions from a specific published release.
-  rpc ListCatalogResourceTypes(GetModuleManifestRequest) returns (ListCatalogResourceTypesResponse) {
+  rpc ListCatalogResourceTypes(ListCatalogResourceTypesRequest) returns (ListCatalogResourceTypesResponse) {
     option (google.api.http) = {get: "/access/v1/catalog/modules/{module_id}/manifests/{version}/resource-types"};
   }
 
   // Reads the permission definitions from a specific published release.
-  rpc ListCatalogPermissions(GetModuleManifestRequest) returns (ListCatalogPermissionsResponse) {
+  rpc ListCatalogPermissions(ListCatalogPermissionsRequest) returns (ListCatalogPermissionsResponse) {
     option (google.api.http) = {get: "/access/v1/catalog/modules/{module_id}/manifests/{version}/permissions"};
   }
 
   // Reads the role templates from a specific published release.
-  rpc ListCatalogRoleTemplates(GetModuleManifestRequest) returns (ListCatalogRoleTemplatesResponse) {
+  rpc ListCatalogRoleTemplates(ListCatalogRoleTemplatesRequest) returns (ListCatalogRoleTemplatesResponse) {
     option (google.api.http) = {get: "/access/v1/catalog/modules/{module_id}/manifests/{version}/role-templates"};
   }
 }
@@ -100,6 +100,22 @@ message ListModuleManifestsRequest {
 message ListModuleManifestsResponse {
   repeated CatalogManifestRecord manifests = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   string next_page_token = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+
+// Requests are deliberately RPC-specific to satisfy Buf naming and enable
+// independent evolution without sharing wire contracts across methods.
+message ListCatalogResourceTypesRequest {
+  string module_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListCatalogPermissionsRequest {
+  string module_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
+}
+message ListCatalogRoleTemplatesRequest {
+  string module_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string version = 2 [(google.api.field_behavior) = REQUIRED];
 }
 
 message ListCatalogResourceTypesResponse {
