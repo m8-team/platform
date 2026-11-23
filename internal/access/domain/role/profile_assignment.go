@@ -18,6 +18,7 @@ type ProfileAssignmentStatus string
 
 const (
 	ProfileAssignmentPending ProfileAssignmentStatus = "PENDING_PROJECTION"
+	ProfileAssignmentActive  ProfileAssignmentStatus = "ACTIVE"
 	ProfileAssignmentRevoked ProfileAssignmentStatus = "REVOKED"
 )
 
@@ -88,6 +89,10 @@ func (a ProfileAssignment) Validate() error {
 		if !a.revokedAt.IsZero() {
 			return ErrInvalidProfileAssignment
 		}
+	case ProfileAssignmentActive:
+		if !a.revokedAt.IsZero() || a.revision.Int64() < 2 {
+			return ErrInvalidProfileAssignment
+		}
 	case ProfileAssignmentRevoked:
 		if a.revokedAt.IsZero() || a.revision.Int64() < 2 {
 			return ErrInvalidProfileAssignment
@@ -112,6 +117,36 @@ func (a ProfileAssignment) Revoke(expected int64, at time.Time) (ProfileAssignme
 	a.revision = next
 	a.status = ProfileAssignmentRevoked
 	a.revokedAt = at.UTC()
+	return a, a.Validate()
+}
+
+// Activate changes the authoritative aggregate state only. The caller MUST
+// perform this transition in the SAME serializable YDB transaction as a
+// complete PolicyJournal mutation + projection job + durable outbox event.
+// An ACTIVE row without the journal is a security incident.
+func (a ProfileAssignment) Activate(expected int64) (ProfileAssignment, error) {
+	if a.status != ProfileAssignmentPending {
+		return ProfileAssignment{}, ErrAssignmentNotActive
+	}
+	next, err := a.revision.Next(expected)
+	if err != nil {
+		return ProfileAssignment{}, err
+	}
+	a.revision, a.status = next, ProfileAssignmentActive
+	return a, a.Validate()
+}
+
+// RevokeActive MUST be called with a transactionally committed PolicyJournal
+// revoke mutation, unlike Revoke which handles non-effective pending records.
+func (a ProfileAssignment) RevokeActive(expected int64, at time.Time) (ProfileAssignment, error) {
+	if a.status != ProfileAssignmentActive || at.IsZero() {
+		return ProfileAssignment{}, ErrAssignmentNotActive
+	}
+	next, err := a.revision.Next(expected)
+	if err != nil {
+		return ProfileAssignment{}, err
+	}
+	a.revision, a.status, a.revokedAt = next, ProfileAssignmentRevoked, at.UTC()
 	return a, a.Validate()
 }
 

@@ -84,3 +84,16 @@ definition projection_guard {
 definition rm_projection {
   relation observed: projection_epoch
 }
+
+
+// Universal profile entitlements are restricted to independently revocable
+// assignment nodes. Capability IDs are stable SHA-256 hashes of exact
+// (resource-type, instance ID, action) tuples, partitioned by tenant.
+// No organization, subtree or tenant wildcard scopes are implicitly granted.
+definition access_profile_assignment {
+  relation holder: user | service_account
+}
+definition access_capability {
+  relation grantee: access_profile_assignment#holder
+  permission use = grantee
+}

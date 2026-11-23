@@ -24,6 +24,7 @@ type Kind string
 const (
 	KindRoleBinding       Kind = "ROLE_BINDING"
 	KindGrant             Kind = "ACCESS_GRANT"
+	KindProfileAssignment Kind = "PROFILE_ASSIGNMENT"
 	KindRMOrganization    Kind = "RM_ORGANIZATION"
 	KindRMWorkspace       Kind = "RM_WORKSPACE"
 	KindRMEnvironment     Kind = "RM_ENVIRONMENT"
@@ -44,7 +45,7 @@ func (k Key) Validate() error {
 	if err := k.TenantID.Validate(); err != nil {
 		return err
 	}
-	if k.Kind != KindRoleBinding && k.Kind != KindGrant && !IsResourceKind(k.Kind) {
+	if k.Kind != KindRoleBinding && k.Kind != KindGrant && k.Kind != KindProfileAssignment && !IsResourceKind(k.Kind) {
 		return ErrInvalidEvent
 	}
 	if !canonicalAggregateID.MatchString(k.AggregateID) {
@@ -78,6 +79,7 @@ type Snapshot struct {
 	Revision    int64
 	RoleBinding *RoleBindingState
 	Grant       *domain.AccessGrant
+	Profile     *ProfileAssignmentState
 	Resource    *ResourceState
 }
 
@@ -89,7 +91,7 @@ func (s Snapshot) Validate() error {
 		return ErrInvalidEvent
 	}
 	if s.Key.Kind == KindRoleBinding {
-		if s.Grant != nil || s.Resource != nil {
+		if s.Grant != nil || s.Profile != nil || s.Resource != nil {
 			return ErrInvalidEvent
 		}
 		if s.RoleBinding != nil {
@@ -101,7 +103,7 @@ func (s Snapshot) Validate() error {
 			}
 		}
 	} else if s.Key.Kind == KindGrant {
-		if s.RoleBinding != nil || s.Resource != nil {
+		if s.RoleBinding != nil || s.Profile != nil || s.Resource != nil {
 			return ErrInvalidEvent
 		}
 		if s.Grant != nil {
@@ -112,8 +114,20 @@ func (s Snapshot) Validate() error {
 				return ErrInvalidEvent
 			}
 		}
+	} else if s.Key.Kind == KindProfileAssignment {
+		if s.RoleBinding != nil || s.Grant != nil || s.Resource != nil || s.Profile == nil {
+			return ErrInvalidEvent
+		}
+		if err := s.Profile.Validate(); err != nil {
+			return err
+		}
+		if string(s.Profile.Assignment.TenantID()) != string(s.Key.TenantID) ||
+			s.Profile.Assignment.ID() != s.Key.AggregateID ||
+			s.Profile.Assignment.Revision() != s.Revision {
+			return ErrInvalidEvent
+		}
 	} else {
-		if s.RoleBinding != nil || s.Grant != nil || s.Resource == nil {
+		if s.RoleBinding != nil || s.Grant != nil || s.Profile != nil || s.Resource == nil {
 			return ErrInvalidEvent
 		}
 		if err := s.Resource.Validate(s.Key, s.Revision); err != nil {
@@ -246,6 +260,8 @@ func (w *Worker) runTransition(ctx context.Context, key Key, eventRevision int64
 		desired, err = w.projector.bindingRelationships(ctx, snapshot.RoleBinding)
 	case KindGrant:
 		desired, err = w.projector.grantRelationships(ctx, snapshot.Grant, true)
+	case KindProfileAssignment:
+		desired, err = w.projector.profileAssignmentRelationships(ctx, snapshot.Profile)
 	case KindRMOrganization, KindRMWorkspace, KindRMEnvironment, KindRMWorkloadService:
 		desired, err = resourceRelationships(key, snapshot.Resource)
 	default:

@@ -24,7 +24,7 @@ type Job struct {
 }
 
 func isPolicyTarget(kind projection.Kind) bool {
-	return kind == projection.KindGrant || kind == projection.KindRoleBinding
+	return kind == projection.KindGrant || kind == projection.KindRoleBinding || kind == projection.KindProfileAssignment
 }
 
 // Mutation MUST be written within the SAME serializable YDB transaction as
