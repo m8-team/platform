@@ -1,16 +1,19 @@
-name: Access catalog contract generation
+name: Access catalog contract and generated-code verification
 
 on:
   pull_request:
     paths:
       - "proto/m8/platform/access/v1/catalog*.proto"
+      - "internal/proto/m8/platform/access/v1/catalog*.go"
+      - "internal/proto/m8/platform/access/v1/accessconnect/catalog_service.connect.go"
+      - "docs/openapi/openapi.yaml"
       - ".github/workflows/access-catalog-codegen.yml"
 
 permissions:
   contents: read
 
 jobs:
-  verify-and-generate:
+  verify-catalog-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -24,41 +27,22 @@ jobs:
           mkdir -p .bin
           curl -fsSL --remove-on-error "https://github.com/bufbuild/buf/releases/download/v1.75.0/buf-Linux-x86_64" -o .bin/buf
           chmod +x .bin/buf
-          .bin/buf --version
-      - name: Lint and verify catalog contract
+      - name: Lint and verify compatibility
+        shell: bash
         run: |
+          set -euo pipefail
           git fetch origin main:refs/heads/main
           .bin/buf lint --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
           .bin/buf breaking --against '.git#branch=main'
-      - name: Generate with repository plugin configuration
-        run: |
-          .bin/buf generate --path proto/m8/platform/access/v1/catalog.proto --path proto/m8/platform/access/v1/catalog_service.proto
-      - name: Generate complete OpenAPI and export for review
+      - name: Verify generated Go gRPC Gateway Connect and OpenAPI
         shell: bash
         run: |
+          set -euo pipefail
           .bin/buf generate
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
-          p = Path("docs/openapi/openapi.yaml")
-          encoded = base64.b64encode(p.read_bytes()).decode("ascii")
-          chunks = [encoded[i:i+3000] for i in range(0,len(encoded),3000)]
-          for index, chunk in enumerate(chunks):
-              print(f"M8SPEC|{index}|{len(chunks)}|{chunk}")
-          print(f"M8SPEC_BYTES={p.stat().st_size}")
-          PY
-      - name: Export new generated files for review
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import base64
-          import pathlib
-          prefix = pathlib.Path("internal/proto/m8/platform/access/v1")
-          files = [p for p in prefix.rglob("*") if p.is_file() and ("catalog" in p.name)]
-          for p in sorted(files):
-              payload = base64.b64encode(p.read_bytes()).decode()
-              chunks = [payload[i:i+3000] for i in range(0,len(payload),3000)]
-              for idx, chunk in enumerate(chunks):
-                  print(f"M8GEN|{p.as_posix()}|{idx}|{len(chunks)}|{chunk}")
-          print(f"GENERATED_FILES={len(files)}")
-          PY
+          git diff --exit-code -- \
+            internal/proto/m8/platform/access/v1/catalog.pb.go \
+            internal/proto/m8/platform/access/v1/catalog_service.pb.go \
+            internal/proto/m8/platform/access/v1/catalog_service.pb.gw.go \
+            internal/proto/m8/platform/access/v1/catalog_service_grpc.pb.go \
+            internal/proto/m8/platform/access/v1/accessconnect/catalog_service.connect.go \
+            docs/openapi/openapi.yaml

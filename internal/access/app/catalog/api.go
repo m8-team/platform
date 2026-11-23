@@ -15,11 +15,11 @@ import (
 
 var (
 	ErrCatalogUnauthenticated = errors.New("authenticated catalog principal required")
-	ErrCatalogForbidden = errors.New("catalog namespace access denied")
-	ErrCatalogArgument = errors.New("invalid catalog API argument")
-	ErrCatalogNotFound = errors.New("catalog release not found")
-	ErrCatalogConflict = errors.New("catalog release or idempotency conflict")
-	ErrCatalogStoreInvalid = errors.New("catalog repository returned an invalid or cross-namespace record")
+	ErrCatalogForbidden       = errors.New("catalog namespace access denied")
+	ErrCatalogArgument        = errors.New("invalid catalog API argument")
+	ErrCatalogNotFound        = errors.New("catalog release not found")
+	ErrCatalogConflict        = errors.New("catalog release or idempotency conflict")
+	ErrCatalogStoreInvalid    = errors.New("catalog repository returned an invalid or cross-namespace record")
 )
 
 // PublishedRecord is a committed immutable manifest and a catalog revision.
@@ -39,11 +39,11 @@ func (r PublishedRecord) Validate() error {
 // PublishInput is a definition-only command. Publisher identity MUST be
 // derived from authenticated service context, never a request field.
 type PublishInput struct {
-	ModuleID string
-	Version string
-	Resources []resource.TypeDefinition
+	ModuleID    string
+	Version     string
+	Resources   []resource.TypeDefinition
 	Permissions []permission.Definition
-	Roles []role.Template
+	Roles       []role.Template
 }
 
 // IdentityResolver authenticates the caller via verified workload or user identity.
@@ -70,16 +70,16 @@ type Registry interface {
 }
 
 type API struct {
-	identity IdentityResolver
+	identity   IdentityResolver
 	authorizer CatalogAuthorizer
-	registry Registry
+	registry   Registry
 }
 
 func NewAPI(identity IdentityResolver, authorizer CatalogAuthorizer, registry Registry) (*API, error) {
 	if identity == nil || authorizer == nil || registry == nil {
 		return nil, ErrCatalogUnavailable
 	}
-	return &API{identity:identity, authorizer:authorizer, registry:registry}, nil
+	return &API{identity: identity, authorizer: authorizer, registry: registry}, nil
 }
 
 func (a *API) principal(ctx context.Context, moduleID string, publish bool) (shared.Subject, error) {
@@ -100,12 +100,12 @@ func (a *API) principal(ctx context.Context, moduleID string, publish bool) (sha
 		if subject.Type() != "service_account" {
 			return shared.Subject{}, ErrCatalogForbidden
 		}
-		allowed, err := a.authorizer.CanPublishModule(ctx,subject,moduleID)
+		allowed, err := a.authorizer.CanPublishModule(ctx, subject, moduleID)
 		if err != nil || !allowed {
 			return shared.Subject{}, ErrCatalogForbidden
 		}
 	} else {
-		allowed,err := a.authorizer.CanReadModule(ctx,subject,moduleID)
+		allowed, err := a.authorizer.CanReadModule(ctx, subject, moduleID)
 		if err != nil || !allowed {
 			return shared.Subject{}, ErrCatalogForbidden
 		}
@@ -118,45 +118,67 @@ func (a *API) Publish(ctx context.Context, input PublishInput, expectedRevision 
 		idempotencyKey == "" || len(idempotencyKey) > 256 {
 		return PublishedRecord{}, ErrCatalogArgument
 	}
-	subject,err:=a.principal(ctx,input.ModuleID,true)
-	if err != nil {return PublishedRecord{},err}
-	manifest,err:=module.NewManifest(module.ManifestInput{
-		ModuleID:input.ModuleID,Version:input.Version,Publisher:subject,
-		Resources:input.Resources,Permissions:input.Permissions,Roles:input.Roles,
+	subject, err := a.principal(ctx, input.ModuleID, true)
+	if err != nil {
+		return PublishedRecord{}, err
+	}
+	manifest, err := module.NewManifest(module.ManifestInput{
+		ModuleID: input.ModuleID, Version: input.Version, Publisher: subject,
+		Resources: input.Resources, Permissions: input.Permissions, Roles: input.Roles,
 	})
-	if err != nil {return PublishedRecord{},ErrCatalogArgument}
-	record,err:=a.registry.Publish(ctx,manifest,expectedRevision,idempotencyKey)
-	if err != nil {return PublishedRecord{},err}
-	if record.Validate()!=nil || record.Manifest.ModuleID()!=manifest.ModuleID() ||
-		record.Manifest.Version()!=manifest.Version() || record.Manifest.Publisher()!=subject {
+	if err != nil {
+		return PublishedRecord{}, ErrCatalogArgument
+	}
+	record, err := a.registry.Publish(ctx, manifest, expectedRevision, idempotencyKey)
+	if err != nil {
+		return PublishedRecord{}, err
+	}
+	if record.Validate() != nil || record.Manifest.ModuleID() != manifest.ModuleID() ||
+		record.Manifest.Version() != manifest.Version() || record.Manifest.Publisher() != subject {
 		return PublishedRecord{}, ErrCatalogStoreInvalid
 	}
-	return record,nil
+	return record, nil
 }
 
-func (a *API) Get(ctx context.Context,moduleID,version string) (PublishedRecord,error) {
-	if !shared.ValidReleaseVersion(version) {return PublishedRecord{},ErrCatalogArgument}
-	if _,err:=a.principal(ctx,moduleID,false);err!=nil{return PublishedRecord{},err}
-	record,err:=a.registry.Get(ctx,moduleID,version)
-	if err!=nil{return PublishedRecord{},err}
-	if record.Validate()!=nil||record.Manifest.ModuleID()!=moduleID||record.Manifest.Version()!=version{
-		return PublishedRecord{},ErrCatalogStoreInvalid
+func (a *API) Get(ctx context.Context, moduleID, version string) (PublishedRecord, error) {
+	if !shared.ValidReleaseVersion(version) {
+		return PublishedRecord{}, ErrCatalogArgument
 	}
-	return record,nil
+	if _, err := a.principal(ctx, moduleID, false); err != nil {
+		return PublishedRecord{}, err
+	}
+	record, err := a.registry.Get(ctx, moduleID, version)
+	if err != nil {
+		return PublishedRecord{}, err
+	}
+	if record.Validate() != nil || record.Manifest.ModuleID() != moduleID || record.Manifest.Version() != version {
+		return PublishedRecord{}, ErrCatalogStoreInvalid
+	}
+	return record, nil
 }
 
-func (a *API) List(ctx context.Context,moduleID string,pageSize int,pageToken string)([]PublishedRecord,string,error){
-	if pageSize<0||pageSize>100||len(pageToken)>2048||strings.TrimSpace(pageToken)!=pageToken{
-		return nil,"",ErrCatalogArgument
+func (a *API) List(ctx context.Context, moduleID string, pageSize int, pageToken string) ([]PublishedRecord, string, error) {
+	if pageSize < 0 || pageSize > 100 || len(pageToken) > 2048 || strings.TrimSpace(pageToken) != pageToken {
+		return nil, "", ErrCatalogArgument
 	}
-	principal,err:=a.principal(ctx,moduleID,false)
-	if err!=nil{return nil,"",err}
-	if pageSize==0{pageSize=20}
-	records,next,err:=a.registry.List(ctx,principal,moduleID,pageSize,pageToken)
-	if err!=nil{return nil,"",err}
-	if len(records)>pageSize||len(next)>2048{return nil,"",ErrCatalogStoreInvalid}
-	for _,record:=range records{
-		if record.Validate()!=nil||record.Manifest.ModuleID()!=moduleID{return nil,"",ErrCatalogStoreInvalid}
+	principal, err := a.principal(ctx, moduleID, false)
+	if err != nil {
+		return nil, "", err
 	}
-	return records,next,nil
+	if pageSize == 0 {
+		pageSize = 20
+	}
+	records, next, err := a.registry.List(ctx, principal, moduleID, pageSize, pageToken)
+	if err != nil {
+		return nil, "", err
+	}
+	if len(records) > pageSize || len(next) > 2048 {
+		return nil, "", ErrCatalogStoreInvalid
+	}
+	for _, record := range records {
+		if record.Validate() != nil || record.Manifest.ModuleID() != moduleID {
+			return nil, "", ErrCatalogStoreInvalid
+		}
+	}
+	return records, next, nil
 }
