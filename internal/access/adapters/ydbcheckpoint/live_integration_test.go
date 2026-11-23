@@ -17,7 +17,6 @@ import (
     "github.com/m8-team/platform/internal/access/app/ports"
     "github.com/m8-team/platform/internal/access/domain"
     ydbsdk "github.com/ydb-platform/ydb-go-sdk/v3"
-    _ "github.com/ydb-platform/ydb-go-sdk/v3"
 )
 
 func liveYDB(t *testing.T)(*sql.DB,string) {
@@ -28,6 +27,7 @@ func liveYDB(t *testing.T)(*sql.DB,string) {
     if !strings.HasPrefix(prefix,"/local/m8_access_ci") || dsn=="" || !strings.Contains(dsn,"localhost:2136/local"){
         t.Fatal("integration tests only accept a disposable local YDB instance and /local/m8_access_ci prefix")
     }
+    prefix=prefix+"_"+strings.ToLower(t.Name())
     ctx,cancel:=context.WithTimeout(context.Background(),120*time.Second)
     t.Cleanup(cancel)
     db,err:=sql.Open("ydb",dsn)
@@ -41,7 +41,7 @@ func liveYDB(t *testing.T)(*sql.DB,string) {
     sdk,err:=ydbsdk.Open(ctx,dsn)
     if err!=nil{t.Fatal(err)}
     defer sdk.Close(ctx)
-    for _,path:=range []string{prefix,prefix+"/m8-access"} {
+    for _,path:=range []string{os.Getenv("M8_ACCESS_TEST_YDB_PREFIX"),prefix,prefix+"/m8-access"} {
         if err:=sdk.Scheme().MakeDirectory(ctx,path);err!=nil {
             if _,checkErr:=sdk.Scheme().ListDirectory(ctx,path);checkErr!=nil {t.Fatalf("create test dir %s: %v",path,err)}
         }
