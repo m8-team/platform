@@ -49,7 +49,9 @@ func (c *Client) WriteRelationships(ctx context.Context, tenant domain.TenantID,
 		if fence, guarded := ports.GraphFenceFromContext(ctx); guarded {
 			r := change.Relationship
 			kind, ownerID, err := fence.OwnedObject()
-			if err != nil {return ports.RelationshipWriteResult{}, err}
+			if err != nil {
+				return ports.RelationshipWriteResult{}, err
+			}
 			owns := (r.Resource().Type() == kind && r.Resource().ID() == ownerID) || (kind != "rm_projection" && r.Subject().Type() == kind && r.Subject().ID() == ownerID)
 			if !owns {
 				return ports.RelationshipWriteResult{}, ports.ErrInvalidGraphFence

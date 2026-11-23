@@ -40,7 +40,7 @@ func (c *Client) ReadProjectionEdges(ctx context.Context, f ports.GraphFence) ([
 	if kind != "rm_projection" {
 		for _, resourceType := range []string{"organization", "workspace", "environment", "workload_service"} {
 			filters = append(filters, &pb.RelationshipFilter{
-				ResourceType: resourceType,
+				ResourceType:          resourceType,
 				OptionalSubjectFilter: &pb.SubjectFilter{SubjectType: kind, OptionalSubjectId: obj.ObjectId},
 			})
 		}

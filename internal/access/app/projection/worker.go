@@ -24,11 +24,11 @@ var (
 type Kind string
 
 const (
-	KindRoleBinding Kind = "ROLE_BINDING"
-	KindGrant       Kind = "ACCESS_GRANT"
-	KindRMOrganization Kind = "RM_ORGANIZATION"
-	KindRMWorkspace Kind = "RM_WORKSPACE"
-	KindRMEnvironment Kind = "RM_ENVIRONMENT"
+	KindRoleBinding       Kind = "ROLE_BINDING"
+	KindGrant             Kind = "ACCESS_GRANT"
+	KindRMOrganization    Kind = "RM_ORGANIZATION"
+	KindRMWorkspace       Kind = "RM_WORKSPACE"
+	KindRMEnvironment     Kind = "RM_ENVIRONMENT"
 	KindRMWorkloadService Kind = "RM_WORKLOAD_SERVICE"
 )
 

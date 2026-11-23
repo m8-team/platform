@@ -60,15 +60,24 @@ type GraphProjectionReader interface {
 
 // OwnedObject identifies the only graph node a fenced writer may mutate.
 // RM marker ownership is separate from Access grants and role bindings.
-func (f GraphFence) OwnedObject() (string,string,error) {
-    if err:=f.Validate();err!=nil{return "","",err}
-    switch f.Kind {
-    case "ROLE_BINDING":return "access_binding",f.AggregateID,nil
-    case "ACCESS_GRANT":return "access_grant",f.AggregateID,nil
-    case "RM_ORGANIZATION":return "rm_projection","organization:"+f.AggregateID,nil
-    case "RM_WORKSPACE":return "rm_projection","workspace:"+f.AggregateID,nil
-    case "RM_ENVIRONMENT":return "rm_projection","environment:"+f.AggregateID,nil
-    case "RM_WORKLOAD_SERVICE":return "rm_projection","workload_service:"+f.AggregateID,nil
-    default:return "","",ErrInvalidGraphFence
-    }
+func (f GraphFence) OwnedObject() (string, string, error) {
+	if err := f.Validate(); err != nil {
+		return "", "", err
+	}
+	switch f.Kind {
+	case "ROLE_BINDING":
+		return "access_binding", f.AggregateID, nil
+	case "ACCESS_GRANT":
+		return "access_grant", f.AggregateID, nil
+	case "RM_ORGANIZATION":
+		return "rm_projection", "organization:" + f.AggregateID, nil
+	case "RM_WORKSPACE":
+		return "rm_projection", "workspace:" + f.AggregateID, nil
+	case "RM_ENVIRONMENT":
+		return "rm_projection", "environment:" + f.AggregateID, nil
+	case "RM_WORKLOAD_SERVICE":
+		return "rm_projection", "workload_service:" + f.AggregateID, nil
+	default:
+		return "", "", ErrInvalidGraphFence
+	}
 }
