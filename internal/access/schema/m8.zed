@@ -79,3 +79,8 @@ definition projection_epoch {}
 definition projection_guard {
   relation owner: projection_epoch
 }
+
+// Resource Manager revision proof is deliberately NOT a permission edge.
+definition rm_projection {
+  relation observed: projection_epoch
+}

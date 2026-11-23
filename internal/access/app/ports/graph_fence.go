@@ -23,7 +23,7 @@ func (f GraphFence) Validate() error {
 	if err := f.TenantID.Validate(); err != nil {
 		return err
 	}
-	if (f.Kind != "ROLE_BINDING" && f.Kind != "ACCESS_GRANT") || strings.TrimSpace(f.AggregateID) == "" || f.Epoch == 0 {
+	if (f.Kind != "ROLE_BINDING" && f.Kind != "ACCESS_GRANT" && f.Kind != "RM_ORGANIZATION" && f.Kind != "RM_WORKSPACE" && f.Kind != "RM_ENVIRONMENT" && f.Kind != "RM_WORKLOAD_SERVICE") || strings.TrimSpace(f.AggregateID) == "" || f.Epoch == 0 {
 		return ErrInvalidGraphFence
 	}
 	return nil
