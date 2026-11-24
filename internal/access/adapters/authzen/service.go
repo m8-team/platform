@@ -5,11 +5,13 @@ package authzen
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"buf.build/go/protovalidate"
 	"github.com/m8-team/platform/internal/access/adapters/internal/authzenbatch"
 	"github.com/m8-team/platform/internal/access/app/consistency"
 	"github.com/m8-team/platform/internal/access/domain"
+	"github.com/m8-team/platform/internal/access/domain/shared"
 	accesspb "github.com/m8-team/platform/internal/proto/m8/platform/access/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,9 +40,10 @@ type PrincipalResolver interface {
 // barrier, or unregistered action cannot silently become an allow.
 type Service struct {
 	accesspb.UnimplementedAccessServiceServer
-	resolver PrincipalResolver
-	barrier  *consistency.PolicyBarrier
-	model    domain.ModelRevision
+	resolver  PrincipalResolver
+	barrier   *consistency.PolicyBarrier
+	universal *consistency.RestrictedUniversalBarrier
+	model     domain.ModelRevision
 }
 
 func New(resolver PrincipalResolver, barrier *consistency.PolicyBarrier, modelRevision string) (*Service, error) {
@@ -53,6 +56,24 @@ func New(resolver PrincipalResolver, barrier *consistency.PolicyBarrier, modelRe
 	}
 	return &Service{resolver: resolver, barrier: barrier, model: revision}, nil
 }
+
+// NewWithUniversal opts the existing AuthZEN handler into module-owned
+// resource kinds only. Legacy resource kinds keep the existing PDP barrier.
+// The caller must supply a restricted, fail-closed universal barrier, which
+// requires authoritative tenant policy snapshots and trusted context.
+func NewWithUniversal(resolver PrincipalResolver, legacy *consistency.PolicyBarrier,
+	universal *consistency.RestrictedUniversalBarrier, modelRevision string) (*Service, error) {
+	if universal == nil {
+		return nil, ErrInvalidConfiguration
+	}
+	s, err := New(resolver, legacy, modelRevision)
+	if err != nil {
+		return nil, err
+	}
+	s.universal = universal
+	return s, nil
+}
+
 func (s *Service) EvaluateAccess(ctx context.Context, req *accesspb.EvaluateAccessRequest) (*accesspb.EvaluateAccessResponse, error) {
 	if s == nil || s.resolver == nil || s.barrier == nil {
 		return nil, status.Error(codes.Unavailable, "access policy decision point unavailable")
@@ -72,6 +93,25 @@ func (s *Service) EvaluateAccess(ctx context.Context, req *accesspb.EvaluateAcce
 	}
 	if req.Subject.Type != principal.Subject.Type() || req.Subject.Id != principal.Subject.ID() {
 		return nil, status.Error(codes.PermissionDenied, "delegation is not authorized")
+	}
+	// Namespaced resource kinds belong to the Universal Catalog. Never fall
+	// back to the legacy policy engine if the universal adapter is absent:
+	// fallback could bypass tenant module installation and policy restrictions.
+	if strings.Contains(req.Resource.Type, ".") {
+		if s.universal == nil {
+			return nil, status.Error(codes.Unavailable, "universal authorization unavailable")
+		}
+		if !shared.ValidQualifiedName(req.Resource.Type) ||
+			!shared.ValidQualifiedName(req.Action.Name) ||
+			req.Resource.Id == "" || len(req.Resource.Id) > 256 {
+			return nil, status.Error(codes.InvalidArgument, "invalid universal resource/action")
+		}
+		allowed, err := s.universal.Check(ctx, principal.TenantID, principal.Subject,
+			req.Resource.Type, req.Resource.Id, req.Action.Name)
+		if err != nil {
+			return nil, status.Error(codes.Unavailable, "authorization consistency unavailable")
+		}
+		return &accesspb.EvaluateAccessResponse{Decision: allowed}, nil
 	}
 	permission, err := domain.NewPermission(req.Action.Name)
 	if err != nil {

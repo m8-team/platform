@@ -124,6 +124,13 @@ func (s *Store) writePolicyEvent(ctx context.Context, tx *sql.Tx, a role.Profile
 		sql.Named("tenant", string(a.TenantID())), sql.Named("id", a.ID()), sql.Named("revision", a.Revision()),
 		sql.Named("policy", policyRev), sql.Named("event", eventID), sql.Named("payload", payload),
 		sql.Named("published", false), sql.Named("created", now))
+	if err != nil {
+		return err
+	}
+	_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $policy AS Uint64;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $published AS Bool;\nUPSERT INTO `m8-access/profile_policy_dispatch` (tenant_id,policy_revision,assignment_id,projection_revision,event_id,published) VALUES ($tenant,$policy,$id,$revision,$event,$published);"),
+		sql.Named("tenant", string(a.TenantID())), sql.Named("policy", policyRev),
+		sql.Named("id", a.ID()), sql.Named("revision", a.Revision()),
+		sql.Named("event", eventID), sql.Named("published", false))
 	return err
 }
 

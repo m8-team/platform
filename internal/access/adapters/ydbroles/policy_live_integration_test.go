@@ -44,7 +44,7 @@ func (liveUniversalCatalog) HasCatalogPermission(_ context.Context, _ domain.Ten
 
 func applyPolicySchema(t *testing.T, s *Store, ctx context.Context) {
 	t.Helper()
-	for _, filename := range []string{"../ydbcheckpoint/schema.sql", "../ydbcheckpoint/schema_policy_v2.sql"} {
+	for _, filename := range []string{"../ydbcheckpoint/schema.sql", "../ydbcheckpoint/schema_policy_v2.sql", "schema_policy_delivery_v1.sql"} {
 		data, err := os.ReadFile(filename)
 		if err != nil {
 			t.Fatal(err)
@@ -197,11 +197,28 @@ func TestLiveProfilePolicyJournalGraphActivationAndRevocation(t *testing.T) {
 	if err != nil || len(pending) != 1 || pending[0].PolicyRevision != 2 {
 		t.Fatalf("activation outbox: %+v %v", pending, err)
 	}
-	if err := s.MarkPolicyPublished(ctx, pending[0]); err != nil {
+	publisher := &testPolicyBroker{fail: true}
+	dispatcher, err := NewPolicyDispatcher(s, publisher)
+	if err != nil {
 		t.Fatal(err)
 	}
+	if delivered, err := dispatcher.DispatchTenant(ctx, a.TenantID(), 10); delivered != 0 || err == nil {
+		t.Fatal("failed broker send must not ACK", delivered, err)
+	}
+	remaining, err := s.PendingTenantPolicy(ctx, a.TenantID(), 10)
+	if err != nil || len(remaining) != 1 || remaining[0].EventID != pending[0].EventID {
+		t.Fatalf("lost outbox after broker failure: %+v %v", remaining, err)
+	}
+	publisher.fail = false
+	if delivered, err := dispatcher.DispatchTenant(ctx, a.TenantID(), 10); delivered != 1 || err != nil || publisher.sent != 1 {
+		t.Fatal("broker ACK did not atomically mark delivery", delivered, err)
+	}
 	if err := s.MarkPolicyPublished(ctx, pending[0]); err != nil {
-		t.Fatal(err)
+		t.Fatal("idempotent ACK failed", err)
+	}
+	remaining, err = s.PendingTenantPolicy(ctx, a.TenantID(), 10)
+	if err != nil || len(remaining) != 0 {
+		t.Fatalf("ACKed event still pending: %+v %v", remaining, err)
 	}
 
 	revoked, err := s.RevokeActiveWithPolicy(ctx, checkpoints, a.TenantID(), a.ID(), 2, 2, "revoke-v1")
@@ -219,4 +236,20 @@ func TestLiveProfilePolicyJournalGraphActivationAndRevocation(t *testing.T) {
 	if err != nil || cp.Revision != 3 || len(cp.Edges) != 0 {
 		t.Fatalf("revocation didn't delete graph state: %+v %v", cp, err)
 	}
+}
+
+type testPolicyBroker struct {
+	fail bool
+	sent int
+}
+
+func (b *testPolicyBroker) PublishPolicyEvent(_ context.Context, event policyjournal.Event) error {
+	if err := event.Validate(); err != nil {
+		return err
+	}
+	if b.fail {
+		return errors.New("disposable broker unavailable")
+	}
+	b.sent++
+	return nil
 }

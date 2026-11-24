@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/m8-team/platform/internal/access/app/projection"
 	"github.com/m8-team/platform/internal/access/domain/role"
@@ -75,7 +76,8 @@ type PolicyOutboxEvent struct {
 
 func (e PolicyOutboxEvent) PolicyEvent() (projection.Event, uint64, error) {
 	key, err := profileProjectionKey(e.TenantID, e.AssignmentID)
-	if err != nil || e.PolicyRevision == 0 {
+	if err != nil || e.PolicyRevision == 0 ||
+		e.EventID != fmt.Sprintf("profile/%s/%s/%d", e.TenantID, e.AssignmentID, e.Revision) {
 		return projection.Event{}, 0, ErrPolicySourceDrift
 	}
 	event := projection.Event{Key: key, Revision: e.Revision, EventID: e.EventID}
@@ -150,6 +152,12 @@ func (s *Store) MarkPolicyPublished(ctx context.Context, e PolicyOutboxEvent) er
 		}
 		_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $published AS Bool;\nUPDATE `m8-access/profile_policy_events` SET published=$published WHERE tenant_id=$tenant AND assignment_id=$id AND revision=$revision;"),
 			sql.Named("tenant", string(e.TenantID)), sql.Named("id", e.AssignmentID), sql.Named("revision", e.Revision), sql.Named("published", true))
+		if err != nil {
+			return err
+		}
+		_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $policy AS Uint64;DECLARE $published AS Bool;\nUPDATE `m8-access/profile_policy_dispatch` SET published=$published WHERE tenant_id=$tenant AND policy_revision=$policy AND assignment_id=$id;"),
+			sql.Named("tenant", string(e.TenantID)), sql.Named("id", e.AssignmentID),
+			sql.Named("policy", e.PolicyRevision), sql.Named("published", true))
 		return err
 	})
 }
