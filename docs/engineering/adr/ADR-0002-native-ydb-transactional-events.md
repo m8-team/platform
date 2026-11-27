@@ -23,24 +23,22 @@ remain distinct.
 
 ## Stable Producer Identity decision
 
-Stable, reusable producer identities are the selected v1.1 direction.
-Production enablement is blocked on exclusive ownership across processes.
+Stable, reusable producer identities use the owned publisher API.
 The pinned SDK/server pair allows two independent transactions using the
 same Producer ID to commit business state while YDB suppresses one of the
 events. The regression holds a sequenced write before send, commits a
 competing write, then releases the delayed write. Both state rows exist
 and only the competing event is present.
 
-Retain the current publisher while this blocker is open. Any future
-implementation must prove exclusive logical replica ownership through
-replacement and node partition. Kubernetes ordinal stability alone does
-not establish ownership. Local lanes can serialize work inside a process
-but cannot fence another process. Acquire an exclusive lane before opening
-the transaction, retain it across SDK-managed attempts and release it
-after transaction and writer completion. Reuse only identity values and
-use the SDK's partition suffix and sequence initialization. Use one
-nonempty batch per physical topic in each transaction attempt.
-Do not introduce a second production publication mode.
+Kubernetes ordinal stability alone cannot establish ownership. The owned
+publisher holds a single local lane from before opening the transaction to
+after SDK attempts and writer completion. It checks ownership inside every
+attempt and advances a separate row keyed by the replica. This row makes
+unresolved attempts across same-Pod process restarts conflict. In the event
+of a conflict the losing attempt rolls back, and SDK retry initializes a
+fresh writer. Only the Producer ID is reused. The SDK owns its partition
+suffix and sequence initialization. Use one nonempty batch per physical
+topic per attempt.
 
 A StatefulSet preserves ordinal exclusivity by waiting for confirmed
 termination, which can block replacement during a network partition. A
@@ -53,10 +51,12 @@ the replacement reuses the same Producer ID. The handoff implementation
 binds the generation to the Pod UID returned by an authenticated Kubernetes
 API read for a pinned StatefulSet incarnation. It compares that observation
 against a serializable ownership row and keeps the publisher on a read-only
-credential for that row. Production still needs deployment of the trusted
-reconciler, mandatory enforcement at the stable publication entry point
-and safe reuse across same-Pod process restart with unresolved commits.
-The shared Publisher keeps its existing strategy until those conditions hold.
+credential for that row. The live Kubernetes fixture exercises node
+partition and Pod replacement, then both kinds of uncertainty around a
+same-Pod process restart. The producer is enabled explicitly by selecting
+the owned publisher. Deployment requires the trusted reconciler and the
+two YDB row tables. Existing legacy callers keep their publisher behavior
+until cutover.
 
 See the [v1.1 verification](../../../internal/platform/event/README.md#v11-stable-producer-identity-verification)
 for the counterexample, sequential reuse, metadata measurements, rollout

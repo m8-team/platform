@@ -35,7 +35,11 @@ func NewPublisher(db *ydb.Driver, cfg Config) (*Publisher, error) {
 // NOT a commit confirmation. The caller must return every error to the
 // transaction coordinator. Events and their IDs are supplied by the caller;
 // neither messages nor writers may be mutated/reused across attempts.
-func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string, events ...*eventv1.Event) (result error) {
+func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string, events ...*eventv1.Event) error {
+	return p.publish(ctx, tx, topic, "", events...)
+}
+
+func (p *Publisher) publish(ctx context.Context, tx query.TxActor, topic, producer string, events ...*eventv1.Event) (result error) {
 	var stagedEvents, stagedBytes int
 	if p == nil {
 		return ErrInvalidConfiguration
@@ -58,11 +62,13 @@ func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string,
 	if err != nil {
 		return err
 	}
+	options := []topicoptions.MultiWriterOption{topicoptions.WithWriterPartitionByKey(topicoptions.BoundPartitionChooser())}
+	if producer != "" {
+		options = append(options, topicoptions.WithProducerIDPrefix(producer))
+	}
 	writer, err := p.db.Topic().StartTransactionalWriter(tx, topicPath,
 		topicoptions.WithWriterMessageMaxBytesSize(p.cfg.MaxEventBytes),
-		topicoptions.WithWriteToManyPartitions(
-			topicoptions.WithWriterPartitionByKey(topicoptions.BoundPartitionChooser()),
-		),
+		topicoptions.WithWriteToManyPartitions(options...),
 	)
 	if err != nil {
 		return fmt.Errorf("start transactional event writer: %w", err)

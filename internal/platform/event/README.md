@@ -1,6 +1,7 @@
 # M8 Event v1
 
-Stable Producer Identity is blocked for production. See [v1.1 verification](#v11-stable-producer-identity-verification).
+Stable Producer Identity is available through the ownership-checked publisher.
+See [stable publication](#stable-publication).
 
 The flat `event` package shares one Protobuf envelope and publishes batches using
 native YDB Query transactions. Business modules own business state, typed
@@ -192,8 +193,8 @@ driver commits a different mutation and event using the same identity and
 partition. After releasing the first write, both transactions report
 success. Both state keys exist, but the topic contains only the second
 event. Fencing did not prevent suppression on YDB `26.3.1.25`.
-This is a blocking compatibility finding for Stable Producer Identity.
-The production Publisher still uses per-writer random identities.
+This is why stable publication requires the ownership and transaction checks
+below. The legacy `NewPublisher` path still uses per-writer random identities.
 
 A future deployment must bind a trusted namespace (including deployment
 and environment), service ID, stable logical replica ID and exclusive lane
@@ -275,15 +276,68 @@ host with kind and kubectl available:
 bash internal/platform/event/testdata/kubernetes-handoff.sh
 ```
 
-The shared production Publisher continues to use per-writer random IDs.
-Before enabling stable IDs there, wire the ownership check into the only
-stable publication entry point and establish safe same-Pod process restart
-and unresolved commit handling. A production deployment must also install
-the trusted reconciler and verify its credentials and namespace policy.
 The fixture runs on one Docker host. See the
 [Kubernetes shutdown guidance](https://kubernetes.io/docs/concepts/cluster-administration/node-shutdown/),
 [leader election contract](https://pkg.go.dev/k8s.io/client-go/tools/leaderelection),
 and [YDB serializable transaction semantics](https://ydb.tech/docs/en/concepts/transactions).
+
+### Stable publication
+
+`NewOwnedPublisher` enables stable IDs for one bound replica. Obtain the
+binding using `ReplicaSlot.Bind` and configure an additional row table:
+
+```sql
+CREATE TABLE replica_publication_guards (
+    replica Utf8 NOT NULL,
+    revision Uint64 NOT NULL,
+    PRIMARY KEY (replica)
+);
+```
+
+Every publishing attempt reads ownership and advances the guard in the same
+serializable transaction as state and topic writes. Use the same guard table
+across processes for every slot sharing these topics. Grant the publisher
+read and update rights on the guard table and read-only access to the
+ownership table. The guard revision makes overlapping transactions conflict
+even if they come from the same Pod UID and generation. It has no role in
+producer sequence numbers. A retry creates fresh writers and reads sequence
+state from YDB again.
+
+Create one shared owned publisher per process. It has one context-aware
+lane held until the transaction coordinator returns. It derives the stable
+prefix from the namespace, StatefulSet UID and Pod name. The SDK adds the
+partition suffix. Pod UID and generation are held in the ownership binding.
+
+```go
+owned, err := event.NewOwnedPublisher(owner, cfg, binding, guardTable)
+if err != nil {
+    return err
+}
+return owned.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error) error {
+    if err := writeBusinessState(ctx, tx); err != nil {
+        return err
+    }
+    return publish("resource", created)
+})
+```
+
+Use one nonempty batch per physical topic per attempt. Return every
+publication error. The coordinator also aborts if the callback ignores a
+batch error. Keep the callback and its publisher scoped to the attempt.
+Use an authoritative command receipt before retrying an ambiguous logical
+operation. Reusing a stable ID allows new work to continue after a restart.
+
+The Kubernetes fixture runs the owned publisher and restarts its process
+without changing Pod UID. It covers a confirmed YDB commit with its response
+withheld from the application and a process exit during the commit send.
+The restarted process publishes before the fixture checks the interrupted
+outcome. The live YDB overlap test separately holds an old commit request
+while another publisher with the same UID commits. The old transaction is
+aborted and SDK retry publishes after the winning event. Both checks compare
+exact committed state, event payloads, Producer ID and offsets.
+
+Deploy the reconciler and both tables before selecting the owned publisher.
+Production deployments and business-module wiring are managed separately.
 
 ### Metadata budget
 

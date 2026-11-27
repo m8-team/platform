@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -17,12 +18,15 @@ import (
 
 	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"github.com/ydb-platform/ydb-go-genproto/Ydb_Query_V1"
 	"github.com/ydb-platform/ydb-go-genproto/Ydb_Topic_V1"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
+	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_Query"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/config"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/stats"
 )
 
 const kubernetesFixtureNamespace = "event-handoff"
@@ -36,6 +40,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	createTestTopic(t, ctx, db, path, 1)
 	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	createTestTable(t, ctx, db, path+"_owner", "replica Utf8 NOT NULL, pod_uid Utf8 NOT NULL, generation Uint64 NOT NULL, PRIMARY KEY (replica)")
+	guard := createTestTable(t, ctx, db, path+"_guard", "replica Utf8 NOT NULL, revision Uint64 NOT NULL, PRIMARY KEY (replica)")
 	readFile := func(name string) []byte {
 		t.Helper()
 		data, err := os.ReadFile(fixture + "/" + name)
@@ -68,7 +73,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	for _, grant := range []string{
 		"GRANT CONNECT ON `/local`",
 		"GRANT SELECT ON `" + path + "_owner`",
-		"GRANT SELECT, UPDATE ROW ON " + state + ", `" + path + "`",
+		"GRANT SELECT, UPDATE ROW ON " + state + ", " + guard + ", `" + path + "`",
 	} {
 		if err := db.Query().Exec(ctx, grant+" TO "+publisherUser+";"); err != nil {
 			t.Fatalf("grant disposable publisher access: %v", err)
@@ -85,7 +90,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	// Build the Pod command from fixture values. No application service is exposed.
 	setUID := ctl("get", "statefulset", "publisher", "-o", "jsonpath={.metadata.uid}")
 	ctl("set", "env", "statefulset/publisher", "M8_EVENT_WORKER_TOPIC="+path, "M8_EVENT_WORKER_STATE="+state,
-		"M8_EVENT_WORKER_TABLE="+path+"_owner", "M8_EVENT_WORKER_SET_UID="+setUID)
+		"M8_EVENT_WORKER_TABLE="+path+"_owner", "M8_EVENT_WORKER_GUARD="+path+"_guard", "M8_EVENT_WORKER_SET_UID="+setUID)
 	ctl("scale", "statefulset/publisher", "--replicas=1")
 	waitPod := func() {
 		ctl("wait", "--for=create", "pod/publisher-0", "--timeout=30s")
@@ -208,15 +213,69 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	if got := call(newNode, "write?id="+sentinel.Id); got != "committed" {
 		t.Fatalf("replacement reuse: %s", got)
 	}
+	crashAndRestart := func(endpoint, exitCode string, interrupted, after *eventv1.Event) {
+		t.Helper()
+		restarts := pod(".status.containerStatuses[0].restartCount")
+		crash := exec.CommandContext(ctx, "docker", "exec", newNode, "curl", "--max-time", "15",
+			"-fsS", "http://127.0.0.1:18091/"+endpoint+"?id="+interrupted.Id)
+		if err := crash.Run(); err == nil {
+			t.Fatal("publisher observed the commit response")
+		}
+		wait, cancel := context.WithTimeout(ctx, 55*time.Second)
+		defer cancel()
+		for pod(".status.containerStatuses[0].restartCount") == restarts {
+			select {
+			case <-wait.Done():
+				t.Fatal("kubelet did not restart publisher")
+			case <-time.After(250 * time.Millisecond):
+			}
+		}
+		waitPod()
+		if pod(".metadata.uid") != newUID || pod(".spec.nodeName") != newNode {
+			t.Fatal("expected a new process in the very same Pod")
+		}
+		if code := pod(".status.containerStatuses[0].lastState.terminated.exitCode"); code != exitCode {
+			t.Fatalf("publisher did not exit at the expected commit boundary: %s", code)
+		}
+		if got := call(newNode, "bind"); got != newUID {
+			t.Fatalf("restarted process bound %q", got)
+		}
+		if got := call(newNode, "write?id="+after.Id); got != "committed" {
+			t.Fatalf("publish after unknown outcome: %s", got)
+		}
+	}
+	crashed, restarted := testEvent(t), testEvent(t)
+	crashed.Id, restarted.Id = uuid.NewString(), uuid.NewString()
+	crashAndRestart("crash", "42", crashed, restarted)
+	t.Log("publisher process restarted with the same Pod UID after YDB commit but before the application received the response")
+	events := []*eventv1.Event{next, sentinel, crashed, restarted}
+	unknown, recovered := testEvent(t), testEvent(t)
+	unknown.Id, recovered.Id = uuid.NewString(), uuid.NewString()
+	crashAndRestart("crash-send", "43", unknown, recovered)
+	// The restarted publisher commits before the test learns the old outcome.
+	outcome, err := db.Query().QueryRow(ctx, "DECLARE $id AS Utf8; SELECT COUNT(*) FROM "+state+" WHERE id = $id;",
+		query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(unknown.Id).Build()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var survived uint64
+	if err := outcome.Scan(&survived); err != nil || survived > 1 {
+		t.Fatalf("unexpected interrupted commit outcome: %d, %v", survived, err)
+	}
+	if survived == 1 {
+		events = append(events, unknown)
+	}
+	events = append(events, recovered)
+	t.Logf("publisher restarted after sending commit without observing any response; interrupted mutation committed=%t", survived == 1)
 	row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+state)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var count uint64
-	if err := row.Scan(&count); err != nil || count != 2 {
-		t.Fatalf("expected exactly two committed rows, got %d: %v", count, err)
+	if err := row.Scan(&count); err != nil || count != uint64(len(events)) {
+		t.Fatalf("expected %d committed rows, got %d: %v", len(events), count, err)
 	}
-	for _, e := range []*eventv1.Event{next, sentinel} {
+	for i, e := range events {
 		row, err := db.Query().QueryRow(ctx, "DECLARE $id AS Utf8; SELECT id FROM "+state+" WHERE id = $id;", query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(e.Id).Build()))
 		if err != nil {
 			t.Fatal(err)
@@ -225,8 +284,9 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 		if err := row.Scan(&got); err != nil || got != e.Id {
 			t.Fatalf("expected replacement state row: %v", err)
 		}
+		events[i] = fixtureWorkerEvent(t, e.Id)
 	}
-	assertStableProducerEvents(t, ctx, db, path, kubernetesFixtureProducer+"-0", []*eventv1.Event{fixtureWorkerEvent(t, next.Id), fixtureWorkerEvent(t, sentinel.Id)})
+	assertStableProducerEvents(t, ctx, db, path, fmt.Sprintf("m8-%x-0", sha256.Sum256([]byte(slot.key()))), events)
 	t.Logf("old UID %s was isolated on %s, replacement UID %s committed on %s", oldUID, oldNode, newUID, newNode)
 }
 
@@ -244,8 +304,6 @@ func (b bearerTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	copy.Header.Set("Authorization", "Bearer "+b.token)
 	return b.next.RoundTrip(copy)
 }
-
-const kubernetesFixtureProducer = "m8.test.kubernetes.0.0"
 
 func fixtureWorkerEvent(t *testing.T, id string) *eventv1.Event {
 	t.Helper()
@@ -269,12 +327,23 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 	held := make(chan struct{})
 	resume := make(chan struct{}, 1)
 	var delay, paused atomic.Bool
+	var crashOnCommit atomic.Bool
+	var crashOnSend crashCommitSend
 	intercept := func(ctx context.Context, desc *grpc.StreamDesc, conn *grpc.ClientConn, method string, next grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 		s, err := next(ctx, desc, conn, method, opts...)
 		if err == nil && delay.Load() && method == Ydb_Topic_V1.TopicService_StreamWrite_FullMethodName {
 			return heldProducerStream{s, held, resume, &paused}, nil
 		}
 		return s, err
+	}
+	unary := func(ctx context.Context, method string, req, reply any, conn *grpc.ClientConn, next grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		err := next(ctx, method, req, reply, conn, opts...)
+		if err == nil && method == Ydb_Query_V1.QueryService_CommitTransaction_FullMethodName && crashOnCommit.Load() {
+			if result, ok := reply.(*Ydb_Query.CommitTransactionResponse); ok && result.GetStatus() == Ydb.StatusIds_SUCCESS {
+				os.Exit(42) // The application never observes the commit result.
+			}
+		}
+		return err
 	}
 	dial := func(ctx context.Context, _ string) (net.Conn, error) {
 		return (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(ip, "32536"))
@@ -285,7 +354,8 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 	}
 	db, err := ydb.Open(ctx, "grpc://"+net.JoinHostPort(ip, "32536")+"/local",
 		ydb.WithStaticCredentials("eventfixturepublisher", string(password)),
-		ydb.With(config.WithGrpcOptions(grpc.WithContextDialer(dial), grpc.WithChainStreamInterceptor(intercept))))
+		ydb.With(config.WithGrpcOptions(grpc.WithContextDialer(dial), grpc.WithChainStreamInterceptor(intercept),
+			grpc.WithChainUnaryInterceptor(unary), grpc.WithStatsHandler(&crashOnSend))))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -295,20 +365,17 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := make(chan error, 1)
-	var bound atomic.Pointer[PodOwnership]
+	var bound atomic.Pointer[OwnedPublisher]
 	publish := func(id string) error {
 		claim := bound.Load()
 		if claim == nil {
 			return ErrReplicaOwnership
 		}
-		return owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			if err := claim.Check(ctx, tx); err != nil {
-				return err
-			}
+		return claim.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+os.Getenv("M8_EVENT_WORKER_STATE")+" (id) VALUES ($id);", query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build())); err != nil {
 				return err
 			}
-			return writeWithProducer(ctx, db, tx, os.Getenv("M8_EVENT_WORKER_TOPIC"), kubernetesFixtureProducer, fixtureWorkerEvent(t, id))
+			return send("events", fixtureWorkerEvent(t, id))
 		})
 	}
 	respond := func(w http.ResponseWriter, err error) {
@@ -329,7 +396,12 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 			respond(w, err)
 			return
 		}
-		bound.Store(&claim)
+		publisher, err := NewOwnedPublisher(owner, DefaultConfig(map[string]string{"events": os.Getenv("M8_EVENT_WORKER_TOPIC")}), claim, os.Getenv("M8_EVENT_WORKER_GUARD"))
+		if err != nil {
+			respond(w, err)
+			return
+		}
+		bound.Store(publisher)
 		fmt.Fprintln(w, uid)
 	})
 	mux.HandleFunc("/start", func(w http.ResponseWriter, r *http.Request) {
@@ -353,6 +425,14 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		}
 	})
 	mux.HandleFunc("/write", func(w http.ResponseWriter, r *http.Request) { respond(w, publish(r.URL.Query().Get("id"))) })
+	mux.HandleFunc("/crash", func(w http.ResponseWriter, r *http.Request) {
+		crashOnCommit.Store(true)
+		respond(w, publish(r.URL.Query().Get("id")))
+	})
+	mux.HandleFunc("/crash-send", func(w http.ResponseWriter, r *http.Request) {
+		crashOnSend.armed.Store(true)
+		respond(w, publish(r.URL.Query().Get("id")))
+	})
 	mux.HandleFunc("/claim", func(w http.ResponseWriter, r *http.Request) {
 		slot := ReplicaSlot{kubernetesFixtureNamespace, os.Getenv("M8_EVENT_WORKER_SET_UID"), "publisher-0", os.Getenv("M8_EVENT_WORKER_TABLE")}
 		check, cancel := context.WithTimeout(r.Context(), 6*time.Second)
@@ -379,5 +459,21 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 	go func() { <-ctx.Done(); _ = server.Close() }()
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		t.Fatal(err)
+	}
+}
+
+type crashCommitSend struct{ armed atomic.Bool }
+
+func (*crashCommitSend) TagRPC(ctx context.Context, _ *stats.RPCTagInfo) context.Context { return ctx }
+func (*crashCommitSend) TagConn(ctx context.Context, _ *stats.ConnTagInfo) context.Context {
+	return ctx
+}
+func (*crashCommitSend) HandleConn(context.Context, stats.ConnStats) {}
+
+func (h *crashCommitSend) HandleRPC(_ context.Context, event stats.RPCStats) {
+	if output, ok := event.(*stats.OutPayload); ok {
+		if _, commit := output.Payload.(*Ydb_Query.CommitTransactionRequest); commit && h.armed.Load() {
+			os.Exit(43)
+		}
 	}
 }
