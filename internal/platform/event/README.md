@@ -82,7 +82,11 @@ Generate using the repository Buf workflow (just proto); then run buf lint,
 buf breaking, go test ./internal/platform/event, go test -race, go vet and
 benchmarks. Generated files must not be hand-edited. This draft has not been
 built: the execution environment has Go 1.23.2, no Buf and no network access to
-GitHub/module proxies. Real YDB tests, production configuration wiring, metrics,
+GitHub/module proxies. An opt-in live test is provided: M8_EVENT_TEST_YDB_DSN and
+M8_EVENT_TEST_YDB_PREFIX must target a disposable database. Run
+ go test ./internal/platform/event -run TestIntegrationAtomicPublication -v
+for atomic publication, rollback, unavailable topic and transactional consumer
+rollback/offset checks. Live execution, production configuration wiring, metrics,
 profiling, and module integration are outstanding release gates. Do not merge
 or deploy before generated artifacts and verification are complete.
 
