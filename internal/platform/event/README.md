@@ -211,6 +211,43 @@ Identity affects deduplication and resource use. Scoped YDB authorization
 and TLS still control write access. Keep producer identity and topic mappings
 in trusted configuration and use bounded telemetry labels.
 
+### Replica handoff during a partition
+
+Kubernetes can preserve exclusive use of an ordinal by waiting for confirmed
+termination. A control-plane partition can make the wait indefinite. Force
+deletion allows a replacement while the old Pod can still reach YDB.
+The out-of-service taint assumes the node is already shut down. Kubernetes
+leader election and YDB Coordination Node semaphores coordinate ownership
+among participating clients. Neither makes the native Topic or Query API
+check that ownership at commit. Readiness, lease expiry and cancellation
+cannot revoke a request the old process already sent.
+
+The live handoff test checks a possible storage-side fence. Every publishing
+transaction reads the replica generation in the same serializable YDB
+transaction as state and topic writes. A privileged fixture increments the
+generation while the old writer is delayed before sending a sequenced write
+or before sending commit after flushing. It resumes the old writer after the
+replacement commits, and also checks the order in which the stale, flushed
+transaction aborts before the replacement opens its writer. YDB returns
+`ABORTED`, and the SDK retry sees the new generation and rejects the old
+owner. The replacement can reuse the same Producer ID. The fixture checks
+both exact committed state keys and both expected event payloads, offsets
+and producer sequences.
+
+This test exercises transactional fencing on real YDB with two independent
+drivers. Its privileged handoff is an assumption. Production still needs an
+authority that binds a generation to the admitted Pod incarnation, prevents a
+stale process from reclaiming it, and requires the generation check on every
+publishing path. A node-fencing alternative must also settle outstanding YDB
+transactions before reusing the identity. Neither handoff has been verified
+with an actual Kubernetes partition and replacement. The current publisher
+strategy stays in service. See the
+[Kubernetes shutdown guidance](https://kubernetes.io/docs/concepts/cluster-administration/node-shutdown/),
+[leader election contract](https://pkg.go.dev/k8s.io/client-go/tools/leaderelection),
+and [YDB serializable transaction semantics](https://ydb.tech/docs/en/concepts/transactions).
+
+### Metadata budget
+
 The local A/B metadata run used one partition, six workers, batches of one,
 and a target of 40 transactions/s for one minute per strategy. The topic
 end equaled confirmed commits in both cases. The random fixture retained

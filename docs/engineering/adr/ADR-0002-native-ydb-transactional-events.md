@@ -42,6 +42,17 @@ use the SDK's partition suffix and sequence initialization. Use one
 nonempty batch per physical topic in each transaction attempt.
 Do not introduce a second production publication mode.
 
+A StatefulSet preserves ordinal exclusivity by waiting for confirmed
+termination, which can block replacement during a network partition. A
+Kubernetes Lease or a YDB Coordination Node semaphore alone cannot fence
+requests already in flight to YDB. A live experiment verifies that a
+privileged generation change invalidates a stale publication transaction
+when that transaction reads the generation under serializable isolation.
+The fixture verifies state and delivery after the stale attempt aborts and
+the replacement reuses the same Producer ID. Trusted generation assignment
+and enforcement across all writers are still prerequisites. Treat this as
+evidence for a candidate, with no production schema or ownership change.
+
 See the [v1.1 verification](../../../internal/platform/event/README.md#v11-stable-producer-identity-verification)
 for the counterexample, sequential reuse, metadata measurements, rollout
 conditions and unverified scenarios.
