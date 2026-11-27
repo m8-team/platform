@@ -6,7 +6,8 @@ import (
 	"maps"
 	"path"
 	"strings"
-	"time"
+	"unicode"
+	"unicode/utf8"
 )
 
 var (
@@ -20,29 +21,28 @@ var (
 // Config is trusted startup configuration, never request input.
 // Topics maps logical bounded-context names to absolute YDB topic paths.
 type Config struct {
-	Topics             map[string]string
-	TransactionTimeout time.Duration
-	MaxEventBytes      int
-	MaxBatchEvents     int
-	MaxBatchBytes      int
+	Topics         map[string]string
+	MaxEventBytes  int
+	MaxBatchEvents int
+	MaxBatchBytes  int
 }
 
 func DefaultConfig(topics map[string]string) Config {
 	return Config{
-		Topics: maps.Clone(topics), TransactionTimeout: 5 * time.Second,
+		Topics:        maps.Clone(topics),
 		MaxEventBytes: 256 << 10, MaxBatchEvents: 100, MaxBatchBytes: 4 << 20,
 	}
 }
 
 func (c Config) Validate() error {
-	if c.TransactionTimeout <= 0 || c.MaxEventBytes <= 0 ||
+	if c.MaxEventBytes <= 0 ||
 		c.MaxBatchEvents <= 0 || c.MaxBatchBytes < c.MaxEventBytes || len(c.Topics) == 0 {
 		return ErrInvalidConfiguration
 	}
 	for name, topic := range c.Topics {
 		if !validName(name) || !strings.HasPrefix(topic, "/") ||
-			topic == "/" || path.Clean(topic) != topic ||
-			strings.ContainsAny(topic, " \t\r\n\x00") {
+			topic == "/" || path.Clean(topic) != topic || !utf8.ValidString(topic) ||
+			strings.ContainsFunc(topic, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) }) {
 			return fmt.Errorf("%w: invalid topic mapping", ErrInvalidConfiguration)
 		}
 	}
@@ -50,7 +50,7 @@ func (c Config) Validate() error {
 }
 
 func validName(s string) bool {
-	if len(s) == 0 || len(s) > 128 {
+	if len(s) == 0 || len(s) > 128 || s == "." || s == ".." {
 		return false
 	}
 	for _, c := range s {

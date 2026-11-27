@@ -4,85 +4,121 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/url"
 	"os"
+	"regexp"
+	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"github.com/ydb-platform/ydb-go-genproto/Ydb_Topic_V1"
+	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_Topic"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
+	"github.com/ydb-platform/ydb-go-sdk/v3/config"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topictypes"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
-// TestIntegrationAtomicPublication requires a disposable real YDB database.
-// It provisions isolated resources, never a shared production topic/table.
-func TestIntegrationAtomicPublication(t *testing.T) {
-	dsn, prefix := os.Getenv("M8_EVENT_TEST_YDB_DSN"), os.Getenv("M8_EVENT_TEST_YDB_PREFIX")
-	if dsn == "" || prefix == "" {
-		t.Skip("set M8_EVENT_TEST_YDB_DSN and M8_EVENT_TEST_YDB_PREFIX for disposable YDB")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
-	defer cancel()
-	db, err := ydb.Open(ctx, dsn)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		closeCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		_ = db.Close(closeCtx)
-	}()
+const testConsumer = "event-test"
 
-	// Validate the explicitly provided parent path before using it in YQL.
-	cfg := DefaultConfig(map[string]string{"resource": prefix + "/event_" + uuid.NewString()})
-	if err := cfg.Validate(); err != nil {
-		t.Fatal(err)
+var fixturePath = regexp.MustCompile(`^(/[a-zA-Z0-9_][a-zA-Z0-9_.-]*)+$`)
+
+func liveDatabase(t testing.TB, options ...ydb.Option) (context.Context, *ydb.Driver, string) {
+	t.Helper()
+	dsn, prefix := os.Getenv("M8_EVENT_TEST_YDB_DSN"), os.Getenv("M8_EVENT_TEST_YDB_PREFIX")
+	if dsn == "" && prefix == "" && os.Getenv("M8_EVENT_TEST_YDB_REQUIRED") != "1" {
+		t.Skip("disposable YDB not configured")
 	}
-	topicPath := cfg.Topics["resource"]
-	tablePath := topicPath + "_state"
-	// YQL quoted identifiers are safe only if the prefix has no backticks.
-	for _, c := range tablePath {
-		if !(c == '/' || c == '_' || c == '-' || c == '.' ||
-			c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
-			t.Fatal("invalid test prefix")
+	endpoint, err := url.Parse(dsn)
+	if err != nil || !fixturePath.MatchString(prefix) || !fixturePath.MatchString(endpoint.Path) ||
+		(prefix != endpoint.Path && !strings.HasPrefix(prefix, endpoint.Path+"/")) {
+		t.Fatal("invalid disposable YDB DSN or fixture prefix")
+	}
+	switch endpoint.Hostname() {
+	case "localhost", "127.0.0.1", "::1":
+	default:
+		t.Fatal("fixture requires a disposable loopback YDB endpoint")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	t.Cleanup(cancel)
+	openCtx, stop := context.WithTimeout(ctx, 45*time.Second)
+	defer stop()
+	db, err := ydb.Open(openCtx, dsn, options...)
+	if err != nil {
+		t.Fatalf("connect to disposable YDB: %v", err)
+	}
+	t.Cleanup(func() {
+		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := db.Close(cleanup); err != nil {
+			t.Errorf("close fixture driver: %v", err)
 		}
-	}
-	table := "`" + tablePath + "`"
-	if err := db.Query().Exec(ctx, "CREATE TABLE "+table+" (id Utf8 NOT NULL, PRIMARY KEY (id));"); err != nil {
+	})
+	return ctx, db, prefix + "/event_" + uuid.NewString()
+}
+
+func createTestTable(t testing.TB, ctx context.Context, db *ydb.Driver, name, columns string) string {
+	t.Helper()
+	table := "`" + name + "`"
+	if err := db.Query().Exec(ctx, "CREATE TABLE "+table+" ("+columns+");"); err != nil {
 		t.Fatal(err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := db.Query().Exec(cleanup, "DROP TABLE "+table+";"); err != nil {
 			t.Errorf("drop test table: %v", err)
 		}
-	}()
-	const consumer = "event-test"
-	if err := db.Topic().Create(ctx, topicPath,
-		topicoptions.CreateWithMinActivePartitions(1),
-		topicoptions.CreateWithConsumer(topictypes.Consumer{Name: consumer}),
-	); err != nil {
+	})
+	return table
+}
+
+func createTestTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path string, partitions int64) {
+	t.Helper()
+	createFixtureTopic(t, ctx, db, path,
+		topicoptions.CreateWithMinActivePartitions(partitions),
+		topicoptions.CreateWithMaxActivePartitions(partitions),
+		topicoptions.CreateWithAutoPartitioningSettings(topictypes.AutoPartitioningSettings{
+			AutoPartitioningStrategy: topictypes.AutoPartitioningStrategyScaleUp,
+		}),
+	)
+}
+
+func createFixtureTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path string, options ...topicoptions.CreateOption) {
+	t.Helper()
+	options = append(options, topicoptions.CreateWithConsumer(topictypes.Consumer{Name: testConsumer}))
+	if err := db.Topic().Create(ctx, path, options...); err != nil {
 		t.Fatal(err)
 	}
-	defer func() {
+	t.Cleanup(func() {
 		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		if err := db.Topic().Drop(cleanup, topicPath); err != nil {
+		if err := db.Topic().Drop(cleanup, path); err != nil {
 			t.Errorf("drop test topic: %v", err)
 		}
-	}()
+	})
+}
 
+func TestIntegrationAtomicPublication(t *testing.T) {
+	ctx, db, topicPath := liveDatabase(t)
+	table := createTestTable(t, ctx, db, topicPath+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	createTestTopic(t, ctx, db, topicPath, 1)
+	createTestTopic(t, ctx, db, topicPath+"_forwarded", 1)
+	cfg := DefaultConfig(map[string]string{"resource": topicPath, "forwarded": topicPath + "_forwarded"})
 	cfg.Topics["missing"] = topicPath + "_missing"
-	cfg.TransactionTimeout = 12 * time.Second
 	p, err := NewPublisher(db, cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
-	tr, err := NewTransactor(db, cfg.TransactionTimeout)
+	tr, err := NewTransactor(db, 12*time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,21 +195,33 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	}
 	assertCount(1)
 
-	reader, err := db.Topic().StartReader(consumer, topicoptions.ReadTopic(topicPath))
+	reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(topicPath))
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer func() {
+	closeReader := func() {
 		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		_ = reader.Close(cleanup)
-	}()
+		if err := reader.Close(cleanup); err != nil {
+			t.Errorf("close fixture reader: %v", err)
+		}
+	}
+	defer closeReader()
+	restartReader := func() {
+		closeReader()
+		next, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(topicPath))
+		if err != nil {
+			t.Fatal(err)
+		}
+		reader = next
+	}
 	expected := map[string]*eventv1.Event{first.Id: first, second.Id: second}
 	consume := func(ctx context.Context, tx query.TxActor, fail bool) error {
 		batch, err := reader.PopMessagesBatchTx(ctx, tx)
 		if err != nil {
 			return err
 		}
+		forward := make([]*eventv1.Event, 0, len(batch.Messages))
 		for _, msg := range batch.Messages {
 			data, err := io.ReadAll(msg)
 			if err != nil {
@@ -189,6 +237,10 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 			if err := writeState(ctx, tx, "consumed-"+got.Id); err != nil {
 				return err
 			}
+			forward = append(forward, got)
+		}
+		if err := p.Publish(ctx, tx, "forwarded", forward...); err != nil {
+			return err
 		}
 		if fail {
 			return rollback
@@ -201,6 +253,7 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 		t.Fatalf("consumer rollback: %v", err)
 	}
 	assertCount(1)
+	restartReader()
 	for i := 0; i < 2; i++ {
 		row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table+";")
 		if err != nil {
@@ -220,13 +273,148 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 		}
 	}
 	assertCount(3)
-	// A successful transactional consumer must have advanced its offset.
-	// An additional visible message (including rolled-back events) is a failure.
-	readCtx, stop := context.WithTimeout(ctx, time.Second)
-	defer stop()
-	if msg, err := reader.ReadMessage(readCtx); err == nil || msg != nil {
-		t.Fatal("unexpected extra event")
-	} else if readCtx.Err() != context.DeadlineExceeded {
-		t.Fatalf("unexpected reader failure: %v", err)
+	total, _, err := topicEnds(ctx, db, topicPath+"_forwarded")
+	if err != nil || total != 2 {
+		t.Fatalf("consumer publication and state must commit with offsets: %d, %v", total, err)
+	}
+	restartReader()
+	sentinel := makeEvent()
+	if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		return p.Publish(ctx, tx, "resource", sentinel)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	msg, err := reader.ReadMessage(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := io.ReadAll(msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := new(eventv1.Event)
+	if err := proto.Unmarshal(data, got); err != nil || !proto.Equal(got, sentinel) {
+		t.Fatalf("restarted reader did not begin at sentinel: %v", err)
+	}
+}
+
+func TestIntegrationTransactionDeadline(t *testing.T) {
+	ctx, db, path := liveDatabase(t)
+	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	createTestTopic(t, ctx, db, path, 1)
+	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr, _ := NewTransactor(db, 3*time.Second)
+	event := testEvent(t)
+	staged := false
+	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('deadline');"); err != nil {
+			return err
+		}
+		if err := p.Publish(ctx, tx, "events", event); err != nil {
+			return err
+		}
+		staged = true
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	if !staged || !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("deadline after staging: staged=%t, error=%v", staged, err)
+	}
+	row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var count uint64
+	if err := row.Scan(&count); err != nil || count != 0 {
+		t.Fatalf("state after deadline: %d, %v", count, err)
+	}
+	total, _, err := topicEnds(ctx, db, path)
+	if err != nil || total != 0 {
+		t.Fatalf("topic after deadline: %d, %v", total, err)
+	}
+	if stats := p.Stats(); stats.StagedEvents != 1 || stats.Errors != 0 {
+		t.Fatalf("publication metrics must describe staging even across rollback: %+v", stats)
+	}
+}
+
+type failingWriteStream struct {
+	grpc.ClientStream
+	failAfter <-chan struct{}
+	injected  *atomic.Bool
+}
+
+func (s failingWriteStream) RecvMsg(message any) error {
+	if err := s.ClientStream.RecvMsg(message); err != nil {
+		return err
+	}
+	if reply, ok := message.(*Ydb_Topic.StreamWriteMessage_FromServer); ok && reply.GetWriteResponse() != nil {
+		select {
+		case <-s.failAfter:
+			s.injected.Store(true)
+			return status.Error(codes.PermissionDenied, "injected topic write acknowledgement error")
+		case <-s.Context().Done():
+			return s.Context().Err()
+		}
+	}
+	return nil
+}
+
+func TestIntegrationWriterFlushFailure(t *testing.T) {
+	release := make(chan struct{})
+	var injected atomic.Bool
+	intercept := func(ctx context.Context, desc *grpc.StreamDesc, conn *grpc.ClientConn,
+		method string, stream grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		result, err := stream(ctx, desc, conn, method, opts...)
+		if err == nil && method == Ydb_Topic_V1.TopicService_StreamWrite_FullMethodName {
+			return failingWriteStream{ClientStream: result, failAfter: release, injected: &injected}, nil
+		}
+		return result, err
+	}
+	ctx, db, path := liveDatabase(t, ydb.With(config.WithGrpcOptions(grpc.WithChainStreamInterceptor(intercept))))
+	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	createTestTopic(t, ctx, db, path, 1)
+	createTestTopic(t, ctx, db, path+"_other", 1)
+	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path, "other": path + "_other"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr, _ := NewTransactor(db, 8*time.Second)
+	callbackReturned := false
+	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('writer-failure');"); err != nil {
+			return err
+		}
+		if err := p.Publish(ctx, tx, "events", testEvent(t)); err != nil {
+			return err
+		}
+		if err := p.Publish(ctx, tx, "other", testEvent(t)); err != nil {
+			return err
+		}
+		if !callbackReturned {
+			close(release)
+			callbackReturned = true
+		}
+		return nil
+	})
+	if err == nil || !callbackReturned || !injected.Load() {
+		t.Fatalf("expected a writer flush failure after callback success: returned=%t, error=%v", callbackReturned, err)
+	}
+	t.Logf("flush failure after callback success: %s", strings.SplitN(err.Error(), " at ", 2)[0])
+	row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var count uint64
+	if err := row.Scan(&count); err != nil || count != 0 {
+		t.Fatalf("state after flush failure: %d, %v", count, err)
+	}
+	for _, topic := range []string{path, path + "_other"} {
+		total, _, err := topicEnds(ctx, db, topic)
+		if err != nil || total != 0 {
+			t.Fatalf("topic after flush failure: %d, %v", total, err)
+		}
 	}
 }

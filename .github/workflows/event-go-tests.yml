@@ -1,0 +1,107 @@
+name: Event Layer
+
+on:
+  pull_request:
+    paths: &event-paths
+      - "internal/platform/event/**"
+      - "proto/m8/platform/event/**"
+      - "internal/proto/m8/platform/event/**"
+      - ".github/workflows/event-go-tests.yml"
+      - "go.mod"
+      - "go.sum"
+      - "buf.yaml"
+      - "buf.gen.yaml"
+      - "buf.lock"
+      - "justfile"
+  push:
+    branches: [main]
+    paths: *event-paths
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Format, compile, test and vet
+        run: |
+          test -z "$(gofmt -l internal/platform/event/)"
+          go test -count=1 ./internal/platform/event/...
+          go test -race -count=1 ./internal/platform/event/...
+          go vet ./internal/platform/event/...
+      - name: Verify Event contract and generated code
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          mkdir -p .bin
+          curl -fsSL --remove-on-error https://github.com/bufbuild/buf/releases/download/v1.75.0/buf-Linux-x86_64 -o .bin/buf
+          chmod +x .bin/buf
+          .bin/buf lint
+          .bin/buf breaking --against ".git#ref=$BASE"
+          .bin/buf generate --path proto/m8/platform/event --output "$RUNNER_TEMP/event-codegen"
+          diff -ru internal/proto/m8/platform/event "$RUNNER_TEMP/event-codegen/internal/proto/m8/platform/event"
+  live-ydb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      M8_EVENT_TEST_YDB_REQUIRED: "1"
+      M8_EVENT_TEST_YDB_DSN: grpc://localhost:2136/local
+      M8_EVENT_TEST_YDB_PREFIX: /local
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Start disposable YDB 26.3.1.25
+        run: |
+          docker run -d --hostname localhost --name m8-event-ydb -p 127.0.0.1:2136:2136 \
+            -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
+      - name: Verify native transactions (required)
+        run: go test -count=1 -timeout=8m -v -run '^TestIntegration' ./internal/platform/event/...
+      - name: Recover after a hard YDB restart
+        run: bash internal/platform/event/testdata/ydb-disruption.sh restart
+      - name: Verify producer metadata TTL
+        env:
+          M8_EVENT_TEST_TTL_REQUIRED: "1"
+          M8_EVENT_TEST_YDB_DSN: grpc://127.0.0.1:2236/local
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8865
+        run: |
+          docker run -d --hostname localhost --name m8-event-ydb-ttl \
+            -p 127.0.0.1:2236:2236 -p 127.0.0.1:8865:8865 \
+            -e GRPC_PORT=2236 -e MON_PORT=8865 ydbplatform/local-ydb:26.3.1.25 \
+            --enable-feature-flag enable_topic_retention_delete_last_blob
+          trap 'docker rm -f m8-event-ydb-ttl' EXIT
+          for i in {1..30}; do
+            if docker exec m8-event-ydb-ttl /health_check >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec m8-event-ydb-ttl /health_check
+          if ! go test -count=1 -timeout=3m -v -run '^TestProducerMetadataTTL$' ./internal/platform/event/...; then
+            docker logs --tail=100 m8-event-ydb-ttl
+            exit 1
+          fi
+      - name: YDB diagnostics
+        if: failure()
+        run: docker logs --tail=200 m8-event-ydb
+      - name: Destroy disposable YDB
+        if: always()
+        run: docker rm -f m8-event-ydb
+
+  ydb-node-failover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Verify recovery after losing the topic tablet node
+        run: bash internal/platform/event/testdata/ydb-disruption.sh failover

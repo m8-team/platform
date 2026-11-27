@@ -35,7 +35,7 @@ func TestEncodeBatch(t *testing.T) {
 	e := testEvent(t)
 	next := proto.CloneOf(e)
 	next.Id = "44b169b7-3969-47f1-bc60-18f8df84212b"
-	msgs, err := encodeBatch(ctx, cfg, []*eventv1.Event{e, next})
+	msgs, _, err := encodeBatch(ctx, cfg, []*eventv1.Event{e, next})
 	if err != nil || len(msgs) != 2 {
 		t.Fatalf("batch: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestEncodeBatch(t *testing.T) {
 			t.Fatal("invalid routing or sequence")
 		}
 	}
-	if msgs, err := encodeBatch(ctx, cfg, nil); err != nil || len(msgs) != 0 {
+	if msgs, _, err := encodeBatch(ctx, cfg, nil); err != nil || len(msgs) != 0 {
 		t.Fatalf("empty batch: %v", err)
 	}
 }
@@ -60,26 +60,38 @@ func TestEncodeBatch(t *testing.T) {
 func TestInvalidEvents(t *testing.T) {
 	cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
 	tests := map[string]func(*eventv1.Event){
-		"id": func(e *eventv1.Event) { e.Id = "bad" },
-		"type": func(e *eventv1.Event) { e.Type = "unversioned" },
-		"revision": func(e *eventv1.Event) { e.AggregateRevision = 0 },
-		"tenant": func(e *eventv1.Event) { e.TenantId = "bad" },
-		"time": func(e *eventv1.Event) { e.OccurredAt = nil },
-		"payload": func(e *eventv1.Event) { e.Payload = nil },
+		"empty ID":         func(e *eventv1.Event) { e.Id = "" },
+		"uppercase ID":     func(e *eventv1.Event) { e.Id = strings.ToUpper(e.Id) },
+		"zero ID":          func(e *eventv1.Event) { e.Id = "00000000-0000-0000-0000-000000000000" },
+		"uppercase tenant": func(e *eventv1.Event) { e.TenantId = strings.ToUpper(e.Id) },
+		"zero tenant":      func(e *eventv1.Event) { e.TenantId = "00000000-0000-0000-0000-000000000000" },
+		"source":           func(e *eventv1.Event) { e.Source = "" },
+		"aggregate":        func(e *eventv1.Event) { e.AggregateId = "" },
+		"metadata key":     func(e *eventv1.Event) { e.Metadata = map[string]string{strings.Repeat("x", 129): ""} },
+		"metadata value":   func(e *eventv1.Event) { e.Metadata = map[string]string{"key": strings.Repeat("x", 1025)} },
+		"invalid typed payload": func(e *eventv1.Event) {
+			e.Payload = &anypb.Any{TypeUrl: "type.googleapis.com/m8.platform.event.v1.Event"}
+		},
+		"id":        func(e *eventv1.Event) { e.Id = "bad" },
+		"type":      func(e *eventv1.Event) { e.Type = "unversioned" },
+		"revision":  func(e *eventv1.Event) { e.AggregateRevision = 0 },
+		"tenant":    func(e *eventv1.Event) { e.TenantId = "bad" },
+		"time":      func(e *eventv1.Event) { e.OccurredAt = nil },
+		"payload":   func(e *eventv1.Event) { e.Payload = nil },
 		"malformed": func(e *eventv1.Event) { e.Payload.Value = []byte{0xff} },
-		"unknown": func(e *eventv1.Event) { e.Payload.TypeUrl = "type.googleapis.com/unknown.Message" },
+		"unknown":   func(e *eventv1.Event) { e.Payload.TypeUrl = "type.googleapis.com/unknown.Message" },
 	}
 	for name, mutate := range tests {
 		t.Run(name, func(t *testing.T) {
 			e := testEvent(t)
 			mutate(e)
-			if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrInvalidEvent) {
+			if _, _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrInvalidEvent) {
 				t.Fatalf("expected invalid event, got %v", err)
 			}
 		})
 	}
 	for _, events := range [][]*eventv1.Event{{nil}, {testEvent(t), testEvent(t)}} {
-		if _, err := encodeBatch(context.Background(), cfg, events); !errors.Is(err, ErrInvalidEvent) {
+		if _, _, err := encodeBatch(context.Background(), cfg, events); !errors.Is(err, ErrInvalidEvent) {
 			t.Fatalf("expected invalid event, got %v", err)
 		}
 	}
@@ -91,22 +103,22 @@ func TestLimitsAndCancellation(t *testing.T) {
 	next := proto.CloneOf(e)
 	next.Id = "44b169b7-3969-47f1-bc60-18f8df84212b"
 	cfg.MaxBatchEvents = 1
-	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
+	if _, _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
 		t.Fatal(err)
 	}
 	cfg.MaxBatchEvents = 2
 	cfg.MaxEventBytes = proto.Size(e) - 1
-	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrEventTooLarge) {
+	if _, _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrEventTooLarge) {
 		t.Fatal(err)
 	}
 	cfg.MaxEventBytes = proto.Size(e)
 	cfg.MaxBatchBytes = proto.Size(e) + proto.Size(next) - 1
-	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
+	if _, _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
 		t.Fatal(err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	if _, err := encodeBatch(ctx, cfg, []*eventv1.Event{e}); !errors.Is(err, context.Canceled) {
+	if _, _, err := encodeBatch(ctx, cfg, []*eventv1.Event{e}); !errors.Is(err, context.Canceled) {
 		t.Fatal(err)
 	}
 }
@@ -117,6 +129,11 @@ func TestRoutingKey(t *testing.T) {
 	b.AggregateType, b.AggregateId = "a", "b/c"
 	if routingKey(a) == routingKey(b) || routingKey(a) != routingKey(proto.CloneOf(a)) {
 		t.Fatal("routing key collision or instability")
+	}
+	b = proto.CloneOf(a)
+	b.TenantId = b.Id
+	if routingKey(a) == routingKey(b) || routingKey(a)[0] != 0 {
+		t.Fatal("tenant must be a distinct length-prefixed component")
 	}
 }
 
@@ -156,11 +173,66 @@ func BenchmarkEncodeBatch(b *testing.B) {
 				b.ReportAllocs()
 				b.ResetTimer()
 				for i := 0; i < b.N; i++ {
-					if _, err := encodeBatch(context.Background(), cfg, events); err != nil {
+					if _, _, err := encodeBatch(context.Background(), cfg, events); err != nil {
 						b.Fatal(err)
 					}
 				}
 			})
+		}
+	}
+}
+
+// newSampleCreated is an example of an event owner's typed construction path.
+// A call passing *wrapperspb.Int64Value fails to compile.
+func newSampleCreated(attrs Attributes, payload *wrapperspb.StringValue) (*eventv1.Event, error) {
+	attrs.Type = "m8.sample.created.v1"
+	return New(attrs, payload)
+}
+
+func sampleAttributes(t testing.TB) Attributes {
+	e := testEvent(t)
+	return Attributes{
+		ID: e.Id, Type: e.Type, Source: e.Source, AggregateID: e.AggregateId,
+		AggregateType: e.AggregateType, AggregateRevision: e.AggregateRevision,
+		OccurredAt: e.OccurredAt.AsTime(),
+	}
+}
+
+func TestNew(t *testing.T) {
+	attrs := sampleAttributes(t)
+	attrs.Type = "m8.incorrect.v1"
+	attrs.Metadata = map[string]string{"test": "original"}
+	payload := wrapperspb.String("original")
+	got, err := newSampleCreated(attrs, payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	again, err := newSampleCreated(attrs, payload)
+	if err != nil || !proto.Equal(got, again) {
+		t.Fatalf("construction changed caller identity: %v", err)
+	}
+	attrs.Metadata["test"] = "changed"
+	payload.Value = "changed"
+	unpacked := new(wrapperspb.StringValue)
+	if err := got.Payload.UnmarshalTo(unpacked); err != nil || unpacked.Value != "original" ||
+		got.Id != attrs.ID || got.Metadata["test"] != "original" || got.Type != "m8.sample.created.v1" {
+		t.Fatalf("invalid typed construction: %v", err)
+	}
+	for _, invalid := range []proto.Message{nil, (*wrapperspb.StringValue)(nil), &eventv1.Event{}} {
+		if _, err := New(attrs, invalid); !errors.Is(err, ErrInvalidEvent) {
+			t.Fatalf("accepted invalid payload: %v", err)
+		}
+	}
+	for _, mutate := range []func(*Attributes){
+		func(a *Attributes) { a.OccurredAt = time.Time{} },
+		func(a *Attributes) { a.OccurredAt = time.Date(10000, 1, 1, 0, 0, 0, 0, time.UTC) },
+		func(a *Attributes) { a.AggregateRevision = 0 },
+		func(a *Attributes) { a.Source = "" },
+	} {
+		a := attrs
+		mutate(&a)
+		if _, err := New(a, payload); !errors.Is(err, ErrInvalidEvent) {
+			t.Fatalf("accepted invalid attributes: %v", err)
 		}
 	}
 }

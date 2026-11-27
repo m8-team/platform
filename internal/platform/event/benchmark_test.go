@@ -1,0 +1,174 @@
+package event
+
+import (
+	"context"
+	"fmt"
+	"slices"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"buf.build/go/protovalidate"
+	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"github.com/ydb-platform/ydb-go-sdk/v3"
+	"github.com/ydb-platform/ydb-go-sdk/v3/query"
+	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
+	"github.com/ydb-platform/ydb-go-sdk/v3/trace"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+var benchmarkRoutingKey string
+
+func BenchmarkEventOperations(b *testing.B) {
+	attrs := sampleAttributes(b)
+	payload := wrapperspb.String(strings.Repeat("x", 1024))
+	event, err := New(attrs, payload)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	for _, operation := range []struct {
+		name string
+		run  func() error
+	}{
+		{"new", func() error { _, err := New(attrs, payload); return err }},
+		{"envelope", func() error { return protovalidate.Validate(event) }},
+		{"payload", func() error { return protovalidate.Validate(payload) }},
+		{"pack", func() error { _, err := anypb.New(payload); return err }},
+		{"unpack", func() error { _, err := event.Payload.UnmarshalNew(); return err }},
+		{"marshal", func() error { _, err := proto.Marshal(event); return err }},
+		{"routing", func() error { benchmarkRoutingKey = routingKey(event); return nil }},
+	} {
+		b.Run(operation.name, func(b *testing.B) {
+			b.ReportAllocs()
+			for b.Loop() {
+				if err := operation.run(); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+}
+
+func BenchmarkNativeYDB(b *testing.B) {
+	for _, variant := range []struct {
+		name                    string
+		batch, payload, workers int
+		partitions              int64
+	}{
+		{"state_only", 0, 0, 1, 1},
+		{"single_writer", 1, 256, 1, 1},
+		{"keyed_writer", 1, 256, 1, 1},
+		{"batch_10", 10, 1024, 1, 4},
+		{"batch_50_concurrent", 50, 16384, 4, 16},
+		{"batch_100_concurrent", 100, 256, 16, 4},
+	} {
+		b.Run(variant.name, func(b *testing.B) {
+			var retries, writerInitNs, writerInits, producers atomic.Uint64
+			var seenProducers sync.Map
+			ctx, db, path := liveDatabase(b, ydb.WithTraceTopic(trace.Topic{
+				OnWriterInitStream: func(info trace.TopicWriterInitStreamStartInfo) func(trace.TopicWriterInitStreamDoneInfo) {
+					start := time.Now()
+					if _, known := seenProducers.LoadOrStore(info.ProducerID, struct{}{}); !known {
+						producers.Add(1)
+					}
+					return func(trace.TopicWriterInitStreamDoneInfo) {
+						writerInitNs.Add(uint64(time.Since(start)))
+						writerInits.Add(1)
+					}
+				},
+			}))
+			table := createTestTable(b, ctx, db, path+"_state", "id Uint64 NOT NULL, PRIMARY KEY (id)")
+			createTestTopic(b, ctx, db, path, variant.partitions)
+			cfg := DefaultConfig(map[string]string{"events": path})
+			p, err := NewPublisher(db, cfg)
+			if err != nil {
+				b.Fatal(err)
+			}
+			tr, _ := NewTransactor(db, 30*time.Second)
+			template := testEvent(b)
+			template.Payload, err = anypb.New(wrapperspb.String(strings.Repeat("x", variant.payload)))
+			if err != nil {
+				b.Fatal(err)
+			}
+			durations := make([]time.Duration, b.N)
+			failures := make(chan error, variant.workers)
+			b.ReportAllocs()
+			b.ResetTimer()
+			var workers sync.WaitGroup
+			for worker := range variant.workers {
+				workers.Go(func() {
+					for i := worker; i < b.N; i += variant.workers {
+						start := time.Now()
+						events := make([]*eventv1.Event, variant.batch)
+						for j := range events {
+							e := proto.CloneOf(template)
+							e.Id = fmt.Sprintf("34b169b7-3969-47f1-bc60-%012x", i*variant.batch+j)
+							e.AggregateId = fmt.Sprintf("aggregate-%d", j)
+							events[j] = e
+						}
+						params := ydb.ParamsBuilder().Param("$id").Uint64(uint64(i)).Build()
+						attempt := 0
+						err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+							attempt++
+							if attempt > 1 {
+								retries.Add(1)
+							}
+							if err := tx.Exec(ctx, "DECLARE $id AS Uint64; INSERT INTO "+table+
+								" (id) VALUES ($id);", query.WithParameters(params)); err != nil {
+								return err
+							}
+							switch variant.name {
+							case "state_only":
+								return nil
+							case "single_writer":
+								messages, _, err := encodeBatch(ctx, cfg, events)
+								if err != nil {
+									return err
+								}
+								writer, err := db.Topic().StartTransactionalWriter(tx, path,
+									topicoptions.WithWriterMessageMaxBytesSize(cfg.MaxEventBytes))
+								if err != nil {
+									return err
+								}
+								messages[0].Key = ""
+								return writer.Write(ctx, messages...)
+							default:
+								return p.Publish(ctx, tx, "events", events...)
+							}
+						})
+						if err != nil {
+							failures <- err
+							return
+						}
+						durations[i] = time.Since(start)
+					}
+				})
+			}
+			workers.Wait()
+			b.StopTimer()
+			close(failures)
+			for err := range failures {
+				b.Fatal(err)
+			}
+			slices.Sort(durations)
+			for _, percentile := range []int{50, 95, 99} {
+				index := (b.N*percentile+99)/100 - 1
+				b.ReportMetric(float64(durations[index])/float64(time.Millisecond), fmt.Sprintf("p%d-ms", percentile))
+			}
+			tps := float64(b.N) / b.Elapsed().Seconds()
+			b.ReportMetric(tps, "tx/s")
+			b.ReportMetric(tps*float64(variant.batch), "events/s")
+			b.ReportMetric(float64(retries.Load())/float64(b.N), "retry/tx")
+			b.ReportMetric(0, "errors/tx")
+			if count := writerInits.Load(); count > 0 {
+				b.ReportMetric(float64(writerInitNs.Load())/float64(count)/float64(time.Millisecond), "init-ms/stream")
+				b.ReportMetric(float64(producers.Load())/float64(b.N), "producer-ids/tx")
+			}
+		})
+	}
+}
