@@ -66,9 +66,22 @@ jobs:
             -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
       - name: Verify native transactions (required)
         run: go test -count=1 -timeout=8m -v -run '^TestIntegration' ./internal/platform/event/...
+      - name: Recover after a hard YDB restart
+        run: bash internal/platform/event/testdata/ydb-disruption.sh restart
       - name: YDB diagnostics
         if: failure()
         run: docker logs --tail=200 m8-event-ydb
       - name: Destroy disposable YDB
         if: always()
         run: docker rm -f m8-event-ydb
+
+  ydb-node-failover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Verify recovery after losing the topic tablet node
+        run: bash internal/platform/event/testdata/ydb-disruption.sh failover

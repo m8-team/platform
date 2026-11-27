@@ -83,14 +83,19 @@ func createTestTable(t testing.TB, ctx context.Context, db *ydb.Driver, name, co
 
 func createTestTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path string, partitions int64) {
 	t.Helper()
-	if err := db.Topic().Create(ctx, path,
+	createFixtureTopic(t, ctx, db, path,
 		topicoptions.CreateWithMinActivePartitions(partitions),
 		topicoptions.CreateWithMaxActivePartitions(partitions),
 		topicoptions.CreateWithAutoPartitioningSettings(topictypes.AutoPartitioningSettings{
 			AutoPartitioningStrategy: topictypes.AutoPartitioningStrategyScaleUp,
 		}),
-		topicoptions.CreateWithConsumer(topictypes.Consumer{Name: testConsumer}),
-	); err != nil {
+	)
+}
+
+func createFixtureTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path string, options ...topicoptions.CreateOption) {
+	t.Helper()
+	options = append(options, topicoptions.CreateWithConsumer(topictypes.Consumer{Name: testConsumer}))
+	if err := db.Topic().Create(ctx, path, options...); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() {
