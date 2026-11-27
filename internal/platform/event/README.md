@@ -175,7 +175,8 @@ commit.
 Run the disruption harness from the repository root against Docker. It creates
 and destroys its own containers and targets the node reported as the owner
 of the test topic tablet in failover mode. The nine-node fixture needs enough
-memory to start a local replicated YDB cluster.
+memory to start a local replicated YDB cluster. Failover uses independent
+in-memory disks per node. Hard restart uses persistent file disks.
 
 ```sh
 bash internal/platform/event/testdata/ydb-disruption.sh restart

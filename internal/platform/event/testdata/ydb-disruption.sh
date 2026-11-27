@@ -58,10 +58,12 @@ if [[ "$mode" == restart ]]; then
   test_pid=$!
 else
   # The official Docker entrypoint's fixed ports collide for multi-node setups.
-  # Run its deployment helper with distinct ports in the container namespace.
+  # Run its deployment helper with distinct ports and process-local SectorMap
+  # disks. A shared YDB_PDISKS_DIRECTORY reuses the same numbered file across
+  # nodes. The hard-restart case separately exercises persistent file disks.
   docker run -d --hostname localhost --name "$name" --entrypoint bash \
-    -e YDB_TINY_MODE=true -e YDB_GRPC_ENABLE_TLS=false -e YDB_PDISKS_DIRECTORY=/ydb_data/pdisks \
-    "$image" -c 'mkdir -p /ydb_data/pdisks && /local_ydb deploy --ydb-working-dir /ydb_data --ydb-binary-path /ydbd --erasure mirror-3-dc && exec sleep infinity' >/dev/null
+    -e YDB_TINY_MODE=true -e YDB_GRPC_ENABLE_TLS=false -e YDB_USE_IN_MEMORY_PDISKS=true \
+    "$image" -c '/local_ydb deploy --ydb-working-dir /ydb_data --ydb-binary-path /ydbd --erasure mirror-3-dc && exec sleep infinity' >/dev/null
   GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go test -c -o "$scratch/event.test" ./internal/platform/event
   for ((i=0; i<120; i++)); do
     if docker exec "$name" test -s /ydb_data/ydb_recipe.json; then
