@@ -236,3 +236,36 @@ func TestNew(t *testing.T) {
 		}
 	}
 }
+
+func TestOccurredAtValidation(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		stamp *timestamppb.Timestamp
+		valid bool
+	}{
+		{name: "absent"},
+		{name: "invalid", stamp: &timestamppb.Timestamp{Seconds: 253402300800}},
+		{name: "Go zero time", stamp: timestamppb.New(time.Time{})},
+		{name: "Unix epoch", stamp: timestamppb.New(time.Unix(0, 0)), valid: true},
+		{name: "historical", stamp: timestamppb.New(time.Date(1850, 1, 1, 0, 0, 0, 0, time.UTC)), valid: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			e := testEvent(t)
+			e.OccurredAt = tc.stamp
+			_, _, err := encodeBatch(context.Background(), DefaultConfig(nil), []*eventv1.Event{e})
+			if (err == nil) != tc.valid || err != nil && !errors.Is(err, ErrInvalidEvent) {
+				t.Fatalf("publication validation: %v", err)
+			}
+			// Attributes always supplies a time.Time, so absence is represented by its zero value.
+			attrs := sampleAttributes(t)
+			attrs.OccurredAt = time.Time{}
+			if tc.stamp != nil {
+				attrs.OccurredAt = tc.stamp.AsTime()
+			}
+			_, err = newSampleCreated(attrs, wrapperspb.String("sample"))
+			if (err == nil) != tc.valid || err != nil && !errors.Is(err, ErrInvalidEvent) {
+				t.Fatalf("constructor validation: %v", err)
+			}
+		})
+	}
+}

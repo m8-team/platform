@@ -21,6 +21,31 @@ enforces per-call limits, resolves configured topics and provides staging
 counters. Logical identity, partition locality and cross-replica ordering
 remain distinct.
 
+## Stable Producer Identity decision
+
+Stable, reusable producer identities are the selected v1.1 direction.
+Production enablement is blocked on exclusive ownership across processes.
+The pinned SDK/server pair allows two independent transactions using the
+same Producer ID to commit business state while YDB suppresses one of the
+events. The regression holds a sequenced write before send, commits a
+competing write, then releases the delayed write. Both state rows exist
+and only the competing event is present.
+
+Retain the current publisher while this blocker is open. Any future
+implementation must prove exclusive logical replica ownership through
+replacement and node partition. Kubernetes ordinal stability alone does
+not establish ownership. Local lanes can serialize work inside a process
+but cannot fence another process. Acquire an exclusive lane before opening
+the transaction, retain it across SDK-managed attempts and release it
+after transaction and writer completion. Reuse only identity values and
+use the SDK's partition suffix and sequence initialization. Use one
+nonempty batch per physical topic in each transaction attempt.
+Do not introduce a second production publication mode.
+
+See the [v1.1 verification](../../../internal/platform/event/README.md#v11-stable-producer-identity-verification)
+for the counterexample, sequential reuse, metadata measurements, rollout
+conditions and unverified scenarios.
+
 ## Alternatives
 
 - **Native keyed MultiWriter** routes an aggregate within configured partition

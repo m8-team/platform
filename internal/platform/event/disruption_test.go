@@ -34,10 +34,7 @@ func TestDisruptionYDB(t *testing.T) {
 	ctx, db, path := liveDatabase(t)
 	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	createTestTopic(t, ctx, db, path, 1)
-	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path}))
-	if err != nil {
-		t.Fatal(err)
-	}
+	const producer = "m8.test.disruption.0.0"
 	tr, err := NewTransactor(db, 90*time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -48,7 +45,7 @@ func TestDisruptionYDB(t *testing.T) {
 			query.WithParameters(params)); err != nil {
 			return err
 		}
-		return p.Publish(ctx, tx, "events", e)
+		return writeWithProducer(ctx, db, tx, path, producer, e)
 	}
 	next := func() *eventv1.Event {
 		event := testEvent(t)
@@ -199,7 +196,7 @@ func TestDisruptionYDB(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if id, err := readID(msg); err != nil || id != want {
+		if id, err := readID(msg); err != nil || id != want || msg.ProducerID != producer+"-0" {
 			t.Fatalf("lost, partial or duplicate event after recovery: got=%s, want=%s, err=%v", id, want, err)
 		}
 	}

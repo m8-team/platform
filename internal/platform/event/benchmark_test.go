@@ -59,13 +59,17 @@ func BenchmarkNativeYDB(b *testing.B) {
 		name                    string
 		batch, payload, workers int
 		partitions              int64
+		lanes                   int
 	}{
-		{"state_only", 0, 0, 1, 1},
-		{"single_writer", 1, 256, 1, 1},
-		{"keyed_writer", 1, 256, 1, 1},
-		{"batch_10", 10, 1024, 1, 4},
-		{"batch_50_concurrent", 50, 16384, 4, 16},
-		{"batch_100_concurrent", 100, 256, 16, 4},
+		{"state_only", 0, 0, 1, 1, 0},
+		{"single_writer", 1, 256, 1, 1, 0},
+		{"keyed_writer", 1, 256, 1, 1, 0},
+		{"stable_single_writer", 1, 256, 1, 1, 1},
+		{"stable_keyed_writer", 1, 256, 1, 1, 1},
+		{"stable_keyed_two_lanes", 1, 256, 4, 1, 2},
+		{"batch_10", 10, 1024, 1, 4, 0},
+		{"batch_50_concurrent", 50, 16384, 4, 16, 0},
+		{"batch_100_concurrent", 100, 256, 16, 4, 0},
 	} {
 		b.Run(variant.name, func(b *testing.B) {
 			var retries, writerInitNs, writerInits, producers atomic.Uint64
@@ -96,6 +100,11 @@ func BenchmarkNativeYDB(b *testing.B) {
 				b.Fatal(err)
 			}
 			durations := make([]time.Duration, b.N)
+			var laneWait atomic.Uint64
+			lanes := make(chan string, variant.lanes)
+			for lane := range variant.lanes {
+				lanes <- fmt.Sprintf("m8.test.bench.0.%d", lane)
+			}
 			failures := make(chan error, variant.workers)
 			b.ReportAllocs()
 			b.ResetTimer()
@@ -112,6 +121,17 @@ func BenchmarkNativeYDB(b *testing.B) {
 							events[j] = e
 						}
 						params := ydb.ParamsBuilder().Param("$id").Uint64(uint64(i)).Build()
+						producer := ""
+						if variant.lanes > 0 {
+							waitStart := time.Now()
+							select {
+							case producer = <-lanes:
+							case <-ctx.Done():
+								failures <- ctx.Err()
+								return
+							}
+							laneWait.Add(uint64(time.Since(waitStart)))
+						}
 						attempt := 0
 						err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
 							attempt++
@@ -125,13 +145,18 @@ func BenchmarkNativeYDB(b *testing.B) {
 							switch variant.name {
 							case "state_only":
 								return nil
-							case "single_writer":
+							case "stable_keyed_writer", "stable_keyed_two_lanes":
+								return writeWithProducer(ctx, db, tx, path, producer, events...)
+							case "single_writer", "stable_single_writer":
 								messages, _, err := encodeBatch(ctx, cfg, events)
 								if err != nil {
 									return err
 								}
-								writer, err := db.Topic().StartTransactionalWriter(tx, path,
-									topicoptions.WithWriterMessageMaxBytesSize(cfg.MaxEventBytes))
+								options := []topicoptions.WriterOption{topicoptions.WithWriterMessageMaxBytesSize(cfg.MaxEventBytes)}
+								if producer != "" {
+									options = append(options, topicoptions.WithWriterProducerID(producer))
+								}
+								writer, err := db.Topic().StartTransactionalWriter(tx, path, options...)
 								if err != nil {
 									return err
 								}
@@ -141,6 +166,9 @@ func BenchmarkNativeYDB(b *testing.B) {
 								return p.Publish(ctx, tx, "events", events...)
 							}
 						})
+						if producer != "" {
+							lanes <- producer
+						}
 						if err != nil {
 							failures <- err
 							return
@@ -154,6 +182,13 @@ func BenchmarkNativeYDB(b *testing.B) {
 			close(failures)
 			for err := range failures {
 				b.Fatal(err)
+			}
+			end, _, err := topicEnds(ctx, db, path)
+			if err != nil || end != int64(b.N*variant.batch) {
+				b.Fatalf("topic end %d, want %d, error %v", end, b.N*variant.batch, err)
+			}
+			if variant.lanes > 0 {
+				b.ReportMetric(float64(laneWait.Load())/float64(b.N)/float64(time.Millisecond), "lane-wait-ms/tx")
 			}
 			slices.Sort(durations)
 			for _, percentile := range []int{50, 95, 99} {

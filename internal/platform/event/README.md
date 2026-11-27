@@ -1,5 +1,7 @@
 # M8 Event v1
 
+Stable Producer Identity is blocked for production. See [v1.1 verification](#v11-stable-producer-identity-verification).
+
 The flat `event` package shares one Protobuf envelope and publishes batches using
 native YDB Query transactions. Business modules own business state, typed
 payload contracts, authorization, command receipts and consumer state. Existing
@@ -35,7 +37,14 @@ to share across independent transactions. Use one batch per topic per
 transaction. The defaults are 256 KiB per event, 100 events per call and 4 MiB
 of serialized envelopes per call. An empty batch with a configured alias is a
 no-op. Callers enforce required event emission and their total transaction
-budget. Topic provisioning and compatibility verification belong to deployment.
+budget. Deployments should call `publisher.CheckReadiness(startupCtx)` before
+enabling business commands. Pass a startup context with a deadline.
+Configuration rejects duplicate physical topic paths. The check requires
+successful topic metadata access and a contiguous key range across active
+partitions. Inactive split parents are excluded. Provisioning, retention and
+size policies, write permissions, consumer setup and transactional write
+compatibility must be verified by deployment. A metadata check does not
+write probe events or inspect internal Source ID TTL and count caps.
 
 ```go
 err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
@@ -131,9 +140,13 @@ independent idempotency and reconciliation. This package provides no bridge.
 `Publisher.Stats()` returns cumulative process-local counters for calls,
 errors, staged batches, staged messages and serialized staged bytes. Export
 these via the service's telemetry. Retries add staging attempts, and staging
-can survive in counters after rollback. Collect transaction duration, retries,
-commit outcomes and confirmed event counts at the owning transaction boundary
-using existing SDK traces and service instrumentation. Use aggregate counters
+can survive in counters after rollback. `Transactor.Stats()` counts SDK attempts and retries, invocations that return
+confirmed commit or error, and cumulative invocation duration. The explicit
+YDB `UNDETERMINED` count is limited to the SDK commit trace. Transport errors
+such as a lost successful response can also make the outcome uncertain.
+Use SDK trace hooks to export per-invocation latency distributions and writer
+initialization errors. Count receipt-confirmed operations and committed
+business events at the owning boundary. Use aggregate counters
 or configured topic aliases for labels. Avoid event, tenant, aggregate and
 correlation identifiers in telemetry labels. There is no telemetry endpoint
 or exporter in this package.
@@ -146,6 +159,76 @@ resolution reduce accidental abuse. Keep secrets and unnecessary personal
 data out of event payloads and metadata. Validation errors omit protobuf
 values. Treat wrapped SDK errors as operational diagnostics and sanitize them
 at public boundaries.
+
+## v1.1 Stable Producer Identity verification
+
+With YDB Go SDK `v3.157.1`, `StartTransactionalWriter` accepts
+`WithProducerIDPrefix` inside `WithWriteToManyPartitions`. The SDK appends
+`-<partition_id>` to the prefix. The partition writer pool reads the init
+response's `LastSeqNum` and advances the new MultiWriter's automatic sequence
+counter before sending to that partition. A writer-local sequence counter can
+create gaps across partitions. The bound chooser handles current partition
+bounds and the split path uses a separate producer for each child. The SDK
+flushes before commit and stops writers on transaction completion. The Query
+SDK decides when to retry a serializable read-write transaction. An
+application callback must recreate its messages and writers on each attempt.
+
+The loopback sequence fixture confirmed eight expected events across four
+durable state mutations, with one Producer ID and offsets 0 through 7. It
+covers a rollback after staging, one injected retriable callback result
+after staging, opening the same identity through a second driver and a
+discarded successful commit response followed by a state lookup and another
+publication with the same identity. The replay decision for a real command
+still belongs to its durable receipt. A lost response when the server is
+still resolving the commit remains a separate case.
+
+The duplicate-identity fixture blocks the first producer's gRPC
+`SendMsg` after it receives a sequence number. A second independent YDB
+driver commits a different mutation and event using the same identity and
+partition. After releasing the first write, both transactions report
+success. Both state keys exist, but the topic contains only the second
+event. Fencing did not prevent suppression on YDB `26.3.1.25`.
+This is a blocking compatibility finding for Stable Producer Identity.
+The production Publisher still uses per-writer random identities.
+
+A future deployment must bind a trusted namespace (including deployment
+and environment), service ID, stable logical replica ID and exclusive lane
+before a native transaction starts, using an unambiguous encoding checked
+against server limits. The lane must cover all SDK attempts and writer
+cleanup. Within an attempt, permit one nonempty batch per physical topic.
+A StatefulSet ordinal provides a stable name. Force deletion of a Pod on
+an unreachable node can let a replacement run while the old process still
+writes. For rolling replacement and scale-down, confirm termination or
+fence the old process before reusing the ordinal and its lanes. Require an
+equivalent verified ownership guarantee for non-Kubernetes deployments.
+There are no tracked StatefulSet manifests or production callers of this
+shared package in this repository. Review external deployments separately.
+Identity affects deduplication and resource use. Scoped YDB authorization
+and TLS still control write access. Keep producer identity and topic mappings
+in trusted configuration and use bounded telemetry labels.
+
+The local A/B metadata run used one partition, six workers, batches of one,
+and a target of 40 transactions/s for one minute per strategy. The topic
+end equaled confirmed commits in both cases. The random fixture retained
+2,399 Source IDs after 2,399 commits. Six exclusive test producers retained
+6 IDs after 2,324 commits and were already at 6 at 20 seconds. These are
+tablet counts on the disposable fixture. Budget active IDs per partition
+as the sum of replicas times lanes across deployments that write to the
+topic. Include inactive split partitions and distinct historical identities
+from scale-down, renames and reconfiguration until observed eviction.
+The accelerated TTL fixture verified reusing an evicted identity at the
+next offset with sequence 1. Count-cap eviction and production retention
+remain unverified. Lane counts and p99 targets require representative
+workload rates, batch sizes, traffic skew and failover headroom.
+
+The official YDB metrics reference documents `topic.producers_count` for
+the topic and `topic.partition.producers_count_max` for its largest
+partition count. Verify that the target YDB export emits both with the
+required topic labels and compare them to provisioned and retained identity
+budgets. Production metric export and alerts remain a release gate. Keep
+the disposable tablet HTML sampler in the test fixture. See the
+[YDB metrics reference](https://ydb.tech/docs/en/reference/observability/metrics/#topic-metrics)
+and [Kubernetes StatefulSet force deletion](https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/).
 
 ## Verification and migration gates
 
@@ -172,9 +255,14 @@ Run `go test -count=1 -v -run '^TestIntegration' ./internal/platform/event/...`
 or `go test -run '^$' -bench '^BenchmarkNativeYDB$' -benchmem -benchtime=40x ./internal/platform/event/...`.
 The Event Layer workflow runs contract and fast checks, the disposable YDB
 suite including a load-induced partition split and hard restart, and a
-separate multi-node failover job. The split test checks the inactive parent,
-both new child partitions, retained offset ranges and the complete set of
-committed IDs. Benchmark latencies include the whole transaction through
+separate multi-node failover job. The pull request workflow compares metadata
+for one minute per strategy. A manual workflow dispatch can run 8 or 30
+minutes per strategy using the same disposable server image. The split test induces a split with the baseline pressure workload and
+reuses a stable prefix before and after the split. It checks the inactive
+parent, both children, partition-specific IDs, retained offsets and all
+committed IDs. The optional `M8_EVENT_TEST_STABLE_SPLIT_LOAD=1` experiment
+uses the stable prefix for the pressure workload too. That run reached its
+80-second deadline before observing a split and remains unverified. Benchmark latencies include the whole transaction through
 commit.
 
 Run the disruption harness from the repository root against Docker. It creates
@@ -195,7 +283,8 @@ and set the monitor origin and duration as below. The test drives a bounded
 rate and reads only the fixture's partition tablet.
 
 ```sh
-M8_EVENT_TEST_SOAK_DURATION=8m M8_EVENT_TEST_MONITOR_URL=http://127.0.0.1:38765   go test -count=1 -timeout=10m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event
+M8_EVENT_TEST_SOAK_DURATION=8m M8_EVENT_TEST_MONITOR_URL=http://127.0.0.1:38765 \
+  go test -count=1 -timeout=20m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event
 ```
 
 

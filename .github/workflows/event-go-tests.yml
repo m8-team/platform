@@ -13,9 +13,17 @@ on:
       - "buf.gen.yaml"
       - "buf.lock"
       - "justfile"
+      - "docs/engineering/adr/ADR-0002-native-ydb-transactional-events.md"
   push:
     branches: [main]
     paths: *event-paths
+  workflow_dispatch:
+    inputs:
+      metadata_duration:
+        description: Duration per strategy on the disposable fixture
+        type: choice
+        default: "8m"
+        options: ["8m", "30m"]
 
 permissions:
   contents: read
@@ -39,7 +47,7 @@ jobs:
           go vet ./internal/platform/event/...
       - name: Verify Event contract and generated code
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'origin/main' }}
         run: |
           mkdir -p .bin
           curl -fsSL --remove-on-error https://github.com/bufbuild/buf/releases/download/v1.75.0/buf-Linux-x86_64 -o .bin/buf
@@ -50,7 +58,7 @@ jobs:
           diff -ru internal/proto/m8/platform/event "$RUNNER_TEMP/event-codegen/internal/proto/m8/platform/event"
   live-ydb:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && 75 || 15 }}
     env:
       M8_EVENT_TEST_YDB_REQUIRED: "1"
       M8_EVENT_TEST_YDB_DSN: grpc://localhost:2136/local
@@ -63,9 +71,14 @@ jobs:
       - name: Start disposable YDB 26.3.1.25
         run: |
           docker run -d --hostname localhost --name m8-event-ydb -p 127.0.0.1:2136:2136 \
-            -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
+            -p 127.0.0.1:8765:8765 -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
       - name: Verify native transactions (required)
         run: go test -count=1 -timeout=8m -v -run '^TestIntegration' ./internal/platform/event/...
+      - name: Compare transactional Producer ID metadata (required)
+        env:
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
+          M8_EVENT_TEST_SOAK_DURATION: ${{ inputs.metadata_duration || '1m' }}
+        run: go test -count=1 -timeout=65m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event/...
       - name: Recover after a hard YDB restart
         run: bash internal/platform/event/testdata/ydb-disruption.sh restart
       - name: Verify producer metadata TTL

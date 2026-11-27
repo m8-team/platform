@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -34,6 +35,7 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 			},
 		}),
 	)
+	const producer = "m8.test.split.0.0"
 	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path}))
 	if err != nil {
 		t.Fatal(err)
@@ -54,7 +56,7 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 	template := testEvent(t)
 	template.Payload = payload
 	expected := make(map[string]struct{})
-	publish := func(ctx context.Context, count int, distinctKeys bool) string {
+	publish := func(ctx context.Context, count int, distinctKeys, stable bool) string {
 		t.Helper()
 		events := make([]*eventv1.Event, count)
 		for i := range events {
@@ -70,25 +72,31 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 			events[i] = e
 		}
 		if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+			if stable {
+				return writeWithProducer(ctx, db, tx, path, producer, events...)
+			}
 			return p.Publish(ctx, tx, "events", events...)
 		}); err != nil {
-			t.Fatal(err)
+			t.Fatalf("publish during split fixture after %d confirmed events: %v", len(expected), err)
 		}
 		for _, e := range events {
 			expected[e.Id] = struct{}{}
 		}
 		return events[0].Id
 	}
-	first := publish(ctx, 1, false)
+	first := publish(ctx, 1, false, true)
 	loadCtx, stop := context.WithTimeout(ctx, 80*time.Second)
 	defer stop()
 	var children map[int64]bool
 	start := time.Now()
+	// Use the existing split-inducing workload by default. The opt-in case
+	// also reuses the sentinel's producer identity for all pressure writes.
+	stableLoad := os.Getenv("M8_EVENT_TEST_STABLE_SPLIT_LOAD") == "1"
 	for children == nil {
 		if loadCtx.Err() != nil {
 			t.Fatalf("no split under committed transactional load, sent %d events", len(expected))
 		}
-		publish(loadCtx, 8, false)
+		publish(loadCtx, 8, false, stableLoad)
 		desc, err := db.Topic().Describe(loadCtx, path)
 		if err != nil {
 			t.Fatal(err)
@@ -105,8 +113,8 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 	}
 	t.Logf("active split observed in %s after %d committed events", time.Since(start).Round(time.Millisecond), len(expected))
 
-	after := publish(ctx, 1, false)
-	publish(ctx, 32, true)
+	after := publish(ctx, 1, false, true)
+	publish(ctx, 32, true, true)
 	description, err := db.Topic().Describe(ctx, path, topicoptions.IncludePartitionStats())
 	if err != nil {
 		t.Fatal(err)
@@ -151,13 +159,20 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 		}
 		delete(expected, event.Id)
 		_, child := children[msg.PartitionID()]
+		stableID := fmt.Sprintf("%s-%d", producer, msg.PartitionID())
 		switch event.Id {
 		case first:
+			if msg.ProducerID != stableID {
+				t.Fatalf("pre-split producer: got %q, want %q", msg.ProducerID, stableID)
+			}
 			if msg.PartitionID() != parent {
 				t.Fatal("pre-split sentinel was not read from parent")
 			}
 			seenParent = true
 		case after:
+			if msg.ProducerID != stableID {
+				t.Fatalf("post-split producer: got %q, want %q", msg.ProducerID, stableID)
+			}
 			if !seenParent || !child {
 				t.Fatal("post-split sentinel must follow parent delivery and come from a child")
 			}

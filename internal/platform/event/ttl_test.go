@@ -57,10 +57,7 @@ func TestProducerMetadataTTL(t *testing.T) {
 		e.Id = uuid.NewString()
 		probes[c.alias] = observation{count: count, event: e}
 	}
-	publisher, err := NewPublisher(db, DefaultConfig(topics))
-	if err != nil {
-		t.Fatal(err)
-	}
+	const producer = "m8.test.ttl.0.0"
 	owner, err := NewTransactor(db, 10*time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -68,7 +65,7 @@ func TestProducerMetadataTTL(t *testing.T) {
 	for _, c := range cases {
 		p := probes[c.alias]
 		if err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			return publisher.Publish(ctx, tx, c.alias, p.event)
+			return writeWithProducer(ctx, db, tx, topics[c.alias], producer, p.event)
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -147,4 +144,43 @@ func TestProducerMetadataTTL(t *testing.T) {
 	}
 	t.Logf("after %s: expired offset range=[1,1), Source IDs=0; young offset range=[1,1), Source IDs=1; retained offset range=[0,1), Source IDs=1, read offset=%d",
 		time.Since(short.commitAt).Round(time.Millisecond), msg.Offset)
+
+	reopened, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(topics["expired"]))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		closeCtx, stop := context.WithTimeout(context.Background(), 5*time.Second)
+		defer stop()
+		if err := reopened.Close(closeCtx); err != nil {
+			t.Error(err)
+		}
+	}()
+	next := proto.CloneOf(short.event)
+	next.Id = uuid.NewString()
+	if err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		return writeWithProducer(ctx, db, tx, topics["expired"], producer, next)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if _, end := offsets("expired"); end != 2 {
+		t.Fatalf("same identity after eviction: topic end=%d, want 2", end)
+	}
+	read, stop := context.WithTimeout(ctx, 5*time.Second)
+	defer stop()
+	msg, err = reopened.ReadMessage(read)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err = io.ReadAll(msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := proto.Unmarshal(data, e); err != nil || !proto.Equal(e, next) ||
+		msg.Offset != 1 || msg.ProducerID != producer+"-0" {
+		t.Fatalf("message after source eviction: offset=%d producer=%q seq=%d error=%v",
+			msg.Offset, msg.ProducerID, msg.SeqNo, err)
+	}
+	t.Logf("reused the evicted producer at offset %d with sequence %d", msg.Offset, msg.SeqNo)
+
 }

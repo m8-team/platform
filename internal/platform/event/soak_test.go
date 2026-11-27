@@ -14,7 +14,9 @@ import (
 	"testing"
 	"time"
 
+	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
+	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -29,6 +31,16 @@ func TestSoakProducerMetadata(t *testing.T) {
 	if err != nil || duration < time.Minute || duration > 30*time.Minute {
 		t.Fatal("soak duration must be between 1m and 30m")
 	}
+	for _, stable := range []bool{false, true} {
+		name := "random"
+		if stable {
+			name = "stable"
+		}
+		t.Run(name, func(t *testing.T) { testSoakProducerMetadata(t, duration, stable) })
+	}
+}
+
+func testSoakProducerMetadata(t *testing.T, duration time.Duration, stable bool) {
 	_, db, path := liveDatabase(t)
 	ctx, cancel := context.WithTimeout(context.Background(), duration+time.Minute)
 	defer cancel()
@@ -60,7 +72,8 @@ func TestSoakProducerMetadata(t *testing.T) {
 	var workers sync.WaitGroup
 	const workerCount = 6
 	failures := make(chan error, workerCount)
-	for range workerCount {
+	for lane := range workerCount {
+		producer := fmt.Sprintf("m8.test.metadata.0.%d", lane)
 		workers.Go(func() {
 			for {
 				select {
@@ -69,8 +82,12 @@ func TestSoakProducerMetadata(t *testing.T) {
 				case <-schedule.C:
 				}
 				e := proto.CloneOf(template)
-				e.Id = fmt.Sprintf("34b169b7-3969-47f1-bc60-%012x", issued.Add(1))
+				e.Id = soakEventID(issued.Add(1))
 				err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+					// Both variants use the same SDK writer options; only the prefix changes.
+					if stable {
+						return writeWithProducer(ctx, db, tx, path, producer, e)
+					}
 					return p.Publish(ctx, tx, "soak", e)
 				})
 				if err != nil {
@@ -106,17 +123,62 @@ func TestSoakProducerMetadata(t *testing.T) {
 			retained := sample(ctx)
 			offset, _, err := topicEnds(ctx, db, path)
 			t.Logf("elapsed=%s confirmed=%d retained=%d topic_end=%d", time.Since(started).Round(time.Millisecond), n, retained, offset)
-			if n < 100 || offset != int64(n) || retained < int(n) {
+			wantRetained := n
+			if stable {
+				wantRetained = workerCount
+			}
+			if n < 100 || offset != int64(n) || retained != int(wantRetained) {
 				t.Fatalf("unexpected loss or early eviction: commits=%d, retained=%d, offset=%d, err=%v", n, retained, offset, err)
 			}
+			reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
 			if err != nil {
 				t.Fatal(err)
 			}
+			defer func() {
+				closeCtx, stop := context.WithTimeout(context.Background(), 5*time.Second)
+				defer stop()
+				if err := reader.Close(closeCtx); err != nil {
+					t.Error(err)
+				}
+			}()
+			expected := make(map[string]struct{}, n)
+			for i := uint64(1); i <= n; i++ {
+				expected[soakEventID(i)] = struct{}{}
+			}
+			producers := make(map[string]struct{}, wantRetained)
+			for offset := range int64(n) {
+				msg, err := reader.ReadMessage(ctx)
+				if err != nil {
+					t.Fatal(err)
+				}
+				data, err := io.ReadAll(msg)
+				if err != nil {
+					t.Fatal(err)
+				}
+				got := new(eventv1.Event)
+				if err := proto.Unmarshal(data, got); err != nil {
+					t.Fatal(err)
+				}
+				template.Id = got.Id
+				if _, ok := expected[got.Id]; !ok || msg.Offset != offset || !proto.Equal(got, template) {
+					t.Fatalf("unexpected or duplicate event %s at offset %d (want %d)", got.Id, msg.Offset, offset)
+				}
+				delete(expected, got.Id)
+				producers[msg.ProducerID] = struct{}{}
+			}
+			if len(expected) != 0 || len(producers) != int(wantRetained) {
+				t.Fatalf("missing events=%d, distinct producer IDs=%d, want=%d", len(expected), len(producers), wantRetained)
+			}
+			t.Logf("verified %d event IDs and payloads, %d distinct producer IDs", n, len(producers))
 			return
 		case <-ctx.Done():
 			t.Fatal(ctx.Err())
 		}
 	}
+}
+
+func soakEventID(index uint64) string {
+	return fmt.Sprintf("34b169b7-3969-47f1-bc60-%012x", index)
 }
 
 // observeSourceIDs reads effective settings and counts records in the

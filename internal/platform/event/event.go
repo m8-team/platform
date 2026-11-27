@@ -43,14 +43,15 @@ func New(attrs Attributes, payload proto.Message) (*eventv1.Event, error) {
 		CausationId: attrs.CausationID, OccurredAt: timestamppb.New(attrs.OccurredAt),
 		Payload: packed, Metadata: maps.Clone(attrs.Metadata),
 	}
-	if attrs.OccurredAt.IsZero() || !validEnvelope(e) {
+	if !validEnvelope(e) {
 		return nil, fmt.Errorf("%w: envelope validation", ErrInvalidEvent)
 	}
 	return e, nil
 }
 
 func validEnvelope(e *eventv1.Event) bool {
-	return e.GetOccurredAt() != nil && e.GetOccurredAt().CheckValid() == nil &&
+	occurredAt := e.GetOccurredAt()
+	return occurredAt != nil && occurredAt.CheckValid() == nil && !occurredAt.AsTime().IsZero() &&
 		e.GetPayload() != nil && protovalidate.Validate(e) == nil
 }
 

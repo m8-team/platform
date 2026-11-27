@@ -1,6 +1,9 @@
 package event
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+	"time"
+)
 
 // PublishStats counts calls and staged batches for one Publisher. The
 // transaction owner observes commit outcomes separately.
@@ -32,4 +35,35 @@ func (c *publishCounters) record(err error, events, size int) {
 		c.events.Add(uint64(events))
 		c.bytes.Add(uint64(size))
 	}
+}
+
+// TransactionStats counts SDK attempts and final outcomes of DoTx invocations.
+// Failed includes unknown outcomes. CommitUnknown counts explicit YDB
+// UNDETERMINED commit responses and is a lower bound on ambiguous commits.
+type TransactionStats struct {
+	Attempts, Retries, Committed, Failed, CommitUnknown uint64
+	Duration                                            time.Duration
+}
+
+type transactionCounters struct {
+	attempts, retries, committed, failed, unknown, duration atomic.Uint64
+}
+
+// Stats returns cumulative counters for the service's metrics exporter.
+func (t *Transactor) Stats() TransactionStats {
+	c := &t.counters
+	return TransactionStats{
+		Attempts: c.attempts.Load(), Retries: c.retries.Load(),
+		Committed: c.committed.Load(), Failed: c.failed.Load(),
+		CommitUnknown: c.unknown.Load(), Duration: time.Duration(c.duration.Load()),
+	}
+}
+
+func (c *transactionCounters) record(err error, duration time.Duration) {
+	c.duration.Add(uint64(duration))
+	if err == nil {
+		c.committed.Add(1)
+		return
+	}
+	c.failed.Add(1)
 }

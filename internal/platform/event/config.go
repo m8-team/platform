@@ -39,12 +39,17 @@ func (c Config) Validate() error {
 		c.MaxBatchEvents <= 0 || c.MaxBatchBytes < c.MaxEventBytes || len(c.Topics) == 0 {
 		return ErrInvalidConfiguration
 	}
+	paths := make(map[string]struct{}, len(c.Topics))
 	for name, topic := range c.Topics {
 		if !validName(name) || !strings.HasPrefix(topic, "/") ||
 			topic == "/" || path.Clean(topic) != topic || !utf8.ValidString(topic) ||
 			strings.ContainsFunc(topic, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) }) {
 			return fmt.Errorf("%w: invalid topic mapping", ErrInvalidConfiguration)
 		}
+		if _, exists := paths[topic]; exists {
+			return fmt.Errorf("%w: duplicate physical topic mapping", ErrInvalidConfiguration)
+		}
+		paths[topic] = struct{}{}
 	}
 	return nil
 }
