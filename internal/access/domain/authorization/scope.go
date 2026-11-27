@@ -2,8 +2,10 @@ package authorization
 
 import (
 	"errors"
-	"github.com/m8-team/platform/internal/access/domain/shared"
+	"slices"
 	"strings"
+
+	"github.com/m8-team/platform/internal/access/domain/shared"
 )
 
 var (
@@ -159,10 +161,8 @@ func (s Scope) Matches(r ResolvedResource) (bool, error) {
 		if s.root == r.Resource {
 			return true, nil
 		}
-		for _, a := range r.Ancestors {
-			if a == s.root {
-				return true, nil
-			}
+		if slices.Contains(r.Ancestors, s.root) {
+			return true, nil
 		}
 		return false, nil
 	case ScopeResourceKind, ScopeTenant:

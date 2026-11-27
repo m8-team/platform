@@ -3,11 +3,12 @@ package module
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/m8-team/platform/internal/access/domain/permission"
 	"github.com/m8-team/platform/internal/access/domain/resource"
 	"github.com/m8-team/platform/internal/access/domain/role"
 	"github.com/m8-team/platform/internal/access/domain/shared"
-	"strings"
 )
 
 var ErrInvalidManifest = errors.New("invalid authorization module manifest")
@@ -32,9 +33,15 @@ type ManifestInput struct {
 }
 
 func NewManifest(in ManifestInput) (Manifest, error) {
-	m := Manifest{moduleID: strings.TrimSpace(in.ModuleID), version: strings.TrimSpace(in.Version),
-		publisher: in.Publisher, resources: append([]resource.TypeDefinition(nil), in.Resources...),
-		permissions: append([]permission.Definition(nil), in.Permissions...), roles: append([]role.Template(nil), in.Roles...)}
+	m := Manifest{
+		moduleID:    strings.TrimSpace(in.ModuleID),
+		version:     strings.TrimSpace(in.Version),
+		publisher:   in.Publisher,
+		resources:   append([]resource.TypeDefinition(nil), in.Resources...),
+		permissions: append([]permission.Definition(nil), in.Permissions...),
+		roles:       append([]role.Template(nil), in.Roles...),
+	}
+
 	return m, m.Validate()
 }
 func (m Manifest) Validate() error {

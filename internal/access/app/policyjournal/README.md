@@ -92,6 +92,7 @@ manifest
 contains:
 
 -
+
 a
 unique
 per-tenant
@@ -102,7 +103,9 @@ expected
 policy
 head
 (CAS);
+
 -
+
 one
 job
 for
@@ -121,7 +124,9 @@ only
 domain
 object
 revision);
+
 -
+
 on
 role
 permission
@@ -241,6 +246,7 @@ permit.
 ## Delivery and durable certification
 
 1.
+
 Commit
 Access
 mutation,
@@ -252,7 +258,9 @@ and
 outbox
 in
 YDB.
+
 2.
+
 Consume
 one
 job
@@ -263,7 +271,9 @@ declared
 and
 per-key
 revision.
+
 3.
+
 Load
 the
 owning
@@ -285,7 +295,9 @@ YDB
 checkpoint
 and
 ZedToken.
+
 4.
+
 `CommitPolicyJob`
 uses
 the
@@ -306,7 +318,9 @@ an
 old
 fence
 epoch.
+
 5.
+
 Advance
 `applied_revision`
 only
@@ -324,7 +338,9 @@ NOT
 combine
 opaque
 ZedTokens.
+
 6.
+
 ACK
 Kafka/Outbox
 delivery
@@ -336,7 +352,9 @@ commits.
 Replay
 is
 safe.
+
 7.
+
 If
 a
 role
@@ -543,6 +561,7 @@ Before
 rollout:
 
 -
+
 implement
 authoritative
 Access
@@ -560,7 +579,9 @@ fanout
 and
 bootstrap
 inventory;
+
 -
+
 connect
 the
 real
@@ -570,7 +591,9 @@ and
 verified
 OIDC/mTLS
 PrincipalResolver;
+
 -
+
 demonstrate
 failure
 injection
@@ -584,7 +607,9 @@ and
 during
 multi-replica
 takeover;
+
 -
+
 verify
 tenant
 isolation,

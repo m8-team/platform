@@ -55,8 +55,15 @@ func TestAssignmentIsIndependentAndScoped(t *testing.T) {
 	if _, err = revoked.Revoke(2, time.Now()); !errors.Is(err, ErrAssignmentNotActive) {
 		t.Fatal(err)
 	}
-	input.Scope, _ = authorization.NewScope(authorization.ScopeInput{Kind: authorization.ScopeInstance,
-		TenantID: shared.TenantID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"), ResourceType: "finance.invoice", ResourceID: "invoice-123"})
+	otherTenant, err := shared.NewTenantID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
+	if err != nil {
+		t.Fatal(err)
+	}
+	input.Scope, err = authorization.NewScope(authorization.ScopeInput{Kind: authorization.ScopeInstance,
+		TenantID: otherTenant, ResourceType: "finance.invoice", ResourceID: "invoice-123"})
+	if err != nil {
+		t.Fatal(err)
+	}
 	if _, err = NewAssignment(input); !errors.Is(err, ErrInvalidAssignment) {
 		t.Fatal(err)
 	}

@@ -24,3 +24,17 @@ func TestTenantAndRevision(t *testing.T) {
 		t.Fatalf("invalid immutable revision: %v", err)
 	}
 }
+
+func TestCanonicalTenantID(t *testing.T) {
+	const nilUUID = "00000000-0000-0000-0000-000000000000"
+	id, err := NewTenantID(" " + nilUUID + " ")
+	if err != nil || id.String() != nilUUID || id.Validate() != nil {
+		t.Fatalf("explicit nil UUID: %v, %v", id, err)
+	}
+	for _, raw := range []string{"", "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA", "{" + testTenant + "}", "urn:uuid:" + testTenant} {
+		id, err := NewTenantID(raw)
+		if err != ErrInvalidTenantID || id.Validate() != ErrInvalidTenantID || ValidUUID(raw) {
+			t.Errorf("expected invalid UUID for %q", raw)
+		}
+	}
+}
