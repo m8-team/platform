@@ -1,0 +1,166 @@
+package event
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"io"
+	"strings"
+	"testing"
+	"time"
+
+	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
+)
+
+func testEvent(t testing.TB) *eventv1.Event {
+	t.Helper()
+	payload, err := anypb.New(wrapperspb.String("sample"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &eventv1.Event{
+		Id: "34b169b7-3969-47f1-bc60-18f8df84212b", Type: "m8.resource.created.v1",
+		Source: "resource-manager", AggregateId: "resource-1", AggregateType: "resource",
+		AggregateRevision: 1, OccurredAt: timestamppb.New(time.Unix(1, 0)), Payload: payload,
+	}
+}
+
+func TestEncodeBatch(t *testing.T) {
+	cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
+	ctx := context.Background()
+	e := testEvent(t)
+	next := proto.CloneOf(e)
+	next.Id = "44b169b7-3969-47f1-bc60-18f8df84212b"
+	msgs, err := encodeBatch(ctx, cfg, []*eventv1.Event{e, next})
+	if err != nil || len(msgs) != 2 {
+		t.Fatalf("batch: %v", err)
+	}
+	for i, want := range []*eventv1.Event{e, next} {
+		data, err := io.ReadAll(msgs[i].Data)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := new(eventv1.Event)
+		if err := proto.Unmarshal(data, got); err != nil || !proto.Equal(want, got) {
+			t.Fatalf("round trip: %v", err)
+		}
+		if msgs[i].Key != routingKey(want) || msgs[i].SeqNo != 0 {
+			t.Fatal("invalid routing or sequence")
+		}
+	}
+	if msgs, err := encodeBatch(ctx, cfg, nil); err != nil || len(msgs) != 0 {
+		t.Fatalf("empty batch: %v", err)
+	}
+}
+
+func TestInvalidEvents(t *testing.T) {
+	cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
+	tests := map[string]func(*eventv1.Event){
+		"id": func(e *eventv1.Event) { e.Id = "bad" },
+		"type": func(e *eventv1.Event) { e.Type = "unversioned" },
+		"revision": func(e *eventv1.Event) { e.AggregateRevision = 0 },
+		"tenant": func(e *eventv1.Event) { e.TenantId = "bad" },
+		"time": func(e *eventv1.Event) { e.OccurredAt = nil },
+		"payload": func(e *eventv1.Event) { e.Payload = nil },
+		"malformed": func(e *eventv1.Event) { e.Payload.Value = []byte{0xff} },
+		"unknown": func(e *eventv1.Event) { e.Payload.TypeUrl = "type.googleapis.com/unknown.Message" },
+	}
+	for name, mutate := range tests {
+		t.Run(name, func(t *testing.T) {
+			e := testEvent(t)
+			mutate(e)
+			if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrInvalidEvent) {
+				t.Fatalf("expected invalid event, got %v", err)
+			}
+		})
+	}
+	for _, events := range [][]*eventv1.Event{{nil}, {testEvent(t), testEvent(t)}} {
+		if _, err := encodeBatch(context.Background(), cfg, events); !errors.Is(err, ErrInvalidEvent) {
+			t.Fatalf("expected invalid event, got %v", err)
+		}
+	}
+}
+
+func TestLimitsAndCancellation(t *testing.T) {
+	cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
+	e := testEvent(t)
+	next := proto.CloneOf(e)
+	next.Id = "44b169b7-3969-47f1-bc60-18f8df84212b"
+	cfg.MaxBatchEvents = 1
+	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
+		t.Fatal(err)
+	}
+	cfg.MaxBatchEvents = 2
+	cfg.MaxEventBytes = proto.Size(e) - 1
+	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e}); !errors.Is(err, ErrEventTooLarge) {
+		t.Fatal(err)
+	}
+	cfg.MaxEventBytes = proto.Size(e)
+	cfg.MaxBatchBytes = proto.Size(e) + proto.Size(next) - 1
+	if _, err := encodeBatch(context.Background(), cfg, []*eventv1.Event{e, next}); !errors.Is(err, ErrBatchTooLarge) {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := encodeBatch(ctx, cfg, []*eventv1.Event{e}); !errors.Is(err, context.Canceled) {
+		t.Fatal(err)
+	}
+}
+
+func TestRoutingKey(t *testing.T) {
+	a, b := testEvent(t), testEvent(t)
+	a.AggregateType, a.AggregateId = "a/b", "c"
+	b.AggregateType, b.AggregateId = "a", "b/c"
+	if routingKey(a) == routingKey(b) || routingKey(a) != routingKey(proto.CloneOf(a)) {
+		t.Fatal("routing key collision or instability")
+	}
+}
+
+func TestConfig(t *testing.T) {
+	for _, path := range []string{"", "relative", "/local/../bad", "/local/a b", "/"} {
+		if err := DefaultConfig(map[string]string{"resource": path}).Validate(); !errors.Is(err, ErrInvalidConfiguration) {
+			t.Fatalf("accepted %q: %v", path, err)
+		}
+	}
+	if err := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"}).Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := NewPublisher(nil, Config{}); !errors.Is(err, ErrInvalidConfiguration) {
+		t.Fatal(err)
+	}
+}
+
+func BenchmarkEncodeBatch(b *testing.B) {
+	for _, n := range []int{1, 10, 50, 100} {
+		for _, size := range []int{256, 1024, 16384, 131072} {
+			if n*(size+1024) > 4<<20 {
+				continue
+			}
+			b.Run(fmt.Sprintf("batch_%d/payload_%d", n, size), func(b *testing.B) {
+				cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
+				events := make([]*eventv1.Event, n)
+				for i := range events {
+					e := testEvent(b)
+					e.Id = fmt.Sprintf("34b169b7-3969-47f1-bc60-%012x", i)
+					var err error
+					e.Payload, err = anypb.New(wrapperspb.String(strings.Repeat("x", size)))
+					if err != nil {
+						b.Fatal(err)
+					}
+					events[i] = e
+				}
+				b.ReportAllocs()
+				b.ResetTimer()
+				for i := 0; i < b.N; i++ {
+					if _, err := encodeBatch(context.Background(), cfg, events); err != nil {
+						b.Fatal(err)
+					}
+				}
+			})
+		}
+	}
+}
