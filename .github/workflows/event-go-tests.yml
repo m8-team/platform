@@ -118,3 +118,19 @@ jobs:
           go-version-file: go.mod
       - name: Verify recovery after losing the topic tablet node
         run: bash internal/platform/event/testdata/ydb-disruption.sh failover
+
+  kubernetes-replica-handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Install kind
+        run: |
+          curl -fsSLo "$RUNNER_TEMP/kind" https://kind.sigs.k8s.io/dl/v0.32.0/kind-linux-amd64
+          chmod +x "$RUNNER_TEMP/kind"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Verify replica handoff across a control-plane partition
+        run: bash internal/platform/event/testdata/kubernetes-handoff.sh

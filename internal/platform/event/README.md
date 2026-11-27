@@ -234,14 +234,53 @@ owner. The replacement can reuse the same Producer ID. The fixture checks
 both exact committed state keys and both expected event payloads, offsets
 and producer sequences.
 
-This test exercises transactional fencing on real YDB with two independent
-drivers. Its privileged handoff is an assumption. Production still needs an
-authority that binds a generation to the admitted Pod incarnation, prevents a
-stale process from reclaiming it, and requires the generation check on every
-publishing path. A node-fencing alternative must also settle outstanding YDB
-transactions before reusing the identity. Neither handoff has been verified
-with an actual Kubernetes partition and replacement. The current publisher
-strategy stays in service. See the
+`ReplicaSlot.Reconcile` implements the handoff. A trusted operator reads the
+generation in a serializable YDB transaction, then issues a direct Kubernetes
+Pod GET with no `resourceVersion` override. It validates the namespace, Pod
+name, non-terminating Pod UID and pinned StatefulSet controller UID from
+deployment configuration. It increments the generation only when the UID
+changes. If a competing handoff changes the row, the SDK retries the entire
+operation and obtains a fresh Pod observation. The operator supplies an
+authenticated HTTPS client and a bounded transaction timeout.
+
+Provision the following ownership table through the deployment owner. Give
+the reconciler a dedicated Kubernetes credential with `get` on the named Pod
+and a separate YDB credential with read and update rights on this table.
+Publisher credentials get read-only access to the ownership table. Enforce
+YDB authentication and restrict who can create or modify Pods and
+StatefulSets in the deployment namespace. Deliver the publisher's own
+`metadata.uid` through a Downward API environment variable. Keep that value
+fixed at process startup and use `ReplicaSlot.Bind` to obtain an immutable
+`PodOwnership` for use across transaction retries.
+
+```sql
+CREATE TABLE replica_owners (
+    replica Utf8 NOT NULL,
+    pod_uid Utf8 NOT NULL,
+    generation Uint64 NOT NULL,
+    PRIMARY KEY (replica)
+);
+```
+
+The Kubernetes fixture runs two actual Pods with the same StatefulSet
+ordinal on different kind worker nodes. It drops traffic in both directions
+between the old worker and the API server, keeps YDB reachable, force-deletes
+the old Pod object and waits for the replacement. The test also delays a
+successful read of the old Pod across the replacement. It checks the
+replacement's stable-ID publications, rejection of the old UID and
+authorization to update the ownership row. Run it on a disposable Docker
+host with kind and kubectl available:
+
+```sh
+bash internal/platform/event/testdata/kubernetes-handoff.sh
+```
+
+The shared production Publisher continues to use per-writer random IDs.
+Before enabling stable IDs there, wire the ownership check into the only
+stable publication entry point and establish safe same-Pod process restart
+and unresolved commit handling. A production deployment must also install
+the trusted reconciler and verify its credentials and namespace policy.
+The fixture runs on one Docker host. See the
 [Kubernetes shutdown guidance](https://kubernetes.io/docs/concepts/cluster-administration/node-shutdown/),
 [leader election contract](https://pkg.go.dev/k8s.io/client-go/tools/leaderelection),
 and [YDB serializable transaction semantics](https://ydb.tech/docs/en/concepts/transactions).

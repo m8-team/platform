@@ -49,9 +49,14 @@ requests already in flight to YDB. A live experiment verifies that a
 privileged generation change invalidates a stale publication transaction
 when that transaction reads the generation under serializable isolation.
 The fixture verifies state and delivery after the stale attempt aborts and
-the replacement reuses the same Producer ID. Trusted generation assignment
-and enforcement across all writers are still prerequisites. Treat this as
-evidence for a candidate, with no production schema or ownership change.
+the replacement reuses the same Producer ID. The handoff implementation
+binds the generation to the Pod UID returned by an authenticated Kubernetes
+API read for a pinned StatefulSet incarnation. It compares that observation
+against a serializable ownership row and keeps the publisher on a read-only
+credential for that row. Production still needs deployment of the trusted
+reconciler, mandatory enforcement at the stable publication entry point
+and safe reuse across same-Pod process restart with unresolved commits.
+The shared Publisher keeps its existing strategy until those conditions hold.
 
 See the [v1.1 verification](../../../internal/platform/event/README.md#v11-stable-producer-identity-verification)
 for the counterexample, sequential reuse, metadata measurements, rollout
