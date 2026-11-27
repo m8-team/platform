@@ -51,8 +51,10 @@ staging, multiple topics, 1/4/16 partitions, independent replicas, reader
 restart and command receipt reconciliation. The Event Layer CI also exercises
 load-induced partition splitting, recovery after a hard server restart and
 loss of a tablet-hosting process in a replicated test cluster. The metadata
-soak directly samples persisted source records from the YDB partition tablet.
-Size the hottest partition using observed attempt rate and retention, and
+soak directly samples retained source records from the YDB partition tablet.
+A separate live test confirms TTL cleanup below the partition start offset
+and retention of records whose offsets still exist. Size the hottest
+partition using observed attempt rate, source TTL and message retention, and
 verify the actual production failure domains and recovery budget before
 enabling writes. See the [Event Layer README](../../../internal/platform/event/README.md)
 for commands, scope of evidence and migration constraints.

@@ -68,6 +68,26 @@ jobs:
         run: go test -count=1 -timeout=8m -v -run '^TestIntegration' ./internal/platform/event/...
       - name: Recover after a hard YDB restart
         run: bash internal/platform/event/testdata/ydb-disruption.sh restart
+      - name: Verify producer metadata TTL
+        env:
+          M8_EVENT_TEST_TTL_REQUIRED: "1"
+          M8_EVENT_TEST_YDB_DSN: grpc://127.0.0.1:2236/local
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8865
+        run: |
+          docker run -d --hostname localhost --name m8-event-ydb-ttl \
+            -p 127.0.0.1:2236:2236 -p 127.0.0.1:8865:8865 \
+            -e GRPC_PORT=2236 -e MON_PORT=8865 ydbplatform/local-ydb:26.3.1.25 \
+            --enable-feature-flag enable_topic_retention_delete_last_blob
+          trap 'docker rm -f m8-event-ydb-ttl' EXIT
+          for i in {1..30}; do
+            if docker exec m8-event-ydb-ttl /health_check >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          docker exec m8-event-ydb-ttl /health_check
+          if ! go test -count=1 -timeout=3m -v -run '^TestProducerMetadataTTL$' ./internal/platform/event/...; then
+            docker logs --tail=100 m8-event-ydb-ttl
+            exit 1
+          fi
       - name: YDB diagnostics
         if: failure()
         run: docker logs --tail=200 m8-event-ydb

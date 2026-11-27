@@ -96,11 +96,16 @@ The soak test compares confirmed commits with source records reported by the
 partition tablet. For a fixed partition, the observed growth was approximately
 one retained record per commit. Estimate the source-ID budget per partition
 from the rate of writer attempts touching that partition, including retries,
-multiplied by the effective retention interval. Use the hottest partition and
-headroom for burst traffic. At 40 new IDs per second, the documented 100,000-ID
-planning limit corresponds to about 42 minutes. Test actual eviction and
-resource usage at production scale before approving traffic above the validated
-budget. See [YDB Topic documentation](https://ydb.tech/docs/en/concepts/datamodel/topic).
+multiplied by the effective retention interval. Under the count cap, TTL
+cleanup of the implicit source records used by this writer also requires the
+record's offset to fall below the partition's start offset. Plan for message
+retention and the time needed for that offset to advance. Lowering the source
+TTL alone can leave records in place. Use the hottest partition and headroom
+for burst traffic. At 40 new IDs per second, the documented 100,000-ID planning
+limit corresponds to about 42 minutes. Test resource usage and eviction with
+the production settings before approving traffic above the validated budget.
+See [YDB Topic documentation](https://ydb.tech/docs/en/concepts/datamodel/topic)
+and the [pinned Source ID cleanup implementation](https://github.com/ydb-platform/ydb/blob/26.3.1.25/ydb/core/persqueue/pqtablet/partition/sourceid.cpp#L285).
 
 ## Command receipts and transactional consumers
 
@@ -192,6 +197,21 @@ rate and reads only the fixture's partition tablet.
 ```sh
 M8_EVENT_TEST_SOAK_DURATION=8m M8_EVENT_TEST_MONITOR_URL=http://127.0.0.1:38765   go test -count=1 -timeout=10m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event
 ```
+
+
+The accelerated TTL test uses a separate disposable container. Start the image
+with `--enable-feature-flag enable_topic_retention_delete_last_blob` after the
+image name, expose the loopback monitor port, and use the same DSN, prefix and
+monitor environment as for the soak. Run
+`go test -count=1 -timeout=3m -v -run '^TestProducerMetadataTTL$' ./internal/platform/event`.
+CI requires the test via `M8_EVENT_TEST_TTL_REQUIRED=1`. The test shows that a
+source record with a 10-second TTL disappears once its message has expired.
+A young source survives its message's removal, and an expired source survives
+while its message still reads at the original offset. With default settings,
+the single-blob trial kept its start offset at zero for the 70-second
+observation. The test intentionally enables last-blob deletion to advance the
+offset on a tiny topic. Production-TTL timing and capacity eviction remain
+outside this test.
 
 
 Future migrations must move each command to a native transaction with state
