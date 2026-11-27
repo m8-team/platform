@@ -140,8 +140,10 @@ independent idempotency and reconciliation. This package provides no bridge.
 `Publisher.Stats()` returns cumulative process-local counters for calls,
 errors, staged batches, staged messages and serialized staged bytes. Export
 these via the service's telemetry. Retries add staging attempts, and staging
-can survive in counters after rollback. `Transactor.Stats()` counts SDK attempts and retries, invocations that return
-confirmed commit or error, and cumulative invocation duration. The explicit
+can survive in counters after rollback. `Transactor.Stats()` counts SDK
+attempts and retries, successful and failed invocations, and cumulative
+invocation duration. A successful lazy transaction can finish without a
+commit RPC. These counters count invocation outcomes. The explicit
 YDB `UNDETERMINED` count is limited to the SDK commit trace. Transport errors
 such as a lost successful response can also make the outcome uncertain.
 Use SDK trace hooks to export per-invocation latency distributions and writer
@@ -173,10 +175,12 @@ flushes before commit and stops writers on transaction completion. The Query
 SDK decides when to retry a serializable read-write transaction. An
 application callback must recreate its messages and writers on each attempt.
 
-The loopback sequence fixture confirmed eight expected events across four
-durable state mutations, with one Producer ID and offsets 0 through 7. It
-covers a rollback after staging, one injected retriable callback result
-after staging, opening the same identity through a second driver and a
+The loopback sequence fixture confirmed four durable state mutations and
+the exact payloads, contiguous offsets and increasing sequences of eight
+events in one topic and four in a second topic. Each attempt uses the same
+Producer ID for both physical topics. It covers a rollback after staging,
+one injected retriable callback result after staging, opening the same
+identity through a second driver and a
 discarded successful commit response followed by a state lookup and another
 publication with the same identity. The replay decision for a real command
 still belongs to its durable receipt. A lost response when the server is
@@ -223,10 +227,14 @@ workload rates, batch sizes, traffic skew and failover headroom.
 
 The official YDB metrics reference documents `topic.producers_count` for
 the topic and `topic.partition.producers_count_max` for its largest
-partition count. Verify that the target YDB export emits both with the
-required topic labels and compare them to provisioned and retained identity
-budgets. Production metric export and alerts remain a release gate. Keep
-the disposable tablet HTML sampler in the test fixture. See the
+partition count. On the pinned local image the `topics` Prometheus subgroup
+had no samples during the single-partition soak. The `tablets` subgroup
+exported `PQ_SourceIdCreated`, a cumulative creation counter aggregated
+by tablet type, with no topic label. Use that counter to investigate
+creation activity. Capacity alerts need a retained-count gauge with topic
+labels, verified against the configured and historical identity budget on
+the target YDB export. Production metric export and alerts remain a release
+gate. Keep the disposable tablet HTML sampler in the test fixture. See the
 [YDB metrics reference](https://ydb.tech/docs/en/reference/observability/metrics/#topic-metrics)
 and [Kubernetes StatefulSet force deletion](https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/).
 

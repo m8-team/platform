@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"sync/atomic"
 	"testing"
@@ -62,17 +61,19 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 	}
 	_, replacement, _ := liveDatabase(t, ydb.With(config.WithGrpcOptions(grpc.WithChainUnaryInterceptor(intercept))))
 	createTestTopic(t, ctx, db, path, 1)
+	secondPath := path + "_second"
+	createTestTopic(t, ctx, db, secondPath, 1)
 	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	rollback := errors.New("rollback after staging")
 	const prefix = "m8.test.events.0.0"
-	var expected []*eventv1.Event
+	var expected, expectedSecond []*eventv1.Event
 	for attempt := range 5 {
 		driver := db
 		if attempt >= 3 {
 			driver = replacement
 		}
-		first, second := testEvent(t), testEvent(t)
-		first.Id, second.Id = uuid.NewString(), uuid.NewString()
+		first, second, forwarded := testEvent(t), testEvent(t), testEvent(t)
+		first.Id, second.Id, forwarded.Id = uuid.NewString(), uuid.NewString(), uuid.NewString()
 		owner, _ := NewTransactor(driver, 12*time.Second)
 		if attempt == 3 {
 			loseCommit.Store(true)
@@ -85,6 +86,9 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 				return err
 			}
 			if err := writeWithProducer(ctx, driver, tx, path, prefix, first, second); err != nil {
+				return err
+			}
+			if err := writeWithProducer(ctx, driver, tx, secondPath, prefix, forwarded); err != nil {
 				return err
 			}
 			if attempt == 1 {
@@ -118,6 +122,7 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 				t.Fatalf("business state after loss of commit response: id=%s error=%v", id, scanErr)
 			}
 			expected = append(expected, first, second)
+			expectedSecond = append(expectedSecond, forwarded)
 			continue
 		}
 		if err != nil {
@@ -129,6 +134,7 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 			t.Fatalf("transaction %d, callbacks=%d: stats=%+v", attempt, callbacks, stats)
 		}
 		expected = append(expected, first, second)
+		expectedSecond = append(expectedSecond, forwarded)
 	}
 
 	row, err := replacement.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table)
@@ -136,14 +142,20 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 		t.Fatal(err)
 	}
 	var state uint64
-	if err := row.Scan(&state); err != nil || state != uint64(len(expected)/2) {
+	if err := row.Scan(&state); err != nil || state != uint64(len(expectedSecond)) {
 		t.Fatalf("business rows: %d, error: %v", state, err)
 	}
-	end, _, err := topicEnds(ctx, replacement, path)
+	assertStableProducerEvents(t, ctx, replacement, path, prefix+"-0", expected)
+	assertStableProducerEvents(t, ctx, replacement, secondPath, prefix+"-0", expectedSecond)
+}
+
+func assertStableProducerEvents(t *testing.T, ctx context.Context, db *ydb.Driver, path, producer string, expected []*eventv1.Event) {
+	t.Helper()
+	end, _, err := topicEnds(ctx, db, path)
 	if err != nil || end != int64(len(expected)) {
-		t.Fatalf("committed business rows: %d, topic end: %d, want %d, error: %v", state, end, len(expected), err)
+		t.Fatalf("topic %s end: %d, want %d, error: %v", path, end, len(expected), err)
 	}
-	reader, err := replacement.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
+	reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,12 +182,12 @@ func TestIntegrationStableProducerSequence(t *testing.T) {
 		if err := proto.Unmarshal(data, got); err != nil {
 			t.Fatal(err)
 		}
-		if !proto.Equal(got, want) || msg.Offset != int64(offset) || msg.ProducerID != fmt.Sprintf("%s-0", prefix) || msg.SeqNo <= lastSeq {
+		if !proto.Equal(got, want) || msg.Offset != int64(offset) || msg.ProducerID != producer || msg.SeqNo <= lastSeq {
 			t.Fatalf("unexpected publication: offset=%d ProducerID=%q SeqNo=%d event=%s", msg.Offset, msg.ProducerID, msg.SeqNo, got.Id)
 		}
 		lastSeq = msg.SeqNo
 	}
-	t.Logf("committed rows=%d events=%d producer IDs=1 last sequence=%d", state, end, lastSeq)
+	t.Logf("topic %s: events=%d producer IDs=1 last sequence=%d", path, end, lastSeq)
 }
 
 type heldProducerStream struct {
