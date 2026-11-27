@@ -105,7 +105,7 @@ func encodeAssignment(a role.ProfileAssignment) (string, error) {
 		return "", ErrInvalidSnapshot
 	}
 	d := assignmentDTO{
-		ID: a.ID(), TenantID: string(a.TenantID()), SubjectType: a.Subject().Type(), SubjectID: a.Subject().ID(),
+		ID: a.ID(), TenantID: a.TenantID().String(), SubjectType: a.Subject().Type(), SubjectID: a.Subject().ID(),
 		TargetKind: a.Target().Kind, TargetName: a.Target().Name, TargetVersion: a.Target().Version,
 		PolicyIDs: a.PolicyIDs(), Revision: a.Revision(), Status: a.Status(),
 	}
@@ -114,7 +114,7 @@ func encodeAssignment(a role.ProfileAssignment) (string, error) {
 	}
 	for _, s := range a.Scopes() {
 		entry := scopeDTO{
-			Kind: s.Kind(), TenantID: string(s.TenantID()), ResourceType: s.ResourceType(), ResourceID: s.ResourceID(),
+			Kind: s.Kind(), TenantID: s.TenantID().String(), ResourceType: s.ResourceType(), ResourceID: s.ResourceID(),
 			OrganizationID: s.OrganizationID(), CollectionIDs: s.CollectionIDs(),
 		}
 		if s.Kind() == authorization.ScopeSubtree {

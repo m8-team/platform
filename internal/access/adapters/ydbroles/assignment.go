@@ -54,7 +54,7 @@ const selectAssignmentEvent = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLA
 func (s *Store) replayAssignment(ctx context.Context, tx *sql.Tx, tenant shared.TenantID, id string, revision int64) (role.ProfileAssignment, error) {
 	var payload string
 	err := tx.QueryRowContext(ctx, s.q(selectAssignmentEvent),
-		sql.Named("stream", "assignment"), sql.Named("tenant", string(tenant)), sql.Named("id", id), sql.Named("revision", revision)).
+		sql.Named("stream", "assignment"), sql.Named("tenant", tenant.String()), sql.Named("id", id), sql.Named("revision", revision)).
 		Scan(&payload)
 	if errors.Is(err, sql.ErrNoRows) {
 		return role.ProfileAssignment{}, ErrInvalidSnapshot
@@ -87,19 +87,19 @@ func (s *Store) receipt(ctx context.Context, tx *sql.Tx, tenant shared.TenantID,
 }
 func (s *Store) saveAssignmentTx(ctx context.Context, tx *sql.Tx, a role.ProfileAssignment, payload string) error {
 	_, err := tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $status AS Utf8;DECLARE $payload AS Utf8;\nUPSERT INTO `m8-access/profile_assignments` (tenant_id,assignment_id,revision,status,assignment_json) VALUES ($tenant,$id,$revision,$status,$payload);"),
-		sql.Named("tenant", string(a.TenantID())), sql.Named("id", a.ID()),
+		sql.Named("tenant", a.TenantID().String()), sql.Named("id", a.ID()),
 		sql.Named("revision", a.Revision()), sql.Named("status", string(a.Status())), sql.Named("payload", payload))
 	if err != nil {
 		return err
 	}
 	_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $type AS Utf8;DECLARE $subject AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $status AS Utf8;DECLARE $payload AS Utf8;\nUPSERT INTO `m8-access/profile_assignment_subjects` (tenant_id,subject_type,subject_id,assignment_id,revision,status,assignment_json) VALUES ($tenant,$type,$subject,$id,$revision,$status,$payload);"),
-		sql.Named("tenant", string(a.TenantID())), sql.Named("type", a.Subject().Type()), sql.Named("subject", a.Subject().ID()),
+		sql.Named("tenant", a.TenantID().String()), sql.Named("type", a.Subject().Type()), sql.Named("subject", a.Subject().ID()),
 		sql.Named("id", a.ID()), sql.Named("revision", a.Revision()), sql.Named("status", string(a.Status())), sql.Named("payload", payload))
 	return err
 }
 func (s *Store) saveReceiptTx(ctx context.Context, tx *sql.Tx, tenant shared.TenantID, id, key, digest string, revision int64) error {
 	_, err := tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $key AS Utf8;DECLARE $hash AS Utf8;DECLARE $revision AS Int64;\nUPSERT INTO `m8-access/profile_assignment_receipts` (tenant_id,assignment_id,request_key,request_hash,revision) VALUES ($tenant,$id,$key,$hash,$revision);"),
-		sql.Named("tenant", string(tenant)), sql.Named("id", id), sql.Named("key", key),
+		sql.Named("tenant", tenant.String()), sql.Named("id", id), sql.Named("key", key),
 		sql.Named("hash", digest), sql.Named("revision", revision))
 	return err
 }
@@ -143,7 +143,7 @@ func (s *Store) CreateAssignment(ctx context.Context, a role.ProfileAssignment, 
 		if err := s.saveReceiptTx(ctx, tx, a.TenantID(), a.ID(), key, digest, 1); err != nil {
 			return err
 		}
-		if err := s.appendOutboxTx(ctx, tx, "assignment", string(a.TenantID()), a.ID(), 1,
+		if err := s.appendOutboxTx(ctx, tx, "assignment", a.TenantID().String(), a.ID(), 1,
 			"ProfileAssignmentStaged", payload, now); err != nil {
 			return err
 		}
@@ -200,7 +200,7 @@ func (s *Store) RevokeAssignment(ctx context.Context, tenant shared.TenantID, id
 		if err := s.saveReceiptTx(ctx, tx, tenant, id, key, digest, revoked.Revision()); err != nil {
 			return err
 		}
-		if err := s.appendOutboxTx(ctx, tx, "assignment", string(tenant), id, revoked.Revision(),
+		if err := s.appendOutboxTx(ctx, tx, "assignment", tenant.String(), id, revoked.Revision(),
 			"ProfileAssignmentRevoked", payload, now); err != nil {
 			return err
 		}
@@ -225,7 +225,7 @@ func (s *Store) ListBySubject(ctx context.Context, tenant shared.TenantID, subje
 		return nil, ErrInvalidCommand
 	}
 	rows, err := s.db.QueryContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $type AS Utf8;DECLARE $subject AS Utf8;DECLARE $after AS Utf8;DECLARE $limit AS Uint64;\nSELECT assignment_id,revision,status,assignment_json FROM `m8-access/profile_assignment_subjects` WHERE tenant_id=$tenant AND subject_type=$type AND subject_id=$subject AND assignment_id>$after ORDER BY assignment_id LIMIT $limit;"),
-		sql.Named("tenant", string(tenant)), sql.Named("type", subject.Type()), sql.Named("subject", subject.ID()),
+		sql.Named("tenant", tenant.String()), sql.Named("type", subject.Type()), sql.Named("subject", subject.ID()),
 		sql.Named("after", afterID), sql.Named("limit", uint64(limit)))
 	if err != nil {
 		return nil, err

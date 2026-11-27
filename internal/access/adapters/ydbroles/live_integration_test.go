@@ -164,7 +164,7 @@ func TestLiveYDBRoleBundleAndAssignmentCQRS(t *testing.T) {
 	if err != nil || latest.Revision() != 2 || latest.Status() != role.ProfileAssignmentRevoked {
 		t.Fatalf("latest state: %v", err)
 	}
-	events, err := s.Pending(ctx, "assignment", string(a.TenantID()), a.ID(), 0, 10)
+	events, err := s.Pending(ctx, "assignment", a.TenantID().String(), a.ID(), 0, 10)
 	if err != nil || len(events) != 2 || events[0].Kind != "ProfileAssignmentStaged" ||
 		events[1].Kind != "ProfileAssignmentRevoked" {
 		t.Fatalf("assignment outbox: %+v %v", events, err)
@@ -175,7 +175,7 @@ func TestLiveYDBRoleBundleAndAssignmentCQRS(t *testing.T) {
 	if err := s.MarkPublished(ctx, events[0]); err != nil {
 		t.Fatal(err)
 	}
-	remaining, err := s.Pending(ctx, "assignment", string(a.TenantID()), a.ID(), 0, 10)
+	remaining, err := s.Pending(ctx, "assignment", a.TenantID().String(), a.ID(), 0, 10)
 	if err != nil || len(remaining) != 1 || remaining[0].Revision != 2 {
 		t.Fatalf("durable broker ack: %+v %v", remaining, err)
 	}

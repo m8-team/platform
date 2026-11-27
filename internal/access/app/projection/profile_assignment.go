@@ -125,7 +125,7 @@ func (p *Projector) profileAssignmentRelationships(_ context.Context, state *Pro
 	if a.Status() != role.ProfileAssignmentActive {
 		return nil, nil
 	}
-	tenant, err := domain.NewTenantID(string(a.TenantID()))
+	tenant, err := domain.NewTenantID(a.TenantID().String())
 	if err != nil {
 		return nil, err
 	}

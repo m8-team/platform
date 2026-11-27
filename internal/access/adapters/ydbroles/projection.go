@@ -37,7 +37,7 @@ func (s *Store) LoadCurrent(ctx context.Context, key projection.Key) (projection
 		var revision int64
 		var payload string
 		err = tx.QueryRowContext(ctx, s.q(selectProfileProjection),
-			sql.Named("tenant", string(tenant)), sql.Named("id", key.AggregateID)).
+			sql.Named("tenant", tenant.String()), sql.Named("id", key.AggregateID)).
 			Scan(&revision, &payload)
 		var caps []projection.ProfileCapability
 		if errors.Is(err, sql.ErrNoRows) {
@@ -95,7 +95,7 @@ func (s *Store) PendingPolicy(ctx context.Context, tenant shared.TenantID, id st
 		return nil, ErrInvalidCommand
 	}
 	rows, err := s.db.QueryContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $after AS Int64;DECLARE $limit AS Uint64;\nSELECT revision,policy_revision,event_id,payload_json FROM `m8-access/profile_policy_events` WHERE tenant_id=$tenant AND assignment_id=$id AND revision>$after AND published=FALSE ORDER BY revision LIMIT $limit;"),
-		sql.Named("tenant", string(tenant)), sql.Named("id", id), sql.Named("after", after), sql.Named("limit", uint64(limit)))
+		sql.Named("tenant", tenant.String()), sql.Named("id", id), sql.Named("after", after), sql.Named("limit", uint64(limit)))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (s *Store) MarkPolicyPublished(ctx context.Context, e PolicyOutboxEvent) er
 		var gotPolicy uint64
 		var published bool
 		err := tx.QueryRowContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;\nSELECT event_id,policy_revision,published FROM `m8-access/profile_policy_events` WHERE tenant_id=$tenant AND assignment_id=$id AND revision=$revision;"),
-			sql.Named("tenant", string(e.TenantID)), sql.Named("id", e.AssignmentID), sql.Named("revision", e.Revision)).
+			sql.Named("tenant", e.TenantID.String()), sql.Named("id", e.AssignmentID), sql.Named("revision", e.Revision)).
 			Scan(&gotID, &gotPolicy, &published)
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrNotFound
@@ -151,12 +151,12 @@ func (s *Store) MarkPolicyPublished(ctx context.Context, e PolicyOutboxEvent) er
 			return nil
 		}
 		_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $published AS Bool;\nUPDATE `m8-access/profile_policy_events` SET published=$published WHERE tenant_id=$tenant AND assignment_id=$id AND revision=$revision;"),
-			sql.Named("tenant", string(e.TenantID)), sql.Named("id", e.AssignmentID), sql.Named("revision", e.Revision), sql.Named("published", true))
+			sql.Named("tenant", e.TenantID.String()), sql.Named("id", e.AssignmentID), sql.Named("revision", e.Revision), sql.Named("published", true))
 		if err != nil {
 			return err
 		}
 		_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $policy AS Uint64;DECLARE $published AS Bool;\nUPDATE `m8-access/profile_policy_dispatch` SET published=$published WHERE tenant_id=$tenant AND policy_revision=$policy AND assignment_id=$id;"),
-			sql.Named("tenant", string(e.TenantID)), sql.Named("id", e.AssignmentID),
+			sql.Named("tenant", e.TenantID.String()), sql.Named("id", e.AssignmentID),
 			sql.Named("policy", e.PolicyRevision), sql.Named("published", true))
 		return err
 	})

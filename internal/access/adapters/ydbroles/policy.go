@@ -37,7 +37,7 @@ const selectProfilePolicyEvent = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DE
 const selectProfileProjection = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8; SELECT revision,capabilities_json FROM `m8-access/profile_assignment_projection` WHERE tenant_id=$tenant AND assignment_id=$id;"
 
 func profileProjectionKey(tenant shared.TenantID, id string) (projection.Key, error) {
-	td, err := domain.NewTenantID(string(tenant))
+	td, err := domain.NewTenantID(tenant.String())
 	if err != nil {
 		return projection.Key{}, err
 	}
@@ -64,7 +64,7 @@ func (s *Store) queryPolicyReply(ctx context.Context, tx *sql.Tx, tenant shared.
 	var policyRevision uint64
 	var eventID, payload string
 	err := tx.QueryRowContext(ctx, s.q(selectProfilePolicyEvent),
-		sql.Named("tenant", string(tenant)), sql.Named("id", id), sql.Named("revision", revision)).
+		sql.Named("tenant", tenant.String()), sql.Named("id", id), sql.Named("revision", revision)).
 		Scan(&policyRevision, &eventID, &payload)
 	if errors.Is(err, sql.ErrNoRows) {
 		return PolicyChange{}, ErrPolicySourceDrift
@@ -110,7 +110,7 @@ func (s *Store) writeProjectionSource(ctx context.Context, tx *sql.Tx, a role.Pr
 		return err
 	}
 	_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $capabilities AS Utf8;\nUPSERT INTO `m8-access/profile_assignment_projection` (tenant_id,assignment_id,revision,capabilities_json) VALUES ($tenant,$id,$revision,$capabilities);"),
-		sql.Named("tenant", string(a.TenantID())), sql.Named("id", a.ID()),
+		sql.Named("tenant", a.TenantID().String()), sql.Named("id", a.ID()),
 		sql.Named("revision", a.Revision()), sql.Named("capabilities", payload))
 	return err
 }
@@ -121,14 +121,14 @@ func (s *Store) writePolicyEvent(ctx context.Context, tx *sql.Tx, a role.Profile
 	}
 	eventID := fmt.Sprintf("profile/%s/%s/%d", a.TenantID(), a.ID(), a.Revision())
 	_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $policy AS Uint64;DECLARE $event AS Utf8;DECLARE $payload AS Utf8;DECLARE $published AS Bool;DECLARE $created AS Timestamp;\nUPSERT INTO `m8-access/profile_policy_events` (tenant_id,assignment_id,revision,policy_revision,event_id,payload_json,published,created_at) VALUES ($tenant,$id,$revision,$policy,$event,$payload,$published,$created);"),
-		sql.Named("tenant", string(a.TenantID())), sql.Named("id", a.ID()), sql.Named("revision", a.Revision()),
+		sql.Named("tenant", a.TenantID().String()), sql.Named("id", a.ID()), sql.Named("revision", a.Revision()),
 		sql.Named("policy", policyRev), sql.Named("event", eventID), sql.Named("payload", payload),
 		sql.Named("published", false), sql.Named("created", now))
 	if err != nil {
 		return err
 	}
 	_, err = tx.ExecContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $policy AS Uint64;DECLARE $id AS Utf8;DECLARE $revision AS Int64;DECLARE $event AS Utf8;DECLARE $published AS Bool;\nUPSERT INTO `m8-access/profile_policy_dispatch` (tenant_id,policy_revision,assignment_id,projection_revision,event_id,published) VALUES ($tenant,$policy,$id,$revision,$event,$published);"),
-		sql.Named("tenant", string(a.TenantID())), sql.Named("policy", policyRev),
+		sql.Named("tenant", a.TenantID().String()), sql.Named("policy", policyRev),
 		sql.Named("id", a.ID()), sql.Named("revision", a.Revision()),
 		sql.Named("event", eventID), sql.Named("published", false))
 	return err
@@ -243,7 +243,7 @@ func (s *Store) RevokeActiveWithPolicy(ctx context.Context, committer PolicyComm
 	if validateTenant(tenant) != nil || !shared.ValidUUID(id) || expectedRev < 2 || !validKey(key) || len(key) > 110 || expectedPolicyHead == 0 {
 		return PolicyChange{}, ErrInvalidCommand
 	}
-	digest := commandDigest("revoke-active/"+fmt.Sprint(expectedPolicyHead), expectedRev, string(tenant)+"/"+id)
+	digest := commandDigest("revoke-active/"+fmt.Sprint(expectedPolicyHead), expectedRev, tenant.String()+"/"+id)
 	var result PolicyChange
 	err := s.tx(ctx, func(tx *sql.Tx) error {
 		if previous, ok, err := s.policyRetry(ctx, tx, tenant, id, key, digest); err != nil {

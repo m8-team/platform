@@ -75,7 +75,7 @@ const selectAssignment = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8; SELECT re
 const selectAssignmentReceipt = "DECLARE $tenant AS Utf8;DECLARE $id AS Utf8;DECLARE $key AS Utf8; SELECT request_hash,revision FROM `m8-access/profile_assignment_receipts` WHERE tenant_id=$tenant AND assignment_id=$id AND request_key=$key;"
 
 func assignmentArgs(tenant shared.TenantID, id string) []any {
-	return []any{sql.Named("tenant", string(tenant)), sql.Named("id", id)}
+	return []any{sql.Named("tenant", tenant.String()), sql.Named("id", id)}
 }
 
 // appendOutboxTx is deliberately part of the caller's serializable

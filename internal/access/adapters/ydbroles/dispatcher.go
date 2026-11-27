@@ -21,7 +21,7 @@ func (s *Store) PendingTenantPolicy(ctx context.Context, tenant shared.TenantID,
 		return nil, ErrInvalidCommand
 	}
 	rows, err := s.db.QueryContext(ctx, s.q("DECLARE $tenant AS Utf8;DECLARE $limit AS Uint64;\nSELECT policy_revision,assignment_id,projection_revision,event_id FROM `m8-access/profile_policy_dispatch` WHERE tenant_id=$tenant AND published=FALSE ORDER BY policy_revision,assignment_id LIMIT $limit;"),
-		sql.Named("tenant", string(tenant)), sql.Named("limit", uint64(limit)))
+		sql.Named("tenant", tenant.String()), sql.Named("limit", uint64(limit)))
 	if err != nil {
 		return nil, err
 	}

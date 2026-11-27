@@ -96,7 +96,7 @@ func (b *RestrictedUniversalBarrier) Check(ctx context.Context, tenant domain.Te
 		if restriction.State() == policy.StateDisabled {
 			continue
 		}
-		if string(restriction.TenantID()) != string(tenant) {
+		if restriction.TenantID().String() != string(tenant) {
 			return false, ErrContextualPolicyConflict
 		}
 		scope := restriction.Scope()

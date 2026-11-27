@@ -121,7 +121,7 @@ func (s Snapshot) Validate() error {
 		if err := s.Profile.Validate(); err != nil {
 			return err
 		}
-		if string(s.Profile.Assignment.TenantID()) != string(s.Key.TenantID) ||
+		if s.Profile.Assignment.TenantID().String() != string(s.Key.TenantID) ||
 			s.Profile.Assignment.ID() != s.Key.AggregateID ||
 			s.Profile.Assignment.Revision() != s.Revision {
 			return ErrInvalidEvent
