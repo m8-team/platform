@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"reflect"
 
-	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -15,8 +15,9 @@ import (
 )
 
 type Publisher struct {
-	db  *ydb.Driver
-	cfg Config
+	db    *ydb.Driver
+	cfg   Config
+	stats publishCounters
 }
 
 func NewPublisher(db *ydb.Driver, cfg Config) (*Publisher, error) {
@@ -34,11 +35,16 @@ func NewPublisher(db *ydb.Driver, cfg Config) (*Publisher, error) {
 // NOT a commit confirmation. The caller must return every error to the
 // transaction coordinator. Events and their IDs are supplied by the caller;
 // neither messages nor writers may be mutated/reused across attempts.
-func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string, events ...*eventv1.Event) error {
+func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string, events ...*eventv1.Event) (result error) {
+	var stagedEvents, stagedBytes int
+	if p == nil {
+		return ErrInvalidConfiguration
+	}
+	defer func() { p.stats.record(result, stagedEvents, stagedBytes) }()
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	if p == nil || p.db == nil || tx == nil {
+	if p.db == nil || tx == nil || reflect.ValueOf(tx).Kind() == reflect.Pointer && reflect.ValueOf(tx).IsNil() {
 		return ErrInvalidConfiguration
 	}
 	topicPath, ok := p.cfg.Topics[topic]
@@ -48,20 +54,13 @@ func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string,
 	if len(events) == 0 {
 		return nil
 	}
-	messages, err := encodeBatch(ctx, p.cfg, events)
+	messages, stagedBytes, err := encodeBatch(ctx, p.cfg, events)
 	if err != nil {
 		return err
-	}
-	// Unique writer-attempt identity avoids shared producer fencing across
-	// concurrent transactions and replicas. It is not logical deduplication.
-	producer, err := uuid.NewRandom()
-	if err != nil {
-		return fmt.Errorf("event producer identity: %w", err)
 	}
 	writer, err := p.db.Topic().StartTransactionalWriter(tx, topicPath,
 		topicoptions.WithWriterMessageMaxBytesSize(p.cfg.MaxEventBytes),
 		topicoptions.WithWriteToManyPartitions(
-			topicoptions.WithProducerIDPrefix(producer.String()),
 			topicoptions.WithWriterPartitionByKey(topicoptions.BoundPartitionChooser()),
 		),
 	)
@@ -71,6 +70,7 @@ func (p *Publisher) Publish(ctx context.Context, tx query.TxActor, topic string,
 	if err := writer.Write(ctx, messages...); err != nil {
 		return fmt.Errorf("write transactional events: %w", err)
 	}
+	stagedEvents = len(messages)
 	// SDK flushes before commit and releases the writer on completion.
 	return nil
 }
