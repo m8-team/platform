@@ -35,7 +35,7 @@ enforces business semantics and the event type/payload correspondence.
 Create `NewPublisher(driver, DefaultConfig(topics))` at startup using a trusted
 map of alias to absolute topic path. The Publisher copies the map and is safe
 to share across independent transactions. Use one batch per topic per
-transaction. The defaults are 256 KiB per event, 100 events per call and 4 MiB
+transaction. The defaults are 512 KiB per event, 100 events per call and 8 MiB
 of serialized envelopes per call. An empty batch with a configured alias is a
 no-op. Callers enforce required event emission and their total transaction
 budget. Deployments should call `publisher.CheckReadiness(startupCtx)` before

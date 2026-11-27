@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"maps"
 	"path"
+	"regexp"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -16,6 +17,10 @@ var (
 	ErrInvalidEvent         = errors.New("invalid event")
 	ErrEventTooLarge        = errors.New("event exceeds size limit")
 	ErrBatchTooLarge        = errors.New("event batch exceeds limit")
+)
+
+var topicNamePattern = regexp.MustCompile(
+	`^([a-z0-9_-][a-z0-9_.-]?|\.[a-z0-9_-]|[a-z0-9_.-]{3,128})$`,
 )
 
 // Config is trusted startup configuration, never request input.
@@ -30,7 +35,7 @@ type Config struct {
 func DefaultConfig(topics map[string]string) Config {
 	return Config{
 		Topics:        maps.Clone(topics),
-		MaxEventBytes: 256 << 10, MaxBatchEvents: 100, MaxBatchBytes: 4 << 20,
+		MaxEventBytes: 512 << 10, MaxBatchEvents: 100, MaxBatchBytes: 8 << 20,
 	}
 }
 
@@ -41,9 +46,7 @@ func (c Config) Validate() error {
 	}
 	paths := make(map[string]struct{}, len(c.Topics))
 	for name, topic := range c.Topics {
-		if !validName(name) || !strings.HasPrefix(topic, "/") ||
-			topic == "/" || path.Clean(topic) != topic || !utf8.ValidString(topic) ||
-			strings.ContainsFunc(topic, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) }) {
+		if !validName(name) || !validTopicPath(topic) {
 			return fmt.Errorf("%w: invalid topic mapping", ErrInvalidConfiguration)
 		}
 		if _, exists := paths[topic]; exists {
@@ -55,13 +58,15 @@ func (c Config) Validate() error {
 }
 
 func validName(s string) bool {
-	if len(s) == 0 || len(s) > 128 || s == "." || s == ".." {
-		return false
-	}
-	for _, c := range s {
-		if !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '-' || c == '_' || c == '.') {
-			return false
-		}
-	}
-	return true
+	return topicNamePattern.MatchString(s)
+}
+
+func validTopicPath(topic string) bool {
+	return path.IsAbs(topic) &&
+		topic != "/" &&
+		path.Clean(topic) == topic &&
+		utf8.ValidString(topic) &&
+		!strings.ContainsFunc(topic, func(r rune) bool {
+			return unicode.IsSpace(r) || unicode.IsControl(r)
+		})
 }
