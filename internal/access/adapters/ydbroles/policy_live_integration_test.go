@@ -141,7 +141,11 @@ func TestLiveProfilePolicyJournalGraphActivationAndRevocation(t *testing.T) {
 	if _, err := s.CreateAssignment(ctx, a, "stage"); err != nil {
 		t.Fatal(err)
 	}
-	key := projection.Key{TenantID: domain.TenantID(a.TenantID()), Kind: projection.KindProfileAssignment, AggregateID: a.ID()}
+	tenant, err := domain.NewTenantID(a.TenantID().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := projection.Key{TenantID: tenant, Kind: projection.KindProfileAssignment, AggregateID: a.ID()}
 	boot := policyjournal.Mutation{TenantID: key.TenantID, ExpectedHead: 0, Bootstrap: true, ID: "profile-bootstrap", Jobs: []policyjournal.Job{{Key: key, RequiredRevision: 1}}}
 	var bootHead uint64
 	err = s.tx(ctx, func(tx *sql.Tx) error {
