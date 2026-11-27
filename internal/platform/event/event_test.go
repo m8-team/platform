@@ -60,6 +60,18 @@ func TestEncodeBatch(t *testing.T) {
 func TestInvalidEvents(t *testing.T) {
 	cfg := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"})
 	tests := map[string]func(*eventv1.Event){
+		"empty ID":         func(e *eventv1.Event) { e.Id = "" },
+		"uppercase ID":     func(e *eventv1.Event) { e.Id = strings.ToUpper(e.Id) },
+		"zero ID":          func(e *eventv1.Event) { e.Id = "00000000-0000-0000-0000-000000000000" },
+		"uppercase tenant": func(e *eventv1.Event) { e.TenantId = strings.ToUpper(e.Id) },
+		"zero tenant":      func(e *eventv1.Event) { e.TenantId = "00000000-0000-0000-0000-000000000000" },
+		"source":           func(e *eventv1.Event) { e.Source = "" },
+		"aggregate":        func(e *eventv1.Event) { e.AggregateId = "" },
+		"metadata key":     func(e *eventv1.Event) { e.Metadata = map[string]string{strings.Repeat("x", 129): ""} },
+		"metadata value":   func(e *eventv1.Event) { e.Metadata = map[string]string{"key": strings.Repeat("x", 1025)} },
+		"invalid typed payload": func(e *eventv1.Event) {
+			e.Payload = &anypb.Any{TypeUrl: "type.googleapis.com/m8.platform.event.v1.Event"}
+		},
 		"id":        func(e *eventv1.Event) { e.Id = "bad" },
 		"type":      func(e *eventv1.Event) { e.Type = "unversioned" },
 		"revision":  func(e *eventv1.Event) { e.AggregateRevision = 0 },

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func topicEnds(ctx context.Context, db *ydb.Driver, path string) (total int64, occupied int, err error) {
@@ -217,5 +220,41 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			t.Logf("%d partitions, 8 concurrent transactions across 2 drivers, %d distinct producer IDs for 106 committed events",
 				partitions, len(producers))
 		})
+	}
+}
+
+func TestIntegrationDefaultByteLimits(t *testing.T) {
+	ctx, db, path := liveDatabase(t)
+	createTestTopic(t, ctx, db, path, 4)
+	cfg := DefaultConfig(map[string]string{"events": path})
+	p, err := NewPublisher(db, cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr, _ := NewTransactor(db, 30*time.Second)
+	events := make([]*eventv1.Event, cfg.MaxBatchBytes/cfg.MaxEventBytes)
+	for i := range events {
+		e := testEvent(t)
+		e.Id = uuid.NewString()
+		e.AggregateId = fmt.Sprintf("aggregate-%d", i)
+		payload := strings.Repeat("x", cfg.MaxEventBytes)
+		e.Payload, err = anypb.New(wrapperspb.String(payload))
+		if err != nil {
+			t.Fatal(err)
+		}
+		e.Payload, err = anypb.New(wrapperspb.String(payload[:len(payload)-(proto.Size(e)-cfg.MaxEventBytes)]))
+		if err != nil || proto.Size(e) != cfg.MaxEventBytes {
+			t.Fatalf("size of limit fixture: got %d, error %v", proto.Size(e), err)
+		}
+		events[i] = e
+	}
+	if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		return p.Publish(ctx, tx, "events", events...)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	count, _, err := topicEnds(ctx, db, path)
+	if err != nil || count != int64(len(events)) || p.Stats().StagedBytes != uint64(cfg.MaxBatchBytes) {
+		t.Fatalf("batch at byte limit: count=%d stats=%+v error=%v", count, p.Stats(), err)
 	}
 }
