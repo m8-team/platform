@@ -84,13 +84,23 @@ by event ID, track revisions, handle stale events and gaps, and reconcile
 against authoritative state. Handle distinct events at the same revision
 according to the event owner's semantics.
 
-The SDK generates a new MultiWriter producer prefix and opening multiple
-partition streams increases producer identity churn. YDB documents a
-recommended maximum of 100,000 active producer IDs per partition across
-14 days and retirement of idle bindings after 14 days. Validate the planned
-transaction rate against the exact target deployment's producer metadata
-limits before rollout. Active partition splits and long-running metadata growth
-need separate verification. See [YDB Topic documentation](https://ydb.tech/docs/en/concepts/datamodel/topic).
+The SDK generates a new producer prefix for every MultiWriter, with one producer per touched partition. YDB documents a recommended
+maximum of 100,000 active producer IDs per partition across 14 days and
+retirement of idle bindings after 14 days. The pinned local YDB exposed
+different settings for its partition source records: a count cap of 6,000,000
+and a TTL of 1,382,400 seconds (16 days). Treat the documented binding window,
+the observed partition settings, and the workload's acceptance budget as
+separate inputs. Use the actual deployment settings when estimating capacity.
+
+The soak test compares confirmed commits with source records reported by the
+partition tablet. For a fixed partition, the observed growth was approximately
+one retained record per commit. Estimate the source-ID budget per partition
+from the rate of writer attempts touching that partition, including retries,
+multiplied by the effective retention interval. Use the hottest partition and
+headroom for burst traffic. At 40 new IDs per second, the documented 100,000-ID
+planning limit corresponds to about 42 minutes. Test actual eviction and
+resource usage at production scale before approving traffic above the validated
+budget. See [YDB Topic documentation](https://ydb.tech/docs/en/concepts/datamodel/topic).
 
 ## Command receipts and transactional consumers
 
@@ -155,10 +165,33 @@ Use equal published and internal gRPC ports for Discovery. Set
 `M8_EVENT_TEST_YDB_REQUIRED=1` to fail on absent configuration, as CI does.
 Run `go test -count=1 -v -run '^TestIntegration' ./internal/platform/event/...`
 or `go test -run '^$' -bench '^BenchmarkNativeYDB$' -benchmem -benchtime=40x ./internal/platform/event/...`.
-The Event Layer workflow runs contract and fast checks and a required
-disposable YDB job. Benchmark latencies include the whole transaction through
-commit. A local short run measures integration costs and producer ID churn;
-it does not establish sustained capacity or failover behavior.
+The Event Layer workflow runs contract and fast checks, the disposable YDB
+suite including a load-induced partition split and hard restart, and a
+separate multi-node failover job. The split test checks the inactive parent,
+both new child partitions, retained offset ranges and the complete set of
+committed IDs. Benchmark latencies include the whole transaction through
+commit.
+
+Run the disruption harness from the repository root against Docker. It creates
+and destroys its own containers and targets the node reported as the owner
+of the test topic tablet in failover mode. The nine-node fixture needs enough
+memory to start a local replicated YDB cluster.
+
+```sh
+bash internal/platform/event/testdata/ydb-disruption.sh restart
+bash internal/platform/event/testdata/ydb-disruption.sh failover
+```
+
+For a separate metadata soak, start the same pinned local image with a
+loopback monitor port exposed and keep its gRPC and monitoring settings on
+that disposable instance. Run the test with the disposable DSN and prefix,
+and set the monitor origin and duration as below. The test drives a bounded
+rate and reads only the fixture's partition tablet.
+
+```sh
+M8_EVENT_TEST_SOAK_DURATION=8m M8_EVENT_TEST_MONITOR_URL=http://127.0.0.1:38765   go test -count=1 -timeout=10m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event
+```
+
 
 Future migrations must move each command to a native transaction with state
 and receipts, provision compatible topics, reconcile and drain its legacy
@@ -166,8 +199,10 @@ outbox, and then switch the authoritative publisher. Coordinate cutover if an
 existing stream used SHA-256/hex routing, because the new key can repartition
 the same aggregate. The repository has no migrated producer using this common
 layer. Before production enablement, review external users, topic permissions,
-retention, failure budgets and durability under restart, producer metadata
-growth, consumer reconciliation and rollback to a single authoritative path.
+retention, infrastructure recovery budgets, producer metadata capacity,
+consumer reconciliation and rollback to a single authoritative path. The
+disposable test cluster shares one host. A target multi-zone or multi-host
+deployment has its own failure and recovery envelope.
 
 See [ADR-0002](../../../docs/engineering/adr/ADR-0002-native-ydb-transactional-events.md)
 and the [pinned Go SDK](https://github.com/ydb-platform/ydb-go-sdk/tree/v3.157.1).

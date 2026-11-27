@@ -48,9 +48,11 @@ before a routing change on an existing stream.
 
 Live tests cover table/topic commit and rollback, offset visibility during
 staging, multiple topics, 1/4/16 partitions, independent replicas, reader
-restart and command receipt reconciliation. Require the Event Layer workflow
-and a production-equivalent check of producer metadata capacity before
-rollout. Server restart, active partition splitting and infrastructure
-failover remain deployment verification gates. See the
-[Event Layer README](../../../internal/platform/event/README.md) for the
-test commands, operational constraints and per-module migration boundary.
+restart and command receipt reconciliation. The Event Layer CI also exercises
+load-induced partition splitting, recovery after a hard server restart and
+loss of a tablet-hosting process in a replicated test cluster. The metadata
+soak directly samples persisted source records from the YDB partition tablet.
+Size the hottest partition using observed attempt rate and retention, and
+verify the actual production failure domains and recovery budget before
+enabling writes. See the [Event Layer README](../../../internal/platform/event/README.md)
+for commands, scope of evidence and migration constraints.

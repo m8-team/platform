@@ -21,7 +21,11 @@ cleanup() {
   fi
   if (( code != 0 )); then
     [[ ! -f "$scratch/test.log" ]] || cat "$scratch/test.log" >&2
+    docker inspect --format 'fixture status={{.State.Status}} oom={{.State.OOMKilled}} exit={{.State.ExitCode}}' "$name" >&2 2>/dev/null || true
     docker logs --tail=30 "$name" >&2 2>/dev/null || true
+    if [[ "$mode" == failover ]]; then
+      docker exec "$name" sh -c 'for f in /ydb_data/cluster/node_*/stderr; do tail -6 "$f"; done' >&2 2>/dev/null || true
+    fi
   fi
   docker rm -f "$name" >/dev/null 2>&1 || true
   rm -f "$scratch/ready" "$scratch/ready.tmp" "$scratch/resume" "$scratch/test.log" "$scratch/event.test"
@@ -65,7 +69,9 @@ else
     fi
     sleep 1
   done
-  port=$(docker exec "$name" python3 -c 'import json; print(json.load(open("/ydb_data/ydb_recipe.json"))["nodes"]["1"]["grpc_port"])')
+  port=$(docker exec "$name" cat /ydb_data/ydb_recipe.json |
+    python3 -c 'import json, sys; print(json.load(sys.stdin)["nodes"]["1"]["grpc_port"])')
+  echo "replicated fixture ready on container-local port $port"
   docker cp "$scratch/event.test" "$name":/tmp/event.test
   docker exec "$name" mkdir /tmp/m8-event-control
   docker exec \
@@ -98,20 +104,25 @@ if [[ "$mode" == restart ]]; then
 else
   # Resolve the tablet's owner to the PID in this fixture and verify the
   # command line before delivering a signal to the disposable YDB process.
-  docker exec "$name" python3 -c '
-import json, os, signal, sys, time
-node = sys.argv[1]
-pid = json.load(open("/ydb_data/ydb_recipe.json"))["nodes"][node]["pid"]
-args = open(f"/proc/{pid}/cmdline", "rb").read().split(b"\0")
-assert args[:2] == [b"/ydbd", b"server"] and f"--node={node}".encode() in args
-os.kill(pid, signal.SIGKILL)
-for _ in range(50):
-    if not os.path.exists(f"/proc/{pid}/status") or "State:\tZ" in open(f"/proc/{pid}/status").read():
-        break
-    time.sleep(0.1)
-else:
-    sys.exit("tablet node did not stop")
-' "$ready"
+  pid=$(docker exec "$name" cat /ydb_data/ydb_recipe.json |
+    python3 -c 'import json, sys; print(json.load(sys.stdin)["nodes"][sys.argv[1]]["pid"])' "$ready")
+  [[ "$pid" =~ ^[1-9][0-9]*$ ]] && (( pid > 1 ))
+  docker exec "$name" bash -euo pipefail -c '
+    pid=$1
+    node=$2
+    mapfile -d "" -t args <"/proc/$pid/cmdline"
+    [[ "${args[0]}" == /ydbd && "${args[1]}" == server ]]
+    printf "%s\n" "${args[@]}" | grep -Fx -- "--node=$node"
+    kill -KILL "$pid"
+    for ((i=0; i<50; i++)); do
+      if [[ ! -r "/proc/$pid/status" ]] || grep -qE "^State:[[:space:]]+Z" "/proc/$pid/status"; then
+        exit 0
+      fi
+      sleep 0.1
+    done
+    echo "tablet node did not stop" >&2
+    exit 1
+  ' _ "$pid" "$ready"
   docker exec "$name" touch /tmp/m8-event-control/resume
 fi
 wait "$test_pid"

@@ -114,10 +114,7 @@ func TestDisruptionYDB(t *testing.T) {
 		}
 		return desc.Partitions[0].Location.NodeID, nil
 	}
-	oldNode, err := location()
-	if err != nil {
-		t.Fatal(err)
-	}
+	var oldNode uint32
 	attempts := 0
 	// Leave the original transaction unresolved while the harness removes
 	// its target node. An SDK callback retry would generate a different
@@ -128,6 +125,11 @@ func TestDisruptionYDB(t *testing.T) {
 			return errors.New("stopped retry of interrupted transaction for reconciliation")
 		}
 		if err := write(ctx, tx, interrupted); err != nil {
+			return err
+		}
+		var err error
+		oldNode, err = location()
+		if err != nil {
 			return err
 		}
 		ready := filepath.Join(control, "ready")
@@ -143,10 +145,11 @@ func TestDisruptionYDB(t *testing.T) {
 	if _, statErr := os.Stat(filepath.Join(control, "resume")); statErr != nil {
 		t.Fatalf("harness did not complete disruption: %v, transaction error=%v", statErr, err)
 	}
-	if mode == "restart" && err == nil {
+	confirmed := err == nil
+	if mode == "restart" && confirmed {
 		t.Fatal("transaction opened before restart unexpectedly committed")
 	}
-	t.Logf("mode=%s original_partition_node=%d callback_attempts=%d confirmed_commit=%t", mode, oldNode, attempts, err == nil)
+	t.Logf("mode=%s original_partition_node=%d callback_attempts=%d confirmed_commit=%t", mode, oldNode, attempts, confirmed)
 
 	publish(sentinel)
 	newNode, err := location()
@@ -172,7 +175,8 @@ func TestDisruptionYDB(t *testing.T) {
 		return count == 1
 	}
 	hadInterruptedState := checkState(interrupted)
-	if !checkState(first) || !checkState(pending) || !checkState(sentinel) || mode == "restart" && hadInterruptedState {
+	if !checkState(first) || !checkState(pending) || !checkState(sentinel) ||
+		(mode == "restart" && hadInterruptedState) || (confirmed && !hadInterruptedState) {
 		t.Fatal("unexpected state after recovery")
 	}
 	after := reader()

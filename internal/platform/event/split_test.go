@@ -107,6 +107,18 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 
 	after := publish(ctx, 1, false)
 	publish(ctx, 32, true)
+	description, err := db.Topic().Describe(ctx, path, topicoptions.IncludePartitionStats())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var retained int64
+	for _, partition := range description.Partitions {
+		offsets := partition.PartitionStats.PartitionsOffset
+		retained += offsets.End - offsets.Start
+	}
+	if retained != int64(len(expected)) {
+		t.Fatalf("retained records after split: got %d, want %d", retained, len(expected))
+	}
 	reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
 	if err != nil {
 		t.Fatal(err)
