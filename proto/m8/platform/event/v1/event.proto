@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package m8.platform.event.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/m8-team/platform/internal/proto/m8/platform/event/v1;event";
+
+message Event {
+    // Stable across retries of the same logical operation.
+    string id = 1 [(buf.validate.field).string.uuid = true];
+    // Fully qualified versioned event type, e.g. m8.resource.created.v1.
+    string type = 2 [
+        (buf.validate.field).string.max_len = 256,
+        (buf.validate.field).string.pattern = "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*\\.v[1-9][0-9]*$"
+    ];
+    string source = 3 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 256
+    ];
+    string aggregate_id = 4 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 256
+    ];
+    string aggregate_type = 5 [
+        (buf.validate.field).string.min_len = 1,
+        (buf.validate.field).string.max_len = 128
+    ];
+    uint64 aggregate_revision = 6 [(buf.validate.field).uint64.gt = 0];
+    // Empty only for explicitly non-tenant-scoped facts.
+    string tenant_id = 7 [
+        (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
+        (buf.validate.field).string.uuid = true
+    ];
+    string correlation_id = 8 [(buf.validate.field).string.max_len = 256];
+    string causation_id = 9 [(buf.validate.field).string.max_len = 256];
+    google.protobuf.Timestamp occurred_at = 10 [(buf.validate.field).required = true];
+    google.protobuf.Any payload = 11 [(buf.validate.field).required = true];
+    // Technical metadata only. Never include credentials or secrets.
+    map<string, string> metadata = 12 [(buf.validate.field).map.max_pairs = 32];
+}
