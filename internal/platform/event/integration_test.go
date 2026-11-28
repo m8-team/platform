@@ -580,3 +580,48 @@ func TestIntegrationNativePrematureCommit(t *testing.T) {
 		t.Fatalf("unexpected topic contents after premature commit: %d, %v", total, err)
 	}
 }
+
+func TestIntegrationWriterInitializationFailure(t *testing.T) {
+	var armed atomic.Bool
+	var interrupted atomic.Int64
+	intercept := func(ctx context.Context, desc *grpc.StreamDesc, conn *grpc.ClientConn,
+		method string, stream grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		if armed.Load() && method == Ydb_Topic_V1.TopicService_StreamWrite_FullMethodName {
+			interrupted.Add(1)
+			return nil, status.Error(codes.Unavailable, "injected loss of transport before writer initialization")
+		}
+		return stream(ctx, desc, conn, method, opts...)
+	}
+	ctx, db, path := liveDatabase(t, ydb.With(config.WithGrpcOptions(grpc.WithChainStreamInterceptor(intercept))))
+	createTestTopic(t, ctx, db, path, 1)
+	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 5*time.Second)
+	e := testEvent(t)
+	publish := func() error {
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('business');", nil); err != nil {
+				return err
+			}
+			_ = tx.Publish("events", e)
+			return nil
+		})
+	}
+	armed.Store(true)
+	err := publish()
+	armed.Store(false)
+	if err == nil || interrupted.Load() == 0 {
+		t.Fatalf("expected failure during writer stream open: %v", err)
+	}
+	if _, err := db.Query().QueryRow(ctx, "SELECT id FROM "+state); !errors.Is(err, query.ErrNoRows) {
+		t.Fatalf("writer initialization failure left state: %v", err)
+	}
+	if total, _, err := topicEnds(ctx, db, path); err != nil || total != 0 {
+		t.Fatalf("writer initialization failure left an event: %d, %v", total, err)
+	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 0)
+	if err := publish(); err != nil {
+		t.Fatalf("publish after reconnect: %v", err)
+	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 1)
+	assertStableProducerEvents(t, ctx, db, path, p.producer+"-0", []*eventv1.Event{e})
+}

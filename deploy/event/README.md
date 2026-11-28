@@ -133,6 +133,13 @@ permissions in publisher namespaces.
   Compare receipt fingerprints and IDs, exact topic contents and per-partition
   consumer positions before enabling traffic. Production restore coverage and
   the coordinated recovery drill remain release gates.
+  In the local YDB 26.3.1.25 drill, `tools dump` captured data for business
+  state, receipts and both fencing tables. A tables-only restore reproduced all
+  four rows including the terminal owner generation and guard revision.
+  The topic export contained creation metadata and ACL only. CLI 2.27.0
+  rejected the exported topic definition during a combined restore. The drill
+  established no recovery guarantee for topic contents, producer metadata or
+  durable offsets.
 - **Ownership rejection or node failure.** Inspect Kubernetes object and
   reconciler availability, UID and generation for the slot, effective ACLs
   and the previous authorized process. Restore trusted observation and
