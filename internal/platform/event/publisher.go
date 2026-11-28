@@ -18,6 +18,10 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 )
 
+// An unexported embedded field promotes the query methods without exposing
+// the SDK transaction handle or its commit and rollback methods.
+type transactionQueries = query.TxActor
+
 // Publisher publishes with one stable producer lane per StatefulSet slot.
 // Use one shared instance per process.
 type Publisher struct {
@@ -121,7 +125,7 @@ func (p *Publisher) WithinTransaction(ctx context.Context, fn func(context.Conte
 				}
 			}
 		}()
-		return fn(ctx, struct{ query.TxActor }{tx}, publish)
+		return fn(ctx, struct{ transactionQueries }{tx}, publish)
 	})
 }
 

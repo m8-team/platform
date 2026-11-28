@@ -488,6 +488,9 @@ func TestIntegrationEventSchema(t *testing.T) {
 		if _, ok := tx.(query.Transaction); ok {
 			t.Error("business callback can explicitly commit")
 		}
+		if _, ok := tx.(struct{ query.TxActor }); ok {
+			t.Error("business callback can unwrap the SDK transaction handle")
+		}
 		escaped = publish
 		return nil
 	}); err != nil {
