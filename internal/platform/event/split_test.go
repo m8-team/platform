@@ -281,6 +281,9 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 		msg.SeqNo <= sequences[msg.ProducerID]) {
 		t.Fatalf("resumed publication did not continue its stable source sequence: %d", msg.SeqNo)
 	}
+	if err := reader.Commit(readCtx, msg); err != nil {
+		t.Fatal(err)
+	}
 	for _, publisher := range replicas {
 		verifyFence(t, ctx, publisher.owner, publisher, publisher.ownership.uid, 1, batches[publisher.producer])
 	}
