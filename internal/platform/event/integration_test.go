@@ -101,7 +101,8 @@ func createFixtureTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path 
 		t.Fatal(err)
 	}
 	t.Cleanup(func() {
-		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// Topic deletion can wait for split finalization on the server.
+		cleanup, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 		defer cancel()
 		if err := db.Topic().Drop(cleanup, path); err != nil {
 			t.Errorf("drop test topic: %v", err)
