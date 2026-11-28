@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 )
@@ -26,10 +27,11 @@ var topicNamePattern = regexp.MustCompile(
 // Config is trusted startup configuration, never request input.
 // Topics maps logical bounded-context names to absolute YDB topic paths.
 type Config struct {
-	Topics         map[string]string
-	MaxEventBytes  int
-	MaxBatchEvents int
-	MaxBatchBytes  int
+	Topics            map[string]string
+	MinTopicRetention time.Duration
+	MaxEventBytes     int
+	MaxBatchEvents    int
+	MaxBatchBytes     int
 }
 
 func DefaultConfig(topics map[string]string) Config {
@@ -40,7 +42,7 @@ func DefaultConfig(topics map[string]string) Config {
 }
 
 func (c Config) Validate() error {
-	if c.MaxEventBytes <= 0 ||
+	if c.MinTopicRetention < 0 || c.MaxEventBytes <= 0 ||
 		c.MaxBatchEvents <= 0 || c.MaxBatchBytes < c.MaxEventBytes || len(c.Topics) == 0 {
 		return ErrInvalidConfiguration
 	}

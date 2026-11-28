@@ -43,16 +43,10 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			createTestTopic(t, ctx, db, path, partitions)
 			createTestTopic(t, ctx, db, path+"_other", 1)
 			cfg := DefaultConfig(map[string]string{"primary": path, "other": path + "_other"})
-			p, err := NewPublisher(db, cfg)
-			if err != nil {
-				t.Fatal(err)
-			}
-			q, err := NewPublisher(replica, cfg)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tr, _ := NewTransactor(db, 30*time.Second)
-			other, _ := NewTransactor(replica, 30*time.Second)
+			p := livePublisher(t, ctx, db, path, cfg, 30*time.Second)
+			slot := p.ownership.slot
+			slot.PodName = "publisher-1"
+			q := bindTestPublisher(t, ctx, replica, slot, p.guard, cfg, 30*time.Second)
 			check := func(first, second int64) error {
 				for _, topic := range []struct {
 					path string
@@ -77,14 +71,14 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			}
 			rollback := errors.New("intentional multi-topic rollback")
 			for _, fail := range []bool{true, false} {
-				err := tr.WithinTransaction(ctx, func(txCtx context.Context, tx query.TxActor) error {
+				err := p.WithinTransaction(ctx, func(txCtx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 					if err := tx.Exec(txCtx, "INSERT INTO "+table+" (id) VALUES ('initial');"); err != nil {
 						return err
 					}
-					if err := p.Publish(txCtx, tx, "primary", events...); err != nil {
+					if err := send("primary", events...); err != nil {
 						return err
 					}
-					if err := p.Publish(txCtx, tx, "other", events[0]); err != nil {
+					if err := send("other", events[0]); err != nil {
 						return err
 					}
 					// The callback holds the transaction before commit while an
@@ -131,17 +125,17 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			for _, e := range ordered[1:] {
 				e.Id = uuid.NewString()
 			}
-			if err := other.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-				return q.Publish(ctx, tx, "primary", ordered[1:]...)
+			if err := q.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+				return send("primary", ordered[1:]...)
 			}); err != nil {
 				t.Fatal(err)
 			}
 			start := make(chan struct{})
 			results := make(chan error, 8)
 			for i := range 8 {
-				publisher, owner := p, tr
+				publisher := p
 				if i%2 == 1 {
-					publisher, owner = q, other
+					publisher = q
 				}
 				e := testEvent(t)
 				e.Id = uuid.NewString()
@@ -150,8 +144,8 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 				}
 				go func() {
 					<-start
-					results <- owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-						return publisher.Publish(ctx, tx, "primary", e)
+					results <- publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+						return send("primary", e)
 					})
 				}()
 			}
@@ -225,20 +219,16 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 
 func TestIntegrationDefaultByteLimits(t *testing.T) {
 	ctx, db, path := liveDatabase(t)
-	createTestTopic(t, ctx, db, path, 4)
+	createTestTopic(t, ctx, db, path, 1)
 	cfg := DefaultConfig(map[string]string{"events": path})
-	p, err := NewPublisher(db, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tr, _ := NewTransactor(db, 30*time.Second)
+	p := livePublisher(t, ctx, db, path, cfg, 30*time.Second)
 	events := make([]*eventv1.Event, cfg.MaxBatchBytes/cfg.MaxEventBytes)
 	for i := range events {
 		e := testEvent(t)
 		e.Id = uuid.NewString()
-		e.AggregateId = fmt.Sprintf("aggregate-%d", i)
 		payload := strings.Repeat("x", cfg.MaxEventBytes)
-		e.Payload, err = anypb.New(wrapperspb.String(payload))
+		fullPayload, err := anypb.New(wrapperspb.String(payload))
+		e.Payload = fullPayload
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -248,13 +238,57 @@ func TestIntegrationDefaultByteLimits(t *testing.T) {
 		}
 		events[i] = e
 	}
-	if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-		return p.Publish(ctx, tx, "events", events...)
-	}); err != nil {
+	publish := func(events ...*eventv1.Event) error {
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+			_ = send("events", events...)
+			return nil // Failed staging must still abort.
+		})
+	}
+	if err := publish(events...); err != nil {
 		t.Fatal(err)
 	}
 	count, _, err := topicEnds(ctx, db, path)
 	if err != nil || count != int64(len(events)) || p.Stats().StagedBytes != uint64(cfg.MaxBatchBytes) {
 		t.Fatalf("batch at byte limit: count=%d stats=%+v error=%v", count, p.Stats(), err)
+	}
+	oversized := proto.CloneOf(events[0])
+	payload := new(wrapperspb.StringValue)
+	if err := events[0].Payload.UnmarshalTo(payload); err != nil {
+		t.Fatal(err)
+	}
+	oversized.Payload, err = anypb.New(wrapperspb.String(payload.Value + "x"))
+	if err != nil || proto.Size(oversized) != cfg.MaxEventBytes+1 {
+		t.Fatalf("expected a serialized envelope one byte above the limit: %v", err)
+	}
+	if err := publish(oversized); !errors.Is(err, ErrEventTooLarge) {
+		t.Fatalf("oversized envelope: %v", err)
+	}
+
+	extra := testEvent(t)
+	extra.Id = uuid.NewString()
+	last := proto.CloneOf(events[len(events)-1])
+	last.Payload, err = anypb.New(wrapperspb.String(payload.Value[:len(payload.Value)-proto.Size(extra)+1]))
+	if err != nil || proto.Size(last)+proto.Size(extra) != cfg.MaxEventBytes+1 {
+		t.Fatalf("expected a serialized batch one byte above the limit: %v", err)
+	}
+	tooManyBytes := append(append([]*eventv1.Event(nil), events[:len(events)-1]...), last, extra)
+	if err := publish(tooManyBytes...); !errors.Is(err, ErrBatchTooLarge) {
+		t.Fatalf("oversized byte batch: %v", err)
+	}
+	small := make([]*eventv1.Event, cfg.MaxBatchEvents+1)
+	for i := range small {
+		small[i] = testEvent(t)
+		small[i].Id = uuid.NewString()
+	}
+	if err := publish(small[:cfg.MaxBatchEvents]...); err != nil {
+		t.Fatal(err)
+	}
+	if err := publish(small...); !errors.Is(err, ErrBatchTooLarge) {
+		t.Fatalf("oversized event count: %v", err)
+	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 2)
+	count, _, err = topicEnds(ctx, db, path)
+	if err != nil || count != int64(len(events)+cfg.MaxBatchEvents) {
+		t.Fatalf("unexpected topic offsets after limit tests: %d, %v", count, err)
 	}
 }

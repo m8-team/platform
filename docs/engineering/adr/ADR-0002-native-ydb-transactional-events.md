@@ -10,8 +10,9 @@
 Use one versioned Protobuf Event envelope and a flat shared Go package.
 YDB coordinates one native serializable read-write transaction containing
 state, optional command receipt and required topic writes. The transaction
-owner supplies the same transaction to the Publisher, propagates all
-publication errors and owns commit outcomes. The SDK handles transactional
+owner runs the transaction through the protected Publisher. The Publisher
+supplies the business callback with a scoped actor and publication function,
+and aborts an attempt after a publication failure. The SDK handles transactional
 writer initialization, staging, flush, cleanup and supported retries.
 
 Module owners define event types and typed constructors and own trusted
@@ -23,14 +24,14 @@ remain distinct.
 
 ## Stable Producer Identity decision
 
-Stable, reusable producer identities use the owned publisher API.
+Stable, reusable producer identities use the unified Publisher API.
 The pinned SDK/server pair allows two independent transactions using the
 same Producer ID to commit business state while YDB suppresses one of the
 events. The regression holds a sequenced write before send, commits a
 competing write, then releases the delayed write. Both state rows exist
 and only the competing event is present.
 
-Kubernetes ordinal stability alone cannot establish ownership. The owned
+Kubernetes ordinal stability alone cannot establish ownership. The
 publisher holds a single local lane from before opening the transaction to
 after SDK attempts and writer completion. It checks ownership inside every
 attempt and advances a separate row keyed by the replica. This row makes
@@ -53,10 +54,20 @@ API read for a pinned StatefulSet incarnation. It compares that observation
 against a serializable ownership row and keeps the publisher on a read-only
 credential for that row. The live Kubernetes fixture exercises node
 partition and Pod replacement, then both kinds of uncertainty around a
-same-Pod process restart. The producer is enabled explicitly by selecting
-the owned publisher. Deployment requires the trusted reconciler and the
-two YDB row tables. Existing legacy callers keep their publisher behavior
-until cutover.
+same-Pod process restart. The reconciler uses a named StatefulSet and Pod GET
+with authenticated TLS and a separate YDB ownership writer. It reads the
+ownership generation before observing Kubernetes under a bounded deadline,
+so SDK retries obtain a fresh observation.
+
+A missing or deleting Pod clears its active binding without removing
+generation history. A deleted, deleting or replaced StatefulSet permanently
+retires the old incarnation's rows. Provisioning supplies predecessor UIDs
+and their maximum authorized ordinal ranges, and the reconciler retires
+those slots before assigning the new incarnation. The old ownership read
+conflicts with retirement even though a recreated StatefulSet uses a new
+Producer ID. Publisher credentials cannot change the ownership table.
+Separate ownership and guard tables preserve distinct ACLs. See the
+[deployment and recovery runbook](../../../deploy/event/README.md).
 
 See the [v1.1 verification](../../../internal/platform/event/README.md#v11-stable-producer-identity-verification)
 for the counterexample, sequential reuse, metadata measurements, rollout

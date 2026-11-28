@@ -1,7 +1,7 @@
-# M8 Event v1
+# M8 Event v1.2
 
-Stable Producer Identity is available through the ownership-checked publisher.
-See [stable publication](#stable-publication).
+Stable Producer Identity is required for every publication. See the
+[deployment and recovery runbook](../../../deploy/event/README.md).
 
 The flat `event` package shares one Protobuf envelope and publishes batches using
 native YDB Query transactions. Business modules own business state, typed
@@ -27,47 +27,67 @@ func newResourceCreated(attrs event.Attributes, payload *resourcev1.ResourceCrea
 ```
 
 The common package checks the envelope and the structural constraints of the
-typed payload. `Publish` resolves and validates the current `Any` again
+typed payload. The scoped publish function resolves and validates the current `Any` again
 because Protobuf messages are mutable. The payload descriptor must be linked
 into the binary. Keep events immutable during publication. The owning module
 enforces business semantics and the event type/payload correspondence.
 
-Create `NewPublisher(driver, DefaultConfig(topics))` at startup using a trusted
-map of alias to absolute topic path. The Publisher copies the map and is safe
-to share across independent transactions. Use one batch per topic per
-transaction. The defaults are 512 KiB per event, 100 events per call and 8 MiB
-of serialized envelopes per call. An empty batch with a configured alias is a
-no-op. Callers enforce required event emission and their total transaction
-budget. Deployments should call `publisher.CheckReadiness(startupCtx)` before
-enabling business commands. Pass a startup context with a deadline.
-Configuration rejects duplicate physical topic paths. The check requires
-successful topic metadata access and a contiguous key range across active
-partitions. Inactive split parents are excluded. Provisioning, retention and
-size policies, write permissions, consumer setup and transactional write
-compatibility must be verified by deployment. A metadata check does not
-write probe events or inspect internal Source ID TTL and count caps.
+Create one publisher per process and replica slot with trusted deployment
+identity and explicit operation timeout. Register its readiness method with
+`health/checks.NewPingCheck` in the service composition root.
 
 ```go
-err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+owner, err := event.NewTransactor(driver, operationTimeout)
+if err != nil {
+    return err
+}
+claim, err := slot.Bind(ctx, owner, podUID)
+if err != nil {
+    return err
+}
+publisher, err := event.NewPublisher(owner, cfg, claim, guardTable)
+if err != nil {
+    return err
+}
+if err := publisher.CheckReadiness(ctx); err != nil {
+    return err
+}
+return publisher.WithinTransaction(ctx, func(
+    ctx context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error,
+) error {
+    // Resolve an existing command receipt before repeating business writes.
     if err := writeBusinessState(ctx, tx); err != nil {
         return err
     }
-    return publisher.Publish(ctx, tx, "resource", created)
+    if err := publish("resource", created); err != nil {
+        return err
+    }
+    return writeCommandReceipt(ctx, tx)
 })
 ```
 
-The existing transaction owner supplies the same native `query.TxActor` to
-state writes and event publication. `NewTransactor(driver, timeout)` is an
-optional owner where the application does not already have one. It uses
-serializable read-write, an explicit caller deadline and SDK retries with
-`WithIdempotent(false)`. Return every publication error from the callback.
-Atomicity requires both writes to use the same transaction and all publication
-errors to reach its owner. An ignored preflight error can allow state to commit
-without its required events. Rollback belongs to the transaction owner.
-`Publish` stages messages, and the SDK flushes before commit and closes writer
-state on transaction completion. Treat writer initialization, write and commit
-errors as distinct diagnostic phases. Avoid external calls and independent
-publication retries in the callback.
+The Repository uses the supplied actor for business queries. The SDK owns
+the Serializable RW transaction, retries with `WithIdempotent(false)`,
+flushes writers before commit, and cleans them up on completion. The lane
+covers admission through SDK completion. Ownership is read and the guard
+advanced on every attempt. Each physical topic gets one nonempty call per
+attempt. Any failed publication poisons the attempt even if the caller
+ignores its error. The callback and actor are scoped to the attempt. Return
+promptly on cancellation and avoid network calls or independent retries
+inside the callback. The owning module decides which integration events
+must exist. A successful callback with no publication does not enforce a
+business event obligation.
+
+The actor supports transactional business queries. The SDK transactional
+topic reader requires the SDK's concrete transaction lifecycle capability.
+A transactional consume-and-forward operation through this protected API
+would require a separately reviewed integration. The historical fixture
+continues to cover native forwarding using direct SDK calls.
+
+Readiness verifies the immutable binding, guard table shape and read access,
+topic existence, active partition bounds and optional `MinTopicRetention`.
+Write permissions, effective quotas and topic sizing are release checks.
+Readiness sends no events and does not mutate fencing state.
 
 ## Routing and ordering
 
@@ -143,14 +163,14 @@ errors, staged batches, staged messages and serialized staged bytes. Export
 these via the service's telemetry. Retries add staging attempts, and staging
 can survive in counters after rollback. `Transactor.Stats()` counts SDK
 attempts and retries, successful and failed invocations, and cumulative
-invocation duration. A successful lazy transaction can finish without a
+invocation duration, ownership transitions and explicit commit conflicts. A successful lazy transaction can finish without a
 commit RPC. These counters count invocation outcomes. The explicit
 YDB `UNDETERMINED` count is limited to the SDK commit trace. Transport errors
 such as a lost successful response can also make the outcome uncertain.
 Use SDK trace hooks to export per-invocation latency distributions and writer
 initialization errors. Count receipt-confirmed operations and committed
 business events at the owning boundary. Use aggregate counters
-or configured topic aliases for labels. Avoid event, tenant, aggregate and
+or configured topic aliases for labels. Publisher stats include cumulative lane wait, acquisition errors, in-use and capacity gauges, and rejected ownership checks. Avoid event, tenant, aggregate and
 correlation identifiers in telemetry labels. There is no telemetry endpoint
 or exporter in this package.
 
@@ -193,24 +213,9 @@ driver commits a different mutation and event using the same identity and
 partition. After releasing the first write, both transactions report
 success. Both state keys exist, but the topic contains only the second
 event. Fencing did not prevent suppression on YDB `26.3.1.25`.
-This is why stable publication requires the ownership and transaction checks
-below. The legacy `NewPublisher` path still uses per-writer random identities.
-
-A future deployment must bind a trusted namespace (including deployment
-and environment), service ID, stable logical replica ID and exclusive lane
-before a native transaction starts, using an unambiguous encoding checked
-against server limits. The lane must cover all SDK attempts and writer
-cleanup. Within an attempt, permit one nonempty batch per physical topic.
-A StatefulSet ordinal provides a stable name. Force deletion of a Pod on
-an unreachable node can let a replacement run while the old process still
-writes. For rolling replacement and scale-down, confirm termination or
-fence the old process before reusing the ordinal and its lanes. Require an
-equivalent verified ownership guarantee for non-Kubernetes deployments.
-There are no tracked StatefulSet manifests or production callers of this
-shared package in this repository. Review external deployments separately.
-Identity affects deduplication and resource use. Scoped YDB authorization
-and TLS still control write access. Keep producer identity and topic mappings
-in trusted configuration and use bounded telemetry labels.
+Stable publication therefore requires both ownership verification and the
+transactional guard. The historical direct-SDK tests intentionally retain
+the unprotected configuration as a negative control.
 
 ### Replica handoff during a partition
 
@@ -283,51 +288,15 @@ and [YDB serializable transaction semantics](https://ydb.tech/docs/en/concepts/t
 
 ### Stable publication
 
-`NewOwnedPublisher` enables stable IDs for one bound replica. Obtain the
-binding using `ReplicaSlot.Bind` and configure an additional row table:
+The producer prefix is `m8-` followed by the SHA-256 hexadecimal digest of
+`namespace/StatefulSetUID/PodName`. The SDK adds its partition suffix.
+Pod UID and generation are held in the ownership binding. One transaction
+reads ownership and advances a separate guard while writing business state
+and events. The guard makes overlapping attempts conflict across same-Pod
+process restarts. A retry uses fresh writers and initializes their
+sequence state through the SDK.
 
-```sql
-CREATE TABLE replica_publication_guards (
-    replica Utf8 NOT NULL,
-    revision Uint64 NOT NULL,
-    PRIMARY KEY (replica)
-);
-```
-
-Every publishing attempt reads ownership and advances the guard in the same
-serializable transaction as state and topic writes. Use the same guard table
-across processes for every slot sharing these topics. Grant the publisher
-read and update rights on the guard table and read-only access to the
-ownership table. The guard revision makes overlapping transactions conflict
-even if they come from the same Pod UID and generation. It has no role in
-producer sequence numbers. A retry creates fresh writers and reads sequence
-state from YDB again.
-
-Create one shared owned publisher per process. It has one context-aware
-lane held until the transaction coordinator returns. It derives the stable
-prefix from the namespace, StatefulSet UID and Pod name. The SDK adds the
-partition suffix. Pod UID and generation are held in the ownership binding.
-
-```go
-owned, err := event.NewOwnedPublisher(owner, cfg, binding, guardTable)
-if err != nil {
-    return err
-}
-return owned.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error) error {
-    if err := writeBusinessState(ctx, tx); err != nil {
-        return err
-    }
-    return publish("resource", created)
-})
-```
-
-Use one nonempty batch per physical topic per attempt. Return every
-publication error. The coordinator also aborts if the callback ignores a
-batch error. Keep the callback and its publisher scoped to the attempt.
-Use an authoritative command receipt before retrying an ambiguous logical
-operation. Reusing a stable ID allows new work to continue after a restart.
-
-The Kubernetes fixture runs the owned publisher and restarts its process
+The Kubernetes fixture runs the protected Publisher and restarts its process
 without changing Pod UID. It covers a confirmed YDB commit with its response
 withheld from the application and a process exit during the commit send.
 The restarted process publishes before the fixture checks the interrupted
@@ -336,7 +305,7 @@ while another publisher with the same UID commits. The old transaction is
 aborted and SDK retry publishes after the winning event. Both checks compare
 exact committed state, event payloads, Producer ID and offsets.
 
-Deploy the reconciler and both tables before selecting the owned publisher.
+Deploy the reconciler and both tables before enabling the Publisher.
 Production deployments and business-module wiring are managed separately.
 
 ### Metadata budget
@@ -368,6 +337,58 @@ gate. Keep the disposable tablet HTML sampler in the test fixture. See the
 [YDB metrics reference](https://ydb.tech/docs/en/reference/observability/metrics/#topic-metrics)
 and [Kubernetes StatefulSet force deletion](https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/).
 
+## v1.2 local performance and recovery
+
+The full publication benchmark uses business state writes and measures the
+attempt from lane acquisition through SDK commit and writer completion.
+The table shows separate 1,000-transaction runs on Apple M4 with YDB
+26.3.1.25 in Docker. The host also ran other disposable fixtures during
+this series. Rates are measurements for these specific workloads.
+
+| Strategy | Transactions/s | Events/s | p50 / p95 / p99 ms | Data queries/tx |
+|---|---:|---:|---:|---:|
+| State only | 67.34 | 0 | 13.37 / 22.69 / 32.85 | 1 |
+| Native random, one event | 21.66 | 21.66 | 34.32 / 88.62 / 159.5 | 1 |
+| Native stable, one event | 26.59 | 26.59 | 28.81 / 112.9 / 144.4 | 1 |
+| Protected, one event | 18.97 | 18.97 | 39.28 / 151.0 / 198.7 | 4 |
+| Protected, batch 10, four workers sharing one lane | 15.08 | 150.8 | 200.9 / 727.2 / 1,255 | 4 |
+| Protected, batch 100, 16 partitions | 7.17 | 716.5 | 105.2 / 331.8 / 533.9 | 4 |
+
+The protected one-event run reports 197,893 B/op, 2,997 allocs/op,
+2.739 ms ownership read, 2.545 ms guard read/update and 1.427 ms mean
+stream initialization. Four workers sharing one lane waited a mean of
+198.6 ms. The benchmark observed zero retries, explicit commit conflicts
+and operation errors in these completed runs. The overlap test separately
+forces a conflict across processes. Data queries exclude commit and topic
+RPCs. Three of the four queries enforce ownership and guard independently.
+A scratch LEFT JOIN trial measured three data queries per transaction
+and 47.53 tx/s, against 43.09 tx/s for a separate matched control on the
+same fixture. The production path retains separate reads and a parameterized
+guard UPSERT. Adopting a join requires full retirement, overlap and rollout
+verification across the intended deployment topology.
+
+The eight-minute protected run on four slots committed 16,426 state
+rows and 16,426 events, with four retained Source IDs throughout. The test
+compared every event and offset and checked the four guard revisions
+against committed operations. A one-minute run enabled one, two and four
+slots in succession and restarted one publisher from a separate driver.
+It verified 2,382 events and four retained Source IDs. Effective fixture
+settings were 1,382,400
+seconds for source lifetime and 6,000,000 for the tablet count setting.
+The supported production exporter and effective settings must be checked
+on the target cluster. See the [deployment and recovery runbook](../../../deploy/event/README.md)
+for the native exporter series, retention planning and release gates.
+
+The protected Publisher also recovered after a local hard restart and a
+tablet-host failure in the nine-node fixture, with durable consumer offsets.
+The checked replica lifecycle covers delayed observations, forced Pod
+replacement, process termination around commit, scale-down/up and a new
+StatefulSet incarnation fencing an existing transaction before it commits.
+The isolated Docker/kind harnesses run in a single-host failure domain.
+The deployed reconciler smoke test runs the actual image with Kubernetes
+RBAC and a restricted YDB token over TLS, then verifies initial assignment,
+retirement, and a new assignment after restarting the reconciler.
+
 ## Verification and migration gates
 
 Known test environment is disposable local YDB `26.3.1.25`, Go `1.27.4` and
@@ -390,12 +411,12 @@ For native tests and benchmarks, set `M8_EVENT_TEST_YDB_DSN` and
 Use equal published and internal gRPC ports for Discovery. Set
 `M8_EVENT_TEST_YDB_REQUIRED=1` to fail on absent configuration, as CI does.
 Run `go test -count=1 -v -run '^TestIntegration' ./internal/platform/event/...`
-or `go test -run '^$' -bench '^BenchmarkNativeYDB$' -benchmem -benchtime=40x ./internal/platform/event/...`.
+or `go test -run '^$' -bench '^BenchmarkNativeYDB$' -benchmem -benchtime=1000x ./internal/platform/event/...`.
 The Event Layer workflow runs contract and fast checks, the disposable YDB
 suite including a load-induced partition split and hard restart, and a
 separate multi-node failover job. The pull request workflow compares metadata
-for one minute per strategy. A manual workflow dispatch can run 8 or 30
-minutes per strategy using the same disposable server image. The split test induces a split with the baseline pressure workload and
+for one minute per strategy, including protected publication. A manual workflow dispatch can run 8 or 30
+minutes for the protected Publisher using the same disposable server image. The split test induces a split with the baseline pressure workload and
 reuses a stable prefix before and after the split. It checks the inactive
 parent, both children, partition-specific IDs, retained offsets and all
 committed IDs. The optional `M8_EVENT_TEST_STABLE_SPLIT_LOAD=1` experiment

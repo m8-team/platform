@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: event-reconciler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: event-reconciler
+rules:
+  - apiGroups: [""]
+    resources: [pods]
+    resourceNames: [publisher-0, publisher-1]
+    verbs: [get]
+  - apiGroups: [apps]
+    resources: [statefulsets]
+    resourceNames: [publisher]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: event-reconciler
+subjects:
+  - kind: ServiceAccount
+    name: event-reconciler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: event-reconciler
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-replicas
+data:
+  replicas.json: |
+    {
+      "namespace": "m8-events",
+      "statefulSet": "publisher",
+      "uid": "REPLACE_WITH_STATEFULSET_UID",
+      "slots": 2,
+      "predecessors": []
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-reconciler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-reconciler
+  template:
+    metadata:
+      labels:
+        app: event-reconciler
+    spec:
+      serviceAccountName: event-reconciler
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: reconciler
+          image: registry.example.com/m8/event-reconciler:REPLACE
+          env:
+            - name: YDB_DSN
+              value: grpcs://ydb.example.com:2135/m8
+            - name: YDB_TOKEN_FILE
+              value: /run/ydb/token
+          volumeMounts:
+            - name: config
+              mountPath: /etc/m8-event
+              readOnly: true
+            - name: credentials
+              mountPath: /run/ydb
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: event-replicas
+        - name: credentials
+          secret:
+            secretName: event-ownership-writer

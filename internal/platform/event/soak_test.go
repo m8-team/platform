@@ -15,6 +15,7 @@ import (
 	"time"
 
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
@@ -31,27 +32,53 @@ func TestSoakProducerMetadata(t *testing.T) {
 	if err != nil || duration < time.Minute || duration > 30*time.Minute {
 		t.Fatal("soak duration must be between 1m and 30m")
 	}
-	for _, stable := range []bool{false, true} {
-		name := "random"
-		if stable {
-			name = "stable"
-		}
-		t.Run(name, func(t *testing.T) { testSoakProducerMetadata(t, duration, stable) })
+	for _, mode := range []string{"random", "stable", "protected", "protected_churn"} {
+		t.Run(mode, func(t *testing.T) { testSoakProducerMetadata(t, duration, mode) })
 	}
 }
 
-func testSoakProducerMetadata(t *testing.T, duration time.Duration, stable bool) {
+func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string) {
 	_, db, path := liveDatabase(t)
 	ctx, cancel := context.WithTimeout(context.Background(), duration+time.Minute)
 	defer cancel()
 	createTestTopic(t, ctx, db, path, 1)
-	p, err := NewPublisher(db, DefaultConfig(map[string]string{"soak": path}))
-	if err != nil {
-		t.Fatal(err)
-	}
 	owner, err := NewTransactor(db, 15*time.Second)
 	if err != nil {
 		t.Fatal(err)
+	}
+	var publishers []*Publisher
+	var initial, restarted *Publisher
+	var state string
+	workerCount := 6
+	churn := mode == "protected_churn"
+	protected := mode == "protected" || churn
+	if protected {
+		workerCount = 4
+		state = createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+		cfg := DefaultConfig(map[string]string{"soak": path})
+		first := livePublisher(t, ctx, db, path, cfg, 15*time.Second)
+		publishers = append(publishers, first)
+		for i := 1; i < workerCount; i++ {
+			slot := first.ownership.slot
+			slot.PodName = fmt.Sprintf("publisher-%d", i)
+			publishers = append(publishers, bindTestPublisher(t, ctx, db, slot, first.guard, cfg, 15*time.Second))
+		}
+		if churn {
+			initial = first
+			_, restartDB, _ := liveDatabase(t)
+			restartOwner, err := NewTransactor(restartDB, 15*time.Second)
+			if err != nil {
+				t.Fatal(err)
+			}
+			claim, err := first.ownership.slot.Bind(ctx, restartOwner, first.ownership.uid)
+			if err != nil {
+				t.Fatal(err)
+			}
+			restarted, err = NewPublisher(restartOwner, cfg, claim, first.guard)
+			if err != nil || restarted.producer != first.producer {
+				t.Fatalf("new process did not reuse the slot identity: %v", err)
+			}
+		}
 	}
 	template := testEvent(t)
 
@@ -70,11 +97,25 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, stable bool)
 	defer schedule.Stop()
 	t.Logf("target_rate=%d transactions/s", targetRate)
 	var workers sync.WaitGroup
-	const workerCount = 6
 	failures := make(chan error, workerCount)
+	slotCommits := make([]uint64, workerCount)
 	for lane := range workerCount {
-		producer := fmt.Sprintf("m8.test.metadata.0.%d", lane)
+		producer := ""
+		if mode == "stable" {
+			producer = fmt.Sprintf("m8.test.metadata.0.%d", lane)
+		}
 		workers.Go(func() {
+			if churn && lane > 0 {
+				delay := []time.Duration{0, duration / 4, duration / 2, duration / 2}[lane]
+				enable := time.NewTimer(delay)
+				defer enable.Stop()
+				select {
+				case <-workCtx.Done():
+					return
+				case <-enable.C:
+					t.Logf("slot %d joined the protected load after %s", lane, time.Since(started).Round(time.Second))
+				}
+			}
 			for {
 				select {
 				case <-workCtx.Done():
@@ -83,17 +124,29 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, stable bool)
 				}
 				e := proto.CloneOf(template)
 				e.Id = soakEventID(issued.Add(1))
-				err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-					// Both variants use the same SDK writer options; only the prefix changes.
-					if stable {
-						return writeWithProducer(ctx, db, tx, path, producer, e)
+				var err error
+				if protected {
+					if churn && lane == 0 && publishers[0] != restarted && time.Since(started) >= duration*3/4 {
+						publishers[0] = restarted
+						t.Logf("slot 0 restarted with its previous identity after %s", time.Since(started).Round(time.Second))
 					}
-					return p.Publish(ctx, tx, "soak", e)
-				})
+					err = publishers[lane].WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+						if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
+							query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(e.Id).Build())); err != nil {
+							return err
+						}
+						return send("soak", e)
+					})
+				} else {
+					err = owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+						return writeWithProducer(ctx, db, tx, path, producer, e)
+					})
+				}
 				if err != nil {
 					failures <- err
 					return
 				}
+				slotCommits[lane]++
 				commits.Add(1)
 			}
 		})
@@ -124,11 +177,36 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, stable bool)
 			offset, _, err := topicEnds(ctx, db, path)
 			t.Logf("elapsed=%s confirmed=%d retained=%d topic_end=%d", time.Since(started).Round(time.Millisecond), n, retained, offset)
 			wantRetained := n
-			if stable {
-				wantRetained = workerCount
+			if mode != "random" {
+				wantRetained = uint64(workerCount)
 			}
 			if n < 100 || offset != int64(n) || retained != int(wantRetained) {
 				t.Fatalf("unexpected loss or early eviction: commits=%d, retained=%d, offset=%d, err=%v", n, retained, offset, err)
+			}
+			if churn && publishers[0] != restarted {
+				t.Fatal("workload did not exercise a same-slot restart")
+			}
+			if protected {
+				row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+state)
+				var count uint64
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := row.Scan(&count); err != nil || count != n {
+					t.Fatalf("soak state count=%d, commits=%d, error=%v", count, n, err)
+				}
+				for i, p := range publishers {
+					stats := p.owner.Stats()
+					laneWait := p.Stats().LaneWait
+					if churn && i == 0 {
+						before := initial.owner.Stats()
+						stats.Retries += before.Retries
+						stats.CommitConflicts += before.CommitConflicts
+						laneWait += initial.Stats().LaneWait
+					}
+					t.Logf("slot commits=%d retries=%d commit_conflicts=%d lane_wait=%s", slotCommits[i], stats.Retries, stats.CommitConflicts, laneWait)
+					verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, slotCommits[i])
+				}
 			}
 			reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
 			if err != nil {

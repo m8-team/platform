@@ -1,0 +1,26 @@
+# Requires a scoped scrape job named m8-ydb. Tune to the deployment traffic.
+groups:
+  - name: m8-event-ydb
+    rules:
+      - alert: YDBProducerCreationAboveBudget
+        expr: sum by (job) (rate(PQ_SourceIdCreated{job="m8-ydb",counters="tablets",type="PersQueue",category="app"}[15m])) > (5 / 60)
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: YDB node exporter reports sustained producer creation
+          description: Verify churn against the deployment budget and retained producer counts in supported YDB monitoring.
+      - alert: YDBTransactionLockConflictRate
+        expr: sum by (job) (rate(Issues_YQL:KIKIMR_LOCKS_INVALIDATED{job="m8-ydb",counters="kqp"}[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: YDB is reporting invalidated transaction locks
+      - alert: YDBTopicWriteErrors
+        expr: sum by (job) (rate(PQ_WriteError{job="m8-ydb",counters="tablets",type="PersQueue",category="app"}[5m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: YDB reports sustained topic tablet write errors

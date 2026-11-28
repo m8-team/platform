@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-genproto/Ydb_Query_V1"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_Query"
@@ -50,22 +51,16 @@ func testCommandReceipt(t *testing.T, inject bool) {
 	receipts := createTestTable(t, ctx, db, path+"_receipts",
 		"id Utf8 NOT NULL, hash Utf8 NOT NULL, event_id Utf8 NOT NULL, PRIMARY KEY (id)")
 	cfg := DefaultConfig(map[string]string{"events": path})
-	p, err := NewPublisher(db, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	p2, err := NewPublisher(replica, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	tr, _ := NewTransactor(db, 20*time.Second)
-	tr2, _ := NewTransactor(replica, 20*time.Second)
+	p := livePublisher(t, ctx, db, path, cfg, 20*time.Second)
+	slot := p.ownership.slot
+	slot.PodName = "publisher-1"
+	p2 := bindTestPublisher(t, ctx, replica, slot, p.guard, cfg, 20*time.Second)
 	e := testEvent(t)
 	e.Id = uuid.NewString() // Stable even if the SDK invokes the callback again.
 	wrongHash := errors.New("command ID already used for a different request")
 	rollback := errors.New("intentional rollback before commit")
-	run := func(owner *Transactor, publisher *Publisher, hash, alias string, beforeWrite func(context.Context) error, fail bool) error {
-		return owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	run := func(publisher *Publisher, hash, alias string, beforeWrite func(context.Context) error, fail bool) error {
+		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 			row, err := tx.QueryRow(ctx, "SELECT hash, event_id FROM "+receipts+" WHERE id = 'command';")
 			if err == nil {
 				var storedHash, storedEvent string
@@ -96,7 +91,7 @@ func testCommandReceipt(t *testing.T, inject bool) {
 				" (id, hash, event_id) VALUES ('command', $hash, $event);", query.WithParameters(params)); err != nil {
 				return err
 			}
-			if err := publisher.Publish(ctx, tx, alias, e); err != nil {
+			if err := send(alias, e); err != nil {
 				return err
 			}
 			if fail {
@@ -122,19 +117,21 @@ func testCommandReceipt(t *testing.T, inject bool) {
 			t.Fatalf("topic end: got %d, want %d, error %v", count, want, err)
 		}
 	}
-	if err := run(tr, p, "hash", "invalid", nil, false); !errors.Is(err, ErrInvalidTopic) {
+	if err := run(p, "hash", "invalid", nil, false); !errors.Is(err, ErrInvalidTopic) {
 		t.Fatal(err)
 	}
 	assertCommitted(0)
-	if err := run(tr, p, "hash", "events", nil, true); !errors.Is(err, rollback) {
+	if err := run(p, "hash", "events", nil, true); !errors.Is(err, rollback) {
 		t.Fatal(err)
 	}
 	assertCommitted(0)
 
 	if inject {
 		failBeforeSend.Store(true)
-		bounded, _ := NewTransactor(db, 5*time.Second)
-		err := run(bounded, p, "hash", "events", nil, false)
+		savedTimeout := p.owner.timeout
+		p.owner.timeout = 5 * time.Second
+		err := run(p, "hash", "events", nil, false)
+		p.owner.timeout = savedTimeout
 		failBeforeSend.Store(false)
 		if err == nil || !beforeSendIntercepted.Load() {
 			t.Fatalf("expected intercepted commit request failure: %v", err)
@@ -142,7 +139,7 @@ func testCommandReceipt(t *testing.T, inject bool) {
 		assertCommitted(0)
 
 		discardResponse.Store(true)
-		err = run(tr, p, "hash", "events", nil, false)
+		err = run(p, "hash", "events", nil, false)
 		if !discarded.Load() {
 			t.Fatalf("successful commit response was not intercepted: %v", err)
 		}
@@ -166,8 +163,8 @@ func testCommandReceipt(t *testing.T, inject bool) {
 			}
 		}
 		results := make(chan error, 2)
-		go func() { results <- run(tr, p, "hash", "events", beforeWrite, false) }()
-		go func() { results <- run(tr2, p2, "hash", "events", beforeWrite, false) }()
+		go func() { results <- run(p, "hash", "events", beforeWrite, false) }()
+		go func() { results <- run(p2, "hash", "events", beforeWrite, false) }()
 		ready := 0
 		deadline, cancel := context.WithTimeout(ctx, 10*time.Second)
 		defer cancel()
@@ -192,10 +189,10 @@ func testCommandReceipt(t *testing.T, inject bool) {
 	}
 
 	// Re-submit through a separate driver; the durable receipt supplies the original result.
-	if err := run(tr2, p2, "hash", "events", nil, false); err != nil {
+	if err := run(p2, "hash", "events", nil, false); err != nil {
 		t.Fatal(err)
 	}
-	if err := run(tr2, p2, "different-hash", "events", nil, false); !errors.Is(err, wrongHash) {
+	if err := run(p2, "different-hash", "events", nil, false); !errors.Is(err, wrongHash) {
 		t.Fatal(err)
 	}
 	assertCommitted(1)

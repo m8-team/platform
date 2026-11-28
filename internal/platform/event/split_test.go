@@ -35,15 +35,13 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 			},
 		}),
 	)
-	const producer = "m8.test.split.0.0"
-	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path}))
-	if err != nil {
-		t.Fatal(err)
-	}
+
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 20*time.Second)
 	tr, err := NewTransactor(db, 20*time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
+	producer := p.producer
 	initial, err := db.Topic().Describe(ctx, path)
 	if err != nil || len(initial.Partitions) != 1 || !initial.Partitions[0].Active {
 		t.Fatalf("expected one active parent partition: %v, %v", initial.Partitions, err)
@@ -71,12 +69,17 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 			}
 			events[i] = e
 		}
-		if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			if stable {
-				return writeWithProducer(ctx, db, tx, path, producer, events...)
-			}
-			return p.Publish(ctx, tx, "events", events...)
-		}); err != nil {
+		var err error
+		if stable {
+			err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+				return send("events", events...)
+			})
+		} else {
+			err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+				return writeWithProducer(ctx, db, tx, path, "", events...)
+			})
+		}
+		if err != nil {
 			t.Fatalf("publish during split fixture after %d confirmed events: %v", len(expected), err)
 		}
 		for _, e := range events {

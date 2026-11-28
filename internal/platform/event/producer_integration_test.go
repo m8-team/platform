@@ -31,12 +31,13 @@ func writeWithProducer(ctx context.Context, db *ydb.Driver, tx query.TxActor, pa
 	if err != nil {
 		return err
 	}
+	options := []topicoptions.MultiWriterOption{topicoptions.WithWriterPartitionByKey(topicoptions.BoundPartitionChooser())}
+	if prefix != "" {
+		options = append(options, topicoptions.WithProducerIDPrefix(prefix))
+	}
 	writer, err := db.Topic().StartTransactionalWriter(tx, path,
 		topicoptions.WithWriterMessageMaxBytesSize(DefaultConfig(nil).MaxEventBytes),
-		topicoptions.WithWriteToManyPartitions(
-			topicoptions.WithProducerIDPrefix(prefix),
-			topicoptions.WithWriterPartitionByKey(topicoptions.BoundPartitionChooser()),
-		),
+		topicoptions.WithWriteToManyPartitions(options...),
 	)
 	if err != nil {
 		return err

@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS replica_owners (
+    replica Utf8 NOT NULL,
+    pod_uid Utf8 NOT NULL,
+    generation Uint64 NOT NULL,
+    PRIMARY KEY (replica)
+);
+
+CREATE TABLE IF NOT EXISTS replica_publication_guards (
+    replica Utf8 NOT NULL,
+    revision Uint64 NOT NULL,
+    PRIMARY KEY (replica)
+);

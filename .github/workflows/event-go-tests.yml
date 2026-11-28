@@ -4,6 +4,9 @@ on:
   pull_request:
     paths: &event-paths
       - "internal/platform/event/**"
+      - "internal/platform/kubernetes/**"
+      - "cmd/event-reconciler/**"
+      - "deploy/event/**"
       - "proto/m8/platform/event/**"
       - "internal/proto/m8/platform/event/**"
       - ".github/workflows/event-go-tests.yml"
@@ -20,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       metadata_duration:
-        description: Duration per strategy on the disposable fixture
+        description: Duration of the protected Publisher soak
         type: choice
         default: "8m"
         options: ["8m", "30m"]
@@ -41,10 +44,10 @@ jobs:
           go-version-file: go.mod
       - name: Format, compile, test and vet
         run: |
-          test -z "$(gofmt -l internal/platform/event/)"
-          go test -count=1 ./internal/platform/event/...
-          go test -race -count=1 ./internal/platform/event/...
-          go vet ./internal/platform/event/...
+          test -z "$(gofmt -l internal/platform/event/ internal/platform/kubernetes/ cmd/event-reconciler/)"
+          go test -count=1 ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
+          go test -race -count=1 ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
+          go vet ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
       - name: Verify Event contract and generated code
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'origin/main' }}
@@ -73,12 +76,20 @@ jobs:
           docker run -d --hostname localhost --name m8-event-ydb -p 127.0.0.1:2136:2136 \
             -p 127.0.0.1:8765:8765 -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
       - name: Verify native transactions (required)
-        run: go test -count=1 -timeout=8m -v -run '^TestIntegration' ./internal/platform/event/...
+        run: go test -count=1 -timeout=8m -v -run '^TestIntegration' -skip '^TestIntegrationKubernetesReplicaHandoff$' ./internal/platform/event/...
       - name: Compare transactional Producer ID metadata (required)
         env:
           M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
           M8_EVENT_TEST_SOAK_DURATION: ${{ inputs.metadata_duration || '1m' }}
-        run: go test -count=1 -timeout=65m -v -run '^TestSoakProducerMetadata$' ./internal/platform/event/...
+        run: |
+          pattern='^TestSoakProducerMetadata$'
+          if [[ "${{ github.event_name }}" == workflow_dispatch ]]; then pattern+='/^protected$'; fi
+          go test -count=1 -timeout=40m -v -run "$pattern" ./internal/platform/event/...
+      - name: Benchmark stable, random and protected publication
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          go test -run '^$' -bench '^BenchmarkNativeYDB$/^(state_only|keyed_writer|stable_keyed_writer|protected.*)$' \
+            -benchmem -benchtime=1000x -timeout=15m ./internal/platform/event/...
       - name: Recover after a hard YDB restart
         run: bash internal/platform/event/testdata/ydb-disruption.sh restart
       - name: Verify producer metadata TTL
@@ -92,11 +103,12 @@ jobs:
             -e GRPC_PORT=2236 -e MON_PORT=8865 ydbplatform/local-ydb:26.3.1.25 \
             --enable-feature-flag enable_topic_retention_delete_last_blob
           trap 'docker rm -f m8-event-ydb-ttl' EXIT
+          healthy=0
           for i in {1..30}; do
-            if docker exec m8-event-ydb-ttl /health_check >/dev/null 2>&1; then break; fi
+            if docker exec m8-event-ydb-ttl /health_check >/dev/null 2>&1; then healthy=1; break; fi
             sleep 1
           done
-          docker exec m8-event-ydb-ttl /health_check
+          test "$healthy" = 1
           if ! go test -count=1 -timeout=3m -v -run '^TestProducerMetadataTTL$' ./internal/platform/event/...; then
             docker logs --tail=100 m8-event-ydb-ttl
             exit 1
@@ -132,5 +144,7 @@ jobs:
           curl -fsSLo "$RUNNER_TEMP/kind" https://kind.sigs.k8s.io/dl/v0.32.0/kind-linux-amd64
           chmod +x "$RUNNER_TEMP/kind"
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-      - name: Verify replica handoff across a control-plane partition
+      - name: Verify replica handoff, retirement and StatefulSet recreation
         run: bash internal/platform/event/testdata/kubernetes-handoff.sh
+      - name: Run the deployed reconciler with Kubernetes RBAC and YDB TLS
+        run: bash internal/platform/event/testdata/reconciler-smoke.sh

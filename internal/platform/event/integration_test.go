@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -114,10 +115,7 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	createTestTopic(t, ctx, db, topicPath+"_forwarded", 1)
 	cfg := DefaultConfig(map[string]string{"resource": topicPath, "forwarded": topicPath + "_forwarded"})
 	cfg.Topics["missing"] = topicPath + "_missing"
-	p, err := NewPublisher(db, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := livePublisher(t, ctx, db, topicPath, cfg, 12*time.Second)
 	tr, err := NewTransactor(db, 12*time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -144,11 +142,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	}
 	rollback := errors.New("intentional rollback")
 	rolledBack := makeEvent()
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := writeState(ctx, tx, rolledBack.Id); err != nil {
 			return err
 		}
-		if err := p.Publish(ctx, tx, "resource", rolledBack); err != nil {
+		if err := send("resource", rolledBack); err != nil {
 			return err
 		}
 		return rollback
@@ -160,11 +158,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 
 	bad := makeEvent()
 	bad.Type = "invalid"
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := writeState(ctx, tx, bad.Id); err != nil {
 			return err
 		}
-		return p.Publish(ctx, tx, "resource", bad)
+		return send("resource", bad)
 	})
 	if !errors.Is(err, ErrInvalidEvent) {
 		t.Fatalf("expected validation failure, got %v", err)
@@ -172,11 +170,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	assertCount(0)
 
 	missing := makeEvent()
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := writeState(ctx, tx, missing.Id); err != nil {
 			return err
 		}
-		return p.Publish(ctx, tx, "missing", missing)
+		return send("missing", missing)
 	})
 	if err == nil {
 		t.Fatal("unexpected success for nonexistent topic")
@@ -184,11 +182,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	assertCount(0)
 
 	first, second := makeEvent(), makeEvent()
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := writeState(ctx, tx, first.Id); err != nil {
 			return err
 		}
-		return p.Publish(ctx, tx, "resource", first, second)
+		return send("resource", first, second)
 	})
 	if err != nil {
 		t.Fatalf("commit state and events: %v", err)
@@ -239,7 +237,7 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 			}
 			forward = append(forward, got)
 		}
-		if err := p.Publish(ctx, tx, "forwarded", forward...); err != nil {
+		if err := writeWithProducer(ctx, db, tx, topicPath+"_forwarded", "m8.test.consumer", forward...); err != nil {
 			return err
 		}
 		if fail {
@@ -279,8 +277,8 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	}
 	restartReader()
 	sentinel := makeEvent()
-	if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-		return p.Publish(ctx, tx, "resource", sentinel)
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+		return send("resource", sentinel)
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -302,18 +300,14 @@ func TestIntegrationTransactionDeadline(t *testing.T) {
 	ctx, db, path := liveDatabase(t)
 	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	createTestTopic(t, ctx, db, path, 1)
-	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	tr, _ := NewTransactor(db, 3*time.Second)
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 3*time.Second)
 	event := testEvent(t)
 	staged := false
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('deadline');"); err != nil {
 			return err
 		}
-		if err := p.Publish(ctx, tx, "events", event); err != nil {
+		if err := send("events", event); err != nil {
 			return err
 		}
 		staged = true
@@ -377,20 +371,16 @@ func TestIntegrationWriterFlushFailure(t *testing.T) {
 	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	createTestTopic(t, ctx, db, path, 1)
 	createTestTopic(t, ctx, db, path+"_other", 1)
-	p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": path, "other": path + "_other"}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	tr, _ := NewTransactor(db, 8*time.Second)
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path, "other": path + "_other"}), 8*time.Second)
 	callbackReturned := false
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('writer-failure');"); err != nil {
 			return err
 		}
-		if err := p.Publish(ctx, tx, "events", testEvent(t)); err != nil {
+		if err := send("events", testEvent(t)); err != nil {
 			return err
 		}
-		if err := p.Publish(ctx, tx, "other", testEvent(t)); err != nil {
+		if err := send("other", testEvent(t)); err != nil {
 			return err
 		}
 		if !callbackReturned {
@@ -417,4 +407,105 @@ func TestIntegrationWriterFlushFailure(t *testing.T) {
 			t.Fatalf("topic after flush failure: %d, %v", total, err)
 		}
 	}
+}
+
+func livePublisher(t testing.TB, ctx context.Context, db *ydb.Driver, prefix string, cfg Config, timeout time.Duration) *Publisher {
+	t.Helper()
+	createTestTable(t, ctx, db, prefix+"_owner", "replica Utf8 NOT NULL, pod_uid Utf8 NOT NULL, generation Uint64 NOT NULL, PRIMARY KEY (replica)")
+	createTestTable(t, ctx, db, prefix+"_guard", "replica Utf8 NOT NULL, revision Uint64 NOT NULL, PRIMARY KEY (replica)")
+	return bindTestPublisher(t, ctx, db, ReplicaSlot{"test", uuid.NewString(), "publisher-0", prefix + "_owner"}, prefix+"_guard", cfg, timeout)
+}
+
+func bindTestPublisher(t testing.TB, ctx context.Context, db *ydb.Driver, slot ReplicaSlot, guard string, cfg Config, timeout time.Duration) *Publisher {
+	t.Helper()
+	owner, err := NewTransactor(db, timeout)
+	if err != nil {
+		t.Fatal(err)
+	}
+	uid := uuid.NewString()
+	if err := slot.Reconcile(ctx, owner, func(context.Context) (string, bool, error) { return uid, false, nil }); err != nil {
+		t.Fatal(err)
+	}
+	claim, err := slot.Bind(ctx, owner, uid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := NewPublisher(owner, cfg, claim, guard)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+func verifyFence(t testing.TB, ctx context.Context, owner *Transactor, p *Publisher, uid string, generation, revision uint64) {
+	t.Helper()
+	if err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		gotUID, gotGeneration, err := p.ownership.slot.read(ctx, tx)
+		if err != nil {
+			return err
+		}
+		gotRevision, err := p.guardRevision(ctx, tx)
+		if err != nil {
+			return err
+		}
+		if gotUID != uid || gotGeneration != generation || gotRevision != revision {
+			return fmt.Errorf("unexpected fence: uid=%q generation=%d revision=%d; want %q/%d/%d", gotUID, gotGeneration, gotRevision, uid, generation, revision)
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestIntegrationEventSchema(t *testing.T) {
+	ctx, db, prefix := liveDatabase(t)
+	schema, err := os.ReadFile("../../../deploy/event/schema.yql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Scheme().MakeDirectory(ctx, prefix); err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		for _, table := range []string{"replica_owners", "replica_publication_guards"} {
+			_ = db.Query().Exec(cleanup, "DROP TABLE IF EXISTS `"+prefix+"/"+table+"`;")
+		}
+		_ = db.Scheme().RemoveDirectory(cleanup, prefix)
+	}()
+	migrate := func() {
+		t.Helper()
+		if err := db.Query().Exec(ctx, "PRAGMA TablePathPrefix = '"+prefix+"'; "+string(schema)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	migrate()
+	slot := ReplicaSlot{"test", uuid.NewString(), "publisher-0", prefix + "/replica_owners"}
+	p := bindTestPublisher(t, ctx, db, slot, prefix+"/replica_publication_guards", DefaultConfig(map[string]string{"test": prefix + "/test"}), 5*time.Second)
+	var escaped func(string, ...*eventv1.Event) error
+	if err := p.WithinTransaction(ctx, func(_ context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error) error {
+		if _, ok := tx.(query.Transaction); ok {
+			t.Error("business callback can explicitly commit")
+		}
+		if _, ok := tx.(struct{ query.TxActor }); ok {
+			t.Error("business callback can unwrap the SDK transaction handle")
+		}
+		escaped = publish
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := escaped("test"); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("expired publication callback: %v", err)
+	}
+	migrate()
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 1)
+	if err := p.ownership.slot.Reconcile(ctx, p.owner, func(context.Context) (string, bool, error) { return "", true, nil }); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.CheckReadiness(ctx); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("retired publisher is ready: %v", err)
+	}
+	verifyFence(t, ctx, p.owner, p, retiredReplica, 2, 1)
 }

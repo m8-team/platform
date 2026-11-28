@@ -9,6 +9,9 @@ import (
 // transaction owner observes commit outcomes separately.
 type PublishStats struct {
 	Attempts, Errors, StagedBatches, StagedEvents, StagedBytes uint64
+	OwnershipRejected, LaneAcquireErrors                       uint64
+	LaneWait                                                   time.Duration
+	LaneInUse, LaneCapacity                                    int
 }
 
 type publishCounters struct {
@@ -20,7 +23,12 @@ func (p *Publisher) Stats() PublishStats {
 	return PublishStats{
 		Attempts: p.stats.attempts.Load(), Errors: p.stats.errors.Load(),
 		StagedBatches: p.stats.batches.Load(), StagedEvents: p.stats.events.Load(),
-		StagedBytes: p.stats.bytes.Load(),
+		StagedBytes:       p.stats.bytes.Load(),
+		OwnershipRejected: p.ownershipRejected.Load(),
+		LaneAcquireErrors: p.laneErrors.Load(),
+		LaneWait:          time.Duration(p.laneWait.Load()),
+		LaneInUse:         len(p.lane),
+		LaneCapacity:      cap(p.lane),
 	}
 }
 
@@ -41,12 +49,14 @@ func (c *publishCounters) record(err error, events, size int) {
 // Failed includes unknown outcomes. CommitUnknown counts explicit YDB
 // UNDETERMINED commit responses and is a lower bound on ambiguous commits.
 type TransactionStats struct {
-	Attempts, Retries, Committed, Failed, CommitUnknown uint64
-	Duration                                            time.Duration
+	Attempts, Retries, Committed, Failed, CommitUnknown      uint64
+	Duration                                                 time.Duration
+	OwnershipHandoffs, OwnershipRetirements, CommitConflicts uint64
 }
 
 type transactionCounters struct {
 	attempts, retries, committed, failed, unknown, duration atomic.Uint64
+	handoffs, retirements, commitConflicts                  atomic.Uint64
 }
 
 // Stats returns cumulative counters for the service's metrics exporter.
@@ -56,6 +66,9 @@ func (t *Transactor) Stats() TransactionStats {
 		Attempts: c.attempts.Load(), Retries: c.retries.Load(),
 		Committed: c.committed.Load(), Failed: c.failed.Load(),
 		CommitUnknown: c.unknown.Load(), Duration: time.Duration(c.duration.Load()),
+		OwnershipHandoffs:    c.handoffs.Load(),
+		OwnershipRetirements: c.retirements.Load(),
+		CommitConflicts:      c.commitConflicts.Load(),
 	}
 }
 
