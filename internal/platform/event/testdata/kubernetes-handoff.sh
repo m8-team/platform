@@ -29,8 +29,12 @@ kind create cluster --name "$cluster" --image kindest/node:v1.34.0 --config "$sc
 created_ydb=1
 docker run -d --network kind --hostname localhost --name "$fixture" \
   -p 127.0.0.1:32536:32536 -e GRPC_PORT=32536 ydbplatform/local-ydb:26.3.1.25 >/dev/null
-for _ in {1..45}; do if docker exec "$fixture" /health_check >/dev/null 2>&1; then break; fi; sleep 1; done
-docker exec "$fixture" /health_check
+healthy=0
+for _ in {1..45}; do
+  if docker exec "$fixture" /health_check >/dev/null 2>&1; then healthy=1; break; fi
+  sleep 1
+done
+[[ "$healthy" == 1 ]]
 ip=$(docker inspect -f '{{(index .NetworkSettings.Networks "kind").IPAddress}}' "$fixture")
 arch=$(docker exec "$cluster-worker" uname -m)
 case "$arch" in aarch64) arch=arm64 ;; x86_64) arch=amd64 ;; *) exit 1 ;; esac
@@ -40,6 +44,7 @@ printf '%s\n' 'FROM scratch' 'COPY event.test /event.test' 'ENTRYPOINT ["/event.
 docker build -t m8-event-handoff-worker:fixture "$scratch/image"
 kind load docker-image --name "$cluster" m8-event-handoff-worker:fixture
 kubectl create namespace event-handoff
+kubectl -n event-handoff apply --dry-run=server -f deploy/event/reconciler.yaml -f deploy/event/publisher.example.yaml >/dev/null
 kubectl -n event-handoff apply -f - <<YAML
 apiVersion: v1
 kind: ServiceAccount
@@ -54,6 +59,10 @@ rules:
 - apiGroups: [""]
   resources: ["pods"]
   resourceNames: ["publisher-0"]
+  verbs: ["get"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets"]
+  resourceNames: ["publisher"]
   verbs: ["get"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -50,6 +50,9 @@ func (t *Transactor) WithinTransaction(ctx context.Context, fn func(context.Cont
 					if ydb.IsOperationError(info.Error, Ydb.StatusIds_UNDETERMINED) {
 						t.counters.unknown.Add(1)
 					}
+					if ydb.IsOperationError(info.Error, Ydb.StatusIds_ABORTED) {
+						t.counters.commitConflicts.Add(1)
+					}
 				}
 			},
 		}),

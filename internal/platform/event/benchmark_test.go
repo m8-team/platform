@@ -64,6 +64,9 @@ func BenchmarkNativeYDB(b *testing.B) {
 		{"state_only", 0, 0, 1, 1, 0},
 		{"single_writer", 1, 256, 1, 1, 0},
 		{"keyed_writer", 1, 256, 1, 1, 0},
+		{"protected", 1, 256, 1, 1, 0},
+		{"protected_contended", 10, 1024, 4, 4, 0},
+		{"protected_batch_100", 100, 256, 1, 16, 0},
 		{"stable_single_writer", 1, 256, 1, 1, 1},
 		{"stable_keyed_writer", 1, 256, 1, 1, 1},
 		{"stable_keyed_two_lanes", 1, 256, 4, 1, 2},
@@ -74,6 +77,7 @@ func BenchmarkNativeYDB(b *testing.B) {
 		b.Run(variant.name, func(b *testing.B) {
 			var retries, writerInitNs, writerInits, producers atomic.Uint64
 			var seenProducers sync.Map
+			var queryExecs, ownershipNS, guardNS atomic.Uint64
 			ctx, db, path := liveDatabase(b, ydb.WithTraceTopic(trace.Topic{
 				OnWriterInitStream: func(info trace.TopicWriterInitStreamStartInfo) func(trace.TopicWriterInitStreamDoneInfo) {
 					start := time.Now()
@@ -85,20 +89,44 @@ func BenchmarkNativeYDB(b *testing.B) {
 						writerInits.Add(1)
 					}
 				},
+			}), ydb.WithTraceQuery(trace.Query{
+				OnTxQueryRow: func(info trace.QueryTxQueryRowStartInfo) func(trace.QueryTxQueryRowDoneInfo) {
+					queryExecs.Add(1)
+					start := time.Now()
+					return func(trace.QueryTxQueryRowDoneInfo) {
+						if strings.Contains(info.Query, "SELECT pod_uid") {
+							ownershipNS.Add(uint64(time.Since(start)))
+						} else if strings.Contains(info.Query, "SELECT revision") {
+							guardNS.Add(uint64(time.Since(start)))
+						}
+					}
+				},
+				OnTxExec: func(info trace.QueryTxExecStartInfo) func(trace.QueryTxExecDoneInfo) {
+					queryExecs.Add(1)
+					start := time.Now()
+					return func(trace.QueryTxExecDoneInfo) {
+						if strings.Contains(info.Query, "_guard") {
+							guardNS.Add(uint64(time.Since(start)))
+						}
+					}
+				},
 			}))
 			table := createTestTable(b, ctx, db, path+"_state", "id Uint64 NOT NULL, PRIMARY KEY (id)")
 			createTestTopic(b, ctx, db, path, variant.partitions)
 			cfg := DefaultConfig(map[string]string{"events": path})
-			p, err := NewPublisher(db, cfg)
-			if err != nil {
-				b.Fatal(err)
-			}
 			tr, _ := NewTransactor(db, 30*time.Second)
+			var protected *Publisher
+			var before TransactionStats
+			if strings.HasPrefix(variant.name, "protected") {
+				protected = livePublisher(b, ctx, db, path, cfg, 30*time.Second)
+				before = protected.owner.Stats()
+			}
 			template := testEvent(b)
-			template.Payload, err = anypb.New(wrapperspb.String(strings.Repeat("x", variant.payload)))
+			payload, err := anypb.New(wrapperspb.String(strings.Repeat("x", variant.payload)))
 			if err != nil {
 				b.Fatal(err)
 			}
+			template.Payload = payload
 			durations := make([]time.Duration, b.N)
 			var laneWait atomic.Uint64
 			lanes := make(chan string, variant.lanes)
@@ -107,6 +135,9 @@ func BenchmarkNativeYDB(b *testing.B) {
 			}
 			failures := make(chan error, variant.workers)
 			b.ReportAllocs()
+			queryExecs.Store(0)
+			ownershipNS.Store(0)
+			guardNS.Store(0)
 			b.ResetTimer()
 			var workers sync.WaitGroup
 			for worker := range variant.workers {
@@ -132,14 +163,31 @@ func BenchmarkNativeYDB(b *testing.B) {
 							}
 							laneWait.Add(uint64(time.Since(waitStart)))
 						}
+						writeState := func(ctx context.Context, tx query.TxActor) error {
+							return tx.Exec(ctx, "DECLARE $id AS Uint64; INSERT INTO "+table+
+								" (id) VALUES ($id);", query.WithParameters(params))
+						}
+						if protected != nil {
+							err := protected.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+								if err := writeState(ctx, tx); err != nil {
+									return err
+								}
+								return send("events", events...)
+							})
+							if err != nil {
+								failures <- err
+								return
+							}
+							durations[i] = time.Since(start)
+							continue
+						}
 						attempt := 0
 						err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
 							attempt++
 							if attempt > 1 {
 								retries.Add(1)
 							}
-							if err := tx.Exec(ctx, "DECLARE $id AS Uint64; INSERT INTO "+table+
-								" (id) VALUES ($id);", query.WithParameters(params)); err != nil {
+							if err := writeState(ctx, tx); err != nil {
 								return err
 							}
 							switch variant.name {
@@ -163,7 +211,7 @@ func BenchmarkNativeYDB(b *testing.B) {
 								messages[0].Key = ""
 								return writer.Write(ctx, messages...)
 							default:
-								return p.Publish(ctx, tx, "events", events...)
+								return writeWithProducer(ctx, db, tx, path, "", events...)
 							}
 						})
 						if producer != "" {
@@ -190,6 +238,17 @@ func BenchmarkNativeYDB(b *testing.B) {
 			if variant.lanes > 0 {
 				b.ReportMetric(float64(laneWait.Load())/float64(b.N)/float64(time.Millisecond), "lane-wait-ms/tx")
 			}
+			ownerStats := tr.Stats()
+			if protected != nil {
+				ownerStats = protected.owner.Stats()
+				retries.Store(ownerStats.Retries - before.Retries)
+				b.ReportMetric(float64(protected.Stats().LaneWait)/float64(b.N)/float64(time.Millisecond), "lane-wait-ms/tx")
+				b.ReportMetric(float64(ownershipNS.Load())/float64(b.N)/float64(time.Millisecond), "ownership-ms/tx")
+				b.ReportMetric(float64(guardNS.Load())/float64(b.N)/float64(time.Millisecond), "guard-ms/tx")
+			}
+			b.ReportMetric(float64(queryExecs.Load())/float64(b.N), "queries/tx")
+			b.ReportMetric(float64(ownerStats.Duration-before.Duration)/float64(b.N)/float64(time.Millisecond), "ydb-ms/tx")
+			b.ReportMetric(float64(ownerStats.CommitConflicts-before.CommitConflicts)/float64(b.N), "commit-conflicts/tx")
 			slices.Sort(durations)
 			for _, percentile := range []int{50, 95, 99} {
 				index := (b.N*percentile+99)/100 - 1

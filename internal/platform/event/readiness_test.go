@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
@@ -22,11 +23,8 @@ func TestIntegrationTopicReadiness(t *testing.T) {
 		{name: "missing topic", path: path + "_missing"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := NewPublisher(db, DefaultConfig(map[string]string{"events": tc.path}))
-			if err != nil {
-				t.Fatal(err)
-			}
-			err = p.CheckReadiness(ctx)
+			p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": tc.path}), 10*time.Second)
+			err := p.CheckReadiness(ctx)
 			if tc.name == "missing topic" {
 				if !ydb.IsOperationErrorSchemeError(err) {
 					t.Fatalf("expected a metadata request failure, got %v", err)

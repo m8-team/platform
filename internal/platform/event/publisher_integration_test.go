@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func TestIntegrationOwnedPublisherConflictingCommitSamePod(t *testing.T) {
+func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 	held, resume := make(chan struct{}), make(chan struct{}, 1)
 	var pause, aborted atomic.Bool
 	intercept := func(ctx context.Context, method string, req, reply any, conn *grpc.ClientConn,
@@ -52,7 +52,7 @@ func TestIntegrationOwnedPublisherConflictingCommitSamePod(t *testing.T) {
 		query.WithParameters(ydb.ParamsBuilder().Param("$replica").Text(slot.key()).Param("$uid").Text(uid).Build())); err != nil {
 		t.Fatal(err)
 	}
-	newPublisher := func(db *ydb.Driver) *OwnedPublisher {
+	newPublisher := func(db *ydb.Driver) *Publisher {
 		t.Helper()
 		owner, err := NewTransactor(db, 15*time.Second)
 		if err != nil {
@@ -62,7 +62,7 @@ func TestIntegrationOwnedPublisherConflictingCommitSamePod(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		p, err := NewOwnedPublisher(owner, DefaultConfig(map[string]string{"event": path}), claim, path+"_guard")
+		p, err := NewPublisher(owner, DefaultConfig(map[string]string{"event": path}), claim, path+"_guard")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,7 +73,7 @@ func TestIntegrationOwnedPublisherConflictingCommitSamePod(t *testing.T) {
 		return tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
 			query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build()))
 	}
-	run := func(p *OwnedPublisher, event *eventv1.Event) error {
+	run := func(p *Publisher, event *eventv1.Event) error {
 		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 			if err := write(ctx, tx, event.Id); err != nil {
 				return err
@@ -140,5 +140,6 @@ func TestIntegrationOwnedPublisherConflictingCommitSamePod(t *testing.T) {
 			t.Fatalf("missing committed state for event %s: %v", event.Id, err)
 		}
 	}
+	verifyFence(t, ctx, second.owner, second, uid, 1, 2)
 	assertStableProducerEvents(t, ctx, newProcess, path, second.producer+"-0", []*eventv1.Event{winner, late})
 }

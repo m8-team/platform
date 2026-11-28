@@ -146,7 +146,7 @@ func TestConfig(t *testing.T) {
 	if err := DefaultConfig(map[string]string{"resource": "/local/events/resource.v1"}).Validate(); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := NewPublisher(nil, Config{}); !errors.Is(err, ErrInvalidConfiguration) {
+	if _, err := NewPublisher(nil, Config{}, PodOwnership{}, ""); !errors.Is(err, ErrInvalidConfiguration) {
 		t.Fatal(err)
 	}
 }

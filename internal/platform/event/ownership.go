@@ -2,13 +2,8 @@ package event
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"math"
-	"net/http"
-	"net/url"
 	"regexp"
 
 	"github.com/google/uuid"
@@ -48,6 +43,8 @@ func (s ReplicaSlot) key() string {
 	return s.Namespace + "/" + s.StatefulSetUID + "/" + s.PodName
 }
 
+const retiredReplica = "retired"
+
 const declareReplicaKey = "DECLARE $replica AS Utf8; "
 
 func (s ReplicaSlot) read(ctx context.Context, tx query.TxActor) (uid string, generation uint64, err error) {
@@ -62,37 +59,38 @@ func (s ReplicaSlot) read(ctx context.Context, tx query.TxActor) (uid string, ge
 	if err := row.Scan(&uid, &generation); err != nil {
 		return "", 0, err
 	}
-	if !validPodUID(uid) || generation == 0 {
+	if generation == 0 || (uid != "" && uid != retiredReplica && !validPodUID(uid)) {
 		return "", 0, ErrReplicaOwnership
 	}
 	return uid, generation, nil
 }
 
-// Reconcile reads the current Pod from Kubernetes and assigns its generation.
-// Run it with a dedicated Kubernetes reader and the only YDB credentials
-// allowed to update the ownership table. The HTTP client supplies TLS and
-// authentication.
-func (s ReplicaSlot) Reconcile(ctx context.Context, owner *Transactor, client *http.Client, apiServer string) error {
-	if err := s.validate(); err != nil {
-		return err
-	}
-	base, err := url.Parse(apiServer)
-	if err != nil || base.Scheme != "https" || base.Hostname() == "" || base.User != nil ||
-		base.Path != "" && base.Path != "/" || base.RawQuery != "" || base.Fragment != "" || client == nil {
+// Reconcile applies an authoritative observation using the ownership writer.
+// observe runs once per SDK attempt after reading the current generation.
+// An empty UID marks a vacant slot. A retired incarnation is permanent.
+func (s ReplicaSlot) Reconcile(ctx context.Context, owner *Transactor, observe func(context.Context) (uid string, retired bool, err error)) error {
+	if err := s.validate(); err != nil || observe == nil {
 		return ErrInvalidConfiguration
 	}
-	endpoint := base.JoinPath("api", "v1", "namespaces", s.Namespace, "pods", s.PodName).String()
-	// Observe YDB before Kubernetes. An older Kubernetes observation cannot
-	// overwrite a newer, committed handoff: the YDB read is invalidated and
-	// the SDK retry performs a fresh Kubernetes read.
-	return owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	var handoff, retirement bool
+	err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+		handoff, retirement = false, false
 		prior, generation, err := s.read(ctx, tx)
 		if err != nil {
 			return err
 		}
-		current, err := s.currentPodUID(ctx, client, endpoint)
+		if prior == retiredReplica {
+			return nil
+		}
+		current, retired, err := observe(ctx)
 		if err != nil {
 			return err
+		}
+		if current != "" && !validPodUID(current) {
+			return ErrReplicaOwnership
+		}
+		if retired {
+			current = retiredReplica
 		}
 		if current == prior {
 			return nil
@@ -100,52 +98,20 @@ func (s ReplicaSlot) Reconcile(ctx context.Context, owner *Transactor, client *h
 		if generation == math.MaxUint64 {
 			return ErrReplicaOwnership
 		}
+		handoff = validPodUID(prior) && validPodUID(current)
+		retirement = current == retiredReplica || current == ""
 		return tx.Exec(ctx, declareReplicaKey+"DECLARE $uid AS Utf8; DECLARE $gen AS Uint64; "+
 			"UPSERT INTO `"+s.TablePath+"` (replica, pod_uid, generation) VALUES ($replica, $uid, $gen);",
 			query.WithParameters(ydb.ParamsBuilder().Param("$replica").Text(s.key()).
 				Param("$uid").Text(current).Param("$gen").Uint64(generation+1).Build()))
 	})
-}
-
-func (s ReplicaSlot) currentPodUID(ctx context.Context, client *http.Client, endpoint string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
-	if err != nil {
-		return "", err
+	if err == nil && handoff {
+		owner.counters.handoffs.Add(1)
 	}
-	kubeClient := *client
-	kubeClient.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
-	resp, err := kubeClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("read Kubernetes Pod: %w", err)
+	if err == nil && retirement {
+		owner.counters.retirements.Add(1)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("%w: Kubernetes Pod returned HTTP %d", ErrReplicaOwnership, resp.StatusCode)
-	}
-	var pod struct {
-		Metadata struct {
-			UID, Name, Namespace string
-			DeletionTimestamp    *string
-			OwnerReferences      []struct {
-				UID, Kind, APIVersion string
-				Controller            bool
-			}
-		}
-	}
-	if err := json.NewDecoder(io.LimitReader(resp.Body, 4<<20)).Decode(&pod); err != nil {
-		return "", fmt.Errorf("decode Kubernetes Pod: %w", err)
-	}
-	m := pod.Metadata
-	if m.Name != s.PodName || m.Namespace != s.Namespace || m.DeletionTimestamp != nil || !validPodUID(m.UID) {
-		return "", ErrReplicaOwnership
-	}
-	for _, ref := range m.OwnerReferences {
-		if ref.Controller && ref.APIVersion == "apps/v1" &&
-			ref.Kind == "StatefulSet" && ref.UID == s.StatefulSetUID {
-			return m.UID, nil
-		}
-	}
-	return "", ErrReplicaOwnership
+	return err
 }
 
 // PodOwnership is an immutable generation bound to the Pod UID supplied by
@@ -180,10 +146,10 @@ func (s ReplicaSlot) Bind(ctx context.Context, reader *Transactor, podUID string
 	return bound, nil
 }
 
-// Check must run in every publishing transaction attempt before any writer
+// check must run in every publishing transaction attempt before any writer
 // opens. Keep the same ownership value across retries.
-func (o PodOwnership) Check(ctx context.Context, tx query.TxActor) error {
-	if o.generation == 0 || tx == nil {
+func (o PodOwnership) check(ctx context.Context, tx query.TxActor) error {
+	if !validPodUID(o.uid) || o.generation == 0 || tx == nil {
 		return ErrReplicaOwnership
 	}
 	uid, generation, err := o.slot.read(ctx, tx)

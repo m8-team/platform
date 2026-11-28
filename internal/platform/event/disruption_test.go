@@ -34,18 +34,16 @@ func TestDisruptionYDB(t *testing.T) {
 	ctx, db, path := liveDatabase(t)
 	table := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	createTestTopic(t, ctx, db, path, 1)
-	const producer = "m8.test.disruption.0.0"
-	tr, err := NewTransactor(db, 90*time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
-	write := func(ctx context.Context, tx query.TxActor, e *eventv1.Event) error {
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 90*time.Second)
+	producer := p.producer
+	tr := p.owner
+	write := func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error, e *eventv1.Event) error {
 		params := ydb.ParamsBuilder().Param("$id").Text(e.Id).Build()
 		if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+table+" (id) VALUES ($id);",
 			query.WithParameters(params)); err != nil {
 			return err
 		}
-		return writeWithProducer(ctx, db, tx, path, producer, e)
+		return send("events", e)
 	}
 	next := func() *eventv1.Event {
 		event := testEvent(t)
@@ -54,8 +52,8 @@ func TestDisruptionYDB(t *testing.T) {
 	}
 	publish := func(e *eventv1.Event) {
 		t.Helper()
-		if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			return write(ctx, tx, e)
+		if err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+			return write(ctx, tx, send, e)
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -80,7 +78,7 @@ func TestDisruptionYDB(t *testing.T) {
 	first, pending, interrupted, sentinel := next(), next(), next(), next()
 	publish(first)
 	before := reader()
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
 		batch, err := before.PopMessagesBatchTx(ctx, tx)
 		if err != nil {
 			return err
@@ -116,12 +114,12 @@ func TestDisruptionYDB(t *testing.T) {
 	// Leave the original transaction unresolved while the harness removes
 	// its target node. An SDK callback retry would generate a different
 	// observation, so the fixture stops it and reconciles authoritative state.
-	err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
 		attempts++
 		if attempts > 1 {
 			return errors.New("stopped retry of interrupted transaction for reconciliation")
 		}
-		if err := write(ctx, tx, interrupted); err != nil {
+		if err := write(ctx, tx, send, interrupted); err != nil {
 			return err
 		}
 		var err error
@@ -204,6 +202,7 @@ func TestDisruptionYDB(t *testing.T) {
 	if err != nil || offset != int64(1+len(expected)) {
 		t.Fatalf("durable topic end after %s: %d, %v", mode, offset, err)
 	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, uint64(1+len(expected)))
 	t.Logf("durable topic end=%d, restarted consumer resumed after committed offset, interrupted event committed=%t",
 		offset, hadInterruptedState)
 }

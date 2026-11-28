@@ -5,18 +5,22 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/m8-team/platform/internal/platform/kubernetes"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-genproto/Ydb_Query_V1"
 	"github.com/ydb-platform/ydb-go-genproto/Ydb_Topic_V1"
@@ -25,8 +29,10 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/config"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
+	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/stats"
+	"google.golang.org/protobuf/proto"
 )
 
 const kubernetesFixtureNamespace = "event-handoff"
@@ -124,7 +130,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	var firstObservation atomic.Bool
 	delayedKube := &http.Client{Transport: transportFunc(func(r *http.Request) (*http.Response, error) {
 		response, err := kube.Transport.RoundTrip(r)
-		if err == nil && firstObservation.CompareAndSwap(false, true) {
+		if err == nil && strings.Contains(r.URL.Path, "/pods/") && firstObservation.CompareAndSwap(false, true) {
 			close(observed)
 			select {
 			case <-release:
@@ -135,8 +141,13 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 		}
 		return response, err
 	})}
+	observe := func(client *http.Client) func(context.Context) (string, bool, error) {
+		return func(ctx context.Context) (string, bool, error) {
+			return kubernetes.ObserveReplica(ctx, client, api, slot.Namespace, "publisher", slot.StatefulSetUID, slot.PodName)
+		}
+	}
 	delayedResult := make(chan error, 1)
-	go func() { delayedResult <- slot.Reconcile(ctx, delayedOwner, delayedKube, api) }()
+	go func() { delayedResult <- slot.Reconcile(ctx, delayedOwner, observe(delayedKube)) }()
 	defer close(release)
 	select {
 	case <-observed:
@@ -145,7 +156,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal(ctx.Err())
 	}
-	if err := slot.Reconcile(ctx, owner, kube, api); err != nil {
+	if err := slot.Reconcile(ctx, owner, observe(kube)); err != nil {
 		t.Fatal(err)
 	}
 	call := func(node, endpoint string) string {
@@ -188,7 +199,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	if !validPodUID(newUID) || newUID == oldUID || newNode == oldNode {
 		t.Fatal("expected new UID on a different worker")
 	}
-	if err := slot.Reconcile(ctx, owner, kube, api); err != nil {
+	if err := slot.Reconcile(ctx, owner, observe(kube)); err != nil {
 		t.Fatal(err)
 	}
 	release <- struct{}{}
@@ -267,6 +278,10 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	}
 	events = append(events, recovered)
 	t.Logf("publisher restarted after sending commit without observing any response; interrupted mutation committed=%t", survived == 1)
+	beforeCommit := fixtureWorkerEvent(t, uuid.NewString())
+	afterCrash := fixtureWorkerEvent(t, uuid.NewString())
+	crashAndRestart("crash-before", "44", beforeCommit, afterCrash)
+	events = append(events, afterCrash)
 	row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+state)
 	if err != nil {
 		t.Fatal(err)
@@ -287,6 +302,203 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 		events[i] = fixtureWorkerEvent(t, e.Id)
 	}
 	assertStableProducerEvents(t, ctx, db, path, fmt.Sprintf("m8-%x-0", sha256.Sum256([]byte(slot.key()))), events)
+	// Keep the old binding in this process even when Kubernetes removes the Pod.
+	oldClaim, err := slot.Bind(ctx, owner, newUID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	oldPublisher, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": path}), oldClaim, path+"_guard")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctl("scale", "statefulset/publisher", "--replicas=0")
+	ctl("wait", "--for=delete", "pod/publisher-0", "--timeout=35s")
+	if err := slot.Reconcile(ctx, owner, observe(kube)); err != nil {
+		t.Fatal(err)
+	}
+	assertFenceRejected := func(p *Publisher) {
+		t.Helper()
+		if err := p.WithinTransaction(ctx, func(context.Context, query.TxActor, func(string, ...*eventv1.Event) error) error {
+			t.Error("retired or vacant controller slot admitted a business mutation")
+			return nil
+		}); !errors.Is(err, ErrReplicaOwnership) {
+			t.Fatalf("stale ownership: %v", err)
+		}
+	}
+	assertFenceRejected(oldPublisher)
+	ctl("scale", "statefulset/publisher", "--replicas=1")
+	waitPod()
+	scaledUID := pod(".metadata.uid")
+	if scaledUID == newUID {
+		t.Fatal("scale-up reused the old Pod")
+	}
+	restartedOwner, err := NewTransactor(db, 8*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := slot.Reconcile(ctx, restartedOwner, observe(kube)); err != nil {
+		t.Fatal(err)
+	}
+	scaledClaim, err := slot.Bind(ctx, restartedOwner, scaledUID)
+	if err != nil || scaledClaim.generation != oldClaim.generation+2 {
+		t.Fatalf("scale-down and scale-up should advance two generations: %v", err)
+	}
+	scaledPublisher, err := NewPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), scaledClaim, path+"_guard")
+	if err != nil || scaledPublisher.producer != oldPublisher.producer {
+		t.Fatalf("scale-up should reuse the producer: %v", err)
+	}
+	assertFenceRejected(oldPublisher)
+
+	manifest := filepath.Join(fixture, "statefulset.json")
+	tmpl := ctl("get", "statefulset/publisher", "-o", "json")
+	var spec map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(tmpl), &spec); err != nil {
+		t.Fatal(err)
+	}
+	spec["metadata"] = json.RawMessage(`{"name":"publisher"}`)
+	delete(spec, "status")
+	var settings map[string]json.RawMessage
+	if err := json.Unmarshal(spec["spec"], &settings); err != nil {
+		t.Fatal(err)
+	}
+	settings["replicas"] = json.RawMessage("0")
+	spec["spec"], err = json.Marshal(settings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recreate, err := json.Marshal(spec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manifest, recreate, 0600); err != nil {
+		t.Fatal(err)
+	}
+	ctl("delete", "statefulset", "publisher", "--wait=true", "--timeout=35s")
+	ctl("wait", "--for=delete", "pod/publisher-0", "--timeout=35s")
+	ctl("create", "-f", manifest)
+	recreatedUID := ctl("get", "statefulset", "publisher", "-o", "jsonpath={.metadata.uid}")
+	if recreatedUID == setUID {
+		t.Fatal("controller incarnation did not change")
+	}
+	staged, finish := make(chan struct{}), make(chan struct{})
+	oldResult := make(chan error, 1)
+	doomed := fixtureWorkerEvent(t, uuid.NewString())
+	go func() {
+		attempted := false
+		oldResult <- scaledPublisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+			if attempted {
+				return errors.New("retired ownership reached the callback on retry")
+			}
+			attempted = true
+			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
+				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(doomed.Id).Build())); err != nil {
+				return err
+			}
+			if err := send("events", doomed); err != nil {
+				return err
+			}
+			close(staged)
+			select {
+			case <-finish:
+				return nil
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+		})
+	}()
+	select {
+	case <-staged:
+	case err := <-oldResult:
+		close(finish)
+		t.Fatalf("old incarnation failed before retirement: %v", err)
+	case <-ctx.Done():
+		close(finish)
+		t.Fatal(ctx.Err())
+	}
+	retireErr := slot.Reconcile(ctx, restartedOwner, observe(kube))
+	close(finish)
+	if retireErr != nil {
+		t.Fatal(retireErr)
+	}
+	if err := <-oldResult; !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("retirement did not fence the already staged attempt: %v", err)
+	}
+	if err := slot.Reconcile(ctx, restartedOwner, func(context.Context) (string, bool, error) {
+		t.Error("retired incarnation tried to observe the Pod again")
+		return scaledUID, false, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	assertFenceRejected(scaledPublisher)
+	verifyFence(t, ctx, restartedOwner, scaledPublisher, retiredReplica, scaledClaim.generation+1, uint64(len(events)))
+
+	ctl("set", "env", "statefulset/publisher", "M8_EVENT_WORKER_SET_UID="+recreatedUID)
+	ctl("scale", "statefulset/publisher", "--replicas=1")
+	waitPod()
+	freshSlot := slot
+	freshSlot.StatefulSetUID = recreatedUID
+	if err := freshSlot.Reconcile(ctx, restartedOwner, func(ctx context.Context) (string, bool, error) {
+		return kubernetes.ObserveReplica(ctx, kube, api, slot.Namespace, "publisher", recreatedUID, slot.PodName)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	freshUID := pod(".metadata.uid")
+	freshNode := pod(".spec.nodeName")
+	if got := call(freshNode, "bind"); got != freshUID {
+		t.Fatalf("recreated replica bound %q", got)
+	}
+	freshEvent := fixtureWorkerEvent(t, uuid.NewString())
+	if got := call(freshNode, "write?id="+freshEvent.Id); got != "committed" {
+		t.Fatalf("recreated replica write: %s", got)
+	}
+	freshClaim, err := freshSlot.Bind(ctx, restartedOwner, freshUID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	freshPublisher, err := NewPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), freshClaim, path+"_guard")
+	if err != nil || freshPublisher.producer == oldPublisher.producer {
+		t.Fatalf("recreated StatefulSet must have its own producer identity: %v", err)
+	}
+	verifyFence(t, ctx, restartedOwner, freshPublisher, freshUID, 1, 1)
+	reader, err := db.Topic().StartReader(testConsumer, topicoptions.ReadTopic(path))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := reader.Close(ctx); err != nil {
+			t.Error(err)
+		}
+	}()
+	for range events {
+		if _, err := reader.ReadMessage(ctx); err != nil {
+			t.Fatal(err)
+		}
+	}
+	msg, err := reader.ReadMessage(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	payload, err := io.ReadAll(msg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := new(eventv1.Event)
+	if err := proto.Unmarshal(payload, got); err != nil || !proto.Equal(got, freshEvent) ||
+		msg.ProducerID != freshPublisher.producer+"-0" || msg.Offset != int64(len(events)) {
+		t.Fatalf("unexpected event at recreation boundary: %v", err)
+	}
+	ends, _, err := topicEnds(ctx, db, path)
+	if err != nil || ends != int64(len(events)+1) {
+		t.Fatalf("topic end after recreation: %d, %v", ends, err)
+	}
+	row, err = db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := row.Scan(&count); err != nil || count != uint64(len(events)+1) {
+		t.Fatalf("unexpected business state after recreation: %d, %v", count, err)
+	}
+
 	t.Logf("old UID %s was isolated on %s, replacement UID %s committed on %s", oldUID, oldNode, newUID, newNode)
 }
 
@@ -327,7 +539,7 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 	held := make(chan struct{})
 	resume := make(chan struct{}, 1)
 	var delay, paused atomic.Bool
-	var crashOnCommit atomic.Bool
+	var crashBeforeCommit, crashOnCommit atomic.Bool
 	var crashOnSend crashCommitSend
 	intercept := func(ctx context.Context, desc *grpc.StreamDesc, conn *grpc.ClientConn, method string, next grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
 		s, err := next(ctx, desc, conn, method, opts...)
@@ -365,7 +577,7 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		t.Fatal(err)
 	}
 	result := make(chan error, 1)
-	var bound atomic.Pointer[OwnedPublisher]
+	var bound atomic.Pointer[Publisher]
 	publish := func(id string) error {
 		claim := bound.Load()
 		if claim == nil {
@@ -375,7 +587,13 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+os.Getenv("M8_EVENT_WORKER_STATE")+" (id) VALUES ($id);", query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build())); err != nil {
 				return err
 			}
-			return send("events", fixtureWorkerEvent(t, id))
+			if err := send("events", fixtureWorkerEvent(t, id)); err != nil {
+				return err
+			}
+			if crashBeforeCommit.Load() {
+				os.Exit(44)
+			}
+			return nil
 		})
 	}
 	respond := func(w http.ResponseWriter, err error) {
@@ -396,7 +614,7 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 			respond(w, err)
 			return
 		}
-		publisher, err := NewOwnedPublisher(owner, DefaultConfig(map[string]string{"events": os.Getenv("M8_EVENT_WORKER_TOPIC")}), claim, os.Getenv("M8_EVENT_WORKER_GUARD"))
+		publisher, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": os.Getenv("M8_EVENT_WORKER_TOPIC")}), claim, os.Getenv("M8_EVENT_WORKER_GUARD"))
 		if err != nil {
 			respond(w, err)
 			return
@@ -425,6 +643,10 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		}
 	})
 	mux.HandleFunc("/write", func(w http.ResponseWriter, r *http.Request) { respond(w, publish(r.URL.Query().Get("id"))) })
+	mux.HandleFunc("/crash-before", func(w http.ResponseWriter, r *http.Request) {
+		crashBeforeCommit.Store(true)
+		respond(w, publish(r.URL.Query().Get("id")))
+	})
 	mux.HandleFunc("/crash", func(w http.ResponseWriter, r *http.Request) {
 		crashOnCommit.Store(true)
 		respond(w, publish(r.URL.Query().Get("id")))
