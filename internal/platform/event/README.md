@@ -476,13 +476,26 @@ M8_EVENT_TEST_SOAK_DURATION=1m M8_EVENT_TEST_SOAK_PARTITIONS=4 \
   go test -count=1 -timeout=3m -v -run '^TestSoakProducerMetadata$/^protected_churn$' ./internal/platform/event/...
 ```
 
-A same-host A/B run on Apple M4, 100 transactions per variant with the pinned
-YDB image, measured 48.56 → 36.80 tx/s for protected single-event writes,
-407 → 364.5 events/s for contended batches of 10 and 2,230 → 2,256 events/s for
-batches of 100. The protected single-event p99 was 32.45 → 70.89 ms with a
-higher observed ownership/guard RPC time. Query count remained four and
-allocations were 3,019 → 3,017 per operation. These samples are local
-measurements. Production performance requires workload-specific SLO evidence.
+Two matched runs against the archived PR #76 tree `4ccd259e` used 100
+transactions per variant on the same disposable YDB instance on Apple M4.
+Another soak used a separate YDB instance on the host. Protected single-event
+throughput was 14.17–17.21 tx/s before and 13.41–18.81 tx/s after. The
+corresponding p99 ranges were 95.65–152.4 ms and 84.88–144.1 ms. Query
+count remained four. Allocations were 2,980–2,981 and 2,985–2,986 per
+operation. Batch-100 throughput ranges were 448–601.6 and 442.4–576.6
+events/s. No attempt errors, retries or commit conflicts were observed in
+these runs. The host showed substantial run-to-run variance. Production
+performance requires workload-specific SLO evidence.
+
+In an isolated experiment with two runs of 200 transactions per variant, an
+ownership/guard LEFT JOIN reduced data queries from four to three while
+passing the selected live ACL, fencing and transactional publication tests.
+Throughput changed from 14.61 to 19.78 tx/s in the first pair and from 17.42
+to 10.81 tx/s in the second. The Publisher retains separate queries.
+
+A one-minute four-partition churn run verified 2,399 events and 16 retained
+Source IDs. The eight-minute four-slot run on one partition verified 17,619
+events and four retained Source IDs with zero retries and commit conflicts.
 
 Run the disruption harness from the repository root against Docker. It creates
 and destroys its own containers and targets the node reported as the owner
