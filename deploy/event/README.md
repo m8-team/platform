@@ -1,4 +1,4 @@
-# Event v1.2 deployment and recovery
+# Event v1.2.1 deployment and recovery
 
 The Event Layer owns two YDB row tables. Release engineering applies
 `schema.yql` against the target database using a schema administrator.
@@ -17,18 +17,16 @@ inherited permissions through negative and positive staging tests.
 |---|---|
 | Migration administrator | Create and describe both tables, manage ACLs, audit restores |
 | Reconciler | Database connect plus SELECT and UPDATE ROW on `replica_owners` |
-| Publisher | Database connect, SELECT on owners, describe and SELECT/UPDATE ROW on guards, module-owned state access and write access to configured topics |
+| Publisher | Database connect, describe both fencing tables, SELECT on owners, SELECT/UPDATE ROW on guards, module-owned state access and write access to configured topics |
 | Consumer | Its own consumer and projection permissions |
 
-Run one reconciler configuration for each StatefulSet. All publishers using
-the same physical topics and slot identity must use one YDB database, the
-same owners and guards, and the same route/alias policy. Use database-root
-`replica_owners` and `replica_publication_guards` in deployment. Deploying
-with different table names can split ownership. The constructor checks path
-syntax, distinct tables, unique topic paths and a valid binding. Deployment
-review must enforce the shared namespace and prevent extra writers. Mirroring
-the same Kubernetes UIDs into another cluster that writes to the same
-topics requires a separate identity migration or isolated topics.
+Run one reconciler configuration per StatefulSet. The publisher and reconciler
+derive `replica_owners` and `replica_publication_guards` from the absolute
+database path reported by the connected driver. Use the same authoritative
+fencing database when deployments share a physical topic and potentially
+share producer identities. Where that is impossible, isolate producer
+identities or topics. Both fencing tables require row storage, the `replica`
+primary key, non-null fencing columns of the documented types, and TTL disabled.
 
 ## Provision and roll out
 
@@ -74,12 +72,26 @@ topics requires a separate identity migration or isolated topics.
    bash internal/platform/event/testdata/reconciler-smoke.sh
    ```
 
-7. For recreation, list each predecessor UID and its maximum previously
-   authorized slot count in the new reconciler ConfigMap. The new
-   reconciler processes predecessors before assigning new slots and
-   rejects a predecessor still reported active. Start new command traffic
-   only after readiness. The Kubernetes and YDB operations are separate,
-   so the release pipeline must retain the predecessor list across failures.
+7. For recreation, include the prior active incarnation and its full historical
+   slot range in the new configuration. Retain evidence of all other
+   predecessors. The reconciler retires supplied slots after Kubernetes
+   confirms the old controllers are gone. Before activating a replacement in
+   YDB, it checks stored slots for unretired predecessors or ranges that are
+   too small. The active-incarnation row uses a reserved key in
+   `replica_owners`. Every positive slot reconciliation also reads this row
+   within its transaction, so a stale configuration cannot create another
+   slot for a replaced controller. If retirement is interrupted, repeat with
+   the same inventory. Open traffic after the new bindings are ready.
+8. For upgrade from v1.2, establish that the canonical ownership table contains
+   all prior slots and generations, including historical ordinals. Stop older
+   reconcilers and fence their credentials before using the activation barrier.
+   If an earlier deployment used alternate fencing paths or any history is
+   missing, keep publisher admission stopped until storage and credentials
+   have been reconciled. An empty canonical table is only authoritative for
+   an audited fresh deployment. Set `bootstrap: true` only after that audit
+   or after reconciling the canonical legacy history. Reset it after the first
+   activation. Preserve tombstones and the activation row
+   when returning to an older configuration.
 
 Pod replacement in a StatefulSet reuses the producer prefix and advances
 the generation. A deleting or absent Pod clears the active binding.
@@ -104,16 +116,23 @@ permissions in publisher namespaces.
   on every authorized ordinal before removing the reconciler and revoking
   credentials. A former process with an admitted transaction must conflict
   with the retirement. Durable rows and guard revisions stay in YDB.
-- **Recover ownership after a restore.** Fence all old processes and
-  credentials first. Stop reconciliation. Restore business tables, receipts,
-  topic position and fencing state as a coordinated procedure. Use fresh
-  workload identities and a new StatefulSet incarnation if continuity of
-  generations or sequence metadata cannot be established. Re-enable
-  reconciliation, verify all bindings, readiness and event/receipt
-  consistency, then resume traffic. Never restore only owners or guards
-  while a prior credential can still write. Rollback stops traffic and
-  preserves both fencing tables. Roll back image/config only to a build
-  that honors the same fences.
+- **Recover ownership after a restore.** Stop command admission and drain.
+  Stop old reconcilers, isolate all old publishers and consumers, and revoke or
+  rotate obsolete credentials before restoring fencing state. Confirm admitted
+  transactions have resolved or are fenced. Choose a common cut for business
+  rows, command receipts, both fencing tables, topic data, producer sequence
+  metadata and consumer offsets. YDB backup collections cover tables. Establish
+  a separate supported recovery mechanism for topic data, sequence metadata and
+  consumer offsets on the target service. Keep consumers stopped until receipt,
+  event and offset reconciliation is complete. Restore into an isolated
+  environment first. Preserve or reconstruct terminal tombstones and activation
+  history. If continuity cannot be proven, use fresh workload identities and
+  a new StatefulSet incarnation after fencing the old credential set, with a
+  reviewed replay and deduplication plan. Never re-enable an older active
+  binding or reset a generation while its previous identity can still write.
+  Compare receipt fingerprints and IDs, exact topic contents and per-partition
+  consumer positions before enabling traffic. Production restore coverage and
+  the coordinated recovery drill remain release gates.
 - **Ownership rejection or node failure.** Inspect Kubernetes object and
   reconciler availability, UID and generation for the slot, effective ACLs
   and the previous authorized process. Restore trusted observation and
@@ -174,10 +193,26 @@ conflict, and an explicit UNDETERMINED response is a lower bound on
 unknown outcomes. Handoff metrics count direct active UID replacements
 and retirement metrics count confirmed transitions to vacancy or a
 terminal tombstone. Service telemetry should integrate these snapshots
-and SDK timing hooks. This repository has no configured OpenTelemetry
-provider or exporter. Metric wiring, histogram SLO alerts and verifying
-native retained-count gauges on the production configuration remain
-release gates.
+and SDK timing hooks. No OpenTelemetry MeterProvider, TracerProvider or
+exporter is configured in the existing production Go composition. The Event
+package exposes its snapshots without installing global providers. Publisher
+export and latency histogram observations require an approved service-side
+provider. Supply `event.TimingObservers` to the Transactor constructor to
+record individual lane wait and end-to-end SDK transaction observations in
+seconds. Export snapshot counters and lane gauges through the composition's
+meter. A duration includes all SDK attempts for one call. Use bounded labels
+and exclude workload UIDs, producer identities, tenants and event IDs.
+The reconciler exposes `/readyz` and `/metrics`
+on its pod health port with reconciliation error count and last successful
+timestamp. Freshness expires after 45 seconds without a successful cycle.
+Inventory and retirement failures include their stage in logs. Readiness loss
+does not revoke YDB publication rights.
+
+Supply a cluster-specific `m8_ydb_producer_creations_per_second_budget` per
+scrape job to enable the example churn alert. Use a separate retained-source
+gauge with verified exporter labels for the 50,000/80,000 M8 planning budgets
+or a ratio against a configured budget. Check the target exporter before
+enabling retained-source thresholds.
 
 Keep one lane. Measure end-to-end service time and shared partition
 contention before setting capacity. The event limits are 512 KiB

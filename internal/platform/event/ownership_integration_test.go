@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -172,4 +173,133 @@ func testStableProducerOwnershipHandoff(t *testing.T, holdBeforeWrite, replaceme
 		t.Fatalf("business rows: %d, error: %v", rows, err)
 	}
 	assertStableProducerEvents(t, ctx, replacement, path, producer+"-0", []*eventv1.Event{next, sentinel})
+}
+
+func TestIntegrationCanonicalPredecessorBarrier(t *testing.T) {
+	ctx, db, path := liveDatabase(t)
+	createTestTable(t, ctx, db, db.Name()+ownersTable,
+		"replica Utf8 NOT NULL, pod_uid Utf8 NOT NULL, generation Uint64 NOT NULL, PRIMARY KEY (replica)")
+	createTestTable(t, ctx, db, db.Name()+guardsTable,
+		"replica Utf8 NOT NULL, revision Uint64 NOT NULL, PRIMARY KEY (replica)")
+	createTestTopic(t, ctx, db, path, 1)
+	owner, err := NewTransactor(db, 8*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	old, next, pod := uuid.NewString(), uuid.NewString(), uuid.NewString()
+	activate := func(uid string, predecessors map[string]int) error {
+		return owner.ActivateReplicaSet(ctx, "test", "publisher", uid, uid == old, predecessors, func(context.Context) (bool, error) {
+			return true, nil
+		})
+	}
+	slot := func(uid string, ordinal int) ReplicaSlot {
+		return ReplicaSlot{Namespace: "test", StatefulSetUID: uid, PodName: fmt.Sprintf("publisher-%d", ordinal)}
+	}
+	bind := func(context.Context) (string, bool, error) { return pod, false, nil }
+	retire := func(context.Context) (string, bool, error) { return "", true, nil }
+	if err := slot(old, 0).Reconcile(ctx, owner, bind); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("slot bound without activation: %v", err)
+	}
+	if err := owner.ActivateReplicaSet(ctx, "test", "publisher", old, false, nil, func(context.Context) (bool, error) {
+		return true, nil
+	}); !errors.Is(err, ErrPredecessorInventory) {
+		t.Fatalf("bootstrap without inventory attestation: %v", err)
+	}
+	if err := activate(old, nil); err != nil {
+		t.Fatal(err)
+	}
+	for _, ordinal := range []int{0, 2} {
+		if err := slot(old, ordinal).Reconcile(ctx, owner, bind); err != nil {
+			t.Fatal(err)
+		}
+	}
+	binding, err := slot(old, 0).Bind(ctx, owner, pod)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": path}), binding)
+	if err != nil || p.guard != db.Name()+guardsTable {
+		t.Fatalf("expected canonical publisher: %v", err)
+	}
+	if err := p.CheckReadiness(ctx); err != nil {
+		t.Fatal(err)
+	}
+	if err := activate(next, nil); !errors.Is(err, ErrPredecessorInventory) {
+		t.Fatalf("missing predecessor: %v", err)
+	}
+	if err := slot(old, 0).Reconcile(ctx, owner, retire); err != nil {
+		t.Fatal(err)
+	}
+	if err := activate(next, map[string]int{old: 3}); !errors.Is(err, ErrPredecessorInventory) {
+		t.Fatalf("interrupted retirement: %v", err)
+	}
+	if err := slot(old, 2).Reconcile(ctx, owner, retire); err != nil {
+		t.Fatal(err)
+	}
+	if err := activate(next, map[string]int{old: 2}); !errors.Is(err, ErrPredecessorInventory) {
+		t.Fatalf("incomplete historical range: %v", err)
+	}
+	observed, proceed := make(chan struct{}), make(chan struct{}, 1)
+	defer close(proceed)
+	late := make(chan error, 1)
+	go func() {
+		var announced bool
+		late <- slot(old, 3).Reconcile(ctx, owner, func(ctx context.Context) (string, bool, error) {
+			if !announced {
+				announced = true
+				close(observed)
+				select {
+				case <-proceed:
+				case <-ctx.Done():
+					return "", false, ctx.Err()
+				}
+			}
+			return pod, false, nil
+		})
+	}()
+	select {
+	case <-observed:
+	case err := <-late:
+		t.Fatalf("stale reconciliation failed before observation: %v", err)
+	case <-ctx.Done():
+		t.Fatal(ctx.Err())
+	}
+	if err := activate(next, map[string]int{old: 3}); err != nil {
+		t.Fatal(err)
+	}
+	proceed <- struct{}{}
+	if err := <-late; !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("overlapping stale reconciliation: %v", err)
+	}
+	if _, err := slot(old, 3).Bind(ctx, owner, pod); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("obsolete ordinal can bind: %v", err)
+	}
+	if err := slot(old, 3).Reconcile(ctx, owner, bind); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("stale reconciler authorized a new ordinal: %v", err)
+	}
+	if err := activate(old, map[string]int{next: 1}); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("retired controller reactivated: %v", err)
+	}
+	if err := slot(next, 0).Reconcile(ctx, owner, bind); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.CheckReadiness(ctx); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("retired binding is ready: %v", err)
+	}
+	newBinding, err := slot(next, 0).Bind(ctx, owner, pod)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err = NewPublisher(owner, DefaultConfig(map[string]string{"events": path}), newBinding)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := slot(next, 0).Reconcile(ctx, owner, func(context.Context) (string, bool, error) {
+		return uuid.NewString(), false, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.CheckReadiness(ctx); !errors.Is(err, ErrReplicaOwnership) {
+		t.Fatalf("stale generation is ready: %v", err)
+	}
 }

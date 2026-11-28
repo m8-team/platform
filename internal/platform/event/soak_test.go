@@ -41,7 +41,18 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 	_, db, path := liveDatabase(t)
 	ctx, cancel := context.WithTimeout(context.Background(), duration+time.Minute)
 	defer cancel()
-	createTestTopic(t, ctx, db, path, 1)
+	partitions := int64(1)
+	switch os.Getenv("M8_EVENT_TEST_SOAK_PARTITIONS") {
+	case "", "1":
+	case "4":
+		if mode != "protected" && mode != "protected_churn" {
+			t.Fatal("four-partition soak requires a protected mode")
+		}
+		partitions = 4
+	default:
+		t.Fatal("soak partitions must be 1 or 4")
+	}
+	createTestTopic(t, ctx, db, path, partitions)
 	owner, err := NewTransactor(db, 15*time.Second)
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +85,7 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 			if err != nil {
 				t.Fatal(err)
 			}
-			restarted, err = NewPublisher(restartOwner, cfg, claim, first.guard)
+			restarted, err = newPublisher(restartOwner, cfg, claim, first.guard)
 			if err != nil || restarted.producer != first.producer {
 				t.Fatalf("new process did not reuse the slot identity: %v", err)
 			}
@@ -82,7 +93,7 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 	}
 	template := testEvent(t)
 
-	maxCount, ttl, sample := observeSourceIDs(t, ctx, path)
+	maxCount, ttl, sample := observePartitionSourceIDs(t, ctx, path, int(partitions))
 	t.Logf("tablet SourceIdMaxCounts=%d SourceIdLifetimeSeconds=%d", maxCount, ttl)
 	if got := sample(ctx); got != 0 {
 		t.Fatalf("empty fixture has %d retained source IDs", got)
@@ -123,19 +134,23 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 				case <-schedule.C:
 				}
 				e := proto.CloneOf(template)
-				e.Id = soakEventID(issued.Add(1))
+				index := issued.Add(1)
+				e.Id = soakEventID(index)
+				if partitions > 1 {
+					e.AggregateId = fmt.Sprintf("aggregate-%d", index%128)
+				}
 				var err error
 				if protected {
 					if churn && lane == 0 && publishers[0] != restarted && time.Since(started) >= duration*3/4 {
 						publishers[0] = restarted
 						t.Logf("slot 0 restarted with its previous identity after %s", time.Since(started).Round(time.Second))
 					}
-					err = publishers[lane].WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+					err = publishers[lane].WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 						if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
-							query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(e.Id).Build())); err != nil {
+							ydb.ParamsBuilder().Param("$id").Text(e.Id).Build()); err != nil {
 							return err
 						}
-						return send("soak", e)
+						return tx.Publish("soak", e)
 					})
 				} else {
 					err = owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
@@ -178,7 +193,7 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 			t.Logf("elapsed=%s confirmed=%d retained=%d topic_end=%d", time.Since(started).Round(time.Millisecond), n, retained, offset)
 			wantRetained := n
 			if mode != "random" {
-				wantRetained = uint64(workerCount)
+				wantRetained = uint64(workerCount) * uint64(partitions)
 			}
 			if n < 100 || offset != int64(n) || retained != int(wantRetained) {
 				t.Fatalf("unexpected loss or early eviction: commits=%d, retained=%d, offset=%d, err=%v", n, retained, offset, err)
@@ -219,12 +234,17 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 					t.Error(err)
 				}
 			}()
-			expected := make(map[string]struct{}, n)
+			expected := make(map[string]string, n)
 			for i := uint64(1); i <= n; i++ {
-				expected[soakEventID(i)] = struct{}{}
+				aggregate := template.AggregateId
+				if partitions > 1 {
+					aggregate = fmt.Sprintf("aggregate-%d", i%128)
+				}
+				expected[soakEventID(i)] = aggregate
 			}
 			producers := make(map[string]struct{}, wantRetained)
-			for offset := range int64(n) {
+			partitionOffsets := make(map[int64]int64, partitions)
+			for range n {
 				msg, err := reader.ReadMessage(ctx)
 				if err != nil {
 					t.Fatal(err)
@@ -238,16 +258,24 @@ func testSoakProducerMetadata(t *testing.T, duration time.Duration, mode string)
 					t.Fatal(err)
 				}
 				template.Id = got.Id
-				if _, ok := expected[got.Id]; !ok || msg.Offset != offset || !proto.Equal(got, template) {
+				var ok bool
+				template.AggregateId, ok = expected[got.Id]
+				partition := msg.PartitionID()
+				offset := partitionOffsets[partition]
+				if !ok || msg.Offset != offset || !proto.Equal(got, template) {
 					t.Fatalf("unexpected or duplicate event %s at offset %d (want %d)", got.Id, msg.Offset, offset)
 				}
+				partitionOffsets[partition]++
 				delete(expected, got.Id)
 				producers[msg.ProducerID] = struct{}{}
 			}
 			if len(expected) != 0 || len(producers) != int(wantRetained) {
 				t.Fatalf("missing events=%d, distinct producer IDs=%d, want=%d", len(expected), len(producers), wantRetained)
 			}
-			t.Logf("verified %d event IDs and payloads, %d distinct producer IDs", n, len(producers))
+			if len(partitionOffsets) != int(partitions) {
+				t.Fatalf("read %d partitions, want %d", len(partitionOffsets), partitions)
+			}
+			t.Logf("verified %d event IDs and payloads across %d partitions, %d distinct producer IDs", n, partitions, len(producers))
 			return
 		case <-ctx.Done():
 			t.Fatal(ctx.Err())
@@ -262,6 +290,11 @@ func soakEventID(index uint64) string {
 // observeSourceIDs reads effective settings and counts records in the
 // isolated partition tablet's monitoring page.
 func observeSourceIDs(t *testing.T, ctx context.Context, path string) (maxCount int, ttlSeconds int64, count func(context.Context) int) {
+	t.Helper()
+	return observePartitionSourceIDs(t, ctx, path, 1)
+}
+
+func observePartitionSourceIDs(t *testing.T, ctx context.Context, path string, partitions int) (int, int64, func(context.Context) int) {
 	t.Helper()
 	monitor, err := url.Parse(os.Getenv("M8_EVENT_TEST_MONITOR_URL"))
 	if err != nil || monitor.Scheme != "http" || monitor.Hostname() != "127.0.0.1" ||
@@ -299,24 +332,37 @@ func observeSourceIDs(t *testing.T, ctx context.Context, path string) (maxCount 
 		t.Fatal(err)
 	}
 	group := desc.PathDescription.PersQueueGroup
-	if len(group.Partitions) != 1 || group.Partitions[0].TabletID == "" {
-		t.Fatal("expected a single isolated PersQueue tablet")
+	if len(group.Partitions) != partitions {
+		t.Fatalf("expected %d isolated partitions, got %d", partitions, len(group.Partitions))
+	}
+	pages := make(map[string]struct{}, partitions)
+	for _, partition := range group.Partitions {
+		if partition.TabletID == "" {
+			t.Fatal("fixture partition has no tablet")
+		}
+		pages[monitor.String()+"/tablets/app?TabletID="+url.QueryEscape(partition.TabletID)] = struct{}{}
+	}
+	if len(pages) != partitions {
+		t.Fatal("fixture source sampling requires one tablet per partition")
 	}
 	settings := group.PQTabletConfig.PartitionConfig
 	ttl, err := settings.SourceIdLifetimeSeconds.Int64()
 	if err != nil || ttl <= 0 || settings.SourceIdMaxCounts <= 0 {
 		t.Fatalf("invalid Source ID settings: %+v, %v", settings, err)
 	}
-	page := monitor.String() + "/tablets/app?TabletID=" + url.QueryEscape(group.Partitions[0].TabletID)
 	sample := func(ctx context.Context) int {
-		html := monitorGET(t, ctx, client, page)
-		_, after, ok := bytes.Cut(html, []byte("<caption>Source ids</caption>"))
-		_, rows, hasBody := bytes.Cut(after, []byte("<tbody>"))
-		rows, _, closed := bytes.Cut(rows, []byte("</tbody>"))
-		if !ok || !hasBody || !closed {
-			t.Fatal("partition tablet has no Source ids table")
+		var total int
+		for page := range pages {
+			html := monitorGET(t, ctx, client, page)
+			_, after, ok := bytes.Cut(html, []byte("<caption>Source ids</caption>"))
+			_, rows, hasBody := bytes.Cut(after, []byte("<tbody>"))
+			rows, _, closed := bytes.Cut(rows, []byte("</tbody>"))
+			if !ok || !hasBody || !closed {
+				t.Fatal("partition tablet has no Source ids table")
+			}
+			total += bytes.Count(rows, []byte("<tr>"))
 		}
-		return bytes.Count(rows, []byte("<tr>"))
+		return total
 	}
 	return settings.SourceIdMaxCounts, ttl, sample
 }

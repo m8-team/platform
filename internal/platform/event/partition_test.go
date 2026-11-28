@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
-	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -71,14 +70,14 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			}
 			rollback := errors.New("intentional multi-topic rollback")
 			for _, fail := range []bool{true, false} {
-				err := p.WithinTransaction(ctx, func(txCtx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-					if err := tx.Exec(txCtx, "INSERT INTO "+table+" (id) VALUES ('initial');"); err != nil {
+				err := p.WithinTransaction(ctx, func(txCtx context.Context, tx *Transaction) error {
+					if err := tx.Exec(txCtx, "INSERT INTO "+table+" (id) VALUES ('initial');", nil); err != nil {
 						return err
 					}
-					if err := send("primary", events...); err != nil {
+					if err := tx.Publish("primary", events...); err != nil {
 						return err
 					}
-					if err := send("other", events[0]); err != nil {
+					if err := tx.Publish("other", events[0]); err != nil {
 						return err
 					}
 					// The callback holds the transaction before commit while an
@@ -125,8 +124,8 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 			for _, e := range ordered[1:] {
 				e.Id = uuid.NewString()
 			}
-			if err := q.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-				return send("primary", ordered[1:]...)
+			if err := q.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+				return tx.Publish("primary", ordered[1:]...)
 			}); err != nil {
 				t.Fatal(err)
 			}
@@ -144,8 +143,8 @@ func TestIntegrationPartitionsAndReplicas(t *testing.T) {
 				}
 				go func() {
 					<-start
-					results <- publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-						return send("primary", e)
+					results <- publisher.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+						return tx.Publish("primary", e)
 					})
 				}()
 			}
@@ -239,8 +238,8 @@ func TestIntegrationDefaultByteLimits(t *testing.T) {
 		events[i] = e
 	}
 	publish := func(events ...*eventv1.Event) error {
-		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-			_ = send("events", events...)
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			_ = tx.Publish("events", events...)
 			return nil // Failed staging must still abort.
 		})
 	}

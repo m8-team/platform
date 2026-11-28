@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
-	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
 )
@@ -61,12 +60,12 @@ func TestProducerMetadataTTL(t *testing.T) {
 	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
 	publisher := livePublisher(t, ctx, db, path, DefaultConfig(topics), 10*time.Second)
 	publish := func(alias string, event *eventv1.Event) error {
-		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
-				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(event.Id).Build())); err != nil {
+				ydb.ParamsBuilder().Param("$id").Text(event.Id).Build()); err != nil {
 				return err
 			}
-			return send(alias, event)
+			return tx.Publish(alias, event)
 		})
 	}
 	for _, c := range cases {

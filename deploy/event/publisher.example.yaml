@@ -58,10 +58,6 @@ spec:
               value: grpcs://ydb.example.com:2135/m8
             - name: YDB_TOKEN_FILE
               value: /run/ydb/token
-            - name: EVENT_OWNERS_TABLE
-              value: /m8/replica_owners
-            - name: EVENT_GUARD_TABLE
-              value: /m8/replica_publication_guards
           startupProbe:
             httpGet:
               path: /readyz

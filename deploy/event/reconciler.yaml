@@ -40,6 +40,7 @@ data:
       "statefulSet": "publisher",
       "uid": "REPLACE_WITH_STATEFULSET_UID",
       "slots": 2,
+      "bootstrap": false,
       "predecessors": []
     }
 ---
@@ -62,6 +63,14 @@ spec:
       containers:
         - name: reconciler
           image: registry.example.com/m8/event-reconciler:REPLACE
+          ports:
+            - name: health
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            periodSeconds: 5
           env:
             - name: YDB_DSN
               value: grpcs://ydb.example.com:2135/m8

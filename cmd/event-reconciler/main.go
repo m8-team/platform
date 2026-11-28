@@ -11,18 +11,22 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
-	"path"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/m8-team/platform/internal/platform/event"
+	"github.com/m8-team/platform/internal/platform/health"
+	healthhttp "github.com/m8-team/platform/internal/platform/health/adapters/http"
+	"github.com/m8-team/platform/internal/platform/health/checks"
 	"github.com/m8-team/platform/internal/platform/kubernetes"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 )
@@ -33,6 +37,8 @@ type deployment struct {
 	Namespace, StatefulSet, UID string
 	// Slots includes every ordinal that could have received ownership.
 	Slots int
+	// Bootstrap attests that the canonical table contains the complete legacy history.
+	Bootstrap bool
 	// Predecessors are processed before this incarnation can receive ownership.
 	Predecessors []incarnation
 }
@@ -108,10 +114,21 @@ func run(ctx context.Context, config string, once bool) error {
 		return err
 	}
 
-	owners := path.Join(endpoint.Path, "replica_owners")
+	var status reconciliationStatus
+	if !once {
+		closeHealth, err := status.serve()
+		if err != nil {
+			return err
+		}
+		defer closeHealth()
+	}
+
 	for {
 		before := owner.Stats()
-		err := plan.reconcile(ctx, owner, client, "https://kubernetes.default.svc", owners)
+		cycle, stop := context.WithTimeout(ctx, 30*time.Second)
+		err := plan.reconcile(cycle, owner, client, "https://kubernetes.default.svc")
+		stop()
+		status.record(time.Now(), err)
 		after := owner.Stats()
 		if before.OwnershipHandoffs != after.OwnershipHandoffs || before.OwnershipRetirements != after.OwnershipRetirements {
 			slog.Info("event ownership changed", "handoffs", after.OwnershipHandoffs-before.OwnershipHandoffs,
@@ -131,6 +148,56 @@ func run(ctx context.Context, config string, once bool) error {
 		case <-timer.C:
 		}
 	}
+}
+
+type reconciliationStatus struct {
+	lastSuccess atomic.Int64
+	failures    atomic.Uint64
+}
+
+func (s *reconciliationStatus) record(now time.Time, err error) {
+	if err != nil {
+		s.failures.Add(1)
+		return
+	}
+	s.lastSuccess.Store(now.Unix())
+}
+
+func (s *reconciliationStatus) ready(now time.Time) error {
+	last := s.lastSuccess.Load()
+	if last == 0 || now.Sub(time.Unix(last, 0)) > 45*time.Second {
+		return errors.New("no recent successful reconciliation")
+	}
+	return nil
+}
+
+func (s *reconciliationStatus) serve() (func(), error) {
+	registry := health.NewRegistry()
+	const name = "event-reconciliation"
+	if err := registry.Register(health.Config{
+		Spec:  health.Spec{Name: name, Kinds: []health.Kind{health.KindReadiness}},
+		Check: checks.NewPingCheck(name, func(context.Context) error { return s.ready(time.Now()) }),
+	}); err != nil {
+		return nil, err
+	}
+	mux := http.NewServeMux()
+	healthhttp.NewHandler(registry).RegisterRoutes(mux)
+	mux.HandleFunc("GET /metrics", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; version=0.0.4")
+		fmt.Fprintf(w, "# TYPE event_reconciliation_errors_total counter\nevent_reconciliation_errors_total %d\n", s.failures.Load())
+		fmt.Fprintf(w, "# TYPE event_reconciliation_last_success_timestamp gauge\nevent_reconciliation_last_success_timestamp %d\n", s.lastSuccess.Load())
+	})
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		return nil, err
+	}
+	server := &http.Server{Handler: mux, ReadHeaderTimeout: 2 * time.Second, WriteTimeout: 5 * time.Second}
+	go func() {
+		if err := server.Serve(listener); !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("event reconciliation health listener stopped", "error", err)
+		}
+	}()
+	return func() { _ = server.Close() }, nil
 }
 
 var (
@@ -154,7 +221,7 @@ func (d deployment) validate() error {
 	return nil
 }
 
-func (d deployment) reconcile(ctx context.Context, owner *event.Transactor, client *http.Client, server, table string) error {
+func (d deployment) reconcile(ctx context.Context, owner *event.Transactor, client *http.Client, server string) error {
 	reconcile := func(item incarnation, predecessor bool) error {
 		var result error
 		for ordinal := range item.Slots {
@@ -162,7 +229,7 @@ func (d deployment) reconcile(ctx context.Context, owner *event.Transactor, clie
 				return ctx.Err()
 			}
 			slot := event.ReplicaSlot{
-				Namespace: d.Namespace, StatefulSetUID: item.UID, PodName: fmt.Sprintf("%s-%d", d.StatefulSet, ordinal), TablePath: table,
+				Namespace: d.Namespace, StatefulSetUID: item.UID, PodName: fmt.Sprintf("%s-%d", d.StatefulSet, ordinal),
 			}
 			err := slot.Reconcile(ctx, owner, func(ctx context.Context) (string, bool, error) {
 				uid, retired, err := kubernetes.ObserveReplica(ctx, client, server, d.Namespace, d.StatefulSet, item.UID, slot.PodName)
@@ -177,12 +244,32 @@ func (d deployment) reconcile(ctx context.Context, owner *event.Transactor, clie
 		}
 		return result
 	}
-	for _, previous := range d.Predecessors {
-		if err := reconcile(previous, true); err != nil {
+	current := incarnation{d.UID, d.Slots}
+	isCurrent := func(ctx context.Context) (bool, error) {
+		_, retired, err := kubernetes.ObserveReplica(ctx, client, server, d.Namespace, d.StatefulSet, d.UID, d.StatefulSet+"-0")
+		return !retired, err
+	}
+	active, err := isCurrent(ctx)
+	if err != nil {
+		return err
+	}
+	if !active {
+		if err := reconcile(current, true); err != nil {
 			return err
 		}
+		return event.ErrReplicaOwnership
 	}
-	return reconcile(incarnation{d.UID, d.Slots}, false)
+	predecessors := make(map[string]int, len(d.Predecessors))
+	for _, previous := range d.Predecessors {
+		predecessors[previous.UID] = previous.Slots
+		if err := reconcile(previous, true); err != nil {
+			return fmt.Errorf("retire predecessor: %w", err)
+		}
+	}
+	if err := owner.ActivateReplicaSet(ctx, d.Namespace, d.StatefulSet, d.UID, d.Bootstrap, predecessors, isCurrent); err != nil {
+		return fmt.Errorf("activate StatefulSet incarnation: %w", err)
+	}
+	return reconcile(current, false)
 }
 
 type tokenFile string

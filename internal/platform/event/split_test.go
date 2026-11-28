@@ -21,6 +21,11 @@ import (
 
 func TestIntegrationActivePartitionSplit(t *testing.T) {
 	ctx, db, path := liveDatabase(t)
+	stableLoad := os.Getenv("M8_EVENT_TEST_STABLE_SPLIT_LOAD") == "1"
+	batchSize, utilization := 8, 30
+	if stableLoad {
+		batchSize, utilization = 24, 15
+	}
 	createFixtureTopic(t, ctx, db, path,
 		topicoptions.CreateWithMinActivePartitions(1),
 		topicoptions.CreateWithMaxActivePartitions(2),
@@ -31,7 +36,7 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 			AutoPartitioningStrategy: topictypes.AutoPartitioningStrategyScaleUp,
 			AutoPartitioningWriteSpeedStrategy: topictypes.AutoPartitioningWriteSpeedStrategy{
 				StabilizationWindow:  2 * time.Second,
-				UpUtilizationPercent: 30,
+				UpUtilizationPercent: int32(utilization),
 			},
 		}),
 	)
@@ -71,8 +76,8 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 		}
 		var err error
 		if stable {
-			err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-				return send("events", events...)
+			err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+				return tx.Publish("events", events...)
 			})
 		} else {
 			err = tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
@@ -94,12 +99,11 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 	start := time.Now()
 	// Use the existing split-inducing workload by default. The opt-in case
 	// also reuses the sentinel's producer identity for all pressure writes.
-	stableLoad := os.Getenv("M8_EVENT_TEST_STABLE_SPLIT_LOAD") == "1"
 	for children == nil {
 		if loadCtx.Err() != nil {
-			t.Fatalf("no split under committed transactional load, sent %d events", len(expected))
+			t.Fatalf("no split after %s with %d committed events (32 KiB payload, 256 KiB/s partition, %d%% threshold, batch %d)", time.Since(start), len(expected), utilization, batchSize)
 		}
-		publish(loadCtx, 8, false, stableLoad)
+		publish(loadCtx, batchSize, false, stableLoad)
 		desc, err := db.Topic().Describe(loadCtx, path)
 		if err != nil {
 			t.Fatal(err)
@@ -163,6 +167,12 @@ func TestIntegrationActivePartitionSplit(t *testing.T) {
 		delete(expected, event.Id)
 		_, child := children[msg.PartitionID()]
 		stableID := fmt.Sprintf("%s-%d", producer, msg.PartitionID())
+		if !proto.Equal(event.Payload, payload) {
+			t.Fatalf("unexpected payload for %s", event.Id)
+		}
+		if stableLoad && msg.ProducerID != stableID {
+			t.Fatalf("expected stable source %q, got %q", stableID, msg.ProducerID)
+		}
 		switch event.Id {
 		case first:
 			if msg.ProducerID != stableID {

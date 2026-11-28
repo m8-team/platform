@@ -168,11 +168,11 @@ func BenchmarkNativeYDB(b *testing.B) {
 								" (id) VALUES ($id);", query.WithParameters(params))
 						}
 						if protected != nil {
-							err := protected.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-								if err := writeState(ctx, tx); err != nil {
+							err := protected.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+								if err := tx.Exec(ctx, "DECLARE $id AS Uint64; INSERT INTO "+table+" (id) VALUES ($id);", params); err != nil {
 									return err
 								}
-								return send("events", events...)
+								return tx.Publish("events", events...)
 							})
 							if err != nil {
 								failures <- err

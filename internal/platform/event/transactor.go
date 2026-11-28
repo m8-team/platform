@@ -16,13 +16,18 @@ type Transactor struct {
 	db       *ydb.Driver
 	timeout  time.Duration
 	counters transactionCounters
+	timings  TimingObservers
 }
 
-func NewTransactor(db *ydb.Driver, timeout time.Duration) (*Transactor, error) {
-	if db == nil || timeout <= 0 {
+func NewTransactor(db *ydb.Driver, timeout time.Duration, observers ...TimingObservers) (*Transactor, error) {
+	if db == nil || timeout <= 0 || len(observers) > 1 {
 		return nil, ErrInvalidConfiguration
 	}
-	return &Transactor{db: db, timeout: timeout}, nil
+	t := &Transactor{db: db, timeout: timeout}
+	if len(observers) == 1 {
+		t.timings = observers[0]
+	}
+	return t, nil
 }
 
 // WithinTransaction uses the SDK retry policy. Ambiguous commit errors are
@@ -59,6 +64,10 @@ func (t *Transactor) WithinTransaction(ctx context.Context, fn func(context.Cont
 		query.WithTxSettings(query.TxSettings(query.WithSerializableReadWrite())),
 		query.WithIdempotent(false),
 	)
-	t.counters.record(err, time.Since(start))
+	duration := time.Since(start)
+	t.counters.record(err, duration)
+	if observe := t.timings.TransactionDuration; observe != nil {
+		observe(ctx, duration)
+	}
 	return err
 }

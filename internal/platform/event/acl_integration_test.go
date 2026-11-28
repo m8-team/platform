@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
@@ -74,15 +73,15 @@ func TestIntegrationEventCredentialSeparation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": path}), claim, path+"_guard")
+	p, err := newPublisher(owner, DefaultConfig(map[string]string{"events": path}), claim, path+"_guard")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := p.CheckReadiness(ctx); err != nil {
 		t.Fatalf("publisher grants did not support readiness: %v", err)
 	}
-	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-		return send("events", testEvent(t))
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		return tx.Publish("events", testEvent(t))
 	}); err != nil {
 		t.Fatalf("publisher grants did not support atomic topic publication: %v", err)
 	}
