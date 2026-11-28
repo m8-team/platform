@@ -110,7 +110,10 @@ aborts the attempt. After rollback the SDK reconnects and can redeliver from
 the durable offset. Consecutive rollbacks exhausted the read budget with
 SDK v3.157.1 in the local fixture. The owning consumer may close and reopen its
 dedicated reader from the durable offset after a bounded failure or when a
-callback retry needs replay. A projection that only reads topics and updates YDB
+callback retry needs replay. A live test retires an owner after it stages
+consumption and derived publication, then verifies rollback and redelivery.
+It also discards a successful commit response and independently reconciles the
+state row, exact output event and durable input offset. A projection that only reads topics and updates YDB
 state can use the SDK directly. External effects require their own idempotency
 and recovery contract.
 
