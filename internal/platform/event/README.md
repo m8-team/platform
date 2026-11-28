@@ -455,18 +455,21 @@ Use equal published and internal gRPC ports for Discovery. Set
 Run `go test -count=1 -v -run '^TestIntegration' ./internal/platform/event/...`
 or `go test -run '^$' -bench '^BenchmarkNativeYDB$' -benchmem -benchtime=1000x ./internal/platform/event/...`.
 The Event Layer workflow runs contract and fast checks, the disposable YDB
-suite including a load-induced partition split and hard restart, and a
-separate multi-node failover job. The pull request workflow compares metadata
-for one minute per strategy, including protected publication. A manual workflow dispatch can run 8 or 30
-minutes for the protected Publisher using the same disposable server image. The split test induces a split with the baseline pressure workload and
-reuses a stable prefix before and after the split. It checks the inactive
-parent, both children, partition-specific IDs, retained offsets and all
-committed IDs. The optional `M8_EVENT_TEST_STABLE_SPLIT_LOAD=1` experiment
-uses the protected Publisher for every pressure write. With 24 events per
-transaction, 32 KiB payloads, a 256 KiB/s configured partition limit and a 15%
-split threshold, the v1.2.1 attempt confirmed 66,793 events over about 80 seconds
-without a split. The test remains a release gate and can be run with the
-`protected_split` workflow input. Benchmark latency includes SDK completion.
+suite, hard restart and separate tablet-node failover. It compares metadata
+for one minute per strategy. Manual dispatch runs 8 or 30 minutes for the
+protected Publisher. The split suite covers both the historical pressure
+fixture and fully protected pressure from four independent stable slots.
+For the protected case, set `M8_EVENT_TEST_STABLE_SPLIT_LOAD=1` with the YDB
+monitor URL. With 24 events per transaction, 32 KiB payloads, a configured
+256 KiB/s partition limit and a 15% split threshold, the earlier one-slot
+experiment confirmed 66,793 events over roughly 80 seconds without a split.
+The four-slot fixture observed the split after 73 confirmed events in three
+local runs. It verified both children, payloads and event IDs, producer
+suffixes and strictly increasing sequences. The tablet monitor showed five
+retained Source IDs. After synchronous acknowledgement of all partitions,
+the restarted reader resumed at the fresh sentinel. The default asynchronous
+commit mode replayed an older record in the initial restart check.
+Repeat the experiment with production-equivalent settings and load.
 
 Repeat the four-partition metadata and process restart check with the live
 YDB variables above and the node monitor URL:

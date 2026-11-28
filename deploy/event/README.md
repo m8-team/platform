@@ -136,10 +136,12 @@ permissions in publisher namespaces.
   In the local YDB 26.3.1.25 drill, `tools dump` captured data for business
   state, receipts and both fencing tables. A tables-only restore reproduced all
   four rows including the terminal owner generation and guard revision.
-  The topic export contained creation metadata and ACL only. CLI 2.27.0
-  rejected the exported topic definition during a combined restore. The drill
-  established no recovery guarantee for topic contents, producer metadata or
-  durable offsets.
+  The topic export contained creation metadata and ACL. CLI 2.27.0
+  rejected the exported topic definition during a combined restore. The CLI
+  bundled with the server image (2.33.0) restored the schema and consumer.
+  The original topic had end offset 1 and committed offset 1. The restored
+  topic had both offsets at zero. Producer sequence continuity and a
+  coordinated restore require a separate supported recovery mechanism.
 - **Ownership rejection or node failure.** Inspect Kubernetes object and
   reconciler availability, UID and generation for the slot, effective ACLs
   and the previous authorized process. Restore trusted observation and

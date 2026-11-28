@@ -133,5 +133,7 @@ does not stage events.
 
 Pilot and production conditions are documented in the [Event Layer README](../../../internal/platform/event/README.md)
 and [deployment runbook](../../../deploy/event/README.md). Keep target-cluster
-telemetry, protected split, independent failure domains and coordinated
-backup/restore as explicit gates.
+telemetry, workload sizing and repeatable split evidence under target
+settings, independent failure domains and coordinated backup/restore as
+explicit gates. The local four-slot protected fixture observed a split,
+verified both children and resumed after committed offsets.

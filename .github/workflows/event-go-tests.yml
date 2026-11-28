@@ -22,10 +22,6 @@ on:
     paths: *event-paths
   workflow_dispatch:
     inputs:
-      protected_split:
-        description: Require a partition split under fully protected pressure
-        type: boolean
-        default: false
       metadata_duration:
         description: Duration of the protected Publisher soak
         type: choice
@@ -85,6 +81,11 @@ jobs:
             -p 127.0.0.1:8765:8765 -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
       - name: Verify native transactions (required)
         run: go test -count=1 -timeout=8m -v -run '^TestIntegration' -skip '^TestIntegrationKubernetesReplicaHandoff$' ./internal/platform/event/...
+      - name: Verify fully protected pressure-induced split (required)
+        env:
+          M8_EVENT_TEST_STABLE_SPLIT_LOAD: "1"
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
+        run: go test -count=1 -timeout=3m -v -run '^TestIntegrationActivePartitionSplit$' ./internal/platform/event/...
       - name: Compare transactional Producer ID metadata (required)
         env:
           M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
@@ -100,11 +101,6 @@ jobs:
           M8_EVENT_TEST_SOAK_DURATION: "1m"
           M8_EVENT_TEST_SOAK_PARTITIONS: "4"
         run: go test -count=1 -timeout=3m -v -run '^TestSoakProducerMetadata$/^protected_churn$' ./internal/platform/event/...
-      - name: Verify protected pressure-induced split
-        if: github.event_name == 'workflow_dispatch' && inputs.protected_split
-        env:
-          M8_EVENT_TEST_STABLE_SPLIT_LOAD: "1"
-        run: go test -count=1 -timeout=3m -v -run '^TestIntegrationActivePartitionSplit$' ./internal/platform/event/...
       - name: Benchmark stable, random and protected publication
         if: github.event_name == 'workflow_dispatch'
         run: |
