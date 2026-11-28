@@ -307,7 +307,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	oldPublisher, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": path}), oldClaim, path+"_guard")
+	oldPublisher, err := newPublisher(owner, DefaultConfig(map[string]string{"events": path}), oldClaim, path+"_guard")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,7 +318,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	}
 	assertFenceRejected := func(p *Publisher) {
 		t.Helper()
-		if err := p.WithinTransaction(ctx, func(context.Context, query.TxActor, func(string, ...*eventv1.Event) error) error {
+		if err := p.WithinTransaction(ctx, func(context.Context, *Transaction) error {
 			t.Error("retired or vacant controller slot admitted a business mutation")
 			return nil
 		}); !errors.Is(err, ErrReplicaOwnership) {
@@ -343,7 +343,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	if err != nil || scaledClaim.generation != oldClaim.generation+2 {
 		t.Fatalf("scale-down and scale-up should advance two generations: %v", err)
 	}
-	scaledPublisher, err := NewPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), scaledClaim, path+"_guard")
+	scaledPublisher, err := newPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), scaledClaim, path+"_guard")
 	if err != nil || scaledPublisher.producer != oldPublisher.producer {
 		t.Fatalf("scale-up should reuse the producer: %v", err)
 	}
@@ -385,16 +385,16 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	doomed := fixtureWorkerEvent(t, uuid.NewString())
 	go func() {
 		attempted := false
-		oldResult <- scaledPublisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+		oldResult <- scaledPublisher.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 			if attempted {
 				return errors.New("retired ownership reached the callback on retry")
 			}
 			attempted = true
 			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
-				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(doomed.Id).Build())); err != nil {
+				ydb.ParamsBuilder().Param("$id").Text(doomed.Id).Build()); err != nil {
 				return err
 			}
-			if err := send("events", doomed); err != nil {
+			if err := tx.Publish("events", doomed); err != nil {
 				return err
 			}
 			close(staged)
@@ -455,7 +455,7 @@ func TestIntegrationKubernetesReplicaHandoff(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	freshPublisher, err := NewPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), freshClaim, path+"_guard")
+	freshPublisher, err := newPublisher(restartedOwner, DefaultConfig(map[string]string{"events": path}), freshClaim, path+"_guard")
 	if err != nil || freshPublisher.producer == oldPublisher.producer {
 		t.Fatalf("recreated StatefulSet must have its own producer identity: %v", err)
 	}
@@ -583,11 +583,11 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		if claim == nil {
 			return ErrReplicaOwnership
 		}
-		return claim.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+os.Getenv("M8_EVENT_WORKER_STATE")+" (id) VALUES ($id);", query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build())); err != nil {
+		return claim.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+os.Getenv("M8_EVENT_WORKER_STATE")+" (id) VALUES ($id);", ydb.ParamsBuilder().Param("$id").Text(id).Build()); err != nil {
 				return err
 			}
-			if err := send("events", fixtureWorkerEvent(t, id)); err != nil {
+			if err := tx.Publish("events", fixtureWorkerEvent(t, id)); err != nil {
 				return err
 			}
 			if crashBeforeCommit.Load() {
@@ -614,7 +614,7 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 			respond(w, err)
 			return
 		}
-		publisher, err := NewPublisher(owner, DefaultConfig(map[string]string{"events": os.Getenv("M8_EVENT_WORKER_TOPIC")}), claim, os.Getenv("M8_EVENT_WORKER_GUARD"))
+		publisher, err := newPublisher(owner, DefaultConfig(map[string]string{"events": os.Getenv("M8_EVENT_WORKER_TOPIC")}), claim, os.Getenv("M8_EVENT_WORKER_GUARD"))
 		if err != nil {
 			respond(w, err)
 			return
@@ -662,7 +662,7 @@ func TestKubernetesReplicaWorker(t *testing.T) {
 		var denied error
 		err := db.Query().Do(check, func(ctx context.Context, session query.Session) error {
 			denied = session.Exec(ctx, declareReplicaKey+"DECLARE $uid AS Utf8; "+
-				"UPDATE `"+slot.TablePath+"` SET pod_uid = $uid WHERE replica = $replica;",
+				"UPDATE `"+slot.tablePath+"` SET pod_uid = $uid WHERE replica = $replica;",
 				query.WithParameters(ydb.ParamsBuilder().Param("$replica").Text(slot.key()).Param("$uid").Text(uid).Build()))
 			return nil // Preserve the first authorization response without SDK retries.
 		})

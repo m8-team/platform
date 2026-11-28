@@ -1,15 +1,16 @@
-# Requires a scoped scrape job named m8-ydb. Tune to the deployment traffic.
+# Supply one m8_ydb_producer_creations_per_second_budget series per job.
+# Scope each m8-ydb scrape job to one cluster without duplicate tablet counters.
 groups:
   - name: m8-event-ydb
     rules:
-      - alert: YDBProducerCreationAboveBudget
-        expr: sum by (job) (rate(PQ_SourceIdCreated{job="m8-ydb",counters="tablets",type="PersQueue",category="app"}[15m])) > (5 / 60)
+      - alert: YDBClusterProducerChurnAboveBudget
+        expr: sum by (job) (rate(PQ_SourceIdCreated{job="m8-ydb",counters="tablets",type="PersQueue",category="app"}[15m])) > on (job) m8_ydb_producer_creations_per_second_budget
         for: 15m
         labels:
           severity: warning
         annotations:
-          summary: YDB node exporter reports sustained producer creation
-          description: Verify churn against the deployment budget and retained producer counts in supported YDB monitoring.
+          summary: YDB scrape job reports sustained cluster-level producer churn
+          description: Compare cluster-level creations with rollout activity and inspect retained counts independently.
       - alert: YDBTransactionLockConflictRate
         expr: sum by (job) (rate(Issues_YQL:KIKIMR_LOCKS_INVALIDATED{job="m8-ydb",counters="kqp"}[5m])) > 1
         for: 10m

@@ -110,3 +110,30 @@ partition using observed attempt rate, source TTL and message retention, and
 verify the actual production failure domains and recovery budget before
 enabling writes. See the [Event Layer README](../../../internal/platform/event/README.md)
 for commands, scope of evidence and migration constraints.
+
+### v1.2.1 transaction and deployment boundary
+
+`Publisher.WithinTransaction` passes an attempt-local `*event.Transaction`
+with typed query parameters, materialized single-row reads, publication and
+bounded native transactional batch reading. The native transaction stays in
+the Publisher and remains under SDK lifecycle control. The scope invalidates
+before completion. A native SDK negative control committed a state write via
+`query.WithCommit()` despite a later callback error. The corresponding
+protected YQL test rejected `COMMIT`. The boundary assumes trusted code and
+driver defaults. Business modules still own event obligation, command receipts,
+authorization and deterministic identities.
+
+Fencing paths derive from the connected YDB database name. The ownership
+table also holds a controller activation row. Replacement activation verifies
+the known slots against actual stored ownership and requires the prior
+activation's retirement. The same row fences positive slot writes from old
+reconciler configurations. Upgrade requires a verified canonical inventory and
+fencing binaries that predate this barrier. Readiness inspects both schemas and
+does not stage events.
+
+Pilot and production conditions are documented in the [Event Layer README](../../../internal/platform/event/README.md)
+and [deployment runbook](../../../deploy/event/README.md). Keep target-cluster
+telemetry, workload sizing and repeatable split evidence under target
+settings, independent failure domains and coordinated backup/restore as
+explicit gates. The local four-slot protected fixture observed a split,
+verified both children and resumed after committed offsets.

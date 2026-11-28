@@ -48,6 +48,10 @@ jobs:
           go test -count=1 ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
           go test -race -count=1 ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
           go vet ./internal/platform/event/... ./internal/platform/kubernetes/... ./cmd/event-reconciler/...
+      - name: Validate example Prometheus rules
+        run: |
+          docker run --rm -v "$PWD/deploy/event/prometheus-rules.example.yaml:/etc/prometheus/event-rules.yml:ro" \
+            --entrypoint /bin/promtool prom/prometheus:v3.5.0 check rules /etc/prometheus/event-rules.yml
       - name: Verify Event contract and generated code
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before || 'origin/main' }}
@@ -77,6 +81,11 @@ jobs:
             -p 127.0.0.1:8765:8765 -e GRPC_PORT=2136 -e MON_PORT=8765 ydbplatform/local-ydb:26.3.1.25
       - name: Verify native transactions (required)
         run: go test -count=1 -timeout=8m -v -run '^TestIntegration' -skip '^TestIntegrationKubernetesReplicaHandoff$' ./internal/platform/event/...
+      - name: Verify fully protected pressure-induced split (required)
+        env:
+          M8_EVENT_TEST_STABLE_SPLIT_LOAD: "1"
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
+        run: go test -count=1 -timeout=3m -v -run '^TestIntegrationActivePartitionSplit$' ./internal/platform/event/...
       - name: Compare transactional Producer ID metadata (required)
         env:
           M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
@@ -85,6 +94,13 @@ jobs:
           pattern='^TestSoakProducerMetadata$'
           if [[ "${{ github.event_name }}" == workflow_dispatch ]]; then pattern+='/^protected$'; fi
           go test -count=1 -timeout=40m -v -run "$pattern" ./internal/platform/event/...
+      - name: Verify protected multi-partition soak
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          M8_EVENT_TEST_MONITOR_URL: http://127.0.0.1:8765
+          M8_EVENT_TEST_SOAK_DURATION: "1m"
+          M8_EVENT_TEST_SOAK_PARTITIONS: "4"
+        run: go test -count=1 -timeout=3m -v -run '^TestSoakProducerMetadata$/^protected_churn$' ./internal/platform/event/...
       - name: Benchmark stable, random and protected publication
         if: github.event_name == 'workflow_dispatch'
         run: |

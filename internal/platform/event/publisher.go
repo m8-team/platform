@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"maps"
 	"math"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -17,10 +16,6 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 )
-
-// An unexported embedded field promotes the query methods without exposing
-// the SDK transaction handle or its commit and rollback methods.
-type transactionQueries = query.TxActor
 
 // Publisher publishes with one stable producer lane per StatefulSet slot.
 // Use one shared instance per process.
@@ -36,12 +31,22 @@ type Publisher struct {
 }
 
 // NewPublisher explicitly enables stable publication for a bound Pod.
-// guardTable is a YDB row table with key replica Utf8 and revision Uint64.
 // The publisher needs write access to this table and read-only access to the
 // separate ownership table. Neither table is created automatically.
-func NewPublisher(owner *Transactor, cfg Config, ownership PodOwnership, guardTable string) (*Publisher, error) {
+func NewPublisher(owner *Transactor, cfg Config, ownership PodOwnership) (*Publisher, error) {
+	if owner == nil || owner.db == nil {
+		return nil, ErrInvalidConfiguration
+	}
+	database := owner.db.Name()
+	if !ownerTablePath.MatchString(database) || ownership.slot.tablePath != database+ownersTable {
+		return nil, ErrInvalidConfiguration
+	}
+	return newPublisher(owner, cfg, ownership, database+guardsTable)
+}
+
+func newPublisher(owner *Transactor, cfg Config, ownership PodOwnership, guardTable string) (*Publisher, error) {
 	if owner == nil || owner.db == nil || !validPodUID(ownership.uid) || ownership.generation == 0 || ownership.slot.validate() != nil ||
-		!ownerTablePath.MatchString(guardTable) || guardTable == ownership.slot.TablePath {
+		!ownerTablePath.MatchString(ownership.slot.tablePath) || !ownerTablePath.MatchString(guardTable) || guardTable == ownership.slot.tablePath {
 		return nil, ErrInvalidConfiguration
 	}
 	if err := cfg.Validate(); err != nil {
@@ -56,9 +61,8 @@ func NewPublisher(owner *Transactor, cfg Config, ownership PodOwnership, guardTa
 }
 
 // WithinTransaction verifies ownership and stages one batch per physical topic.
-// The SDK owns commit and retries. The callback, TxActor and publish function
-// are scoped to an attempt. Handle uncertain outcomes with a command receipt.
-func (p *Publisher) WithinTransaction(ctx context.Context, fn func(context.Context, query.TxActor, func(string, ...*eventv1.Event) error) error) error {
+// The SDK owns commit and retries. Each callback receives a fresh scope. Handle uncertain outcomes with a command receipt.
+func (p *Publisher) WithinTransaction(ctx context.Context, fn func(context.Context, *Transaction) error) error {
 	if p == nil || p.owner == nil || p.lane == nil || fn == nil {
 		return ErrInvalidConfiguration
 	}
@@ -67,13 +71,13 @@ func (p *Publisher) WithinTransaction(ctx context.Context, fn func(context.Conte
 	start := time.Now()
 	select {
 	case p.lane <- struct{}{}:
-		p.laneWait.Add(uint64(time.Since(start)))
 		defer func() { <-p.lane }()
 	case <-ctx.Done():
-		p.laneWait.Add(uint64(time.Since(start)))
+		p.recordLaneWait(ctx, time.Since(start))
 		p.laneErrors.Add(1)
 		return ctx.Err()
 	}
+	p.recordLaneWait(ctx, time.Since(start))
 	if err := ctx.Err(); err != nil {
 		p.laneErrors.Add(1)
 		return err
@@ -88,45 +92,17 @@ func (p *Publisher) WithinTransaction(ctx context.Context, fn func(context.Conte
 		if err := p.advanceGuard(ctx, tx); err != nil {
 			return err
 		}
-		var mu sync.Mutex
-		var closed atomic.Bool
-		var publishErr error
-		seen := make(map[string]struct{})
-		publish := func(topic string, events ...*eventv1.Event) (result error) {
-			var stagedBytes int
-			defer func() { p.stats.record(result, len(events), stagedBytes) }()
-			mu.Lock()
-			defer mu.Unlock()
-			if closed.Load() {
-				return ErrReplicaOwnership
-			}
-			if publishErr != nil {
-				return publishErr
-			}
-			path := p.cfg.Topics[topic]
-			if _, duplicate := seen[path]; duplicate && len(events) > 0 {
-				publishErr = fmt.Errorf("%w: duplicate batch for %q", ErrInvalidTopic, topic)
-				return publishErr
-			}
-			stagedBytes, publishErr = p.publish(ctx, tx, topic, events...)
-			if len(events) > 0 && publishErr == nil {
-				seen[path] = struct{}{}
-			}
-			return publishErr
-		}
-		defer func() {
-			closed.Store(true)
-			mu.Lock()
-			defer mu.Unlock()
-			if err == nil {
-				err = publishErr
-				if err == nil {
-					err = ctx.Err()
-				}
-			}
-		}()
-		return fn(ctx, struct{ transactionQueries }{tx}, publish)
+		attempt := &transactionAttempt{ctx: ctx, native: tx, publisher: p}
+		defer func() { err = attempt.finish(err) }()
+		return fn(ctx, &Transaction{attempt: attempt})
 	})
+}
+
+func (p *Publisher) recordLaneWait(ctx context.Context, duration time.Duration) {
+	p.laneWait.Add(uint64(duration))
+	if observe := p.owner.timings.LaneWait; observe != nil {
+		observe(ctx, duration)
+	}
 }
 
 // The guard makes overlapping attempts with the same slot conflict even
@@ -154,6 +130,9 @@ func (p *Publisher) guardRevision(ctx context.Context, tx query.TxActor) (uint64
 	case err == nil:
 		if err := row.Scan(&revision); err != nil {
 			return 0, err
+		}
+		if revision == 0 {
+			return 0, ErrReplicaOwnership
 		}
 	case !errors.Is(err, query.ErrNoRows):
 		return 0, err

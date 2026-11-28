@@ -20,6 +20,7 @@ import (
 	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/config"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
+	"github.com/ydb-platform/ydb-go-sdk/v3/retry"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topictypes"
 	"google.golang.org/grpc"
@@ -100,7 +101,8 @@ func createFixtureTopic(t testing.TB, ctx context.Context, db *ydb.Driver, path 
 		t.Fatal(err)
 	}
 	t.Cleanup(func() {
-		cleanup, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		// Topic deletion can wait for split finalization on the server.
+		cleanup, cancel := context.WithTimeout(context.Background(), 45*time.Second)
 		defer cancel()
 		if err := db.Topic().Drop(cleanup, path); err != nil {
 			t.Errorf("drop test topic: %v", err)
@@ -115,15 +117,12 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	createTestTopic(t, ctx, db, topicPath+"_forwarded", 1)
 	cfg := DefaultConfig(map[string]string{"resource": topicPath, "forwarded": topicPath + "_forwarded"})
 	cfg.Topics["missing"] = topicPath + "_missing"
-	p := livePublisher(t, ctx, db, topicPath, cfg, 12*time.Second)
-	tr, err := NewTransactor(db, 12*time.Second)
-	if err != nil {
-		t.Fatal(err)
-	}
-	writeState := func(ctx context.Context, tx query.TxActor, id string) error {
+	p := livePublisher(t, ctx, db, topicPath, cfg, 25*time.Second)
+	writeState := func(ctx context.Context, tx *Transaction, id string) error {
 		return tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+table+" (id) VALUES ($id);",
-			query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build()))
+			ydb.ParamsBuilder().Param("$id").Text(id).Build())
 	}
+	var err error
 	assertCount := func(want uint64) {
 		t.Helper()
 		row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table+";")
@@ -142,11 +141,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	}
 	rollback := errors.New("intentional rollback")
 	rolledBack := makeEvent()
-	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		if err := writeState(ctx, tx, rolledBack.Id); err != nil {
 			return err
 		}
-		if err := send("resource", rolledBack); err != nil {
+		if err := tx.Publish("resource", rolledBack); err != nil {
 			return err
 		}
 		return rollback
@@ -158,11 +157,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 
 	bad := makeEvent()
 	bad.Type = "invalid"
-	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		if err := writeState(ctx, tx, bad.Id); err != nil {
 			return err
 		}
-		return send("resource", bad)
+		return tx.Publish("resource", bad)
 	})
 	if !errors.Is(err, ErrInvalidEvent) {
 		t.Fatalf("expected validation failure, got %v", err)
@@ -170,11 +169,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	assertCount(0)
 
 	missing := makeEvent()
-	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		if err := writeState(ctx, tx, missing.Id); err != nil {
 			return err
 		}
-		return send("missing", missing)
+		return tx.Publish("missing", missing)
 	})
 	if err == nil {
 		t.Fatal("unexpected success for nonexistent topic")
@@ -182,11 +181,11 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 	assertCount(0)
 
 	first, second := makeEvent(), makeEvent()
-	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		if err := writeState(ctx, tx, first.Id); err != nil {
 			return err
 		}
-		return send("resource", first, second)
+		return tx.Publish("resource", first, second)
 	})
 	if err != nil {
 		t.Fatalf("commit state and events: %v", err)
@@ -214,8 +213,8 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 		reader = next
 	}
 	expected := map[string]*eventv1.Event{first.Id: first, second.Id: second}
-	consume := func(ctx context.Context, tx query.TxActor, fail bool) error {
-		batch, err := reader.PopMessagesBatchTx(ctx, tx)
+	consume := func(ctx context.Context, tx *Transaction, output string) error {
+		batch, err := tx.ReadBatch(ctx, reader, 8*time.Second)
 		if err != nil {
 			return err
 		}
@@ -237,21 +236,30 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 			}
 			forward = append(forward, got)
 		}
-		if err := writeWithProducer(ctx, db, tx, topicPath+"_forwarded", "m8.test.consumer", forward...); err != nil {
+		return tx.Publish(output, forward...)
+	}
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		if err := consume(ctx, tx, "forwarded"); err != nil {
 			return err
 		}
-		if fail {
-			return rollback
-		}
-		return nil
-	}
-	if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-		return consume(ctx, tx, true)
+		return rollback
 	}); !errors.Is(err, rollback) {
 		t.Fatalf("consumer rollback: %v", err)
 	}
 	assertCount(1)
 	restartReader()
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		return consume(ctx, tx, "unconfigured")
+	}); !errors.Is(err, ErrInvalidTopic) {
+		t.Fatalf("consumer rollback after output error: %v", err)
+	}
+	assertCount(1)
+	if total, _, err := topicEnds(ctx, db, topicPath+"_forwarded"); err != nil || total != 0 {
+		t.Fatalf("output survived rollback: %d, %v", total, err)
+	}
+	var retryInjected bool
+	var replayPending bool
+	recoveryStart := time.Now()
 	for i := 0; i < 2; i++ {
 		row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+table+";")
 		if err != nil {
@@ -264,21 +272,46 @@ func TestIntegrationAtomicPublication(t *testing.T) {
 		if count == 3 {
 			break
 		}
-		if err := tr.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			return consume(ctx, tx, false)
+		if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			if replayPending {
+				replayPending = false
+				// A fresh SDK reader starts from the durable offset. The
+				// automatic reconnect after consecutive rollbacks can exceed
+				// the read budget in the pinned SDK.
+				restartReader()
+			}
+			if err := consume(ctx, tx, "forwarded"); err != nil {
+				return err
+			}
+			if !retryInjected {
+				retryInjected, replayPending = true, true
+				return retry.RetryableError(errors.New("retry after staging input and output"))
+			}
+			return nil
 		}); err != nil {
 			t.Fatal(err)
 		}
 	}
 	assertCount(3)
+	if !retryInjected || replayPending {
+		t.Fatal("expected the SDK to retry the consuming callback")
+	}
+	t.Logf("reader recovery and replay after output failure and injected retry: %s", time.Since(recoveryStart))
 	total, _, err := topicEnds(ctx, db, topicPath+"_forwarded")
 	if err != nil || total != 2 {
 		t.Fatalf("consumer publication and state must commit with offsets: %d, %v", total, err)
 	}
 	restartReader()
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		// Even an ignored read error must abort the attempt.
+		_, _ = tx.ReadBatch(ctx, reader, 250*time.Millisecond)
+		return nil
+	}); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("empty input did not abort on bounded wait: %v", err)
+	}
 	sentinel := makeEvent()
-	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-		return send("resource", sentinel)
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		return tx.Publish("resource", sentinel)
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -303,11 +336,11 @@ func TestIntegrationTransactionDeadline(t *testing.T) {
 	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 3*time.Second)
 	event := testEvent(t)
 	staged := false
-	err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('deadline');"); err != nil {
+	err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('deadline');", nil); err != nil {
 			return err
 		}
-		if err := send("events", event); err != nil {
+		if err := tx.Publish("events", event); err != nil {
 			return err
 		}
 		staged = true
@@ -373,14 +406,14 @@ func TestIntegrationWriterFlushFailure(t *testing.T) {
 	createTestTopic(t, ctx, db, path+"_other", 1)
 	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path, "other": path + "_other"}), 8*time.Second)
 	callbackReturned := false
-	err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('writer-failure');"); err != nil {
+	err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+table+" (id) VALUES ('writer-failure');", nil); err != nil {
 			return err
 		}
-		if err := send("events", testEvent(t)); err != nil {
+		if err := tx.Publish("events", testEvent(t)); err != nil {
 			return err
 		}
-		if err := send("other", testEvent(t)); err != nil {
+		if err := tx.Publish("other", testEvent(t)); err != nil {
 			return err
 		}
 		if !callbackReturned {
@@ -430,7 +463,7 @@ func bindTestPublisher(t testing.TB, ctx context.Context, db *ydb.Driver, slot R
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := NewPublisher(owner, cfg, claim, guard)
+	p, err := newPublisher(owner, cfg, claim, guard)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -484,19 +517,19 @@ func TestIntegrationEventSchema(t *testing.T) {
 	slot := ReplicaSlot{"test", uuid.NewString(), "publisher-0", prefix + "/replica_owners"}
 	p := bindTestPublisher(t, ctx, db, slot, prefix+"/replica_publication_guards", DefaultConfig(map[string]string{"test": prefix + "/test"}), 5*time.Second)
 	var escaped func(string, ...*eventv1.Event) error
-	if err := p.WithinTransaction(ctx, func(_ context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error) error {
-		if _, ok := tx.(query.Transaction); ok {
+	if err := p.WithinTransaction(ctx, func(_ context.Context, tx *Transaction) error {
+		if _, ok := any(tx).(query.Transaction); ok {
 			t.Error("business callback can explicitly commit")
 		}
-		if _, ok := tx.(struct{ query.TxActor }); ok {
+		if _, ok := any(tx).(query.TxActor); ok {
 			t.Error("business callback can unwrap the SDK transaction handle")
 		}
-		escaped = publish
+		escaped = tx.Publish
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if err := escaped("test"); !errors.Is(err, ErrReplicaOwnership) {
+	if err := escaped("test"); !errors.Is(err, ErrTransactionClosed) {
 		t.Fatalf("expired publication callback: %v", err)
 	}
 	migrate()
@@ -508,4 +541,88 @@ func TestIntegrationEventSchema(t *testing.T) {
 		t.Fatalf("retired publisher is ready: %v", err)
 	}
 	verifyFence(t, ctx, p.owner, p, retiredReplica, 2, 1)
+}
+
+func TestIntegrationNativePrematureCommit(t *testing.T) {
+	ctx, db, path := liveDatabase(t)
+	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	createTestTopic(t, ctx, db, path, 1)
+	callbackFailure := errors.New("callback failed after state write")
+	err := db.Query().DoTx(ctx, func(ctx context.Context, tx query.TxActor) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('native');", query.WithCommit()); err != nil {
+			return err
+		}
+		return callbackFailure
+	})
+	if !errors.Is(err, callbackFailure) {
+		t.Fatalf("expected callback failure after native commit: %v", err)
+	}
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 8*time.Second)
+	if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+		if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('yql');", nil); err != nil {
+			return err
+		}
+		if err := tx.Exec(ctx, "COMMIT;", nil); err == nil {
+			t.Error("Query Service accepted transaction control in YQL")
+		}
+		return callbackFailure
+	}); !errors.Is(err, callbackFailure) {
+		t.Fatal(err)
+	}
+	row, err := db.Query().QueryRow(ctx, "SELECT id FROM "+state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var id string
+	if err := row.Scan(&id); err != nil || id != "native" {
+		t.Fatalf("expected only the native control state row, got %q: %v", id, err)
+	}
+	if total, _, err := topicEnds(ctx, db, path); err != nil || total != 0 {
+		t.Fatalf("unexpected topic contents after premature commit: %d, %v", total, err)
+	}
+}
+
+func TestIntegrationWriterInitializationFailure(t *testing.T) {
+	var armed atomic.Bool
+	var interrupted atomic.Int64
+	intercept := func(ctx context.Context, desc *grpc.StreamDesc, conn *grpc.ClientConn,
+		method string, stream grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+		if armed.Load() && method == Ydb_Topic_V1.TopicService_StreamWrite_FullMethodName {
+			interrupted.Add(1)
+			return nil, status.Error(codes.Unavailable, "injected loss of transport before writer initialization")
+		}
+		return stream(ctx, desc, conn, method, opts...)
+	}
+	ctx, db, path := liveDatabase(t, ydb.With(config.WithGrpcOptions(grpc.WithChainStreamInterceptor(intercept))))
+	createTestTopic(t, ctx, db, path, 1)
+	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 5*time.Second)
+	e := testEvent(t)
+	publish := func() error {
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('business');", nil); err != nil {
+				return err
+			}
+			_ = tx.Publish("events", e)
+			return nil
+		})
+	}
+	armed.Store(true)
+	err := publish()
+	armed.Store(false)
+	if err == nil || interrupted.Load() == 0 {
+		t.Fatalf("expected failure during writer stream open: %v", err)
+	}
+	if _, err := db.Query().QueryRow(ctx, "SELECT id FROM "+state); !errors.Is(err, query.ErrNoRows) {
+		t.Fatalf("writer initialization failure left state: %v", err)
+	}
+	if total, _, err := topicEnds(ctx, db, path); err != nil || total != 0 {
+		t.Fatalf("writer initialization failure left an event: %d, %v", total, err)
+	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 0)
+	if err := publish(); err != nil {
+		t.Fatalf("publish after reconnect: %v", err)
+	}
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 1)
+	assertStableProducerEvents(t, ctx, db, path, p.producer+"-0", []*eventv1.Event{e})
 }
