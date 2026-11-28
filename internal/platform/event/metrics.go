@@ -1,9 +1,17 @@
 package event
 
 import (
+	"context"
 	"sync/atomic"
 	"time"
 )
+
+// TimingObservers connects real observations to service-owned histograms.
+// Handlers can be called concurrently and must return promptly.
+type TimingObservers struct {
+	LaneWait            func(context.Context, time.Duration)
+	TransactionDuration func(context.Context, time.Duration)
+}
 
 // PublishStats counts calls and staged batches for one Publisher. The
 // transaction owner observes commit outcomes separately.

@@ -48,7 +48,7 @@ func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 	slot := ReplicaSlot{"test", uuid.NewString(), "publisher-0", path + "_owner"}
 	uid := uuid.NewString()
 	if err := newProcess.Query().Exec(ctx, declareReplicaKey+"DECLARE $uid AS Utf8; "+
-		"INSERT INTO `"+slot.TablePath+"` (replica, pod_uid, generation) VALUES ($replica, $uid, 1u);",
+		"INSERT INTO `"+slot.tablePath+"` (replica, pod_uid, generation) VALUES ($replica, $uid, 1u);",
 		query.WithParameters(ydb.ParamsBuilder().Param("$replica").Text(slot.key()).Param("$uid").Text(uid).Build())); err != nil {
 		t.Fatal(err)
 	}
@@ -62,23 +62,32 @@ func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		p, err := NewPublisher(owner, DefaultConfig(map[string]string{"event": path}), claim, path+"_guard")
+		p, err := newPublisher(owner, DefaultConfig(map[string]string{"event": path}), claim, path+"_guard")
 		if err != nil {
 			t.Fatal(err)
 		}
 		return p
 	}
 	first, second := newPublisher(old), newPublisher(newProcess)
-	write := func(ctx context.Context, tx query.TxActor, id string) error {
+	write := func(ctx context.Context, tx *Transaction, id string) error {
 		return tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
-			query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(id).Build()))
+			ydb.ParamsBuilder().Param("$id").Text(id).Build())
 	}
+	var previousAttempt *Transaction
 	run := func(p *Publisher, event *eventv1.Event) error {
-		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			if p == first {
+				if previousAttempt != nil {
+					if err := previousAttempt.Exec(ctx, "SELECT 1;", nil); !errors.Is(err, ErrTransactionClosed) {
+						return errors.New("previous attempt remained valid during retry")
+					}
+				}
+				previousAttempt = tx
+			}
 			if err := write(ctx, tx, event.Id); err != nil {
 				return err
 			}
-			return send("event", event)
+			return tx.Publish("event", event)
 		})
 	}
 	late, winner := testEvent(t), testEvent(t)
@@ -100,6 +109,12 @@ func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal(ctx.Err())
 	}
+	if err := previousAttempt.Exec(ctx, "SELECT 1;", nil); !errors.Is(err, ErrTransactionClosed) {
+		t.Fatalf("query scope available during commit: %v", err)
+	}
+	if err := previousAttempt.Publish("event", late); !errors.Is(err, ErrTransactionClosed) {
+		t.Fatalf("publication scope available during commit: %v", err)
+	}
 	if err := run(second, winner); err != nil {
 		t.Fatalf("new publisher could not commit while the previous outcome was unresolved: %v", err)
 	}
@@ -109,14 +124,14 @@ func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 	}
 	rejected := testEvent(t)
 	rejected.Id = uuid.NewString()
-	if err := second.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	if err := second.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		if err := write(ctx, tx, rejected.Id); err != nil {
 			return err
 		}
-		if err := send("event", rejected); err != nil {
+		if err := tx.Publish("event", rejected); err != nil {
 			return err
 		}
-		_ = send("event", rejected)
+		_ = tx.Publish("event", rejected)
 		return nil
 	}); !errors.Is(err, ErrInvalidTopic) {
 		t.Fatalf("repeated batch should abort even if the callback ignores the error: %v", err)
@@ -161,12 +176,12 @@ func TestIntegrationPublisherCommitDeadline(t *testing.T) {
 	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 5*time.Second)
 	publish := func(e *eventv1.Event) error {
 		e.Id = uuid.NewString()
-		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
-				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(e.Id).Build())); err != nil {
+				ydb.ParamsBuilder().Param("$id").Text(e.Id).Build()); err != nil {
 				return err
 			}
-			return send("events", e)
+			return tx.Publish("events", e)
 		})
 	}
 	pause.Store(true)

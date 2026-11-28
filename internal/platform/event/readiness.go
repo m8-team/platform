@@ -7,9 +7,9 @@ import (
 	"math"
 	"slices"
 
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table"
-	"github.com/ydb-platform/ydb-go-sdk/v3/table/options"
 	"github.com/ydb-platform/ydb-go-sdk/v3/table/types"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topictypes"
 )
@@ -23,29 +23,19 @@ func (p *Publisher) CheckReadiness(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, p.owner.timeout)
 	defer cancel()
 	if err := p.owner.db.Table().Do(ctx, func(ctx context.Context, session table.Session) error {
-		description, err := session.DescribeTable(ctx, p.guard)
-		if err != nil {
-			return err
+		if err := checkFencingTable(ctx, p.owner.db, session, p.ownership.slot.tablePath, map[string]types.Type{
+			"replica": types.TypeUTF8, "pod_uid": types.TypeUTF8, "generation": types.TypeUint64,
+		}); err != nil {
+			return fmt.Errorf("describe replica ownership: %w", err)
 		}
-		if !slices.Equal(description.PrimaryKey, []string{"replica"}) || description.StoreType == options.StoreTypeColumn ||
-			description.TimeToLiveSettings != nil {
-			return ErrInvalidConfiguration
-		}
-		var replica, revision bool
-		for _, column := range description.Columns {
-			switch column.Name {
-			case "replica":
-				replica = types.Equal(column.Type, types.TypeUTF8)
-			case "revision":
-				revision = types.Equal(column.Type, types.TypeUint64)
-			}
-		}
-		if !replica || !revision {
-			return ErrInvalidConfiguration
+		if err := checkFencingTable(ctx, p.owner.db, session, p.guard, map[string]types.Type{
+			"replica": types.TypeUTF8, "revision": types.TypeUint64,
+		}); err != nil {
+			return fmt.Errorf("describe publication guard: %w", err)
 		}
 		return nil
 	}); err != nil {
-		return fmt.Errorf("describe publication guard: %w", err)
+		return err
 	}
 	if err := p.owner.db.Query().DoTx(ctx, func(ctx context.Context, tx query.TxActor) error {
 		if err := p.ownership.check(ctx, tx); err != nil {
@@ -78,6 +68,40 @@ func (p *Publisher) CheckReadiness(ctx context.Context) error {
 		}
 	}
 	return ctx.Err()
+}
+
+func checkFencingTable(ctx context.Context, db *ydb.Driver, session table.Session, path string, required map[string]types.Type) error {
+	// DescribeTable can omit StoreType for row tables on YDB 26.3.
+	entry, err := db.Scheme().DescribePath(ctx, path)
+	if err != nil {
+		return err
+	}
+	if !entry.IsTable() {
+		return ErrInvalidConfiguration
+	}
+	description, err := session.DescribeTable(ctx, path)
+	if err != nil {
+		return err
+	}
+	if !slices.Equal(description.PrimaryKey, []string{"replica"}) ||
+		description.TimeToLiveSettings != nil {
+		return ErrInvalidConfiguration
+	}
+	found := 0
+	for _, column := range description.Columns {
+		expected, ok := required[column.Name]
+		if !ok {
+			continue
+		}
+		if !types.Equal(column.Type, expected) {
+			return fmt.Errorf("%w: incompatible column %s", ErrInvalidConfiguration, column.Name)
+		}
+		found++
+	}
+	if found != len(required) {
+		return ErrInvalidConfiguration
+	}
+	return nil
 }
 
 func checkPartitionBounds(partitions []topictypes.PartitionInfo) error {

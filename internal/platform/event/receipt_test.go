@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
 	"github.com/ydb-platform/ydb-go-genproto/Ydb_Query_V1"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb"
 	"github.com/ydb-platform/ydb-go-genproto/protos/Ydb_Query"
@@ -60,8 +59,8 @@ func testCommandReceipt(t *testing.T, inject bool) {
 	wrongHash := errors.New("command ID already used for a different request")
 	rollback := errors.New("intentional rollback before commit")
 	run := func(publisher *Publisher, hash, alias string, beforeWrite func(context.Context) error, fail bool) error {
-		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-			row, err := tx.QueryRow(ctx, "SELECT hash, event_id FROM "+receipts+" WHERE id = 'command';")
+		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			row, err := tx.QueryRow(ctx, "SELECT hash, event_id FROM "+receipts+" WHERE id = 'command';", nil)
 			if err == nil {
 				var storedHash, storedEvent string
 				if err := row.Scan(&storedHash, &storedEvent); err != nil {
@@ -83,15 +82,15 @@ func testCommandReceipt(t *testing.T, inject bool) {
 					return err
 				}
 			}
-			if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('command');"); err != nil {
+			if err := tx.Exec(ctx, "INSERT INTO "+state+" (id) VALUES ('command');", nil); err != nil {
 				return err
 			}
 			params := ydb.ParamsBuilder().Param("$hash").Text(hash).Param("$event").Text(e.Id).Build()
 			if err := tx.Exec(ctx, "DECLARE $hash AS Utf8; DECLARE $event AS Utf8; INSERT INTO "+receipts+
-				" (id, hash, event_id) VALUES ('command', $hash, $event);", query.WithParameters(params)); err != nil {
+				" (id, hash, event_id) VALUES ('command', $hash, $event);", params); err != nil {
 				return err
 			}
-			if err := send(alias, e); err != nil {
+			if err := tx.Publish(alias, e); err != nil {
 				return err
 			}
 			if fail {

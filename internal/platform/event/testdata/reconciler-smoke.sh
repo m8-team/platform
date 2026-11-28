@@ -101,6 +101,7 @@ render() {
     config = docs.find { |item| item["kind"] == "ConfigMap" }
     data = JSON.parse(config["data"]["replicas.json"])
     data["uid"] = ENV.fetch("M8_SMOKE_SET_UID")
+    data["bootstrap"] = ENV["M8_SMOKE_PREVIOUS_UID"].empty?
     data["predecessors"] = [{ "uid" => ENV["M8_SMOKE_PREVIOUS_UID"], "slots" => 2 }] unless ENV["M8_SMOKE_PREVIOUS_UID"].empty?
     config["data"]["replicas.json"] = JSON.generate(data)
     deploy = docs.find { |item| item["kind"] == "Deployment" }

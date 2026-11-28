@@ -37,13 +37,13 @@ func TestDisruptionYDB(t *testing.T) {
 	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 90*time.Second)
 	producer := p.producer
 	tr := p.owner
-	write := func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error, e *eventv1.Event) error {
+	write := func(ctx context.Context, tx *Transaction, e *eventv1.Event) error {
 		params := ydb.ParamsBuilder().Param("$id").Text(e.Id).Build()
 		if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+table+" (id) VALUES ($id);",
-			query.WithParameters(params)); err != nil {
+			params); err != nil {
 			return err
 		}
-		return send("events", e)
+		return tx.Publish("events", e)
 	}
 	next := func() *eventv1.Event {
 		event := testEvent(t)
@@ -52,8 +52,8 @@ func TestDisruptionYDB(t *testing.T) {
 	}
 	publish := func(e *eventv1.Event) {
 		t.Helper()
-		if err := p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
-			return write(ctx, tx, send, e)
+		if err := p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
+			return write(ctx, tx, e)
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -114,12 +114,12 @@ func TestDisruptionYDB(t *testing.T) {
 	// Leave the original transaction unresolved while the harness removes
 	// its target node. An SDK callback retry would generate a different
 	// observation, so the fixture stops it and reconciles authoritative state.
-	err = p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+	err = p.WithinTransaction(ctx, func(ctx context.Context, tx *Transaction) error {
 		attempts++
 		if attempts > 1 {
 			return errors.New("stopped retry of interrupted transaction for reconciliation")
 		}
-		if err := write(ctx, tx, send, interrupted); err != nil {
+		if err := write(ctx, tx, interrupted); err != nil {
 			return err
 		}
 		var err error

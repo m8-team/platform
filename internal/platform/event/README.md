@@ -1,4 +1,4 @@
-# M8 Event v1.2
+# M8 Event v1.2.1
 
 Stable Producer Identity is required for every publication. See the
 [deployment and recovery runbook](../../../deploy/event/README.md).
@@ -45,49 +45,88 @@ claim, err := slot.Bind(ctx, owner, podUID)
 if err != nil {
     return err
 }
-publisher, err := event.NewPublisher(owner, cfg, claim, guardTable)
+publisher, err := event.NewPublisher(owner, cfg, claim)
 if err != nil {
     return err
 }
 if err := publisher.CheckReadiness(ctx); err != nil {
     return err
 }
-return publisher.WithinTransaction(ctx, func(
-    ctx context.Context, tx query.TxActor, publish func(string, ...*eventv1.Event) error,
-) error {
+return publisher.WithinTransaction(ctx, func(ctx context.Context, tx *event.Transaction) error {
     // Resolve an existing command receipt before repeating business writes.
     if err := writeBusinessState(ctx, tx); err != nil {
         return err
     }
-    if err := publish("resource", created); err != nil {
+    if err := tx.Publish("resource", created); err != nil {
         return err
     }
     return writeCommandReceipt(ctx, tx)
 })
 ```
 
-The Repository uses the supplied actor for business queries. The SDK owns
-the Serializable RW transaction, retries with `WithIdempotent(false)`,
-flushes writers before commit, and cleans them up on completion. The lane
-covers admission through SDK completion. Ownership is read and the guard
-advanced on every attempt. Each physical topic gets one nonempty call per
-attempt. Any failed publication poisons the attempt even if the caller
-ignores its error. The callback and actor are scoped to the attempt. Return
-promptly on cancellation and avoid network calls or independent retries
-inside the callback. The owning module decides which integration events
-must exist. A successful callback with no publication does not enforce a
-business event obligation.
+Use the supplied scope in repository calls. Its `Exec` and `QueryRow` accept
+the SDK's `*table.QueryParameters` (or nil). `QueryRow` returns a materialized
+row after the SDK closes its stream. Handle `query.ErrNoRows` as application
+control flow where appropriate. Return fatal business and query errors. The
+business module must explicitly emit the events required for its state changes.
 
-The actor supports transactional business queries. The SDK transactional
-topic reader requires the SDK's concrete transaction lifecycle capability.
-A transactional consume-and-forward operation through this protected API
-would require a separately reviewed integration. The historical fixture
-continues to cover native forwarding using direct SDK calls.
+The Publisher owns the native Serializable RW transaction. A raw
+`query.ExecuteOption` can set the SDK's commit flag on an ordinary query.
+The protected scope supplies parameter options internally. In the pinned Query
+Service fixture, a YQL `COMMIT` statement was rejected inside an explicit
+transaction. Use trusted YQL. Direct use of the driver and driver defaults is
+part of the trusted composition boundary.
 
-Readiness verifies the immutable binding, guard table shape and read access,
-topic existence, active partition bounds and optional `MinTopicRetention`.
-Write permissions, effective quotas and topic sizing are release checks.
-Readiness sends no events and does not mutate fencing state.
+The lane covers one operation from admission through SDK retries, commit or
+rollback and writer cleanup. Every attempt checks ownership, advances the guard
+and constructs a fresh scope. Returning from the callback invalidates that
+scope before SDK completion. Escaped copies and method values return
+`event.ErrTransactionClosed`. Call the scope synchronously and return promptly
+on cancellation. A deadline cannot interrupt arbitrary Go code. Use one
+nonempty publication batch per physical topic. An ignored publication error
+still aborts the attempt. SDK flush failures surface from the overall call.
+SDK retries run with `WithIdempotent(false)`.
+
+### Transactional consume and publish
+
+```go
+return publisher.WithinTransaction(ctx, func(ctx context.Context, tx *event.Transaction) error {
+    batch, err := tx.ReadBatch(ctx, reader, 500*time.Millisecond)
+    if err != nil {
+        return err
+    }
+    derived, err := updateProjectionAndBuildEvents(ctx, tx, batch)
+    if err != nil {
+        return err
+    }
+    return tx.Publish("projection", derived...)
+})
+```
+
+Use a dedicated SDK reader on the same database. Use the configured wait
+together with the overall Publisher deadline to bound the time holding the
+producer lane. The SDK stages offsets in the same transaction. A read failure
+aborts the attempt. After rollback the SDK reconnects and can redeliver from
+the durable offset. Consecutive rollbacks exhausted the read budget with
+SDK v3.157.1 in the local fixture. The owning consumer may close and reopen its
+dedicated reader from the durable offset after a bounded failure or when a
+callback retry needs replay. A projection that only reads topics and updates YDB
+state can use the SDK directly. External effects require their own idempotency
+and recovery contract.
+
+For a command retry or ambiguous commit, look up the receipt using the
+original command identity and request fingerprint. Commit the receipt with
+the state and output events. Preserve the logical Event IDs across SDK and
+application retries. Several distinct events can have the same aggregate
+revision. Consumers deduplicate by Event ID as part of their own durable state
+updates and use a deterministic derived ID for each input event and output
+kind. A timed-out commit can have succeeded.
+
+Readiness validates both fencing table schemas, the immutable ownership binding,
+guard revision, topic existence, active partition bounds and optional
+`MinTopicRetention`. An absent guard row starts at revision zero. Readiness
+requires metadata access and makes no writes. Verify transactional write grants
+using dedicated test topics.
 
 ## Routing and ordering
 
@@ -420,9 +459,27 @@ minutes for the protected Publisher using the same disposable server image. The 
 reuses a stable prefix before and after the split. It checks the inactive
 parent, both children, partition-specific IDs, retained offsets and all
 committed IDs. The optional `M8_EVENT_TEST_STABLE_SPLIT_LOAD=1` experiment
-uses the stable prefix for the pressure workload too. That run reached its
-80-second deadline before observing a split and remains unverified. Benchmark latencies include the whole transaction through
-commit.
+uses the protected Publisher for every pressure write. With 24 events per
+transaction, 32 KiB payloads, a 256 KiB/s configured partition limit and a 15%
+split threshold, the v1.2.1 attempt confirmed 66,793 events over about 80 seconds
+without a split. The test remains a release gate and can be run with the
+`protected_split` workflow input. Benchmark latency includes SDK completion.
+
+Repeat the four-partition metadata and process restart check with the live
+YDB variables above and the node monitor URL:
+
+```sh
+M8_EVENT_TEST_SOAK_DURATION=1m M8_EVENT_TEST_SOAK_PARTITIONS=4 \
+  go test -count=1 -timeout=3m -v -run '^TestSoakProducerMetadata$/^protected_churn$' ./internal/platform/event/...
+```
+
+A same-host A/B run on Apple M4, 100 transactions per variant with the pinned
+YDB image, measured 48.56 → 36.80 tx/s for protected single-event writes,
+407 → 364.5 events/s for contended batches of 10 and 2,230 → 2,256 events/s for
+batches of 100. The protected single-event p99 was 32.45 → 70.89 ms with a
+higher observed ownership/guard RPC time. Query count remained four and
+allocations were 3,019 → 3,017 per operation. These samples are local
+measurements. Production performance requires workload-specific SLO evidence.
 
 Run the disruption harness from the repository root against Docker. It creates
 and destroys its own containers and targets the node reported as the owner
