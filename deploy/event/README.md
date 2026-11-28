@@ -35,15 +35,18 @@ topics requires a separate identity migration or isolated topics.
 1. Create the example StatefulSet at zero replicas. Resolve the real
    StatefulSet UID from its API object and supply it to both manifests
    through the trusted deployment pipeline. Pod UID, Pod name and namespace
-   come from the Downward API. The publisher has no Kubernetes API token.
+   come from the Downward API. The publisher has no Kubernetes API token. Verify DNS and network reachability
+   to every YDB endpoint advertised by Discovery, and to the Kubernetes
+   API from the reconciler.
 2. Configure `slots` as the range from ordinal zero through the largest
    ordinal that can ever hold ownership for this incarnation. Keep this
    maximum in deployment records after scale-down. Expand Role resource
    names and the configured range before scaling beyond it. Each configured
    slot is reconciled independently in a bounded transaction.
 3. Build the reconciliation image from the repository. Put the approved
-   YDB root bundle into the build context and retain Kubernetes service
-   account CA injection separately.
+   YDB root bundle into the build context as `ca-certificates.crt`. The
+   image exposes this bundle via `SSL_CERT_FILE`. Kubernetes supplies its
+   service account CA separately.
 
    ```sh
    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "$CONTEXT/event-reconciler" ./cmd/event-reconciler
@@ -63,7 +66,15 @@ topics requires a separate identity migration or isolated topics.
    close the YDB driver. Choose grace and readiness budgets consistent with
    caller deadlines and the service SLO. The publisher manifest is a
    composition example for a future business module.
-6. For recreation, list each predecessor UID and its maximum previously
+6. Verify the release configuration against a disposable environment.
+   The smoke fixture exercises the packaged reconciler, dedicated YDB grants,
+   TLS, and StatefulSet recreation.
+
+   ```sh
+   bash internal/platform/event/testdata/reconciler-smoke.sh
+   ```
+
+7. For recreation, list each predecessor UID and its maximum previously
    authorized slot count in the new reconciler ConfigMap. The new
    reconciler processes predecessors before assigning new slots and
    rejects a predecessor still reported active. Start new command traffic
@@ -132,8 +143,10 @@ In the local 26.3.1.25 node exporter at `/counters/prometheus`, the
 observed counters include `PQ_SourceIdCreated` and `PQ_WriteError` with
 `counters="tablets",type="PersQueue",category="app"`,
 `Issues_YQL:KIKIMR_LOCKS_INVALIDATED{counters="kqp"}`, and the
-`Transactions_Pure_ServerDurationMs` histogram. The creation counter is
-node level and cannot supply retained-per-partition counts. Confirm the
+`Transactions_Pure_ServerDurationMs` histogram. `LatencyMs` and `infly`
+are available with `counters="grpc",subsystem="serverStats",stream="StreamWrite"`.
+These stream series aggregate the node without topic labels. The creation
+counter is node level and cannot supply retained-per-partition counts. Confirm the
 deployment's aggregation and labels before enabling the example rules.
 Configure the [supported YDB monitoring](https://ydb.tech/docs/en/reference/observability/metrics/)
 and check all topic, partition and stream series at the actual cluster.

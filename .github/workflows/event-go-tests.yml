@@ -146,3 +146,5 @@ jobs:
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - name: Verify replica handoff, retirement and StatefulSet recreation
         run: bash internal/platform/event/testdata/kubernetes-handoff.sh
+      - name: Run the deployed reconciler with Kubernetes RBAC and YDB TLS
+        run: bash internal/platform/event/testdata/reconciler-smoke.sh

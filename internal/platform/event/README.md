@@ -337,6 +337,58 @@ gate. Keep the disposable tablet HTML sampler in the test fixture. See the
 [YDB metrics reference](https://ydb.tech/docs/en/reference/observability/metrics/#topic-metrics)
 and [Kubernetes StatefulSet force deletion](https://kubernetes.io/docs/tasks/run-application/force-delete-stateful-set-pod/).
 
+## v1.2 local performance and recovery
+
+The full publication benchmark uses business state writes and measures the
+attempt from lane acquisition through SDK commit and writer completion.
+The table shows separate 1,000-transaction runs on Apple M4 with YDB
+26.3.1.25 in Docker. The host also ran other disposable fixtures during
+this series. Rates are measurements for these specific workloads.
+
+| Strategy | Transactions/s | Events/s | p50 / p95 / p99 ms | Data queries/tx |
+|---|---:|---:|---:|---:|
+| State only | 67.34 | 0 | 13.37 / 22.69 / 32.85 | 1 |
+| Native random, one event | 21.66 | 21.66 | 34.32 / 88.62 / 159.5 | 1 |
+| Native stable, one event | 26.59 | 26.59 | 28.81 / 112.9 / 144.4 | 1 |
+| Protected, one event | 18.97 | 18.97 | 39.28 / 151.0 / 198.7 | 4 |
+| Protected, batch 10, four workers sharing one lane | 15.08 | 150.8 | 200.9 / 727.2 / 1,255 | 4 |
+| Protected, batch 100, 16 partitions | 7.17 | 716.5 | 105.2 / 331.8 / 533.9 | 4 |
+
+The protected one-event run reports 197,893 B/op, 2,997 allocs/op,
+2.739 ms ownership read, 2.545 ms guard read/update and 1.427 ms mean
+stream initialization. Four workers sharing one lane waited a mean of
+198.6 ms. The benchmark observed zero retries, explicit commit conflicts
+and operation errors in these completed runs. The overlap test separately
+forces a conflict across processes. Data queries exclude commit and topic
+RPCs. Three of the four queries enforce ownership and guard independently.
+A scratch LEFT JOIN trial measured three data queries per transaction
+and 47.53 tx/s, against 43.09 tx/s for a separate matched control on the
+same fixture. The production path retains separate reads and a parameterized
+guard UPSERT. Adopting a join requires full retirement, overlap and rollout
+verification across the intended deployment topology.
+
+The eight-minute protected run on four slots committed 16,426 state
+rows and 16,426 events, with four retained Source IDs throughout. The test
+compared every event and offset and checked the four guard revisions
+against committed operations. A one-minute run enabled one, two and four
+slots in succession and restarted one publisher from a separate driver.
+It verified 2,382 events and four retained Source IDs. Effective fixture
+settings were 1,382,400
+seconds for source lifetime and 6,000,000 for the tablet count setting.
+The supported production exporter and effective settings must be checked
+on the target cluster. See the [deployment and recovery runbook](../../../deploy/event/README.md)
+for the native exporter series, retention planning and release gates.
+
+The protected Publisher also recovered after a local hard restart and a
+tablet-host failure in the nine-node fixture, with durable consumer offsets.
+The checked replica lifecycle covers delayed observations, forced Pod
+replacement, process termination around commit, scale-down/up and a new
+StatefulSet incarnation fencing an existing transaction before it commits.
+The isolated Docker/kind harnesses run in a single-host failure domain.
+The deployed reconciler smoke test runs the actual image with Kubernetes
+RBAC and a restricted YDB token over TLS, then verifies initial assignment,
+retirement, and a new assignment after restarting the reconciler.
+
 ## Verification and migration gates
 
 Known test environment is disposable local YDB `26.3.1.25`, Go `1.27.4` and

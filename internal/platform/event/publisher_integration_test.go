@@ -143,3 +143,48 @@ func TestIntegrationPublisherConflictingCommitSamePod(t *testing.T) {
 	verifyFence(t, ctx, second.owner, second, uid, 1, 2)
 	assertStableProducerEvents(t, ctx, newProcess, path, second.producer+"-0", []*eventv1.Event{winner, late})
 }
+
+func TestIntegrationPublisherCommitDeadline(t *testing.T) {
+	var pause, intercepted atomic.Bool
+	intercept := func(ctx context.Context, method string, req, reply any, conn *grpc.ClientConn,
+		next grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		if method == Ydb_Query_V1.QueryService_CommitTransaction_FullMethodName && pause.CompareAndSwap(true, false) {
+			intercepted.Store(true)
+			<-ctx.Done()
+			return ctx.Err()
+		}
+		return next(ctx, method, req, reply, conn, opts...)
+	}
+	ctx, db, path := liveDatabase(t, ydb.With(config.WithGrpcOptions(grpc.WithChainUnaryInterceptor(intercept))))
+	createTestTopic(t, ctx, db, path, 1)
+	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	p := livePublisher(t, ctx, db, path, DefaultConfig(map[string]string{"events": path}), 5*time.Second)
+	publish := func(e *eventv1.Event) error {
+		e.Id = uuid.NewString()
+		return p.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
+				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(e.Id).Build())); err != nil {
+				return err
+			}
+			return send("events", e)
+		})
+	}
+	pause.Store(true)
+	if err := publish(testEvent(t)); !errors.Is(err, context.DeadlineExceeded) || !intercepted.Load() {
+		t.Fatalf("expected a deadline at the CommitTransaction boundary: %v", err)
+	}
+	next := testEvent(t)
+	if err := publish(next); err != nil {
+		t.Fatalf("subsequent publication could not acquire lane and commit: %v", err)
+	}
+	assertStableProducerEvents(t, ctx, db, path, p.producer+"-0", []*eventv1.Event{next})
+	verifyFence(t, ctx, p.owner, p, p.ownership.uid, 1, 1)
+	row, err := db.Query().QueryRow(ctx, "SELECT id FROM "+state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var id string
+	if err := row.Scan(&id); err != nil || id != next.Id {
+		t.Fatalf("unexpected state after the expired commit request: %q, %v", id, err)
+	}
+}

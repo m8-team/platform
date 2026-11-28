@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	eventv1 "github.com/m8-team/platform/internal/proto/m8/platform/event/v1"
+	"github.com/ydb-platform/ydb-go-sdk/v3"
 	"github.com/ydb-platform/ydb-go-sdk/v3/query"
 	"github.com/ydb-platform/ydb-go-sdk/v3/topic/topicoptions"
 	"google.golang.org/protobuf/proto"
@@ -57,16 +58,20 @@ func TestProducerMetadataTTL(t *testing.T) {
 		e.Id = uuid.NewString()
 		probes[c.alias] = observation{count: count, event: e}
 	}
-	const producer = "m8.test.ttl.0.0"
-	owner, err := NewTransactor(db, 10*time.Second)
-	if err != nil {
-		t.Fatal(err)
+	state := createTestTable(t, ctx, db, path+"_state", "id Utf8 NOT NULL, PRIMARY KEY (id)")
+	publisher := livePublisher(t, ctx, db, path, DefaultConfig(topics), 10*time.Second)
+	publish := func(alias string, event *eventv1.Event) error {
+		return publisher.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor, send func(string, ...*eventv1.Event) error) error {
+			if err := tx.Exec(ctx, "DECLARE $id AS Utf8; INSERT INTO "+state+" (id) VALUES ($id);",
+				query.WithParameters(ydb.ParamsBuilder().Param("$id").Text(event.Id).Build())); err != nil {
+				return err
+			}
+			return send(alias, event)
+		})
 	}
 	for _, c := range cases {
 		p := probes[c.alias]
-		if err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-			return writeWithProducer(ctx, db, tx, topics[c.alias], producer, p.event)
-		}); err != nil {
+		if err := publish(c.alias, p.event); err != nil {
 			t.Fatal(err)
 		}
 		p.commitAt = time.Now()
@@ -158,9 +163,7 @@ func TestProducerMetadataTTL(t *testing.T) {
 	}()
 	next := proto.CloneOf(short.event)
 	next.Id = uuid.NewString()
-	if err := owner.WithinTransaction(ctx, func(ctx context.Context, tx query.TxActor) error {
-		return writeWithProducer(ctx, db, tx, topics["expired"], producer, next)
-	}); err != nil {
+	if err := publish("expired", next); err != nil {
 		t.Fatal(err)
 	}
 	if _, end := offsets("expired"); end != 2 {
@@ -177,9 +180,18 @@ func TestProducerMetadataTTL(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := proto.Unmarshal(data, e); err != nil || !proto.Equal(e, next) ||
-		msg.Offset != 1 || msg.ProducerID != producer+"-0" {
+		msg.Offset != 1 || msg.ProducerID != publisher.producer+"-0" {
 		t.Fatalf("message after source eviction: offset=%d producer=%q seq=%d error=%v",
 			msg.Offset, msg.ProducerID, msg.SeqNo, err)
+	}
+	verifyFence(t, ctx, publisher.owner, publisher, publisher.ownership.uid, 1, 4)
+	row, err := db.Query().QueryRow(ctx, "SELECT COUNT(*) FROM "+state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var count uint64
+	if err := row.Scan(&count); err != nil || count != 4 {
+		t.Fatalf("unexpected committed state after producer metadata eviction: %d, %v", count, err)
 	}
 	t.Logf("reused the evicted producer at offset %d with sequence %d", msg.Offset, msg.SeqNo)
 
